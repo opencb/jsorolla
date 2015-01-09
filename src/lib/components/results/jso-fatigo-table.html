@@ -1,0 +1,104 @@
+<polymer-element name="jso-fatigo-table" attributes="content">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            /*  sortable-table {
+              max-width: 1000px;
+              margin-top: 10px;
+              }*/
+        </style>
+        <sortable-table id="table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+            <template id="inputTemplate">
+                <td>
+                    <span title="{{row[column.name]}}">{{row[column.name]}}</span>
+                </td>
+            </template>
+
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            contentChanged: function () {
+
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    var localData = data[i].split("\t");
+                    var obj = {
+                        "term": localData[0],
+                        "term_size": localData[1],
+                        "term_size_genome": localData[2],
+                        "term_annotations_list1_perc": localData[5],
+                        "term_annotations_list2_perc": localData[8],
+                        "annotated_ids_list1": localData[9],
+                        "annotated_ids_list2": localData[10],
+                        "odds_ratio": localData[11],
+                        "pvalue": localData[12],
+                        "adj_pvalue": localData[13]
+                    };
+                    this.data.push(obj)
+                }
+
+                //this.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Selected genes"];
+                this.columns = [
+                    {
+                        name: "term",
+                        title: "Term"
+
+                    },
+                    {
+                        name: "term_size",
+                        title: "Term size"
+                    },
+                    {
+                        name: "term_size_genome",
+                        title: "Term size(in genome) "
+                    },
+                    {
+                        name: "term_annotations_list1_perc",
+                        title: "Annotations list 1"
+                    },
+                    {
+                        name: "term_annotations_list2_perc",
+                        title: "Annotations list 2"
+
+                    },
+                    {
+                        name: "annotated_ids_list1",
+                        title: "Annotated ids list1"
+                    },
+                    {
+                        name: "annotated_ids_list2",
+                        title: "Annotated ids list2"
+                    },
+                    {
+                        name: "odds_ratio",
+                        title: "Odds ratio (log e)"
+                    },
+                    {
+                        name: "pvalue",
+                        title: "Pvalue"
+                    },
+                    {
+                        name: "adj_pvalue",
+                        title: "Adj. Pvalue"
+                    }
+
+                ];
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+
+            }
+        })
+    </script>
+</polymer-element>
+

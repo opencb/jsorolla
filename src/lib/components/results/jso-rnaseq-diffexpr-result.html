@@ -1,0 +1,227 @@
+<polymer-element name="jso-rnaseq-diffexpr-result" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                /*position: relative;*/
+                background-color: white;
+            }
+
+            .message > label {
+                margin-right: 10px;
+            }
+
+            .message > label:after {
+                content: ':';
+            }
+
+            .message > .messageValue {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            .file > label {
+                margin-right: 10px;
+            }
+
+            .file > a {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            sortable-table::shadow thead tr th {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            .output {
+                margin: 10px;
+                /*width: 1000px;*/
+                background-color: white;
+                border-radius: 5px;
+                padding: 20px;
+            }
+        </style>
+
+        <div class="output">
+            <h1> RNASeq Normalization</h1>
+
+            <div>
+                <h3>Input parameters</h3>
+
+                <div class="message" horizontal="" layout="">
+                    <label>Data file:</label>
+
+                    <div class="messageValue">{{dataFile}}</div>
+                </div>
+                <div class="message" horizontal="" layout="">
+                    <label>Gene length file:</label>
+
+                    <div class="messageValue">{{edFile}}</div>
+                </div>
+                <div class="message" horizontal="" layout="">
+                    <label>Method:</label>
+
+                    <div class="messageValue">{{method}}</div>
+                </div>
+            </div>
+            <div>
+                <h3>Normalized data results</h3>
+
+                <div class="file"><label>File</label>
+                    <a href="{{fileUrl}}" target="_blank">diffexpr_results.txt</a>
+                </div>
+
+
+                <sortable-table id="table"
+                                data="{{data}}"
+                                columns="{{columns}}"
+                                footerTemplate="{{footerTemplate}}"
+                                pageSize="{{pageSize}}"
+                                flex>
+                </sortable-table>
+
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.dataFile = "none";
+                this.glFile = "none";
+
+            },
+            parseCommandLine: function () {
+                var fields = this.jobItem.commandLine.split(" ");
+                for (var i = 0; i < fields.length; i++) {
+                    if (fields[i] == "--edfile") {
+                        var fileName = fields[i + 1].split("/");
+                        this.edFile = fileName[fileName.length - 1];
+                    }
+                    if (fields[i] == "--datafile") {
+                        var fileName = fields[i + 1].split("/");
+                        this.dataFile = fileName[fileName.length - 1];
+                    }
+                    if (fields[i] == "--norm") {
+                        this.method = fields[i + 1];
+                    }
+                }
+
+            }
+            ,
+            jobItemChanged: function (oldV, newV) {
+                this.parseCommandLine();
+                /** get url **/
+                var me = this;
+
+                OpencgaManager.files.filesByFolder({
+                    id: me.jobItem.outDirId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var fileList = response.response[0].result;
+                                for(var i = 0; i < fileList.length; i++){
+                                    if(fileList[i].name == "diffexp_results.txt"){
+                                        me.fileUrl = OpencgaManager.files.content({
+                                            id: fileList[i].id,
+                                            query: {
+                                                sid: Cookies("bioinfo_sid")
+                                            },
+                                            request: {
+                                                url: true
+                                            }
+                                        });
+                                        me.getFileContent(function (content) {
+                                            me.parseTable(content);
+                                        }, fileList[i].id );
+                                    }
+                                }
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+
+
+            },
+            parseTable: function (content) {
+                this.data = [];
+                this.columns = [];
+                var data = content.split("\n");
+                /** get header **/
+                var processColumns = true;
+                var idxHeader = 0;
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    if (data[i].indexOf("#") == 0) {
+                        idxHeader = i;
+                        continue;
+                    }
+                    /** process columns **/
+                    if (processColumns) {
+                        processColumns = false;
+                        var aux = data[idxHeader].split("\t");
+                        for (var j = 0; j < aux.length; j++) {
+                            this.columns.push({name: aux[j]})
+                        }
+                    }
+                    var localData = data[i].split("\t");
+                    var obj = new Object();
+                    for (var j = 0; j < localData.length; j++) {
+                        var value = localData[j];
+                        if (isNaN(value))
+                            obj[this.columns[j]["name"]] = value;
+                        else {
+                            if (!this.isInt(value))
+                                obj[this.columns[j]["name"]] = parseFloat(value).toFixed(3);
+                            else
+                                obj[this.columns[j]["name"]] = parseInt(value);
+                        }
+                    }
+                    this.data.push(obj);
+                }
+
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+
+            },
+            isInt: function (n) {
+                return n % 1 === 0;
+            },
+
+            getFileContent: function (callback, fileId) {
+                OpencgaManager.files.content({
+                    id: fileId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+                            callback(response)
+                        },
+                        error: function () {
+                            this.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
+        })
+    </script>
+</polymer-element>
+
+

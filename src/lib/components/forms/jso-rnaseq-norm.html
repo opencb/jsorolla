@@ -1,4 +1,4 @@
-<polymer-element name="jso-affy" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-rnaseq-norm" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -70,7 +70,7 @@
         </style>
         <div class="title">
             <div>
-                Affy normalization
+                RNA Seq Normalize
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -80,22 +80,33 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Affy sample 1</div>
+                    <div class="button action" on-click="{{loadExample1}}">Normalization example</div>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat=""></jso-project-browser-window>
                 </div>
             </div>
 
             <div class="formbox">
-                <div class="formtitle">Analysis</div>
+                <div class="formtitle">Select gene length file</div>
                 <div class="formcontent">
-                    <input name="rma" id="rma" type="checkbox" checked> RMA <br>
-                    <input name="plier" id="plier" type="checkbox"> Plier <br>
-                    <input name="calls" id="calls" type="checkbox"> Present-absent calls<br>
+                    <jso-project-browser-window id="glFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat=""></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Normalization method</div>
+                <div class="formcontent">
+                    <div id="methodDiv">
+                        <input id="none" name="method" type="radio" value="NONE" checked="checked" on-click="{{radioTestClicked}}">None
+                        <input id="tmm" name="method" type="radio" value="TMM" checked="checked" on-click="{{radioTestClicked}}">TMM
+                        <input id="rpkm" name="method" type="radio" value="RPKM" on-click="{{radioTestClicked}}">RPKM
+                    </div>
                 </div>
             </div>
             <div class="formbox">
@@ -117,11 +128,9 @@
         Polymer({
             created: function () {
                 this.jobName = 'JobName';
-                this.toolName = "affy-expression-normalization";
+                this.toolName = "rnaseq-norm";
                 this.list1UploadMsg
-                this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
                 this.description = "Job info..."
-                this.compressed_file = '';
             },
             handleForm: function () {
                 var me = this;
@@ -137,14 +146,14 @@
                     outdir: this.$.outdir.selectedFile.id,
                     name: this.jobName,
                     description: this.description,
-                    "compressed-file": this.$.inputFile.selectedFile.id,
-                    "compressed-file-tags": this.compressed_file_tags,
+                    "datafile": this.$.inputFile.selectedFile.id,
+                    "glfile": this.$.glFile.selectedFile.id,
                     description: this.description
                 };
+                var method = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
+                if (method != "NONE")
+                    query["method"] = method;
 
-                if (this.$.rma.checked) query["rma"] = "";
-                if (this.$.plier.checked) query["plier"] = "";
-                if (this.$.calls.checked) query["calls"] = "";
                 OpencgaManager.jobs.create({
                     query: query,
                     request: {
@@ -165,12 +174,12 @@
                 })
             },
             loadExample1: function (e) {
-                this.jobName = "affy_sample_1";
-                this.description = "just_an_affy_example";
-                this.rma = true;
-                this.$.inputFile.selectedFile = {id: "example_affymetrix.zip", path: "affymetrix.zip"};
-                this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
-                var exampleFolder = "affy_sample_1vv";
+                this.jobName = "rna_norm";
+                this.description = "just_an_rna_example";
+                this.$.inputFile.selectedFile = {id: "example_counts_table_4babelomics.txt", path: "counts_table_4babelomics.txt"};
+                this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt"};
+                this.$.tmm.checked = true;
+                var exampleFolder = "rna_norm";
                 this.createExampleFolder(exampleFolder);
 
             },
