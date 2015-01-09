@@ -6,21 +6,22 @@
                 display: block;
                 position: relative;
                 box-sizing: border-box;
-                background-color: #FFFFFF;
-                padding: 30px 100px;
+                padding: 15px 40px;
 
                 z-index: 50000;
                 margin: 0px auto 0px auto;
 
-                width: 50%;
+                width: 80%;
+                min-width: 800px;
                 border: 1px solid #c6d0da;
                 transition: all 0.2s;
                 box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
             }
 
             .title {
                 text-align: center;
-                font-size: 25px;
+                font-size: 20px;
                 color: #666;
             }
 
@@ -42,7 +43,7 @@
 
             .action {
                 /*margin-top: 30px;*/
-                background-color: #f5f5f5 !important;
+                /*background-color: #f5f5f5 !important;*/
                 text-align: center;
             }
 
@@ -56,8 +57,8 @@
             }
 
             div.button {
-                /*display: inline-block;*/
-                width: 300px
+                width: 150px;
+                margin-left: 5px;
             }
 
             /*jso-file-browser {*/
@@ -67,31 +68,41 @@
             span {
                 border: 1px solid;
             }
+
+
         </style>
+
         <div class="title">
             <div>
-                Edit data
+                Attribute editor
             </div>
-
         </div>
+        <br>
+
         <div class="formbox">
             <div class="formtitle">Select your data</div>
             <div class="formcontent">
-                <jso-project-browser
-                        class="input-project-browser"
-                        id="inputFile" studies="{{studies}}"
+                <jso-project-browser-window
+                        id="inputFile"
+                        studies="{{studies}}"
                         selectedStudy="{{selectedStudy}}"
-                        on-file-select="{{handleBrowseSelect}}">
-                </jso-project-browser>
-                <div id="editData">
-                    <h3>Edit data</h3>
-                    <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
-                    <div horizontal layout style="margin-top: 10px;">
-                        <input type="button" class="button action newattr" on-click="{{handleSave}}" value="Save attributes">
-                        <input type="button" class="button action newattr" on-click="{{resetChanges}}" value="Reset changes">
-                    </div>
-                </div>
+                        selectionMode="file"
+                        on-ok="{{handleBrowseSelect}}">
+                </jso-project-browser-window>
             </div>
+        </div>
+
+
+        <div class="formbox">
+            <div class="formtitle">Edit attributes</div>
+            <div class="formcontent fit">
+                <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
+            </div>
+        </div>
+
+        <div horizontal layout end-justified style="margin-top: 10px;">
+            <div class="button action" on-click="{{handleSave}}">Save attributes</div>
+            <div class="button action" on-click="{{resetChanges}}">Reset changes</div>
         </div>
     </template>
     <script>
@@ -109,7 +120,6 @@
                         //method: 'POST',
                         success: function (response) {
                             me.contentFile = response;
-                            me.$.editData.hidden = false;
                         },
                         error: function () {
                             var message = 'Server error, try again later.';

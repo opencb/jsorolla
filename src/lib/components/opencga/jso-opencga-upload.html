@@ -23,10 +23,37 @@
             .message {
                 margin-top: 5px;
             }
-            .filetext{
+
+            .filetext {
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+            }
+
+            .uploadbar {
+                position: relative;
+                height: 20px;
+                border: 1px solid #d3d3d3;
+                background-color: white;
+                line-height: 20px;
+            }
+
+            .uploadprogress {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                height: 100%;
+                width: 100%;
+                background-color: #eaeaea;
+            }
+
+            .uploadtext {
+                position: absolute;
+                text-align: center;
+                top: 0px;
+                left: 0px;
+                height: 100%;
+                width: 100%;
             }
         </style>
 
@@ -34,20 +61,20 @@
             <!--<label>Project</label>-->
 
             <!--<div class="dropdown">-->
-                <!--<div tabindex="-1" class="button">-->
-                    <!--<jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>-->
-                <!--</div>-->
-                <!--<ul>-->
-                    <!--<template repeat="{{project in projectList}}">-->
-                        <!--<li>-->
-                            <!--<jso-opencga-project-item-->
-                                    <!--project="{{project}}"-->
-                                    <!--data-selected="{{selectedProject == project}}"-->
-                                    <!--on-mousedown="{{handleProjectClick}}">-->
-                            <!--</jso-opencga-project-item>-->
-                        <!--</li>-->
-                    <!--</template>-->
-                <!--</ul>-->
+            <!--<div tabindex="-1" class="button">-->
+            <!--<jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>-->
+            <!--</div>-->
+            <!--<ul>-->
+            <!--<template repeat="{{project in projectList}}">-->
+            <!--<li>-->
+            <!--<jso-opencga-project-item-->
+            <!--project="{{project}}"-->
+            <!--data-selected="{{selectedProject == project}}"-->
+            <!--on-mousedown="{{handleProjectClick}}">-->
+            <!--</jso-opencga-project-item>-->
+            <!--</li>-->
+            <!--</template>-->
+            <!--</ul>-->
             <!--</div>-->
 
             <!--<div hidden>-->
@@ -106,9 +133,14 @@
             <div class="button action" on-click="{{handleForm}}">Upload</div>
         </form>
         <template if="{{uploading}}">
-            <font-awesome icon="spinner" animation="spin"></font-awesome>
+            <div flex class="uploadbar" style="margin-top: 10px;">
+                <div style="width:{{percentProgress}}%;" class="uploadprogress"></div>
+                <div class="uploadtext">
+                    <font-awesome icon="spinner" animation="spin"></font-awesome>
+                    {{percentProgress}}% {{message}}
+                </div>
+            </div>
         </template>
-        <div class="message">{{message}}</div>
     </template>
     <script>
         Polymer({
@@ -122,6 +154,9 @@
                 this.message = '';
 
                 this.uploading = false;
+
+                this.percentProgress = 0;
+
             },
             handleBrowseClick: function (e) {
                 this.$.fileInput.click();
@@ -143,14 +178,12 @@
 
                     var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
 
-                    me.message = '0%, uploading...';
-
                     fileuploadWorker.onmessage = function (e) {
                         var res = e.data;
                         console.log("@@@@@@@@@@@@@@@@ WORKER event message");
                         console.log(res);
                         var part = res.chunkId + 1;
-                        me.message = Math.round((part / res.total) * 100) + '%, uploading part ' + part + ' of ' + res.total;
+                        me.percentProgress = Math.round((part / res.total) * 100);
                         if (res.finished == true) {
                             me.message = 'Done';
                             me.uploading = false;
