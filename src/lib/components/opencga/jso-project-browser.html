@@ -40,7 +40,7 @@
                 border-top-width: 1px;
                 border-bottom-width: 1px;
                 font-size: 13px;
-                padding: 5px;
+                padding: 4px;
                 height: 32px;
             }
 
@@ -108,44 +108,6 @@
                 color: #ffffff;
             }
 
-            #browse {
-                box-sizing: border-box;
-                overflow-x: auto;
-                overflow-y: auto;
-            }
-
-            #study {
-                position: relative;
-            }
-
-            .project:hover {
-                background-color: #D1D9E3;
-            }
-
-            .project {
-                box-sizing: border-box;
-                padding: 5px 5px;
-                margin: 2px;
-            }
-
-            .project[data-selected=true] {
-                background-color: #D1D9E3;
-            }
-
-            .study:hover {
-                background-color: #D1D9E3;
-            }
-
-            .study {
-                box-sizing: border-box;
-                padding: 5px 5px;
-                margin: 2px;
-            }
-
-            .study[data-selected=true] {
-                background-color: #D1D9E3;
-            }
-
             #search {
                 margin: 2px 4px;
                 display: block;
@@ -184,12 +146,18 @@
                 margin-left: 5px;
                 color: #888;
             }
+
         </style>
         <div id="bar" horizontal layout>
-            <div id="breadcrums">
+            <div flex id="breadcrums">
                 <template repeat="{{bread in breadcrums}}">
                     <span>{{bread}}</span>
                 </template>
+            </div>
+            <div id="fileActions" horizontal layout>
+
+            </div>
+            <div>
             </div>
         </div>
 
@@ -229,26 +197,26 @@
             <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
             <!--</template>-->
 
-            <template if="{{ selectedOption == 'createFolder' }}">
-                <jso-opencga-create-folder selectedStudy="{{selectedStudy}}"></jso-opencga-create-folder>
-            </template>
+            <!--<template if="{{ selectedOption == 'createFolder' }}">-->
+            <!--<jso-opencga-create-folder selectedStudy="{{selectedStudy}}"></jso-opencga-create-folder>-->
+            <!--</template>-->
 
-            <template if="{{ selectedOption == 'createExperiment' }}">
-                TODO
-            </template>
+            <!--<template if="{{ selectedOption == 'createExperiment' }}">-->
+            <!--TODO-->
+            <!--</template>-->
 
-            <template if="{{ selectedOption == 'runAnalysis' }}">
-                TODO
-            </template>
+            <!--<template if="{{ selectedOption == 'runAnalysis' }}">-->
+            <!--TODO-->
+            <!--</template>-->
 
-            <template if="{{ selectedOption == 'uploadFile' }}">
-                <jso-opencga-upload selectedProject="{{selectedProject}}"
-                                    selectedStudy="{{selectedStudy}}"></jso-opencga-upload>
-            </template>
+            <!--<template if="{{ selectedOption == 'uploadFile' }}">-->
+            <!--<jso-opencga-upload selectedProject="{{selectedProject}}"-->
+            <!--selectedStudy="{{selectedStudy}}"></jso-opencga-upload>-->
+            <!--</template>-->
 
-            <template if="{{ selectedOption == 'browseStudies' }}">
+            <!--<template if="{{ selectedOption == 'browseStudies' }}">-->
 
-            </template>
+            <!--</template>-->
 
             <div id="bottombar" horizontal layout>
                 <template if="{{selectionMode != ''}}">
@@ -277,7 +245,7 @@
 
                 this.selectedFile;
                 this.selectionMode = '';
-                this.files = new Array();
+                this.files = [];
                 this.bioformat = "";
             },
             ready: function () {
@@ -394,7 +362,7 @@
                             success: function (response) {
                                 console.log(response);
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.files = me.getFilesWithBioformat(response.response[0].result);
+                                    me.files = me.getFilesWithBioformat(response.response[0].result);
 
 
                                 } else {
@@ -408,23 +376,25 @@
                     });
                 }
             },
-            getFilesWithBioformat: function(files){
-            var filesToDisplay = new Array();
-                                    for(var i=0; i < files.length; i++){
-                                        var file = files[i];
-                                        var bioformats = this.bioformat.split(",");
-                                        if(file.type=="FOLDER")
-                                            filesToDisplay.push(file);
-                                        else if(this.bioformat=="")
-                                           filesToDisplay.push(file);
-                                        else{
-                                            for(var j=0; j<bioformats.length; j++){
-                                                if(file.bioformat==bioformats[j])
-                                                    filesToDisplay.push(file);
-                                            }
-                                        }
-                                    }
-                                    return filesToDisplay;
+            getFilesWithBioformat: function (files) {
+                var filesToDisplay = [];
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    if (file.status != "DELETED" && file.status != "DELETING") {
+                        var bioformats = this.bioformat.split(",");
+                        if (file.type == "FOLDER")
+                            filesToDisplay.push(file);
+                        else if (this.bioformat == "")
+                            filesToDisplay.push(file);
+                        else {
+                            for (var j = 0; j < bioformats.length; j++) {
+                                if (file.bioformat == bioformats[j])
+                                    filesToDisplay.push(file);
+                            }
+                        }
+                    }
+                }
+                return filesToDisplay;
             },
             _cleanSiblingFolderLists: function (element) {
                 this.breadcrums = [this.selectedStudy.name];
@@ -494,10 +464,27 @@
                     });
                 }
             },
-            handleOk: function(){
-                this.hidden = true;
+            handleOk: function () {
+                switch (this.selectionMode) {
+                    case 'file':
+                    case 'folder':
+                        if (this.selectionMode.toUpperCase() == this.selectedFile.type) {
+                            this.hidden = true;
+                            this.fire("ok");
+                        }
+                        break;
+                    default:
+                        this.hidden = true;
+                        this.fire("ok");
+                }
+
+                if (this.selectionMode) {
+                    if (this.selectionMode.toUpperCase() == this.selectedFile.type) {
+
+                    }
+                }
             },
-            handleCancel: function(){
+            handleCancel: function () {
                 this.hidden = true;
             }
         });
@@ -520,6 +507,10 @@
             }
 
             jso-opencga-file-card:hover {
+                background-color: #eaeaea;
+            }
+
+            jso-opencga-file-card[selected] {
                 background-color: #D1D9E3;
             }
 
@@ -563,18 +554,23 @@
         <div class="bar" horizontal layout>
             <div class="button action" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
                 <font-awesome icon="cloud-upload"></font-awesome>
-                Upload
+                <!--Upload-->
             </div>
             <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
                 <font-awesome icon="folder-o"></font-awesome>
-                + New folder
+                +
             </div>
+            <template if="{{ selection != null }}">
+                <div class="button action">
+                    <font-awesome icon="trash" on-click="{{handleDeleteFile}}"></font-awesome>
+                </div>
+            </template>
             <!--<input type="text" flex placeholder="filter">-->
         </div>
         <div class="list">
-            <core-list data="{{files}}" height="27" style="height:100%;">
+            <core-list data="{{files}}" height="27" selection="{{selection}}" style="height:100%;">
                 <template>
-                    <jso-opencga-file-card checked="{{model.checked}}"
+                    <jso-opencga-file-card selected?="{{selectedFile.id == model.id }}"
                                            on-click="{{handleFileClick}}"
                                            file="{{model}}">
                     </jso-opencga-file-card>
@@ -592,7 +588,7 @@
         <jso-opencga-upload
                 folder="{{folder}}"
                 study="{{study}}"
-                on-file-uploaded="{{handleFolderCreated}}"
+                on-file-uploaded="{{handleFileUploaded}}"
                 hidden?="{{hideUploadFile}}"></jso-opencga-upload>
     </template>
     <script>
@@ -600,12 +596,17 @@
             created: function () {
                 this.folder;
                 this.files;
+                this.selection;
+                this.selectedFile;
                 this.hideCreateFolder = true;
                 this.hideUploadFile = true;
-                this.bioformat="";
+                this.bioformat = "";
             },
             handleFileClick: function (e) {
-                this.fire('file-click', {file: e.target.file});
+                if (this.selectedFile == null || e.target.file.id != this.selectedFile.id) {
+                    this.fire('file-click', {file: e.target.file});
+                }
+                this.selectedFile = e.target.file;
             },
             handleCreateFolder: function (e) {
                 this.hideCreateFolder = !this.hideCreateFolder;
@@ -622,6 +623,30 @@
             handleFileUploaded: function (e) {
                 this.refreshFolder();
                 this.hideUploadFile = true;
+            },
+            handleDeleteFile: function () {
+                if (confirm('Delete file ' + this.selection.name + '?')) {
+                    var me = this;
+                    OpencgaManager.files.delete({
+                        id: this.selection.id,
+                        query: {
+                            sid: Cookies('bioinfo_sid')
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    console.log(response.response[0].warningMsg);
+                                    me.refreshFolder();
+                                } else {
+                                    console.log(response.response[0].errorMsg);
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
             },
             refreshFolder: function () {
                 var me = this;
@@ -647,24 +672,26 @@
                     }
                 });
             },
-             getFilesWithBioformatRefresh: function(files){
-            var filesToDisplay = new Array();
-                                    for(var i=0; i < files.length; i++){
-                                        var file = files[i];
-                                        var bioformats = this.bioformat.split(",");
-                                        if(file.type=="FOLDER")
-                                            filesToDisplay.push(file);
-                                        else if(this.bioformat=="")
-                                           filesToDisplay.push(file);
-                                        else{
-                                            for(var j=0; j<bioformats.length; j++){
-                                                if(file.bioformat==bioformats[j])
-                                                    filesToDisplay.push(file);
-                                            }
-                                        }
-                                    }
-                                    return filesToDisplay;
-            },
+            getFilesWithBioformatRefresh: function (files) {
+                var filesToDisplay = new Array();
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    if (file.status != "DELETED" && file.status != "DELETING") {
+                        var bioformats = this.bioformat.split(",");
+                        if (file.type == "FOLDER")
+                            filesToDisplay.push(file);
+                        else if (this.bioformat == "")
+                            filesToDisplay.push(file);
+                        else {
+                            for (var j = 0; j < bioformats.length; j++) {
+                                if (file.bioformat == bioformats[j])
+                                    filesToDisplay.push(file);
+                            }
+                        }
+                    }
+                }
+                return filesToDisplay;
+            }
         });
     </script>
 </polymer-element>

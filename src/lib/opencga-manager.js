@@ -206,6 +206,9 @@ var OpencgaManager = {
     jobs: {
         create: function (args) {
             return OpencgaManager._doRequest(args, 'job', 'create');
+        },
+        delete: function (args) {
+            return OpencgaManager._doRequest(args, 'job', 'delete');
         }
     },
     util: {

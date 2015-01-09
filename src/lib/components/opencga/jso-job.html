@@ -120,7 +120,31 @@
                 e.stopPropagation();
             },
             handleDeleteJob: function (e) {
+                var me = this;
                 e.stopPropagation();
+                if (confirm('Delete this job?')) {
+
+                    OpencgaManager.jobs.delete({
+                        id: this.jobItem.id,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
+                        },
+                        request: {
+                            //method: 'POST',
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    //Deleted succesfully
+                                } else {
+                                    console.log(response.response[0].errorMsg);
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    });
+
+                }
 
             }
         });
