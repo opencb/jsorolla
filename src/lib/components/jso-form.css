@@ -1,0 +1,53 @@
+label.control {
+    color: inherit;
+}
+
+label.control::after {
+    content: none;
+}
+
+label.control > input[type=radio],
+label.control > input[type=checkbox] {
+    display: none;
+}
+
+label.control > input[type=radio] + span,
+label.control > input[type=checkbox] + span {
+    display: block;
+    position: relative;
+    outline: 0;
+    box-sizing: border-box;
+    line-height: 21px;
+    padding: 0px 5px;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+}
+
+label.control > input[type=radio] + span:before,
+label.control > input[type=checkbox] + span:before {
+    display: inline-block;
+    width: 20px;
+    position: relative;
+    font-family: 'FontAwesome';
+    top: 2px;
+    font-size: 18px;
+    color: #666;
+
+}
+
+label.control > input[type=radio] + span:before {
+    content: '\f10c'
+}
+
+label.control > input[type=radio]:checked + span:before {
+    content: '\f192'
+}
+
+label.control > input[type=checkbox] + span:before {
+    content: '\f096'
+}
+
+label.control > input[type=checkbox]:checked + span:before {
+    content: '\f046'
+}

@@ -8,16 +8,17 @@
                 position: relative;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
-                width: 280px;
+                width: 315px;
             }
 
             .container {
                 box-sizing: border-box;
-                padding: 2px 5px 5px 5px;
+                padding: 1px 5px 3px 0px;
             }
 
             .container .text {
-                width: 100px;
+                width: 85px;
+                text-align: right;
             }
 
             [vertical] > * {
@@ -39,7 +40,7 @@
 
             .remove:after {
                 font-family: FontAwesome;
-                content: '\f00d';
+                content: '\f014';
                 color: #888888;
             }
 
@@ -49,26 +50,49 @@
 
             .toggle:after {
                 font-family: FontAwesome;
-                content: '\f204';
+                /*content: '\f204';*/
+                content: '\f070';
+                color: #888888;
+            }
+
+            .toggle[data-enabled=false]:after {
+                font-family: FontAwesome;
+                content: '\f06e';
                 color: #333333;
             }
 
             .toggle[data-enabled=true]:after {
                 font-family: FontAwesome;
-                content: '\f205';
+                content: '\f06e';
                 color: #00AA33;
-                /*color: #0081c2;*/
             }
 
-            .configure:after {
-                font-family: FontAwesome;
-                /*content: '\f141';*/
-                content: '\f0ad';
-                color: #333333;
+            /*.configure:after {*/
+            /*font-family: FontAwesome;*/
+            /*content: '\f141';*/
+            /*content: '\f0ad';*/
+            /*color: #333333;*/
+            /*}*/
+
+            /*.configure[data-enabled=true]:after {*/
+            /*color: #0081c2;*/
+            /*}*/
+
+            .configure {
+                color: #666;
+                width: 90px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 11px !important;
             }
 
-            .configure[data-enabled=true]:after {
+            .configure[data-enabled=true] {
                 color: #0081c2;
+            }
+
+            jso-color-picker {
+                font-size: 10px;
             }
 
         </style>
@@ -83,7 +107,7 @@
             </div>
             <div class="container" vertical layout>
                 <div horizontal layout>
-                    <div class="text">Label attribute:</div>
+                    <div class="text">Label attr:</div>
                     <select flex value="{{defaults.labelAttribute}}" on-change="{{handleLabelAttribute}}">
                         <template repeat="{{column in attributeManager.columns}}">
                             <option value="{{column.name}}">{{column.title}}</option>
@@ -107,7 +131,10 @@
                            on-change="{{handleLabelSize}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.labelSize != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="labelSize"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="labelSize"
+                         title="{{visualSets.labelSize !=null ? visualSets.labelSize.attribute : 'Select attribute'}}">
+                        {{visualSets.labelSize !=null ? visualSets.labelSize.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.labelSize.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="labelSize"></div>
                     <div class="button action remove" data-enabled="{{visualSets.labelSize != null}}"
@@ -119,7 +146,10 @@
                            on-change="{{handleOpacity}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.opacity != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="opacity"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="opacity"
+                         title="{{visualSets.opacity !=null ? visualSets.opacity.attribute : 'Select attribute'}}">
+                        {{visualSets.opacity !=null ? visualSets.opacity.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.opacity.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="opacity"></div>
                     <div class="button action remove" data-enabled="{{visualSets.opacity != null}}"
@@ -135,7 +165,10 @@
                     </select>
 
                     <div class="button action configure" data-enabled="{{visualSets.shape != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="shape"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="shape"
+                         title="{{visualSets.shape !=null ? visualSets.shape.attribute : 'Select attribute'}}">
+                        {{visualSets.shape !=null ? visualSets.shape.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.shape.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="shape"></div>
                     <div class="button action remove" data-enabled="{{visualSets.shape != null}}"
@@ -149,7 +182,10 @@
                                       on-color-click="{{handleColor}}"></jso-color-picker>
 
                     <div class="button action configure" data-enabled="{{visualSets.color != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="color"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="color"
+                         title="{{visualSets.color !=null ? visualSets.color.attribute : 'Select attribute'}}">
+                        {{visualSets.color !=null ? visualSets.color.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.color.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="color"></div>
                     <div class="button action remove" data-enabled="{{visualSets.color != null}}"
@@ -163,8 +199,10 @@
                                       on-color-click="{{handleStrokeColor}}"></jso-color-picker>
 
                     <div class="button action configure" data-enabled="{{visualSets.strokeColor != null}}"
-                         on-click="{{handleSettingsClick}}"
-                         data-prop="strokeColor"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="strokeColor"
+                         title="{{visualSets.strokeColor !=null ? visualSets.strokeColor.attribute : 'Select attribute'}}">
+                        {{visualSets.strokeColor !=null ? visualSets.strokeColor.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.strokeColor.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="strokeColor"></div>
                     <div class="button action remove" data-enabled="{{visualSets.strokeColor != null}}"
@@ -175,7 +213,10 @@
                     <input flex type="number" min="1" max="200" value={{defaults.size}} on-change="{{handleSize}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.size != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="size"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="size"
+                         title="{{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}">
+                        {{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.size.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="size"></div>
                     <div class="button action remove" data-enabled="{{visualSets.size != null}}"
@@ -187,8 +228,10 @@
                            on-change="{{handleStrokeSize}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.strokeSize != null}}"
-                         on-click="{{handleSettingsClick}}"
-                         data-prop="strokeSize"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="strokeSize"
+                         title="{{visualSets.strokeSize !=null ? visualSets.strokeSize.attribute : 'Select attribute'}}">
+                        {{visualSets.strokeSize !=null ? visualSets.strokeSize.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.strokeSize.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="strokeSize"></div>
                     <div class="button action remove" data-enabled="{{visualSets.strokeSize != null}}"
@@ -200,8 +243,10 @@
                            on-change="{{handleArea}}">
 
                     <div class="button action configure" data-enabled="{{visualSets.area != null}}"
-                         on-click="{{handleSettingsClick}}"
-                         data-prop="area"></div>
+                         on-click="{{handleSettingsClick}}" data-prop="area"
+                         title="{{visualSets.area !=null ? visualSets.area.attribute : 'Select attribute'}}">
+                        {{visualSets.area !=null ? visualSets.area.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.area.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="area"></div>
                     <div class="button action remove" data-enabled="{{visualSets.area != null}}"
@@ -212,9 +257,11 @@
                     <input flex type="number" max="1" min="0" step="0.01" value={{defaults.strokeArea}}
                            on-change="{{handleStrokeArea}}">
 
-                    <div class="button action configure" data-enabled="{{visualSets.area != null}}"
-                         on-click="{{handleSettingsClick}}"
-                         data-prop="area"></div>
+                    <div class="button action configure" data-enabled="{{visualSets.strokeArea != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="strokeArea"
+                         title="{{visualSets.strokeArea !=null ? visualSets.strokeArea.attribute : 'Select attribute'}}">
+                        {{visualSets.strokeArea !=null ? visualSets.strokeArea.attribute : 'Select attribute'}}
+                    </div>
                     <div class="button action toggle" data-enabled="{{visualSets.strokeArea.enabled}}"
                          on-click="{{handleToggleSet}}" data-prop="strokeArea"></div>
                     <div class="button action remove" data-enabled="{{visualSets.strokeArea != null}}"
@@ -240,121 +287,112 @@
             </div>
         </div>
 
-        <!--<template if="{{displayProperty == 'labelSize'}}">-->
-        <jso-attribute-render-number-table
-                id="labelSize"
-                style="visibility:{{displayProperty != 'labelSize' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.labelSize}}"
-                visualSet="{{visualSets.labelSize}}"
-                >
-        </jso-attribute-render-number-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'opacity'}}">-->
-        <jso-attribute-render-number-table
-                id="opacity"
-                style="visibility:{{displayProperty != 'opacity' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.opacity}}"
-                visualSet="{{visualSets.opacity}}"
-                >
-        </jso-attribute-render-number-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'shape'}}">-->
-        <jso-attribute-render-select-table
-                id="shape"
-                style="visibility:{{displayProperty != 'shape' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.shape}}"
-                visualSet="{{visualSets.shape}}"
-                options="circle,ellipse,square,rectangle"
-                >
-        </jso-attribute-render-select-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'color'}}">-->
-        <jso-attribute-render-color-table
-                id="color"
-                style="visibility:{{displayProperty != 'color' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.color}}"
-                visualSet="{{visualSets.color}}"
-                allowListParse="true"
-                >
-        </jso-attribute-render-color-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'strokeColor'}}">-->
-        <jso-attribute-render-color-table
-                id="strokeColor"
-                style="visibility:{{displayProperty != 'strokeColor' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.strokeColor}}"
-                visualSet="{{visualSets.strokeColor}}"
-                allowListParse="true"
-                >
-        </jso-attribute-render-color-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'size'}}">-->
-        <jso-attribute-render-number-table
-                id="size"
-                style="visibility:{{displayProperty != 'size' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.size}}"
-                visualSet="{{visualSets.size}}"
-                allowListParse="true"
-                >
-        </jso-attribute-render-number-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'strokeSize'}}">-->
-        <jso-attribute-render-number-table
-                id="strokeSize"
-                style="visibility:{{displayProperty != 'strokeSize' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.strokeSize}}"
-                visualSet="{{visualSets.strokeSize}}"
-                allowListParse="true"
-                >
-        </jso-attribute-render-number-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'area'}}">-->
-        <jso-attribute-render-number-table
-                id="area"
-                style="visibility:{{displayProperty != 'area' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.area}}"
-                visualSet="{{visualSets.area}}"
-                allowListParse="true"
-                >
-        </jso-attribute-render-number-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'strokeArea'}}">-->
-        <jso-attribute-render-number-table
-                id="strokeArea"
-                style="visibility:{{displayProperty != 'strokeArea' ? 'hidden' : 'visible'}};"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.strokeArea}}"
-                visualSet="{{visualSets.strokeArea}}"
-                allowListParse="true"
-                >
-        </jso-attribute-render-number-table>
-        <!--</template>-->
+        <template if="{{displayProperty == 'labelSize'}}">
+            <jso-attribute-render-number-table
+                    id="labelSize"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.labelSize}}"
+                    visualSet="{{visualSets.labelSize}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'opacity'}}">
+            <jso-attribute-render-number-table
+                    id="opacity"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.opacity}}"
+                    visualSet="{{visualSets.opacity}}"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'shape'}}">
+            <jso-attribute-render-select-table
+                    id="shape"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.shape}}"
+                    visualSet="{{visualSets.shape}}"
+                    options="circle,ellipse,square,rectangle"
+                    >
+            </jso-attribute-render-select-table>
+        </template>
+        <template if="{{displayProperty == 'color'}}">
+            <jso-attribute-render-color-table
+                    id="color"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.color}}"
+                    visualSet="{{visualSets.color}}"
+                    allowListParse="true"
+                    >
+            </jso-attribute-render-color-table>
+        </template>
+        <template if="{{displayProperty == 'strokeColor'}}">
+            <jso-attribute-render-color-table
+                    id="strokeColor"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.strokeColor}}"
+                    visualSet="{{visualSets.strokeColor}}"
+                    allowListParse="true"
+                    >
+            </jso-attribute-render-color-table>
+        </template>
+        <template if="{{displayProperty == 'size'}}">
+            <jso-attribute-render-number-table
+                    id="size"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.size}}"
+                    visualSet="{{visualSets.size}}"
+                    allowListParse="true"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'strokeSize'}}">
+            <jso-attribute-render-number-table
+                    id="strokeSize"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.strokeSize}}"
+                    visualSet="{{visualSets.strokeSize}}"
+                    allowListParse="true"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'area'}}">
+            <jso-attribute-render-number-table
+                    id="area"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.area}}"
+                    visualSet="{{visualSets.area}}"
+                    allowListParse="true"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
+        <template if="{{displayProperty == 'strokeArea'}}">
+            <jso-attribute-render-number-table
+                    id="strokeArea"
+                    on-ok="{{handleOkSet}}"
+                    displayProperty="{{displayProperty}}"
+                    attributeManager="{{attributeManager}}"
+                    defaultValue="{{defaults.strokeArea}}"
+                    visualSet="{{visualSets.strokeArea}}"
+                    allowListParse="true"
+                    >
+            </jso-attribute-render-number-table>
+        </template>
     </template>
     <script>
         Polymer({
@@ -439,8 +477,8 @@
                 var displayProperty = e.currentTarget.dataset.prop;
                 if (this.visualSets[displayProperty]) {
                     this.visualSets[displayProperty].enabled = !this.visualSets[displayProperty].enabled;
+                    this.fire(displayProperty.toLowerCase());
                 }
-                this.fire(displayProperty.toLowerCase());
             },
             handleOkSet: function (e) {
                 this.fire(e.detail.displayProperty.toLowerCase());
