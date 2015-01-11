@@ -507,18 +507,6 @@
                             var json = JSON.parse(element.value.replace(/\\/g, ''))
                             var dataArray = [];
                             var columns = [];
-                            var sortableTable = document.createElement('jso-diffexpr-table');
-                            sortableTable.setAttribute("id", "tableId");
-
-                            this.getFileContent(function (content) {
-                                sortableTable.content = content;
-
-                            }, json.testfilename);
-
-
-
-
-                            res.appendChild(sortableTable);
 
                             var statisticData = new Array();
                             var test = json.testfilename.replace(".txt", "")
@@ -533,11 +521,22 @@
                                 }
                             }, test + "_significative_table.txt");
 
-
+                            var sortableTable = document.createElement('jso-diffexpr-table');
+                            sortableTable.setAttribute("id", "tableId");
+                            res.appendChild(sortableTable);
 
                             this.getFileContent(function (content) {
-sortableTable.contentDataset = content;
-}, test + "_significative_dataset.txt");
+
+                                me.getFileContent(function (contentDataset) {
+                                    sortableTable.content = content;
+                                    sortableTable.contentDataset = contentDataset;
+                                }, test + "_significative_dataset.txt");
+
+
+                            }, test + "_significative_table.txt");
+
+
+
 
 
                             var sigDatasetData = new Array();

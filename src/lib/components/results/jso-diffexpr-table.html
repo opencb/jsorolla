@@ -23,15 +23,14 @@
             this.data = [];
             this.pageSize = "10";
             this.footerTemplate = "simplePager";
-            this.adjPvalue = 0.05;
-            this.genes = {};
+            this.rowNames = [];
 
             },
             contentChanged: function () {
 
                 var data = this.content.split("\n");
 
-                                for (var i = 1; i < data.length; i++) {
+                                for (var i = 0; i < data.length; i++) {
                                     var line = data[i];
                                     console.log(line)
                                     if (line.indexOf("#NAMES") >= 0) {
@@ -50,111 +49,71 @@
                                                 var value = localData[z];
                                                 if (isFinite(value))
                                                     value = parseFloat(value).toFixed(3);
-                                                if(z==3 && value <= this.adjPvalue){
-                                                addFeature = true;
-                                                }
-
                                                  localArray.push(value);
                                             }
-                                             if(addFeature){
                                                 this.data.push(localArray);
-                                                this.genes[localArray[0]]=true;
-                                            }
+                                                this.rowNames.push(localArray[0]);
                                         }
                                     }
 
                                 }
             },
-           /* contentDatasetChanged: function(){
-            var cols = [];
-            var dataAux = [];
-            var rows = [];
-            var dataIdx = 0;
-               var rawData = this.contentDataset.split("\n");
-
-                                var prevLine = null;
-                                var b = true;
-
-                                for (var i = 0; i < rawData.length; i++) {
-                                    var line = rawData[i];
-                                    if(line=="")continue;
-                                    console.log(line)
-                                    if (line.indexOf("#") < 0) {
-                                        if (b) { // PrevLine == last line of the header
-                                            var splits = prevLine.split("\t");
-                                            for (var j = 1; j < splits.length; j++) {
-                                                cols.push(splits[j]);
-                                            }
-                                            b = false;
-                                        }
-                                        var lineData = line.split("\t");
-                                        rows.push(lineData[0]);
-                                        lineData = lineData.slice(1,lineData.length).map(Number);
-                                        dataAux = dataAux.concat(lineData);
-
-                                    }
-
-                                    prevLine = line;
-                                }
-
-                                var data = []
-                                for(var i=0; i < cols.length; i++){
-                                    for(var j=0; j < rows.length; j++){
-
-                                        data.push([i,j,dataAux[i+j*cols.length]]);
-                                    }
-                                }
-                                this.createHeatMap(data,cols,rows)
-
-        },*/
         contentDatasetChanged: function(){
             var cols = [];
             var data = [];
             var rows = [];
             var dataIdx = 1;
+
                var rawData = this.contentDataset.split("\n");
+            var prevLine = null;
 
-                                var prevLine = null;
-                                var b = true;
-                                var numberRows = 0;
-                                for (var i = 0; i < rawData.length; i++) {
-                                var line = rawData[i];
-                                if(line=="")continue;
-                                if (line.indexOf("#") < 0) {
-                                numberRows++;
-                                }
-                                }
-                                for (var i = 0; i < rawData.length; i++) {
-                                    var line = rawData[i];
-                                    if(line=="")continue;
-                                    if (line.indexOf("#") < 0) {
-                                        if (b) { // PrevLine == last line of the header
-                                            var splits = prevLine.split("\t");
-                                            for (var j = 1; j < splits.length; j++) {
-                                                cols.push(splits[j]);
-                                            }
-                                            b = false;
-                                        }
-                                        var lineData = line.split("\t");
-                                        rows.push(lineData[0]);
-                                        lineData = lineData.slice(1,lineData.length).map(Number);
-                                        var max = Math.max.apply(Math,lineData)
-                                        var min = Math.min.apply(Math,lineData)
-                                        for(var j = 0; j < lineData.length; j++){
-                                            var value = (lineData[j] - min)/(max - min);
-                                           // value = lineData[j];
-                                            data.push(
-                                            [j , numberRows-dataIdx, value]
-                                            );
+            var b = true;
 
-                                        }
-                                        dataIdx++;
+               /** Hack needed for sorting**/
+               var rawDataObj = {}
+               for (var i = 0; i < rawData.length; i++) {
+                    var line = rawData[i];
+                    if(line=="")continue;
+                    if (line.indexOf("#") < 0){
+                        line = line.split("\t");
+                        rawDataObj[line[0]]=line;
+                         if (b) { // PrevLine == last line of the header
+                            var splits = prevLine.split("\t");
+                            for (var j = 1; j < splits.length; j++) {
+                                cols.push(splits[j]);
+                            }
+                            b = false;
+                        }
+                    }
+                    prevLine = line;
+                }
+                var orderedContent = [];
+                for (var i = 0; i < this.rowNames.length; i++) {
+                    orderedContent.push(rawDataObj[this.rowNames[i]]);
+                }
+               /** end sorting **/
 
-                                    }
+            var numberRows = this.rowNames.length;
+            for (var i = 0; i < orderedContent.length; i++) {
+                var lineData = orderedContent[i];
+                    lineData = lineData.slice(1,lineData.length).map(Number);
+                    var max = Math.max.apply(Math,lineData)
+                    var min = Math.min.apply(Math,lineData)
+                    for(var j = 0; j < lineData.length; j++){
+                        var value = (lineData[j] - min)/(max - min);
+                       // value = lineData[j];
+                        data.push(
+                        [j , numberRows-dataIdx, value]
+                        );
+                        /*data.push(
+                        [j , i, value]
+                        );*/
 
-                                    prevLine = line;
-                                }
-                                this.createHeatMap(data,cols,rows.reverse());
+                    }
+                    dataIdx++;
+
+            }
+            this.createHeatMap(data,cols,this.rowNames.reverse());
 
         },
         createHeatMap: function (data, cols, rows) {
