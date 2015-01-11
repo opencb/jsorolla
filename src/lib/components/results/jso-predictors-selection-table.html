@@ -9,9 +9,27 @@
                 border: 1px solid #d3d3d3;
             }
           sortable-table::shadow .column-selected_genes{
-              width: 600px;
+              width: 400px;
 
           }
+
+            sortable-table {
+            border: 1px solid #d3d3d3;
+            }
+            sortable-table::shadow thead tr th {
+            /*width: 1000px;*/
+            white-space: inherit;
+            overflow: auto;
+            text-overflow: inherit;
+
+            }
+            sortable-table::shadow tbody tr td {
+            /*width: 1000px;*/
+            white-space: inherit;
+            overflow: auto;
+            text-overflow: inherit;
+
+        }
         </style>
         <sortable-table id="table"
                         data="{{data}}"

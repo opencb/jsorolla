@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatigo-table" attributes="content">
+<polymer-element name="jso-logistic-table" attributes="content">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
@@ -26,10 +26,9 @@
             }
             sortable-table::shadow .column-term_size,
             sortable-table::shadow .column-term_size_genome,
-            sortable-table::shadow .column-term_size_genome,
             sortable-table::shadow .column-term_annotations_list_perc,
-            sortable-table::shadow .column-odds_ratio,
-            sortable-table::shadow .column-pvalue,
+            sortable-table::shadow .column-lor,
+            sortable-table::shadow .column-converged,
             sortable-table::shadow .column-adj_pvalue{
                 width: 70px;
                 /*white-space: nowrap;*/
@@ -41,21 +40,12 @@
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}">
-            <template id="listTemplate">
-                <td>
-                    <span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}</span>
-                    <br>
-                    <span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}</span>
-                </td>
-            </template>
-
         </sortable-table>
 
     </template>
     <script>
         Polymer({
             created: function () {
-
             },
             contentChanged: function () {
 
@@ -68,16 +58,14 @@
                         "term": localData[0],
                         "term_size": localData[1],
                         "term_size_genome": localData[2],
-                        "term_annotations_list_perc": "list 1: "+localData[5]+"%"+", \nlist 2: "+localData[8]+"%",
-                        "annotated_ids_list":listObj,
-                        "odds_ratio":  parseFloat(localData[11]).toFixed(3),
-                        "pvalue": parseFloat(localData[12]).toFixed(3),
-                        "adj_pvalue": parseFloat(localData[13]).toFixed(3)
+                        "annotated_genes": localData[3],
+                        "converged":localData[4],
+                        "lor":  parseFloat(localData[5]).toFixed(3),
+                        "adj_pvalue": parseFloat(localData[6]).toFixed(3)
                     };
                     this.data.push(obj)
                 }
 
-                //this.columns = ["#index", "Classifier", "Parameters", "Accuracy", "MCC", "RMSE", "AUC", "Selected genes"];
                 this.columns = [
                     {
                         name: "term",
@@ -93,27 +81,21 @@
                         title: "Term size(in genome) "
                     },
                     {
-                        name: "term_annotations_list_perc",
-                        title: "Annotations lists"
+                        name: "annotated_genes",
+                        title: "annotated_genes lists"
                     },
                     {
-                        name: "annotated_ids_list",
-                        title: "Annotated ids list",
-                        cellTemplate: "listTemplate"
+                        name: "converged",
+                        title: "converged ids list",
                     },
                     {
-                        name: "odds_ratio",
-                        title: "Odds ratio (log e)"
-                    },
-                    {
-                        name: "pvalue",
-                        title: "Pvalue"
+                        name: "lor",
+                        title: "lor"
                     },
                     {
                         name: "adj_pvalue",
-                        title: "Adj. Pvalue"
+                        title: "adj_pvalue"
                     }
-
                 ];
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";

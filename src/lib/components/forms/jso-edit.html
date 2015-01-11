@@ -86,29 +86,35 @@
                         id="inputFile"
                         studies="{{studies}}"
                         selectedStudy="{{selectedStudy}}"
-                        selectionMode="file"
+                        selectionMode="file",
+                        bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"
                         on-ok="{{handleBrowseSelect}}">
                 </jso-project-browser-window>
             </div>
         </div>
 
-
-        <div class="formbox">
-            <div class="formtitle">Edit attributes</div>
-            <div class="formcontent fit">
-                <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
+        <template if="{{onOk}}">
+            <div class="formbox">
+                <div class="formtitle">Edit attributes</div>
+                <div class="formcontent fit">
+                    <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
+                </div>
             </div>
-        </div>
-
-        <div horizontal layout end-justified style="margin-top: 10px;">
-            <div class="button action" on-click="{{handleSave}}">Save attributes</div>
-            <div class="button action" on-click="{{resetChanges}}">Reset changes</div>
-        </div>
+            <div horizontal layout end-justified style="margin-top: 10px;">
+                <div>{{messageSave}}</div>
+                <div class="button action" on-click="{{handleSave}}">Save attributes</div>
+                <div class="button action" on-click="{{resetChanges}}">Reset changes</div>
+            </div>
+        </template>
     </template>
     <script>
         Polymer({
             created: function () {
+            this.messageSave = "";
+            this.onOk = false;
+
             },
+
             getContentFile: function () {
                 var me = this;
                 OpencgaManager.files.content({
@@ -132,11 +138,14 @@
 //                    this.getContentFile();
 //            },
             handleBrowseSelect: function (e) {
-                if (this.$.inputFile.selectedFile.type == "FILE")
+                if (this.$.inputFile.selectedFile.type == "FILE"){
+                this.onOk = true;
                     this.getContentFile();
+                    }
             },
             handleSave: function () {
-                var strHeader = this.$.classEdit.parseTable();
+                this.messageSave =  "Saving..."
+                var strHeader = this.shadowRoot.querySelector('#classEdit').parseTable();
                 this.saveInServer(strHeader);
 
             },
@@ -154,6 +163,7 @@
                         success: function (response) {
 //                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
 //                                debugger
+                                    me.messageSave =  "Saved successfully"
 //                            } else {
 //                                me.message = response.response[0].errorMsg;
 //                            }
@@ -165,7 +175,7 @@
                 })
             },
             resetChanges: function () {
-                this.$.classEdit.resetChanges();
+               this.shadowRoot.querySelector('#classEdit').resetChanges();
             }
         });
     </script>
