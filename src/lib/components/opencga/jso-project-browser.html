@@ -20,7 +20,8 @@
                 font-size: 16px;
                 cursor: default;
                 /*box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);*/
-                box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.30);
+                /*box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.30);*/
+                box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
             }
 
             #bar {
@@ -29,7 +30,6 @@
                 height: 32px;
                 line-height: 30px;
                 border: 0px solid #d3d3d3;
-                border-top-width: 1px;
                 border-bottom-width: 1px;
             }
 
@@ -55,7 +55,7 @@
                 position: relative;
                 box-sizing: border-box;
                 overflow-y: auto;
-                width: 200px;
+                width: 150px;
                 height: 100%;
                 border-right: 1px solid #d3d3d3;
                 background-color: #f5f5f5;
@@ -63,7 +63,7 @@
 
             #foldersMain {
                 height: 100%;
-                margin-left: 200px;
+                margin-left: 150px;
                 white-space: nowrap;
                 font-size: 0;
                 overflow-x: scroll;
@@ -177,6 +177,7 @@
                             files="{{files}}"
                             folder="{{firstFolder}}"
                             study="{{selectedStudy}}"
+                            selectionMode="{{selectionMode}}"
                             on-file-click="{{getFilesInFolder}}"
                             bioformat="{{bioformat}}"></jso-project-browser-folder-list>
                 </template>
@@ -363,8 +364,9 @@
                                 console.log(response);
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                     me.files = me.getFilesWithBioformat(response.response[0].result);
-
-
+                                    me.files.sort(function (a, b) {
+                                        return b.creationDate.localeCompare(a.creationDate);
+                                    });
                                 } else {
                                     console.log(response.response[0].errorMsg);
                                 }
@@ -378,12 +380,21 @@
             },
             getFilesWithBioformat: function (files) {
                 var filesToDisplay = [];
+
+                var onlyFolders = false;
+                if (this.selectionMode == 'folder') {
+                    onlyFolders = true;
+                }
+
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
                     if (file.status != "DELETED" && file.status != "DELETING") {
                         var bioformats = this.bioformat.split(",");
                         if (file.type == "FOLDER")
                             filesToDisplay.push(file);
+                        else if (onlyFolders) {
+                            break;
+                        }
                         else if (this.bioformat == "")
                             filesToDisplay.push(file);
                         else {
@@ -392,18 +403,20 @@
                                     filesToDisplay.push(file);
                             }
                         }
+
                     }
                 }
                 return filesToDisplay;
             },
             _cleanSiblingFolderLists: function (element) {
+                var elsToRemove = [];
                 this.breadcrums = [this.selectedStudy.name];
                 var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list');
                 var found = false;
                 for (var i = 0; i < els.length; i++) {
                     var el = els[i];
                     if (found) {
-                        this.$.foldersMain.removeChild(el);
+                        elsToRemove.push(el);
                     } else {
                         if (el.classList.contains('folderList')) {
                             this.breadcrums.push(el.folder.name);
@@ -413,6 +426,7 @@
                         found = true;
                     }
                 }
+                return elsToRemove;
             },
             _cleanAllFolderLists: function () {
                 var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list.folderList');
@@ -422,14 +436,12 @@
                 }
             },
             getFilesInFolder: function (e) {
-                /** remove all next siblings **/
-                this._cleanSiblingFolderLists(e.target);
-
                 var me = this;
+                var elsToRemove = this._cleanSiblingFolderLists(e.target);
                 var file = e.detail.file;
+                this.breadcrums.push(file.name);
                 this.selectedFile = file;
                 this.fire('file-select', {file: this.selectedFile});
-                this.breadcrums.push(file.name);
                 if (file.type == "FOLDER") {
                     OpencgaManager.files.list({
                         id: file.id,
@@ -448,9 +460,15 @@
                                     folderList.folder = file;
                                     folderList.study = me.selectedStudy;
                                     folderList.bioformat = me.bioformat;
+                                    folderList.selectionMode = me.selectionMode;
                                     folderList.addEventListener('file-click', function (e) {
                                         me.getFilesInFolder(e);
                                     });
+
+                                    /** remove all next siblings **/
+                                    for (var i = 0; i < elsToRemove.length; i++) {
+                                        me.$.foldersMain.removeChild(elsToRemove[i]);
+                                    }
                                     me.$.foldersMain.appendChild(folderList);
                                     me.$.foldersMain.scrollLeft = me.$.foldersMain.scrollWidth;
                                 } else {
@@ -469,29 +487,23 @@
                     case 'file':
                     case 'folder':
                         if (this.selectionMode.toUpperCase() == this.selectedFile.type) {
-                            this.hidden = true;
-                            this.fire("ok");
+                            this.fire("ok", {file: this.selectedFile});
                         }
                         break;
                     default:
-                        this.hidden = true;
-                        this.fire("ok");
+                        this.fire("ok", {file: this.selectedFile});
                 }
-
-                if (this.selectionMode) {
-                    if (this.selectionMode.toUpperCase() == this.selectedFile.type) {
-
-                    }
-                }
-            },
-            handleCancel: function () {
-                this.hidden = true;
             }
-        });
+            ,
+            handleCancel: function () {
+                this.fire("cancel");
+            }
+        })
+        ;
     </script>
 </polymer-element>
 
-<polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat">
+<polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat selectionMode">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -545,22 +557,24 @@
             jso-opencga-create-folder, jso-opencga-upload {
                 box-sizing: border-box;
                 position: absolute;
-                padding: 15px;
+                padding: 5px 10px 10px 10px;
                 width: 100%;
                 top: 30px;
                 border-bottom: 1px solid #d3d3d3;
             }
         </style>
         <div class="bar" horizontal layout>
-            <div class="button action" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
-                <font-awesome icon="cloud-upload"></font-awesome>
-                <!--Upload-->
-            </div>
+            <template if="{{selectionMode != 'folder'}}">
+                <div class="button action" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
+                    <font-awesome icon="cloud-upload"></font-awesome>
+                    <!--Upload-->
+                </div>
+            </template>
             <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
                 <font-awesome icon="folder-o"></font-awesome>
                 +
             </div>
-            <template if="{{ selection != null }}">
+            <template if="{{ selectedFile != null && selectionMode != 'folder' }}">
                 <div class="button action">
                     <font-awesome icon="trash" on-click="{{handleDeleteFile}}"></font-awesome>
                 </div>
@@ -661,7 +675,9 @@
                             console.log(response);
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.files = me.getFilesWithBioformatRefresh(response.response[0].result);
-
+                                me.files.sort(function (a, b) {
+                                    return b.creationDate.localeCompare(a.creationDate);
+                                });
                             } else {
                                 console.log(response.response[0].errorMsg);
                             }
@@ -673,6 +689,12 @@
                 });
             },
             getFilesWithBioformatRefresh: function (files) {
+
+                var onlyFolders = false;
+                if (this.selectionMode == 'folder') {
+                    onlyFolders = true;
+                }
+
                 var filesToDisplay = new Array();
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
@@ -680,6 +702,9 @@
                         var bioformats = this.bioformat.split(",");
                         if (file.type == "FOLDER")
                             filesToDisplay.push(file);
+                        else if (onlyFolders) {
+                            break;
+                        }
                         else if (this.bioformat == "")
                             filesToDisplay.push(file);
                         else {

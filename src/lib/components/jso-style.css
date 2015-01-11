@@ -8,6 +8,21 @@ input {
     font-family: inherit;
 }
 
+label {
+    display: inline-block;
+    color: #666;
+    line-height: 21px;
+    margin-right: 5px;
+}
+
+label::after {
+    content: ':'
+}
+
+label.button::after {
+    content: none;
+}
+
 div.label, div.text {
     display: block;
     float: left;
@@ -312,7 +327,7 @@ div.dropdown > div.button::after {
 
 .formtitle {
     border-bottom: 1px solid #dfdfdf;
-    padding: 8px 10px;
+    padding: 6px 10px;
     font-size: 16px;
     color: #000;
     background-color: #f5f5f5;
@@ -328,17 +343,6 @@ div.dropdown > div.button::after {
 
 .formcontent.fit {
     padding: 0px;
-}
-
-label {
-    display: inline-block;
-    color: #666;
-    line-height: 21px;
-    margin-right: 5px;
-}
-
-label::after {
-    content: ':'
 }
 
 /*
