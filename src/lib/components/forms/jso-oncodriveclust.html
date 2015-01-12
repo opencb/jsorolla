@@ -1,4 +1,4 @@
-<polymer-element name="jso-oncodrivefm" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-oncodriveclust" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -72,7 +72,7 @@
         </style>
         <div class="title">
             <div>
-                OncodriveFM
+                OncodriveClust
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -104,12 +104,6 @@
                             <option name="gver_hg20" id="gver_hg20" value="hg20" >GRCh38</option>
                         </select>
                         <br/>
-                        Global score estimator:
-                        <select name="estimator" id="estimator" type="text" value="none">
-                            <option name="estimator_median" id="estimator_median" value="median" selected="selected">median</option>
-                            <option name="estimator_mean" id="estimator_mean" value="mean">mean</option>
-                        </select>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -132,7 +126,7 @@
         Polymer({
             created: function () {
                 this.jobName = 'JobName';
-                this.toolName = "oncodrivefm";
+                this.toolName = "oncodriveclust";
                 this.list1UploadMsg
                 this.description = "Job info..."
             },
@@ -155,7 +149,6 @@
                     name: this.jobName,
                     vcf: this.$.inputFile.selectedFile.id,
                     gver: this.$.gver.value,
-                    estimator: this.$.estimator.value,
                     description: this.description
                 };
 
@@ -183,8 +176,7 @@
                 this.description = "BRCA cancer set from TCGA";
                 this.$.inputFile.selectedFile = {id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"};
                 this.$.gver.value = "hg19"
-                this.$.estimator.value = "median"
-                var exampleFolder = "tcga_brca_example"
+                var exampleFolder = "tcga_brca_example_oncodriveclust2"
                 this.createExampleFolder(exampleFolder);
             },
             createExampleFolder: function (exampleFolder) {
