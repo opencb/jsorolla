@@ -5,17 +5,51 @@
             :host {
                 display: block;
                 position: relative;
+                box-sizing: border-box;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 500px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
             }
 
-            .id {
-                color: #888;
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
             }
         </style>
-    <h1>Job {{jobItem.status}}</h1>
+        <div class="title">
+            <div>
+                Job {{jobItem.status}}
+            </div>
+            <div class="icon">
+                <font-awesome icon="{{iconMap[jobItem.status]}}" animation="{{spinMap[jobItem.status]}}"></font-awesome>
+            </div>
+        </div>
     </template>
     <script>
         Polymer({
             created: function () {
+                this.iconMap = {
+                    PREPARED: 'check',
+                    QUEUED: 'clock-o',
+                    RUNNING: 'circle-o-notch',
+                    ERROR: 'times'
+                }
+                this.spinMap = {
+                    RUNNING: 'spin'
+                }
             }
         });
     </script>
