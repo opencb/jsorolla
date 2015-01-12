@@ -173,13 +173,13 @@
             </div>
             <div id="foldersMain">
                 <template id="firstLevel" if="{{ files.length > 0 }}">
-                    <jso-project-browser-folder-list
-                            files="{{files}}"
-                            folder="{{firstFolder}}"
-                            study="{{selectedStudy}}"
-                            selectionMode="{{selectionMode}}"
-                            on-file-click="{{getFilesInFolder}}"
-                            bioformat="{{bioformat}}"></jso-project-browser-folder-list>
+                    <!--<jso-project-browser-folder-list-->
+                    <!--files="{{files}}"-->
+                    <!--folder="{{firstFolder}}"-->
+                    <!--study="{{selectedStudy}}"-->
+                    <!--selectionMode="{{selectionMode}}"-->
+                    <!--on-file-click="{{getFilesInFolder}}"-->
+                    <!--bioformat="{{bioformat}}"></jso-project-browser-folder-list>-->
                 </template>
             </div>
             <!--<template if="{{ selectedOption == 'createProject' }}">-->
@@ -250,7 +250,6 @@
 
                 this.selectedFile;
                 this.selectionMode = '';
-                this.files = [];
                 this.bioformat = "";
             },
             ready: function () {
@@ -264,6 +263,206 @@
                 if (this.selectedStudy.id !== this.studies[0].id) {
                     this.selectStudy(this.studies[0]);
                 }
+            },
+            handleStudyClick: function (e) {
+                this.selectStudy(e.target.study);
+            },
+            selectStudy: function (study) {
+                this.selectedStudy = study;
+                this.getFilesInStudyFolder(this.selectedStudy.id);
+            },
+            getFilesInStudyFolder: function (studyId) {
+                var studyFolder = this._getStudyFolder(studyId);
+                this.selectedFile = studyFolder;
+                this.fire('file-select', {file: this.selectedFile});
+
+                this.breadcrums = [this.selectedStudy.name];
+                this._cleanAllFolderLists();
+//                this.breadcrums.push(studyFolder.name);
+
+                var files = this._getFilesInFolder(studyFolder);
+                var folderListElement = this._createFolderListElement(studyFolder, files);
+
+                this.$.foldersMain.appendChild(folderListElement);
+                this.$.foldersMain.scrollLeft = this.$.foldersMain.scrollWidth;
+            },
+            _getStudyFolder: function (studyId) {
+                var me = this;
+                this.message = '';
+                var folder;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: studyId,
+                        name: '.'
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return folder;
+            },
+            selectFileInFolder: function (e) {
+                var file = e.detail.file;
+                this.selectedFile = file;
+                this.fire('file-select', {file: this.selectedFile});
+
+                this.breadcrums = [this.selectedStudy.name];
+                var elsToRemove = this._cleanSiblingFolderLists(e.target);
+                this.breadcrums.push(file.name);
+
+                for (var i = 0; i < elsToRemove.length; i++) {
+                    this.$.foldersMain.removeChild(elsToRemove[i]);
+                }
+
+                if (file.type == "FOLDER") {
+                    var files = this._getFilesInFolder(file);
+                    var folderListElement = this._createFolderListElement(file, files);
+                    this.$.foldersMain.appendChild(folderListElement);
+                }
+
+                this.$.foldersMain.scrollLeft = this.$.foldersMain.scrollWidth;
+            },
+            _getFilesInFolder: function (folder) {
+                var me = this;
+                var files;
+                OpencgaManager.files.list({
+                    id: folder.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: this.selectedStudy.id
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                files = me.filterFiles(response.response[0].result);
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return files
+            },
+            _createFolderListElement: function (file, files) {
+                var me = this;
+                var el = document.createElement('jso-project-browser-folder-list');
+                el.classList.add('folderList');
+                el.files = files;
+                el.folder = file;
+                el.study = this.selectedStudy;
+                el.bioformat = this.bioformat;
+                el.selectionMode = this.selectionMode;
+                el.addEventListener('file-click', function (e) {
+                    me.selectFileInFolder(e);
+                });
+                return el;
+            },
+            filterFiles: function (files) {
+                files.sort(function (a, b) {
+                    return b.creationDate.localeCompare(a.creationDate);
+                });
+                var filesFiltered = [];
+
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    if (file.status != "DELETED" && file.status != "DELETING") {
+                        if (this.selectionMode == 'folder') {
+                            if (file.type == "FOLDER") {
+                                filesFiltered.push(file);
+                            }
+                        } else if (this.selectionMode === 'file' || this.selectionMode === '') {
+                            if (this.bioformat !== "") {
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+                                    filesFiltered.push(file);
+                                }
+                            } else {
+                                filesFiltered.push(file);
+
+                            }
+
+                        }
+                    }
+                }
+                return filesFiltered;
+            },
+            _cleanSiblingFolderLists: function (element) {
+                var elsToRemove = [];
+                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list');
+                var found = false;
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    if (found) {
+                        elsToRemove.push(el);
+                    } else {
+                        if (el.classList.contains('folderList') && el.folder.name !== '.') {
+                            this.breadcrums.push(el.folder.name);
+                        }
+                    }
+                    if (el == element) {
+                        found = true;
+                    }
+                }
+                return elsToRemove;
+            },
+            _cleanAllFolderLists: function () {
+                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list.folderList');
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    this.$.foldersMain.removeChild(el);
+                }
+            },
+
+            handleOk: function (e) {
+                switch (this.selectionMode) {
+                    case 'file':
+                    case 'folder':
+                        if (this.selectionMode.toUpperCase() == this.selectedFile.type) {
+                            this.fire("ok", {file: this.selectedFile});
+                        }
+                        break;
+                    default:
+                        this.fire("ok", {file: this.selectedFile});
+                }
+            },
+            handleCancel: function () {
+                this.fire("cancel");
+            },
+
+            /** --------- **/
+            checkNavigtationSelected: function () {
+                return e.target.dataset['content'] === this.selectedNavigation;
+            },
+            handleNavigationClick: function (e) {
+                var option = e.target.dataset['content'];
+                if (option) {
+                    this.selectedOption = option;
+                    this.selectedOptionText = e.target.innerText.trim();
+                }
+            },
+            handleProjectClick: function (e) {
+                if (this.selectedProject === e.target.project) {
+                    this.selectedProject = null;
+                } else {
+                    this.selectedProject = e.target.project;
+                }
+                this.selectedStudy = null;
             },
             userDataChanged: function (oldValue, newValue) {
 //            this.selectedProject = this.userData.projects[0]
@@ -288,222 +487,8 @@
 //                    }
 //                }
 //            }
-            },
-            checkNavigtationSelected: function () {
-                return e.target.dataset['content'] === this.selectedNavigation;
-            },
-
-            handleProjectClick: function (e) {
-                if (this.selectedProject === e.target.project) {
-                    this.selectedProject = null;
-                } else {
-                    this.selectedProject = e.target.project;
-                }
-                this.selectedStudy = null;
-            },
-            handleStudyClick: function (e) {
-                this.selectStudy(e.target.study);
-            },
-            selectStudy: function (study) {
-                this._cleanAllFolderLists();
-//
-//                if (this.selectedStudy === study) {
-//                    this.selectedStudy = null;
-//                    this.breadcrums = [];
-//                } else {
-                this.selectedStudy = study;
-                this.getFilesByStudy(this.selectedStudy.id);
-                this.breadcrums = [this.selectedStudy.name];
-//                }
-            },
-            handleNavigationClick: function (e) {
-                var option = e.target.dataset['content'];
-                if (option) {
-                    this.selectedOption = option;
-                    this.selectedOptionText = e.target.innerText.trim();
-                }
-            },
-            _getStudyFolderId: function (studyId) {
-                var me = this;
-                this.message = '';
-                var id = -1;
-                OpencgaManager.files.search({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        studyId: studyId,
-                        name: '.'
-                    },
-                    request: {
-                        async: false,
-                        success: function (response) {
-                            console.log(response);
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.firstFolder = response.response[0].result[0];
-                                id = me.firstFolder.id;
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                });
-                return id;
-            },
-            getFilesByStudy: function (studyId) {
-                var me = this;
-                var folderId = this._getStudyFolderId(studyId);
-                this.selectedFile = this.firstFolder;
-                this.fire('file-select', {file: this.selectedFile});
-                if (folderId != -1) {
-                    OpencgaManager.files.list({
-                        id: folderId,
-                        query: {
-                            sid: Cookies('bioinfo_sid'),
-                            studyId: studyId
-                        },
-                        request: {
-                            success: function (response) {
-                                console.log(response);
-                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    me.files = me.getFilesWithBioformat(response.response[0].result);
-                                    me.files.sort(function (a, b) {
-                                        return b.creationDate.localeCompare(a.creationDate);
-                                    });
-                                } else {
-                                    console.log(response.response[0].errorMsg);
-                                }
-                            },
-                            error: function () {
-                                console.log('Server error, try again later.');
-                            }
-                        }
-                    });
-                }
-            },
-            getFilesWithBioformat: function (files) {
-                var filesToDisplay = [];
-
-                var onlyFolders = false;
-                if (this.selectionMode == 'folder') {
-                    onlyFolders = true;
-                }
-
-                for (var i = 0; i < files.length; i++) {
-                    var file = files[i];
-                    if (file.status != "DELETED" && file.status != "DELETING") {
-                        var bioformats = this.bioformat.split(",");
-                        if (file.type == "FOLDER")
-                            filesToDisplay.push(file);
-                        else if (onlyFolders) {
-                            break;
-                        }
-                        else if (this.bioformat == "")
-                            filesToDisplay.push(file);
-                        else {
-                            for (var j = 0; j < bioformats.length; j++) {
-                                if (file.bioformat == bioformats[j])
-                                    filesToDisplay.push(file);
-                            }
-                        }
-
-                    }
-                }
-                return filesToDisplay;
-            },
-            _cleanSiblingFolderLists: function (element) {
-                var elsToRemove = [];
-                this.breadcrums = [this.selectedStudy.name];
-                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list');
-                var found = false;
-                for (var i = 0; i < els.length; i++) {
-                    var el = els[i];
-                    if (found) {
-                        elsToRemove.push(el);
-                    } else {
-                        if (el.classList.contains('folderList')) {
-                            this.breadcrums.push(el.folder.name);
-                        }
-                    }
-                    if (el == element) {
-                        found = true;
-                    }
-                }
-                return elsToRemove;
-            },
-            _cleanAllFolderLists: function () {
-                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list.folderList');
-                for (var i = 0; i < els.length; i++) {
-                    var el = els[i];
-                    this.$.foldersMain.removeChild(el);
-                }
-            },
-            getFilesInFolder: function (e) {
-                var me = this;
-                var elsToRemove = this._cleanSiblingFolderLists(e.target);
-                var file = e.detail.file;
-                this.breadcrums.push(file.name);
-                this.selectedFile = file;
-                this.fire('file-select', {file: this.selectedFile});
-                if (file.type == "FOLDER") {
-                    OpencgaManager.files.list({
-                        id: file.id,
-                        query: {
-                            sid: Cookies('bioinfo_sid'),
-                            studyId: this.selectedStudy.id
-                        },
-                        request: {
-                            success: function (response) {
-                                console.log(response);
-                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    var files = me.getFilesWithBioformat(response.response[0].result);
-                                    var folderList = document.createElement('jso-project-browser-folder-list');
-                                    folderList.classList.add('folderList');
-                                    folderList.files = files;
-                                    folderList.folder = file;
-                                    folderList.study = me.selectedStudy;
-                                    folderList.bioformat = me.bioformat;
-                                    folderList.selectionMode = me.selectionMode;
-                                    folderList.addEventListener('file-click', function (e) {
-                                        me.getFilesInFolder(e);
-                                    });
-
-                                    /** remove all next siblings **/
-                                    for (var i = 0; i < elsToRemove.length; i++) {
-                                        me.$.foldersMain.removeChild(elsToRemove[i]);
-                                    }
-                                    me.$.foldersMain.appendChild(folderList);
-                                    me.$.foldersMain.scrollLeft = me.$.foldersMain.scrollWidth;
-                                } else {
-                                    me.message = response.response[0].errorMsg;
-                                }
-                            },
-                            error: function () {
-                                me.message = 'Server error, try again later.';
-                            }
-                        }
-                    });
-                }
-            },
-            handleOk: function (e) {
-                switch (this.selectionMode) {
-                    case 'file':
-                    case 'folder':
-                        if (this.selectionMode.toUpperCase() == this.selectedFile.type) {
-                            this.fire("ok", {file: this.selectedFile});
-                        }
-                        break;
-                    default:
-                        this.fire("ok", {file: this.selectedFile});
-                }
             }
-            ,
-            handleCancel: function () {
-                this.fire("cancel");
-            }
-        })
-        ;
+        });
     </script>
 </polymer-element>
 
@@ -678,7 +663,7 @@
                         success: function (response) {
                             console.log(response);
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.files = me.getFilesWithBioformatRefresh(response.response[0].result);
+                                me.files = me.filterFiles(response.response[0].result);
                                 me.files.sort(function (a, b) {
                                     return b.creationDate.localeCompare(a.creationDate);
                                 });
@@ -692,34 +677,33 @@
                     }
                 });
             },
-            getFilesWithBioformatRefresh: function (files) {
+            filterFiles: function (files) {
+                files.sort(function (a, b) {
+                    return b.creationDate.localeCompare(a.creationDate);
+                });
+                var filesFiltered = [];
 
-                var onlyFolders = false;
-                if (this.selectionMode == 'folder') {
-                    onlyFolders = true;
-                }
-
-                var filesToDisplay = new Array();
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
                     if (file.status != "DELETED" && file.status != "DELETING") {
-                        var bioformats = this.bioformat.split(",");
-                        if (file.type == "FOLDER")
-                            filesToDisplay.push(file);
-                        else if (onlyFolders) {
-                            break;
-                        }
-                        else if (this.bioformat == "")
-                            filesToDisplay.push(file);
-                        else {
-                            for (var j = 0; j < bioformats.length; j++) {
-                                if (file.bioformat == bioformats[j])
-                                    filesToDisplay.push(file);
+                        if (this.selectionMode == 'folder') {
+                            if (file.type == "FOLDER") {
+                                filesFiltered.push(file);
                             }
+                        } else if (this.selectionMode === 'file' || this.selectionMode === '') {
+                            if (this.bioformat !== "") {
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+                                    filesFiltered.push(file);
+                                }
+                            } else {
+                                filesFiltered.push(file);
+
+                            }
+
                         }
                     }
                 }
-                return filesToDisplay;
+                return filesFiltered;
             }
         });
     </script>

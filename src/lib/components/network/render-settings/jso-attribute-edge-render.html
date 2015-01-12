@@ -17,7 +17,8 @@
             }
 
             .container .text {
-                width: 100px;
+                width: 85px;
+                text-align: right;
             }
 
             [vertical] > * {
@@ -106,7 +107,7 @@
             </div>
             <div class="container" vertical layout>
                 <div horizontal layout>
-                    <div class="text">Label attribute:</div>
+                    <div class="text">Label attr:</div>
                     <select flex value="{{defaults.labelAttribute}}" on-change="{{handleLabelAttribute}}">
                         <template repeat="{{column in attributeManager.columns}}">
                             <option value="{{column.name}}">{{column.title}}</option>
