@@ -564,14 +564,14 @@
                 +
             </div>
             <template if="{{ selectedFile != null && selectionMode != 'folder' }}">
-                <div class="button action">
-                    <font-awesome icon="trash" on-click="{{handleDeleteFile}}"></font-awesome>
+                <div class="button action" on-click="{{handleDeleteFile}}">
+                    <font-awesome icon="trash"></font-awesome>
                 </div>
             </template>
             <!--<input type="text" flex placeholder="filter">-->
         </div>
         <div class="list">
-            <core-list data="{{files}}" height="27" selection="{{selection}}" style="height:100%;">
+            <core-list data="{{files}}" height="27" style="height:100%;">
                 <template>
                     <jso-opencga-file-card selected?="{{selectedFile.id == model.id }}"
                                            on-click="{{handleFileClick}}"
@@ -599,7 +599,6 @@
             created: function () {
                 this.folder;
                 this.files;
-                this.selection;
                 this.selectedFile;
                 this.hideCreateFolder = true;
                 this.hideUploadFile = true;
@@ -628,10 +627,10 @@
                 this.hideUploadFile = true;
             },
             handleDeleteFile: function () {
-                if (confirm('Delete file ' + this.selection.name + '?')) {
+                if (confirm('Delete file ' + this.selectedFile.name + '?')) {
                     var me = this;
                     OpencgaManager.files.delete({
-                        id: this.selection.id,
+                        id: this.selectedFile.id,
                         query: {
                             sid: Cookies('bioinfo_sid')
                         },
