@@ -280,6 +280,56 @@ GraphLayout = {
             console.timeEnd('D3 Force directed layout');
         }
 
+    },
+    tree: function (args) {
+        var network = args.network;
+        var graph = network.graph;
+        var vAttr = network.vAttr;
+        var eAttr = network.eAttr;
+        var width = args.width;
+        var height = args.height;
+        var vertices = graph.vertices;
+        var edges = graph.edges;
+
+
+        var treeData = this._getTreeNode(args.root, {});
+
+
+        var tree = d3.layout.tree()
+            .sort(null)
+            .size([width, height]);
+        //.children(function(d)
+        //{
+        //    return (!d.edges || d.edges.length === 0) ? null : d.edges.target;
+        //}
+        //);
+
+        var nodes = tree.nodes(treeData);
+        args.end(nodes);
+
+        //var links = tree.links(nodes);
+
+
+    },
+    _getTreeNode: function (vertex, visited) {
+        var children = [];
+        if (visited[vertex.id] != true) {
+            visited[vertex.id] = true;
+            for (var i = 0; i < vertex.edges.length; i++) {
+                var edge = vertex.edges[i];
+                if (edge.target !== vertex && visited[edge.target.id] != true) {
+                    children.push(this._getTreeNode(edge.target, visited));
+                }
+                if (edge.source !== vertex && visited[edge.source.id] != true) {
+                    children.push(this._getTreeNode(edge.source, visited));
+                }
+            }
+        }
+        var node = {
+            name: vertex.id,
+            children: (children.length === 0) ? null : children
+        }
+        return node;
     }
 
 }

@@ -134,6 +134,7 @@
 
 
                 on-layout-force-directed="{{handleLayoutMenu}}"
+                on-layout-tree="{{handleLayoutMenu}}"
                 on-layout-configure-force-directed="{{handleLayoutMenu}}"
                 on-layout-circle="{{handleLayoutMenu}}"
                 on-layout-random="{{handleLayoutMenu}}"
@@ -1114,6 +1115,9 @@
                         break;
                     case 'layout-configure-force-directed' :
                         break;
+                    case 'layout-tree' :
+                        this.setLayout('Tree');
+                        break;
                     case 'layout-circle' :
                         this.setLayout('Circle', {attributeName: e.detail.subvalue});
                         break;
@@ -1509,7 +1513,7 @@
                 y /= this.scale;
 
                 if (id == null) {
-                    id = 'n' + Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+                    id = 'n' + Math.floor(Math.random() * (999999 - 100000 + 1));
                 }
 
                 /* vertex graph */
@@ -1689,6 +1693,28 @@
                                 }
                             }
                         });
+                        break;
+                    case "Tree":
+                        if (this.vAttr.selected.length == 1) {
+                            GraphLayout.tree({
+                                network: me,
+                                width: width,
+                                height: height,
+                                root: this.graph.getVertexById(this.vAttr.selected[0].id),
+                                end: function (verticesArray) {
+                                    for (var i = 0, l = verticesArray.length; i < l; i++) {
+                                        var v = verticesArray[i];
+                                        var vertex = me.graph.getVertexById(v.name);
+                                        vertex.position.x = v.x;
+                                        vertex.position.y = v.y;
+                                        vertex.renderer.move();
+                                        me._updateEdgeCoords(vertex);
+                                    }
+                                }
+                            });
+                        } else {
+                            alert("Please select only one vertex to use it as root");
+                        }
                         break;
                     default:
                         console.log(dot);
