@@ -55,7 +55,7 @@
                 position: relative;
                 box-sizing: border-box;
                 overflow-y: auto;
-                width: 200px;
+                width: 150px;
                 height: 100%;
                 border-right: 1px solid #d3d3d3;
                 background-color: #f5f5f5;
@@ -63,7 +63,7 @@
 
             #foldersMain {
                 height: 100%;
-                margin-left: 200px;
+                margin-left: 150px;
                 white-space: nowrap;
                 font-size: 0;
                 overflow-x: scroll;
@@ -220,12 +220,16 @@
 
             <div id="bottombar" horizontal layout>
                 <template if="{{selectionMode != ''}}">
-                    <div flex horizontal layout end-justified>
-                        <template if="{{bioformat != ''}}">
-                            <div>Accepted bioformats:{{bioformat}}</div>
-                        </template>
-                        <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
-                        <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK</div>
+                    <div flex horizontal layout>
+                        <div flex horizontal layout>
+                            <template if="{{bioformat != ''}}">
+                                <div class="text">Accepted bioformats:{{bioformat}}</div>
+                            </template>
+                        </div>
+                        <div horizontal layout end-justified>
+                            <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
+                            <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK</div>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -464,7 +468,7 @@
                     });
                 }
             },
-            handleOk: function () {
+            handleOk: function (e) {
                 switch (this.selectionMode) {
                     case 'file':
                     case 'folder':
