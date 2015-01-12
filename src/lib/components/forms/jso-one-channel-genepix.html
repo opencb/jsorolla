@@ -141,7 +141,7 @@
                 this.jobName = 'JobName';
                 this.toolName = "genepix-expression-one-color-normalization";
                 this.list1UploadMsg = "Select file...";
-                this.compressed_file_tags = "microarray,expression,one-channel,agilent";
+                this.compressed_file_tags = "microarray,expression,one-channel,genepix";
 
             },
             list1Changed: function (oldV, newV) {
@@ -199,7 +199,7 @@
                 this.$.flags_as_missing.checked = false;
                 this.$.ba_normalization.value = "quantiles";
                 this.$.inputFile.selectedFile = {id: "example_onecolor_genepix_expression.zip", path: "onecolor_genepix_expression.zip", type: "FILE"};
-                this.compressed_file_tags = "microarray,expression,one-channel,agilent";
+                this.compressed_file_tags = "microarray,expression,one-channel,genepix";
                 var exampleFolder = "genepix_one_channel";
                 this.createExampleFolder(exampleFolder);
 

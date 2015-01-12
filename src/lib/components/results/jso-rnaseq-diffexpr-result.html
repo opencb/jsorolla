@@ -68,11 +68,13 @@
 
                     <div class="messageValue">{{edFile}}</div>
                 </div>
-                <div class="message" horizontal="" layout="">
-                    <label>Method:</label>
+                <template if="{{method != ''}}">
+                    <div class="message" horizontal="" layout="">
+                        <label>Method:</label>
 
-                    <div class="messageValue">{{method}}</div>
-                </div>
+                        <div class="messageValue">{{method}}</div>
+                    </div>
+                </template>
             </div>
             <div>
                 <h3>Normalized data results</h3>
@@ -98,6 +100,7 @@
             created: function () {
                 this.dataFile = "none";
                 this.glFile = "none";
+                this.method = "";
 
             },
             parseCommandLine: function () {
@@ -133,8 +136,8 @@
 
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var fileList = response.response[0].result;
-                                for(var i = 0; i < fileList.length; i++){
-                                    if(fileList[i].name == "diffexp_results.txt"){
+                                for (var i = 0; i < fileList.length; i++) {
+                                    if (fileList[i].name == "diffexp_results.txt") {
                                         me.fileUrl = OpencgaManager.files.content({
                                             id: fileList[i].id,
                                             query: {
@@ -146,7 +149,7 @@
                                         });
                                         me.getFileContent(function (content) {
                                             me.parseTable(content);
-                                        }, fileList[i].id );
+                                        }, fileList[i].id);
                                     }
                                 }
                             }

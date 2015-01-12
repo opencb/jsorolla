@@ -26,7 +26,7 @@
                 this.rowNames = [];
 
             },
-            contentChanged: function () {
+            contentDatasetChanged: function () {
 
                 var data = this.content.split("\n");
 
@@ -57,8 +57,9 @@
                     }
 
                 }
+                this.heatMapData();
             },
-            contentDatasetChanged: function () {
+            heatMapData: function () {
                 var cols = [];
                 var data = [];
                 var rows = [];
@@ -101,13 +102,9 @@
                     var min = Math.min.apply(Math, lineData)
                     for (var j = 0; j < lineData.length; j++) {
                         var value = (lineData[j] - min) / (max - min);
-                        // value = lineData[j];
-                        data.push(
-                                [j, numberRows - dataIdx, value]
-                        );
-                        /*data.push(
-                         [j , i, value]
-                         );*/
+//                        value = lineData[j];
+                        data.push([j, numberRows - dataIdx, value]);
+//                        data.push([j, i, value]);
 
                     }
                     dataIdx++;
@@ -119,8 +116,14 @@
             createHeatMap: function (data, cols, rows) {
                 //data = data.slice(0,10)
                 //rows = rows.slice(0,10)
-
-
+                var height = rows.length * 15;
+                if (height < 800) {
+                    height = 800;
+                }
+                var width = cols.length * 15;
+                if (width < 500) {
+                    width = 500;
+                }
                 var heatMap = new Highcharts.Chart({
                     chart: {
                         renderTo: this.$.heatMap,
@@ -129,8 +132,8 @@
                         //marginBottom: 40,
                         // height: 800,
                         // width:400
-                        height: rows.length * 15,
-                        width: cols.length * 15
+                        height: height,
+                        width: width
                     },
                     title: {
                         text: 'Heat Map'
