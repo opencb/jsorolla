@@ -3,19 +3,21 @@
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                background-color: #FFFFFF;
-                padding: 30px 100px;
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
 
-                z-index: 50000;
-                margin: 0px auto 0px auto;
+            z-index: 50000;
+            margin: 0px auto 0px auto;
 
-                width: 50%;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
             }
 
             .title {
@@ -88,7 +90,7 @@
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -173,7 +175,11 @@
                 this.launchJob();
             },
             launchJob: function () {
-                var me = this;
+               var me = this;
+                var utils = new FormUtils(this);
+               if(!utils.basicValidationForm()){
+                    return;
+               }
 
                 this.censored_class = this.$.jsoClassViewerCensored.getMainSelect().value;
                 this.time_class = this.$.jsoClassViewerTime.getMainSelect().value;
@@ -215,7 +221,7 @@
                 this.jobName = "Survival demo (Cox test)";
                 this.description = "Differential expression - Survival demo (Cox test)";
                 this.newFolderName = "surv_" + Math.floor((Math.random() * 100) + 1);
-                this.$.inputFile.selectedFile = {id: "example_survival.txt", path: "survival.txt"};
+                this.$.inputFile.selectedFile = {id: "example_survival.txt", path: "survival.txt", type: "FILE"};
                 this.p_value = 0.05;
                 this.$.test_1.checked = true;
                 this.$.correction_1.checked = true;

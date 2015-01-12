@@ -77,11 +77,18 @@
             <div>
                 <h3>Normalized data results</h3>
 
+                <h4>Before rna count</h4>
+                <img src="{{RNACont_beforeNorm}}">
+                <h4>After rna count</h4>
+                <img src="{{RNACont_afterNorm}}">
+                <h4>Before normalization</h4>
+                <img src="{{boxplot_beforeNorm}}">
+                <h4>After normalization</h4>
+                <img src="{{boxplot_afterNorm}}">
                 <div class="file"><label>File</label>
                     <a href="{{normalizedFileUrl}}" target="_blank">normalized_results.txt</a>
                 </div>
-
-
+                <!--<div>Loading table...</div>-->
                 <sortable-table id="table"
                                 data="{{data}}"
                                 columns="{{columns}}"
@@ -89,6 +96,7 @@
                                 pageSize="{{pageSize}}"
                                 flex>
                 </sortable-table>
+
 
             </div>
         </div>
@@ -134,20 +142,26 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var fileList = response.response[0].result;
                                 for(var i = 0; i < fileList.length; i++){
-                                    if(fileList[i].name == "normalize_results.txt"){
-                                        me.normalizedFileUrl = OpencgaManager.files.content({
-                                            id: fileList[i].id,
-                                            query: {
-                                                sid: Cookies("bioinfo_sid")
-                                            },
-                                            request: {
-                                                url: true
-                                            }
-                                        });
+                                    var fileName = fileList[i].name;
+                                    if(fileName == "normalize_results.txt"){
+                                        me.normalizedFileUrl = me.getUrl(fileList[i].id);
                                         me.getFileContent(function (content) {
                                             me.parseTable(content);
                                         }, fileList[i].id );
                                     }
+                                    if(fileName == "RNACont_afterNorm.jpg"){
+                                        me.RNACont_afterNorm = me.getUrl(fileList[i].id);
+                                    }
+                                    if(fileName == "RNACont_beforeNorm.jpg"){
+                                        me.RNACont_beforeNorm = me.getUrl(fileList[i].id);
+                                    }
+                                    if(fileName == "boxplot_beforeNorm.jpg"){
+                                        me.boxplot_beforeNorm = me.getUrl(fileList[i].id);
+                                    }
+                                    if(fileName == "boxplot_afterNorm.jpg"){
+                                        me.boxplot_afterNorm = me.getUrl(fileList[i].id);
+                                    }
+
                                 }
                             }
                         },
@@ -156,8 +170,17 @@
                         }
                     }
                 });
-
-
+            },
+            getUrl: function(fileId){
+               return OpencgaManager.files.content({
+                                            id: fileId,
+                                            query: {
+                                                sid: Cookies("bioinfo_sid")
+                                            },
+                                            request: {
+                                                url: true
+                                            }
+                                            });
             },
             parseTable: function (content) {
                 this.data = [];

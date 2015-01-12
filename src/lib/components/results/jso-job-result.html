@@ -504,49 +504,9 @@
 
                         if (element.tags.indexOf("DIFF_EXPRESSION_VIEWER") >= 0) {
                             console.log("DIFF_EXPRESSION_VIEWER");
-
                             var json = JSON.parse(element.value.replace(/\\/g, ''))
                             var dataArray = [];
                             var columns = [];
-                            var sortableTable = document.createElement('sortable-table');
-                            sortableTable.setAttribute("id", "tableId");
-
-                            this.getFileContent(function (content) {
-                                var data = content.split("\n");
-
-                                for (var i = 1; i < data.length; i++) {
-                                    var line = data[i];
-                                    if (line.indexOf("#NAMES") >= 0) {
-                                        var splits = data[i].split("\t");
-                                        for (var j = 0; j < splits.length; j++) {
-                                            var elem = splits[j];
-                                            columns.push(elem);
-                                        }
-
-                                    } else if (line.indexOf("#") < 0) {
-                                        if (data[i].length > 0) {
-                                            var localData = data[i].split("\t");
-                                            var localArray = new Array();
-                                            for (var z = 0; z < localData.length; z++) {
-                                                var value = localData[z];
-                                                if (isFinite(value))
-                                                    value = parseFloat(value).toFixed(3);
-                                                localArray.push(value);
-                                            }
-                                            dataArray.push(localArray);
-                                        }
-                                    }
-
-                                }
-
-                            }, json.testfilename);
-
-                            sortableTable.columns = columns;
-                            sortableTable.data = dataArray;
-                            sortableTable.pageSize = "10";
-                            sortableTable.footerTemplate = "simplePager";
-
-                            res.appendChild(sortableTable);
 
                             var statisticData = new Array();
                             var test = json.testfilename.replace(".txt", "")
@@ -561,12 +521,30 @@
                                 }
                             }, test + "_significative_table.txt");
 
+                            var sortableTable = document.createElement('jso-diffexpr-table');
+                            sortableTable.setAttribute("id", "tableId");
+                            res.appendChild(sortableTable);
+
+                            this.getFileContent(function (content) {
+
+                                me.getFileContent(function (contentDataset) {
+                                    sortableTable.content = content;
+                                    sortableTable.contentDataset = contentDataset;
+                                }, test + "_significative_dataset.txt");
+
+
+                            }, test + "_significative_table.txt");
+
+
+
+
+
                             var sigDatasetData = new Array();
                             var sigDatasetCols = [];
                             var sigDatasetRows = [];
 
                             this.getFileContent(function (content) {
-
+                                //sortableTable.contentDataset = content;
                                 var data = content.split("\n");
                                 var prevLine = null;
                                 var b = true;
@@ -634,6 +612,7 @@
                                 }
 
                             }, test + "_significative_dataset.txt");
+
                             Object.keys(statisticData).forEach(function (key) {
                                 var index = sigDatasetRows.indexOf(key);
                                 sigDatasetData[index][sigDatasetCols.length] = Number(statisticData[key]);
@@ -718,10 +697,21 @@
 
                             res.appendChild(sortableTable);
                         }
-                        if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                        if (element.tags.indexOf("FATIGO_TABLE") >= 0 ) {
 
                             if (element.value.indexOf("0.05") >= 0) {
                                 var sortableTable = document.createElement('jso-fatigo-table');
+                                this.getFileContent(function (content) {
+                                    sortableTable.content = content;
+
+                                }, element.value);
+                                res.appendChild(sortableTable);
+                            }
+                        }
+                        if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+
+                            if (element.value.indexOf("0.05") >= 0) {
+                                var sortableTable = document.createElement('jso-logistic-table');
                                 this.getFileContent(function (content) {
                                     sortableTable.content = content;
 
@@ -807,7 +797,6 @@
             },
 
             createHeatMap: function (data, cols, rows, div) {
-
 //                console.log(cols);
 //                console.log(rows);
 //original height / original width x new width = new height

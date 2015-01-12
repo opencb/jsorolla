@@ -2,21 +2,21 @@
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
+           :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
 
-                z-index: 50000;
-                margin: 0px auto 0px auto;
+            z-index: 50000;
+            margin: 0px auto 0px auto;
 
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
             }
 
             .title {
@@ -131,6 +131,14 @@
             },
             launchJob: function () {
                 var me = this;
+               var utils = new FormUtils(this);
+               if(!utils.basicValidationForm()){
+                    return;
+               }
+                if(!this.$.rma.checked && !this.$.plier.checked && !this.$.calls.checked){
+                    alert("Error: Please choose an analysis. ");
+                    return;
+                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -168,8 +176,10 @@
             loadExample1: function (e) {
                 this.jobName = "affy_sample_1";
                 this.description = "just_an_affy_example";
-                this.rma = true;
-                this.$.inputFile.selectedFile = {id: "example_affymetrix.zip", path: "affymetrix.zip"};
+                this.$.rma.checked = true;
+                this.$.plier.checked = false;
+                this.$.calls.checked = false;
+                this.$.inputFile.selectedFile = {id: "example_affymetrix.zip", path: "affymetrix.zip", type:"FILE"};
                 this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
                 var exampleFolder = "affy_sample_1vv";
                 this.createExampleFolder(exampleFolder);

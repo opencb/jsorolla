@@ -1,74 +1,180 @@
 <polymer-element name="jso-biotype" attributes="">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
+            :host {
+                display: block;
+            }
+
+            .zeroLevel {
+                color: #888;
+                margin-left: 1px
+            }
+
             .firstLevel {
-                margin-left: 10px
+                margin-left: 3px
             }
 
             .secondLevel {
-                margin-left: 20px
+                margin-left: 5px
             }
 
             .thirdLevel {
-                margin-left: 30px
+                color: #000;
+                margin-left: 7px
             }
 
-            .parent {
-                background: white;
-                border: 1px solid #ddd;
-                box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
-                padding: 4px;;
-            }
         </style>
-        Select format
-        <div id="biotypes" class="parent">
-
-            <div>
+        <div class="zeroLevel">
                 Microarray
                 <div class="firstLevel">Expression
                     <div class="secondLevel">One channel
-                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX">Affymetrix<br></div>
-                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT">Agilent<br></div>
-                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX">Genepix<br></div>
+                        <div class="thirdLevel">
+                            <label class="control">
+                                <input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX">
+                                <span>Affymetrix</span>
+                            </label>
+                        </div>
+                        <div class="thirdLevel">
+                            <label class="control">
+                                <input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT">
+                                <span>Agilent</span>
+                            </label>
+                        </div>
+                        <div class="thirdLevel">
+                            <label class="control">
+                                <input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX">
+                                <span>Genepix</span>
+                            </label>
+                        </div>
                     </div>
                     <div class="secondLevel">Two channels
-                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT">Agilent<br></div>
-                        <div class="thirdLevel"><input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX">Genepix<br></div>
+                        <div class="thirdLevel">
+                            <label class="control">
+                                <input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT">
+                                <span>Agilent</span>
+                            </label>
+                        </div>
+                        <div class="thirdLevel">
+                            <label class="control">
+                                <input type="radio" name="biotype" value="MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX">
+                                <span>Genepix</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div>Data matrix
-                <div class="firstLevel">
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="DATAMATRIX_EXPRESSION">Expression<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="DATAMATRIX_SNP">SNP<br></div>
+        </div>
+        <div class="zeroLevel">Data matrix
+            <div class="firstLevel">
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="DATAMATRIX_EXPRESSION">
+                        <span>Expression</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="DATAMATRIX_SNP">
+                        <span>SNP</span>
+                    </label>
+                </div>
 
+            </div>
+        </div>
+        <div class="zeroLevel">ID list
+            <div class="firstLevel">
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="IDLIST_GENE">
+                        <span>Gene</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="IDLIST_TRANSCRIPT">
+                        <span>Transcript</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="IDLIST_PROTEIN">
+                        <span>Protein</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="IDLIST_SNP">
+                        <span>SNP</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="IDLIST_FUNCTIONALTERMS">
+                        <span>Functional terms</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="IDLIST_RANKED">
+                        <span>ranked</span>
+                    </label>
                 </div>
             </div>
-            <div>ID list
-                <div class="firstLevel">
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_GENE">Gene<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_TRANSCRIPT">Transcript<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_PROTEIN">Protein<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_SNP">SNP<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_FUNCTIONALTERMS">Functional terms<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="IDLIST_RANKED">ranked<br></div>
+        </div>
+        <div class="zeroLevel">Annotation
+            <div class="firstLevel">
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="ANNOTATION_GENEVSANNOTATION">
+                        <span>Gene vs annotation</span>
+                    </label>
                 </div>
+                <!--<div class="thirdLevel">
+<label class="control">  
+               <input type="radio" name="biotype" value="idlist_extendedannotation">Extended annotation
+                <span></span>             
+</label>
+</div>-->
             </div>
-            <div>Annotation
-                <div class="firstLevel">
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="ANNOTATION_GENEVSANNOTATION">Gene vs annotation<br></div>
-                    <!--<div class="thirdLevel"><input type="radio" name="biotype" value="idlist_extendedannotation">Extended annotation<br></div>-->
+        </div>
+        <div class="zeroLevel">Other
+            <div class="firstLevel">
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="OTHER_NEWICK">
+                        <span>Newick</span>
+                    </label>
                 </div>
-            </div>
-            <div>Other
-                <div class="firstLevel">
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_NEWICK">Newick<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_BLAST">Blast<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_INTERACTION">Interaction<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_GENOTYPE">PED_MAP zipped<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_PLINK">Plink association<br></div>
-                    <div class="thirdLevel"><input type="radio" name="biotype" value="OTHER_VCF">VCF 4.0<br></div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="OTHER_BLAST">
+                        <span>Blast</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="OTHER_INTERACTION">
+                        <span>Interaction</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="OTHER_GENOTYPE">
+                        <span>PED_MAP zipped</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="OTHER_PLINK">
+                        <span>Plink association</span>
+                    </label>
+                </div>
+                <div class="thirdLevel">
+                    <label class="control">
+                        <input type="radio" name="biotype" value="OTHER_VCF">
+                        <span>VCF 4.0</span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -80,8 +186,8 @@
                 this.bioformat = "";
             },
             getSelected: function () {
-                var radioButton = this.$.biotypes.querySelector('input[name="biotype"]:checked');
-                if(radioButton == null)
+                var radioButton = this.shadowRoot.querySelector('input[name="biotype"]:checked');
+                if (radioButton == null)
                     this.bioformat = ""
                 else
                     this.bioformat = radioButton.value;

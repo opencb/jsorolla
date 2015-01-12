@@ -1,21 +1,24 @@
 <polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                background-color: #FFFFFF;
-                padding: 30px 100px;
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
 
-                z-index: 50000;
-                margin: 0px auto 0px auto;
+            z-index: 50000;
+            margin: 0px auto 0px auto;
 
-                width: 50%;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
             }
 
             .title {
@@ -33,48 +36,8 @@
                 color: #ffad76;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-            .action {
-                /*margin-top: 30px;*/
-                background-color: #f5f5f5 !important;
-                text-align: center;
-            }
-
-            .action:active {
-                background-color: #445D76 !important;
-                color: #fff !important;
-            }
-
             .message {
                 margin-top: 20px;
-            }
-
-            div.button {
-                /*display: inline-block;*/
-                width: 300px
-            }
-
-            .inputListTextArea {
-                width: 300px;
-                height: 50px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-            span {
-                border: 1px solid;
             }
 
             .botbar {
@@ -83,7 +46,7 @@
 
             .db_options {
                 margin: 5px;
-                border: 1px solid;
+                border: 1px solid #d3d3d3;
                 padding: 5px
             }
         </style>
@@ -100,31 +63,33 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">motor vs apoptosis</div>
+                    <div class="button action" on-click="{{loadExample1}}" style="width:150px;">motor vs apoptosis</div>
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">Define your comparison</div>
-                <div class="formcontent">
-                    <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}" checked>Id list vs
-                    Id
-                    list<br>
-                    <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}">Id List vs Rest
-                    of
-                    genome<br>
-                    <input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">Id List vs Rest of
-                    ids
-                    contained in your annotations
-                    (complementary list)<br>
+                <div class="formcontent" vertical layout>
+                    <label class="control">
+                        <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}" checked>
+                        <span>Id list vs Id list</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}">
+                        <span>Id List vs Rest of genome</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">
+                        <span>Id List vs Rest of ids contained in your annotations (complementary list)</span>
+                    </label>
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile1" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -139,7 +104,7 @@
                 <div class="formcontent">
                     <div id="option1">
                         <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"></jso-project-browser-window>
                     </div>
                     <div id="option2" hidden>
                         <span>Rest of the genome</span>
@@ -190,9 +155,16 @@
                             <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
                             <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
                         </select>
+                        <br>
 
-                        <input name="go_bp" id="go_bp" type="checkbox" value="gobp"> GO biological process
-                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{bpOptionsFunction}}">options</div>
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="go_bp" id="go_bp" type="checkbox" value="gobp">
+                                <span>GO biological process</span>
+                            </label>
+
+                            <div class="button action" on-click="{{bpOptionsFunction}}">Show options...</div>
+                        </div>
                         <div id="bpOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
@@ -204,9 +176,16 @@
                             <!--<input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_bp_keyword_operator_2" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="go_mf" id="go_mf" type="checkbox" value="gomf">GO molecular function <br>
+                        <br>
 
-                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{mfOptionsFunction}}">options</div>
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="go_mf" id="go_mf" type="checkbox" value="gomf">
+                                <span>GO molecular function</span>
+                            </label>
+
+                            <div class="button action" on-click="{{mfOptionsFunction}}">Show options...</div>
+                        </div>
                         <div id="mfOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
@@ -218,9 +197,16 @@
                             <!--<input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_mf_keyword_operator_2" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="go_cc" id="go_cc" type="checkbox" value="gocc">GO cellular component <br>
+                        <br>
 
-                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{ccOptionsFunction}}">options</div>
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="go_cc" id="go_cc" type="checkbox" value="gocc">
+                                <span>GO cellular component</span>
+                            </label>
+
+                            <div class="button action" on-click="{{ccOptionsFunction}}">Show options...</div>
+                        </div>
                         <div id="ccOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
@@ -232,9 +218,16 @@
                             <!--<input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="go_slim" id="go_slim" type="checkbox" value="go-slim">GOSlim GOA <br>
+                        <br>
 
-                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{slimOptionsFunction}}">options</div>
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="go_slim" id="go_slim" type="checkbox" value="go-slim">
+                                <span>GOSlim GOA</span>
+                            </label>
+
+                            <div class="button action" on-click="{{slimOptionsFunction}}">Show options...</div>
+                        </div>
                         <div id="slimOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
@@ -246,9 +239,16 @@
                             <!--<input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_slim_keyword_operator_2" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="interpro" id="interpro" type="checkbox" value="interpro">Interpro <br>
+                        <br>
 
-                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{interproOptionsFunction}}">options</div>
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="interpro" id="interpro" type="checkbox" value="interpro">
+                                <span>Interpro</span>
+                            </label>
+
+                            <div class="button action" on-click="{{interproOptionsFunction}}">Show options...</div>
+                        </div>
                         <div id="interproOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
@@ -260,9 +260,16 @@
                             <!--<input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="go_interpro_keyword_operator_2" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
-                        <input name="recon" id="recon" type="checkbox" value="recon">Recon <br>
+                        <br>
 
-                        <div class="button action" style="width: 60px; margin: 5px" on-click="{{reconOptionsFunction}}">options</div>
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="recon" id="recon" type="checkbox" value="recon">
+                                <span>Recon</span>
+                            </label>
+
+                            <div class="button action" on-click="{{reconOptionsFunction}}">Show options...</div>
+                        </div>
                         <div id="reconOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
@@ -274,6 +281,7 @@
                             <!--<input id="recon_keyword_operator_1" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
                             <!--<input id="recon_keyword_operator_2" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
                         </div>
+                        <br>
                         <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
                         <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
                         <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
@@ -282,7 +290,7 @@
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
                         Your annotations
                         <jso-project-browser-window id="annotationsFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
 
                     </div>
                 </div>
@@ -293,6 +301,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <br>
                     <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
@@ -349,6 +358,10 @@
             },
             launchJob: function () {
                 var me = this;
+                var utils = new FormUtils(this);
+               if(!utils.basicValidationForm()){
+                    return;
+               }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -356,7 +369,7 @@
                     name: this.jobName,
                     description: "description",
                     outdir: this.$.outdir.selectedFile.id,
-                    list1: this.$.inputFile1.selectedFile.id,
+                    list1: this.$.inputFile.selectedFile.id,
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value
@@ -438,7 +451,7 @@
                 this.go_bp = "gobp";
                 this.go_bp_propagation = "propagate";
                 this.go_bp_min_num_genes = 5;
-                this.$.inputFile1.selectedFile = {id: "example_example.motor", path: "example.motor"};
+                this.$.inputFile.selectedFile = {id: "example_example.motor", path: "example.motor", type:"FILE"};
                 this.$.inputFile2.selectedFile = {id: "example_example.apoptosis", path: "example.apoptosis"};
                 this.annotations = "none";
                 this.go_bp_nannot_domain = "genome";

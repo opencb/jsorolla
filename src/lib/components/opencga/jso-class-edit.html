@@ -301,7 +301,7 @@
 //            this.$.categoricalValuesId.hidden = true
             },
             contentFileChanged: function (oldV, newV) {
-                /** Clear dataset **/
+            /** Clear dataset **/
                 this.columns = [];
                 this.data = [];
 
@@ -340,6 +340,7 @@
                     }
                     this.data.push(dataItem);
                 }
+
                 this.oriData = JSON.parse(JSON.stringify(this.data));
                 this.oriColumns = JSON.parse(JSON.stringify(this.columns));
             },
@@ -348,12 +349,14 @@
                 this.columns = [];
 
                 /** Hack for the sortable **/
-                for (var i = 0; i < this.oriColumns.length; i++)
-                    this.columns.push(this.oriColumns[i]);
-                for (var i = 0; i < this.oriData.length; i++)
-                    this.data.push(this.oriData[i]);
-//        this.columns = this.oriColumns;
-//        this.data = this.oriData;
+                for (var i = 0; i < this.oriColumns.length; i++){
+                    var cl =  JSON.parse(JSON.stringify(this.oriColumns[i]));
+                    this.columns.push(cl);
+                }
+                for (var i = 0; i < this.oriData.length; i++){
+                    var dt =  JSON.parse(JSON.stringify(this.oriData[i]));
+                    this.data.push(dt);
+                }
             },
             parseTable: function () {
                 var strHeader = "";
