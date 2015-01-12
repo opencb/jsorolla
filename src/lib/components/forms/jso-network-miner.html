@@ -153,7 +153,7 @@
                 <div class="formtitle">Sort ranked list</div>
                 <div class="formcontent">
                     <select name="order" id="order" class="fc-combobox" type="text" value="ascending">
-                        <option name="order_1" id="order_1" class="fc-combobox-item" value="curated" selected="ascending">
+                        <option name="order_1" id="order_1" class="fc-combobox-item" value="ascending" selected>
                             Ascending
                             (detected by at least two methods)
                         </option>
@@ -291,13 +291,13 @@
                 var exampleFolder = "nm_gwas";
                 this.createExampleFolder(exampleFolder);*/
 
-                this.$.inputFile.selectedFile = {id: "example_K562.txt", path: "K562.txt", type:"FILE"};
+                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
                 this.$.listTags_1.selected = true;
                 this.$.interactome.value = "hsa";
                 this.$.group.value = "curated";
                 this.$.intermediate.value = 1;
                 this.$.order_1.selected = true;
-                var exampleFolder = "nm_k562";
+                var exampleFolder = "nm_k562_symbol";
                 this.createExampleFolder(exampleFolder);
 
             },
