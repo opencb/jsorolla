@@ -61,19 +61,19 @@
                 /*background-color: blue;*/
             }
 
-            jso-network-viewer {
-                max-width: 1000px;
-                height: 800px;
+            /*jso-network-viewer {*/
+            /*max-width: 1000px;*/
+            /*height: 800px;*/
 
-                border-color: rgb(217, 217, 217);
-                border-style: solid;
-                border-width: 1px;
-            }
+            /*border-color: rgb(217, 217, 217);*/
+            /*border-style: solid;*/
+            /*border-width: 1px;*/
+            /*}*/
 
             /*TODO temporal fix*/
-            jso-network-viewer::shadow jso-nv-layout {
-                height: calc(100% - 96px);
-            }
+            /*jso-network-viewer::shadow jso-nv-layout {*/
+            /*height: calc(100% - 96px);*/
+            /*}*/
 
             sortable-table {
                 max-width: 1000px;
@@ -450,55 +450,45 @@
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0 || element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
+                            var sortableTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
-                                var data = content.split("\n");
-
-                                for (var i = 1; i < data.length; i++) {
-                                    dataArray.push(data[i].split("\t"))
-                                }
-
+                                sortableTable.typeTable = "NETWORKMINERRANKED_TABLE";
+                                sortableTable.content = content;
 
                             }, element.value);
 
-                            var sortableTable = document.createElement('sortable-table');
-                            sortableTable.setAttribute("id", "tableId");
-                            sortableTable.columns = ["Input", "Id", "Type", "Rank", "Betweenness", "Clustering", "Connections", "GOs", "KEEGs"];
-                            sortableTable.data = dataArray;
-                            sortableTable.pageSize = "10";
-                            sortableTable.footerTemplate = "simplePager";
+                            res.appendChild(sortableTable);
+
+                        }
+                        if (element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
+                            var dataArray = new Array();
+                            var sortableTable = document.createElement('jso-interactors-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
+                                sortableTable.content = content;
+
+                            }, element.value);
 
                             res.appendChild(sortableTable);
 
                         }
 
                         if (element.tags.indexOf("INTERACTOME_VIEWER") >= 0) {
-                            debugger
-                            var networkViewer = document.createElement('jso-network-viewer');
-                            networkViewer.setAttribute("id", "networkId");
 
-                            //TODO temporal fix
-                            networkViewer.setAttribute("hideBar", "true");
-                            networkViewer.hideNodeSimpleRendering = true;
-                            networkViewer.hideEdgeSimpleRendering = true;
+                            var intermediatesArray = new Array();
+                            var seedArray = new Array();
+                            var tags = element.tags.split(",");
+                            if (tags[3] != null)
+                                intermediatesArray = tags[3];
+                            if (tags[4] != null)
+                                seedArray = tags[4];
 
-
+                            var networkViewer = document.createElement('jso-interactome-viewer');
                             this.getFileContent(function (content) {
-                                var adapter = new SIFNetworkDataAdapter({
-                                    dataSource: new StringDataSource(content),
-                                    handlers: {
-                                        'data:load': function (event) {
-                                            //me.processData(event.graph);
-                                            networkViewer.setGraph(event.graph);
-                                            networkViewer.setLayout("Force directed");
-                                            me.$.output.querySelector("#" + divId).appendChild(networkViewer);
-                                        },
-                                        'error:parse': function (event) {
-                                            console.log("ERRORRRR");
-                                        }
-                                    }
-                                });
+                                networkViewer.content = content;
+                                networkViewer.intermediates = intermediatesArray;
+                                networkViewer.seedList = seedArray;
                             }, element.value);
-
 
                             res.appendChild(networkViewer);
                         }
@@ -506,21 +496,7 @@
                         if (element.tags.indexOf("DIFF_EXPRESSION_VIEWER") >= 0) {
                             console.log("DIFF_EXPRESSION_VIEWER");
                             var json = JSON.parse(element.value.replace(/\\/g, ''))
-                            var dataArray = [];
-                            var columns = [];
-
-                            var statisticData = new Array();
                             var test = json.testfilename.replace(".txt", "")
-                            this.getFileContent(function (content) {
-                                var data = content.split("\n");
-                                for (var i = 0; i < data.length; i++) {
-                                    var line = data[i];
-                                    if (line.length > 0 && line.indexOf("#") < 0) {
-                                        var splits = line.split("\t");
-                                        statisticData[splits[0]] = splits[1];
-                                    }
-                                }
-                            }, test + "_significative_table.txt");
 
                             var sortableTable = document.createElement('jso-diffexpr-table');
                             sortableTable.setAttribute("id", "tableId");
@@ -536,122 +512,6 @@
 
                             }, test + "_significative_table.txt");
 
-
-
-
-
-                            var sigDatasetData = new Array();
-                            var sigDatasetCols = [];
-                            var sigDatasetRows = [];
-
-                            this.getFileContent(function (content) {
-                                //sortableTable.contentDataset = content;
-                                var data = content.split("\n");
-                                var prevLine = null;
-                                var b = true;
-                                var rowCount = 0;
-                                var max = -1;
-                                var min = 9999999999;
-
-                                for (var i = 0; i < data.length; i++) {
-                                    var line = data[i];
-
-                                    if (line.indexOf("#") < 0) {
-                                        if (b) { // PrevLine == last line of the header
-                                            var splits = prevLine.split("\t");
-                                            for (var j = 1; j < splits.length; j++) {
-                                                sigDatasetCols.push(splits[j]);
-                                            }
-                                            b = false;
-                                        }
-
-                                        var lineData = line.split("\t");
-
-                                        sigDatasetData[rowCount] = new Array();
-                                        sigDatasetRows.push(lineData[0]);
-
-                                        var rowMean = 0;
-                                        var count = 0;
-                                        var sum = 0;
-
-
-                                        for (var j = 1; j < lineData.length; j++) {
-                                            var lineElem = lineData[j];
-                                            sum += Number(lineElem);
-                                            count++;
-
-                                        }
-                                        rowMean = sum / count;
-
-                                        sum = 0;
-                                        count = 0;
-
-                                        for (var j = 1; j < lineData.length; j++) {
-                                            var lineElem = lineData[j];
-                                            var value = Number(lineElem);
-                                            sum += ((value - rowMean) * ( value - rowMean));
-                                            count++;
-                                        }
-
-                                        var variance = sum / (count - 1 );
-                                        var std_var = Math.sqrt(variance);
-
-
-                                        for (var j = 1; j < lineData.length; j++) {
-                                            var lineElem = lineData[j];
-                                            var val = (Number(lineElem) - rowMean) / std_var;
-
-                                            max = (val > max) ? val : max;
-                                            min = (val < min) ? val : min;
-
-                                            sigDatasetData[rowCount][j - 1] = val;
-                                        }
-                                        rowCount++;
-                                    }
-
-                                    prevLine = line;
-                                }
-
-                            }, test + "_significative_dataset.txt");
-
-                            Object.keys(statisticData).forEach(function (key) {
-                                var index = sigDatasetRows.indexOf(key);
-                                sigDatasetData[index][sigDatasetCols.length] = Number(statisticData[key]);
-                            });
-
-
-                            var indices = new Array(sigDatasetRows.length);
-                            for (var i = 0; i < sigDatasetRows.length; i++)
-                                indices[i] = i;
-
-                            /* indices.sort(function (a, b) {
-                             return sigDatasetData[b][sigDatasetCols.length] - sigDatasetData[a][sigDatasetCols.length];
-                             });
-
-                             sigDatasetData.sort(function (a, b) {
-                             return b[sigDatasetCols.length] - a[sigDatasetCols.length];
-                             });
-
-                             var aux = new Array(sigDatasetRows.length);
-
-                             for (var i = 0; i < indices.length; i++) {
-                             var index = indices[i];
-                             aux[i] = sigDatasetRows[index];
-                             }
-
-
-                             sigDatasetRows = aux;*/
-                            sigDatasetData.reverse();
-                            sigDatasetRows.reverse();
-
-                            var heatMapData = me.prepareHMData(sigDatasetData);
-//                            sigDatasetRows = Object.keys(heatMapData);
-
-                            var heatMapDiv = document.createElement("div");
-                            heatMapDiv.setAttribute("id", "heatMapDEV");
-
-                            me.createHeatMap(heatMapData, sigDatasetCols, sigDatasetRows, heatMapDiv);
-                            res.appendChild(heatMapDiv);
                         }
                         if (element.tags.indexOf("PREDICTOR_FEATURE_SELECTION_TABLE") >= 0) {
 
@@ -698,7 +558,7 @@
 
                             res.appendChild(sortableTable);
                         }
-                        if (element.tags.indexOf("FATIGO_TABLE") >= 0 ) {
+                        if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
 
                             if (element.value.indexOf("0.05") >= 0) {
                                 var sortableTable = document.createElement('jso-fatigo-table');

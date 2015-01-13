@@ -1,4 +1,4 @@
-<polymer-element name="jso-biotype" attributes="">
+<polymer-element name="jso-biotype" attributes="bioformat">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -24,8 +24,14 @@
                 color: #000;
                 margin-left: 7px
             }
+            input[name=biotype]:disabled + span,
+            input[name=biotype]:disabled + span:before
+            {
+                color:#d3d3d3!important;
+            }
 
         </style>
+
         <div class="zeroLevel">
                 Microarray
                 <div class="firstLevel">Expression
@@ -184,11 +190,25 @@
         Polymer({
             created: function () {
                 this.bioformat = "";
+
+            },
+            bioformatChanged: function(){
+                var radios = this.shadowRoot.querySelectorAll('input[name="biotype"]');
+                for(var i = 0; i < radios.length; i++){
+                    var radio = radios[i];
+                    if(this.bioformat.indexOf(radio.value)>=0){
+                        console.log(radio.value)
+                        radio.disabled = false;
+                    }
+                    else{
+                        radio.disabled = true;
+                    }
+                }
             },
             getSelected: function () {
                 var radioButton = this.shadowRoot.querySelector('input[name="biotype"]:checked');
                 if (radioButton == null)
-                    this.bioformat = ""
+                    this.bioformat = "";
                 else
                     this.bioformat = radioButton.value;
                 return this.bioformat;

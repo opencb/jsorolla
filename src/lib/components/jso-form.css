@@ -36,6 +36,13 @@ label.control > input[type=checkbox] + span:before {
 
 }
 
+/*label.control > input[type=radio]:disabled + span,*/
+/*label.control > input[type=radio]:disabled + span:before,*/
+/*label.control > input[type=checkbox]:disabled + span,*/
+/*label.control > input[type=checkbox]:disabled + span:before,*/
+/*{*/
+    /*color:#d3d3d3!important;*/
+/*}*/
 label.control > input[type=radio] + span:before {
     content: '\f10c'
 }

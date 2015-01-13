@@ -1,0 +1,129 @@
+<polymer-element name="jso-interactors-table" attributes="content typeTable">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            /*  sortable-table {
+              max-width: 1000px;
+              margin-top: 10px;
+              }*/
+            sortable-table {
+                border: 1px solid #d3d3d3;
+                width: 1000px;
+            }
+
+            sortable-table::shadow thead tr th {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            sortable-table::shadow tbody tr td {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            sortable-table::shadow .column-input_id,
+                /*sortable-table::shadow .column-id,*/
+            sortable-table::shadow .column-type,
+            sortable-table::shadow .column-rank,
+            sortable-table::shadow .column-bet,
+            sortable-table::shadow .column-clust,
+            sortable-table::shadow .column-conn {
+                width: 75px;
+                white-space: nowrap;
+            }
+
+        </style>
+        <sortable-table id="table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            contentChanged: function () {
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    var localData = data[i].split("\t");
+
+                    var obj = {
+                        "input_id": localData[0],
+                        "id": localData[1],
+                        "type": localData[2]
+                    };
+                    var columnIdx = 2;
+                    if (this.typeTable == "NETWORKMINERRANKED_TABLE") {
+                        obj["rank"] = parseFloat(localData[++columnIdx]).toFixed(3);
+                    }
+
+                    obj["bet"] = parseFloat(localData[++columnIdx]).toFixed(3);
+                    obj["clust"] = parseFloat(localData[++columnIdx]).toFixed(3);
+                    obj["conn"] = localData[++columnIdx];
+                    obj["go_names"] = localData[++columnIdx];
+                    obj["go_ids"] = localData[++columnIdx];
+                    this.data.push(obj)
+                }
+                this.columns = new Array();
+                this.columns.push({
+                    name: "input_id",
+                    title: "Input id"
+
+                });
+                this.columns.push({
+                    name: "id",
+                    title: "id"
+
+                });
+                this.columns.push({
+                    name: "type",
+                    title: "Type"
+
+                });
+                if (this.typeTable == "NETWORKMINERRANKED_TABLE") {
+                    this.columns.push({
+                        name: "rank",
+                        title: "Rank"
+                    });
+                }
+                this.columns.push({
+                    name: "bet",
+                    title: "Betweenness"
+                });
+                this.columns.push({
+                    name: "clust",
+                    title: "Clustering"
+                });
+                this.columns.push({
+                    name: "conn",
+                    title: "Connections"
+                });
+                this.columns.push({
+                    name: "go_ids",
+                    title: "GO ids"
+                });
+                this.columns.push({
+                    name: "go_names",
+                    title: "Go names"
+                });
+
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+
+            }
+        })
+    </script>
+</polymer-element>
+

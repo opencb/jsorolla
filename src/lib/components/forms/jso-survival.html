@@ -221,7 +221,7 @@
                 this.jobName = "Survival demo (Cox test)";
                 this.description = "Differential expression - Survival demo (Cox test)";
                 this.newFolderName = "surv_" + Math.floor((Math.random() * 100) + 1);
-                this.$.inputFile.selectedFile = {id: "example_survival.txt", path: "survival.txt", type: "FILE"};
+                this.$.inputFile.selectedFile = {id: "example_survival_ordered.txt", path: "survival_ordered.txt", type: "FILE"};
                 this.p_value = 0.05;
                 this.$.test_1.checked = true;
                 this.$.correction_1.checked = true;
@@ -283,6 +283,10 @@
                     var selectCensored = this.$.jsoClassViewerCensored.getMainSelect();
                     var selectTime = this.$.jsoClassViewerTime.getMainSelect();
                     if (this.$.inputFile.selectedFile.id == "example_survival.txt") {
+                        selectCensored.value = "censored";
+                        selectTime.value = "time";
+                    }
+                    if (this.$.inputFile.selectedFile.id == "example_survival_ordered.txt") {
                         selectCensored.value = "censored";
                         selectTime.value = "time";
                     }
