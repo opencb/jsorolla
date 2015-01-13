@@ -61,19 +61,19 @@
                 /*background-color: blue;*/
             }
 
-            jso-network-viewer {
-                max-width: 1000px;
-                height: 800px;
+            /*jso-network-viewer {*/
+            /*max-width: 1000px;*/
+            /*height: 800px;*/
 
-                border-color: rgb(217, 217, 217);
-                border-style: solid;
-                border-width: 1px;
-            }
+            /*border-color: rgb(217, 217, 217);*/
+            /*border-style: solid;*/
+            /*border-width: 1px;*/
+            /*}*/
 
             /*TODO temporal fix*/
-            jso-network-viewer::shadow jso-nv-layout {
-                height: calc(100% - 96px);
-            }
+            /*jso-network-viewer::shadow jso-nv-layout {*/
+            /*height: calc(100% - 96px);*/
+            /*}*/
 
             sortable-table {
                 max-width: 1000px;
@@ -450,54 +450,45 @@
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0 || element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
+                            var sortableTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
-                                var data = content.split("\n");
-
-                                for (var i = 1; i < data.length; i++) {
-                                    dataArray.push(data[i].split("\t"))
-                                }
-
+                                sortableTable.typeTable = "NETWORKMINERRANKED_TABLE";
+                                sortableTable.content = content;
 
                             }, element.value);
 
-                            var sortableTable = document.createElement('sortable-table');
-                            sortableTable.setAttribute("id", "tableId");
-                            sortableTable.columns = ["Input", "Id", "Type", "Rank", "Betweenness", "Clustering", "Connections", "GOs", "KEEGs"];
-                            sortableTable.data = dataArray;
-                            sortableTable.pageSize = "10";
-                            sortableTable.footerTemplate = "simplePager";
+                            res.appendChild(sortableTable);
+
+                        }
+                        if (element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
+                            var dataArray = new Array();
+                            var sortableTable = document.createElement('jso-interactors-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
+                                sortableTable.content = content;
+
+                            }, element.value);
 
                             res.appendChild(sortableTable);
 
                         }
 
                         if (element.tags.indexOf("INTERACTOME_VIEWER") >= 0) {
-                            var networkViewer = document.createElement('jso-network-viewer');
-                            networkViewer.setAttribute("id", "networkId");
 
-                            //TODO temporal fix
-                            networkViewer.setAttribute("hideBar", "true");
-                            networkViewer.hideNodeSimpleRendering = true;
-                            networkViewer.hideEdgeSimpleRendering = true;
+                            var intermediatesArray = new Array();
+                            var seedArray = new Array();
+                            var tags = element.tags.split(",");
+                            if (tags[3] != null)
+                                intermediatesArray = tags[3];
+                            if (tags[4] != null)
+                                seedArray = tags[4];
 
-
+                            var networkViewer = document.createElement('jso-interactome-viewer');
                             this.getFileContent(function (content) {
-                                var adapter = new SIFNetworkDataAdapter({
-                                    dataSource: new StringDataSource(content),
-                                    handlers: {
-                                        'data:load': function (event) {
-                                            //me.processData(event.graph);
-                                            networkViewer.setGraph(event.graph);
-                                            networkViewer.setLayout("Force directed");
-                                            me.$.output.querySelector("#" + divId).appendChild(networkViewer);
-                                        },
-                                        'error:parse': function (event) {
-                                            console.log("ERRORRRR");
-                                        }
-                                    }
-                                });
+                                networkViewer.content = content;
+                                networkViewer.intermediates = intermediatesArray;
+                                networkViewer.seedList = seedArray;
                             }, element.value);
-
 
                             res.appendChild(networkViewer);
                         }
@@ -507,7 +498,7 @@
                             var json = JSON.parse(element.value.replace(/\\/g, ''))
                             var test = json.testfilename.replace(".txt", "")
 
-                             var sortableTable = document.createElement('jso-diffexpr-table');
+                            var sortableTable = document.createElement('jso-diffexpr-table');
                             sortableTable.setAttribute("id", "tableId");
                             res.appendChild(sortableTable);
 
@@ -567,7 +558,7 @@
 
                             res.appendChild(sortableTable);
                         }
-                        if (element.tags.indexOf("FATIGO_TABLE") >= 0 ) {
+                        if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
 
                             if (element.value.indexOf("0.05") >= 0) {
                                 var sortableTable = document.createElement('jso-fatigo-table');

@@ -1,0 +1,72 @@
+<polymer-element name="jso-interactome-viewer" attributes="content intermediates seedList">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host{
+                display: block;
+            }
+
+             jso-network-viewer {
+                max-width: 1000px;
+                height: 800px;
+
+                border-color: rgb(217, 217, 217);
+                border-style: solid;
+                border-width: 1px;
+            }
+
+            /*TODO temporal fix*/
+            jso-network-viewer::shadow jso-nv-layout {
+                height: calc(100% - 126px);
+            }
+
+
+        </style>
+        <jso-network-viewer id="viewer"></jso-network-viewer>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            contentChanged: function () {
+                var me = this;
+                this.intermediates = this.intermediates.split("|");
+                //TODO temporal fix
+                this.$.viewer.hideBar = true;
+                this.$.viewer.hideNodeSimpleRendering = true;
+                this.$.viewer.hideEdgeSimpleRendering = true;
+                var adapter = new SIFNetworkDataAdapter({
+                    dataSource: new StringDataSource(this.content),
+                    handlers: {
+                        'data:load': function (event) {
+                            //me.processData(event.graph);
+                            me.$.viewer.setGraph(event.graph);
+                            me.$.viewer.setLayout("Force directed");
+
+                            me.$.viewer.setGraph(event.graph);
+                            me.$.viewer.setVertexDefaultDisplayProperty("color","#c0c0c0")
+                            for (var i = 0; i < me.intermediates.length; i++) {
+                                var intermediate = me.intermediates[i];
+                                var vertex = me.$.viewer.graph.getVertexById(intermediate);
+
+                                vertex.renderer.set("shape","square");
+                                vertex.renderer.set("size",20);
+                                vertex.renderer.set("color","#eaeaea");
+
+                            }
+//                            me.$.output.querySelector("#" + divId).appendChild(networkViewer);
+                        },
+                        'error:parse': function (event) {
+                            console.log("ERRORRRR");
+                        }
+                    }
+                });
+
+            }
+
+        })
+    </script>
+</polymer-element>
+
