@@ -448,7 +448,7 @@
 
                         res.appendChild(file);
 
-                        if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0 || element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
+                        if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
                             var sortableTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
@@ -641,8 +641,79 @@
                                 res.appendChild(sortableTable);
                             }
                         }
+                        if (element.tags.indexOf("REDIRECT_TOOL_SNOW") >= 0) {
+                            //var fields = tags.split(",");
+                            var me = this;
+                            var tagsFields = element.tags.split(",");
+                            var file = "";
+                            for (var i = 0; i < this.filesList.length; i++) {
+                                var file = this.filesList[i];
+                                if (file.name == element.value)
+                                    break;
+                            }
+                            var args = {
+                                interactome: tagsFields[1],
+                                type: tagsFields[2],
+                                group: tagsFields[3],
+                                intermediate: tagsFields[5],
+                                list1: file
+                            };
+
+                            var button = document.createElement('button');
+                            var el = document.createTextNode("click me!");
+                            button.appendChild(el);
+
+                            button.onclick = function () {
+                                me.fire("redirection", {
+                                    tool: 'snow',
+                                    args: args
+                                });
+                            }
+                            button.value = "click me!";
+                            res.appendChild(button);
+//                            this.selectedOption = 'snow';
+//                            debugger
+
+                        }
+                        if (element.tags.indexOf("REDIRECT_TOOL_FATIGO") >= 0) {
+                            //var fields = tags.split(",");
+                            var me = this;
+                            var tagsFields = element.tags.split(",");
+                            var file1 = "";
+                            for (var i = 0; i < this.filesList.length; i++) {
+                                if (this.filesList[i].name == element.value)
+                                    var file1 = this.filesList[i];
+                                if (this.filesList[i].name == tagsFields[4])
+                                    var file2 = this.filesList[i];
+                            }
+                            var args = {
+                                species: tagsFields[1],
+                                list1: file1,
+                                list2: file2
+                            };
+
+                            var button = document.createElement('button');
+                            var el = document.createTextNode("click me!");
+                            button.appendChild(el);
+
+                            button.onclick = function () {
+                                me.fire("redirection", {
+                                    tool: 'fatigo',
+                                    args: args
+                                });
+                            }
+                            button.value = "click me!";
+                            res.appendChild(button);
+//                            this.selectedOption = 'snow';
+//                            debugger
+
+                        }
                 }
                 return res;
+            },
+            buttonClick: function () {
+                this.selectedOption = 'snow';
+                //debugger
             },
             prepareHMData: function (data) {
                 var res = [];

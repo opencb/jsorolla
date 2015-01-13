@@ -9,7 +9,7 @@
               }*/
             sortable-table {
                 border: 1px solid #d3d3d3;
-                width: 1000px;
+                /*width: 1000px;*/
             }
 
             sortable-table::shadow thead tr th {
@@ -29,7 +29,7 @@
             }
 
             sortable-table::shadow .column-input_id,
-                /*sortable-table::shadow .column-id,*/
+                sortable-table::shadow .column-id,
             sortable-table::shadow .column-type,
             sortable-table::shadow .column-rank,
             sortable-table::shadow .column-bet,
@@ -65,10 +65,7 @@
                         "type": localData[2]
                     };
                     var columnIdx = 2;
-                    if (this.typeTable == "NETWORKMINERRANKED_TABLE") {
-                        obj["rank"] = parseFloat(localData[++columnIdx]).toFixed(3);
-                    }
-
+                    obj["rank"] = parseFloat(localData[++columnIdx]).toFixed(3);
                     obj["bet"] = parseFloat(localData[++columnIdx]).toFixed(3);
                     obj["clust"] = parseFloat(localData[++columnIdx]).toFixed(3);
                     obj["conn"] = localData[++columnIdx];
