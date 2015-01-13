@@ -533,6 +533,7 @@
                         me.getUserInfo();
                     }, this.checkTimeInterval);
                 }
+                this.fire("login");
             },
             sessionFinished: function (e) {
                 this.showJobs = false;
@@ -544,6 +545,7 @@
                 /**END OPENCGA CHECK**/
                 clearInterval(this.userInfoInterval);
                 this.userInfoInterval = null;
+                this.fire("logout");
             },
             getUserInfo: function () {
                 var me = this;

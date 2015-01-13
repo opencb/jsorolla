@@ -78,19 +78,24 @@
                         <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}">
                         <span>Id List vs Rest of genome</span>
                     </label>
-                    <label class="control">
-                        <input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">
-                        <span>Id List vs Rest of ids contained in your annotations (complementary list)</span>
-                    </label>
+                    <!--<label class="control">-->
+                    <!--<input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">-->
+                    <!--<span>Id List vs Rest of ids contained in your annotations (complementary list)</span>-->
+                    <!--</label>-->
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"></jso-project-browser-window>
+                    <jso-project-browser-window
+                            id="inputFile"
+                            studies="{{studies}}"
+                            selectedStudy="{{selectedStudy}}"
+                            selectionMode="file"
+                            on-file-select="{{handleFileSelect}}"
+                            bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
+                            ></jso-project-browser-window>
                 </div>
             </div>
 

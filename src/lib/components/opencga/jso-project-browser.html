@@ -33,6 +33,11 @@
                 border-bottom-width: 1px;
             }
 
+            #topleftbar {
+                line-height: 21px;
+                padding: 4px;
+            }
+
             #bottombar {
                 box-sizing: border-box;
                 background-color: #FAFAFA;
@@ -47,26 +52,33 @@
             #main {
                 position: relative;
                 height: calc(100% - 64px);
-                width: 100%;
+                /*width: 100%;*/
             }
 
             #studiesList {
-                float: left;
-                position: relative;
-                box-sizing: border-box;
-                overflow-y: auto;
                 width: 150px;
                 height: 100%;
+                box-sizing: border-box;
+                overflow-y: auto;
                 border-right: 1px solid #d3d3d3;
                 background-color: #f5f5f5;
             }
 
             #foldersMain {
+                left: 150px;
                 height: 100%;
-                margin-left: 150px;
                 white-space: nowrap;
                 font-size: 0;
                 overflow-x: scroll;
+            }
+
+            #fileinfo {
+                width: 15%;
+                height: 100%;
+                box-sizing: border-box;
+                border-left: 1px solid #d3d3d3;
+                background-color: #f5f5f5;
+                word-wrap: break-word;
             }
 
             #foldersMain > jso-project-browser-folder-list {
@@ -154,6 +166,11 @@
                     <span>{{bread}}</span>
                 </template>
             </div>
+            <div id="topleftbar">
+                <div class="button action" data-checked="{{showInfo}}" on-click="{{handleShowInfo}}">
+                    <font-awesome icon="info"></font-awesome>
+                </div>
+            </div>
             <div id="fileActions" horizontal layout>
 
             </div>
@@ -161,8 +178,8 @@
             </div>
         </div>
 
-        <div id="main">
-            <div id="studiesList" class="contentList">
+        <div id="main" horizontal layout>
+            <div id="studiesList">
                 <div class="navigation-title">Studies</div>
                 <template repeat="{{study in studies}}">
                     <jso-opencga-study-card
@@ -171,7 +188,7 @@
                     </jso-opencga-study-card>
                 </template>
             </div>
-            <div id="foldersMain">
+            <div flex id="foldersMain">
                 <template id="firstLevel" if="{{ files.length > 0 }}">
                     <!--<jso-project-browser-folder-list-->
                     <!--files="{{files}}"-->
@@ -182,18 +199,34 @@
                     <!--bioformat="{{bioformat}}"></jso-project-browser-folder-list>-->
                 </template>
             </div>
+            <template if="{{ showInfo == true }}">
+                <div id="fileinfo">
+                    <template if="{{selectedFile != null && selectedFile.name != '.'}}">
+                        <div>{{selectedFile.name}}</div>
+                        <br>
+                        bioformat:<span>{{selectedFile.bioformat}}</span>
+                        <br>
+                        format:<span>{{selectedFile.format}}</span>
+                        <br>
+                        type:<span>{{selectedFile.type}}</span>
+                        <br>
+                        Created:<span>{{selectedFile.creationDate}}</span>
+                        <br>
+                    </template>
+                </div>
+            </template>
             <!--<template if="{{ selectedOption == 'createProject' }}">-->
             <!--<jso-opencga-create-project></jso-opencga-create-project>-->
             <!--</template>-->
 
-            <template if="{{ selectedOption == 'selectStudy' }}">
-                <jso-opencga-select-study studyList="{{studies}}"
-                                          selectedStudy="{{selectedStudy}}"
-                                          userData="{{userData}}"></jso-opencga-select-study>
-            </template>
-            <template if="{{ selectedOption == 'createStudy' }}">
-                <jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>
-            </template>
+            <!--<template if="{{ selectedOption == 'selectStudy' }}">-->
+            <!--<jso-opencga-select-study studyList="{{studies}}"-->
+            <!--selectedStudy="{{selectedStudy}}"-->
+            <!--userData="{{userData}}"></jso-opencga-select-study>-->
+            <!--</template>-->
+            <!--<template if="{{ selectedOption == 'createStudy' }}">-->
+            <!--<jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>-->
+            <!--</template>-->
             <!--<template if="{{ selectedOption == 'createAnalysis' }}">-->
             <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
             <!--</template>-->
@@ -219,21 +252,21 @@
 
             <!--</template>-->
 
-            <div id="bottombar" horizontal layout>
-                <template if="{{selectionMode != ''}}">
+        </div>
+        <div id="bottombar" horizontal layout>
+            <template if="{{selectionMode != ''}}">
+                <div flex horizontal layout>
                     <div flex horizontal layout>
-                        <div flex horizontal layout>
-                            <template if="{{bioformat != ''}}">
-                                <div class="text">Accepted bioformats:{{bioformat}}</div>
-                            </template>
-                        </div>
-                        <div horizontal layout end-justified>
-                            <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
-                            <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK</div>
-                        </div>
+                        <template if="{{bioformat != ''}}">
+                            <div class="text">Accepted bioformats:{{bioformat}}</div>
+                        </template>
                     </div>
-                </template>
-            </div>
+                    <div horizontal layout end-justified>
+                        <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
+                        <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK</div>
+                    </div>
+                </div>
+            </template>
         </div>
     </template>
     <script>
@@ -251,6 +284,8 @@
                 this.selectedFile;
                 this.selectionMode = '';
                 this.bioformat = "";
+
+                this.showInfo = true;
             },
             ready: function () {
             },
@@ -428,7 +463,9 @@
                     this.$.foldersMain.removeChild(el);
                 }
             },
-
+            handleShowInfo: function (e) {
+                this.showInfo = !this.showInfo;
+            },
             handleOk: function (e) {
                 switch (this.selectionMode) {
                     case 'file':
