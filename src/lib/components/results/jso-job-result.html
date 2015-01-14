@@ -136,13 +136,34 @@
         <template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">
             <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
         </template>
-        <template if="{{jobItem.toolName == 'fatigo'}}">
-            <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
+
+        <div id="output" class="output"></div>
+
+        <template if="{{jobItem.toolName == 'fatigo' && !loading}}">
+            <div id="fatigoOutput" class="output">
+                <div class="level-0">
+                    <div class="headerTitle">Other Actions</div>
+                    <div class="children">
+                        <div class="level-1">
+                            <div class="headerTitle">Select p-value</div>
+                            <div horizontal="" layout="">
+                                <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">0.1
+                                </div>
+                                <div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">
+                                    0.05
+                                </div>
+                                <div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">
+                                    0.01
+                                </div>
+                                <div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">
+                                    0.005
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </template>
-        <div id="output" class="output">
-
-        </div>
-
     </template>
     <script>
         Polymer({
@@ -151,7 +172,14 @@
                 this.selectedOption = "";
                 this.pvalue = 0.05;
             },
-            pvalueChanged: function(){
+            domReady: function () {
+
+            },
+            handlePvalue: function (event, clicked, elem) {
+                this.pvalue = parseFloat(elem.innerHTML);
+                console.log(this.pvalue);
+            },
+            pvalueChanged: function (oldValue, newValue) {
 
                 this.jobItemChanged();
             },
@@ -171,8 +199,6 @@
                     return;
                 }
 
-
-
                 OpencgaManager.files.filesByFolder({
                     id: me.jobItem.outDirId,
                     query: {
@@ -186,6 +212,7 @@
                                 me.getFileContent(function (content) {
                                     var root = me.$.output;
                                     me.parseXML(content, root);
+
                                     me.loading = false;
                                 }, "result.xml");
                             }
@@ -250,6 +277,7 @@
                 this.resultXML = me.parseResultXML(xmlDoc);
 
                 var divsJSON = me._renderJSON();
+
                 me.$.output.appendChild(divsJSON);
             },
             parseResultXML: function (xmlDoc) {
@@ -309,7 +337,21 @@
                     mainDiv.appendChild(divElem);
 
                 }
+
                 return mainDiv;
+            },
+            _createButton: function (pvalue) {
+                var me = this;
+                var button = document.createElement("div");
+                button.classList.add("button");
+                button.setAttribute("data-checked", "{{pvalue == " + pvalue + "}}");
+                button.innerHTML = pvalue;
+
+                button.addEventListener("click", function () {
+                    me.pvalue = pvalue;
+                });
+
+                return button;
             },
             _renderJsonElement: function (element, level) {
 
@@ -468,7 +510,17 @@
 
                         file.appendChild(a);
 
-                        res.appendChild(file);
+                        if (this.jobItem.toolName == "fatigo") {
+                            if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
+                                if (element.value.indexOf(me.pvalue) >= 0) {
+                                    res.appendChild(file);
+                                }
+                            } else {
+                                res.appendChild(file);
+                            }
+                        } else {
+                            res.appendChild(file);
+                        }
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
@@ -580,9 +632,33 @@
 
                             res.appendChild(sortableTable);
                         }
+                        if (element.tags.indexOf("ONCODRIVEFM-GENES") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
+                        if (element.tags.indexOf("ONCODRIVEFM-PATHWAYS") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+                            var sortableTable = document.createElement('jso-oncodrive-pathways-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
                         if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
 
-                            if (element.value.indexOf("0.05") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
                                 var sortableTable = document.createElement('jso-fatigo-table');
                                 this.getFileContent(function (content) {
                                     sortableTable.content = content;
@@ -591,9 +667,10 @@
                                 res.appendChild(sortableTable);
                             }
                         }
+
                         if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
 
-                            if (element.value.indexOf("0.05") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
                                 var sortableTable = document.createElement('jso-logistic-table');
                                 this.getFileContent(function (content) {
                                     sortableTable.content = content;
