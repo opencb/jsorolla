@@ -136,7 +136,11 @@
         <template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">
             <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
         </template>
+        <template if="{{jobItem.toolName == 'fatigo'}}">
+            <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
+        </template>
         <div id="output" class="output">
+
         </div>
 
     </template>
@@ -145,6 +149,11 @@
             created: function () {
                 this.createdElements = {};
                 this.selectedOption = "";
+                this.pvalue = 0.05;
+            },
+            pvalueChanged: function(){
+
+                this.jobItemChanged();
             },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
@@ -162,7 +171,7 @@
                     return;
                 }
 
-                me.pvalue = 0.05;
+
 
                 OpencgaManager.files.filesByFolder({
                     id: me.jobItem.outDirId,
@@ -362,6 +371,8 @@
 
                             }, fileRedirection);
                         }
+
+
                         break;
                     case "IMAGE":
 
@@ -393,7 +404,18 @@
 
                         break;
                     case "MESSAGE":
+                        var notRenderElement = false;
                         if (element.value == "Graph not found") {
+                            notRenderElement = true;
+                        }
+
+                        if (this.jobItem.toolName == "snow") {
+                            if (element.name == "randoms_param" || element.name == "type_param" ) {
+                                notRenderElement = true;
+                            }
+                        }
+
+                        if (notRenderElement) {
                             break;
                         }
                         res.classList.add("message");
@@ -704,16 +726,10 @@
                             }
                             button.value = "click me!";
                             res.appendChild(button);
-//                            this.selectedOption = 'snow';
-//                            debugger
 
                         }
                 }
                 return res;
-            },
-            buttonClick: function () {
-                this.selectedOption = 'snow';
-                //debugger
             },
             prepareHMData: function (data) {
                 var res = [];
