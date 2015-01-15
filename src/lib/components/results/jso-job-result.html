@@ -139,7 +139,7 @@
 
         <div id="output" class="output"></div>
 
-        <template if="{{jobItem.toolName == 'fatigo' && !loading}}">
+        <template if="{{(jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}} ">
             <div id="fatigoOutput" class="output">
                 <div class="level-0">
                     <div class="headerTitle">Other Actions</div>
@@ -147,7 +147,8 @@
                         <div class="level-1">
                             <div class="headerTitle">Select p-value</div>
                             <div horizontal="" layout="">
-                                <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">0.1
+                                <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">
+                                    0.1
                                 </div>
                                 <div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">
                                     0.05
@@ -177,7 +178,6 @@
             },
             handlePvalue: function (event, clicked, elem) {
                 this.pvalue = parseFloat(elem.innerHTML);
-                console.log(this.pvalue);
             },
             pvalueChanged: function (oldValue, newValue) {
 
@@ -518,7 +518,18 @@
                             } else {
                                 res.appendChild(file);
                             }
-                        } else {
+
+                        }
+                        if (this.jobItem.toolName == "fatiscan") {
+                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                                if (element.value.indexOf(me.pvalue) >= 0) {
+                                    res.appendChild(file);
+                                }
+                            } else {
+                                res.appendChild(file);
+                            }
+                        }
+                        else {
                             res.appendChild(file);
                         }
 

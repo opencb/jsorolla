@@ -115,16 +115,16 @@
                     </div>
             </div>
 
-            <!--<div class="formbox">-->
-                <!--<div class="formtitle">List nature</div>-->
-                <!--<div class="formcontent">-->
-                    <!--<div id="typeDiv">-->
-                        <!--<input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">Transcripts<br>-->
-                        <!--<input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>Proteins<br>-->
-                        <!--<input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes" >Genes<br>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+            <div class="formbox">
+                <div class="formtitle">List nature</div>
+                <div class="formcontent">
+                    <div id="typeDiv">
+                        <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">Transcripts<br>
+                        <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>Proteins<br>
+                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes" >Genes<br>
+                    </div>
+                </div>
+            </div>
 
             <div class="formbox">
                 <div class="formtitle">Specie</div>
@@ -232,6 +232,12 @@
                     if(radio.value == this.args.group)
                         radio.checked = true;
                 }
+                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
+                for(var i = 0; i < radios.length; i++){
+                    var radio = radios[i];
+                    if(radio.value == this.args.group)
+                        radio.checked = true;
+                }
             },
             handleCancel: function () {
                 this.selectedOption = '';
@@ -259,7 +265,7 @@
                         "o-name": "result",
                         interactome: this.$.interactome.value,
                         intermediate: this.$.intermediate.value,
-                        type: this.type,
+                        type: this.$.typeDiv.querySelector('input[name="type"]:checked').value,
                         group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
                         components: true,
                         randoms: this.randoms,
@@ -299,7 +305,7 @@
                 this.description = "Description downregulated"
                 this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
                 this.$.interactome.value = "hsa";
-//                this.$.type_3.checked = true;
+                this.$.type_3.checked = true;
                 this.$.side_1.checked = true;
                 this.$.group_2.checked = true;
 //                this.$.randoms.value = 500;
