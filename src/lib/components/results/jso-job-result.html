@@ -136,6 +136,7 @@
         <template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">
             <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
         </template>
+
         <div id="output" class="output"></div>
 
         <template if="{{jobItem.toolName == 'fatigo' && !loading}}">
@@ -163,7 +164,6 @@
                 </div>
             </div>
         </template>
-
     </template>
     <script>
         Polymer({
@@ -437,6 +437,8 @@
                                 }, fileRedirection);
                             }
                         }
+
+
                         break;
                     case "IMAGE":
 
@@ -468,7 +470,18 @@
 
                         break;
                     case "MESSAGE":
+                        var notRenderElement = false;
                         if (element.value == "Graph not found") {
+                            notRenderElement = true;
+                        }
+
+                        if (this.jobItem.toolName == "snow") {
+                            if (element.name == "randoms_param" || element.name == "type_param" ) {
+                                notRenderElement = true;
+                            }
+                        }
+
+                        if (notRenderElement) {
                             break;
                         }
                         res.classList.add("message");
