@@ -509,7 +509,11 @@
 
 
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            if (this.jobItem.toolName == "affy-expression-normalization") {
+                            console.log(this.jobItem.toolName);
+                            if (this.jobItem.toolName == "affy-expression-normalization"
+                                    || this.jobItem.toolName == "agilent-expression-one-color-normalization"
+                                    || this.jobItem.toolName == "genepix-expression-one-color-normalization") {
+
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                 this.getFileContent(function (content) {
                                     var lines = content.split("\n");
@@ -531,11 +535,12 @@
                                         if (file.name == filename)
                                             break;
                                     }
+
                                     var args = {
                                         inputFile: file,
                                         tool: hash.tool,
                                         jobName: hash.jobname,
-                                        description: "Redirect from " + this.jobItem.jobName,
+                                        description: "Redirect from " + me.jobItem.jobName,
                                         merge_replicates: hash.merge_replicates,
                                         impute_missing: hash.impute_missing
                                     }
