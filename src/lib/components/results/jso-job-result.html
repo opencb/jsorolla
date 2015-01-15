@@ -509,7 +509,6 @@
 
 
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            console.log(this.jobItem.toolName);
                             if (this.jobItem.toolName == "affy-expression-normalization"
                                     || this.jobItem.toolName == "agilent-expression-one-color-normalization"
                                     || this.jobItem.toolName == "genepix-expression-one-color-normalization"
@@ -542,7 +541,7 @@
                                         inputFile: file,
                                         tool: hash.tool,
                                         jobName: hash.jobname,
-                                        description: "Redirect from " + me.jobItem.jobName,
+                                        description: "Redirect from " + me.jobItem.name,
                                         merge_replicates: hash.merge_replicates,
                                         impute_missing: hash.impute_missing
                                     }
