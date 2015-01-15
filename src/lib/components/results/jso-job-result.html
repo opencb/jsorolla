@@ -512,7 +512,9 @@
                             console.log(this.jobItem.toolName);
                             if (this.jobItem.toolName == "affy-expression-normalization"
                                     || this.jobItem.toolName == "agilent-expression-one-color-normalization"
-                                    || this.jobItem.toolName == "genepix-expression-one-color-normalization") {
+                                    || this.jobItem.toolName == "genepix-expression-one-color-normalization"
+                                    || this.jobItem.toolName == "agilent-expression-two-colors-normalization"
+                                    || this.jobItem.toolName == "genepix-expression-two-colors-normalization") {
 
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                 this.getFileContent(function (content) {
