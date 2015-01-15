@@ -1,0 +1,103 @@
+<polymer-element name="jso-file-info" attributes="file">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
+        <style>
+            /*:host {*/
+            /*box-sizing: border-box;*/
+            /*overflow-y: auto;*/
+            /*border: 1px solid #d3d3d3;*/
+            /*background-color: #FFF;*/
+            /*height: 170px;*/
+            /*}*/
+
+            jso-biotype {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+                height: 170px;
+            }
+
+        </style>
+
+        <template if="{{file != null && file.name != '.'}}">
+            <div>{{file.name}}</div>
+            <br>
+            <br>
+            format:<span>{{file.format}}</span>
+            <br>
+            type:<span>{{file.type}}</span>
+            <br>
+            Created:<span>{{file.creationDate}}</span>
+            <br>
+            bioformat:<span>{{bioformatText}}</span>
+            <br>
+
+            <template if="{{file.type=='FILE'}}">
+                <div class="button action" style="width: 100px;" on-click="{{handleShowBioformat}}">Modify Bioformat</div>
+                <template if="{{showBioformat}}">
+                    <div id="showBioformat">
+                        <jso-biotype id="uploadBioformat"></jso-biotype>
+                        <div class="button action" style="width: 100px;" on-click="{{handleModifyBioformat}}">Modify</div>
+                        <div id="message">{{message}}</div>
+                    </div>
+                </template>
+            </template>
+        </template>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.message = "";
+                this.showBioformat = false;
+
+            },
+            fileChanged: function (oldV, newV) {
+                if (oldV !== undefined)
+                    this.bioformatText = this.getPrettyBioformat(this.file.bioformat);
+            },
+            getPrettyBioformat: function (text) {
+                return text.replace(/_/g, '>');
+            },
+            handleShowBioformat: function () {
+                this.showBioformat = !this.showBioformat;
+            },
+            handleModifyBioformat: function (e) {
+                var bioformat = this.shadowRoot.querySelector("#uploadBioformat").getSelected();
+                if (bioformat == "") {
+                    alert("No bioformat selected. Please select a bioformat");
+                    return;
+                }
+                var me = this;
+                OpencgaManager.files.modify({
+                    id: this.file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        bioformat: bioformat
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.message = "Bioformat changed";
+                                me.file.bioformat = bioformat;
+                                me.bioformatText = me.getPrettyBioformat(me.file.bioformat);
+
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            },
+
+
+        });
+    </script>
+</polymer-element>

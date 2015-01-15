@@ -92,7 +92,9 @@
                 </div>
             </div>
             <div vertical layout class="bar" on-click="{{handleBarClick}}">
-                <font-awesome icon="times" on-click="{{handleDeleteJob}}"></font-awesome>
+                <template if="{{jobItem.status != 'RUNNING' }}">
+                    <font-awesome icon="times" on-click="{{handleDeleteJob}}"></font-awesome>
+                </template>
             </div>
         </div>
     </template>

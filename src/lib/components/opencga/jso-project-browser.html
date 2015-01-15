@@ -201,21 +201,7 @@
             </div>
             <template if="{{ showInfo == true }}">
                 <div id="fileinfo">
-                    <template if="{{selectedFile != null && selectedFile.name != '.'}}">
-                        <div>{{selectedFile.name}}</div>
-                        <br>
-                        bioformat:<span>{{selectedFile.bioformat}}</span>
-                        <br>
-                        format:<span>{{selectedFile.format}}</span>
-                        <br>
-                        type:<span>{{selectedFile.type}}</span>
-                        <br>
-                        Created:<span>{{selectedFile.creationDate}}</span>
-                        <br>
-                        Modify bioformat:
-                        <jso-biotype></jso-biotype>
-                        <div class="button action" style="width: 100px;" on-click="{{handleModifyBioformat}}">Modidy</div>
-                    </template>
+                    <jso-file-info file="{{selectedFile}}"></jso-file-info>
                 </div>
             </template>
             <!--<template if="{{ selectedOption == 'createProject' }}">-->
@@ -261,7 +247,7 @@
                 <div flex horizontal layout>
                     <div flex horizontal layout>
                         <template if="{{bioformat != ''}}">
-                            <div class="text">Accepted bioformats:{{bioformat}}</div>
+                            <div class="text">Accepted bioformats:{{bioformatText}}</div>
                         </template>
                     </div>
                     <div horizontal layout end-justified>
@@ -287,8 +273,12 @@
                 this.selectedFile;
                 this.selectionMode = '';
                 this.bioformat = "";
+                this.bioformatText = ""
 
                 this.showInfo = true;
+            },
+            bioformatChanged: function (oldV, newV) {
+                this.bioformatText = this.bioformat.replace(/_/g, '>');
             },
             ready: function () {
             },
@@ -506,12 +496,16 @@
                 this.selectedStudy = null;
             },
             handleModifyBioformat: function (e) {
+                if (this.shadowRoot.querySelector("#uploadBioformat").getSelected() == "") {
+                    alert("No bioformat selected. Please select a bioformat");
+                    return;
+                }
                 var me = this;
                 OpencgaManager.files.modify({
                     id: this.selectedFile.id,
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        biotype: 'IDLIST_GENE'
+                        bioformat: this.shadowRoot.querySelector("#uploadBioformat").getSelected()
                     },
                     request: {
                         async: false,
