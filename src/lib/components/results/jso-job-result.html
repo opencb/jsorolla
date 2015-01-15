@@ -406,12 +406,36 @@
                 switch (element.type) {
                     case "TEXT":
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            var fileRedirection = element.tags.split("(")[1].split(":")[0];
-                            this.getFileContent(function (content) {
-                                var lines = content.split("\n");
+                            if (this.jobItem.toolName == "class-comparison") {
+                                var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                this.getFileContent(function (content) {
+                                    var lines = content.split("\n");
+                                    var hash = {};
+                                    var args = {};
 
+                                    for (var i = 0; i < lines.length; i++) {
+                                        var line = lines[i];
+                                        var splits = line.split("=");
+                                        hash[splits[0]] = splits[1];
+                                    }
 
-                            }, fileRedirection);
+                                    var tool = hash.tool;
+                                    var aux = hash.ranked_list.split("/");
+                                    var filename = aux[aux.length - 1];
+
+                                    var file = {};
+                                    for (var i = 0; i < me.filesList.length; i++) {
+                                        file = me.filesList[i];
+                                        if (file.name == filename)
+                                            break;
+                                    }
+                                    args.list1 = file;
+
+                                    var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
+                                    res.appendChild(button);
+
+                                }, fileRedirection);
+                            }
                         }
                         break;
                     case "IMAGE":
@@ -745,20 +769,8 @@
                                 list1: file
                             };
 
-                            var button = document.createElement('button');
-                            var el = document.createTextNode("click me!");
-                            button.appendChild(el);
-
-                            button.onclick = function () {
-                                me.fire("redirection", {
-                                    tool: 'snow',
-                                    args: args
-                                });
-                            }
-                            button.value = "click me!";
+                            var button = this._createRedirectButton("Send to SNOW!", "snow", args);
                             res.appendChild(button);
-//                            this.selectedOption = 'snow';
-//                            debugger
 
                         }
                         if (element.tags.indexOf("REDIRECT_TOOL_FATIGO") >= 0) {
@@ -778,24 +790,30 @@
                                 list2: file2
                             };
 
-                            var button = document.createElement('button');
-                            var el = document.createTextNode("click me!");
-                            button.appendChild(el);
-
-                            button.onclick = function () {
-                                me.fire("redirection", {
-                                    tool: 'fatigo',
-                                    args: args
-                                });
-                            }
-                            button.value = "click me!";
+                            var button = this._createRedirectButton("Send to FATIGO!", "fatigo", args);
                             res.appendChild(button);
-//                            this.selectedOption = 'snow';
-//                            debugger
 
                         }
                 }
                 return res;
+            },
+            _createRedirectButton: function (buttonText, tool, args) {
+
+                var me = this;
+                var button = document.createElement('button');
+                var elem = document.createTextNode(buttonText);
+
+                button.appendChild(elem);
+                button.onclick = function () {
+                    me.fire("redirection", {
+                        tool: tool,
+                        args: args
+                    });
+                }
+//                button.value = "click me!";
+                return button;
+
+
             },
             buttonClick: function () {
                 this.selectedOption = 'snow';
