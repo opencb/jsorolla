@@ -212,6 +212,9 @@
                         <br>
                         Created:<span>{{selectedFile.creationDate}}</span>
                         <br>
+                        Modify bioformat:
+                        <jso-biotype></jso-biotype>
+                        <div class="button action" style="width: 100px;" on-click="{{handleModifyBioformat}}">Modidy</div>
                     </template>
                 </div>
             </template>
@@ -502,6 +505,30 @@
                 }
                 this.selectedStudy = null;
             },
+            handleModifyBioformat: function (e) {
+                var me = this;
+                OpencgaManager.files.modify({
+                    id: this.selectedFile.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        biotype: 'IDLIST_GENE'
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            },
             userDataChanged: function (oldValue, newValue) {
 //            this.selectedProject = this.userData.projects[0]
 //            if (newValue) {!=
@@ -630,7 +657,8 @@
                 folder="{{folder}}"
                 study="{{study}}"
                 on-file-uploaded="{{handleFileUploaded}}"
-                hidden?="{{hideUploadFile}}"></jso-opencga-upload>
+                hidden?="{{hideUploadFile}}"
+                bioformat="{{bioformat}}"></jso-opencga-upload>
     </template>
     <script>
         Polymer({

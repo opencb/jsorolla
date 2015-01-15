@@ -196,7 +196,7 @@
                 var radios = this.shadowRoot.querySelectorAll('input[name="biotype"]');
                 for(var i = 0; i < radios.length; i++){
                     var radio = radios[i];
-                    if(this.bioformat.indexOf(radio.value)>=0){
+                    if(this.bioformat.indexOf(radio.value)>=0 || this.bioformat=="NONE"){
                         console.log(radio.value)
                         radio.disabled = false;
                     }
