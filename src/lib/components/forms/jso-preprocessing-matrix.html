@@ -1,22 +1,22 @@
-<polymer-element name="jso-preprocessing-matrix" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-preprocessing-matrix" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            padding: 15px 40px;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 80%;
-            min-width: 800px;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
 
             }
 
@@ -83,7 +83,9 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Preprocessing a two classes matrix (twoclasses.txt)</div>
+                    <div class="button action" on-click="{{loadExample1}}">Preprocessing a two classes matrix
+                        (twoclasses.txt)
+                    </div>
                 </div>
             </div>
 
@@ -91,23 +93,27 @@
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Log-transform</div>
                 <div class="formcontent">
-                    <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                    <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none"
+                           checked="checked">none<br>
                     <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2">Log 2<br>
                     <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e">Log e<br>
-                    <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10">Log 10<br>
+                    <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10">Log
+                    10<br>
                     </h3>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Exponential function</div>
                 <div class="formcontent">
-                    <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>
+                    <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none"
+                           checked="checked">none<br>
                     <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2">2<br>
                     <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e">e<br>
                     <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10">10<br>
@@ -116,9 +122,12 @@
             <div class="formbox">
                 <div class="formtitle">Merge replicates</div>
                 <div class="formcontent">
-                    <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio" value="none" checked="checked">none <br>
-                    <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio" value="mean">Average<br>
-                    <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio" value="median">Median<br>
+                    <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio"
+                           value="none" checked="checked">none <br>
+                    <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio"
+                           value="mean">Average<br>
+                    <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio"
+                           value="median">Median<br>
                 </div>
             </div>
             <div class="formbox">
@@ -132,51 +141,60 @@
             <div class="formbox">
                 <div class="formtitle">Impute missing values</div>
                 <div class="formcontent">
-                    <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none" checked="checked"> Do not impute <br>
-                    <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn">KNN imputation <br>
-                    <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean">Row mean imputation <br>
-                    <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median">Row median imputation <br>
-                    <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero">Impute with zeros<br>
-                    <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" value="15">
+                    <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none"
+                           checked="checked"> Do not impute <br>
+                    <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn">KNN
+                    imputation <br>
+                    <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean">Row
+                    mean imputation <br>
+                    <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median">Row
+                    median imputation <br>
+                    <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero">Impute
+                    with zeros<br>
+                    <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text"
+                                                 value="15">
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Extract IDs from dataset and save into a file</div>
                 <div class="formcontent">
-                    <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true">Check to extract IDs
+                    <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true">Check to
+                    extract IDs
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Filter genes by names</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="gene_file_filter" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                    <jso-project-browser-window id="gene_file_filter" studies="{{studies}}"
+                                                selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file"
+                                                on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
                 </div>
             </div>
             <!--<div class="formbox">-->
-                <!--<div class="formtitle">Convert IDs from dataset</div>-->
-                <!--<div class="formcontent">-->
-                    <!--<input id="convert_ids_1" name="convert_ids" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>-->
-                    <!--<input id="convert_ids_2" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_gene">Ensembl gene<br>-->
-                    <!--<input id="convert_ids_3" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_transcript">Ensembl transcript <br>-->
-                    <!--<label>Organism</label>-->
-                    <!--<select name="species" id="species" class="fc-combobox" type="text" value="hsa">-->
-                        <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>-->
-                        <!--<option name="species_2" id="species_2" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>-->
-                        <!--<option name="species_3" id="species_3" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>-->
-                        <!--<option name="species_4" id="species_4" class="fc-combobox-item" value="gga">Chicken (gallus gallus)</option>-->
-                        <!--<option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>-->
-                        <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                        <!--<option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>-->
-                        <!--<option name="species_8" id="species_8" class="fc-combobox-item" value="aga">Anopheles gambiae</option>-->
-                        <!--<option name="species_9" id="species_9" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>-->
-                        <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>-->
-                        <!--<option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
-                    <!--</select>-->
-                    <!--<label>Select method to merge the replicated result IDs</label><br>-->
-                    <!--<input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>-->
-                    <!--<input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>-->
-                <!--</div>-->
+            <!--<div class="formtitle">Convert IDs from dataset</div>-->
+            <!--<div class="formcontent">-->
+            <!--<input id="convert_ids_1" name="convert_ids" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>-->
+            <!--<input id="convert_ids_2" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_gene">Ensembl gene<br>-->
+            <!--<input id="convert_ids_3" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_transcript">Ensembl transcript <br>-->
+            <!--<label>Organism</label>-->
+            <!--<select name="species" id="species" class="fc-combobox" type="text" value="hsa">-->
+            <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>-->
+            <!--<option name="species_2" id="species_2" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>-->
+            <!--<option name="species_3" id="species_3" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>-->
+            <!--<option name="species_4" id="species_4" class="fc-combobox-item" value="gga">Chicken (gallus gallus)</option>-->
+            <!--<option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>-->
+            <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
+            <!--<option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>-->
+            <!--<option name="species_8" id="species_8" class="fc-combobox-item" value="aga">Anopheles gambiae</option>-->
+            <!--<option name="species_9" id="species_9" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>-->
+            <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>-->
+            <!--<option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
+            <!--</select>-->
+            <!--<label>Select method to merge the replicated result IDs</label><br>-->
+            <!--<input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>-->
+            <!--<input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>-->
+            <!--</div>-->
             <!--</div>-->
             <div class="formbox">
                 <div class="formtitle">Job information</div>
@@ -204,12 +222,32 @@
             handleForm: function () {
                 this.launchJob();
             },
+            argsChanged: function () {
+                this.message = '';
+                this.jobName = this.args.jobName;
+                this.description = this.args.description;
+                this.$.inputFile.selectedFile = this.args.inputFile;
+//                this.$.inputFile2.selectedFile = this.args.list2;
+
+                var radios = this.shadowRoot.querySelectorAll('input[name="merge_replicates"]');
+                for (var i = 0; i < radios.length; i++) {
+                    var radio = radios[i];
+                    if (radio.value == this.args.merge_replicates)
+                        radio.checked = true;
+                }
+                var radios = this.shadowRoot.querySelectorAll('input[name="impute_missing"]');
+                for (var i = 0; i < radios.length; i++) {
+                    var radio = radios[i];
+                    if (radio.value == this.args.impute_missing)
+                        radio.checked = true;
+                }
+            },
             launchJob: function () {
                 var me = this;
                 var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!utils.basicValidationForm()) {
                     return;
-               }
+                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -245,11 +283,11 @@
                         query["gene_file_filter"] = this.$.gene_file_filter.selectedFile.id;
                     }
                 }
-                if (this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
-                    query["convert-ids"] = this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;
-                    query["species"] = this.$.species.value;
-                    query["merge-replicates"] = this.$.merge_replicates.value;
-                }
+//                if (this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
+//                    query["convert-ids"] = this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;
+//                    query["species"] = this.$.species.value;
+//                    query["merge-replicates"] = this.$.merge_replicates.value;
+//                }
                 OpencgaManager.jobs.create({
                     query: query,
                     request: {
