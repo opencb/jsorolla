@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -334,6 +334,30 @@
 
 
             },
+            argsChanged: function(){
+                this.message = '';
+                this.jobName = "Job name";
+                this.description = "description";
+                this.$.inputFile.selectedFile = this.args.list1;
+                this.$.inputFile2.selectedFile = this.args.list2;
+                this.$.species.value = this.args.species;
+                this.$.duplicates.value = "never";
+                this.$.fisher.value = "greater";
+
+                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
+                for(var i = 0; i < radios.length; i++){
+                    var radio = radios[i];
+                    if(radio.value == this.args.group)
+                        radio.checked = true;
+                }
+                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
+                for(var i = 0; i < radios.length; i++){
+                    var radio = radios[i];
+                    if(radio.value == this.args.type)
+                        radio.checked = true;
+                }
+            },
+
             comparisonChange: function () {
                 this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
                 this.list2 = false;

@@ -1,4 +1,4 @@
-<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -98,12 +98,12 @@
             <div class="formbox">
                 <div class="formtitle">Define your input data</div>
                 <div class="formcontent">
-                    <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">One list<br>
-                    <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list"  on-click="{{modeChanged}}">Comparing two lists
+                    <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}"> One list<br>
+                    <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list"  on-click="{{modeChanged}}"> Comparing two lists
                 </div>
             </div>
             <div class="formbox">
-                <div class="formtitle">Select your data</div>
+                <div class="formtitle">Select your input files</div>
                 <div class="formcontent">
                     List 1: <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
@@ -127,7 +127,7 @@
             </div>
 
             <div class="formbox">
-                <div class="formtitle">Species</div>
+                <div class="formtitle">Specie</div>
                 <div class="formcontent">
                     <div id="interactomeDiv">
                         <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
@@ -146,32 +146,41 @@
                 <div class="formtitle">Select interactome confidence</div>
                 <div class="formcontent">
                     <div id="groupDiv">
-                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis<br>
-                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">curated<br>
+                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis (all protein Protein-Protein Interactions detected experimentally)<br>
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">curated (Protein-Protein Interactions detected with, at least, two different experimental methods)<br>
                     </div>
                 </div>
             </div>
             <div class="formbox">
-                <div class="formtitle">Number of simulations</div>
+                <div class="formtitle">Side for statistical tests</div>
                 <div class="formcontent">
-
-                    <div id="randomsDiv">
-                        <select name="randoms" id="randoms" class="fc-combobox" type="text" value="500">
-                            <option name="randoms_1" id="randoms_1" class="fc-combobox-item" value="500" selected="selected">500</option>
-                            <option name="randoms_2" id="randoms_2" class="fc-combobox-item" value="1000">1000</option>
-                            <option name="randoms_3" id="randoms_3" class="fc-combobox-item" value="2000">2000</option>
-                        </select>
+                    <div id="sideDiv">
+                            <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">Greater<br>
+                            <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less">Less
                     </div>
                 </div>
             </div>
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Number of simulations</div>-->
+                <!--<div class="formcontent">-->
+
+                    <!--<div id="randomsDiv">-->
+                        <!--<select name="randoms" id="randoms" class="fc-combobox" type="text" value="500">-->
+                            <!--<option name="randoms_1" id="randoms_1" class="fc-combobox-item" value="500" selected="selected">500</option>-->
+                            <!--<option name="randoms_2" id="randoms_2" class="fc-combobox-item" value="1000">1000</option>-->
+                            <!--<option name="randoms_3" id="randoms_3" class="fc-combobox-item" value="2000">2000</option>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="formbox">
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
                 <div class="formcontent">
 
                     <div id="intermediateDiv">
                         <select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="1">
-                            <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0">0</option>
-                            <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">1</option>
+                            <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0">No</option>
+                            <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">Yes</option>
                         </select>
                     </div>
                 </div>
@@ -205,35 +214,30 @@
                 this.toolName = "snow";
                 this.message = '';
 
-                this.rankedList = "";
-                this.seedList = "";
-
-                this.example = false;
-
+                /** Default values **/
                 this.type = "genes";
-                this.typeText = "Genes";
-
-                this.interactome = "hsa";
-                this.interactomeText = "Homo sapiens";
-
-
-                this.group = "all";
-                this.groupText = "Non curated";
-
-                this.order = "ascending";
-                this.orderText = "Ascending";
-
                 this.randoms = 500;
+            },
+            argsChanged: function(){
+                this.message = '';
+                this.jobName = "Job name";
+                this.description = "description";
+                this.$.inputFile.selectedFile = this.args.list1;
+                this.$.interactome.value = this.args.interactome;
+                this.$.intermediate.value = this.args.intermediate;
 
-                this.intermediate = 1;
-                this.intermediateText = "Yes";
-
-                /** output widgets messages **/
-                this.list1UploadMsg = "Choose file";
-
-                /**Enabled forms **/
-                this.list1ClickEnabled = false;
-
+                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
+                for(var i = 0; i < radios.length; i++){
+                    var radio = radios[i];
+                    if(radio.value == this.args.group)
+                        radio.checked = true;
+                }
+                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
+                for(var i = 0; i < radios.length; i++){
+                    var radio = radios[i];
+                    if(radio.value == this.args.group)
+                        radio.checked = true;
+                }
             },
             handleCancel: function () {
                 this.selectedOption = '';
@@ -250,7 +254,7 @@
                if(!utils.basicValidationForm()){
                     return;
                }
-               query= {
+               var query= {
                         sid: Cookies("bioinfo_sid"),
                         studyId: this.selectedStudy.id,
                         toolId: this.toolName,
@@ -264,8 +268,8 @@
                         type: this.$.typeDiv.querySelector('input[name="type"]:checked').value,
                         group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
                         components: true,
-                        randoms: this.$.randoms.value,
-                        side: "greater",
+                        randoms: this.randoms,
+                        side: this.$.sideDiv.querySelector('input[name="side"]:checked').value,
                         images: "",
                         json: 1
                     };
@@ -302,8 +306,9 @@
                 this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;
+                this.$.side_1.checked = true;
                 this.$.group_2.checked = true;
-                this.$.randoms.value = 500;
+//                this.$.randoms.value = 500;
                 this.$.intermediate.value = 1;
                 var exampleFolder = "snow_downregulated";
                 this.createExampleFolder(exampleFolder);

@@ -136,15 +136,52 @@
         <template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">
             <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
         </template>
-        <div id="output" class="output">
-        </div>
 
+        <div id="output" class="output"></div>
+
+        <template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">
+            <div id="fatigoOutput" class="output">
+                <div class="level-0">
+                    <div class="headerTitle">Other Actions</div>
+                    <div class="children">
+                        <div class="level-1">
+                            <div class="headerTitle">Select p-value</div>
+                            <div horizontal="" layout="">
+                                <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">
+                                    0.1
+                                </div>
+                                <div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">
+                                    0.05
+                                </div>
+                                <div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">
+                                    0.01
+                                </div>
+                                <div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">
+                                    0.005
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
     </template>
     <script>
         Polymer({
             created: function () {
                 this.createdElements = {};
                 this.selectedOption = "";
+                this.pvalue = 0.05;
+            },
+            domReady: function () {
+
+            },
+            handlePvalue: function (event, clicked, elem) {
+                this.pvalue = parseFloat(elem.innerHTML);
+            },
+            pvalueChanged: function (oldValue, newValue) {
+
+                this.jobItemChanged();
             },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
@@ -162,8 +199,6 @@
                     return;
                 }
 
-                me.pvalue = 0.05;
-
                 OpencgaManager.files.filesByFolder({
                     id: me.jobItem.outDirId,
                     query: {
@@ -177,6 +212,7 @@
                                 me.getFileContent(function (content) {
                                     var root = me.$.output;
                                     me.parseXML(content, root);
+
                                     me.loading = false;
                                 }, "result.xml");
                             }
@@ -241,6 +277,7 @@
                 this.resultXML = me.parseResultXML(xmlDoc);
 
                 var divsJSON = me._renderJSON();
+
                 me.$.output.appendChild(divsJSON);
             },
             parseResultXML: function (xmlDoc) {
@@ -300,7 +337,21 @@
                     mainDiv.appendChild(divElem);
 
                 }
+
                 return mainDiv;
+            },
+            _createButton: function (pvalue) {
+                var me = this;
+                var button = document.createElement("div");
+                button.classList.add("button");
+                button.setAttribute("data-checked", "{{pvalue == " + pvalue + "}}");
+                button.innerHTML = pvalue;
+
+                button.addEventListener("click", function () {
+                    me.pvalue = pvalue;
+                });
+
+                return button;
             },
             _renderJsonElement: function (element, level) {
 
@@ -355,13 +406,39 @@
                 switch (element.type) {
                     case "TEXT":
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            var fileRedirection = element.tags.split("(")[1].split(":")[0];
-                            this.getFileContent(function (content) {
-                                var lines = content.split("\n");
+                            if (this.jobItem.toolName == "class-comparison") {
+                                var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                this.getFileContent(function (content) {
+                                    var lines = content.split("\n");
+                                    var hash = {};
+                                    var args = {};
 
+                                    for (var i = 0; i < lines.length; i++) {
+                                        var line = lines[i];
+                                        var splits = line.split("=");
+                                        hash[splits[0]] = splits[1];
+                                    }
 
-                            }, fileRedirection);
+                                    var tool = hash.tool;
+                                    var aux = hash.ranked_list.split("/");
+                                    var filename = aux[aux.length - 1];
+
+                                    var file = {};
+                                    for (var i = 0; i < me.filesList.length; i++) {
+                                        file = me.filesList[i];
+                                        if (file.name == filename)
+                                            break;
+                                    }
+                                    args.list1 = file;
+
+                                    var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
+                                    res.appendChild(button);
+
+                                }, fileRedirection);
+                            }
                         }
+
+
                         break;
                     case "IMAGE":
 
@@ -393,7 +470,18 @@
 
                         break;
                     case "MESSAGE":
+                        var notRenderElement = false;
                         if (element.value == "Graph not found") {
+                            notRenderElement = true;
+                        }
+
+                        if (this.jobItem.toolName == "snow") {
+                            if (element.name == "randoms_param" || element.name == "type_param" ) {
+                                notRenderElement = true;
+                            }
+                        }
+
+                        if (notRenderElement) {
                             break;
                         }
                         res.classList.add("message");
@@ -446,9 +534,29 @@
 
                         file.appendChild(a);
 
-                        res.appendChild(file);
+                        if (this.jobItem.toolName == "fatigo") {
+                            if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                                if (element.value.indexOf(me.pvalue) >= 0) {
+                                    res.appendChild(file);
+                                }
+                            } else {
+                                res.appendChild(file);
+                            }
+                        }
+                        if (this.jobItem.toolName == "fatiscan") {
+                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                                if (element.value.indexOf(me.pvalue) >= 0) {
+                                    res.appendChild(file);
+                                }
+                            } else {
+                                res.appendChild(file);
+                            }
+                        }
+                        else {
+                            res.appendChild(file);
+                        }
 
-                        if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0 || element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
+                        if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
                             var sortableTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
@@ -558,9 +666,33 @@
 
                             res.appendChild(sortableTable);
                         }
+                        if (element.tags.indexOf("ONCODRIVEFM-GENES") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
+                        if (element.tags.indexOf("ONCODRIVEFM-PATHWAYS") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+                            var sortableTable = document.createElement('jso-oncodrive-pathways-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
                         if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
 
-                            if (element.value.indexOf("0.05") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
                                 var sortableTable = document.createElement('jso-fatigo-table');
                                 this.getFileContent(function (content) {
                                     sortableTable.content = content;
@@ -569,9 +701,10 @@
                                 res.appendChild(sortableTable);
                             }
                         }
+
                         if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
 
-                            if (element.value.indexOf("0.05") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
                                 var sortableTable = document.createElement('jso-logistic-table');
                                 this.getFileContent(function (content) {
                                     sortableTable.content = content;
@@ -641,27 +774,95 @@
                                 res.appendChild(sortableTable);
                             }
                         }
+                        if (element.tags.indexOf("REDIRECT_TOOL_SNOW") >= 0) {
+                            //var fields = tags.split(",");
+                            var me = this;
+                            var tagsFields = element.tags.split(",");
+                            var file = "";
+                            for (var i = 0; i < this.filesList.length; i++) {
+                                var file = this.filesList[i];
+                                if (file.name == element.value)
+                                    break;
+                            }
+                            var args = {
+                                interactome: tagsFields[1],
+                                type: tagsFields[2],
+                                group: tagsFields[3],
+                                intermediate: tagsFields[5],
+                                list1: file
+                            };
+
+                            var button = this._createRedirectButton("Send to SNOW!", "snow", args);
+                            res.appendChild(button);
+
+                        }
+                        if (element.tags.indexOf("REDIRECT_TOOL_FATIGO") >= 0) {
+                            //var fields = tags.split(",");
+                            var me = this;
+                            var tagsFields = element.tags.split(",");
+                            var file1 = "";
+                            for (var i = 0; i < this.filesList.length; i++) {
+                                if (this.filesList[i].name == element.value)
+                                    var file1 = this.filesList[i];
+                                if (this.filesList[i].name == tagsFields[4])
+                                    var file2 = this.filesList[i];
+                            }
+                            var args = {
+                                species: tagsFields[1],
+                                list1: file1,
+                                list2: file2
+                            };
+
+                            var button = this._createRedirectButton("Send to FATIGO!", "fatigo", args);
+                            res.appendChild(button);
+
+                        }
+
+                        if (element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
+                                var fileNames = element.value.split(",");
+                                var goViewer = document.createElement('jso-go-viewer');
+                                this.getFileContent(function (sifContent) {
+                                    me.getFileContent(function (attrContent) {
+                                        me.getFileContent(function (attr2Content) {
+                                            goViewer.setContent(sifContent, attrContent, attr2Content);
+
+                                        }, fileNames[0]);
+                                    }, fileNames[1]);
+                                }, fileNames[0]);
+
+                                res.appendChild(goViewer);
+                            }
+                        }
+
                         break;
                     default:
-                        if (element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
-                            var me = this;
-
-                            var fileNames = element.value.split(",");
-                            var goViewer = document.createElement('jso-go-viewer');
-                            this.getFileContent(function (sifContent) {
-                                me.getFileContent(function (attrContent) {
-                                    me.getFileContent(function (attr2Content) {
-                                        goViewer.setContent(sifContent, attrContent, attr2Content);
-
-                                    }, fileNames[0]);
-                                }, fileNames[1]);
-                            }, fileNames[0]);
-
-                            res.appendChild(goViewer);
-                        }
+                        //NOTHING
 
                 }
                 return res;
+            },
+            _createRedirectButton: function (buttonText, tool, args) {
+
+                var me = this;
+                var button = document.createElement('button');
+                var elem = document.createTextNode(buttonText);
+
+                button.appendChild(elem);
+                button.onclick = function () {
+                    me.fire("redirection", {
+                        tool: tool,
+                        args: args
+                    });
+                }
+//                button.value = "click me!";
+                return button;
+
+
+            },
+            buttonClick: function () {
+                this.selectedOption = 'snow';
+                //debugger
             },
             prepareHMData: function (data) {
                 var res = [];

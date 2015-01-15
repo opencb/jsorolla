@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatiscan" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-fatiscan" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -294,6 +294,12 @@
                 var me = this;
                 this.message = '';
                 me.launchJob();
+            },
+            argsChanged: function(){
+                this.message = '';
+                this.jobName = "Job name";
+                this.description = "description";
+                this.$.inputFile.selectedFile = this.args.list1;
             },
             launchJob: function () {
                 var me = this;
