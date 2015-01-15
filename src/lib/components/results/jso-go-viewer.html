@@ -1,0 +1,115 @@
+<polymer-element name="jso-go-viewer" attributes="content rootNode">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+            }
+
+            jso-network-viewer {
+                /*max-width: 1000px;*/
+                height: 800px;
+                min-height: 800px;
+
+                border-color: rgb(217, 217, 217);
+                border-style: solid;
+                border-width: 1px;
+            }
+
+            /*TODO temporal fix*/
+            jso-network-viewer::shadow jso-nv-layout {
+                height: calc(100% - 96px);
+            }
+
+
+        </style>
+        <jso-network-viewer
+                id="networkViewer"
+                hideBar="true"
+                ></jso-network-viewer>
+        <br>
+    </template>
+    networkViewer =
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            ready: function () {
+                this.$.networkViewer.hideNodeSimpleRendering = true;
+                this.$.networkViewer.hideEdgeSimpleRendering = true;
+            },
+            setContent: function (sifContent, attrContent, attr2Content) {
+                var me = this;
+                new TextNetworkDataAdapter({
+                    dataSource: new StringDataSource(sifContent),
+                    handlers: {
+                        'data:load': function (event) {
+                            var sifAdapter = event.sender;
+                            var graph = sifAdapter.parseColumns(0, 1, -1, "r");
+                            me.$.networkViewer.setGraph(graph);
+                            me.$.networkViewer.selectVertex(me.$.networkViewer.graph.vertices[0]);
+                            me.$.networkViewer.setLayout("Tree");
+
+
+                            new AttributeNetworkDataAdapter({
+//                                ignoreColumns: ?,
+                                dataSource: new StringDataSource(attrContent),
+                                handlers: {
+                                    'data:load': function (event) {
+                                        var attributeManager1 = event.attributeManager;
+                                        me.$.networkViewer.importVertexAttributeManager(attributeManager1);
+
+                                        me._applyVertexAttributes();
+//                                        new AttributeNetworkDataAdapter({
+////                                            ignoreColumns: ?,
+//                                            dataSource: new StringDataSource(attr2Content),
+//                                            handlers: {
+//                                                'data:load': function (event) {
+//                                                    var attributeManager2 = event.attributeManager;
+//                                                    me.$.viewer.importVertexAttributeManager(attributeManager2);
+//
+//
+//
+//
+//
+//
+//                                                },
+//                                                'error:parse': function (event) {
+//                                                    me.message = event.errorMsg;
+//                                                }
+//                                            }
+//                                        });
+
+                                    },
+                                    'error:parse': function (event) {
+                                        me.message = event.errorMsg;
+                                    }
+                                }
+                            });
+                        },
+                        'error:parse': function (event) {
+                            console.log("ERRORRRR");
+                        }
+                    }
+                });
+
+            },
+            _applyVertexAttributes: function () {
+                this.$.networkViewer.vertexDefaults.labelAttribute = "name";
+                this.$.networkViewer.handleVertexDefaultLabelAttribute();
+
+                this.$.networkViewer.hideNodeSimpleRendering = false;
+                var nodeRender = this.$.networkViewer.shadowRoot.querySelector('jso-attribute-node-render');
+
+                //attributeName, displayProperty
+                nodeRender.applyDirect("color", "color");
+
+                this.$.networkViewer.hideNodeSimpleRendering = true;
+            }
+
+        })
+    </script>
+</polymer-element>
+

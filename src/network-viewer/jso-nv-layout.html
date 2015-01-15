@@ -113,6 +113,8 @@
                     case 2: //middle click
                         this.middleMouseDown(e);
                         break;
+                    case 3: //right click
+                        break;
                 }
             },
             mouseUpHandler: function (e) {
@@ -122,6 +124,8 @@
                         break;
                     case 2: //middle click
                         this.middleMouseUp(e);
+                        break;
+                    case 3: //right click
                         break;
                 }
             },
@@ -265,6 +269,7 @@
                 }
             },
             leftMouseUp: function (event) {
+                this.style.cursor = "";
                 var me = this;
                 var targetEl = event.target;
                 var targetElNetworkType = targetEl.getAttribute('network-type');
@@ -340,6 +345,7 @@
                     case "delete":
                     case "select":
                     case "selectbackground":
+                        me.style.cursor = "all-scroll";
                         var lastX = downX;
                         var lastY = downY;
                         var handler = function (moveEvent) {
@@ -364,6 +370,7 @@
                 }
             },
             middleMouseUp: function (event) {
+                this.style.cursor = "";
                 this._removeMouseMoveHandlers();
             },
             contextMenu: function (e) {

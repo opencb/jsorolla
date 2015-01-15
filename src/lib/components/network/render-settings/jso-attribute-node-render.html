@@ -287,8 +287,9 @@
             </div>
         </div>
 
-        <template if="{{displayProperty == 'labelSize'}}">
+        <!--<template if="{{displayProperty == 'labelSize'}}">-->
             <jso-attribute-render-number-table
+                    hidden?="{{displayProperty != 'labelSize'}}"
                     id="labelSize"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -297,9 +298,10 @@
                     visualSet="{{visualSets.labelSize}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'opacity'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'opacity'}}">-->
             <jso-attribute-render-number-table
+                    hidden?="{{displayProperty != 'opacity'}}"
                     id="opacity"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -308,9 +310,10 @@
                     visualSet="{{visualSets.opacity}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'shape'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'shape'}}">-->
             <jso-attribute-render-select-table
+                    hidden?="{{displayProperty != 'shape'}}"
                     id="shape"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -320,9 +323,10 @@
                     options="circle,ellipse,square,rectangle"
                     >
             </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'color'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'color'}}">-->
             <jso-attribute-render-color-table
+                    hidden?="{{displayProperty != 'color'}}"
                     id="color"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -332,9 +336,10 @@
                     allowListParse="true"
                     >
             </jso-attribute-render-color-table>
-        </template>
-        <template if="{{displayProperty == 'strokeColor'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeColor'}}">-->
             <jso-attribute-render-color-table
+                    hidden?="{{displayProperty != 'strokeColor'}}"
                     id="strokeColor"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -344,9 +349,10 @@
                     allowListParse="true"
                     >
             </jso-attribute-render-color-table>
-        </template>
-        <template if="{{displayProperty == 'size'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'size'}}">-->
             <jso-attribute-render-number-table
+                    hidden?="{{displayProperty != 'size'}}"
                     id="size"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -356,9 +362,10 @@
                     allowListParse="true"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'strokeSize'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeSize'}}">-->
             <jso-attribute-render-number-table
+                    hidden?="{{displayProperty != 'strokeSize'}}"
                     id="strokeSize"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -368,9 +375,10 @@
                     allowListParse="true"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'area'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'area'}}">-->
             <jso-attribute-render-number-table
+                    hidden="{{displayProperty != 'area'}}"
                     id="area"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -380,9 +388,10 @@
                     allowListParse="true"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'strokeArea'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeArea'}}">-->
             <jso-attribute-render-number-table
+                    hidden="{{displayProperty != 'strokeArea'}}"
                     id="strokeArea"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -392,7 +401,7 @@
                     allowListParse="true"
                     >
             </jso-attribute-render-number-table>
-        </template>
+        <!--</template>-->
     </template>
     <script>
         Polymer({
@@ -489,6 +498,17 @@
                     delete this.visualSets[displayProperty];
                     this.fire(displayProperty.toLowerCase());
                 }
+            },
+            applyDirect: function (attributeName, displayProperty) {
+                this.displayProperty = displayProperty;
+
+                var table = this.$[displayProperty];
+                table.attributeName = attributeName;
+                table._updateUniqueValues();
+                table.handleApplyDirect();
+                table.handleOk();
+
+                this.displayProperty = null;
             }
         });
     </script>

@@ -292,44 +292,55 @@ GraphLayout = {
         var edges = graph.edges;
 
 
-        var treeData = this._getTreeNode(args.root, {});
-
+        var rootNode = {
+            name: args.root.id,
+            vertex: args.root,
+            children: null
+        };
+        var visited = {};
+        visited[args.root.id] = true;
+        this._getTreeNode(rootNode, visited);
 
         var tree = d3.layout.tree()
             .sort(null)
             .size([width, height]);
-        //.children(function(d)
-        //{
-        //    return (!d.edges || d.edges.length === 0) ? null : d.edges.target;
-        //}
-        //);
+        var nodes = tree.nodes(rootNode);
 
-        var nodes = tree.nodes(treeData);
         args.end(nodes);
 
         //var links = tree.links(nodes);
 
 
     },
-    _getTreeNode: function (vertex, visited) {
-        var children = [];
-        if (visited[vertex.id] != true) {
-            visited[vertex.id] = true;
-            for (var i = 0; i < vertex.edges.length; i++) {
-                var edge = vertex.edges[i];
-                if (edge.target !== vertex && visited[edge.target.id] != true) {
-                    children.push(this._getTreeNode(edge.target, visited));
+    _getTreeNode: function (node, visited) {
+        for (var i = 0; i < node.vertex.edges.length; i++) {
+            var edge = node.vertex.edges[i];
+            if (edge.target !== node.vertex && visited[edge.target.id] != true) {
+                visited[edge.target.id] = true;
+                if (node.children == null) {
+                    node.children = [];
                 }
-                if (edge.source !== vertex && visited[edge.source.id] != true) {
-                    children.push(this._getTreeNode(edge.source, visited));
-                }
+                node.children.push({
+                    name: edge.target.id,
+                    vertex: edge.target,
+                    children: null
+                });
+            }
+
+            //
+            //if (edge.target !== vertex && visited[edge.target.id] != true) {
+            //    children.push(this._getTreeNode(edge.target, visited));
+            //}
+            //if (edge.source !== vertex && visited[edge.source.id] != true) {
+            //    children.push(this._getTreeNode(edge.source, visited));
+            //}
+        }
+        if (node.children != null) {
+            for (var i = 0; i < node.children.length; i++) {
+                var childNode = node.children[i];
+                this._getTreeNode(childNode, visited)
             }
         }
-        var node = {
-            name: vertex.id,
-            children: (children.length === 0) ? null : children
-        }
-        return node;
     }
 
 }

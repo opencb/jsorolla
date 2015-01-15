@@ -641,6 +641,25 @@
                                 res.appendChild(sortableTable);
                             }
                         }
+                        break;
+                    default:
+                        if (element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                            var me = this;
+
+                            var fileNames = element.value.split(",");
+                            var goViewer = document.createElement('jso-go-viewer');
+                            this.getFileContent(function (sifContent) {
+                                me.getFileContent(function (attrContent) {
+                                    me.getFileContent(function (attr2Content) {
+                                        goViewer.setContent(sifContent, attrContent, attr2Content);
+
+                                    }, fileNames[0]);
+                                }, fileNames[1]);
+                            }, fileNames[0]);
+
+                            res.appendChild(goViewer);
+                        }
+
                 }
                 return res;
             },
