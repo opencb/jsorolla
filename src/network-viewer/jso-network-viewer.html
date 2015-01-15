@@ -460,7 +460,7 @@
                     yAttribute: 'y'
                 };
                 this.edgeDefaults = {
-                    shape: 'undirected',
+                    shape: 'directed',
                     shaft: 'solid',
                     bidirectional: 'false',
                     size: 1,
@@ -1699,14 +1699,14 @@
                             GraphLayout.tree({
                                 network: me,
                                 width: width,
-                                height: height,
+                                height: height - 100,
                                 root: this.graph.getVertexById(this.vAttr.selected[0].id),
                                 end: function (verticesArray) {
                                     for (var i = 0, l = verticesArray.length; i < l; i++) {
                                         var v = verticesArray[i];
                                         var vertex = me.graph.getVertexById(v.name);
-                                        vertex.position.x = v.x;
-                                        vertex.position.y = v.y;
+                                        vertex.position.x = -v.x+(width);
+                                        vertex.position.y = v.y + 50;
                                         vertex.renderer.move();
                                         me._updateEdgeCoords(vertex);
                                     }

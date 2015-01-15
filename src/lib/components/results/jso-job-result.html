@@ -139,7 +139,7 @@
 
         <div id="output" class="output"></div>
 
-        <template if="{{(jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">
+        <template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">
             <div id="fatigoOutput" class="output">
                 <div class="level-0">
                     <div class="headerTitle">Other Actions</div>
@@ -535,14 +535,13 @@
                         file.appendChild(a);
 
                         if (this.jobItem.toolName == "fatigo") {
-                            if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
+                            if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
                                 if (element.value.indexOf(me.pvalue) >= 0) {
                                     res.appendChild(file);
                                 }
                             } else {
                                 res.appendChild(file);
                             }
-
                         }
                         if (this.jobItem.toolName == "fatiscan") {
                             if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
@@ -818,6 +817,28 @@
                             res.appendChild(button);
 
                         }
+
+                        if (element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
+                                var fileNames = element.value.split(",");
+                                var goViewer = document.createElement('jso-go-viewer');
+                                this.getFileContent(function (sifContent) {
+                                    me.getFileContent(function (attrContent) {
+                                        me.getFileContent(function (attr2Content) {
+                                            goViewer.setContent(sifContent, attrContent, attr2Content);
+
+                                        }, fileNames[0]);
+                                    }, fileNames[1]);
+                                }, fileNames[0]);
+
+                                res.appendChild(goViewer);
+                            }
+                        }
+
+                        break;
+                    default:
+                        //NOTHING
+
                 }
                 return res;
             },

@@ -18,12 +18,17 @@
 
             /*TODO temporal fix*/
             jso-network-viewer::shadow jso-nv-layout {
-                height: calc(100% - 126px);
+                height: calc(100% - 96px);
             }
 
 
         </style>
-        <jso-network-viewer id="viewer"></jso-network-viewer>
+        <jso-network-viewer
+                id="viewer"
+                hideBar="true"
+                hideNodeSimpleRendering="true"
+                hideEdgeSimpleRendering="true"
+                ></jso-network-viewer>
     </template>
     <script>
         Polymer({
@@ -33,10 +38,6 @@
             contentChanged: function () {
                 var me = this;
                 this.intermediates = this.intermediates.split("|");
-                //TODO temporal fix
-                this.$.viewer.hideBar = true;
-                this.$.viewer.hideNodeSimpleRendering = true;
-                this.$.viewer.hideEdgeSimpleRendering = true;
                 var adapter = new SIFNetworkDataAdapter({
                     dataSource: new StringDataSource(this.content),
                     handlers: {
