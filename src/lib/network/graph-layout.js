@@ -43,6 +43,7 @@ GraphLayout = {
                 vertex.x = 0;
             }
             if (typeof vertex.y === 'undefined') {
+                defda
                 vertex.y = 0;
             }
             if (typeof vertex.z === 'undefined') {
@@ -298,7 +299,7 @@ GraphLayout = {
             children: null
         };
         var visited = {};
-        visited[args.root.id] = true;
+        //visited[args.root.id] = true;
         this._getTreeNode(rootNode, visited);
 
         var tree = d3.layout.tree()
@@ -313,18 +314,44 @@ GraphLayout = {
 
     },
     _getTreeNode: function (node, visited) {
+        if (node.vertex.id == "GO:0042802") {
+            debugger
+        }
+        visited[node.vertex.id] = true;
         for (var i = 0; i < node.vertex.edges.length; i++) {
             var edge = node.vertex.edges[i];
             if (edge.target !== node.vertex && visited[edge.target.id] != true) {
-                visited[edge.target.id] = true;
+                var childVertex = edge.target;
+
+
                 if (node.children == null) {
                     node.children = [];
                 }
-                node.children.push({
-                    name: edge.target.id,
-                    vertex: edge.target,
-                    children: null
-                });
+
+                //var childVertexParents = [];
+                var notVisitedParentsCount = 0;
+                for (var j = 0; j < childVertex.edges.length; j++) {
+                    var childEdge = childVertex.edges[j];
+                    if (childEdge.target === childVertex) {
+
+                        if (visited[childEdge.source.id] != true) {
+                            notVisitedParentsCount++;
+                        }
+
+                        //childVertexParents.push(childEdge.source);
+
+
+                    }
+                }
+                if (notVisitedParentsCount == 0) {
+                    node.children.push({
+                        name: childVertex.id,
+                        size: childVertex.renderer.size,
+                        vertex: childVertex,
+                        children: null
+                    });
+                }
+
             }
 
             //
@@ -341,6 +368,236 @@ GraphLayout = {
                 this._getTreeNode(childNode, visited)
             }
         }
+    },
+
+
+
+    /**/
+    /**/
+    /**/
+
+    forceTree: function (args) {
+        /*TODO not ready*/
+        var network = args.network;
+        var graph = network.graph;
+        var vAttr = network.vAttr;
+        var eAttr = network.eAttr;
+        var width = args.width;
+        var height = args.height;
+        var vertices = graph.vertices;
+        var edges = graph.edges;
+        var endFunction = args.end;
+
+        var force = d3.layout.force();
+        force.size([width, height]);
+        force.charge(-320)
+        force.linkDistance(50)
+
+        /* set node and edge arrays for D3 */
+        var verticesMap = [];
+        var edgesArray = [];
+        var verticesArray = [];
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            var v = {
+                id: vertex.id,
+                index: i,
+                x: vertex.position.x,
+                y: vertex.position.y
+            };
+            verticesArray.push(v);
+            verticesMap[vertex.id] = v;
+        }
+        force.nodes(verticesArray);
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            if (typeof edge !== 'undefined') {
+                edgesArray.push({
+                    id: edge.id,
+                    source: verticesMap[edge.source.id],
+                    target: verticesMap[edge.target.id]
+                });
+            }
+        }
+        force.links(edgesArray);
+
+        force.on('end', function (o) {
+            console.log(o)
+            endFunction(verticesArray);
+        });
+        console.time('D3 Force directed layout');
+        force.start();
+        var safety = 0;
+        while (force.alpha() > 0.025) { // You'll want to try out different, "small" values for this
+            force.tick();
+            var k = 8 * force.alpha();
+            edgesArray.forEach(function (d, i) {
+                d.source.y -= k;
+                d.target.y += k;
+            });
+            if (safety++ > 1000) {
+                break;// Avoids infinite looping in case this solution was a bad idea
+            }
+        }
+//            console.log(safety);
+        force.stop();
+        console.timeEnd('D3 Force directed layout');
+
+    },
+
+    tree2: function (args) {
+        /* TODO not ready */
+        var network = args.network;
+        var graph = network.graph;
+        var vAttr = network.vAttr;
+        var eAttr = network.eAttr;
+        var width = args.width;
+        var height = args.height;
+        var vertices = graph.vertices;
+        var edges = graph.edges;
+        var endFunction = args.end;
+
+
+        var force = d3.layout.force()
+            .charge(function (d) {
+                return d._children ? -d.size / 100 : d.children ? -100 : -30;
+            })
+            .linkDistance(function (d) {
+                return d.target._children ? 50 : 30;
+            })
+            .size([width, height]);
+
+
+        var rootNode = {
+            name: args.root.id,
+            vertex: args.root,
+            fixed: true,
+            size: args.root.renderer.size,
+            px: 0,
+            py: 0,
+            children: null
+        };
+        var visited = {};
+        //visited[args.root.id] = true;
+        this._getTreeNode(rootNode, visited);
+
+        var nodes = this._flatten(rootNode, width, height);
+        //var links = d3.layout.hierarchy().links(nodes);
+        var links = d3.layout.tree().links(nodes);
+        // make sure we set .px/.py as well as node.fixed will use those .px/.py to 'stick' the node to:
+        if (!rootNode.px) {
+            // root have not be set / dragged / moved: set initial root position
+            rootNode.px = rootNode.x = width / 2;
+            rootNode.py = rootNode.y = (rootNode.children ? 4.5 : Math.sqrt(rootNode.size) / 10) + 2;
+        }
+        force
+            .nodes(nodes)
+            .links(links);
+
+
+        force.on('end', function (o) {
+            console.log(o)
+            debugger
+            endFunction(nodes);
+        });
+        console.time('D3 Force directed layout');
+        force.start();
+        var safety = 0;
+        while (force.alpha() > 0.025) { // You'll want to try out different, "small" values for this
+            force.tick();
+
+            // Apply the constraints:
+            force.nodes().forEach(function(d) {
+                if (!d.fixed) {
+                    var r = (d.children ? 4.5 : Math.sqrt(d.size) / 10) + 4, dx, dy, ly = 30;
+
+                    // #1: constraint all nodes to the visible screen:
+                    //d.x = Math.min(width - r, Math.max(r, d.x));
+                    //d.y = Math.min(height - r, Math.max(r, d.y));
+
+                    // #1.0: hierarchy: same level nodes have to remain with a 1 LY band vertically:
+                    if (d.children || d._children) {
+                        var py = 0;
+                        if (d.parent) {
+                            py = d.parent.y;
+                        }
+                        d.py = d.y = py + d.depth * ly + r;
+                    }
+
+                    // #1a: constraint all nodes to the visible screen: links
+                    dx = Math.min(0, width - r - d.x) + Math.max(0, r - d.x);
+                    dy = Math.min(0, height - r - d.y) + Math.max(0, r - d.y);
+                    d.x += 2 * Math.max(-ly, Math.min(ly, dx));
+                    d.y += 2 * Math.max(-ly, Math.min(ly, dy));
+                    // #1b: constraint all nodes to the visible screen: charges ('repulse')
+                    dx = Math.min(0, width - r - d.px) + Math.max(0, r - d.px);
+                    dy = Math.min(0, height - r - d.py) + Math.max(0, r - d.py);
+                    d.px += 2 * Math.max(-ly, Math.min(ly, dx));
+                    d.py += 2 * Math.max(-ly, Math.min(ly, dy));
+
+                    // #2: hierarchy means childs must be BELOW parents in Y direction:
+                    if (d.parent) {
+                        d.y = Math.max(d.y, d.parent.y + ly);
+                        d.py = Math.max(d.py, d.parent.py + ly);
+                    }
+                }
+            });
+
+
+            if (safety++ > 1000) {
+                break;// Avoids infinite looping in case this solution was a bad idea
+            }
+        }
+//            console.log(safety);
+        force.stop();
+        console.timeEnd('D3 Force directed layout');
+
+
+    },
+    _flatten: function (root, width, height) {
+        var nodes = [], i = 0, depth = 0, level_widths = [1], max_width, max_depth = 1, kx, ky;
+
+        function recurse(node, parent, depth, x) {
+            if (node.children) {
+                var w = level_widths[depth + 1] || 0;
+                level_widths[depth + 1] = w + node.children.length;
+                max_depth = Math.max(max_depth, depth + 1);
+                node.size = node.children.reduce(function (p, v, i) {
+                    return p + recurse(v, node, depth + 1, w + i);
+                }, 0);
+            }
+            if (!node.id) node.id = ++i;
+            node.parent = parent;
+            node.depth = depth;
+            if (!node.px) {
+                node.y = depth;
+                node.x = x;
+            }
+            nodes.push(node);
+            return node.size;
+        }
+
+        root.size = recurse(root, null, 0);
+
+        // now correct/balance the x positions:
+        max_width = 1;
+        for (i = level_widths.length; --i > 0;) {
+            max_width = Math.max(max_width, level_widths[i]);
+        }
+        kx = (width - 20) / max_width;
+        ky = (height - 20) / max_depth;
+        for (i = nodes.length; --i >= 0;) {
+            var node = nodes[i];
+            if (!node.px) {
+                node.y *= ky;
+                node.y += 10 + ky / 2;
+                node.x *= kx;
+                node.x += 10 + kx / 2;
+            }
+        }
+
+        return nodes;
     }
+
 
 }

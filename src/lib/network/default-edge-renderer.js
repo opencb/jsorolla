@@ -24,7 +24,7 @@ function DefaultEdgeRenderer(args) {
     _.extend(this, Backbone.Events);
 
     //defaults
-    this.shape = 'undirected';
+    this.shape = 'directed';
     this.shaft = 'line';
     this.bidirectional = 'false';
     this.size = 1;

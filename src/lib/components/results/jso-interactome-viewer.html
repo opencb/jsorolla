@@ -8,7 +8,6 @@
             }
 
              jso-network-viewer {
-                max-width: 1000px;
                 height: 800px;
 
                 border-color: rgb(217, 217, 217);
@@ -26,14 +25,16 @@
         <jso-network-viewer
                 id="viewer"
                 hideBar="true"
-                hideNodeSimpleRendering="true"
-                hideEdgeSimpleRendering="true"
                 ></jso-network-viewer>
     </template>
     <script>
         Polymer({
             created: function () {
 
+            },
+            domReady: function () {
+                this.$.viewer.hideNodeSimpleRendering = true;
+                this.$.viewer.hideEdgeSimpleRendering = true;
             },
             contentChanged: function () {
                 var me = this;

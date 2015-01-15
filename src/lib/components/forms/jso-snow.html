@@ -3,20 +3,20 @@
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            padding: 15px 40px;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 80%;
-            min-width: 800px;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
 
             }
 
@@ -30,6 +30,7 @@
             .close {
                 color: #aaa;
             }
+
             .close:hover {
                 color: #ffad76;
             }
@@ -73,6 +74,7 @@
             .botbar {
                 margin-top: 10px;
             }
+
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
@@ -99,20 +101,24 @@
                 <div class="formtitle">Define your input data</div>
                 <div class="formcontent">
                     <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}"> One list<br>
-                    <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list"  on-click="{{modeChanged}}"> Comparing two lists
+                    <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="{{modeChanged}}"> Comparing two lists
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select your input files</div>
                 <div class="formcontent">
-                    List 1: <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
+                    List 1:
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
                     <div id="list2Div" hidden>
-                    <br>
-                    List 2: <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
+                        <br>
+                        List 2:
+                        <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                    bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
                     </div>
-                    </div>
+                </div>
             </div>
 
             <div class="formbox">
@@ -121,7 +127,7 @@
                     <div id="typeDiv">
                         <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">Transcripts<br>
                         <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>Proteins<br>
-                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes" >Genes<br>
+                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes">Genes<br>
                     </div>
                 </div>
             </div>
@@ -146,8 +152,10 @@
                 <div class="formtitle">Select interactome confidence</div>
                 <div class="formcontent">
                     <div id="groupDiv">
-                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis (all protein Protein-Protein Interactions detected experimentally)<br>
-                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">curated (Protein-Protein Interactions detected with, at least, two different experimental methods)<br>
+                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis (all protein Protein-Protein
+                        Interactions detected experimentally)<br>
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">curated (Protein-Protein
+                        Interactions detected with, at least, two different experimental methods)<br>
                     </div>
                 </div>
             </div>
@@ -155,23 +163,23 @@
                 <div class="formtitle">Side for statistical tests</div>
                 <div class="formcontent">
                     <div id="sideDiv">
-                            <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">Greater<br>
-                            <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less">Less
+                        <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">Greater<br>
+                        <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less">Less
                     </div>
                 </div>
             </div>
             <!--<div class="formbox">-->
-                <!--<div class="formtitle">Number of simulations</div>-->
-                <!--<div class="formcontent">-->
+            <!--<div class="formtitle">Number of simulations</div>-->
+            <!--<div class="formcontent">-->
 
-                    <!--<div id="randomsDiv">-->
-                        <!--<select name="randoms" id="randoms" class="fc-combobox" type="text" value="500">-->
-                            <!--<option name="randoms_1" id="randoms_1" class="fc-combobox-item" value="500" selected="selected">500</option>-->
-                            <!--<option name="randoms_2" id="randoms_2" class="fc-combobox-item" value="1000">1000</option>-->
-                            <!--<option name="randoms_3" id="randoms_3" class="fc-combobox-item" value="2000">2000</option>-->
-                        <!--</select>-->
-                    <!--</div>-->
-                <!--</div>-->
+            <!--<div id="randomsDiv">-->
+            <!--<select name="randoms" id="randoms" class="fc-combobox" type="text" value="500">-->
+            <!--<option name="randoms_1" id="randoms_1" class="fc-combobox-item" value="500" selected="selected">500</option>-->
+            <!--<option name="randoms_2" id="randoms_2" class="fc-combobox-item" value="1000">1000</option>-->
+            <!--<option name="randoms_3" id="randoms_3" class="fc-combobox-item" value="2000">2000</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
             <!--</div>-->
             <div class="formbox">
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
@@ -218,7 +226,7 @@
                 this.type = "genes";
                 this.randoms = 500;
             },
-            argsChanged: function(){
+            argsChanged: function () {
                 this.message = '';
                 this.jobName = "Job name";
                 this.description = "description";
@@ -227,15 +235,15 @@
                 this.$.intermediate.value = this.args.intermediate;
 
                 var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
-                for(var i = 0; i < radios.length; i++){
+                for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
-                    if(radio.value == this.args.group)
+                    if (radio.value == this.args.group)
                         radio.checked = true;
                 }
                 var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
-                for(var i = 0; i < radios.length; i++){
+                for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
-                    if(radio.value == this.args.group)
+                    if (radio.value == this.args.group)
                         radio.checked = true;
                 }
             },
@@ -250,33 +258,32 @@
             },
             launchJob: function () {
                 var me = this;
-                var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!Utils.basicValidationForm(this)) {
                     return;
-               }
-               var query= {
-                        sid: Cookies("bioinfo_sid"),
-                        studyId: this.selectedStudy.id,
-                        toolId: this.toolName,
-                        name: this.jobName,
-                        description: "description",
-                        list1: this.$.inputFile.selectedFile.id,
-                        outdir: this.$.outdir.selectedFile.id,
-                        "o-name": "result",
-                        interactome: this.$.interactome.value,
-                        intermediate: this.$.intermediate.value,
-                        type: this.$.typeDiv.querySelector('input[name="type"]:checked').value,
-                        group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
-                        components: true,
-                        randoms: this.randoms,
-                        side: this.$.sideDiv.querySelector('input[name="side"]:checked').value,
-                        images: "",
-                        json: 1
-                    };
-                if(this.$.mode_2.checked){
-                    if( this.$.inputFile2.selectedFile === undefined ||  this.$.inputFile2.selectedFile.type != "FILE"){
-                    alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
-                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    name: this.jobName,
+                    description: "description",
+                    list1: this.$.inputFile.selectedFile.id,
+                    outdir: this.$.outdir.selectedFile.id,
+                    "o-name": "result",
+                    interactome: this.$.interactome.value,
+                    intermediate: this.$.intermediate.value,
+                    type: this.$.typeDiv.querySelector('input[name="type"]:checked').value,
+                    group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
+                    components: true,
+                    randoms: this.randoms,
+                    side: this.$.sideDiv.querySelector('input[name="side"]:checked').value,
+                    images: "",
+                    json: 1
+                };
+                if (this.$.mode_2.checked) {
+                    if (this.$.inputFile2.selectedFile === undefined || this.$.inputFile2.selectedFile.type != "FILE") {
+                        alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
+                        return;
                     }
                     query["list2"] = this.$.inputFile2.selectedFile.id;
                 }
@@ -376,11 +383,11 @@
             handleRandoms: function (e) {
                 this.randoms = e.target.dataset.value;
             },
-            modeChanged: function(e){
-            if(this.$.mode_1.checked)
-                this.$.list2Div.hidden = true;
-        else
-                        this.$.list2Div.hidden = false;
+            modeChanged: function (e) {
+                if (this.$.mode_1.checked)
+                    this.$.list2Div.hidden = true;
+                else
+                    this.$.list2Div.hidden = false;
 
             }
 

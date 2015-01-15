@@ -10,7 +10,6 @@
             jso-network-viewer {
                 /*max-width: 1000px;*/
                 height: 800px;
-                min-height: 800px;
 
                 border-color: rgb(217, 217, 217);
                 border-style: solid;
@@ -37,8 +36,12 @@
 
             },
             ready: function () {
+            },
+            domReady: function () {
                 this.$.networkViewer.hideNodeSimpleRendering = true;
                 this.$.networkViewer.hideEdgeSimpleRendering = true;
+                this.$.networkViewer.selectVerticesByAttribute("id", "all");
+                this.$.networkViewer.setLayout("Tree");
             },
             setContent: function (sifContent, attrContent, attr2Content) {
                 var me = this;
@@ -49,8 +52,7 @@
                             var sifAdapter = event.sender;
                             var graph = sifAdapter.parseColumns(0, 1, -1, "r");
                             me.$.networkViewer.setGraph(graph);
-                            me.$.networkViewer.selectVertex(me.$.networkViewer.graph.vertices[0]);
-                            me.$.networkViewer.setLayout("Tree");
+//                            me.$.networkViewer.selectVertex(me.$.networkViewer.graph.vertices[0]);
 
 
                             new AttributeNetworkDataAdapter({

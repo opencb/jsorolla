@@ -1704,9 +1704,12 @@
                                 end: function (verticesArray) {
                                     for (var i = 0, l = verticesArray.length; i < l; i++) {
                                         var v = verticesArray[i];
+//                                        var vertex = me.graph.getVertexById(v.id);
                                         var vertex = me.graph.getVertexById(v.name);
-                                        vertex.position.x = -v.x+(width);
+                                        vertex.position.x = -v.x + (width);
                                         vertex.position.y = v.y + 50;
+//                                        vertex.position.x = v.x;
+//                                        vertex.position.y = v.y;
                                         vertex.renderer.move();
                                         me._updateEdgeCoords(vertex);
                                     }
