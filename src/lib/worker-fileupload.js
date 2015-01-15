@@ -28,6 +28,7 @@ var studyId = '';
 var relativeFilePath = '';
 var sid = '';
 var description = '';
+var fileName = "";
 
 
 function getTime() {
@@ -107,6 +108,7 @@ self.onmessage = function (e) {
     var fileFormat = e.data.fileFormat;
     var bioFormat = e.data.bioFormat;
     var file = e.data.file;
+    var fileName = e.data.fileName;
     var resume = e.data.resume;
 
     const BYTES_PER_CHUNK = 2 * 1024 * 1024;
@@ -120,7 +122,7 @@ self.onmessage = function (e) {
     if (resume) {
         var resumeFormData = new FormData();
         resumeFormData.append('resume_upload', 'true');
-        resumeFormData.append('filename', file.name);
+        resumeFormData.append('filename', fileName);
         resumeFormData.append('userId', userId);
         resumeFormData.append('studyId', studyId);
         resumeFormData.append('relativeFilePath', relativeFilePath);
@@ -139,7 +141,7 @@ self.onmessage = function (e) {
             formData.append('chunk_id', chunkId);
             formData.append('chunk_size', chunkBlob.size);
 //                formData.append('chunk_hash', hash);
-            formData.append("filename", file.name);
+            formData.append("filename", fileName);
             formData.append('userId', userId);
             formData.append('studyId', studyId);
             formData.append('relativeFilePath', relativeFilePath);

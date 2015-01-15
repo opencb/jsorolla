@@ -86,10 +86,10 @@
             <!--</div>-->
 
             <!--<div hidden>-->
-                <div>
-                    <label>Select format</label>
-                    <jso-biotype id="bioformat" bioformat="{{bioformat}}"></jso-biotype>
-                </div>
+            <div>
+                <label>Select format</label>
+                <jso-biotype id="bioformat" bioformat="{{bioformat}}"></jso-biotype>
+            </div>
             <div hidden>
                 <!--<label>File format</label>-->
                 <!--&lt;!&ndash;<input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">&ndash;&gt;-->
@@ -177,11 +177,11 @@
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
             },
-            handleForm: function (e) {
+            uploadFile: function (fileName) {
                 var me = this;
                 this.message = '';
-                this.bioformat = this.$.bioformat.getSelected();
-                if (this.bioformat == "") {
+                var bioformat = this.$.bioformat.getSelected();
+                if (bioformat == "") {
                     this.message = "Error: Please select a format";
                     return;
                 }
@@ -191,7 +191,8 @@
 
                     var inputFile = this.$.fileInput.files[0];
 //                    var relativeFilePath = this.folder.path + inputFile.name.replace(/[^a-z0-9]/gi, '_');
-                    var relativeFilePath = this.folder.path + inputFile.name;
+//                    var relativeFilePath = this.folder.path + inputFile.name;
+                    var relativeFilePath = this.folder.path + fileName;
 
                     var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
 
@@ -216,14 +217,96 @@
 
                         'studyId': this.study.id,
                         'file': inputFile,
+                        'fileName':fileName,
                         'fileFormat': this.fileFormat,
-                        'bioFormat': this.bioformat,
+                        'bioFormat': bioformat,
                         'description': this.description,
                         'relativeFilePath': relativeFilePath,
 
                         'resume': true
                     });
                 }
+            },
+            handleForm: function () {
+                var me = this;
+                OpencgaManager.files.filesByFolder({
+                    id: me.folder.id,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var filesList = response.response[0].result;
+                                var fileName = me.$.fileInput.files[0].name;
+                                for (var i = 0; i < filesList.length; i++) {
+                                    var file = filesList[i];
+                                    if (file.name == fileName) {
+                                        fileName = fileName + Math.floor(Math.random() * (999 - 100 + 1));
+                                        alert("File already exists. It will be uploaded as " + fileName + ".");
+                                        break;
+                                    }
+                                }
+                                me.uploadFile(fileName);
+
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+
+
+//                var me = this;
+//                this.message = '';
+//                var bioformat = this.$.bioformat.getSelected();
+//                if (bioformat == "") {
+//                    this.message = "Error: Please select a format";
+//                    return;
+//                }
+//                if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
+//
+//                    this.uploading = true;
+//
+//                    var inputFile = this.$.fileInput.files[0];
+////                    var relativeFilePath = this.folder.path + inputFile.name.replace(/[^a-z0-9]/gi, '_');
+//                    var relativeFilePath = this.folder.path + inputFile.name;
+//
+//                    var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
+//
+//                    fileuploadWorker.onmessage = function (e) {
+//                        var res = e.data;
+//                        console.log("@@@@@@@@@@@@@@@@ WORKER event message");
+//                        console.log(res);
+//                        var part = res.chunkId + 1;
+//                        me.percentProgress = Math.round((part / res.total) * 100);
+//                        if (res.finished == true) {
+//                            me.message = 'Done';
+//                            me.uploading = false;
+//                            me.fire('file-uploaded');
+//                        }
+//                    };
+//
+//
+//                    fileuploadWorker.postMessage({
+//                        'host': OPENCGA_HOST,
+//                        'userId': Cookies("bioinfo_user"),
+//                        'sid': Cookies("bioinfo_sid"),
+//
+//                        'studyId': this.study.id,
+//                        'file': inputFile,
+//                        'fileFormat': this.fileFormat,
+//                        'bioFormat': bioformat,
+//                        'description': this.description,
+//                        'relativeFilePath': relativeFilePath,
+//
+//                        'resume': true
+//                    });
+//                }
+            },
+            searchFile: function (fileName) {
+
             }
         });
     </script>

@@ -476,7 +476,7 @@
                         }
 
                         if (this.jobItem.toolName == "snow") {
-                            if (element.name == "randoms_param" || element.name == "type_param" ) {
+                            if (element.name == "randoms_param" || element.name == "type_param") {
                                 notRenderElement = true;
                             }
                         }
@@ -507,6 +507,54 @@
                         break;
                     case "FILE":
 
+
+                        if (element.tags.indexOf("REDIRECTION") >= 0) {
+                            if (this.jobItem.toolName == "affy-expression-normalization"
+                                    || this.jobItem.toolName == "agilent-expression-one-color-normalization"
+                                    || this.jobItem.toolName == "genepix-expression-one-color-normalization"
+                                    || this.jobItem.toolName == "agilent-expression-two-colors-normalization"
+                                    || this.jobItem.toolName == "genepix-expression-two-colors-normalization") {
+
+                                var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                this.getFileContent(function (content) {
+                                    var lines = content.split("\n");
+                                    var hash = {};
+                                    var args = {};
+
+                                    for (var i = 0; i < lines.length; i++) {
+                                        var line = lines[i];
+                                        var splits = line.split("=");
+                                        hash[splits[0]] = splits[1];
+                                    }
+
+                                    var aux = hash.dataset.split("/");
+                                    var filename = aux[aux.length - 1];
+
+                                    var file = {};
+                                    for (var i = 0; i < me.filesList.length; i++) {
+                                        file = me.filesList[i];
+                                        if (file.name == filename)
+                                            break;
+                                    }
+
+                                    var args = {
+                                        inputFile: file,
+                                        tool: hash.tool,
+                                        jobName: hash.jobname,
+                                        description: "Redirect from " + me.jobItem.name,
+                                        merge_replicates: hash.merge_replicates,
+                                        impute_missing: hash.impute_missing
+                                    }
+
+                                    var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
+                                    res.appendChild(button);
+
+                                }, fileRedirection);
+                            }
+                            break;
+                        }
+
+
                         var file = document.createElement("div");
                         file.classList.add("file");
 
@@ -534,23 +582,26 @@
 
                         file.appendChild(a);
 
-                        if (this.jobItem.toolName == "fatigo") {
-                            if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                        if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "fatiscan") {
+//                            console.log(element.tags)
+//                            debugger
+
+                            if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0 || element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                                console.log(file)
                                 if (element.value.indexOf(me.pvalue) >= 0) {
                                     res.appendChild(file);
                                 }
                             } else {
                                 res.appendChild(file);
                             }
-                        }
-                        if (this.jobItem.toolName == "fatiscan") {
-                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
-                                if (element.value.indexOf(me.pvalue) >= 0) {
-                                    res.appendChild(file);
-                                }
-                            } else {
-                                res.appendChild(file);
-                            }
+//                        } else if (this.jobItem.toolName == "fatiscan") {
+//                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+//                                if (element.value.indexOf(me.pvalue) >= 0) {
+//                                    res.appendChild(file);
+//                                }
+//                            } else {
+//                                res.appendChild(file);
+//                            }
                         }
                         else {
                             res.appendChild(file);
@@ -837,7 +888,7 @@
 
                         break;
                     default:
-                        //NOTHING
+                    //NOTHING
 
                 }
                 return res;
