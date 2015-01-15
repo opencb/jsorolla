@@ -476,7 +476,7 @@
                         }
 
                         if (this.jobItem.toolName == "snow") {
-                            if (element.name == "randoms_param" || element.name == "type_param" ) {
+                            if (element.name == "randoms_param" || element.name == "type_param") {
                                 notRenderElement = true;
                             }
                         }
@@ -534,23 +534,26 @@
 
                         file.appendChild(a);
 
-                        if (this.jobItem.toolName == "fatigo") {
-                            if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                        if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "fatiscan") {
+//                            console.log(element.tags)
+//                            debugger
+
+                            if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0 || element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                                console.log(file)
                                 if (element.value.indexOf(me.pvalue) >= 0) {
                                     res.appendChild(file);
                                 }
                             } else {
                                 res.appendChild(file);
                             }
-                        }
-                        if (this.jobItem.toolName == "fatiscan") {
-                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
-                                if (element.value.indexOf(me.pvalue) >= 0) {
-                                    res.appendChild(file);
-                                }
-                            } else {
-                                res.appendChild(file);
-                            }
+//                        } else if (this.jobItem.toolName == "fatiscan") {
+//                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+//                                if (element.value.indexOf(me.pvalue) >= 0) {
+//                                    res.appendChild(file);
+//                                }
+//                            } else {
+//                                res.appendChild(file);
+//                            }
                         }
                         else {
                             res.appendChild(file);
@@ -837,7 +840,7 @@
 
                         break;
                     default:
-                        //NOTHING
+                    //NOTHING
 
                 }
                 return res;
