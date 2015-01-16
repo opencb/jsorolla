@@ -190,6 +190,7 @@
                 while (this.$.output.firstChild) {
                     this.$.output.removeChild(this.$.output.firstChild);
                 }
+
                 if (this.jobItem.toolName == "rnaseq-norm") {
                     this.loading = false;
                     return;
@@ -276,9 +277,34 @@
                 }
                 this.resultXML = me.parseResultXML(xmlDoc);
 
-                var divsJSON = me._renderJSON();
 
+                var divsJSON = me._renderJSON();
                 me.$.output.appendChild(divsJSON);
+            },
+            getJobInfoHtml: function () {
+                var markup ='' +
+                        '<div class="level-0">' +
+                        '   <div class="headerTitle">Job information</div>' +
+                        '   <div class="data">' +
+                        '       <div class="message" horizontal="" layout="">' +
+                        '           <label>Name: </label>' +
+                        '           <div class="messageValue">'+this.jobItem.name+'</div>' +
+                        '       </div>' +
+                        '       <div class="message" horizontal="" layout="">' +
+                        '           <label>Description: </label>' +
+                        '           <div class="messageValue">'+this.jobItem.description+'</div>' +
+                        '       </div>' +
+                        '   </div>' +
+                        '   <div class="children"></div>' +
+                        '</div>';
+                var parser = new DOMParser()
+
+                var el = parser.parseFromString(markup, "text/html");
+                return el.querySelector("div");
+//
+// this.$.output.appendChild(el.querySelector("div"));
+
+
             },
             parseResultXML: function (xmlDoc) {
 
@@ -331,6 +357,8 @@
             },
             _renderJSON: function () {
                 var mainDiv = document.createElement("div");
+                var div = this.getJobInfoHtml();
+                mainDiv.appendChild(div);
                 for (var i = 0; i < this.resultXML.output.length; i++) {
                     var elem = this.resultXML.output[i];
                     var divElem = this._renderJsonElement(elem, 0);
@@ -666,6 +694,7 @@
                                 me.getFileContent(function (contentDataset) {
                                     sortableTable.content = content;
                                     sortableTable.contentDataset = contentDataset;
+                                    sortableTable.files = me.filesList;
                                 }, test + "_significative_dataset.txt");
 
 

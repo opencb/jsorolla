@@ -151,6 +151,17 @@ var Utils = {
         }
         return validated;
     },
+    getUrl: function (fileId) {
+        return OpencgaManager.files.content({
+            id: fileId,
+            query: {
+                sid: Cookies("bioinfo_sid")
+            },
+            request: {
+                url: true
+            }
+        });
+    },
     test: function () {
         return this;
     },
