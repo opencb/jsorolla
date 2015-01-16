@@ -48,6 +48,7 @@
 <link rel="import" href="../lib/components/network/jso-topological-study.html">
 <link rel="import" href="../lib/components/network/jso-kegg.html">
 <link rel="import" href="../lib/components/network/jso-reactome.html">
+<link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
 
 <link rel="import" href="../lib/components/forms/jso-snow.html">
 <link rel="import" href="../lib/components/forms/jso-network-miner.html">
@@ -323,6 +324,12 @@
                     networkViewer="{{}}"
                     >
             </jso-kegg>
+            <jso-configure-force-directed
+                    hidden?="{{selectedMenu != 'configure-force-directed'}}"
+                    selectedMenu="{{selectedMenu}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-configure-force-directed>
         </div>
 
         <!--Menu file-->
@@ -358,6 +365,7 @@
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
+                    networkViewer="{{}}"
                     ></jso-network-miner>
         </template>
         <template if="{{selectedMenu == 'snow'}}">
@@ -366,6 +374,7 @@
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
+                    networkViewer="{{}}"
                     >
             </jso-snow>
         </template>
@@ -375,6 +384,7 @@
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
+                    networkViewer="{{}}"
                     >
             </jso-fatigo>
         </template>
@@ -1114,6 +1124,7 @@
                         this.setLayout('Force directed');
                         break;
                     case 'layout-configure-force-directed' :
+                        this.selectedMenu = "configure-force-directed";
                         break;
                     case 'layout-tree' :
                         this.setLayout('Tree');

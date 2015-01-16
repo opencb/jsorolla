@@ -129,7 +129,7 @@ GraphLayout = {
         var linkDistance = args.linkDistance;
         var charge = args.charge;
 
-        var multipliers = args.multipliers;
+        var attributes = args.attributes;
 
         var endFunction = args.end;
         var simulation = args.simulation;
@@ -198,14 +198,13 @@ GraphLayout = {
         /* Node and Edge specific parameters */
         //Link Distance
         if (typeof linkDistance !== 'undefined') {
-            if (!isNaN(linkDistance)) {
+            if (!attributes || attributes.linkDistance == 'none') {
                 force.linkDistance(linkDistance);
             } else {
-                //is and attributName
                 force.linkDistance(function (e) {
                     var edge = graph.getEdgeById(e.id);
-                    var value = vAttr.getRow(edge.id)[linkDistance];
-                    var ld = isNaN(value) ? (edge.source.renderer.size + edge.target.renderer.size) * 1.5 : value * multipliers.linkDistance;
+                    var value = vAttr.getRow(edge.id)[attributes.linkDistance];
+                    var ld = isNaN(value) ? (edge.source.renderer.size + edge.target.renderer.size) * 1.5 : value * linkDistance;
                     return ld;
                 });
             }
@@ -217,27 +216,27 @@ GraphLayout = {
         }
         //Link Strength
         if (typeof linkStrength !== 'undefined') {
-            if (!isNaN(linkStrength)) {
+            if (!attributes || attributes.linkStrength == 'none') {
                 force.linkStrength(linkStrength);
             } else {
                 //is and attributName
                 force.linkStrength(function (e) {
-                    var value = vAttr.getRow(e.id)[linkStrength];
-                    var ls = isNaN(value) ? 1 : value * multipliers.linkStrength;
+                    var value = vAttr.getRow(e.id)[attributes.linkStrength];
+                    var ls = isNaN(value) ? 1 : value * linkStrength;
                     return ls;
                 });
             }
         }
         //Node Charge
         if (typeof charge !== 'undefined') {
-            if (!isNaN(charge)) {
+            if (!attributes || attributes.charge == 'none') {
                 force.charge(charge);
             } else {
                 //is and attributName
                 force.charge(function (v) {
                     var vertex = graph.getVertexById(v.id);
-                    var value = eAttr.getRow(vertex.id)[charge];
-                    var c = isNaN(value) ? vertex.renderer.getSize() * -10 : value * multipliers.charge;
+                    var value = eAttr.getRow(vertex.id)[attributes.charge];
+                    var c = isNaN(value) ? vertex.renderer.getSize() * -10 : value * charge;
                     return c;
                 });
             }
@@ -314,33 +313,25 @@ GraphLayout = {
 
     },
     _getTreeNode: function (node, visited) {
-        if (node.vertex.id == "GO:0042802") {
-            debugger
-        }
+        //if (node.vertex.id == "GO:0042802") {
+        //    debugger
+        //}
         visited[node.vertex.id] = true;
         for (var i = 0; i < node.vertex.edges.length; i++) {
             var edge = node.vertex.edges[i];
             if (edge.target !== node.vertex && visited[edge.target.id] != true) {
                 var childVertex = edge.target;
-
-
                 if (node.children == null) {
                     node.children = [];
                 }
-
                 //var childVertexParents = [];
                 var notVisitedParentsCount = 0;
                 for (var j = 0; j < childVertex.edges.length; j++) {
                     var childEdge = childVertex.edges[j];
                     if (childEdge.target === childVertex) {
-
                         if (visited[childEdge.source.id] != true) {
                             notVisitedParentsCount++;
                         }
-
-                        //childVertexParents.push(childEdge.source);
-
-
                     }
                 }
                 if (notVisitedParentsCount == 0) {
@@ -351,7 +342,6 @@ GraphLayout = {
                         children: null
                     });
                 }
-
             }
 
             //

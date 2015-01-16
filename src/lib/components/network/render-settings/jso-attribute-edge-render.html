@@ -233,8 +233,9 @@
             </div>
         </div>
 
-        <template if="{{displayProperty == 'labelSize'}}">
+        <!--<template if="{{displayProperty == 'labelSize'}}">-->
             <jso-attribute-render-number-table
+                    hidden?="{{displayProperty != 'labelSize'}}"
                     id="labelSize"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -243,9 +244,10 @@
                     visualSet="{{visualSets.labelSize}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'opacity'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'opacity'}}">-->
             <jso-attribute-render-number-table
+                    hidden?="{{displayProperty != 'opacity'}}"
                     id="opacity"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -254,9 +256,10 @@
                     visualSet="{{visualSets.opacity}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
-        <template if="{{displayProperty == 'shaft'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'shaft'}}">-->
             <jso-attribute-render-select-table
+                    hidden?="{{displayProperty != 'shaft'}}"
                     id="shaft"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -266,9 +269,10 @@
                     options="solid,dashed"
                     >
             </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'shape'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'shape'}}">-->
             <jso-attribute-render-select-table
+                    hidden?="{{displayProperty != 'shape'}}"
                     id="shape"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -278,9 +282,10 @@
                     options="directed,undirected,inhibited,dot,odot"
                     >
             </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'bidirectional'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'bidirectional'}}">-->
             <jso-attribute-render-select-table
+                    hidden?="{{displayProperty != 'bidirectional'}}"
                     id="bidirectional"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -290,9 +295,10 @@
                     options="true,false"
                     >
             </jso-attribute-render-select-table>
-        </template>
-        <template if="{{displayProperty == 'color'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'color'}}">-->
             <jso-attribute-render-color-table
+                    hidden?="{{displayProperty != 'color'}}"
                     id="color"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -301,9 +307,10 @@
                     visualSet="{{visualSets.color}}"
                     >
             </jso-attribute-render-color-table>
-        </template>
-        <template if="{{displayProperty == 'size'}}">
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'size'}}">-->
             <jso-attribute-render-number-table
+                    hidden?="{{displayProperty != 'size'}}"
                     id="size"
                     on-ok="{{handleOkSet}}"
                     displayProperty="{{displayProperty}}"
@@ -312,7 +319,7 @@
                     visualSet="{{visualSets.size}}"
                     >
             </jso-attribute-render-number-table>
-        </template>
+        <!--</template>-->
     </template>
     <script>
         Polymer({
@@ -390,6 +397,17 @@
                 var displayProperty = e.currentTarget.dataset.prop;
                 delete this.visualSets[displayProperty];
                 this.fire(displayProperty.toLowerCase());
+            },
+            applyDirect: function (attributeName, displayProperty) {
+                this.displayProperty = displayProperty;
+
+                var table = this.$[displayProperty];
+                table.attributeName = attributeName;
+                table._updateUniqueValues();
+                table.handleApplyDirect();
+                table.handleOk();
+
+                this.displayProperty = null;
             }
         });
     </script>

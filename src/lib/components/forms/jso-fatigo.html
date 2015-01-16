@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy studies args">
+<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -49,6 +49,10 @@
                 border: 1px solid #d3d3d3;
                 padding: 5px
             }
+
+            textarea {
+                margin: 3px;
+            }
         </style>
         <div class="title" horizontal layout>
             <div flex>
@@ -86,6 +90,7 @@
             </div>
 
             <div class="formbox">
+
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window
@@ -96,6 +101,12 @@
                             on-file-select="{{handleFileSelect}}"
                             bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
                             ></jso-project-browser-window>
+
+                    <template if="{{networkViewer != null}}">
+                        <br>
+                        <label>File from text</label>
+                        <textarea id="textarea" style="height:50px;width:300px;max-width: 400px;"></textarea>
+                    </template>
                 </div>
             </div>
 
@@ -334,7 +345,7 @@
 
 
             },
-            argsChanged: function(){
+            argsChanged: function () {
                 this.message = '';
                 this.jobName = "Job name";
                 this.description = "description";
@@ -345,15 +356,15 @@
                 this.$.fisher.value = "greater";
 
                 var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
-                for(var i = 0; i < radios.length; i++){
+                for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
-                    if(radio.value == this.args.group)
+                    if (radio.value == this.args.group)
                         radio.checked = true;
                 }
                 var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
-                for(var i = 0; i < radios.length; i++){
+                for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
-                    if(radio.value == this.args.type)
+                    if (radio.value == this.args.type)
                         radio.checked = true;
                 }
             },
@@ -380,7 +391,6 @@
                     this.$.option2.hidden = true;
                     this.$.option3.hidden = false;
                 }
-
             },
             handleCancel: function () {
                 this.selectedOption = '';
