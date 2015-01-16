@@ -192,13 +192,14 @@
             createStudy: function (e) {
                 var me = this;
                 this.message = '';
+                var studyName = "WorkSpace";
                 OpencgaManager.studies.create({
                     query: {
                         sid: me.sid,
-                        name: "default",
-                        alias: "default",
-                        description: "default",
-                        organization: "default",
+                        name: studyName,
+                        alias: studyName,
+                        description: studyName,
+                        organization: studyName,
 //                    type: "default",
                         projectId: me.projectId
 
@@ -230,7 +231,7 @@
                         }
                     }
                 });
-            },
+            }
 //        createAnalysis: function (e) {
 //            var me = this;
 //            this.message = '';

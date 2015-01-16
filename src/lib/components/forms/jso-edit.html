@@ -86,7 +86,7 @@
                         id="inputFile"
                         studies="{{studies}}"
                         selectedStudy="{{selectedStudy}}"
-                        selectionMode="file",
+                        selectionMode="file" ,
                         bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"
                         on-ok="{{handleBrowseSelect}}">
                 </jso-project-browser-window>
@@ -110,8 +110,8 @@
     <script>
         Polymer({
             created: function () {
-            this.messageSave = "";
-            this.onOk = false;
+                this.messageSave = "";
+                this.onOk = false;
 
             },
 
@@ -138,14 +138,19 @@
 //                    this.getContentFile();
 //            },
             handleBrowseSelect: function (e) {
-                if (this.$.inputFile.selectedFile.type == "FILE"){
-                this.onOk = true;
+                if (this.$.inputFile.selectedFile.type == "FILE") {
+                    this.onOk = true;
                     this.getContentFile();
-                    }
+                }
             },
             handleSave: function () {
-                this.messageSave =  "Saving..."
+                this.messageSave = "Saving..."
                 var strHeader = this.shadowRoot.querySelector('#classEdit').parseTable();
+                if (strHeader == "error") {
+                    this.messageSave = ""
+                    alert("Sorry, you have empty fields. Please fill them.")
+                    return;
+                }
                 this.saveInServer(strHeader);
 
             },
@@ -163,7 +168,7 @@
                         success: function (response) {
 //                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
 //                                debugger
-                                    me.messageSave =  "Saved successfully"
+                            me.messageSave = "Saved successfully"
 //                            } else {
 //                                me.message = response.response[0].errorMsg;
 //                            }
@@ -175,7 +180,7 @@
                 })
             },
             resetChanges: function () {
-               this.shadowRoot.querySelector('#classEdit').resetChanges();
+                this.shadowRoot.querySelector('#classEdit').resetChanges();
             }
         });
     </script>

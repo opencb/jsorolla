@@ -362,9 +362,8 @@
                 var strHeader = "";
                 strHeader = "#NUMBER_FEATURES\t" + this.datasetHeader["#NUMBER_FEATURES"] + "\n";
                 strHeader += "#NUMBER_SAMPLES\t" + this.datasetHeader["#NUMBER_SAMPLES"] + "\n";
-
+                var error = false;
                 for (var i = 0; i < this.columns.length; i++) {
-
                     var name = this.columns[i].name;
                     var type = this.columns[i].type;
                     if (name == "#NAMES")
@@ -377,6 +376,9 @@
                     var typeValues = {};
                     for (var j = 0; j < this.data.length; j++) {
                         var value = this.data[j][name];
+                        value = value.trim();
+                        if(value == "")
+                            error = true;
                         typeValues[value] = "";
                         dataBrackets.push(value);
                     }
@@ -392,6 +394,8 @@
                     dataBrackets.push(value);
                 }
                 strHeader += "#NAMES\t" + dataBrackets.join("\t");
+                if(error)
+                    return "error";
                 return strHeader;
             }
         });
