@@ -203,21 +203,21 @@
                 }
 
 
-
             },
-//            list1Click: function (e) {
-//                this.$.list1Html.hidden = false
-//                //this.$.rankedListFileName.click();
-//
-//            },
-//            list1Changed: function (oldV, newV) {
-//                this.list1UploadMsg = this.list1.path
-//            },
+
             handleForm: function () {
                 this.launchJob();
             },
-            launchJob: function (selectedFolderId) {
+            launchJob: function () {
                 var me = this;
+                if (this.$.sample_clustering.checked == false && this.$.gene_clustering.checked == false) {
+                    alert("Sorry. Type of clustering should be chosen. Please choose one.");
+                    return;
+                }
+                if (!Utils.basicValidationForm(this)) {
+                    return;
+                }
+
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -235,16 +235,20 @@
                 if (this.$.gene_clustering.checked) {
                     query["gene-clustering"] = true;
                 }
-                /** Validating clustering **/
-                if (!this.$.sample_clustering.checked && !this.$.gene_clustering.checked) {
-                    alert("Not type of clustering selected");
-                    return;
-                }
-                if (this.$.sample_kvalue.disabled == false) {
-                    query["sample-kvalue"] = this.sample_kvalue;
+
+                if (this.$.sample_kvalue.disabled == false ) {
+                    if(isNaN(this.$.sample_kvalue.value)){
+                        alert("Sorry. Sample k value is not a number. ");
+                        return;
+                    }
+                    query["sample-kvalue"] = this.$.sample_kvalue.value;
                 }
                 if (this.$.gene_kvalue.disabled == false) {
-                    query["gene-kvalue"] = this.gene_kvalue;
+                    if(isNaN(this.$.gene_kvalue.value)){
+                        alert("Sorry. Gene k value is not a number. ");
+                        return;
+                    }
+                    query["gene-kvalue"] = this.$.gene_kvalue.value;
                 }
 
                 OpencgaManager.jobs.create({

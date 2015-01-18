@@ -140,6 +140,7 @@
                 for (var i = 0; i < this.files.length; i++) {
                     var fileName = this.files[i].name;
                     if (fileName.indexOf("_significative_table_up.txt") >= 0) {
+                        debugger
                         me.topListFile = this.files[i];
                         me.topListFileUrl = Utils.getUrl(me.topListFile.id);
                     }

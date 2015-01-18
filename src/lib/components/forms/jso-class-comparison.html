@@ -243,14 +243,23 @@
             },
             launchJob: function () {
                 var me = this;
+
+                this.test = this.getSelectedTest();
+                this.class_name = this.$.jsoClassViewer.getMainSelect().value;
+                if (this.class_name == "none") {
+                    alert("Sorry: Please select a class name.");
+                    return;
+                }
+                this.class_values = this.getClassValues();
+                if ( this.class_values == "") {
+                    alert("Sorry: Please select values for your class.");
+                    return;
+                }
+
                 var utils = new FormUtils(this);
                 if (!utils.basicValidationForm()) {
                     return;
                 }
-
-                this.test = this.getSelectedTest();
-                this.class_name = this.$.jsoClassViewer.getMainSelect().value;
-                this.class_values = this.getClassValues();
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -261,15 +270,17 @@
                     "class-name": this.class_name,
                     "class-values": this.class_values,
                     dataset: this.$.inputFile.selectedFile.id,
-//            "fold-change-value": this.fold_change_value,
-//            "p-value": this.p_value,
                     test: this.test
                 };
                 if (this.$.two_rg_3.disabled == false && this.$.two_rg_3.checked)
                     query["fold-change-value"] = this.$.fold_change_value.value;
                 else {
                     query["correction"] = this.$.multiple_test_correction_div.querySelector('input[name="correction"]:checked').value;
-                    query["p-value"] = this.p_value;
+                    if(this.$.p_value.value == "" || isNaN(this.$.p_value.value)){
+                        alert("Sorry. P is value not a number. ");
+                        return;
+                    }
+                    query["p-value"] = this.$.p_value.value;
                 }
                 OpencgaManager.jobs.create({
                     query: query,

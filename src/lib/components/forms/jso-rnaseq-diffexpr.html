@@ -167,10 +167,9 @@
             },
             launchJob: function () {
                 var me = this;
-                var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!Utils.basicValidationForm(this)) {
                     return;
-               }
+                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,

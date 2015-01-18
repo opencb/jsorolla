@@ -31,7 +31,7 @@
             sortable-table::shadow .column-odds_ratio,
             sortable-table::shadow .column-pvalue,
             sortable-table::shadow .column-adj_pvalue{
-                width: 70px;
+                width: 80px;
                 /*white-space: nowrap;*/
             }
 
@@ -48,6 +48,14 @@
                     <span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}</span>
                 </td>
             </template>
+            <template id="listTemplatePerc">
+                <td>
+                    <span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}%</span>
+                    <br>
+                    <span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}%</span>
+                </td>
+            </template>
+
 
         </sortable-table>
 
@@ -63,14 +71,15 @@
                 for (var i = 1; i < data.length; i++) {
                     if (data[i] == "") continue;
                     var localData = data[i].split("\t");
-                    var listObj = {list1:localData[9],list2:localData[10]}
+                    var listObj = {list1:localData[9],list2:localData[10]};
+                    var listObjPerc = {list1:localData[5],list2:localData[8]};
                     var obj = {
                         "term": localData[0],
                         "term_size": localData[1],
                         "term_size_genome": localData[2],
-                        "term_annotations_list_perc": "list 1: "+localData[5]+"%"+", \nlist 2: "+localData[8]+"%",
+                        "term_annotations_list_perc": listObjPerc,//"list 1: "+localData[5]+"%"+",list 2: "+localData[8]+"%",
                         "annotated_ids_list":listObj,
-                        "odds_ratio":  parseFloat(localData[11]).toFixed(3),
+                        "odds_ratio":  parseFloat(localData[11]).toExponential(2),
                         "pvalue": parseFloat(localData[12]).toFixed(3),
                         "adj_pvalue": parseFloat(localData[13]).toFixed(3)
                     };
@@ -94,7 +103,8 @@
                     },
                     {
                         name: "term_annotations_list_perc",
-                        title: "Annotations lists"
+                        title: "Annotations lists",
+                        cellTemplate: "listTemplatePerc"
                     },
                     {
                         name: "annotated_ids_list",

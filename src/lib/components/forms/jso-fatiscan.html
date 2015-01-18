@@ -25,61 +25,49 @@
             .title {
                 text-align: center;
                 font-size: 25px;
-                color: #666;
-            }
-
-            .icon {
                 color: #445D76;
-                font-size: 50px;
+                margin-bottom: 10px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
+            .close {
+                color: #aaa;
             }
 
-            label::after {
-                content: ':'
-            }
-
-            .action {
-                /*margin-top: 30px;*/
-                background-color: #f5f5f5 !important;
-                text-align: center;
-            }
-
-            .action:active {
-                background-color: #445D76 !important;
-                color: #fff !important;
+            .close:hover {
+                color: #ffad76;
             }
 
             .message {
                 margin-top: 20px;
             }
 
-            div.button {
-                /*display: inline-block;*/
-                width: 300px
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-            span {
-                border: 1px solid;
-            }
-
-            input[type="text"]:disabled {
-                background: #dddddd;
+            .botbar {
+                margin-top: 10px;
             }
 
             .db_options {
                 margin: 5px;
-                border: 1px solid;
+                border: 1px solid #d3d3d3;
                 padding: 5px
+            }
+
+            textarea {
+                margin: 3px;
+            }
+            input[name=recon]:disabled + span,
+            input[name=recon]:disabled + span:before
+            {
+                color:#d3d3d3!important;
+            }
+            input[name=go_slim]:disabled + span,
+            input[name=go_slim]:disabled + span:before
+            {
+                color:#d3d3d3!important;
+            }
+            input[name=interpro]:disabled + span,
+            input[name=interpro]:disabled + span:before
+            {
+                color:#d3d3d3!important;
             }
         </style>
         <div class="title">
@@ -94,34 +82,61 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Fluorouridine dataset</div>
+                    <div class="button action"  style="width:150px;" on-click="{{loadExample1}}">Fluorouridine dataset</div>
                 </div>
             </div>
             <div>
                 <div class="formbox">
                     <div class="formtitle">Select your data</div>
                     <div class="formcontent">
-                        <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_RANKED"></jso-project-browser-window>
-                        <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">Remove duplicates
+                        <jso-project-browser-window id="inputFile" studies="{{studies}}"
+                                                    selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                    bioformat="IDLIST_RANKED"></jso-project-browser-window>
+                        <br>
+                        <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox"
+                               value="true"> Remove duplicates
                     </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Method</div>
+                <div class="formcontent">
+                    <input id="method_1" name="method" class="fc-radioitem" type="radio" value="logistic" checked> Logistic model
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Databases</div>
                 <div class="formcontent">
                     <div id="databases">
-                        <select name="species" id="species" class="fc-combobox" type="text" value="none" on-change="{{handleSpecies}}">
+                        <select name="species" id="species" class="fc-combobox" type="text" value="none"
+                                on-change="{{handleSpecies}}">
                             <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
-                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
-                            <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
-                            <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
-                            <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
+                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
+                                    selected="selected">Human (homo sapiens)
+                            </option>
+                            <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
+                                musculus)
+                            </option>
+                            <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus
+                                norvegicus)
+                            </option>
+                            <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly
+                                (drosophila melanogaster)
+                            </option>
                             <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                            <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
-                            <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
-                            <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
-                            <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                            <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish
+                                (danio rerio)
+                            </option>
+                            <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces
+                                cerevisiae
+                            </option>
+                            <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis
+                                elegans
+                            </option>
+                            <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis
+                                thaliana
+                            </option>
                         </select>
                         <br>
 
@@ -136,9 +151,11 @@
                         <div id="bpOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -157,9 +174,11 @@
                         <div id="mfOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -178,9 +197,11 @@
                         <div id="ccOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -199,9 +220,11 @@
                         <div id="slimOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_slim_keyword_list" id="go_slim_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -220,9 +243,11 @@
                         <div id="interproOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_interpro_keyword_list" id="go_interpro_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -241,9 +266,11 @@
                         <div id="reconOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="recon_keyword_list" id="recon_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="recon_keyword_operator_1" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -257,7 +284,8 @@
                         <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
                         Your annotations
-                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                                                    selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file" on-file-select="{{handleFileSelect}}"
                                                     bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
 
@@ -295,7 +323,7 @@
                 this.message = '';
                 me.launchJob();
             },
-            argsChanged: function(){
+            argsChanged: function () {
                 this.message = '';
                 this.jobName = "Job name";
                 this.description = "description";
@@ -320,6 +348,10 @@
                     species: this.$.species.value
 
                 };
+                if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked) {
+                    alert("Sorry. No database selected. Please select one");
+                    return;
+                }
                 if (this.$.go_bp.checked) {
                     query["go-bp"] = "";
                     query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes.value;
@@ -378,7 +410,11 @@
             loadExample1: function (e) {
                 this.jobName = "fluorouridine_dataset";
                 this.description = "fluorouridine_dataset";
-                this.$.inputFile.selectedFile = {id: "example_fluorouridine.txt", path: "fluorouridine.txt", type: "FILE"};
+                this.$.inputFile.selectedFile = {
+                    id: "example_fluorouridine.txt",
+                    path: "fluorouridine.txt",
+                    type: "FILE"
+                };
                 this.$.remove_duplicates.checked = false;
                 this.$.species.value = "hsa";
                 this.$.go_bp.checked = true;
@@ -463,6 +499,15 @@
             },
             mfOptionsFunction: function () {
                 this.$.mfOptions.hidden = !this.$.mfOptions.hidden;
+            },
+            slimOptionsFunction: function () {
+                this.$.slimOptions.hidden = !this.$.slimOptions.hidden;
+            },
+            interproOptionsFunction: function () {
+                this.$.interproOptions.hidden = !this.$.interproOptions.hidden;
+            },
+            reconOptionsFunction: function () {
+                this.$.reconOptions.hidden = !this.$.reconOptions.hidden;
             }
         });
     </script>

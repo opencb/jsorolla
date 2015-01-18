@@ -27,7 +27,7 @@
         </style>
 
 
-        <form id="form" vertical layout>
+        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
             <!--<label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
             <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9_-]+">
 
@@ -46,6 +46,13 @@
                 this.selectedProject;
 
                 this.message = '';
+            },
+            handleFormKey: function (e) {
+
+                if (e.which == 13) {
+                    e.preventDefault();
+                    this.handleForm();
+                }
             },
             handleForm: function (e) {
                 var me = this;

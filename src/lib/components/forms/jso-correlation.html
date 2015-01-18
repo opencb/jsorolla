@@ -130,7 +130,6 @@
             <div class="formbox">
                 <div class="formtitle">Select adjusted p-value</div>
                 <div class="formcontent">
-                    <h3></h3>
                     <label>Adj. p-value (0.0-1.0)</label><input name="p_value" id="p_value" class="fc-decimal fc-text"
                                                                 type="text" value="{{p_value}}">
                 </div>
@@ -180,12 +179,20 @@
             },
             launchJob: function () {
                var me = this;
-                var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+
+                if (!Utils.basicValidationForm(this)) {
                     return;
-               }
+                }
 
                 this.class_name = this.$.jsoClassViewer.getMainSelect().value;
+                if (this.class_name == "none") {
+                    alert("Sorry: Please select a class name.");
+                    return;
+                }
+                if(this.$.p_value.value == "" || isNaN(this.$.p_value.value)){
+                    alert("Sorry. P is value not a number. ");
+                    return;
+                }
                 this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
                 this.correction = this.$.multipleTestCorrectionDiv.querySelector('input[name="correction"]:checked').value;
                 var query = {
@@ -199,7 +206,7 @@
                     dataset: this.$.inputFile.selectedFile.id,
                     test: this.test,
                     correction: this.correction,
-                    "p-value": this.p_value
+                    "p-value": this.$.p_value.value
                 };
                 OpencgaManager.jobs.create({
                     query: query,

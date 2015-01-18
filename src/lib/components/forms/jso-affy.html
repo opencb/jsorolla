@@ -131,10 +131,9 @@
             },
             launchJob: function () {
                 var me = this;
-               var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!Utils.basicValidationForm(this)) {
                     return;
-               }
+                }
                 if(!this.$.rma.checked && !this.$.plier.checked && !this.$.calls.checked){
                     alert("Error: Please choose an analysis. ");
                     return;

@@ -53,6 +53,28 @@
             textarea {
                 margin: 3px;
             }
+
+            input[name=recon]:disabled + span,
+            input[name=recon]:disabled + span:before
+            {
+                color:#d3d3d3!important;
+            }
+            input[name=go_slim]:disabled + span,
+            input[name=go_slim]:disabled + span:before
+            {
+                color:#d3d3d3!important;
+            }
+            input[name=interpro]:disabled + span,
+            input[name=interpro]:disabled + span:before
+            {
+                color:#d3d3d3!important;
+            }
+
+            select[name=fisher]:disabled
+            {
+                color:#d3d3d3!important;
+            }
+
         </style>
         <div class="title" horizontal layout>
             <div flex>
@@ -81,7 +103,7 @@
                     </label>
                     <label class="control">
                         <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}"
-                               >
+                                >
                         <span>Id List vs Rest of genome</span>
                     </label>
                     <!--<label class="control">-->
@@ -212,7 +234,7 @@
                                 <span>GO biological process</span>
                             </label>
 
-                            <div class="button action" on-click="{{bpOptionsFunction}}">Show options...</div>
+                            <div id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show options...</div>
                         </div>
                         <div id="bpOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -235,7 +257,7 @@
                                 <span>GO molecular function</span>
                             </label>
 
-                            <div class="button action" on-click="{{mfOptionsFunction}}">Show options...</div>
+                            <div id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show options...</div>
                         </div>
                         <div id="mfOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -258,7 +280,7 @@
                                 <span>GO cellular component</span>
                             </label>
 
-                            <div class="button action" on-click="{{ccOptionsFunction}}">Show options...</div>
+                            <div id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show options...</div>
                         </div>
                         <div id="ccOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -281,7 +303,7 @@
                                 <span>GOSlim GOA</span>
                             </label>
 
-                            <div class="button action" on-click="{{slimOptionsFunction}}">Show options...</div>
+                            <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show options...</div>
                         </div>
                         <div id="slimOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -304,7 +326,7 @@
                                 <span>Interpro</span>
                             </label>
 
-                            <div class="button action" on-click="{{interproOptionsFunction}}">Show options...</div>
+                            <div id="interproOptionsButton" class="button action" on-click="{{interproOptionsFunction}}">Show options...</div>
                         </div>
                         <div id="interproOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -327,7 +349,7 @@
                                 <span>Recon</span>
                             </label>
 
-                            <div class="button action" on-click="{{reconOptionsFunction}}">Show options...</div>
+                            <div id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show options...</div>
                         </div>
                         <div id="reconOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -483,6 +505,10 @@
                     }
                     query["annotations"] = this.$.annotationsFile.selectedFile.id;
                 }
+                if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked) {
+                    alert("Sorry. No database selected. Please select one");
+                    return;
+                }
                 if (this.$.go_bp.checked) {
                     query["go-bp"] = "";
                     query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes.value;
@@ -606,11 +632,13 @@
                     this.$.go_slim.disabled = false;
                     this.$.interpro.disabled = false;
                     this.$.recon.disabled = false;
+
                 }
                 if (this.species == "ath") {
                     this.$.go_slim.disabled = true;
                     this.$.interpro.disabled = true;
                     this.$.recon.disabled = true;
+
                 }
                 if (this.species == "cel") {
                     this.$.go_slim.disabled = true;
@@ -624,7 +652,7 @@
                 }
 
             },
-            bpOptionsFunction: function () {
+            bpOptionsFunction: function (e, b) {
                 this.$.bpOptions.hidden = !this.$.bpOptions.hidden;
             },
             ccOptionsFunction: function () {
@@ -632,6 +660,15 @@
             },
             mfOptionsFunction: function () {
                 this.$.mfOptions.hidden = !this.$.mfOptions.hidden;
+            },
+            slimOptionsFunction: function () {
+                this.$.slimOptions.hidden = !this.$.slimOptions.hidden;
+            },
+            interproOptionsFunction: function () {
+                this.$.interproOptions.hidden = !this.$.interproOptions.hidden;
+            },
+            reconOptionsFunction: function () {
+                this.$.reconOptions.hidden = !this.$.reconOptions.hidden;
             }
         });
     </script>
