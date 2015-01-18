@@ -176,7 +176,10 @@
                 this.message = '';
                 this.jobName = "Job name";
                 this.description = "description";
-                this.$.inputFile.selectedFile = this.args.list1;
+                if (this.args.list1 !== undefined)
+                    this.$.inputFile.selectedFile = this.args.list1;
+                if (this.args.inputFile !== undefined)
+                    this.$.inputFile.selectedFile = this.args.inputFile;
 
                 if (this.args.sample_clustering !== undefined)
                     this.$.sample_clustering.checked = true;
@@ -236,15 +239,15 @@
                     query["gene-clustering"] = true;
                 }
 
-                if (this.$.sample_kvalue.disabled == false ) {
-                    if(isNaN(this.$.sample_kvalue.value)){
+                if (this.$.sample_kvalue.disabled == false) {
+                    if (isNaN(this.$.sample_kvalue.value)) {
                         alert("Sorry. Sample k value is not a number. ");
                         return;
                     }
                     query["sample-kvalue"] = this.$.sample_kvalue.value;
                 }
                 if (this.$.gene_kvalue.disabled == false) {
-                    if(isNaN(this.$.gene_kvalue.value)){
+                    if (isNaN(this.$.gene_kvalue.value)) {
                         alert("Sorry. Gene k value is not a number. ");
                         return;
                     }

@@ -56,27 +56,29 @@
             <h1> RNASeq Normalization</h1>
 
             <div>
+                <jso-job-info-widget jobItem="{{jobItem}}"></jso-job-info-widget>
+
                 <h3>Input parameters</h3>
 
                 <div class="message" horizontal="" layout="">
-                    <label>Data file:</label>
+                    <label>Data file</label>
 
                     <div class="messageValue">{{dataFile}}</div>
                 </div>
                 <template if="{{method != ''}}">
                     <div class="message" horizontal="" layout="">
-                        <label>Method:</label>
+                        <label>Method</label>
 
                         <div class="messageValue">{{method}}</div>
                     </div>
                 </template>
                 <div class="message" horizontal="" layout="">
-                    <label>Multiple-test correction:</label>
+                    <label>Multiple-test correction</label>
 
                     <div class="messageValue">{{pvmet}}</div>
                 </div>
                 <div class="message" horizontal="" layout="">
-                    <label>P value:</label>
+                    <label>P value</label>
 
                     <div class="messageValue">{{pval}}</div>
                 </div>

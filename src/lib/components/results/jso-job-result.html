@@ -282,25 +282,28 @@
                 me.$.output.appendChild(divsJSON);
             },
             getJobInfoHtml: function () {
-                var markup = '' +
-                        '<div class="level-0">' +
-                        '   <div class="headerTitle">Job information</div>' +
-                        '   <div class="data">' +
-                        '       <div class="message" horizontal="" layout="">' +
-                        '           <label>Name: </label>' +
-                        '           <div class="messageValue">' + this.jobItem.name + '</div>' +
-                        '       </div>' +
-                        '       <div class="message" horizontal="" layout="">' +
-                        '           <label>Description: </label>' +
-                        '           <div class="messageValue">' + this.jobItem.description + '</div>' +
-                        '       </div>' +
-                        '   </div>' +
-                        '   <div class="children"></div>' +
-                        '</div>';
-                var parser = new DOMParser()
-
-                var el = parser.parseFromString(markup, "text/html");
-                return el.querySelector("div");
+//                var markup = '' +
+//                        '<div class="level-0">' +
+//                        '   <div class="headerTitle">Job information</div>' +
+//                        '   <div class="data">' +
+//                        '       <div class="message" horizontal="" layout="">' +
+//                        '           <label>Name </label>' +
+//                        '           <div class="messageValue">' + this.jobItem.name + '</div>' +
+//                        '       </div>' +
+//                        '       <div class="message" horizontal="" layout="">' +
+//                        '           <label>Description </label>' +
+//                        '           <div class="messageValue">' + this.jobItem.description + '</div>' +
+//                        '       </div>' +
+//                        '   </div>' +
+//                        '   <div class="children"></div>' +
+//                        '</div>';
+//                var parser = new DOMParser()
+//
+//                var el = parser.parseFromString(markup, "text/html");
+//                return el.querySelector("div");
+                var el = document.createElement("jso-job-info-widget");
+                el.jobItem = this.jobItem;
+                return el;
 //
 // this.$.output.appendChild(el.querySelector("div"));
 
@@ -599,15 +602,16 @@
                                             if (file.name == filename)
                                                 break;
                                         }
-
                                         var args = {
                                             inputFile: file,
                                             tool: hash.tool,
                                             jobName: hash.jobname,
                                             description: "Redirect from " + me.jobItem.name,
                                             merge_replicates: hash.merge_replicates,
-                                            impute_missing: hash.impute_missing
-                                        }
+                                            impute_missing: hash.impute_missing,
+                                            method: hash.method,
+                                            distance: hash.distance
+                                        };
 
                                         var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
                                         res.appendChild(button);
