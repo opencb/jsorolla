@@ -282,17 +282,17 @@
                 me.$.output.appendChild(divsJSON);
             },
             getJobInfoHtml: function () {
-                var markup ='' +
+                var markup = '' +
                         '<div class="level-0">' +
                         '   <div class="headerTitle">Job information</div>' +
                         '   <div class="data">' +
                         '       <div class="message" horizontal="" layout="">' +
                         '           <label>Name: </label>' +
-                        '           <div class="messageValue">'+this.jobItem.name+'</div>' +
+                        '           <div class="messageValue">' + this.jobItem.name + '</div>' +
                         '       </div>' +
                         '       <div class="message" horizontal="" layout="">' +
                         '           <label>Description: </label>' +
-                        '           <div class="messageValue">'+this.jobItem.description+'</div>' +
+                        '           <div class="messageValue">' + this.jobItem.description + '</div>' +
                         '       </div>' +
                         '   </div>' +
                         '   <div class="children"></div>' +
@@ -465,7 +465,36 @@
                                 }, fileRedirection);
                             }
                         }
+                        break;
+                    case "DATA":
+                        var file = document.createElement("div");
 
+                        file.classList.add("file");
+
+                        var label = document.createElement("label");
+                        label.innerHTML = element.title;
+                        file.appendChild(label);
+                        element.value = element.value.replace("${pvalue}", me.pvalue);
+                        var fileId = this._getFileId(element.value);
+
+                        var fileURL = OpencgaManager.files.content({
+                            id: fileId,
+                            query: {
+                                sid: Cookies("bioinfo_sid")
+                            },
+                            request: {
+
+                                url: true
+                            }
+                        })
+
+                        var a = document.createElement("a");
+                        a.innerHTML = element.value;
+                        a.setAttribute("href", fileURL);
+                        a.setAttribute("target", "_blank");
+
+                        file.appendChild(a);
+                        res.appendChild(file);
 
                         break;
                     case "IMAGE":
@@ -541,75 +570,82 @@
                                     || this.jobItem.toolName == "agilent-expression-one-color-normalization"
                                     || this.jobItem.toolName == "genepix-expression-one-color-normalization"
                                     || this.jobItem.toolName == "agilent-expression-two-colors-normalization"
-                                    || this.jobItem.toolName == "genepix-expression-two-colors-normalization") {
+                                    || this.jobItem.toolName == "genepix-expression-two-colors-normalization"
+                                    || this.jobItem.toolName == "preprocessing") {
+                                var filesRedirection = element.tags.split(",");
+                                for (var i = 0; i < filesRedirection.length; i++) {
+                                    var raw = filesRedirection[i];
 
-                                var fileRedirection = element.tags.split("(")[1].split(":")[0];
-                                this.getFileContent(function (content) {
-                                    var lines = content.split("\n");
-                                    var hash = {};
-                                    var args = {};
 
-                                    for (var i = 0; i < lines.length; i++) {
-                                        var line = lines[i];
-                                        var splits = line.split("=");
-                                        hash[splits[0]] = splits[1];
-                                    }
+//                                    var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                    var fileRedirection = raw.split("(")[1].split(":")[0];
+                                    this.getFileContent(function (content) {
+                                        var lines = content.split("\n");
+                                        var hash = {};
+                                        var args = {};
 
-                                    var aux = hash.dataset.split("/");
-                                    var filename = aux[aux.length - 1];
+                                        for (var i = 0; i < lines.length; i++) {
+                                            var line = lines[i];
+                                            var splits = line.split("=");
+                                            hash[splits[0]] = splits[1];
+                                        }
 
-                                    var file = {};
-                                    for (var i = 0; i < me.filesList.length; i++) {
-                                        file = me.filesList[i];
-                                        if (file.name == filename)
-                                            break;
-                                    }
+                                        var aux = hash.dataset.split("/");
+                                        var filename = aux[aux.length - 1];
 
-                                    var args = {
-                                        inputFile: file,
-                                        tool: hash.tool,
-                                        jobName: hash.jobname,
-                                        description: "Redirect from " + me.jobItem.name,
-                                        merge_replicates: hash.merge_replicates,
-                                        impute_missing: hash.impute_missing
-                                    }
+                                        var file = {};
+                                        for (var i = 0; i < me.filesList.length; i++) {
+                                            file = me.filesList[i];
+                                            if (file.name == filename)
+                                                break;
+                                        }
 
-                                    var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
-                                    res.appendChild(button);
+                                        var args = {
+                                            inputFile: file,
+                                            tool: hash.tool,
+                                            jobName: hash.jobname,
+                                            description: "Redirect from " + me.jobItem.name,
+                                            merge_replicates: hash.merge_replicates,
+                                            impute_missing: hash.impute_missing
+                                        }
 
-                                }, fileRedirection);
+                                        var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
+                                        res.appendChild(button);
+
+                                    }, fileRedirection);
+                                }
                             }
                             break;
                         }
-
-
                         var file = document.createElement("div");
-                        file.classList.add("file");
+                        if (element.value.indexOf("testfilename") < 0) {
 
-                        var label = document.createElement("label");
-                        label.innerHTML = element.title;
-                        file.appendChild(label);
-                        element.value = element.value.replace("${pvalue}", me.pvalue);
-                        var fileId = this._getFileId(element.value);
+                            file.classList.add("file");
 
-                        var fileURL = OpencgaManager.files.content({
-                            id: fileId,
-                            query: {
-                                sid: Cookies("bioinfo_sid")
-                            },
-                            request: {
+                            var label = document.createElement("label");
+                            label.innerHTML = element.title;
+                            file.appendChild(label);
+                            element.value = element.value.replace("${pvalue}", me.pvalue);
+                            var fileId = this._getFileId(element.value);
 
-                                url: true
-                            }
-                        })
+                            var fileURL = OpencgaManager.files.content({
+                                id: fileId,
+                                query: {
+                                    sid: Cookies("bioinfo_sid")
+                                },
+                                request: {
 
-                        var a = document.createElement("a");
-                        a.innerHTML = element.value;
-                        a.setAttribute("href", fileURL);
-                        a.setAttribute("target", "_blank");
+                                    url: true
+                                }
+                            })
 
-                        file.appendChild(a);
+                            var a = document.createElement("a");
+                            a.innerHTML = element.value;
+                            a.setAttribute("href", fileURL);
+                            a.setAttribute("target", "_blank");
 
+                            file.appendChild(a);
+                        }
                         if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "fatiscan") {
 //                            console.log(element.tags)
 //                            debugger
@@ -695,6 +731,7 @@
                                     sortableTable.content = content;
                                     sortableTable.contentDataset = contentDataset;
                                     sortableTable.files = me.filesList;
+                                    sortableTable.test = test;
                                 }, test + "_significative_dataset.txt");
 
 
@@ -925,7 +962,10 @@
             _createRedirectButton: function (buttonText, tool, args) {
 
                 var me = this;
-                var button = document.createElement('button');
+                var button = document.createElement('div');
+                button.setAttribute("class", "button action");
+                button.setAttribute("style", "width: 200px; margin: 2px");
+
                 var elem = document.createTextNode(buttonText);
 
                 button.appendChild(elem);

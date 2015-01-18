@@ -1,48 +1,82 @@
-<polymer-element name="jso-diffexpr-table" attributes="content contentDataset files">
+<polymer-element name="jso-diffexpr-table" attributes="content contentDataset files test">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
 
         </style>
-        <sortable-table id="table"
-                        data="{{data}}"
-                        columns="{{columns}}"
-                        footerTemplate="{{footerTemplate}}"
-                        pageSize="{{pageSize}}">
+        <div class="file"><label>Significative table</label>
+            <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
+            <sortable-table id="table"
+                            data="{{data}}"
+                            columns="{{columns}}"
+                            footerTemplate="{{footerTemplate}}"
+                            pageSize="{{pageSize}}">
 
-        </sortable-table>
+            </sortable-table>
 
-        <div id="redirection">
-            <label>Top list</label>
-            <div class="file"><label>File</label>
-                <a href="{{topList}}" target="_blank">Significative table up</a>
-                Send top list vs genome to single enrichment analysis<div class="button action" style="width: 100px">Send</div>
-            </div>
-            <label>Bottom list</label>
-            <div class="file"><label>File</label>
-                <a href="{{bottomList}}" target="_blank">Significative table bottom</a>
-                Send top list vs genome to single enrichment analysis<div class="button action" style="width: 100px">Send</div>
+
+            <!--Top list : toplist_j253150_p0.05.txt-->
+
+            <!--Send top list vs genome to FatiGO tool-->
+
+            <!--Bottom list : no bottom list available-->
+
+            <!--Comparison: top list vs bottom list : nothing to do-->
+
+
+            <!--Dataset containing the significative values : dataset_j253150_p0.05.txt-->
+
+            <!--Send to Clustering tool-->
+            <!---->
+
+
+            <div id="heatMap"></div>
+
+            <div id="redirection">
+                <template if="{{topNumber>0}}">
+                    <div class="file"><label>Top list</label>
+                        <a href="{{topListFileUrl}}" target="_blank">{{topListFile.name}}</a>
+
+                        <div class="button action" style="width: 400px" on-click="{{sendTop}}">Send top list vs genome
+                            to single
+                            enrichment analysis
+                        </div>
+                    </div>
+                    <br>
+                </template>
+                <template if="{{bottomNumber>0}}">
+                    <div class="file"><label>Bottom list</label>
+                        <a href="{{bottomListFileUrl}}" target="_blank">{{bottomListFile.name}}</a>
+
+                        <div class="button action" style="width: 400px" on-click="{{sendBottom}}">Send bottom list vs
+                            genome
+                            to single enrichment analysis
+                        </div>
+                    </div>
+                    <br>
+                </template>
+                <template if="{{topNumber>0 && bottomNumber > 0}}">
+                    <div class="file"><label>Comparison top list vs bottom list</label>
+
+                        <div class="button action" style="width: 400px" on-click="{{sendTopVsBottom}}">Send top list vs
+                            bottom list
+                        </div>
+                    </div>
+                    <br>
+                </template>
+
+                <div class="file"><label>Dataset containing the significative values</label>
+                    <a href="{{significativeFileUrl}}" target="_blank">{{significativeFile.name}}</a>
+
+                    <div class="button action" style="width: 400px" on-click="{{sendClustering}}">Send to clustering
+                        tool
+                    </div>
+                    <br>
+                </div>
+
             </div>
         </div>
-
-
-        <!--Top list : toplist_j253150_p0.05.txt-->
-
-        <!--Send top list vs genome to FatiGO tool-->
-
-        <!--Bottom list : no bottom list available-->
-
-        <!--Comparison: top list vs bottom list : nothing to do-->
-
-
-        <!--Dataset containing the significative values : dataset_j253150_p0.05.txt-->
-
-        <!--Send to Clustering tool-->
-        <!---->
-
-
-        <div id="heatMap"></div>
 
     </template>
     <script>
@@ -53,6 +87,9 @@
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
                 this.rowNames = [];
+                this.test = "";
+                this.topNumber = 0;
+                this.bottomNumber = 0;
 
             },
             contentDatasetChanged: function () {
@@ -72,7 +109,14 @@
                         if (data[i].length > 0) {
                             var localData = data[i].split("\t");
                             var localArray = new Array();
-                            var addFeature = false;
+                            var idx = 1;
+                            if (this.test == "spearman" || this.test == "pearson")
+                                idx = 2
+
+                            if (Number(localData[idx]) >= 0)
+                                this.topNumber++;
+                            else
+                                this.bottomNumber++;
                             for (var z = 0; z < localData.length; z++) {
                                 var value = localData[z];
                                 if (isFinite(value))
@@ -95,33 +139,77 @@
 
                 for (var i = 0; i < this.files.length; i++) {
                     var fileName = this.files[i].name;
-
                     if (fileName.indexOf("_significative_table_up.txt") >= 0) {
-                        me.topList = Utils.getUrl(this.files[i].id);
+                        me.topListFile = this.files[i];
+                        me.topListFileUrl = Utils.getUrl(me.topListFile.id);
                     }
                     if (fileName.indexOf("_significative_table_down.txt") >= 0) {
-                        me.bottomList = Utils.getUrl(this.files[i].id);
+                        me.bottomListFile = this.files[i];
+                        me.bottomListFileUrl = Utils.getUrl(me.bottomListFile.id);
+                    }
+                    if (fileName.indexOf("_significative_dataset.txt") >= 0) {
+                        me.significativeFile = this.files[i];
+                        me.significativeFileUrl = Utils.getUrl(me.significativeFile.id);
+                    }
+                    if (fileName.indexOf("_significative_table.txt") >= 0) {
+                        me.significativeTable = this.files[i];
+                        me.significativeTableUrl = Utils.getUrl(me.significativeTable.id);
                     }
                 }
 
             },
-            _createRedirectButton: function (buttonText, tool, args) {
+            sendTop: function () {
 
-                var me = this;
-                var button = document.createElement('button');
-                var elem = document.createTextNode(buttonText);
+                var args = {
+                    list1: this.topListFile,
+                    comparisonRadio: "list2genome",
+                    duplicates: "never",
+                    fisher: "greater"
+                };
+                this.fire("redirection", {
+                    tool: "fatigo",
+                    args: args
+                });
+            },
+            sendBottom: function () {
 
-                button.appendChild(elem);
-                button.onclick = function () {
-                    me.fire("redirection", {
-                        tool: tool,
-                        args: args
-                    });
-                }
-//                button.value = "click me!";
-                return button;
+                var args = {
+                    list1: this.bottomListFile,
+                    comparisonRadio: "list2genome",
+                    duplicates: "never",
+                    fisher: "greater"
+                };
+                this.fire("redirection", {
+                    tool: "fatigo",
+                    args: args
+                });
+            },
+            sendTopVsBottom: function () {
 
+                var args = {
+                    list1: this.topListFile,
+                    list2: this.bottomListFile,
+                    comparisonRadio: "list2list",
+                    duplicates: "never",
+                    fisher: "two-tailed"
+                };
+                this.fire("redirection", {
+                    tool: "fatigo",
+                    args: args
+                });
+            },
+            sendClustering: function () {
 
+                var args = {
+                    list1: this.significativeFile,
+                    distance: "square",
+                    method: "upgma",
+                    gene_clustering: ""
+                };
+                this.fire("redirection", {
+                    tool: "clustering",
+                    args: args
+                });
             },
             heatMapData: function () {
                 var cols = [];
@@ -135,7 +223,7 @@
                 var b = true;
 
                 /** Hack needed for sorting**/
-                var rawDataObj = {}
+                var rawDataObj = {};
                 for (var i = 0; i < rawData.length; i++) {
                     var line = rawData[i];
                     if (line == "")continue;
@@ -181,10 +269,12 @@
             createHeatMap: function (data, cols, rows) {
                 //data = data.slice(0,10)
                 //rows = rows.slice(0,10)
-                var height = rows.length * 15;
-                if (height < 800) {
-                    height = 800;
-                }
+//                var height = rows.length * 15;
+                var height = 200;
+                height = height +  rows.length * 15;
+//                if (height < 800) {
+//                    height = 800;
+//                }
                 var width = cols.length * 15;
                 if (width < 500) {
                     width = 500;

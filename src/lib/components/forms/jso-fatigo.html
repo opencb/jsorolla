@@ -75,11 +75,13 @@
                 <div class="formtitle">Define your comparison</div>
                 <div class="formcontent" vertical layout>
                     <label class="control">
-                        <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}" checked>
+                        <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}"
+                               checked>
                         <span>Id list vs Id list</span>
                     </label>
                     <label class="control">
-                        <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}">
+                        <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}"
+                               >
                         <span>Id List vs Rest of genome</span>
                     </label>
                     <!--<label class="control">-->
@@ -120,7 +122,8 @@
                 <div class="formtitle">List 2</div>
                 <div class="formcontent">
                     <div id="option1">
-                        <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                        <jso-project-browser-window id="inputFile2" studies="{{studies}}"
+                                                    selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file" on-file-select="{{handleFileSelect}}"
                                                     bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"></jso-project-browser-window>
                     </div>
@@ -139,18 +142,29 @@
                     <div id="options">
                         <label>Fisher exact test</label>
                         <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
-                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two tailed</option>
-                            <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">Over-represented terms in list 1 (genome
+                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two
+                                tailed
+                            </option>
+                            <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
+                                Over-represented terms in list 1 (genome
                                 comparison)
                             </option>
-                            <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented terms in list 2</option>
+                            <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented
+                                terms in list 2
+                            </option>
                         </select>
                         <label>Remove duplicates</label>
                         <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
-                            <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never</option>
-                            <option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">Remove on each list separately</option>
-                            <option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">Remove on each list and common ids</option>
-                            <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">Remove from list2 those appearing in list1
+                            <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never
+                            </option>
+                            <option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">Remove
+                                on each list separately
+                            </option>
+                            <option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">Remove on
+                                each list and common ids
+                            </option>
+                            <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">Remove
+                                from list2 those appearing in list1
                                 (complementary list)
                             </option>
                         </select>
@@ -161,17 +175,34 @@
                 <div class="formtitle">Databases</div>
                 <div class="formcontent">
                     <div id="databases">
-                        <select name="species" id="species" class="fc-combobox" type="text" value="none" on-change="{{handleSpecies}}">
+                        <select name="species" id="species" class="fc-combobox" type="text" value="none"
+                                on-change="{{handleSpecies}}">
                             <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
-                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>
-                            <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>
-                            <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>
-                            <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>
+                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
+                                    selected="selected">Human (homo sapiens)
+                            </option>
+                            <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
+                                musculus)
+                            </option>
+                            <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus
+                                norvegicus)
+                            </option>
+                            <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly
+                                (drosophila melanogaster)
+                            </option>
                             <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                            <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>
-                            <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
-                            <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>
-                            <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                            <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish
+                                (danio rerio)
+                            </option>
+                            <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces
+                                cerevisiae
+                            </option>
+                            <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis
+                                elegans
+                            </option>
+                            <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis
+                                thaliana
+                            </option>
                         </select>
                         <br>
 
@@ -186,9 +217,11 @@
                         <div id="bpOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -207,9 +240,11 @@
                         <div id="mfOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -228,9 +263,11 @@
                         <div id="ccOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -249,9 +286,11 @@
                         <div id="slimOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_slim_keyword_list" id="go_slim_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -270,9 +309,11 @@
                         <div id="interproOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="go_interpro_keyword_list" id="go_interpro_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -291,9 +332,11 @@
                         <div id="reconOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
                             <label>Minimum</label>
-                            <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text" type="text" value="5" size="10">
+                            <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text"
+                                   type="text" value="5" size="10">
                             <label>Maximum</label>
-                            <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text" type="text" value="500" size="10">
+                            <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text"
+                                   type="text" value="500" size="10">
                             <!--Filter terms by keywords-->
                             <!--<input name="recon_keyword_list" id="recon_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                             <!--<input id="recon_keyword_operator_1" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
@@ -307,7 +350,8 @@
                         <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
                         Your annotations
-                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                                                    selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file" on-file-select="{{handleFileSelect}}"
                                                     bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
 
@@ -350,23 +394,29 @@
                 this.jobName = "Job name";
                 this.description = "description";
                 this.$.inputFile.selectedFile = this.args.list1;
-                this.$.inputFile2.selectedFile = this.args.list2;
-                this.$.species.value = this.args.species;
-                this.$.duplicates.value = "never";
-                this.$.fisher.value = "greater";
 
-                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.group)
-                        radio.checked = true;
+                if (this.args.list2 !== undefined)
+                    this.$.inputFile2.selectedFile = this.args.list2;
+
+                if (this.args.species !== undefined)
+                    this.$.species.value = this.args.species;
+
+                if (this.args.duplicates !== undefined)
+                    this.$.duplicates.value = "never";
+
+                if (this.args.fisher !== undefined)
+                    this.$.fisher.value = this.args.fisher;
+
+                if (this.args.comparisonRadio !== undefined) {
+                    var radios = this.shadowRoot.querySelectorAll('input[name="comparisonRadio"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.comparisonRadio)
+                            radio.checked = true;
+                    }
+                    this.comparisonChange();
                 }
-                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.type)
-                        radio.checked = true;
-                }
+
             },
 
             comparisonChange: function () {
@@ -378,12 +428,14 @@
                     this.$.option1.hidden = false;
                     this.$.option2.hidden = true;
                     this.$.option3.hidden = true;
+                    this.$.fisher.disabled = false;
                 }
                 if (this.comparison == "list2genome") {
                     this.genome = true;
                     this.$.option1.hidden = true;
                     this.$.option2.hidden = false;
                     this.$.option3.hidden = true;
+                    this.$.fisher.disabled = true;
                 }
                 if (this.comparison == "list2rest") {
                     this.genome = true;
