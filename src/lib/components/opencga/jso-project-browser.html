@@ -8,7 +8,8 @@
 <link rel="import" href="jso-opencga-select-study.html">
 <link rel="import" href="jso-opencga-upload.html">
 
-<polymer-element name="jso-project-browser" attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
+<polymer-element name="jso-project-browser"
+                 attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -252,7 +253,8 @@
                     </div>
                     <div horizontal layout end-justified>
                         <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
-                        <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK</div>
+                        <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK
+                        </div>
                     </div>
                 </div>
             </template>
@@ -630,6 +632,12 @@
                     <font-awesome icon="trash"></font-awesome>
                 </div>
             </template>
+            <template
+                    if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'OTHER_VCF' }}">
+                <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
+                    <font-awesome icon="cog"></font-awesome>
+                </div>
+            </template>
             <!--<input type="text" flex placeholder="filter">-->
         </div>
         <div class="list">
@@ -672,6 +680,66 @@
                     this.fire('file-click', {file: e.target.file});
                 }
                 this.selectedFile = e.target.file;
+            },
+            handleIndexFile: function (e) {
+                var me = this;
+
+
+                var fileId = this.selectedFile.id;
+                var fileName = this.selectedFile.name;
+                var currentFolder = this.folder;
+                var folderName = fileName + "_" + Utils.randomString(3) + "_index";
+                var folderId;
+
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: currentFolder.path + folderName,
+                        studyId: me.study.id
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folderId = response.response[0].result[0].id;
+                            } else {
+//                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+
+                if (folderId != null) {
+
+                    OpencgaManager.files.index({
+                        id: fileId,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            outdir: folderId,
+                            storageEngine: "mongodb"
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+
+                                    console.log("index");
+                                    me.refreshFolder();
+
+                                } else {
+//                                me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                alert('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+
+
             },
             handleCreateFolder: function (e) {
                 this.hideCreateFolder = !this.hideCreateFolder;
