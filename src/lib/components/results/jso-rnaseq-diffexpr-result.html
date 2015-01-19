@@ -56,41 +56,57 @@
             <h1> RNASeq Normalization</h1>
 
             <div>
+                <jso-job-info-widget jobItem="{{jobItem}}"></jso-job-info-widget>
+
                 <h3>Input parameters</h3>
 
                 <div class="message" horizontal="" layout="">
-                    <label>Data file:</label>
+                    <label>Data file</label>
 
                     <div class="messageValue">{{dataFile}}</div>
                 </div>
-                <div class="message" horizontal="" layout="">
-                    <label>Gene length file:</label>
-
-                    <div class="messageValue">{{edFile}}</div>
-                </div>
                 <template if="{{method != ''}}">
                     <div class="message" horizontal="" layout="">
-                        <label>Method:</label>
+                        <label>Method</label>
 
                         <div class="messageValue">{{method}}</div>
                     </div>
                 </template>
+                <div class="message" horizontal="" layout="">
+                    <label>Multiple-test correction</label>
+
+                    <div class="messageValue">{{pvmet}}</div>
+                </div>
+                <div class="message" horizontal="" layout="">
+                    <label>P value</label>
+
+                    <div class="messageValue">{{pval}}</div>
+                </div>
             </div>
             <div>
-                <h3>Normalized data results</h3>
+                <h3>Significative results</h3>
+
+                <h4>Voom graphics</h4>
+                <img src="{{voom_MDS}}">
+                <img src="{{voom_mean_var}}">
+
 
                 <div class="file"><label>File</label>
-                    <a href="{{fileUrl}}" target="_blank">diffexpr_results.txt</a>
+                    <a href="{{fileUrl}}" target="_blank">diffexp_Sig_results.txt</a>
                 </div>
 
 
-                <sortable-table id="table"
+                <sortable-table id="diffexp_Sig_results"
                                 data="{{data}}"
                                 columns="{{columns}}"
                                 footerTemplate="{{footerTemplate}}"
                                 pageSize="{{pageSize}}"
                                 flex>
                 </sortable-table>
+
+                <h4>HeatMap</h4>
+                <img src="{{diffexp_heatmap}}">
+
 
             </div>
         </div>
@@ -117,10 +133,15 @@
                     if (fields[i] == "--norm") {
                         this.method = fields[i + 1];
                     }
+                    if (fields[i] == "--pvmet") {
+                        this.pvmet = fields[i + 1];
+                    }
+                    if (fields[i] == "--pval") {
+                        this.pval = fields[i + 1];
+                    }
                 }
 
-            }
-            ,
+            },
             jobItemChanged: function (oldV, newV) {
                 this.parseCommandLine();
                 /** get url **/
@@ -137,20 +158,23 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var fileList = response.response[0].result;
                                 for (var i = 0; i < fileList.length; i++) {
-                                    if (fileList[i].name == "diffexp_results.txt") {
-                                        me.fileUrl = OpencgaManager.files.content({
-                                            id: fileList[i].id,
-                                            query: {
-                                                sid: Cookies("bioinfo_sid")
-                                            },
-                                            request: {
-                                                url: true
-                                            }
-                                        });
+                                    var fileName = fileList[i].name;
+                                    if (fileName == "diffexp_Sig_results.txt") {
+                                        me.fileUrl = me.getUrl(fileList[i].id);
                                         me.getFileContent(function (content) {
                                             me.parseTable(content);
                                         }, fileList[i].id);
                                     }
+                                    if (fileName == "diffexp_heatmap.jpg") {
+                                        me.diffexp_heatmap = me.getUrl(fileList[i].id);
+                                    }
+                                    if (fileName == "voom_MDS.jpg") {
+                                        me.voom_MDS = me.getUrl(fileList[i].id);
+                                    }
+                                    if (fileName == "voom_mean-var.jpg") {
+                                        me.voom_mean_var = me.getUrl(fileList[i].id);
+                                    }
+
                                 }
                             }
                         },
@@ -159,8 +183,17 @@
                         }
                     }
                 });
-
-
+            },
+            getUrl: function (fileId) {
+                return OpencgaManager.files.content({
+                    id: fileId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        url: true
+                    }
+                });
             },
             parseTable: function (content) {
                 this.data = [];

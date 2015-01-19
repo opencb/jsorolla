@@ -54,8 +54,16 @@
                 background-color: #9a9a9a;
                 /*background-color: #3F3F3F;*/
             }
+
         </style>
+
         <div class="panel panel-shadow" vertical layout>
+            <template if="{{loading}}">
+                <div class="loading" style="margin: 5px;">
+                    <font-awesome icon="spinner" animation="spin"></font-awesome>
+                    Loading result...
+                </div>
+            </template>
             <!--<div class="header" horizontal layout>-->
             <!--<div class="text">Jobs</div>-->
             <!--<div class="headeractions" horizontal end-justified layout flex>-->
@@ -104,7 +112,7 @@
                 this.page = 1;
                 this.pageSize = 10;
                 this.itemSize = 64;
-
+                this.loading = true;
 
                 this.columns = [{
                     title: 'JOB',
@@ -184,7 +192,9 @@
             },
             getJobs: function () {
                 var me = this;
-                console.log("this.selectedStudy.id: "+this.selectedStudy.id)
+                if (this.selectedStudy === undefined)
+                    return;
+                console.log("this.selectedStudy.id: " + this.selectedStudy.id)
                 OpencgaManager.studies.job({
                     id: this.selectedStudy.id,
                     query: {
@@ -194,6 +204,7 @@
                         //method: 'POST',
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.loading = false;
                                 var jobList = response.response[0].result;
 
                                 jobList.sort(function (a, b) {

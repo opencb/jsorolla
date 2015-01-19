@@ -3,20 +3,20 @@
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            padding: 15px 40px;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 80%;
-            min-width: 800px;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
 
             }
 
@@ -95,25 +95,30 @@
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="OTHER_GENOTYPE"></jso-project-browser-window>
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="OTHER_GENOTYPE"></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select the association test</div>
                 <div class="formcontent">
                     <div id="testDiv">
-                        <input id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc" checked="checked">Chi-square case/control association test<br>
-                        <input id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher">Fisher's exact test (allelic association)<br>
+                        <input id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc"
+                               checked="checked">Chi-square case/control association test<br>
+                        <input id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher">Fisher's exact
+                        test (allelic association)<br>
                         <input id="test_3" name="test" class="fc-radioitem" type="radio" value="linear">Linear<br>
                         <input id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic">Logistic<br>
-                        <input id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt">TDT (only for family-based analysis)
+                        <input id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt">TDT (only for
+                        family-based analysis)
                     </div>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Minor allele frequency</div>
                 <div class="formcontent">
-                    <label>Select MAF value</label><input name="maf" id="maf" class="fc-int fc-text" type="text" value="{{maf}}" required>
+                    <label>Select MAF value</label><input name="maf" id="maf" class="fc-int fc-text" type="text"
+                                                          value="{{maf}}" required>
                 </div>
             </div>
             <div class="formbox">
@@ -149,9 +154,13 @@
             launchJob: function () {
                 var me = this;
                 var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!Utils.basicValidationForm(this)) {
                     return;
-               }
+                }
+                if (this.$.maf.value == "" || isNaN(this.$.maf.value)) {
+                    alert("Sorry. MAF is not a number.");
+                    return;
+                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -160,9 +169,9 @@
                     name: this.jobName,
                     description: this.description,
                     "zip-file": this.$.inputFile.selectedFile.id,
-                    maf: this.maf,
+                    maf: this.$.maf.value,
                     test: this.$.testDiv.querySelector('input[name="test"]:checked').value
-                }
+                };
 
 
                 OpencgaManager.jobs.create({

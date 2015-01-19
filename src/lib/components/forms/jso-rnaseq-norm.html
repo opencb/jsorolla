@@ -3,20 +3,20 @@
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            padding: 15px 40px;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 80%;
-            min-width: 800px;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
 
             }
 
@@ -144,9 +144,9 @@
             launchJob: function () {
                 var me = this;
                 var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!utils.basicValidationForm()) {
                     return;
-               }
+                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -155,15 +155,16 @@
                     name: this.jobName,
                     description: this.description,
                     "datafile": this.$.inputFile.selectedFile.id,
-                    "glfile": this.$.glFile.selectedFile.id,
                     description: this.description
                 };
                 if (this.$.chooseMan.checked) {
                     query["method"] = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
                 }
-                else{
+                else {
                     query["method"] = this.$.methodDiv.querySelector('input[name="chooseMethod"]:checked').value;
                 }
+                if (this.$.glFile.selectedFile !== undefined && this.$.glFile.selectedFile.type == "FILE")
+                    query["glfile"] = this.$.glFile.selectedFile.id;
 
                 OpencgaManager.jobs.create({
                     query: query,

@@ -10,7 +10,9 @@
             /*background-color: #FFF;*/
             /*height: 170px;*/
             /*}*/
-
+            /*:host{*/
+            /*margin: 10px;*/
+            /*}*/
             jso-biotype {
                 box-sizing: border-box;
                 overflow-y: auto;
@@ -19,12 +21,41 @@
                 height: 170px;
             }
 
+            .k-q-jc-Ej-tb {
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
+                display: -webkit-flex;
+                display: flex;
+                line-height: 30px;
+            }
+            .k-q-Qe {
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                font-family: Roboto,sans-serif;
+                font-size: 13px;
+                font-weight: lighter;
+                height: 100%;
+                overflow-x: hidden;
+                overflow-y: scroll;
+                padding: 0 1px;
+                position: relative;
+                width: 100%;
+            }
         </style>
 
         <template if="{{file != null && file.name != '.'}}">
-            <div>{{file.name}}</div>
-            <br>
-            <br>
+
+            <div style="margin: 5px;  font-weight: bold;">
+                <font-awesome icon="folder-o"></font-awesome>
+                {{file.name}}
+            </div>
+            <div class="k-q-jc-Ej-tb">
+                <div class="k-q-jc-Dj">Tipo</div>
+                <div class="k-q-jc-bc">
+                    <span class="k-q-jc-Qi">Documentos de Google</span>
+                </div>
+            </div>
             format:<span>{{file.format}}</span>
             <br>
             type:<span>{{file.type}}</span>
@@ -35,11 +66,13 @@
             <br>
 
             <template if="{{file.type=='FILE'}}">
-                <div class="button action" style="width: 100px;" on-click="{{handleShowBioformat}}">Modify Bioformat</div>
+                <div class="button action" style="width: 100px;" on-click="{{handleShowBioformat}}">Modify Bioformat
+                </div>
                 <template if="{{showBioformat}}">
                     <div id="showBioformat">
                         <jso-biotype id="uploadBioformat"></jso-biotype>
-                        <div class="button action" style="width: 100px;" on-click="{{handleModifyBioformat}}">Modify</div>
+                        <div class="button action" style="width: 100px;" on-click="{{handleModifyBioformat}}">Modify
+                        </div>
                         <div id="message">{{message}}</div>
                     </div>
                 </template>

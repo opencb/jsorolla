@@ -93,13 +93,13 @@
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select experimental design file</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="edFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat=""></jso-project-browser-window>
-                </div>
-            </div>
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Select experimental design file</div>-->
+                <!--<div class="formcontent">-->
+                    <!--<jso-project-browser-window id="edFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"-->
+                                                <!--bioformat=""></jso-project-browser-window>-->
+                <!--</div>-->
+            <!--</div>-->
 
             <div class="formbox">
                 <div class="formtitle">Normalization method</div>
@@ -108,6 +108,32 @@
                         <input id="none" name="method" type="radio" value="NONE" checked="checked" on-click="{{radioTestClicked}}">None
                         <input id="tmm" name="method" type="radio" value="TMM" checked="checked" on-click="{{radioTestClicked}}">TMM
                         <input id="quan" name="method" type="radio" value="QUAN" on-click="{{radioTestClicked}}">QUAN
+                    </div>
+                </div>
+            </div>
+            <div id="multiple_test_correction_div">
+                <div class="formbox">
+                    <div class="formtitle">Select multiple-test correction</div>
+                    <div class="formcontent">
+
+                        <input id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked"> Benjamini
+                        and Hochberg (BH), FDR <br>
+                        <input id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"> Benjamini and
+                        Yekutieli (BY) <br>
+                        <input id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg"> Hochberg <br>
+                        <input id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm"> Holm <br>
+                        <input id="correction_5" name="correction" class="fc-radioitem" type="radio"
+                               value="bonferroni"> Bonferroni<br>
+                    </div>
+                </div>
+            </div>
+            <div id="adjusted_p_value_div">
+                <div class="formbox">
+                    <div class="formtitle">Select adjusted p-value</div>
+                    <div class="formcontent">
+
+                        <label>Adj. p-value (0.0-1.0)</label><input name="p_value" id="p_value" class="fc-decimal fc-text"
+                                                                    type="text" value="{{p_value}}">
                     </div>
                 </div>
             </div>
@@ -131,8 +157,8 @@
             created: function () {
                 this.jobName = 'JobName';
                 this.toolName = "rnaseq-diffexpr";
-                this.list1UploadMsg
                 this.description = "Job info..."
+                this.p_value = 0.05;
             },
             handleForm: function () {
                 var me = this;
@@ -141,10 +167,9 @@
             },
             launchJob: function () {
                 var me = this;
-                var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!Utils.basicValidationForm(this)) {
                     return;
-               }
+                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -153,8 +178,10 @@
                     name: this.jobName,
                     description: this.description,
                     "datafile": this.$.inputFile.selectedFile.id,
-                    "edfile": this.$.edFile.selectedFile.id,
+//                    "edfile": this.$.edFile.selectedFile.id,
                     description: this.description,
+                    pvmet: this.$.multiple_test_correction_div.querySelector('input[name="correction"]:checked').value,
+                    "pval": this.p_value
                 };
                 var method = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
                 if (method != "NONE")
@@ -182,7 +209,7 @@
                 this.jobName = "rna_diffexpr";
                 this.description = "just_an_rna_example";
                 this.$.inputFile.selectedFile = {id: "example_expression.txt", path: "expression.txt", type: "FILE"};
-                this.$.edFile.selectedFile = {id: "example_lalm_rnaseq_ed.txt", path: "lalm_rnaseq_ed.txt", type: "FILE"};
+//                this.$.edFile.selectedFile = {id: "example_lalm_rnaseq_ed.txt", path: "lalm_rnaseq_ed.txt", type: "FILE"};
                 this.$.none.checked = true;
                 var exampleFolder = "rna_diffexp";
                 this.createExampleFolder(exampleFolder);

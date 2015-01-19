@@ -176,13 +176,26 @@
             },
             launchJob: function () {
                var me = this;
-                var utils = new FormUtils(this);
-               if(!utils.basicValidationForm()){
+                if (!Utils.basicValidationForm(this)) {
                     return;
-               }
+                }
 
+                if(this.$.p_value.value == "" || isNaN(this.$.p_value.value)){
+                    alert("Sorry. P is value not a number. ");
+                    return;
+                }
                 this.censored_class = this.$.jsoClassViewerCensored.getMainSelect().value;
                 this.time_class = this.$.jsoClassViewerTime.getMainSelect().value;
+                if (this.censored_class == "none" || this.time_class == "none") {
+                    alert("Sorry: Either censored class or time class are missing. Please select them.");
+                    return;
+                }
+                if (this.censored_class == this.time_class ) {
+                    alert("Sorry: Censored class and time class can't be the same.");
+                    return;
+                }
+
+
                 this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
                 this.correction = this.$.multipleTestCorrectionDiv.querySelector('input[name="correction"]:checked').value;
                 var query = {
@@ -197,7 +210,7 @@
                     dataset: this.$.inputFile.selectedFile.id,
                     test: this.test,
                     correction: this.correction,
-                    "p-value": this.p_value
+                    "p-value": this.$.p_value.value
                 };
                 OpencgaManager.jobs.create({
                     query: query,
