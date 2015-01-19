@@ -16,13 +16,16 @@
             }
 
             /*#delete:hover {*/
-                /*color: #000;*/
-                /*cursor: pointer;*/
+            /*color: #000;*/
+            /*cursor: pointer;*/
             /*}*/
         </style>
         <div horizontal layout>
             <font-awesome icon="{{iconMap[file.type]}}"></font-awesome>
             <div flex class="name">{{file.name}}</div>
+            <!--<template if="{{ file.">-->
+                <font-awesome icon="cog" animation="spin"></font-awesome>
+            <!--</template>-->
             <!--<font-awesome id="delete" icon="times" on-click="{{handleDeleteClick}}"></font-awesome>-->
         </div>
     </template>
