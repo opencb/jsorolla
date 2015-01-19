@@ -64,11 +64,13 @@
 
                     <div class="messageValue">{{dataFile}}</div>
                 </div>
-                <div class="message" horizontal="" layout="">
-                    <label>Gene length file</label>
+                <template if="{{glFile!=''}}">
+                    <div class="message" horizontal="" layout="">
+                        <label>Gene length file</label>
 
-                    <div class="messageValue">{{glFile}}</div>
-                </div>
+                        <div class="messageValue">{{glFile}}</div>
+                    </div>
+                </template>
                 <div class="message" horizontal="" layout="">
                     <label>Method</label>
 
@@ -77,15 +79,17 @@
             </div>
             <div>
                 <h3>Normalized data results</h3>
-
-                <h4>RNA composition before normalization</h4>
-                <img src="{{RNAComposition_beforeNorm}}">
-                <h4>RNA composition after normalization</h4>
-                <img src="{{RNAComposition_afterNorm}}">
+                <template if="{{glFile!=''}}">
+                    <h4>RNA composition before normalization</h4>
+                    <img src="{{RNAComposition_beforeNorm}}">
+                    <h4>RNA composition after normalization</h4>
+                    <img src="{{RNAComposition_afterNorm}}">
+                </template>
                 <h4>Boxplot expression values before normalization</h4>
                 <img src="{{boxplot_beforeNorm}}">
                 <h4>Boxplot expression values after normalization</h4>
                 <img src="{{boxplot_afterNorm}}">
+
                 <div class="file"><label>File</label>
                     <a href="{{normalizedFileUrl}}" target="_blank">normalized_results.txt</a>
                 </div>
@@ -105,11 +109,12 @@
     <script>
         Polymer({
             created: function () {
-                this.dataFile = "none";
-                this.glFile = "none";
+                this.dataFile = "";
+                this.glFile = "";
 
             },
             parseCommandLine: function () {
+                this.clearFields();
                 var fields = this.jobItem.commandLine.split(" ");
                 for (var i = 0; i < fields.length; i++) {
                     if (fields[i] == "--glfile") {
@@ -126,6 +131,11 @@
                 }
 
             },
+            clearFields: function () {
+                this.dataFile = "";
+                this.method = "";
+                this.glFile = "";
+            },
             jobItemChanged: function (oldV, newV) {
                 this.parseCommandLine();
                 /** get url **/
@@ -141,24 +151,24 @@
 
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var fileList = response.response[0].result;
-                                for(var i = 0; i < fileList.length; i++){
+                                for (var i = 0; i < fileList.length; i++) {
                                     var fileName = fileList[i].name;
-                                    if(fileName == "normalize_results.txt"){
+                                    if (fileName == "normalize_results.txt") {
                                         me.normalizedFileUrl = me.getUrl(fileList[i].id);
                                         me.getFileContent(function (content) {
                                             me.parseTable(content);
-                                        }, fileList[i].id );
+                                        }, fileList[i].id);
                                     }
-                                    if(fileName == "RNAComposition_afterNorm.jpg"){
+                                    if (fileName == "RNAComposition_afterNorm.jpg") {
                                         me.RNAComposition_afterNorm = me.getUrl(fileList[i].id);
                                     }
-                                    if(fileName == "RNAComposition_beforeNorm.jpg"){
+                                    if (fileName == "RNAComposition_beforeNorm.jpg") {
                                         me.RNAComposition_beforeNorm = me.getUrl(fileList[i].id);
                                     }
-                                    if(fileName == "boxplot_beforeNorm.jpg"){
+                                    if (fileName == "boxplot_beforeNorm.jpg") {
                                         me.boxplot_beforeNorm = me.getUrl(fileList[i].id);
                                     }
-                                    if(fileName == "boxplot_afterNorm.jpg"){
+                                    if (fileName == "boxplot_afterNorm.jpg") {
                                         me.boxplot_afterNorm = me.getUrl(fileList[i].id);
                                     }
 
@@ -171,16 +181,16 @@
                     }
                 });
             },
-            getUrl: function(fileId){
-               return OpencgaManager.files.content({
-                                            id: fileId,
-                                            query: {
-                                                sid: Cookies("bioinfo_sid")
-                                            },
-                                            request: {
-                                                url: true
-                                            }
-                                            });
+            getUrl: function (fileId) {
+                return OpencgaManager.files.content({
+                    id: fileId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        url: true
+                    }
+                });
             },
             parseTable: function (content) {
                 this.data = [];
@@ -192,7 +202,7 @@
                 for (var i = 0; i < data.length; i++) {
                     if (data[i] == "") continue;
                     if (data[i].indexOf("#") == 0) {
-                        if(data[i].indexOf("method")>=0){
+                        if (data[i].indexOf("method") >= 0) {
                             this.method = data[i].split(" ")[1];
                         }
                         idxHeader = i;

@@ -162,6 +162,22 @@ var Utils = {
             }
         });
     },
+    getFileContent: function (callback, fileId) {
+        OpencgaManager.files.content({
+            id: fileId,
+            query: {
+                sid: Cookies("bioinfo_sid")
+            },
+            request: {
+                success: function (response) {
+                    callback(response)
+                },
+                error: function () {
+                    this.message = 'Server error, try again later.';
+                }
+            }
+        })
+    },
     test: function () {
         return this;
     },
