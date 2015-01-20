@@ -109,13 +109,17 @@
                 <div class="formcontent">
                     List 1:
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                selectionMode="file"
+                                                allowTextArea="true"
+                                                on-file-select="{{handleFileSelect}}"
                                                 bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
                     <div id="list2Div" hidden>
                         <br>
                         List 2:
                         <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                    selectionMode="file"
+                                                    allowTextArea="true"
+                                                    on-file-select="{{handleFileSelect}}"
                                                     bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
                     </div>
                 </div>

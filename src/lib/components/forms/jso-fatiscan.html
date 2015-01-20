@@ -91,7 +91,9 @@
                     <div class="formcontent">
                         <jso-project-browser-window id="inputFile" studies="{{studies}}"
                                                     selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                    selectionMode="file"
+                                                    allowTextArea="true"
+                                                    on-file-select="{{handleFileSelect}}"
                                                     bioformat="IDLIST_RANKED"></jso-project-browser-window>
                         <br>
                         <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox"

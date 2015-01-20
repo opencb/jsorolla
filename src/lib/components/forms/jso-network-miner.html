@@ -100,14 +100,14 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="true"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_RANKED"></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select your seed list (optional)</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="true"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
                 </div>
             </div>
