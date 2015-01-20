@@ -67,6 +67,7 @@
                 this.selectedFile = e.detail.file;
             },
             handleCancel: function (e) {
+                this.selectedFile = undefined;
                 this.showBrowser = false;
             }
         });

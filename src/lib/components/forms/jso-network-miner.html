@@ -288,8 +288,10 @@
                 this.$.order_1.selected = true;
                 var exampleFolder = "nm_gwas";
                 this.createExampleFolder(exampleFolder);*/
-
-                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
+                this.jobName = "Essential genes in cancer cell line K562";
+                this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (K562.txt).";
+//                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
+                this.$.inputFile.selectedFile = {id: "example_K562.txt", path: "K562.txt", type:"FILE"};
                 this.$.listTags_1.selected = true;
                 this.$.interactome.value = "hsa";
                 this.$.group.value = "curated";

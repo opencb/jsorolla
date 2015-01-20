@@ -1,0 +1,121 @@
+<polymer-element name="jso-association-result" attributes="files">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                /*position: relative;*/
+                background-color: white;
+            }
+
+            .message > label {
+                margin-right: 10px;
+            }
+
+            .message > label:after {
+                content: ':';
+            }
+
+            .message > .messageValue {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            .file > label {
+                margin-right: 10px;
+            }
+
+            .file > a {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            sortable-table::shadow thead tr th {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            .output {
+                margin: 10px;
+                /*width: 1000px;*/
+                background-color: white;
+                border-radius: 5px;
+                padding: 20px;
+            }
+        </style>
+
+
+        <div>
+            <h3>Manhattan plot</h3>
+            <img src="{{manhattanPlot}}">
+
+            <div class="file"><label>File</label>
+                <a href="{{topHitsUrl}}" target="_blank">top_hits.txt</a>
+            </div>
+            <jso-generic-table id="topHitsTable"></jso-generic-table>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.dataFile = "none";
+                this.glFile = "none";
+
+            },
+            parseCommandLine: function () {
+                this.clearFields();
+//                var fields = this.jobItem.commandLine.split(" ");
+//                for (var i = 0; i < fields.length; i++) {
+//                    if (fields[i] == "--glfile") {
+//                        var fileName = fields[i + 1].split("/");
+//                        this.glFile = fileName[fileName.length - 1];
+//                    }
+//                    if (fields[i] == "--datafile") {
+//                        var fileName = fields[i + 1].split("/");
+//                        this.dataFile = fileName[fileName.length - 1];
+//                    }
+////                    if (fields[i] == "--method") {
+////                        this.method = fields[i + 1];
+////                    }
+//                }
+
+            },
+            clearFields: function () {
+                this.manhattanPlot = "";
+                this.method = "";
+                this.glFile = "";
+            },
+            filesChanged: function (oldV, newV) {
+                this.parseCommandLine();
+                /** get url **/
+                var me = this;
+                for (var i = 0; i < this.files.length; i++) {
+                    var file = this.files[i];
+                    if (file.name.indexOf("manhattan_plot-") >= 0) {
+
+                        me.manhattanPlot = Utils.getUrl(file.id);
+                    }
+                    if (file.name == "top_hits.df") {
+                        me.topHitsUrl = Utils.getUrl(file.id);
+                        Utils.getFileContent(function (content) {
+                            me.$.topHitsTable.content = content;
+                        }, file.id);
+                    }
+
+
+                }
+            }
+        })
+    </script>
+</polymer-element>
+
+

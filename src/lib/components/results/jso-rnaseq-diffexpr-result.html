@@ -52,8 +52,8 @@
             }
         </style>
 
-        <div class="output">
-            <h1> RNASeq Normalization</h1>
+        <div id="output" class="output">
+            <h1> RNASeq Differential expression</h1>
 
             <div>
                 <jso-job-info-widget jobItem="{{jobItem}}"></jso-job-info-widget>
@@ -118,14 +118,16 @@
                 this.glFile = "none";
                 this.method = "";
 
+//                 while (this.$.output.firstChild) {
+//                    this.$.output.removeChild(this.$.output.firstChild);
+//                }
+
             },
             parseCommandLine: function () {
+                this.clearFields();
                 var fields = this.jobItem.commandLine.split(" ");
                 for (var i = 0; i < fields.length; i++) {
-                    if (fields[i] == "--edfile") {
-                        var fileName = fields[i + 1].split("/");
-                        this.edFile = fileName[fileName.length - 1];
-                    }
+
                     if (fields[i] == "--datafile") {
                         var fileName = fields[i + 1].split("/");
                         this.dataFile = fileName[fileName.length - 1];
@@ -141,6 +143,12 @@
                     }
                 }
 
+            },
+            clearFields: function(){
+                this.dataFile = "";
+                this.method = "";
+                this.pvmet = "";
+                this.pval = "";
             },
             jobItemChanged: function (oldV, newV) {
                 this.parseCommandLine();
