@@ -1,7 +1,8 @@
-<polymer-element name="jso-variant-browser" attributes="jobItem samples url fileId">
+<polymer-element name="jso-variant-browser" attributes="jobItem samples url fileId studyId">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
+        <link rel="stylesheet" href="../../../../styles/css/style.css">
         <style>
             :host {
                 display: block;
@@ -15,6 +16,90 @@
                 height: 400px;
             }
 
+            #dataGridElement {
+                border-radius: 5px;
+                padding: 5px;
+                padding-left: 10px;
+                padding-right: 10px;
+                margin: 20px 20px 20px 0px;
+                background-color: #FFFFFF;
+            }
+
+            sortable-table {
+                height: 307px;
+                /*max-width: 100%;*/
+                border: 1px solid #d3d3d3;
+                overflow-x: auto;
+            }
+
+            sortable-table::shadow > table > tbody > * {
+                font-size: 11px;
+
+            }
+
+            sortable-table::shadow > table > thead > * {
+                font-size: 12px;
+
+            }
+
+            .defaultPager > input {
+                width: 40px;
+            }
+
+            .bootstrap::shadow > table > tfoot > tr > td > .defaultPager > span > input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .bootstrap::shadow > table > tfoot > tr > td > .defaultPager {
+                max-height: 15px;
+                font-size: 11px;
+            }
+
+            .bootstrap::shadow .btn-sm {
+                padding: 1px 4px;
+            }
+
+            .bootstrap::shadow > table > tbody > tr > td {
+                padding: 3px;
+            }
+
+            sortable-table::shadow .column-variant {
+                width: 70px;
+            }
+
+            /*sortable-table::shadow .column-start {*/
+            /*width: 80px;*/
+            /*}*/
+
+            sortable-table::shadow .column-alleles {
+                width: 70px;
+            }
+
+            sortable-table::shadow .column-snpId {
+                width: 70px;
+            }
+
+            sortable-table::shadow .column-genes {
+                width: 70px;
+            }
+            sortable-table::shadow .column-sift {
+                width: 70px;
+            }
+
+            sortable-table::shadow .column-polyphen {
+                width: 70px;
+            }
+
+            #genomeViewer {
+                /*max-height: 500px;*/
+                border: 1px solid #d3d3d3;
+                overflow-y: auto;
+                overflow-x: hidden;
+                transition: height 0.15s;
+
+            }
+
         </style>
 
         <div vertical layout flex>
@@ -25,7 +110,32 @@
                                 pageSize="10"
                                 columns="{{ columns }}"
                                 loading="true"
-                                rowSelection="true">
+                                rowSelection="true"
+                                args="{{args}}">
+                    <template id="samplesHeaderTemplate">
+                        <th class="column-samples" style="padding:0px;">
+                            <div vertical layout class="mainDiv">
+                                <div horizontal layout center-justified class="totalName bb">Samples</div>
+                                <div id="headerSamples" horizontal layout>
+                                    <template repeat="{{sample in args.samples}}">
+                                        <div horizontal layout flex center-justified>{{sample}}</div>
+                                    </template>
+
+                                </div>
+                            </div>
+                        </th>
+                    </template>
+                    <template id="samplesCellTemplate">
+                        <style>
+                        </style>
+                        <td horizontal layout>
+                            <template repeat="{{sample in args.samples}}">
+                                <div horizontal layout center-justified flex>{{value[sample].GT}}</div>
+                            </template>
+                        </td>
+                    </template>
+
+
                     <template id="mafHeaderTemplate">
                         <style>
                             .column-total {
@@ -221,8 +331,12 @@
         Polymer({
             parsefunction: null,
             species: 'Homo sapiens',
+            jobItem: null,
+            args: null,
             ready: function () {
                 var me = this;
+
+
                 this.columns = [
                     {
                         name: 'variant',
@@ -240,15 +354,19 @@
                         }
                     },
                     {name: 'snpId', title: 'SNP Id'},
-//                    {
-//                        name: 'total',
-//                        title: 'MAF',
-//                        cellTemplate: 'mafCT',
-//                        headerTemplate: 'mafHeaderTemplate',
-//                        formula: function (row) {
-//                            return row.sourceEntries["MAF"];
-//                        }
-//                    },
+                    {
+                        name: 'samples',
+                        title: 'Samples',
+                        cellTemplate: 'samplesCellTemplate',
+                        headerTemplate: 'samplesHeaderTemplate',
+                        args: {
+                            test: "alemán",
+                            hola: "alemán"
+                        },
+                        formula: function (row) {
+                            return row.sourceEntries[me.studyId + "_" + me.fileId].samplesData;
+                        }
+                    },
                     {name: 'genes', title: 'Genes'},
                     {name: 'sift', title: 'SIFT'},
                     {
@@ -319,7 +437,10 @@
             }
             ,
             samplesChanged: function (oldValue, newValue) {
-
+                var me = this;
+                this.args = {
+                    samples: me.samples
+                }
             }
             ,
             urlChanged: function (oldValue, newValue) {
@@ -548,6 +669,9 @@
                 var reg = newValue.chromosome + ":" + newValue.start + "-" + newValue.end;
                 var region = new Region(reg);
 //                this.genomeViewer.setRegion(region);
+            },
+            domReady: function () {
+//                debugger
             }
 
         })
