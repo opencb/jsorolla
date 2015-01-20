@@ -107,6 +107,14 @@
                 <h4>HeatMap</h4>
                 <img src="{{diffexp_heatmap}}">
 
+                <h4>Redirection</h4>
+                <jso-redirection titleRed="Top list" fileName="diffexp_toplist_results.txt" fileUrl="{{diffexp_toplist_results_url}}"
+                                 buttonLabel="Send to fatigo" buttonWidth="100px" args="{{diffexp_toplist_results_args}}" id=""></jso-redirection>
+                <jso-redirection titleRed="Bottom list" fileName="diffexp_bottomlist_results.txt" fileUrl="{{diffexp_bottomlist_results_url}}"
+                                 buttonLabel="Send to fatigo" buttonWidth="100px" args="{{diffexp_bottomlist_results_args}}" id=""></jso-redirection>
+                <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                 buttonLabel="Send to fatigo" buttonWidth="100px" args="{{toplist_vs_bottomlist_args}}" id=""></jso-redirection>
+
 
             </div>
         </div>
@@ -144,7 +152,7 @@
                 }
 
             },
-            clearFields: function(){
+            clearFields: function () {
                 this.dataFile = "";
                 this.method = "";
                 this.pvmet = "";
@@ -168,19 +176,32 @@
                                 for (var i = 0; i < fileList.length; i++) {
                                     var fileName = fileList[i].name;
                                     if (fileName == "diffexp_Sig_results.txt") {
-                                        me.fileUrl = me.getUrl(fileList[i].id);
-                                        me.getFileContent(function (content) {
+                                        me.fileUrl = Utils.getUrl(fileList[i].id);
+                                        Utils.getFileContent(function (content) {
                                             me.parseTable(content);
                                         }, fileList[i].id);
                                     }
                                     if (fileName == "diffexp_heatmap.jpg") {
-                                        me.diffexp_heatmap = me.getUrl(fileList[i].id);
+                                        me.diffexp_heatmap = Utils.getUrl(fileList[i].id);
                                     }
                                     if (fileName == "voom_MDS.jpg") {
-                                        me.voom_MDS = me.getUrl(fileList[i].id);
+                                        me.voom_MDS = Utils.getUrl(fileList[i].id);
                                     }
                                     if (fileName == "voom_mean-var.jpg") {
-                                        me.voom_mean_var = me.getUrl(fileList[i].id);
+                                        me.voom_mean_var = Utils.getUrl(fileList[i].id);
+                                    }
+                                    if (fileName == "diffexp_toplist_results.txt") {
+
+                                    }
+                                    if (fileName == "diffexp_bottomlist_results.txt") {
+                                        me.diffexp_bottomlist_results_url = Utils.getUrl(fileList[i].id);
+                                        me.diffexp_bottomlist_results_args = {
+                                            tool: "fatigo",
+                                            comparisonRadio: "list2genome",
+                                            list1:fileList[i]
+
+
+                                        };
                                     }
 
                                 }
@@ -192,17 +213,17 @@
                     }
                 });
             },
-            getUrl: function (fileId) {
-                return OpencgaManager.files.content({
-                    id: fileId,
-                    query: {
-                        sid: Cookies("bioinfo_sid")
-                    },
-                    request: {
-                        url: true
-                    }
-                });
-            },
+//            getUrl: function (fileId) {
+//                return OpencgaManager.files.content({
+//                    id: fileId,
+//                    query: {
+//                        sid: Cookies("bioinfo_sid")
+//                    },
+//                    request: {
+//                        url: true
+//                    }
+//                });
+//            },
             parseTable: function (content) {
                 this.data = [];
                 this.columns = [];
@@ -248,22 +269,22 @@
                 return n % 1 === 0;
             },
 
-            getFileContent: function (callback, fileId) {
-                OpencgaManager.files.content({
-                    id: fileId,
-                    query: {
-                        sid: Cookies("bioinfo_sid")
-                    },
-                    request: {
-                        success: function (response) {
-                            callback(response)
-                        },
-                        error: function () {
-                            this.message = 'Server error, try again later.';
-                        }
-                    }
-                })
-            }
+//            getFileContent: function (callback, fileId) {
+//                OpencgaManager.files.content({
+//                    id: fileId,
+//                    query: {
+//                        sid: Cookies("bioinfo_sid")
+//                    },
+//                    request: {
+//                        success: function (response) {
+//                            callback(response)
+//                        },
+//                        error: function () {
+//                            this.message = 'Server error, try again later.';
+//                        }
+//                    }
+//                })
+//            }
         })
     </script>
 </polymer-element>

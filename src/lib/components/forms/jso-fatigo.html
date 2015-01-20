@@ -349,11 +349,26 @@
                 this.jobName = "Job name";
                 this.description = "description";
                 this.$.inputFile.selectedFile = this.args.list1;
-                this.$.inputFile2.selectedFile = this.args.list2;
-                this.$.species.value = this.args.species;
-                this.$.duplicates.value = "never";
+                if(this.args.list2 !== undefined)
+                    this.$.inputFile2.selectedFile = this.args.list2;
+
+                if(this.args.species !== undefined) {
+                    this.$.species.value = this.args.species;
+                }
+                if(this.args.duplicates !== undefined)
+                    this.$.duplicates.value = "never";
+                if(this.args.duplicates !== undefined)
                 this.$.fisher.value = "greater";
 
+                if(this.args.comparisonRadio !== undefined) {
+                    var radios = this.shadowRoot.querySelectorAll('input[name="comparisonRadio"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.group)
+                            radio.checked = true;
+                    }
+                    this.comparisonChange();
+                }
                 var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
                 for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];

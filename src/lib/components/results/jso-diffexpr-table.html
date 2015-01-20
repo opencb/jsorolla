@@ -4,6 +4,10 @@
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
 
+            jso-network-viewer {
+                height: 800px;
+                border: 1px solid #d3d3d3;
+            }
         </style>
         <div class="file"><label>Significative table</label>
             <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
@@ -76,6 +80,18 @@
                 </div>
 
             </div>
+
+            <h3>Network viewer</h3>
+
+            <div id="networkWidget">
+                <div style="margin-bottom: 5px" flex horizontal layout>
+                    <label>Select number of top list in the differential expression result</label>
+                    <input type="text" style="margin-right: 2px" value="{{networkNodes}}" width="20px">
+
+                    <div class="button action" style="width: 110px" on-click="{{drawNetwork}}">Draw network</div>
+                </div>
+                <jso-network-viewer id="networkViewer" hideBar="false"></jso-network-viewer>
+            </div>
         </div>
 
     </template>
@@ -90,6 +106,8 @@
                 this.test = "";
                 this.topNumber = 0;
                 this.bottomNumber = 0;
+                this.networkNodes = 20;
+                this.ids = [];
 
             },
             contentDatasetChanged: function () {
@@ -111,12 +129,13 @@
                             var localArray = new Array();
                             var idx = 1;
                             if (this.test == "spearman" || this.test == "pearson")
-                                idx = 2
+                                idx = 2;
 
                             if (Number(localData[idx]) >= 0)
                                 this.topNumber++;
                             else
                                 this.bottomNumber++;
+                            this.ids.push(localData[0]);
                             for (var z = 0; z < localData.length; z++) {
                                 var value = localData[z];
                                 if (isFinite(value))
@@ -129,16 +148,33 @@
                     }
 
                 }
+
                 this.getFiles();
-
                 this.heatMapData();
+                this.drawNetwork();
             },
+            drawNetwork: function () {
+                this.$.networkViewer.startOver();
+                var nodes = this.ids.slice(0, this.networkNodes);
+                for (var i = 0; i < nodes.length; i++) {
+                    var node = nodes[i];
+                    this.$.networkViewer.createVertex(0, 0, node);
+                    var vertex = this.$.networkViewer.graph.getVertexById(node);
+//                    vertex.renderer.set("size", 20);
+                    vertex.renderer.set("color", "#eaeaea");
 
+                }
+                this.$.networkViewer.setLayout("Force directed");
+
+            },
             getFiles: function () {
                 var me = this;
 
                 for (var i = 0; i < this.files.length; i++) {
                     var fileName = this.files[i].name;
+                    if (fileName.indexOf(".deleted") >= 0) {
+                        continue;
+                    }
                     if (fileName.indexOf("_significative_table_up.txt") >= 0) {
                         me.topListFile = this.files[i];
                         me.topListFileUrl = Utils.getUrl(me.topListFile.id);
@@ -271,7 +307,7 @@
                 //rows = rows.slice(0,10)
 //                var height = rows.length * 15;
                 var height = 200;
-                height = height +  rows.length * 15;
+                height = height + rows.length * 15;
 //                if (height < 800) {
 //                    height = 800;
 //                }
@@ -320,7 +356,7 @@
                             [1, '#ff0000']
                         ],
                         min: 0,
-                        max:1
+                        max: 1
 
                     },
                     plotOptions: {
