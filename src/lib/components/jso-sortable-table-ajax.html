@@ -1,0 +1,98 @@
+<polymer-element hidden
+                 name="jso-sortable-table-ajax"
+                 attributes="url withCredentials start length search sortColumn
+                 sortDescending columns data dataSize loading parseFunction"
+        >
+    <script>
+        "use strict";
+        Polymer({
+            url: null,
+            withCredentials: false,
+            start: 0,
+            length: -1,
+            search: "",
+            sortColumn: null,
+            sortDescending: false,
+            columns: null,
+            ajax: null,
+            draw: 0,
+            drawReceived: 0,
+            columnsCache: null,
+            loading: false,
+            customParams: null,
+            parseFunction: null,
+            created: function () {
+                this.columnsCache = [];
+            },
+            ready: function () {
+                var ajax = document.createElement('core-ajax');
+                ajax.handleAs = 'json';
+                var self = this;
+                ajax.addEventListener("core-response", function (e) {
+                    self.handleResponse.call(self, e);
+                });
+                this.ajax = ajax;
+                this.ajax.url = this.url;
+                this.ajax.withCredentials = this.withCredentials;
+                this.job('go', this.go);
+            },
+            handleResponse: function (e) {
+                var response = e.detail.response;
+
+
+                console.log(response);
+                if (response) {
+                    var data = response.response[0]; // TODO aaleman: what if response.length > 1
+                    var dataSize = data.numTotalResults;
+
+                    if (this.parseFunction != null) {
+                        this.data = this.parseFunction(data.result);
+                    } else {
+                        this.data = data.result;
+                    }
+                    this.dataSize = dataSize;
+
+                    this.fire('data-updated', {data: this.data, dataSize: this.dataSize});
+                } else {
+                    this.data = [];
+                    this.dataSize = 0;
+                }
+            },
+            urlChanged: function () {
+                this.job('go', this.go);
+            },
+            go: function () {
+                var auxURL = this.url.trim();
+                if (auxURL != "") {
+                    this.url = auxURL;
+
+                    var params = {
+                        skip: this.start,
+                        limit: this.length
+                    };
+
+                    this.ajax.url = auxURL;
+                    this.ajax.params = params;
+                    this.columnsCache.push({draw: this.draw, columns: JSON.parse(JSON.stringify(this.columns))});
+                    if (!this.loading) this.loading = true;
+                    this.ajax.go();
+                }
+            },
+            columnsChanged: function () {
+                this.job('go', this.go);
+            },
+            startChanged: function () {
+                this.job('go', this.go);
+            },
+            lengthChanged: function () {
+                this.job('go', this.go);
+            },
+            sortColumnChanged: function () {
+                this.job('go', this.go);
+            },
+            sortDescendingChanged: function () {
+                this.job('go', this.go);
+            }
+        });
+    </script>
+</polymer-element>

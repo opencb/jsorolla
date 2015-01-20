@@ -1,22 +1,22 @@
-<polymer-element name="jso-rnaseq-norm" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-burden" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
 
-                z-index: 50000;
-                margin: 0px auto 0px auto;
+            z-index: 50000;
+            margin: 0px auto 0px auto;
 
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
 
             }
 
@@ -72,44 +72,44 @@
         </style>
         <div class="title">
             <div>
-                RNA Seq Normalize
+                Burden
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
             </div>
         </div>
         <form id="form">
+
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Normalization example</div>
+                    <div class="button action" on-click="{{loadExample1}}">TCGA BRCA example</div>
                 </div>
             </div>
+
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
                 </div>
             </div>
 
             <div class="formbox">
-                <div class="formtitle">Select gene length file</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="glFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_RANKED"></jso-project-browser-window>
-                </div>
-            </div>
-
-            <div class="formbox">
-                <div class="formtitle">Normalization method</div>
+                <div class="formtitle">Prioritization parameters</div>
                 <div class="formcontent">
                     <div id="methodDiv">
-                        <input id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">Choose automatically the
-                        normalization method<br>
-                        <input id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}">Choose manually the normalization method<br>
-                        <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}" style="margin-left: 20px">TMM<br>
-                        <input id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}" style="margin-left: 20px">RPKM
+                        Human genome version:
+                        <select name="gver" id="gver" type="text" value="none">
+                            <option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>
+                            <option name="gver_hg20" id="gver_hg20" value="hg20" >GRCh38</option>
+                        </select>
+                        <br/>
+                        Global score estimator:
+                        <select name="estimator" id="estimator" type="text" value="none">
+                            <option name="estimator_median" id="estimator_median" value="median" selected="selected">median</option>
+                            <option name="estimator_mean" id="estimator_mean" value="mean">mean</option>
+                        </select>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -132,7 +132,7 @@
         Polymer({
             created: function () {
                 this.jobName = 'JobName';
-                this.toolName = "rnaseq-norm";
+                this.toolName = "oncodrivefm";
                 this.list1UploadMsg
                 this.description = "Job info..."
             },
@@ -143,8 +143,7 @@
             },
             launchJob: function () {
                 var me = this;
-                var utils = new FormUtils(this);
-                if (!utils.basicValidationForm()) {
+                if (!Utils.basicValidationForm(this)) {
                     return;
                 }
                 var query = {
@@ -153,18 +152,11 @@
                     toolId: this.toolName,
                     outdir: this.$.outdir.selectedFile.id,
                     name: this.jobName,
-                    description: this.description,
-                    "datafile": this.$.inputFile.selectedFile.id,
+                    vcf: this.$.inputFile.selectedFile.id,
+                    gver: this.$.gver.value,
+                    estimator: this.$.estimator.value,
                     description: this.description
                 };
-                if (this.$.chooseMan.checked) {
-                    query["method"] = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
-                }
-                else {
-                    query["method"] = this.$.methodDiv.querySelector('input[name="chooseMethod"]:checked').value;
-                }
-                if (this.$.glFile.selectedFile !== undefined && this.$.glFile.selectedFile.type == "FILE")
-                    query["glfile"] = this.$.glFile.selectedFile.id;
 
                 OpencgaManager.jobs.create({
                     query: query,
@@ -186,14 +178,13 @@
                 })
             },
             loadExample1: function (e) {
-                this.jobName = "rna_norm";
-                this.description = "just_an_rna_example";
-                this.$.inputFile.selectedFile = {id: "example_counts_table_4babelomics.txt", path: "counts_table_4babelomics.txt", type: "FILE"};
-                this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"};
-                this.$.tmm.checked = true;
-                var exampleFolder = "rna_norm";
+                this.jobName = "TCGA BRCA";
+                this.description = "BRCA cancer set from TCGA";
+                this.$.inputFile.selectedFile = {id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"};
+                this.$.gver.value = "hg19"
+                this.$.estimator.value = "median"
+                var exampleFolder = "tcga_brca_example"
                 this.createExampleFolder(exampleFolder);
-
             },
             createExampleFolder: function (exampleFolder) {
                 var me = this;
@@ -237,17 +228,6 @@
                         }
                     }
                 });
-            },
-            chooseClicked: function () {
-                if (this.$.chooseAuto.checked) {
-                    this.$.tmm.disabled = true;
-                    this.$.rpkm.disabled = true;
-                }
-                else {
-                    this.$.tmm.disabled = false;
-                    this.$.tmm.checked = true;
-                    this.$.rpkm.disabled = false;
-                }
             }
         });
     </script>

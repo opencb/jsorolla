@@ -1547,6 +1547,12 @@
                 }
                 return vertex;
             },
+            createVertices: function(idList){
+                for (var i = 0; i < idList.length; i++) {
+                    var id = idList[i];
+                    this.createVertex(0,0,id);
+                }
+            },
             createEdge: function (vertexSource, vertexTarget, relation) {
                 if (relation == null) {
                     relation = 'i';

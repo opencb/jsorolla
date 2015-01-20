@@ -1,0 +1,400 @@
+<polymer-element name="jso-variant-filter-form" attributes="jobItem samples url fileId">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                width: 250px;
+            }
+
+            label:after {
+                content: ':';
+            }
+
+            .input_container {
+                margin: 0px;
+                width: 175px;
+                right: auto;
+                top: 0px;
+                /*left: 5px;*/
+                padding: 4px 6px 3px 20px;
+            }
+
+            .input_container label {
+                padding-bottom: 5px;
+                padding-left: 1px;
+            }
+
+            #headerTitle {
+                background: #e4e7e9;
+                color: #435F7A;
+                font-size: 16px;
+                line-height: 22px;
+
+                margin: 10px;
+                padding: 5px;
+            }
+
+            .segregation.sampleName {
+                width: 70px;
+            }
+
+            input.segregation, .segregationValue {
+
+                width: 30px;
+
+            }
+
+            .segregationLine {
+                margin-bottom: 10px;
+            }
+
+
+        </style>
+        <form id="filter_form" vertical layout>
+            <div vertical layout>
+                <div id="buttons_container" horizontal layout end-justified>
+                    <div class="button" on-click="{{ clearForm }}">Clear</div>
+                    <div class="button" on-click="{{ submitForm }}">Search</div>
+                </div>
+                <div class="form_block">
+                    <div id="headerTitle">Segregation</div>
+                    <div class="input_container" vertical layout>
+                        <div id="segregationHeader" horizontal layout>
+                            <div class="segregation sampleName"></div>
+                            <div class="segregation segregationValue">0/0</div>
+                            <div class="segregation segregationValue">0/1</div>
+                            <div class="segregation segregationValue">1/1</div>
+                            <div class="segregation segregationValue">./.</div>
+                        </div>
+                        <div id="segregation" vertical layout></div>
+                    </div>
+                </div>
+
+                <div class="form_block">
+                    <div id="headerTitle">MAF</div>
+                    <div class="input_container" vertical layout>
+                    </div>
+                </div>
+
+                <div class="form_block positionBlock">
+                    <div id="headerTitle">Position</div>
+                    <div class="input_container" vertical layout>
+                        <label class="input_label">Chromosomal Location</label>
+                        <textarea id="region" name="region" placeholder="1:1-1000000,2:1-1000000"
+                                  value="{{ regionValue }}" rows="3"
+                                  required?="{{ (regionValue == '') }}">
+                        </textarea>
+                    </div>
+                    <!--<div class="input_container" vertical layout>-->
+                    <!--<label class="input_label">SNP id</label>-->
+                    <!--<textarea id="region" name="region" value="{{ regionValue }}" rows="3"-->
+                    <!--required?="{{ (regionValue == '') }}">-->
+                    <!--</textarea>-->
+                    <!--</div>-->
+                    <div class="input_container" vertical layout>
+                        <label class="input_label">Gene</label>
+                        <textarea id="gene" name="gene" placeholder="BRCA2,PPL"
+                                  value="{{ geneValue }}" rows="3"
+                                  required?="{{ (geneValue == '') }}"></textarea>
+
+                        <div horizontal layout class="searchGene" end-justified>
+                            <input id="searchField" list="searchDataList" placeholder="Search gene" type="text"
+                                   style="width: 90px;">
+                            <datalist id="searchDataList"></datalist>
+                            <div id="quickSearchButton" class="button" style="border-left: none;">
+                                <font-awesome icon="search"></font-awesome>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form_block">
+                    <div id="headerTitle">Consequence Type</div>
+                    <div id="consequenceTypes" class="input_container" vertical layout>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </form>
+
+    </template>
+    <script>
+        Polymer({
+//            sampleNames: null,
+            regionValue: '1:1-100000',
+            genevalue: '',
+            snpValue: '',
+            floatDecimals: 3,
+            expanded: false,
+            parseFunction: null,
+            url: '',
+            created: function () {
+                this.consequenceTypes = [
+                    "splice_donor_variant",
+                    "splice_acceptor_variant",
+                    "stop_gained",
+                    "frameshift_variant",
+                    "stop_lost",
+                    "initiator_codon_variant",
+                    "inframe_insertion",
+                    "inframe_deletion",
+                    "missense_variant",
+                    "splice_region_variant",
+                    "incomplete_terminal_codon_variant",
+                    "stop_retained_variant",
+                    "synonymous_variant",
+                    "coding_sequence_variant",
+                    "mature_miRNA_variant",
+                    "5_prime_UTR_variant",
+                    "3_prime_UTR_variant",
+                    "non_coding_transcript_exon_variant",
+                    "intron_variant",
+                    "NMD_transcript_variant",
+                    "non_coding_transcript_variant",
+                    "upstream_gene_variant",
+                    "downstream_gene_variant",
+                    "TF_binding_site_variant",
+                    "regulatory_region_variant",
+                    "feature_elongation",
+                    "feature_truncation",
+                    "intergenic_variant",
+                    "2kb_upstream_gene_variant",
+                    "2kb_downstream_gene_variant"
+                ];
+            },
+            ready: function () {
+                var me = this;
+                this.species = 'Homo sapiens';
+                var lastQuery = '';
+
+                this.$.searchField.addEventListener('keyup', function (event) {
+                    this.classList.remove('error');
+                    var query = this.value.toUpperCase();
+                    if (query.length > 2 && lastQuery !== query && event.which !== 13) {
+                        me._setQuickSearchMenu(query);
+                        lastQuery = query;
+                    }
+
+                    if (event.which === 13) {
+                        var item = me.quickSearchDataset[query];
+                        if (item) {
+                            var values = me.$.gene.value.split(',').filter(function (el) {
+                                return el.length != 0
+                            });
+
+                            values.push(item.name);
+                            values = values.filter(function (item, index, inputArray) {
+                                return inputArray.indexOf(item) == index;
+                            });
+
+                            me.$.gene.value = values.join(",");
+
+
+                        } else {
+                            this.classList.add('error');
+                        }
+                    }
+                });
+
+
+                for (var i = 0; i < this.consequenceTypes.length; i++) {
+                    var ct = this.consequenceTypes[i];
+
+
+                    var ctDiv = document.createElement("div");
+
+
+                    var ctName = Utils.formatText(ct, "_");
+                    var ctNameLabel = document.createElement("span");
+                    ctNameLabel.innerHTML = ctName;
+
+
+                    var checkbox = document.createElement('input');
+                    checkbox.type = "checkbox";
+                    checkbox.name = "consequence_type";
+                    checkbox.value = ct;
+                    checkbox.id = "consequence_type";
+
+                    ctDiv.appendChild(checkbox);
+                    ctDiv.appendChild(ctNameLabel);
+
+                    this.$.consequenceTypes.appendChild(ctDiv);
+
+                }
+
+            },
+            samplesChanged: function (oldValue, newValue) {
+
+                for (var i = 0; i < newValue.length; i++) {
+                    var sample = newValue[i];
+
+
+                    var sampleDiv = document.createElement("div");
+                    sampleDiv.setAttribute("horizontal", "");
+                    sampleDiv.setAttribute("layout", "");
+                    sampleDiv.classList.add("segregationLine");
+
+                    var sampleNameDiv = document.createElement("div");
+                    sampleNameDiv.innerHTML = sample;
+                    sampleNameDiv.classList.add("segregation");
+                    sampleNameDiv.classList.add("sampleName");
+
+                    var checkboxName = "GT_" + sample;
+
+                    var checkbox00 = document.createElement('input');
+                    checkbox00.type = "checkbox";
+                    checkbox00.name = checkboxName;
+                    checkbox00.value = "0/0";
+                    checkbox00.id = checkboxName;
+                    checkbox00.classList.add("segregation");
+
+
+                    var checkbox01 = document.createElement('input');
+                    checkbox01.type = "checkbox";
+                    checkbox01.name = checkboxName;
+                    checkbox01.value = "0/1";
+                    checkbox01.id = checkboxName;
+                    checkbox01.classList.add("segregation");
+
+                    var checkbox11 = document.createElement('input');
+                    checkbox11.type = "checkbox";
+                    checkbox11.name = checkboxName;
+                    checkbox11.value = "1/1";
+                    checkbox11.id = checkboxName;
+                    checkbox11.classList.add("segregation");
+
+                    var checkboxMiss = document.createElement('input');
+                    checkboxMiss.type = "checkbox";
+                    checkboxMiss.name = checkboxName;
+                    checkboxMiss.value = "./.";
+                    checkboxMiss.id = checkboxName;
+                    checkboxMiss.classList.add("segregation");
+
+                    sampleDiv.appendChild(sampleNameDiv);
+                    sampleDiv.appendChild(checkbox00);
+                    sampleDiv.appendChild(checkbox01);
+                    sampleDiv.appendChild(checkbox11);
+                    sampleDiv.appendChild(checkboxMiss);
+
+                    this.$.segregation.appendChild(sampleDiv);
+                }
+            },
+            _setQuickSearchMenu: function (query) {
+
+                while (this.$.searchDataList.firstChild) {
+                    this.$.searchDataList.removeChild(this.$.searchDataList.firstChild);
+                }
+                this.quickSearchDataset = {};
+                var items = this._quickSearchResultFn(query);
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var value = item["name"];
+                    this.quickSearchDataset[value] = item;
+                    var menuEntry = document.createElement('option');
+                    menuEntry.setAttribute('value', value);
+                    this.$.searchDataList.appendChild(menuEntry);
+                }
+
+            },
+            _quickSearchResultFn: function (query) {
+                var results = [];
+                var speciesCode = Utils.getSpeciesCode(this.species);
+
+                CellBaseManager.get({
+                    host: CELLBASE_HOST,
+                    version: CELLBASE_VERSION,
+                    species: speciesCode,
+                    category: 'feature',
+                    subCategory: 'id',
+                    query: query,
+                    resource: 'starts_with',
+                    params: {
+                        limit: 10
+                    },
+                    async: false,
+                    success: function (data, textStatus, jqXHR) {
+                        results = data.response[0].result;
+                    }
+                });
+                return results;
+            },
+            submitForm: function () {
+                var me = this;
+                var auxStudies = [];
+                var auxDiseases = [];
+                var auxPhenotypes = [];
+                var query = {
+                    sid: Cookies("bioinfo_sid")
+                };
+
+                var search = false;
+
+                if (this.$.filter_form.checkValidity()) {
+
+                    var regions = [];
+
+                    if (this.regionValue) {
+                        regions = this.regionValue.split(",");
+                        search |= true;
+                    }
+
+                    if (this.geneValue) {
+                        var gene = this.geneValue.toUpperCase();
+                        CellBaseManager.get({
+                            species: 'hsapiens',
+                            category: 'feature',
+                            subCategory: 'gene',
+                            query: gene,
+                            resource: "info",
+                            async: false,
+                            params: {
+                                include: 'chromosome,start,end'
+                            },
+                            success: function (data) {
+                                for (var i = 0; i < data.response.length; i++) {
+                                    var queryResult = data.response[i];
+                                    var region = new Region(queryResult.result[0]);
+                                    regions.push(region.toString());
+                                }
+                                search |= true;
+                            }
+                        });
+                    }
+
+                    if (search) {
+                        var regionQuery = regions.join(",");
+
+//                        var url = PVSManager.variants.fetch({
+//                            id: regionQuery,
+//                            query: query,
+//                            request: {
+//                                url: true
+//                            }
+//                        });
+                        query.region = regionQuery;
+
+                        var url = OpencgaManager.files.fetch({
+                            id: me.fileId,
+                            query: query,
+                            request: {
+                                url: true
+                            }
+                        });
+
+                        this.url = url;
+                    }
+                } else {
+                    alert("Please add a region/gene and check any study, disease or phenotype");
+                }
+
+            },
+        })
+    </script>
+</polymer-element>
