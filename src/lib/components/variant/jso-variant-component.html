@@ -1,0 +1,85 @@
+<link rel="import" href="jso-variant-filter-form.html">
+<link rel="import" href="jso-variant-browser.html">
+<polymer-element name="jso-variant-component" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                background-color: white;
+            }
+
+            sortable-table {
+            }
+
+            jso-variant-filter-form {
+                background-color: #FFFFFF;
+                width: 250px;
+                margin: 20px;
+                border-style: solid;
+                border-color: #314559;
+                /*border-radius: 5px;*/
+            }
+
+            jso-variant-browser {
+                margin: 20px;
+                border-style: solid;
+                border-color: #314559;
+
+            }
+
+        </style>
+
+        <div horizontal layout flex>
+            <jso-variant-filter-form samples="{{samples}}" fileId="{{fileId}}" url={{url}}></jso-variant-filter-form>
+            <jso-variant-browser samples="{{samples}}" fileId="{{fileId}}" url="{{url}}" flex></jso-variant-browser>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            samples: null,
+            fileId: null,
+            url: '',
+            created: function () {
+            },
+            ready: function () {
+            },
+            jobItemChanged: function (oldValue, newValue) {
+                var me = this;
+                this.samples = [];
+
+                if (newValue.output.length > 0) {
+
+                    me.fileId = newValue.output[newValue.output.length - 1];
+
+                    OpencgaManager.files.fetch({
+                        id: me.fileId,
+                        query: {
+                            sid: Cookies("bioinfo_sid"),
+                            variantSource: "true"
+                        },
+                        request: {
+                            success: function (response) {
+                                try {
+                                    var result = response.response[0].result[0];
+                                    me.samples = Object.keys(result.samplesPosition);
+
+                                } catch (e) {
+
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    })
+                }
+            }
+        });
+    </script>
+</polymer-element>
+
+
