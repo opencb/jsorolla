@@ -1,14 +1,21 @@
 <polymer-element name="jso-redirection" attributes="args titleRed fileName fileUrl buttonLabel buttonWidth">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../sortable-table.css">
         <style>
 
 
         </style>
+
+        <!--<font-awesome icon="cloud-upload"></font-awesome>Upload-->
+
+        <!--<i class="fa fa-chevron-circle-right"></i>-->
+
         <div class="file"><label>{{titleRed}}</label>
             <a href="{{fileUrl}}" target="_blank">{{fileName}}</a>
-            <div id="buttonDiv" class="button action" on-click="{{sendTo}}">{{buttonLabel}}</div>
+            <div id="buttonDiv" class="button action" on-click="{{sendTo}}" >
+                <font-awesome icon="chevron-circle-right"></font-awesome>
+                {{buttonLabel}}
+            </div>
             <br>
         </div>
 

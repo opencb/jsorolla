@@ -439,6 +439,7 @@
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
                             if (this.jobItem.toolName == "class-comparison" || this.jobItem.toolName == "survival" || this.jobItem.toolName == "correlation") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                var toolMenuName = "";
                                 this.getFileContent(function (content) {
                                     var lines = content.split("\n");
                                     var hash = {};
@@ -451,6 +452,18 @@
                                     }
 
                                     var tool = hash.tool;
+                                    if (tool == "fatigo") {
+                                        toolMenuName = "Single enrichment";
+                                    }
+                                    if (tool == "fatiscan") {
+                                        toolMenuName = "Gene set enrichment";
+                                    }
+                                    if (tool == "snow") {
+                                        toolMenuName = "Network enrichment";
+                                    }
+                                    if (tool == "network-miner") {
+                                        toolMenuName = "Gene set network enrichment";
+                                    }
                                     var aux = hash.ranked_list.split("/");
                                     var filename = aux[aux.length - 1];
 
@@ -462,7 +475,7 @@
                                     }
                                     args.list1 = file;
 
-                                    var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
+                                    var button = me._createRedirectButton("Send to " + toolMenuName, hash.tool, args);
                                     res.appendChild(button);
 
                                 }, fileRedirection);
@@ -953,13 +966,9 @@
                             if (element.value.indexOf(me.pvalue) >= 0) {
                                 var fileNames = element.value.split(",");
                                 var goViewer = document.createElement('jso-go-viewer');
-                                debugger
                                 this.getFileContent(function (sifContent) {
-                                    debugger
                                     me.getFileContent(function (attrContent) {
-                                        debugger
                                         me.getFileContent(function (attr2Content) {
-                                            debugger
                                             goViewer.setContent(sifContent, attrContent, attr2Content);
 
                                         }, fileNames[0]);
@@ -981,7 +990,7 @@
                             res.appendChild(association);
 
                         }
-                        if (element.tags=="TABLE") {
+                        if (element.tags == "TABLE") {
                             var sortableTable = document.createElement('jso-generic-table');
                             this.getFileContent(function (content) {
                                 sortableTable.content = content;
@@ -998,22 +1007,29 @@
                 return res;
             },
             _createRedirectButton: function (buttonText, tool, args) {
-
                 var me = this;
-                var button = document.createElement('div');
-                button.setAttribute("class", "button action");
-                button.setAttribute("style", "width: 200px; margin: 2px");
+                var button = document.createElement('jso-redirection');
+                //args titleRed fileName fileUrl buttonLabel buttonWidth
+                args["tool"] = tool;
+                button.args = args;
+                button.buttonLabel = buttonText;
 
-                var elem = document.createTextNode(buttonText);
 
-                button.appendChild(elem);
-                button.onclick = function () {
-                    me.fire("redirection", {
-                        tool: tool,
-                        args: args
-                    });
-                }
-//                button.value = "click me!";
+//                var me = this;
+//                var button = document.createElement('div');
+//                button.setAttribute("class", "button action");
+//                button.setAttribute("style", "width: 200px; margin: 2px");
+//
+//                var elem = document.createTextNode(buttonText);
+//
+//                button.appendChild(elem);
+//                button.onclick = function () {
+//                    me.fire("redirection", {
+//                        tool: tool,
+//                        args: args
+//                    });
+//                }
+////                button.value = "click me!";
                 return button;
 
 

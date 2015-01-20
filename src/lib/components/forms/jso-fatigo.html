@@ -120,16 +120,10 @@
                             studies="{{studies}}"
                             selectedStudy="{{selectedStudy}}"
                             selectionMode="file"
+                            allowTextArea="true"
                             on-file-select="{{handleFileSelect}}"
                             bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
                             ></jso-project-browser-window>
-
-                    <template if="{{networkViewer != null}}">
-                        <jso-network-list-select-import
-                                id="inputFileText"
-                                networkViewer="{{networkViewer}}"
-                                ></jso-network-list-select-import>
-                    </template>
 
                 </div>
             </div>
@@ -146,7 +140,9 @@
                     <div id="option1">
                         <jso-project-browser-window id="inputFile2" studies="{{studies}}"
                                                     selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                    selectionMode="file"
+                                                    on-file-select="{{handleFileSelect}}"
+                                                    allowTextArea="true"
                                                     bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"></jso-project-browser-window>
                     </div>
                     <div id="option2" hidden>
@@ -474,9 +470,9 @@
             },
             launchJob: function () {
                 var me = this;
-                if (!Utils.basicValidationForm(this)) {
-                    return;
-                }
+//                if (!Utils.basicValidationForm(this)) {
+//                    return;
+//                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -484,14 +480,33 @@
                     name: this.jobName,
                     description: "description",
                     outdir: this.$.outdir.selectedFile.id,
-                    list1: this.$.inputFile.selectedFile.id,
+//                    list1: "",
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value
                 };
+                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+                    return;
+                }
+                if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list1"] = this.$.inputFile.selectedFile.id;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
                 this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
                 if (this.comparison == "list2list") {
-                    query["list2"] = this.$.inputFile2.selectedFile.id;
+                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
+                        alert("Sorry. No list 2 selected. Please select a file or write something in the text area");
+                        return;
+                    }
+                    if (this.$.inputFile2.selectedFile !== undefined) {
+                        query["list2"] = this.$.inputFile2.selectedFile.id;
+                    }
+                    if (this.$.inputFile2.textAreaValue != "") {
+                        query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
+                    }
                 }
                 else if (this.comparison == "list2genome") {
                     query["genome"] = "";

@@ -80,16 +80,27 @@
             <div>
                 <h3>Normalized data results</h3>
                 <template if="{{glFile!=''}}">
-                    <h4>RNA composition before normalization</h4>
-                    <img src="{{RNAComposition_beforeNorm}}">
-                    <h4>RNA composition after normalization</h4>
-                    <img src="{{RNAComposition_afterNorm}}">
+                    <div flex horizontal layout>
+                        <div>
+                            <h4>RNA composition before normalization</h4>
+                            <img src="{{RNAComposition_beforeNorm}}">
+                        </div>
+                        <div>
+                            <h4>RNA composition after normalization</h4>
+                            <img src="{{RNAComposition_afterNorm}}">
+                        </div>
+                    </div>
                 </template>
-                <h4>Boxplot expression values before normalization</h4>
-                <img src="{{boxplot_beforeNorm}}">
-                <h4>Boxplot expression values after normalization</h4>
-                <img src="{{boxplot_afterNorm}}">
-
+                <div flex horizontal layout>
+                    <div>
+                        <h4>Boxplot expression values before normalization</h4>
+                        <img src="{{boxplot_beforeNorm}}">
+                    </div>
+                    <div>
+                        <h4>Boxplot expression values after normalization</h4>
+                        <img src="{{boxplot_afterNorm}}">
+                    </div>
+                </div>
                 <div class="file"><label>File</label>
                     <a href="{{normalizedFileUrl}}" target="_blank">normalized_results.txt</a>
                 </div>

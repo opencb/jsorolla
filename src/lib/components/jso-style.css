@@ -15,9 +15,9 @@ label {
     margin-right: 5px;
 }
 
-label::after {
-    content: ':'
-}
+/*label::after {*/
+    /*content: ':'*/
+/*}*/
 
 label.button::after {
     content: none;

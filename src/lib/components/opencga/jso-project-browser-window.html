@@ -1,4 +1,4 @@
-<polymer-element name="jso-project-browser-window" attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
+<polymer-element name="jso-project-browser-window" attributes="userData selectedProject selectedStudy studies selectionMode bioformat allowTextArea">
     <template>
         <style>
             :host {
@@ -27,11 +27,11 @@
         <template if="{{selectionMode == 'folder'}}">
             <div style="color:#666">
                 You can create folders using the button
-                <font-awesome style="color:#445D76;font-size:16px;" icon="folder-o"></font-awesome>+
+                <font-awesome style="color:#445D76;font-size:16px;" icon="folder-o"></font-awesome>
+                +
                 inside file browser.
             </div>
         </template>
-
         <div horizontal layout>
             <div class="button action" style="width:150px;" on-click="{{buttonHandler}}">File browser</div>
             <div id="selection" style="line-height: 25px;" class="labelSelection"> {{selectedStudy.name}}/{{selectedFile.path}}</div>
@@ -51,11 +51,22 @@
             </jso-project-browser>
         </template>
 
+        <template if="{{allowTextArea}}">
+            <label>Or paste your ids here:</label>
+            <div horizontal layout>
+                <textarea rows="10" cols="20" value="{{textAreaValue}}">
+                </textarea>
+            </div>
+        </template>
     </template>
     <script>
         Polymer({
+            created: function () {
+                this.allowTextArea = false;
+            },
             ready: function () {
                 this.showBrowser = false;
+                this.textAreaValue = "";
                 //this.bioformat = "";
             },
             buttonHandler: function () {
