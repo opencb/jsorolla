@@ -271,7 +271,7 @@
                     toolId: this.toolName,
                     name: this.jobName,
                     description: "description",
-                    list1: this.$.inputFile.selectedFile.id,
+//                    list1: this.$.inputFile.selectedFile.id,
                     outdir: this.$.outdir.selectedFile.id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
@@ -284,12 +284,29 @@
                     images: "",
                     json: 1
                 };
+
+                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+                    return;
+                }
+                if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list1"] = this.$.inputFile.selectedFile.id;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+
                 if (this.$.mode_2.checked) {
-                    if (this.$.inputFile2.selectedFile === undefined || this.$.inputFile2.selectedFile.type != "FILE") {
+                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "" ) {
                         alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
                         return;
                     }
-                    query["list2"] = this.$.inputFile2.selectedFile.id;
+                    if (this.$.inputFile2.selectedFile !== undefined) {
+                        query["list2"] = this.$.inputFile2.selectedFile.id;
+                    }
+                    if (this.$.inputFile2.textAreaValue != "") {
+                        query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
+                    }
                 }
                 OpencgaManager.jobs.create({
                     query: query,
