@@ -239,7 +239,7 @@
                     toolId: this.toolName,
                     name: this.jobName,
                     description: "description",
-                    list: this.$.inputFile.selectedFile.id,
+//                    list: this.$.inputFile.selectedFile.id,
                     outdir: this.$.outdir.selectedFile.id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
@@ -253,9 +253,26 @@
                     "list-tags": this.$.listTags.value
                     //ranked-list:
                 };
-                if (this.$.seedList.selectedFile!== undefined && this.$.seedList.selectedFile.type == "FILE") {
+
+                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+                    return;
+                }
+                if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list"] = this.$.inputFile.selectedFile.id;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["list-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+
+
+                if (this.$.seedList.selectedFile!== undefined) {
                     query["seedlist"] = this.$.seedList.selectedFile.id;
                 }
+                if (this.$.seedList.textAreaValue != "") {
+                    query["seedlist-text"] = this.$.seedList.textAreaValue.replace(/\n/g, ',');
+                }
+
                 OpencgaManager.jobs.create({
                     query: query,
 

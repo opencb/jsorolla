@@ -334,22 +334,32 @@
             launchJob: function () {
                 var me = this;
                 var utils = new FormUtils(this);
-                if (!utils.basicValidationForm()) {
-                    return;
-                }
+//                if (!utils.basicValidationForm()) {
+//                    return;
+//                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
                     toolId: this.toolName,
                     name: this.jobName,
                     description: this.description,
-                    "ranked-list": this.$.inputFile.selectedFile.id,
+//                    "ranked-list": this.$.inputFile.selectedFile.id,
                     outdir: this.$.outdir.selectedFile.id,
                     method: this.method,
                     duplicates: this.$.remove_duplicates.checked,
                     species: this.$.species.value
 
                 };
+                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+                    return;
+                }
+                if (this.$.inputFile.selectedFile !== undefined) {
+                    query["ranked-list"] = this.$.inputFile.selectedFile.id;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["ranked-list-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
                 if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked) {
                     alert("Sorry. No database selected. Please select one");
                     return;
