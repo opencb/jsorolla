@@ -953,9 +953,13 @@
                             if (element.value.indexOf(me.pvalue) >= 0) {
                                 var fileNames = element.value.split(",");
                                 var goViewer = document.createElement('jso-go-viewer');
+                                debugger
                                 this.getFileContent(function (sifContent) {
+                                    debugger
                                     me.getFileContent(function (attrContent) {
+                                        debugger
                                         me.getFileContent(function (attr2Content) {
+                                            debugger
                                             goViewer.setContent(sifContent, attrContent, attr2Content);
 
                                         }, fileNames[0]);
