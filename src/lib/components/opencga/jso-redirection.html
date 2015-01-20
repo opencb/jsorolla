@@ -1,0 +1,39 @@
+<polymer-element name="jso-redirection" attributes="args titleRed fileName fileUrl buttonLabel buttonWidth">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+
+
+        </style>
+        <div class="file"><label>{{titleRed}}</label>
+            <a href="{{fileUrl}}" target="_blank">{{fileName}}</a>
+            <div id="buttonDiv" class="button action" on-click="{{sendTo}}">{{buttonLabel}}</div>
+            <br>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.titleRed = "";
+                this.fileUrl = "";
+                this.fileName = "";
+                this.buttonLabel = "";
+                this.buttonWidth = "400px";
+
+
+            },
+            ready: function(){
+                this.$.buttonDiv.style.width = this.buttonWidth;
+            },
+            sendTo: function() {
+                this.fire("redirection", {
+                    tool: this.args.tool,
+                    args: this.args
+                });
+            }
+
+        })
+    </script>
+</polymer-element>
