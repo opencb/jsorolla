@@ -100,14 +100,14 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="false"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_RANKED"></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select your seed list (optional)</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="true"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
                 </div>
             </div>
@@ -230,7 +230,11 @@
 
             launchJob: function (selectedFolderId) {
                 var me = this;
-                if (!Utils.basicValidationForm(this)) {
+//                if (!Utils.basicValidationForm(this)) {
+//                    return;
+//                }
+                if (this.$.outdir.selectedFile === undefined) {
+                    alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
                 var query = {
@@ -239,7 +243,7 @@
                     toolId: this.toolName,
                     name: this.jobName,
                     description: "description",
-                    list: this.$.inputFile.selectedFile.id,
+//                    list: this.$.inputFile.selectedFile.id,
                     outdir: this.$.outdir.selectedFile.id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
@@ -253,9 +257,30 @@
                     "list-tags": this.$.listTags.value
                     //ranked-list:
                 };
-                if (this.$.seedList.selectedFile!== undefined && this.$.seedList.selectedFile.type == "FILE") {
+
+//                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+//                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+//                    return;
+//                }
+                if (this.$.inputFile.selectedFile === undefined) {
+                    alert("Sorry. No input selected. Please select a file.");
+                    return;
+                }
+                if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list"] = this.$.inputFile.selectedFile.id;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["list-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+
+
+                if (this.$.seedList.selectedFile!== undefined) {
                     query["seedlist"] = this.$.seedList.selectedFile.id;
                 }
+                if (this.$.seedList.textAreaValue != "") {
+                    query["seedlist-text"] = this.$.seedList.textAreaValue.replace(/\n/g, ',');
+                }
+
                 OpencgaManager.jobs.create({
                     query: query,
 

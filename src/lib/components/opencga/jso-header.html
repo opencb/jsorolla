@@ -7,7 +7,7 @@
 <link rel="import" href="jso-job-launched.html">
 
 <polymer-element name="jso-header"
-                 attributes="selectedOption options allowLogin allowJobs showJobs
+                 attributes="selectedOption options allowLogin allowJobs showJobs isLogged
                  userData jobItem selectedStudy allowedTools">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
@@ -59,15 +59,25 @@
                 color: #FFFFFF;
             }
 
+            div.icon {
+                font-size: 30px;
+                margin-left: 2vw;
+            }
+
             div.title {
                 font-size: 30px;
-                margin-left: 4vw;
             }
 
             div.description {
                 /*color: #6599FF;*/
                 color: #ffad76;
-                font-size: 20px;
+                /*font-size: 20px;*/
+            }
+
+            @media (max-width: 1250px) {
+                div.title, div.description {
+                    display: none;
+                }
             }
 
             #user {
@@ -75,34 +85,34 @@
             }
 
             /*ul.help-menu > li:hover {*/
-                /*color: white;*/
-                /*cursor: pointer;*/
-                /*background-color: #435f7a;*/
+            /*color: white;*/
+            /*cursor: pointer;*/
+            /*background-color: #435f7a;*/
             /*}*/
 
             /*div.help-menu {*/
-                /*text-align: left;*/
-                /*margin: 0;*/
-                /*padding: 0 0 0 15px;*/
-                /*background-color: #314559;*/
-                /*list-style: none;*/
-                /*text-transform: none;*/
-                /*line-height: 60px;*/
-                /*font-size: 16px;*/
-                /*position: absolute;*/
-                /*z-index: 60000;*/
-                /*top: 60px;*/
-                /*right: 0px;*/
-                /*width: 200px;*/
-                /*visibility: hidden;*/
-                /*opacity: 0;*/
-                /*transition: all 0.2s;*/
-                /*box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.3);*/
+            /*text-align: left;*/
+            /*margin: 0;*/
+            /*padding: 0 0 0 15px;*/
+            /*background-color: #314559;*/
+            /*list-style: none;*/
+            /*text-transform: none;*/
+            /*line-height: 60px;*/
+            /*font-size: 16px;*/
+            /*position: absolute;*/
+            /*z-index: 60000;*/
+            /*top: 60px;*/
+            /*right: 0px;*/
+            /*width: 200px;*/
+            /*visibility: hidden;*/
+            /*opacity: 0;*/
+            /*transition: all 0.2s;*/
+            /*box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.3);*/
             /*}*/
 
             /*div.help-menu-shown {*/
-                /*visibility: visible !important;*/
-                /*opacity: 1 !important;*/
+            /*visibility: visible !important;*/
+            /*opacity: 1 !important;*/
             /*}*/
 
             jso-job-list {
@@ -114,6 +124,9 @@
         </style>
 
         <div class="main" horizontal layout>
+            <div class="icon" data-option="home" on-click="{{handleMenu}}">
+                <content select=".icon"></content>
+            </div>
             <div class="title" data-option="home" on-click="{{handleMenu}}">
                 <content select=".title"></content>
             </div>
@@ -173,9 +186,9 @@
 
 
             <!--<div id="support" on-click="{{handleSupportMenu}}">-->
-                <!--&nbsp;-->
-                <!--<font-awesome icon="support"></font-awesome>-->
-                <!--&nbsp;-->
+            <!--&nbsp;-->
+            <!--<font-awesome icon="support"></font-awesome>-->
+            <!--&nbsp;-->
             <!--</div>-->
 
             <content select=".helpmenu"></content>
@@ -190,30 +203,30 @@
 
             <!--<div id="helpMenu" class="help-menu" on-mouseleave="{{handleHelpMenuMouseOut}}">-->
 
-                <!--<content select=".link"></content>-->
+            <!--<content select=".link"></content>-->
 
-                <!--<li id="homeHelp" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink != null}}">-->
-                <!--<font-awesome icon="home"></font-awesome>-->
-                <!--&nbsp;home-->
-                <!--</li>-->
-                <!--<li id="documentation" class="right" on-click="{{ handleDocumentation }}">-->
-                <!--<font-awesome icon="book"></font-awesome>-->
-                <!--&nbsp;documentation-->
-                <!--</li>-->
-                <!--<li id="tutorial" class="right" on-click="{{ handleTutorial }}">-->
-                <!--<font-awesome icon="list-alt"></font-awesome>-->
-                <!--&nbsp;tutorial-->
-                <!--</li>-->
-                <!--<li id="workedExamplesLink" class="right" on-click="{{ handleWorkedExamples }}" hidden?="{{hideWorkedExamplesLink}}">-->
-                <!--<font-awesome icon="magic"></font-awesome>-->
-                <!--&nbsp; worked examples-->
-                <!--</li>-->
+            <!--<li id="homeHelp" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink != null}}">-->
+            <!--<font-awesome icon="home"></font-awesome>-->
+            <!--&nbsp;home-->
+            <!--</li>-->
+            <!--<li id="documentation" class="right" on-click="{{ handleDocumentation }}">-->
+            <!--<font-awesome icon="book"></font-awesome>-->
+            <!--&nbsp;documentation-->
+            <!--</li>-->
+            <!--<li id="tutorial" class="right" on-click="{{ handleTutorial }}">-->
+            <!--<font-awesome icon="list-alt"></font-awesome>-->
+            <!--&nbsp;tutorial-->
+            <!--</li>-->
+            <!--<li id="workedExamplesLink" class="right" on-click="{{ handleWorkedExamples }}" hidden?="{{hideWorkedExamplesLink}}">-->
+            <!--<font-awesome icon="magic"></font-awesome>-->
+            <!--&nbsp; worked examples-->
+            <!--</li>-->
 
 
-                <!--<li id="about" class="right" on-click="{{ handleAbout }}">-->
-                <!--<font-awesome icon="info"></font-awesome>-->
-                <!--&nbsp; about-->
-                <!--</li>-->
+            <!--<li id="about" class="right" on-click="{{ handleAbout }}">-->
+            <!--<font-awesome icon="info"></font-awesome>-->
+            <!--&nbsp; about-->
+            <!--</li>-->
             <!--</div>-->
         </div>
         <div class="content">

@@ -104,6 +104,9 @@
                 return Utils.parseDate(this.jobItem.date);
             },
             computeStatus: function () {
+                if(this.jobItem.status === "DONE"){
+                    return "Finishing";
+                }
                 return this.jobItem.status.toLowerCase();
             },
             computeToolName: function () {
