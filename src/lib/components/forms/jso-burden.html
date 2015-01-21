@@ -80,22 +80,28 @@
         </div>
         <form id="form">
 
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">TCGA BRCA example</div>
-                </div>
-            </div>
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Examples</div>-->
+                <!--<div class="formcontent">-->
+                    <!--<div class="button action" on-click="{{loadExample1}}">TCGA BRCA example</div>-->
+                <!--</div>-->
+            <!--</div>-->
 
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
+                    VCF
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
                 </div>
+                <div class="formcontent">
+                    Pedigree
+                    <jso-project-browser-window id="pedData" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
+                </div>
+
             </div>
 
             <div class="formbox">
-                <div class="formtitle">Prioritization parameters</div>
+                <div class="formtitle">Regions</div>
                 <div class="formcontent">
                     <div id="methodDiv">
                         Human genome version:
@@ -104,15 +110,42 @@
                             <option name="gver_hg20" id="gver_hg20" value="hg20" >GRCh38</option>
                         </select>
                         <br/>
-                        Global score estimator:
-                        <select name="estimator" id="estimator" type="text" value="none">
-                            <option name="estimator_median" id="estimator_median" value="median" selected="selected">median</option>
-                            <option name="estimator_mean" id="estimator_mean" value="mean">mean</option>
-                        </select>
+                        Query region:
+                        <select name="query" id="query" type="text" value="none">
+                            <option name="query_genes" id="query_genes" value="genes" selected="selected">All protein coding genes</option>
+                            <option name="query_custom" id="query_custom" value="custom">Custom region</option>
                         </select>
                     </div>
                 </div>
             </div>
+            <div class="formbox">
+                <div class="formtitle">Statistical parameters</div>
+                <div class="formcontent">
+                    <div id="methodDiv">
+                        Rare allele frequency threshold:
+                        <select name="maf" id="maf" type="text" value="none">
+                            <option name="maf_0.001" id="maf_0.001" value="0.001">0.001</option>
+                            <option name="maf_0.005" id="maf_0.005" value="0.005">0.005</option>
+                            <option name="maf_0.01" id="maf_0.01" value="0.01">0.01</option>
+                            <option name="maf_0.05" id="maf_0.05" value="0.05" selected="selected">0.05</option>
+                        </select>
+                        <br/>
+                        p.value:
+                        <select name="pvalue" id="pvalue" type="text" value="none">
+                            <option name="pvalue_0.01" id="pvalue_0.01" value="0.01" selected="selected">0.01</option>
+                            <option name="pvalue_0.05" id="pvalue_0.05" value="0.05" selected="selected">0.05</option>
+                        </select>
+                        <br/>
+                        Number of permutations:
+                        <select name="perm" id="perm" type="text" value="none">
+                            <option name="perm_100" id="perm_100" value="100" selected="selected">100</option>
+                            <option name="perm_500" id="perm_500" value="500">500</option>
+                            <option name="perm_1000" id="perm_1000" value="1000">1000</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="formbox">
                 <div class="formtitle">Job information</div>
                 <div class="formcontent">
@@ -132,8 +165,7 @@
         Polymer({
             created: function () {
                 this.jobName = 'JobName';
-                this.toolName = "oncodrivefm";
-                this.list1UploadMsg
+                this.toolName = "burden";
                 this.description = "Job info..."
             },
             handleForm: function () {
@@ -152,10 +184,14 @@
                     toolId: this.toolName,
                     outdir: this.$.outdir.selectedFile.id,
                     name: this.jobName,
+                    description: this.description,
                     vcf: this.$.inputFile.selectedFile.id,
+                    ped: this.$.pedData.selectedFile.id,
                     gver: this.$.gver.value,
-                    estimator: this.$.estimator.value,
-                    description: this.description
+                    query: this.$.query.value,
+                    maf: this.$.maf.value,
+                    pvalue: this.$.pvalue.value,
+                    perm: this.$.perm.value
                 };
 
                 OpencgaManager.jobs.create({
@@ -176,59 +212,59 @@
                         }
                     }
                 })
-            },
-            loadExample1: function (e) {
-                this.jobName = "TCGA BRCA";
-                this.description = "BRCA cancer set from TCGA";
-                this.$.inputFile.selectedFile = {id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"};
-                this.$.gver.value = "hg19"
-                this.$.estimator.value = "median"
-                var exampleFolder = "tcga_brca_example"
-                this.createExampleFolder(exampleFolder);
-            },
-            createExampleFolder: function (exampleFolder) {
-                var me = this;
-                OpencgaManager.files.search({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        studyId: me.$.outdir.selectedStudy.id,
-                        name: exampleFolder
-
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.$.outdir.selectedFile = response.response[0].result[0];
-                                if (response.response[0].result.length == 0) {
-                                    OpencgaManager.files.createFolder({
-                                        query: {
-                                            sid: Cookies('bioinfo_sid'),
-                                            studyId: me.$.outdir.selectedStudy.id,
-                                            folder: exampleFolder
-
-                                        },
-                                        request: {
-                                            success: function (response) {
-                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                                    me.$.outdir.selectedFile = response.response[0].result[0];
-                                                } else {
-
-                                                }
-                                            },
-                                            error: function () {
-                                                alert('Server error, try again later.');
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
             }
+//            loadExample1: function (e) {
+//                this.jobName = "TCGA BRCA";
+//                this.description = "BRCA cancer set from TCGA";
+//                this.$.inputFile.selectedFile = {id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"};
+//                this.$.gver.value = "hg19"
+//                this.$.estimator.value = "median"
+//                var exampleFolder = "tcga_brca_example"
+//                this.createExampleFolder(exampleFolder);
+//            },
+//            createExampleFolder: function (exampleFolder) {
+//                var me = this;
+//                OpencgaManager.files.search({
+//                    query: {
+//                        sid: Cookies('bioinfo_sid'),
+//                        studyId: me.$.outdir.selectedStudy.id,
+//                        name: exampleFolder
+//
+//                    },
+//                    request: {
+//                        success: function (response) {
+//                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.$.outdir.selectedFile = response.response[0].result[0];
+//                                if (response.response[0].result.length == 0) {
+//                                    OpencgaManager.files.createFolder({
+//                                        query: {
+//                                            sid: Cookies('bioinfo_sid'),
+//                                            studyId: me.$.outdir.selectedStudy.id,
+//                                            folder: exampleFolder
+//
+//                                        },
+//                                        request: {
+//                                            success: function (response) {
+//                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+//                                                } else {
+//
+//                                                }
+//                                            },
+//                                            error: function () {
+//                                                alert('Server error, try again later.');
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        },
+//                        error: function () {
+//                            alert('Server error, try again later.');
+//                        }
+//                    }
+//                });
+//            }
         });
     </script>
 </polymer-element>

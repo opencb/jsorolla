@@ -178,6 +178,23 @@ var Utils = {
             }
         })
     },
+    argsParser: function(form, args){
+        for(var key in args){
+            if (typeof(args[key]) == "object")
+                form.$[key].selectedFile = args[key];
+            else {
+                if (form.$[key] !== undefined) {
+                    switch (form.$[key].type) {
+                        case "checkbox":
+                            form.$[key].checked = args[key];
+                        default:
+                            form.$[key].value = args[key];
+                    }
+                }
+
+            }
+        }
+    },
     test: function () {
         return this;
     },
