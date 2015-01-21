@@ -437,45 +437,53 @@
                 switch (element.type) {
                     case "TEXT":
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            if (this.jobItem.toolName == "class-comparison" || this.jobItem.toolName == "survival" || this.jobItem.toolName == "correlation") {
+                            if (this.jobItem.toolName == "class-comparison" || this.jobItem.toolName == "survival" || this.jobItem.toolName == "correlation" || this.jobItem.toolName == "burden") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                 var toolMenuName = "";
                                 this.getFileContent(function (content) {
+
                                     var lines = content.split("\n");
                                     var hash = {};
-                                    var args = {};
-
                                     for (var i = 0; i < lines.length; i++) {
                                         var line = lines[i];
+                                        if (line == "") continue;
+
                                         var splits = line.split("=");
                                         hash[splits[0]] = splits[1];
+
                                     }
 
-                                    var tool = hash.tool;
-                                    if (tool == "fatigo") {
-                                        toolMenuName = "Single enrichment";
-                                    }
-                                    if (tool == "fatiscan") {
-                                        toolMenuName = "Gene set enrichment";
-                                    }
-                                    if (tool == "snow") {
-                                        toolMenuName = "Network enrichment";
-                                    }
-                                    if (tool == "network-miner") {
-                                        toolMenuName = "Gene set network enrichment";
-                                    }
-                                    var aux = hash.ranked_list.split("/");
-                                    var filename = aux[aux.length - 1];
+                                    //var tool = hash.tool;
 
-                                    var file = {};
-                                    for (var i = 0; i < me.filesList.length; i++) {
-                                        file = me.filesList[i];
-                                        if (file.name == filename)
-                                            break;
-                                    }
-                                    args.list1 = file;
+                                    //var aux = hash.ranked_list.split("/");
+                                    //var filename = aux[aux.length - 1];
+                                    //var file = {};
+                                    //for (var i = 0; i < me.filesList.length; i++) {
+                                    //    file = me.filesList[i];
+                                    //    if (file.name == filename)
+                                    //        break;
+                                    //}
+                                    //args.inputFile = file;
 
-                                    var button = me._createRedirectButton("Send to " + toolMenuName, hash.tool, args);
+                                    var args = {};
+                                    var value, aux, valueAsFile;
+                                    for (var key in hash) {
+
+                                        value = hash[key];
+                                        aux = value.split("/");
+                                        valueAsFile = aux[aux.length - 1];
+                                        for (var i = 0; i < me.filesList.length; i++) {
+                                            if (me.filesList[i].name == valueAsFile) {
+                                                value = me.filesList[i];
+                                            }
+                                        }
+                                        args[key] = value;
+                                    }
+
+
+                                    //var button = me._createRedirectButton("Send to " + toolMenuName, hash.tool, args);
+
+                                    var button = me._createRedirectButton(element.title, hash.tool, args);
                                     res.appendChild(button);
 
                                 }, fileRedirection);

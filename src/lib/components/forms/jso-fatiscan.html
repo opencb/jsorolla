@@ -326,10 +326,7 @@
                 me.launchJob();
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                this.$.inputFile.selectedFile = this.args.list1;
+                Utils.argsParser(this, this.args);
             },
             launchJob: function () {
                 var me = this;

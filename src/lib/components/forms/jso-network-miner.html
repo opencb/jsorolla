@@ -1,4 +1,4 @@
-<polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -195,6 +195,9 @@
     </template>
     <script>
         Polymer({
+
+
+
             created: function () {
                 this.jobName = 'JobName'
                 this.toolName = "network-miner"
@@ -222,6 +225,9 @@
                 this.intermediateText = "Yes"
 
 
+            },
+            argsChanged: function () {
+                Utils.argsParser(this, this.args);
             },
             handleForm: function () {
                 var me = this;
