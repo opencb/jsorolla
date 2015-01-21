@@ -8,6 +8,9 @@
                 height: 800px;
                 border: 1px solid #d3d3d3;
             }
+            sortable-table {
+                border: 1px solid #d3d3d3;
+            }
         </style>
         <div class="file"><label>Significative table</label>
             <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
@@ -59,7 +62,7 @@
 
             <h3>Network viewer</h3>
 
-            <jso-network-viewer-widget nodes="{{nodes}}"></jso-network-viewer-widget>
+            <jso-protein-viewer nodes="{{nodes}}"></jso-protein-viewer>
             <!--<div id="networkWidget">-->
                 <!--<div style="margin-bottom: 5px" flex horizontal layout>-->
                     <!--<label>Select number of top list in the differential expression result</label>-->

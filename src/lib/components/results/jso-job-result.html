@@ -137,8 +137,6 @@
             <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
         </template>
 
-        <div id="output" class="output"></div>
-
         <template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">
             <div id="fatigoOutput" class="output">
                 <div class="level-0">
@@ -165,6 +163,8 @@
                 </div>
             </div>
         </template>
+        <div id="output" class="output"></div>
+
     </template>
     <script>
         Polymer({
@@ -861,8 +861,8 @@
 
                         if (element.tags.indexOf("SUMMARY_TABLE") >= 0) {
                             if (element.tags.indexOf("SIGNIFICANT_COUNT_TABLE") >= 0) {
-                                var dataArray = new Array();
-                                var columns = new Array();
+                                var dataArray = [];
+                                var columns = [];
                                 element.value = element.value.replace("${pvalue}", me.pvalue);
                                 this.getFileContent(function (content) {
                                     var data = content.split("\n");
@@ -961,23 +961,6 @@
                             res.appendChild(button);
 
                         }
-
-                        if (element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
-                            if (element.value.indexOf(me.pvalue) >= 0) {
-                                var fileNames = element.value.split(",");
-                                var goViewer = document.createElement('jso-go-viewer');
-                                this.getFileContent(function (sifContent) {
-                                    me.getFileContent(function (attrContent) {
-                                        me.getFileContent(function (attr2Content) {
-                                            goViewer.setContent(sifContent, attrContent, attr2Content);
-
-                                        }, fileNames[0]);
-                                    }, fileNames[1]);
-                                }, fileNames[0]);
-
-                                res.appendChild(goViewer);
-                            }
-                        }
                         if (element.name.indexOf("plink.assoc") >= 0) {
                             /** Plink file is too big, we should bring a header or something like this **/
                             var association = document.createElement('jso-association-result');
@@ -999,9 +982,25 @@
                             res.appendChild(sortableTable);
                         }
 
+
                         break;
                     default:
-                    //NOTHING
+                        if (element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
+                                var fileNames = element.value.split(",");
+                                var goViewer = document.createElement('jso-go-viewer');
+                                this.getFileContent(function (sifContent) {
+                                    me.getFileContent(function (attrContent) {
+                                        me.getFileContent(function (attr2Content) {
+                                            goViewer.setContent(sifContent, attrContent, attr2Content);
+
+                                        }, fileNames[0]);
+                                    }, fileNames[1]);
+                                }, fileNames[0]);
+
+                                res.appendChild(goViewer);
+                            }
+                        }
 
                 }
                 return res;

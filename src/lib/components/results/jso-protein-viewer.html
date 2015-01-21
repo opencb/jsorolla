@@ -1,0 +1,109 @@
+<polymer-element name="jso-protein-viewer" attributes="nodes">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+
+            jso-network-viewer {
+                height: 800px;
+                border: 1px solid #d3d3d3;
+            }
+
+            /*TODO temporal fix*/
+            jso-network-viewer::shadow jso-nv-layout {
+                height: calc(100% - 96px);
+            }
+        </style>
+        <div id="networkWidget">
+            <div style="margin-bottom: 5px" flex horizontal layout>
+                <label>Select number of top list in the differential expression result</label>
+                <input type="text" style="margin-right: 2px" value="{{networkNodes}}" width="20px">
+
+                <div class="button action" style="width: 110px" on-click="{{drawNetwork}}">Draw network</div>
+            </div>
+            <jso-network-viewer id="networkViewer" hideBar="true"></jso-network-viewer>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.ids = [];
+                this.networkNodes = 20;
+
+            },
+            domReady: function () {
+                this.$.networkViewer.hideNodeSimpleRendering = true;
+                this.$.networkViewer.hideEdgeSimpleRendering = true;
+            },
+            nodesChanged: function () {
+                var me = this;
+                this.$.networkViewer.startOver();
+                var nodes = this.nodes.slice(0, this.networkNodes);
+                var nodesMap = {};
+                for (var i = 0; i < nodes.length; i++) {
+                    var node = nodes[i];
+                    nodesMap[node] = true;
+                }
+
+                var intactImport = this.$.networkViewer.$.intactImport;
+                var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
+
+                console.log(nodes)
+                intactImport.getGraph('hsapiens', nodes, function (graph) {
+                    me.$.networkViewer.setGraph(graph);
+                    me.$.networkViewer.setLayout('Force directed');
+
+                    cellbaseAttributeImport.uncheckAllDatabases();
+                    cellbaseAttributeImport.checkDatabase('Uniprot_gn');
+
+                    cellbaseAttributeImport.retrieveData('id', 'hsapiens', function () {
+                        me.$.networkViewer.selectVertexDefaultLabelAttribute('Uniprot_gnid');
+                        cellbaseAttributeImport.uncheckAllDatabases();
+
+                        for (var i = 0; i < me.$.networkViewer.vAttr.data.length; i++) {
+                            var row = me.$.networkViewer.vAttr.data[i];
+                            var val = row['Uniprot_gnid'];
+                            if (!val || val == '') {
+                                row['Uniprot_gnid'] = row['id'];
+                            }
+                            else {
+                                var vals = val.split(",");
+                                var newVals = [];
+                                for (var j = 0; j < vals.length; j++) {
+                                    var v = vals[j];
+                                    if (nodesMap[v] === true) {
+                                        newVals.push(v);
+                                    }
+                                }
+                                row['Uniprot_gnid'] = newVals.join(',')
+                            }
+                            if (nodesMap[row['Uniprot_gnid']] == true) {
+                                var vertex = me.$.networkViewer.graph.getVertexById(row['id']);
+                                vertex.renderer.set("color", '' +
+                                '#f99494');
+                            }
+                        }
+
+//                        for (var i = 0; i < nodes.length; i++) {
+//                            var node = nodes[i];
+//                            me.$.networkViewer.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
+//                        }
+
+                    });
+                });
+//                debugger
+//                for (var i = 0; i < nodes.length; i++) {
+//                    var node = nodes[i];
+//                    this.$.networkViewer.createVertex(0, 0, node);
+//                    var vertex = this.$.networkViewer.graph.getVertexById(node);
+////                    vertex.renderer.set("size", 20);
+//                    vertex.renderer.set("color", "#eaeaea");
+//                }
+//                this.$.networkViewer.setLayout("Force directed");
+
+            }
+        })
+    </script>
+</polymer-element>
+

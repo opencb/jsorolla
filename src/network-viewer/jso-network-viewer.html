@@ -289,12 +289,14 @@
                     selectedMenu="{{selectedMenu}}" attributeManager="{{eAttr}}" type="edge">
             </jso-attribute-edit>
             <jso-cellbase-attribute-import
+                    id="cellbaseAttributeImport"
                     hidden?="{{hideCellbase}}"
                     hideFlag="{{hideCellbase}}"
                     attributeManager="{{vAttr}}"
                     >
             </jso-cellbase-attribute-import>
             <jso-intact-import
+                    id="intactImport"
                     hidden?="{{hideIntact}}"
                     hideFlag="{{hideIntact}}"
                     networkViewer="{{}}"
@@ -627,6 +629,10 @@
                     vertex.renderer.setLabelContent(row[attribute]);
                 }
             },
+            selectVertexDefaultLabelAttribute:function(attribute){
+                this.vertexDefaults.labelAttribute = attribute;
+                this.setVertexDefaultLabelAttribute(attribute);
+            },
             setEdgeDefaultLabelAttribute: function (attribute) {
                 var row, edge;
                 for (var i = 0, l = this.graph.edges.length; i < l; i++) {
@@ -634,6 +640,10 @@
                     row = this.eAttr.getRow(edge.id);
                     edge.renderer.setLabelContent(row[attribute]);
                 }
+            },
+            selectEdgeDefaultLabelAttribute:function(attribute){
+                this.vertexDefaults.labelAttribute = attribute;
+                this.setEdgeDefaultLabelAttribute(attribute);
             },
             setVertexDefaultDisplayProperty: function (displayProperty, value) {
                 var splitStr = ",";
