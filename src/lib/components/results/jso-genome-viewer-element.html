@@ -1,0 +1,211 @@
+<polymer-element name="jso-genome-viewer-element" attributes="">
+    <template>
+        <link rel="stylesheet" href="../../../../styles/css/style.css">
+
+        <style>
+            :host {
+                display: block;
+            }
+
+            #genomeViewerDiv {
+                /*max-height: 500px;*/
+                border: 1px solid #d3d3d3;
+                overflow-y: auto;
+                overflow-x: hidden;
+                transition: height 0.15s;
+                margin-top: 20px;
+
+            }
+
+        </style>
+
+        <div id="genomeViewerDiv"></div>
+
+    </template>
+    networkViewer =
+    <script>
+        Polymer({
+            genomeViewer: null,
+            created: function () {
+                this.region = new Region();
+                this.region.load("1:1004608-1004608");
+
+            },
+            ready: function () {
+            },
+            domReady: function () {
+                this.createGenomeViewer();
+                this.genomeViewer.draw();
+                this.genomeViewer.toggleAutoHeight(true);
+            },
+            createGenomeViewer: function () {
+                this.genomeViewer = new GenomeViewer({
+                    cellBaseHost: 'https://www.ebi.ac.uk/cellbase/webservices/rest',
+                    cellBaseVersion: 'v3',
+                    target: this.$.genomeViewerDiv,
+//                    width: 500,
+                    width: this.getBoundingClientRect().width - 15,
+                    region: this.region,
+//                    version: this.version,
+                    availableSpecies: AVAILABLE_SPECIES,
+                    species: DEFAULT_SPECIES,
+                    sidePanel: false,
+                    resizable: true,
+                    resizable: false,
+                    drawOverviewTrackListPanel: true,
+//        quickSearchResultFn:quickSearchResultFn,
+//        quickSearchDisplayKey:,
+                    karyotypePanelConfig: {
+                        hidden: true,
+                        collapsed: false,
+                        collapsible: true
+                    },
+                    chromosomePanelConfig: {
+                        hidden: true,
+                        collapsed: false,
+                        collapsible: true
+                    },
+                    regionPanelConfig: {
+                        hidden: false,
+                        collapsed: false,
+                        collapsible: true
+                    },
+                    drawStatusBar: true,
+//            drawNavigationBar: false,
+                    navigationBarConfig: {
+                        componentsConfig: {
+                            menuButton: false,
+                            leftSideButton: false,
+                            restoreDefaultRegionButton: false,
+                            regionHistoryButton: false,
+                            speciesButton: false,
+                            chromosomesButton: false,
+                            karyotypeButton: false,
+                            chromosomeButton: false,
+//
+//                regionButton:false,
+//                zoomControl:false,
+//                windowSizeControl:false,
+//                positionControl:false,
+                moveControl:false,
+                autoheightButton:false,
+//                compactButton:false,
+                            searchControl: false
+                        }
+                    }
+
+//        chromosomeList:[]
+//            trackListTitle: ''
+//            drawNavigationBar = true;
+//            drawKaryotypePanel: false,
+//            drawChromosomePanel: false,
+//            drawOverviewTrackListPanel: false
+
+                });
+                var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
+                renderer.on({
+                    'feature:click': function (event) {
+                        // feature click event example
+                        console.log(event)
+                    }
+                });
+                var gene = new FeatureTrack({
+//        title: 'Gene overview',
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    height: 100,
+
+                    renderer: renderer,
+
+                    dataAdapter: new CellBaseAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "gene",
+                        params: {
+                            exclude: 'transcripts,chunkIds'
+                        },
+                        species: this.genomeViewer.species,
+                        cacheConfig: {
+                            defaultChunkSize: 100000
+                        }
+                    })
+                });
+
+                this.genomeViewer.addOverviewTrack(gene);
+
+
+                this.sequence = new SequenceTrack({
+                    height: 30,
+                    visibleRegionSize: 200,
+
+                    renderer: new SequenceRenderer(),
+
+                    dataAdapter: new SequenceAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "sequence",
+                        species: this.genomeViewer.species
+                    })
+                });
+
+                this.genomeViewer.addTrack(this.sequence);
+
+                this.gene = new GeneTrack({
+                    title: 'Gene',
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    minTranscriptRegionSize: 200000,
+                    height: 140,
+
+                    renderer: new GeneRenderer({
+                        handlers: {
+                            'feature:click': function (e) {
+                                console.log(e)
+                            }
+                        }
+                    }),
+
+                    dataAdapter: new CellBaseAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "gene",
+                        species: this.genomeViewer.species,
+                        params: {
+                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence,chunkIds'
+                        },
+                        cacheConfig: {
+                            defaultChunkSize: 100000
+                        }
+                    })
+                });
+                this.genomeViewer.addTrack(this.gene);
+                this.snp = new FeatureTrack({
+                    title: 'SNP',
+                    featureType: 'SNP',
+                    minHistogramRegionSize: 10000,
+                    maxLabelRegionSize: 3000,
+                    height: 100,
+
+                    renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+
+                    dataAdapter: new CellBaseAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "snp",
+                        params: {
+                            exclude: 'transcriptVariations,xrefs,samples'
+                        },
+                        species: this.genomeViewer.species,
+                        cacheConfig: {
+                            defaultChunkSize: 10000
+                        }
+                    })
+                });
+                this.genomeViewer.addTrack(this.snp);
+                return this.genomeViewer;
+            },
+
+        })
+    </script>
+</polymer-element>
+

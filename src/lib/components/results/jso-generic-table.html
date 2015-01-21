@@ -1,4 +1,4 @@
-<polymer-element name="jso-generic-table" attributes="content">
+<polymer-element name="jso-generic-table" attributes="content selected">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
@@ -38,29 +38,61 @@
                         data="{{data}}"
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
-                        pageSize="{{pageSize}}">
+                        pageSize="{{pageSize}}"
+                        rowSelection="true"
+                        selected="{{selected}}">
         </sortable-table>
-
     </template>
     <script>
         Polymer({
+            multiselect: false,
+            data: null,
             created: function () {
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
-
+            },
+            selectedChanged: function (oldValue, newValue) {
+                console.log(newValue);
+//                debugger
             },
             contentChanged: function () {
                 var data = this.content.split("\n");
 //                if(data > 2000)
 //                    data = data.slice(0,2000);
+                var columns = [];
+                var finalData = [];
                 for (var i = 0; i < data.length; i++) {
+                    var newRow = {};
                     if (i == 0) {
-                        this.columns = data[i].split("\t");
+
+//                        this.columns = data[i].split("\t");
+//                        continue;
+//                    if (data[i] == "") continue;
+//                    this.data.push(data[i].split("\t"));
+
+                        var aux = data[i].split("\t")
+                        for (var j = 0; j < aux.length; j++) {
+                            var field = aux[j];
+                            columns.push({name: field, title: field});
+                        }
+                        this.columns = columns;
                         continue;
                     }
                     if (data[i] == "") continue;
-                    this.data.push(data[i].split("\t"));
+
+                    var row = data[i].split("\t");
+                    for (var j = 0; j < columns.length; j++) {
+                        var columnName = columns[j].name;
+                        newRow[columnName] = row[j];
+                    }
+
+                    console.log(newRow);
+                    finalData.push(newRow);
+
+
                 }
+
+                this.data = finalData;
             }
 
 
