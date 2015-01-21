@@ -100,7 +100,7 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="true"
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="false"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_RANKED"></jso-project-browser-window>
                 </div>
             </div>
@@ -230,7 +230,11 @@
 
             launchJob: function (selectedFolderId) {
                 var me = this;
-                if (!Utils.basicValidationForm(this)) {
+//                if (!Utils.basicValidationForm(this)) {
+//                    return;
+//                }
+                if (this.$.outdir.selectedFile === undefined) {
+                    alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
                 var query = {
@@ -254,8 +258,12 @@
                     //ranked-list:
                 };
 
-                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
-                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+//                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+//                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+//                    return;
+//                }
+                if (this.$.inputFile.selectedFile === undefined) {
+                    alert("Sorry. No input selected. Please select a file.");
                     return;
                 }
                 if (this.$.inputFile.selectedFile !== undefined) {

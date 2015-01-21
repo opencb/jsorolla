@@ -59,15 +59,16 @@
 
             <h3>Network viewer</h3>
 
-            <div id="networkWidget">
-                <div style="margin-bottom: 5px" flex horizontal layout>
-                    <label>Select number of top list in the differential expression result</label>
-                    <input type="text" style="margin-right: 2px" value="{{networkNodes}}" width="20px">
+            <jso-network-viewer-widget nodes="{{nodes}}"></jso-network-viewer-widget>
+            <!--<div id="networkWidget">-->
+                <!--<div style="margin-bottom: 5px" flex horizontal layout>-->
+                    <!--<label>Select number of top list in the differential expression result</label>-->
+                    <!--<input type="text" style="margin-right: 2px" value="{{networkNodes}}" width="20px">-->
 
-                    <div class="button action" style="width: 110px" on-click="{{drawNetwork}}">Draw network</div>
-                </div>
-                <jso-network-viewer id="networkViewer" hideBar="false"></jso-network-viewer>
-            </div>
+                    <!--<div class="button action" style="width: 110px" on-click="{{drawNetwork}}">Draw network</div>-->
+                <!--</div>-->
+                <!--<jso-network-viewer id="networkViewer" hideBar="false"></jso-network-viewer>-->
+            <!--</div>-->
         </div>
 
     </template>
@@ -83,14 +84,13 @@
                         this.topNumber = 0;
                         this.bottomNumber = 0;
                         this.networkNodes = 20;
-                        this.ids = [];
                         this.sendTopVsBottomArgs = [];
 
                     },
                     contentDatasetChanged: function () {
 
                         var data = this.content.split("\n");
-
+                        var nodes = [];
                         for (var i = 0; i < data.length; i++) {
                             var line = data[i];
                             if (line.indexOf("#NAMES") >= 0) {
@@ -112,7 +112,7 @@
                                         this.topNumber++;
                                     else
                                         this.bottomNumber++;
-                                    this.ids.push(localData[0]);
+                                    nodes.push(localData[0]);
                                     for (var z = 0; z < localData.length; z++) {
                                         var value = localData[z];
                                         if (isFinite(value))
@@ -126,22 +126,10 @@
                         }
                         this.getFiles();
                         this.heatMapData();
-                        this.drawNetwork();
-                    },
-                    drawNetwork: function () {
-                        this.$.networkViewer.startOver();
-                        var nodes = this.ids.slice(0, this.networkNodes);
-                        for (var i = 0; i < nodes.length; i++) {
-                            var node = nodes[i];
-                            this.$.networkViewer.createVertex(0, 0, node);
-                            var vertex = this.$.networkViewer.graph.getVertexById(node);
-//                    vertex.renderer.set("size", 20);
-                            vertex.renderer.set("color", "#eaeaea");
-
-                        }
-                        this.$.networkViewer.setLayout("Force directed");
+                        this.nodes = nodes;
 
                     },
+
                     getFiles: function () {
                         var me = this;
 

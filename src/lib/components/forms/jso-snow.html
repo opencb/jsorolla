@@ -262,7 +262,11 @@
             },
             launchJob: function () {
                 var me = this;
-                if (!Utils.basicValidationForm(this)) {
+//                if (!Utils.basicValidationForm(this)) {
+//                    return;
+//                }
+                if (this.$.outdir.selectedFile === undefined) {
+                    alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
                 var query = {
