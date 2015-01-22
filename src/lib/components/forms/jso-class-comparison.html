@@ -1,4 +1,4 @@
-<polymer-element name="jso-class-comparison" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-class-comparison" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -184,6 +184,22 @@
                 this.species = "";
                 this.test = "";
 
+            },
+            argsChanged: function(){
+                this.message = '';
+                this.jobName = "Job name";
+                this.description = "description";
+                if (this.args.list1 !== undefined)
+                    this.$.inputFile.selectedFile = this.args.list1;
+                if (this.args.inputFile !== undefined)
+                    this.$.inputFile.selectedFile = this.args.inputFile;
+                var radios = this.shadowRoot.querySelectorAll('input[name="correction"]');
+                for (var i = 0; i < radios.length; i++) {
+                    var radio = radios[i];
+                    if (radio.value == this.args.method)
+                        radio.checked = true;
+                }
+                this.getContentFile(this.$.inputFile.selectedFile);
             },
             handleFileSelect: function (e) {
                 var file = e.detail.file;

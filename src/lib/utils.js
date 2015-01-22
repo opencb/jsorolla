@@ -180,16 +180,24 @@ var Utils = {
     },
     argsParser: function(form, args){
         for(var key in args){
-            if (typeof(args[key]) == "object")
-                form.$[key].selectedFile = args[key];
+            if (typeof(args[key]) == "object") {
+                if(form.$[key] !== undefined)
+                    form.$[key].selectedFile = args[key];
+            }
             else {
-                if (form.$[key] !== undefined) {
+                var elems = form.shadowRoot.querySelectorAll('input[name="'+key+'"]');
+                if (form.$[key] !== undefined ) {
                     switch (form.$[key].type) {
                         case "checkbox":
                             form.$[key].checked = args[key];
                         default:
                             form.$[key].value = args[key];
                     }
+                }
+                for (var i = 0; i < elems.length; i++) {
+                    var elem = elems[i];
+                    if (elem.value == args[key])
+                        elem.checked = true;
                 }
 
             }

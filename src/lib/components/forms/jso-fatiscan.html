@@ -327,6 +327,9 @@
             },
             argsChanged: function () {
                 Utils.argsParser(this, this.args);
+                /** temporal hack **/
+                if(this.$.inputFile.selectedFile === undefined)
+                    this.$.inputFile.selectedFile = this.args.ranked_list;
             },
             launchJob: function () {
                 var me = this;

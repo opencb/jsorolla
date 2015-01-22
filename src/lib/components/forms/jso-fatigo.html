@@ -408,23 +408,27 @@
 
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                this.$.inputFile.selectedFile = this.args.list1;
+                Utils.argsParser(this, this.args);
 
-                if (this.args.list2 !== undefined)
-                    this.$.inputFile2.selectedFile = this.args.list2;
 
-                if (this.args.species !== undefined)
-                    this.$.species.value = this.args.species;
 
-                if (this.args.duplicates !== undefined)
-                    this.$.duplicates.value = "never";
-
-                if (this.args.fisher !== undefined)
-                    this.$.fisher.value = this.args.fisher;
-
+//                this.message = '';
+//                this.jobName = "Job name";
+//                this.description = "description";
+//                this.$.inputFile.selectedFile = this.args.list1;
+//
+//                if (this.args.list2 !== undefined)
+//                    this.$.inputFile2.selectedFile = this.args.list2;
+//
+//                if (this.args.species !== undefined)
+//                    this.$.species.value = this.args.species;
+//
+//                if (this.args.duplicates !== undefined)
+//                    this.$.duplicates.value = "never";
+//
+//                if (this.args.fisher !== undefined)
+//                    this.$.fisher.value = this.args.fisher;
+//
                 if (this.args.comparisonRadio !== undefined) {
                     var radios = this.shadowRoot.querySelectorAll('input[name="comparisonRadio"]');
                     for (var i = 0; i < radios.length; i++) {
