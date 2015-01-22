@@ -19,11 +19,13 @@
             background-color: #FFFFFF;
             }
 
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #666;
-            }
+            /*.title {*/
+                /*text-align: center;*/
+                /*font-size: 25px;*/
+                /*color: #666;*/
+                /*margin-bottom: 10px;*/
+
+            /*}*/
 
             .icon {
                 color: #445D76;
@@ -69,13 +71,13 @@
                 border: 1px solid;
             }
         </style>
-        <div class="title">
+        <div class="tooltitle">
             <div>
                 Affy normalization
             </div>
-            <div class="icon">
-                <!--<font-awesome icon="magic"></font-awesome>-->
-            </div>
+            <!--<div class="icon">-->
+                <!--&lt;!&ndash;<font-awesome icon="magic"></font-awesome>&ndash;&gt;-->
+            <!--</div>-->
         </div>
         <form id="form">
             <div class="formbox">
@@ -110,7 +112,12 @@
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
-            <div class="button action" on-click="{{handleForm}}">Run</div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
