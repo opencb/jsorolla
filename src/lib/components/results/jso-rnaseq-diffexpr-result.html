@@ -73,12 +73,12 @@
                     </div>
                 </template>
                 <div class="message" horizontal="" layout="">
-                    <label>Multiple-test correction</label>
+                    <label>Mu:ltiple-test correction</label>
 
                     <div class="messageValue">{{pvmet}}</div>
                 </div>
                 <div class="message" horizontal="" layout="">
-                    <label>P value</label>
+                     <label>P value</label>
 
                     <div class="messageValue">{{pval}}</div>
                 </div>
@@ -86,7 +86,7 @@
             <div>
                 <h3>Significative results</h3>
 
-                <h4>Voom graphics</h4>
+                <h3>Voom graphics</h3>
                 <img src="{{voom_MDS}}">
                 <img src="{{voom_mean_var}}">
 
@@ -104,23 +104,75 @@
                                 flex>
                 </sortable-table>
 
-                <h4>HeatMap</h4>
+                <h3>HeatMap</h3>
                 <img src="{{diffexp_heatmap}}">
 
-                <h4>Redirections</h4>
-                <jso-redirection titleRed="Top list vs Genome" fileName="diffexp_toplist_results.txt" fileUrl="{{diffexp_toplist_results_url}}"
-                                 buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{diffexp_toplist_results_args}}" id=""></jso-redirection>
-                <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt" fileUrl="{{diffexp_bottomlist_results_url}}"
-                                 buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{diffexp_bottomlist_results_args}}" id=""></jso-redirection>
-                <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
-                                 buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{toplist_vs_bottomlist_args}}" id=""></jso-redirection>
+                <h3>Redirections</h3>
 
-                <jso-redirection titleRed="Significative data results" fileName="diffexp_sigData_results.txt" fileUrl="{{diffexp_sigData_results_url}}"
-                                 buttonLabel="Send to Clustering" buttonWidth="200px" args="{{diffexp_sigData_results_args}}" id=""></jso-redirection>
+                <div style="margin-left: 20px">
+                    <h4>Single enrichment analysis</h4>
+                    <jso-redirection titleRed="Top list vs Genome" fileName="diffexp_toplist_results.txt"
+                                     fileUrl="{{diffexp_toplist_results_url}}"
+                                     buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                     args="{{diffexp_toplist_results_sea_args}}" id="">
 
-                <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt" fileUrl="{{diffexp_t_results_url}}"
-                                 buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{diffexp_t_results_args}}" id=""></jso-redirection>
+                    </jso-redirection>
 
+                    <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                     fileUrl="{{diffexp_bottomlist_results_url}}"
+                                     buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                     args="{{diffexp_bottomlist_results_sea_args}}" id="">
+
+                    </jso-redirection>
+                    <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                     buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                     args="{{toplist_vs_bottomlist_sea_args}}" id="">
+
+                    </jso-redirection>
+
+                    <h4>Gene set enrichment analysis</h4>
+                    <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                     fileUrl="{{diffexp_t_results_url}}"
+                                     buttonLabel="Send to Gene set enrichment" buttonWidth="200px"
+                                     args="{{diffexp_t_results_gsea_args}}" id="">
+
+                    </jso-redirection>
+
+                    <h4>Network enrichment analysis</h4>
+                    <jso-redirection titleRed="Top list vs Interactome" fileName="diffexp_toplist_results.txt"
+                                     fileUrl="{{diffexp_toplist_results_url}}"
+                                     buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                     args="{{diffexp_toplist_results_nea_args}}" id="">
+
+                    </jso-redirection>
+                    <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                     fileUrl="{{diffexp_bottomlist_results_url}}"
+                                     buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                     args="{{diffexp_bottomlist_results_nea_args}}" id="">
+
+                    </jso-redirection>
+                    <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                     buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                     args="{{toplist_vs_bottomlist_nea_args}}" id="">
+
+                    </jso-redirection>
+
+                    <h4>Gene set network enrichment analysis</h4>
+                    <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                     fileUrl="{{diffexp_t_results_url}}"
+                                     buttonLabel="Send to Gene set network enrichment" buttonWidth="200px"
+                                     args="{{diffexp_t_results_gsnea_args}}" id="">
+
+                    </jso-redirection>
+
+                    <h4>Clustering</h4>
+                    <jso-redirection titleRed="Significative data results" fileName="diffexp_sigData_results.txt"
+                                     fileUrl="{{diffexp_sigData_results_url}}"
+                                     buttonLabel="Send to Clustering" buttonWidth="200px"
+                                     args="{{diffexp_sigData_results_args}}" id="">
+
+                    </jso-redirection>
+                </div>
             </div>
         </div>
     </template>
@@ -130,10 +182,8 @@
                 this.dataFile = "none";
                 this.glFile = "none";
                 this.method = "";
-                this.toplist_vs_bottomlist_args = {};
-//                 while (this.$.output.firstChild) {
-//                    this.$.output.removeChild(this.$.output.firstChild);
-//                }
+                this.toplist_vs_bottomlist_sea_args = {};
+                this.toplist_vs_bottomlist_nea_args = {};
 
             },
             parseCommandLine: function () {
@@ -198,36 +248,59 @@
                                     }
                                     if (fileName == "diffexp_toplist_results.txt") {
                                         me.diffexp_toplist_results_url = Utils.getUrl(fileList[i].id);
-                                        me.diffexp_toplist_results_args = {
+                                        me.diffexp_toplist_results_sea_args = {
                                             tool: "fatigo",
                                             comparisonRadio: "list2genome",
-                                            list1: fileList[i]
+                                            inputFile: fileList[i]
                                         };
-                                        me.toplist_vs_bottomlist_args["tool"] = "fatigo";
-                                        me.toplist_vs_bottomlist_args["comparisonRadio"] = "list2list";
-                                        me.toplist_vs_bottomlist_args["list1"] = fileList[i];
+                                        me.toplist_vs_bottomlist_sea_args["tool"] = "fatigo";
+                                        me.toplist_vs_bottomlist_sea_args["comparisonRadio"] = "list2list";
+                                        me.toplist_vs_bottomlist_sea_args["inputFile"] = fileList[i];
+
+                                        me.diffexp_toplist_results_nea_args = {
+                                            tool: "snow",
+                                            inputFile: fileList[i],
+                                            type:"genes"
+                                        };
+                                        me.toplist_vs_bottomlist_nea_args["tool"] = "snow";
+                                        me.toplist_vs_bottomlist_nea_args["inputFile"] = fileList[i];
+                                        me.toplist_vs_bottomlist_nea_args["mode"] = "two_list";
+                                        me.toplist_vs_bottomlist_nea_args["type"] = "genes";
+
+
                                     }
                                     if (fileName == "diffexp_bottomlist_results.txt") {
                                         me.diffexp_bottomlist_results_url = Utils.getUrl(fileList[i].id);
-                                        me.diffexp_bottomlist_results_args = {
+                                        me.diffexp_bottomlist_results_sea_args = {
                                             tool: "fatigo",
                                             comparisonRadio: "list2genome",
-                                            list1: fileList[i]
+                                            inputFile: fileList[i]
                                         };
-                                        me.toplist_vs_bottomlist_args["list2"] = fileList[i];
+                                        me.toplist_vs_bottomlist_sea_args["inputFile2"] = fileList[i];
+
+                                        me.diffexp_bottomlist_results_nea_args = {
+                                            tool: "snow",
+                                            inputFile: fileList[i],
+                                            type: "genes"
+                                        };
+                                        me.toplist_vs_bottomlist_nea_args["inputFile2"] = fileList[i];
                                     }
                                     if (fileName == "diffexp_sigData_results.txt") {
                                         me.diffexp_sigData_results_url = Utils.getUrl(fileList[i].id);
                                         me.diffexp_sigData_results_args = {
                                             tool: "clustering",
-                                            list1: fileList[i]
+                                            inputFile: fileList[i]
                                         };
                                     }
                                     if (fileName == "diffexp_t_results.txt") {
                                         me.diffexp_t_results_url = Utils.getUrl(fileList[i].id);
-                                        me.diffexp_t_results_args = {
+                                        me.diffexp_t_results_gsea_args = {
                                             tool: "fatiscan",
-                                            list1: fileList[i]
+                                            inputFile: fileList[i]
+                                        };
+                                        me.diffexp_t_results_gsnea_args = {
+                                            tool: "network-miner",
+                                            inputFile: fileList[i]
                                         };
                                     }
 

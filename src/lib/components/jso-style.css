@@ -345,6 +345,14 @@ div.dropdown > div.button::after {
     padding: 0px;
 }
 
+.tooltitle {
+    text-align: center;
+    font-size: 25px;
+    color: #666;
+    margin-bottom: 10px;
+
+}
+
 /*
 END CONTROLS
 */

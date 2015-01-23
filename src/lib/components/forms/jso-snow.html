@@ -231,25 +231,36 @@
                 this.randoms = 500;
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                this.$.inputFile.selectedFile = this.args.list1;
-                this.$.interactome.value = this.args.interactome;
-                this.$.intermediate.value = this.args.intermediate;
+                Utils.argsParser(this, this.args);
+                if (this.args.mode !== undefined) {
+                    var radios = this.shadowRoot.querySelectorAll('input[name="mode"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.mode)
+                            radio.checked = true;
+                    }
+                    this.modeChanged();
+                }
 
-                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.group)
-                        radio.checked = true;
-                }
-                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.group)
-                        radio.checked = true;
-                }
+//                this.message = '';
+//                this.jobName = "Job name";
+//                this.description = "description";
+//                this.$.inputFile.selectedFile = this.args.list1;
+//                this.$.interactome.value = this.args.interactome;
+//                this.$.intermediate.value = this.args.intermediate;
+//
+//                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
+//                for (var i = 0; i < radios.length; i++) {
+//                    var radio = radios[i];
+//                    if (radio.value == this.args.group)
+//                        radio.checked = true;
+//                }
+//                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
+//                for (var i = 0; i < radios.length; i++) {
+//                    var radio = radios[i];
+//                    if (radio.value == this.args.group)
+//                        radio.checked = true;
+//                }
             },
             handleCancel: function () {
                 this.selectedOption = '';

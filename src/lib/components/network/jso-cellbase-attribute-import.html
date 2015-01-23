@@ -204,6 +204,11 @@
                     {"boxLabel": "UCSC Stable ID", selected: false, "inputValue": {db: "ucsc_stable_id", field: "id"}},
                     {"boxLabel": "Havana gene", selected: false, "inputValue": {db: "havana_gene", field: "id"}},
                     {
+                        "boxLabel": "UniProtKB Gene Name",
+                        selected: false,
+                        "inputValue": {db: "Uniprot_gn", field: "id"}
+                    },
+                    {
                         "boxLabel": "UniProtKB/Swiss-Prot",
                         selected: false,
                         "inputValue": {db: "Uniprot/SWISSPROT", field: "id"}
@@ -336,120 +341,144 @@
             },
             handleGo: function () {
                 this.retrieveData();
-            },
-            retrieveData: function () {
-                var me = this;
                 if (this.columnSelected != null && this.speciesSelected != null) {
+                    this.retrieveData(this.columnSelected.name, this.speciesSelected.value);
+                } else {
+                    this.message = "Please select one species and one attribute";
+                }
+            },
+            uncheckAllDatabases: function () {
+                var processCheckBoxes = function (item) {
+                    item.selected = false;
+                };
+                this.extList.forEach(processCheckBoxes);
+                this.funcList.forEach(processCheckBoxes);
+                this.repoList.forEach(processCheckBoxes);
+            },
+            checkDatabase: function (db) {
+                var processCheckBoxes = function (item) {
+                    if (db === item.inputValue.db) {
+                        item.selected = true;
+                    }
+                };
+                this.extList.forEach(processCheckBoxes);
+                this.funcList.forEach(processCheckBoxes);
+                this.repoList.forEach(processCheckBoxes);
+            },
+            retrieveData: function (attributeName, speciesCode, callbackFunction) {
+                var me = this;
 
-                    var columns = [];
-                    var columnsMap = {};
-                    var dbnamesMap = {};
+                var columns = [];
+                var columnsMap = {};
+                var dbnamesMap = {};
 
-                    var databasesSelectedFlag = false;
+                var databasesSelectedFlag = false;
 
-                    var processCheckBoxes = function (item) {
-                        if (item.selected) {
-                            databasesSelectedFlag = true;
-                            var label = item.boxLabel;
-                            var columnId = item.inputValue.db + item.inputValue.field;
-                            var column = {
-                                defaultValue: "",
-                                name: columnId,
-                                title: label,
-                                type: "string"
-                            }
-                            var idx = columns.push(column) - 1;
-                            columnsMap[columnId] = idx;
+                var processCheckBoxes = function (item) {
+                    if (item.selected) {
+                        databasesSelectedFlag = true;
+                        var label = item.boxLabel;
+                        var columnId = item.inputValue.db + item.inputValue.field;
+                        var column = {
+                            defaultValue: "",
+                            name: columnId,
+                            title: label,
+                            type: "string"
+                        }
+                        var idx = columns.push(column) - 1;
+                        columnsMap[columnId] = idx;
 
-                            if (!dbnamesMap[item.inputValue.db]) {
-                                dbnamesMap[item.inputValue.db] = true;
-                            }
+                        if (!dbnamesMap[item.inputValue.db]) {
+                            dbnamesMap[item.inputValue.db] = true;
                         }
                     }
-                    this.extList.forEach(processCheckBoxes);
-                    this.funcList.forEach(processCheckBoxes);
-                    this.repoList.forEach(processCheckBoxes);
+                }
+                this.extList.forEach(processCheckBoxes);
+                this.funcList.forEach(processCheckBoxes);
+                this.repoList.forEach(processCheckBoxes);
 
-                    if (databasesSelectedFlag) {
-                        var queries = [];
-                        for (var i = 0; i < this.attributeManager.data.length; i++) {
-                            var row = this.attributeManager.data[i];
-                            queries.push(row[this.columnSelected.name]);
-                        }
+                if (databasesSelectedFlag) {
+                    var queries = [];
+                    for (var i = 0; i < this.attributeManager.data.length; i++) {
+                        var row = this.attributeManager.data[i];
+                        queries.push(row[attributeName]);
+                    }
 
 
-                        if (queries.length > 0) {
+                    if (queries.length > 0) {
 
-                            this.loading = true;
-                            this.message = "Retrieving data...";
+                        this.loading = true;
+                        this.message = "Retrieving data...";
 
-                            CellBaseManager.get({
-                                species: this.speciesSelected.value,
-                                category: 'feature',
-                                subCategory: 'id',
-                                query: queries.toString(),
-                                resource: 'xref',
-                                params: {
-                                    dbname: Object.keys(dbnamesMap)
-                                },
-                                success: function (data) {
-                                    var row;
-                                    for (var r = 0; r < data.response.length; r++) {
-                                        var response = data.response[r];
-                                        var xrefs = response.result;
-                                        row = me.attributeManager.data[r];
-                                        if (xrefs.length > 0) {
-                                            for (var i = 0; i < xrefs.length; i++) {
-                                                var xref = xrefs[i];
+                        CellBaseManager.get({
+                            species: speciesCode,
+                            category: 'feature',
+                            subCategory: 'id',
+                            query: queries.toString(),
+                            resource: 'xref',
+                            params: {
+                                dbname: Object.keys(dbnamesMap)
+                            },
+                            success: function (data) {
+                                var row;
+                                for (var r = 0; r < data.response.length; r++) {
+                                    var response = data.response[r];
+                                    var xrefs = response.result;
+                                    row = me.attributeManager.data[r];
+                                    if (xrefs.length > 0) {
+                                        for (var i = 0; i < xrefs.length; i++) {
+                                            var xref = xrefs[i];
 
-                                                var mapId1 = xref.dbName + 'id';
-                                                var mapId2 = xref.dbName + 'description';
+                                            var mapId1 = xref.dbName + 'id';
+                                            var mapId2 = xref.dbName + 'description';
 
-                                                var index1 = columnsMap[mapId1];
-                                                var index2 = columnsMap[mapId2];
+                                            var index1 = columnsMap[mapId1];
+                                            var index2 = columnsMap[mapId2];
 
-                                                if (index1 != null) {
-                                                    if (!row[mapId1]) {
-                                                        row[mapId1] = '';
-                                                    }
-                                                    if (row[mapId1] === '') {
-                                                        row[mapId1] += xref.id;
-                                                    } else {
-                                                        row[mapId1] += ',' + xref.id;
-                                                    }
+                                            if (index1 != null) {
+                                                if (!row[mapId1]) {
+                                                    row[mapId1] = '';
                                                 }
-                                                if (index2 != null) {
-                                                    if (!row[mapId2]) {
-                                                        row[mapId2] = '';
-                                                    }
-                                                    if (row[mapId2] === '') {
-                                                        row[mapId2] += xref.description;
-                                                    } else {
-                                                        row[mapId2] += ',' + xref.description;
-                                                    }
+                                                if (row[mapId1] === '') {
+                                                    row[mapId1] += xref.id;
+                                                } else {
+                                                    row[mapId1] += ',' + xref.id;
+                                                }
+                                            }
+                                            if (index2 != null) {
+                                                if (!row[mapId2]) {
+                                                    row[mapId2] = '';
+                                                }
+                                                if (row[mapId2] === '') {
+                                                    row[mapId2] += xref.description;
+                                                } else {
+                                                    row[mapId2] += ',' + xref.description;
                                                 }
                                             }
                                         }
                                     }
-                                    for (var i = 0; i < columns.length; i++) {
-                                        var column = columns[i];
-                                        me.attributeManager.addColumn(column);
-                                    }
-
-                                    me.loading = false;
-                                    me.message = "Information has been saved as attributes";
                                 }
-                            });
-                        } else {
-                            this.message = "Node list is empty";
-                        }
-                    } else {
-                        this.message = "Please select at least one database";
+                                for (var i = 0; i < columns.length; i++) {
+                                    var column = columns[i];
+                                    me.attributeManager.addColumn(column);
+                                }
 
+                                me.loading = false;
+                                me.message = "Information has been saved as attributes";
+
+                                if (callbackFunction) {
+                                    callbackFunction();
+                                }
+                            }
+                        });
+                    } else {
+                        this.message = "Node list is empty";
                     }
                 } else {
-                    this.message = "Please select one species and one attribute";
+                    this.message = "Please select at least one database";
+
                 }
+
             }
         });
     </script>

@@ -70,7 +70,7 @@
                 color:#d3d3d3!important;
             }
         </style>
-        <div class="title">
+        <div class="tooltitle">
             <div>
                 Gene set enrichment
             </div>
@@ -104,7 +104,7 @@
             <div class="formbox">
                 <div class="formtitle">Method</div>
                 <div class="formcontent">
-                    <input id="method_1" name="method" class="fc-radioitem" type="radio" value="logistic" checked> Logistic model
+                    Logistic model method used.
                 </div>
             </div>
             <div class="formbox">
@@ -306,8 +306,12 @@
                 </div>
             </div>
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
-        </form>
+<div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -326,10 +330,10 @@
                 me.launchJob();
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                this.$.inputFile.selectedFile = this.args.list1;
+                Utils.argsParser(this, this.args);
+                /** temporal hack **/
+                if(this.$.inputFile.selectedFile === undefined)
+                    this.$.inputFile.selectedFile = this.args.ranked_list;
             },
             launchJob: function () {
                 var me = this;

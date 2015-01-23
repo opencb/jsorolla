@@ -245,91 +245,82 @@
                 e.currentTarget.value = null;
             },
             handleGo: function () {
-                this.retrieveData();
-            },
-            retrieveData: function () {
                 var me = this;
-
-                if (this.columnSelected != null && this.speciesSelected != null) {
-
-                    var queryStr = this.$.textarea.value.split('\n').join(',');
-                    if (queryStr.length <= 0) {
-                        return;
-                    }
-
-
-                    var graph = this.networkViewer;
-//                _this.progress.updateProgress(0.1, 'Requesting data');
-
-                    this.loading = true;
-                    this.message = "Retrieving data...";
-                    CellBaseManager.get({
-                        species: this.speciesSelected.value,
-                        category: 'network',
-                        subCategory: 'protein',
-                        resource: 'all',
-                        params: {
-                            interactor: queryStr,
-                            include: "interactorA.id,interactorB.id"
-                        },
-                        success: function (data) {
-//            var verticesMap = {};
-//            var edgesMap = {};
-                            console.log(data)
-                            var interactions = data.response.result;
-//                        _this.progress.updateProgress(0.4, 'Processing data');
-
-
-//                        var graph = _this.cellMaps.networkViewer.network.graph;
-//                        var network = this.cellMaps.networkViewer.network;
-//                        network.batchStart();
-                            for (var j = 0; j < interactions.length; j++) {
-                                var interaction = interactions[j];
-                                var sourceName = interaction.interactorA.id;
-                                var edgeRelation = 'pp';
-                                var targetName = interaction.interactorB.id;
-
-
-                                var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
-                                var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
-                                me.networkViewer.createEdge(sourceVertex, targetVertex, edgeRelation);
-
-//                            //TODO
-//                            /** create source vertex **/
-//                            var sourceVertex = new Vertex({
-//                                id: sourceName
-//                            });
-//                            graph.addVertex({vertex: sourceVertex});
-//
-//                            /** create target vertex **/
-//                            var targetVertex = new Vertex({
-//                                id: targetName
-//                            });
-//                            graph.addVertex({vertex: targetVertex});
-//
-//                            /** create edge **/
-//                            var edgeId = sourceName + '_' + edgeName + '_' + targetName;
-//                            var edge = new Edge({
-//                                id: edgeId,
-//                                relation: edgeName,
-//                                source: me.graph.getVertexById(sourceName),
-//                                target: me.graph.getVertexById(targetName),
-//                                weight: 1,
-//                                directed: true
-//                            });
-//                            network.addEdge({edge: edge});
-                            }
-//                        _this.cellMaps.networkViewer.refreshNetwork();
-//                        network.batchEnd();
-//                        _this.progress.updateProgress(1, 'Complete!');
-                            me.networkViewer.setLayout('Force directed');
-                            me.loading = false;
-                            me.message = "Information has been saved as nodes and edges";
-                        }
+                var queryList = this.$.textarea.value.split('\n');
+                if (this.speciesSelected != null && queryList.length > 0) {
+                    this.getGraph(this.speciesSelected.value, queryList, function (graph) {
+                        me.networkViewer.setGraph(graph);
+                        me.networkViewer.setLayout('Force directed');
+                        me.loading = false;
+                        me.message = "Information has been saved as nodes and edges";
                     });
                 } else {
                     this.message = "Please select one species and one attribute";
                 }
+            },
+
+            getGraph: function (speciesCode, idList, successFunction) {
+                var me = this;
+
+                var graph = new Graph();
+//                _this.progress.updateProgress(0.1, 'Requesting data');
+
+                this.loading = true;
+                this.message = "Retrieving data...";
+                CellBaseManager.get({
+                    species: speciesCode,
+                    category: 'network',
+                    subCategory: 'protein',
+                    resource: 'all',
+                    params: {
+                        interactor: idList.join(','),
+                        include: "interactorA.id,interactorB.id"
+                    },
+                    success: function (data) {
+                        console.log(data)
+                        var interactions = data.response.result;
+
+                        for (var j = 0; j < interactions.length; j++) {
+                            var interaction = interactions[j];
+                            var sourceName = interaction.interactorA.id;
+                            var edgeRelation = 'pp';
+                            var targetName = interaction.interactorB.id;
+
+
+                            var sourceVertex = new Vertex({
+                                id: sourceName,
+                                position: new Point(0, 0),
+                                renderer: new CircosVertexRenderer(me.networkViewer.vertexDefaults)
+                            });
+                            if (!graph.addVertex(sourceVertex)) {
+                                sourceVertex = graph.getVertexById(sourceName);
+                            }
+
+                            var targetVertex = new Vertex({
+                                id: targetName,
+                                position: new Point(0, 0),
+                                renderer: new CircosVertexRenderer(me.networkViewer.vertexDefaults)
+                            });
+                            if (!graph.addVertex(targetVertex)) {
+                                targetVertex = graph.getVertexById(targetName);
+                            }
+
+                            var edgeId = sourceVertex.id + '_' + edgeRelation + '_' + targetVertex.id;
+                            var edge = new Edge({
+                                id: edgeId,
+                                relation: edgeRelation,
+                                source: sourceVertex,
+                                target: targetVertex,
+                                renderer: new DefaultEdgeRenderer(me.networkViewer.edgeDefaults)
+                            });
+                            graph.addEdge(edge);
+//                            var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
+//                            var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
+//                            me.networkViewer.createEdge(sourceVertex, targetVertex, edgeRelation);
+                        }
+                        successFunction(graph);
+                    }
+                });
             }
 
         });
