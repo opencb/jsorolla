@@ -61,19 +61,7 @@
                 /*background-color: blue;*/
             }
 
-            /*jso-network-viewer {*/
-            /*max-width: 1000px;*/
-            /*height: 800px;*/
 
-            /*border-color: rgb(217, 217, 217);*/
-            /*border-style: solid;*/
-            /*border-width: 1px;*/
-            /*}*/
-
-            /*TODO temporal fix*/
-            /*jso-network-viewer::shadow jso-nv-layout {*/
-            /*height: calc(100% - 96px);*/
-            /*}*/
 
             sortable-table {
                 max-width: 1000px;
@@ -93,6 +81,7 @@
                 font-weight: bold;
                 font-style: italic;
                 color: #55f;
+                line-height: 21px;
             }
 
             .file > label {
@@ -437,45 +426,43 @@
                 switch (element.type) {
                     case "TEXT":
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            if (this.jobItem.toolName == "class-comparison" || this.jobItem.toolName == "survival" || this.jobItem.toolName == "correlation") {
+                            if (this.jobItem.toolName == "class-comparison"
+                                    || this.jobItem.toolName == "survival"
+                                    || this.jobItem.toolName == "correlation"
+                                    || this.jobItem.toolName == "burden") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
-                                var toolMenuName = "";
-                                this.getFileContent(function (content) {
-                                    var lines = content.split("\n");
-                                    var hash = {};
-                                    var args = {};
+                                me.getFileContent(function (content) {
+                                        var args = me._getRedirectionArgs(content);
+//                                    var lines = content.split("\n");
+//                                    var hash = {};
+//                                    for (var i = 0; i < lines.length; i++) {
+//                                        var line = lines[i];
+//                                        if (line == "") continue;
+//
+//                                        var splits = line.split("=");
+//                                        hash[splits[0]] = splits[1];
+//
+//                                    }
+//
+//                                    var args = {};
+//                                    var value, aux, valueAsFile;
+//                                    for (var key in hash) {
+//
+//                                        value = hash[key];
+//                                        aux = value.split("/");
+//                                        valueAsFile = aux[aux.length - 1];
+//                                        for (var i = 0; i < me.filesList.length; i++) {
+//                                            if (me.filesList[i].name == valueAsFile) {
+//                                                value = me.filesList[i];
+//                                            }
+//                                        }
+//                                        args[key] = value;
+//                                    }
 
-                                    for (var i = 0; i < lines.length; i++) {
-                                        var line = lines[i];
-                                        var splits = line.split("=");
-                                        hash[splits[0]] = splits[1];
-                                    }
 
-                                    var tool = hash.tool;
-                                    if (tool == "fatigo") {
-                                        toolMenuName = "Single enrichment";
-                                    }
-                                    if (tool == "fatiscan") {
-                                        toolMenuName = "Gene set enrichment";
-                                    }
-                                    if (tool == "snow") {
-                                        toolMenuName = "Network enrichment";
-                                    }
-                                    if (tool == "network-miner") {
-                                        toolMenuName = "Gene set network enrichment";
-                                    }
-                                    var aux = hash.ranked_list.split("/");
-                                    var filename = aux[aux.length - 1];
+                                    //var button = me._createRedirectButton("Send to " + toolMenuName, hash.tool, args);
 
-                                    var file = {};
-                                    for (var i = 0; i < me.filesList.length; i++) {
-                                        file = me.filesList[i];
-                                        if (file.name == filename)
-                                            break;
-                                    }
-                                    args.list1 = file;
-
-                                    var button = me._createRedirectButton("Send to " + toolMenuName, hash.tool, args);
+                                    var button = me._createRedirectButton(element.title, args.tool, args);
                                     res.appendChild(button);
 
                                 }, fileRedirection);
@@ -592,13 +579,12 @@
                                 for (var i = 0; i < filesRedirection.length; i++) {
                                     var raw = filesRedirection[i];
 
-
 //                                    var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                     var fileRedirection = raw.split("(")[1].split(":")[0];
-                                    this.getFileContent(function (content) {
+                                    me.getFileContent(function (content) {
+
                                         var lines = content.split("\n");
                                         var hash = {};
-                                        var args = {};
 
                                         for (var i = 0; i < lines.length; i++) {
                                             var line = lines[i];
@@ -625,8 +611,8 @@
                                             method: hash.method,
                                             distance: hash.distance
                                         };
+                                        var button = me._createRedirectButton("Send to "+args.tool, args.tool, args);
 
-                                        var button = me._createRedirectButton("Send to " + hash.tool + "!", hash.tool, args);
                                         res.appendChild(button);
 
                                     }, fileRedirection);
@@ -933,10 +919,10 @@
                                 type: tagsFields[2],
                                 group: tagsFields[3],
                                 intermediate: tagsFields[5],
-                                list1: file
+                                inputFile: file
                             };
 
-                            var button = this._createRedirectButton("Send to SNOW!", "snow", args);
+                            var button = this._createRedirectButton("Send to network enrichment", "snow", args);
                             res.appendChild(button);
 
                         }
@@ -953,11 +939,11 @@
                             }
                             var args = {
                                 species: tagsFields[1],
-                                list1: file1,
-                                list2: file2
+                                inputFile: file1,
+                                inputFile2: file2
                             };
 
-                            var button = this._createRedirectButton("Send to FATIGO!", "fatigo", args);
+                            var button = this._createRedirectButton("Send to single enrichment", "fatigo", args);
                             res.appendChild(button);
 
                         }
@@ -1004,6 +990,34 @@
 
                 }
                 return res;
+            },
+            _getRedirectionArgs: function(content){
+                var lines = content.split("\n");
+                var hash = {};
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i];
+                    if (line == "") continue;
+
+                    var splits = line.split("=");
+                    hash[splits[0]] = splits[1];
+
+                }
+
+                var args = {};
+                var value, aux, valueAsFile;
+                for (var key in hash) {
+
+                    value = hash[key];
+                    aux = value.split("/");
+                    valueAsFile = aux[aux.length - 1];
+                    for (var i = 0; i < this.filesList.length; i++) {
+                        if (this.filesList[i].name == valueAsFile) {
+                            value = this.filesList[i];
+                        }
+                    }
+                    args[key] = value;
+                }
+                return args;
             },
             _createRedirectButton: function (buttonText, tool, args) {
                 var me = this;

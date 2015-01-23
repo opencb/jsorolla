@@ -74,7 +74,7 @@
                 background: #dddddd;
             }
         </style>
-        <div class="title">
+        <div class="tooltitle">
             <div>
                 Clustering
             </div>
@@ -158,8 +158,12 @@
                 </div>
             </div>
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
-        </form>
+<div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>

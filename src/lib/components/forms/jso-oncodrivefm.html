@@ -3,20 +3,20 @@
         <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            padding: 15px 40px;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 80%;
-            min-width: 800px;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
 
             }
 
@@ -70,7 +70,7 @@
                 border: 1px solid;
             }
         </style>
-        <div class="title">
+        <div class="tooltitle">
             <div>
                 OncodriveFM
             </div>
@@ -90,7 +90,8 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="VARIANT"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -101,7 +102,7 @@
                         Human genome version:
                         <select name="gver" id="gver" type="text" value="none">
                             <option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>
-                            <option name="gver_hg20" id="gver_hg20" value="hg20" >GRCh38</option>
+                            <option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>
                         </select>
                         <br/>
                         Global score estimator:
@@ -124,7 +125,12 @@
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
-            <div class="button action" on-click="{{handleForm}}">Run</div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>

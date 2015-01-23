@@ -35,49 +35,17 @@
                 color: #ffad76;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
 
-            label::after {
-                content: ':'
-            }
-
-            .action {
-                /*margin-top: 30px;*/
-                background-color: #f5f5f5 !important;
-                text-align: center;
-            }
-
-            .action:active {
-                background-color: #445D76 !important;
-                color: #fff !important;
-            }
 
             .message {
                 margin-top: 20px;
             }
 
-            div.button {
-                /*display: inline-block;*/
-                width: 300px
-            }
 
             .inputListTextArea {
                 width: 300px;
                 height: 50px;
             }
-
-            .botbar {
-                margin-top: 10px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
 
 
         </style>
@@ -94,7 +62,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Downregulated in fibroblasts from old individuals, compared to young</div>
+                    <div class="button action" on-click="{{loadExample1}}" style="width:300px;">Downregulated in fibroblasts from old individuals, compared to young</div>
                 </div>
             </div>
             <div class="formbox">
@@ -236,25 +204,36 @@
                 this.randoms = 500;
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                this.$.inputFile.selectedFile = this.args.list1;
-                this.$.interactome.value = this.args.interactome;
-                this.$.intermediate.value = this.args.intermediate;
+                Utils.argsParser(this, this.args);
+                if (this.args.mode !== undefined) {
+                    var radios = this.shadowRoot.querySelectorAll('input[name="mode"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.mode)
+                            radio.checked = true;
+                    }
+                    this.modeChanged();
+                }
 
-                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.group)
-                        radio.checked = true;
-                }
-                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.group)
-                        radio.checked = true;
-                }
+//                this.message = '';
+//                this.jobName = "Job name";
+//                this.description = "description";
+//                this.$.inputFile.selectedFile = this.args.list1;
+//                this.$.interactome.value = this.args.interactome;
+//                this.$.intermediate.value = this.args.intermediate;
+//
+//                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
+//                for (var i = 0; i < radios.length; i++) {
+//                    var radio = radios[i];
+//                    if (radio.value == this.args.group)
+//                        radio.checked = true;
+//                }
+//                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
+//                for (var i = 0; i < radios.length; i++) {
+//                    var radio = radios[i];
+//                    if (radio.value == this.args.group)
+//                        radio.checked = true;
+//                }
             },
             handleCancel: function () {
                 this.selectedOption = '';

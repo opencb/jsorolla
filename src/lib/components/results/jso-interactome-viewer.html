@@ -49,6 +49,7 @@
 
                             me.$.viewer.setGraph(event.graph);
                             me.$.viewer.setVertexDefaultDisplayProperty("color","#c0c0c0")
+                            me.$.viewer.setEdgeDefaultDisplayProperty("shape","undirected")
                             for (var i = 0; i < me.intermediates.length; i++) {
                                 var intermediate = me.intermediates[i];
                                 var vertex = me.$.viewer.graph.getVertexById(intermediate);

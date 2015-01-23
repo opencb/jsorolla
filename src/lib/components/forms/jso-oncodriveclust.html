@@ -70,7 +70,7 @@
                 border: 1px solid;
             }
         </style>
-        <div class="title">
+        <div class="tooltitle">
             <div>
                 OncodriveClust
             </div>
@@ -90,7 +90,7 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="VARIANT"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -118,8 +118,12 @@
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
-            <div class="button action" on-click="{{handleForm}}">Run</div>
-        </form>
+<div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>

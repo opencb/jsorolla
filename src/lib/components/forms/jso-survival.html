@@ -70,7 +70,7 @@
                 border: 1px solid;
             }
         </style>
-        <div class="title">
+        <div class="tooltitle">
             <div>
                 Differential expression: survival
             </div>
@@ -108,10 +108,10 @@
                 </div>
             </div>
             <div class="formbox">
-                <div class="formtitle">Select test</div>
+                <div class="formtitle">Test</div>
                 <div class="formcontent">
                     <div id="testDiv">
-                        <input id="test_1" name="test" class="fc-radioitem" type="radio" value="cox" checked="checked">Cox
+                        Cox test used
                     </div>
                 </div>
             </div>
@@ -148,8 +148,12 @@
                 </div>
             </div>
 
-            <div class="button action" on-click="{{handleForm}}">Run</div>
-        </form>
+<div class="botbar" horizontal layout center-justified>
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -162,7 +166,7 @@
                 this.censored_class = "";
                 this.correction = "";
                 this.p_value = 0.05;
-                this.test = "";
+                this.test = "cox";
                 this.time_class = "";
             },
             handleFileSelect: function (e) {
@@ -196,7 +200,7 @@
                 }
 
 
-                this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
+//                this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
                 this.correction = this.$.multipleTestCorrectionDiv.querySelector('input[name="correction"]:checked').value;
                 var query = {
                     sid: Cookies("bioinfo_sid"),
@@ -236,7 +240,6 @@
                 this.newFolderName = "surv_" + Math.floor((Math.random() * 100) + 1);
                 this.$.inputFile.selectedFile = {id: "example_survival_ordered.txt", path: "survival_ordered.txt", type: "FILE"};
                 this.p_value = 0.05;
-                this.$.test_1.checked = true;
                 this.$.correction_1.checked = true;
 
                 this.getContentFile(this.$.inputFile.selectedFile);
