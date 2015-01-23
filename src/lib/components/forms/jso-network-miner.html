@@ -35,44 +35,8 @@
                 color: #ffad76;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-            .action {
-                /*margin-top: 30px;*/
-                background-color: #f5f5f5 !important;
-                text-align: center;
-            }
-
-            .action:active {
-                background-color: #445D76 !important;
-                color: #fff !important;
-            }
-
             .message {
                 margin-top: 20px;
-            }
-
-            div.button {
-                /*display: inline-block;*/
-                width: 300px
-            }
-
-            .inputListTextArea {
-                width: 300px;
-                height: 50px;
-            }
-
-            jso-file-browser {
-                /*width: 70%;*/
             }
 
             .botbar {
@@ -93,7 +57,7 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <!--<div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>-->
-                    <div class="button action" on-click="{{loadExample1}}">Essential genes in cancer cell line K562</div>
+                    <div class="button action" on-click="{{loadExample1}}" style="width:300px;">Essential genes in cancer cell line K562</div>
                 </div>
             </div>
 
@@ -185,7 +149,7 @@
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="width: 150px;" on-click="{{handleForm}}">
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
