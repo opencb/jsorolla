@@ -24,21 +24,6 @@
             </sortable-table>
 
 
-            <!--Top list : toplist_j253150_p0.05.txt-->
-
-            <!--Send top list vs genome to FatiGO tool-->
-
-            <!--Bottom list : no bottom list available-->
-
-            <!--Comparison: top list vs bottom list : nothing to do-->
-
-
-            <!--Dataset containing the significative values : dataset_j253150_p0.05.txt-->
-
-            <!--Send to Clustering tool-->
-            <!---->
-
-
             <div id="heatMap" style="height: 600px; overflow-y: auto"></div>
             <h3>Continue processing</h3>
 
@@ -58,6 +43,10 @@
                                      buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{sendTopVsBottomSeaArgs}}" id=""></jso-redirection>
                 </template>
 
+                <h3>Gene set enrichment analysis</h3>
+                <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                                 buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileArgs}}" id=""></jso-redirection>
+
                 <h3>Network enrichment analysis</h3>
                 <template if="{{topNumber>0}}">
                     <jso-redirection titleRed="Top list vs Interactome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
@@ -72,6 +61,10 @@
                     <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
                                      buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{sendTopVsBottomNeaArgs}}" id=""></jso-redirection>
                 </template>
+
+                <h3>Network set enrichment analysis</h3>
+                <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                                 buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileNseaArgs}}" id=""></jso-redirection>
 
                 <h3>Clustering</h3>
 
@@ -206,6 +199,18 @@
                             type: "genes"
                         };
                         me.sendTopVsBottomNeaArgs["inputFile2"] = me.bottomListFile;
+                    }
+                    if (fileName.indexOf("_ranked_list.txt") >= 0) {
+                        me.rankedListFile = this.files[i];
+                        me.rankedListFileUrl = Utils.getUrl(this.files[i]);
+                        me.rankedListFileArgs = {
+                            inputFile: this.files[i],
+                            tool: "fatiscan"
+                        };
+                        me.rankedListFileNseaArgs = {
+                            inputFile: this.files[i],
+                            tool: "network-miner"
+                        };
                     }
                     if (fileName.indexOf("_significative_dataset.txt") >= 0) {
                         me.significativeFile = this.files[i];
@@ -393,7 +398,7 @@
                     exporting: {
                         buttons: {
                             contextButton: {
-                                text: 'Export'
+                                text: 'Download'
                             }
                         }
                     },

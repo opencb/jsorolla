@@ -285,12 +285,19 @@
                         <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
                         <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
-                        Your annotations
-                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
-                                                    selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                    bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="" id="" type="checkbox" value="">
+                                <span>Your annotations</span>
 
+                                <div style="margin-left: 30px">
+                                    <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                                                                selectedStudy="{{selectedStudy}}"
+                                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                                bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
