@@ -1,0 +1,123 @@
+<polymer-element name="jso-variant-effect-grid" attributes="variant">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                background-color: white;
+            }
+
+            sortable-table {
+            }
+
+
+        </style>
+        <sortable-table class="bootstrap"
+                        id="dataGrid"
+                        footerTemplate="defaultPager"
+                        pageSize="10"
+                        columns="{{ columns }}"
+                        loading="true"
+                        data="{{data}}">
+
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            variant: null,
+            columns: null,
+            data: null,
+            created: function () {
+                this.data = [];
+                this.columns = [
+                    {name: "featureId", title: "FeatureId"},
+                    {name: "featureName", title: "FeatureName"},
+                    {name: "featureType", title: "FeatureType"},
+                    {name: "featureBiotype", title: "FeatureBiotype"},
+                    {name: "featureChromosome", title: "FeatureChromosome"},
+                    {name: "featureStart", title: "FeatureStart"},
+                    {name: "featureEnd", title: "FeatureEnd"},
+                    {name: "featureStrand", title: "FeatureStrand"},
+                    {name: "snpId", title: "SnpId"},
+                    {name: "ancestral", title: "Ancestral"},
+                    {name: "alternative", title: "Alternative"},
+                    {name: "geneId", title: "GeneId"},
+                    {name: "transcriptId", title: "TranscriptId"},
+                    {name: "geneName", title: "GeneName"},
+                    {name: "consequenceType", title: "ConsequenceType"},
+                    {name: "consequenceTypeObo", title: "ConsequenceTypeObo"},
+                    {name: "consequenceTypeDesc", title: "ConsequenceTypeDesc"},
+                    {name: "consequenceTypeType", title: "ConsequenceTypeType"},
+                    {name: "aaPosition", title: "AaPosition"},
+                    {name: "aminoacidChange", title: "AminoacidChange"},
+                    {name: "codonChange", title: "CodonChange"},
+                    {name: "polyphenScore", title: "PolyphenScore"},
+                    {name: "polyphenEfect", title: "PolyphenEfect"},
+                    {name: "siftScore", title: "SiftScore"},
+                    {name: "siftEffect", title: "SiftEffect"}
+                ];
+            },
+            ready: function () {
+            },
+            variantChanged: function (oldValue, newValue) {
+
+                var me = this;
+
+                this.data = [];
+                if (newValue != '') {
+
+                    CellBaseManager.get({
+                        species: 'hsa',
+                        host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
+                        version: 'latest',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'consequence_type',
+                        query: newValue,
+                        async: false,
+                        params: {
+                            of: 'json'
+                        },
+                        success: function (response) {
+                            try {
+                                me.data = me._filterEffectData(response);
+                            } catch (e) {
+
+                            }
+                        }
+                    });
+                }
+
+            },
+            _filterEffectData: function (data) {
+                var _this = this;
+                var res = [];
+
+                var regulatory = {};
+
+                for (var i = 0; i < data.length; i++) {
+                    var elem = data[i];
+                    if (elem.consequenceTypeObo == "coding_sequence_variant" || elem.consequenceTypeObo == "exon_variant" || elem.consequenceTypeObo == "intron_variant") {
+                        continue;
+                    } else if (elem.consequenceTypeObo == "regulatory_region_variant") {
+                        if (!(elem.featureId in regulatory)) {
+                            regulatory[elem.featureId] = elem;
+                        }
+                        continue;
+                    }
+                    res.push(elem);
+                }
+
+                for (var elem in regulatory) {
+                    res.push(regulatory[elem]);
+                }
+                return res;
+            }
+        });
+    </script>
+</polymer-element>
+
+
