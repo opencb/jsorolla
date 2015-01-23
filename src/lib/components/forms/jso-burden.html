@@ -111,10 +111,11 @@
                         </select>
                         <br/>
                         Query region:
-                        <select name="query" id="query" type="text" value="none">
+                        <select name="query" id="query" type="text" value="none" on-change="{{queryChange}}">
                             <option name="query_genes" id="query_genes" value="genes" selected="selected">All protein coding genes</option>
-                            <option name="query_custom" id="query_custom" value="custom">Custom region</option>
+                            <option name="query_custom" id="query_custom" value="custom" >Custom region</option>
                         </select>
+                        <div hidden id="customRegionDiv"><input type="text" id="customQuery" placeholder="17:41196312-41277500"></div>
                     </div>
                 </div>
             </div>
@@ -157,7 +158,7 @@
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
-<div class="botbar" horizontal layout center-justified>
+            <div class="botbar" horizontal layout center-justified>
                 <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
@@ -182,6 +183,10 @@
                 if (!Utils.basicValidationForm(this)) {
                     return;
                 }
+                var queryValue = this.$.query.value;
+                if(queryValue=="custom"){
+                    queryValue = this.$.customQuery.value
+                };
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -192,7 +197,7 @@
                     vcf: this.$.inputFile.selectedFile.id,
                     ped: this.$.pedData.selectedFile.id,
                     gver: this.$.gver.value,
-                    query: this.$.query.value,
+                    query: queryValue,
                     maf: this.$.maf.value,
                     pvalue: this.$.pvalue.value,
                     perm: this.$.perm.value
@@ -216,7 +221,16 @@
                         }
                     }
                 })
+            },
+
+            queryChange: function(){
+
+                var value = this.$.query.value;
+                if(value=="custom") this.$.customRegionDiv.hidden = false;
+                else this.$.customRegionDiv.hidden = true;
+
             }
+
 //            loadExample1: function (e) {
 //                this.jobName = "TCGA BRCA";
 //                this.description = "BRCA cancer set from TCGA";
