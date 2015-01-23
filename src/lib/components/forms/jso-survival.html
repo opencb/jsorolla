@@ -108,7 +108,7 @@
                 </div>
             </div>
             <div class="formbox">
-                <div class="formtitle">Select test</div>
+                <div class="formtitle">Test</div>
                 <div class="formcontent">
                     <div id="testDiv">
                         Cox test used
@@ -240,7 +240,6 @@
                 this.newFolderName = "surv_" + Math.floor((Math.random() * 100) + 1);
                 this.$.inputFile.selectedFile = {id: "example_survival_ordered.txt", path: "survival_ordered.txt", type: "FILE"};
                 this.p_value = 0.05;
-                this.$.test_1.checked = true;
                 this.$.correction_1.checked = true;
 
                 this.getContentFile(this.$.inputFile.selectedFile);
