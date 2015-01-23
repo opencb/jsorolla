@@ -83,6 +83,7 @@
             sortable-table::shadow .column-genes {
                 width: 70px;
             }
+
             sortable-table::shadow .column-sift {
                 width: 70px;
             }
@@ -359,10 +360,6 @@
                         title: 'Samples',
                         cellTemplate: 'samplesCellTemplate',
                         headerTemplate: 'samplesHeaderTemplate',
-                        args: {
-                            test: "alemán",
-                            hola: "alemán"
-                        },
                         formula: function (row) {
                             return row.sourceEntries[me.studyId + "_" + me.fileId].samplesData;
                         }
@@ -439,7 +436,7 @@
             samplesChanged: function (oldValue, newValue) {
                 var me = this;
                 this.args = {
-                    samples: me.samples
+                    samples: Object.keys(newValue)
                 }
             }
             ,
