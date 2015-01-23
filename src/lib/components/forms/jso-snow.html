@@ -1,4 +1,4 @@
-<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies args">
+<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <style>
@@ -83,7 +83,7 @@
         </style>
         <div class="title" horizontal layout>
             <div flex>
-                Network enrichment analysis
+                Network enrichment
             </div>
             <div class="close" on-click="{{handleCancel}}">
                 <font-awesome icon="times"></font-awesome>
@@ -113,6 +113,11 @@
                                                 allowTextArea="true"
                                                 on-file-select="{{handleFileSelect}}"
                                                 bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
+                    <template if="{{networkViewer}}">
+                        <br>
+                        <label>You can also select nodes from the network:</label>
+                        <jso-network-list-select networkViewer="{{networkViewer}}" textAreaValue="{{$.inputFile.textAreaValue}}"></jso-network-list-select>
+                    </template>
                     <div id="list2Div" hidden>
                         <br>
                         List 2:
@@ -211,7 +216,7 @@
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="width: 150px;" on-click="{{handleForm}}">
+                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>

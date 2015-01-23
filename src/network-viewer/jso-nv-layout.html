@@ -89,6 +89,9 @@
                     case "select":
                         this.$.frontSvg.parentNode.appendChild(this.$.frontSvg);
                         break;
+                    case "move":
+                        this.$.frontSvg.parentNode.appendChild(this.$.frontSvg);
+                        break;
                     default:
                         break;
                 }
@@ -105,7 +108,7 @@
                 switch (e.which) {
                     case 1: //left click
                         if (event.shiftKey == true && event.ctrlKey == true) {
-                            this.middleMouseDown(e);
+                            this._handleDownMoveCanvas(e);
                         } else {
                             this.leftMouseDown(e);
                         }
@@ -120,7 +123,11 @@
             mouseUpHandler: function (e) {
                 switch (e.which) {
                     case 1: //left click
-                        this.leftMouseUp(e);
+                        if (event.shiftKey == true && event.ctrlKey == true) {
+                            this._handleUp(e);
+                        } else {
+                            this.leftMouseUp(e);
+                        }
                         break;
                     case 2: //middle click
                         this.middleMouseUp(e);
@@ -144,6 +151,7 @@
                 var br = this.getBoundingClientRect();
                 var downX = e.clientX - br.left;
                 var downY = e.clientY - br.top;
+                console.log(targetElNetworkType);
                 switch (this.mode) {
                     case "add":
                         /* event coordinates */
@@ -151,30 +159,24 @@
                             this.fire('createvertex', {x: downX, y: downY});
                         }
                         break;
+                    case "move":
+                        switch (targetElNetworkType) {
+                            case 'vertex':
+                            case 'vertex-label':
+                                this._handleDownSelectVertex(e);
+                                break;
+                            case 'edge':
+                            case 'edge-label':
+                                break;
+                            default:
+                                this._handleDownMoveCanvas(e);
+                        }
+                        break;
                     case "select":
                         switch (targetElNetworkType) {
                             case 'vertex':
                             case 'vertex-label':
-                                var vertexId = this.getVertexId(targetEl);
-                                this.fire('selectvertex', {vertexId: vertexId, addToSelection: e.ctrlKey});
-
-                                var lastX = downX;
-                                var lastY = downY;
-
-                                var handler = function (moveEvent) {
-                                    moveEvent.preventDefault();
-                                    var moveX = moveEvent.clientX - br.left;
-                                    var moveY = moveEvent.clientY - br.top;
-                                    var dispX = moveX - lastX;
-                                    var dispY = moveY - lastY;
-
-                                    me.fire('moveselectedvertices', {dispX: dispX, dispY: dispY});
-
-                                    lastX = moveX;
-                                    lastY = moveY;
-                                };
-                                this.$.svg.addEventListener('mousemove', handler);
-                                this.moveHandlers.push(handler);
+                                this._handleDownSelectVertex(e);
                                 break;
                             case 'edge':
                             case 'edge-label':
@@ -200,7 +202,6 @@
                                 this.$.svg.addEventListener('mousemove', handler);
                                 this.moveHandlers.push(handler);
                         }
-
                         break;
                     case "join":
                         /* vertex clicked */
@@ -278,6 +279,7 @@
                     case "add":
                         this._removeMouseMoveHandlers();
                         break;
+                    case "move":
                     case "select":
                         if (this.selectArea && !event.ctrlKey) {
                             var x = parseFloat(this.$.selectHelp.getAttribute('x'));
@@ -291,8 +293,7 @@
                             switch (targetElNetworkType) {
                                 case 'vertex':
                                 case 'vertex-label':
-                                    var vertexId = this.getVertexId(targetEl);
-                                    this.fire('leftclickvertex', {vertexId: vertexId});
+                                    this._handleUpSelectVertex(event);
                                     break;
                                 case 'edge':
                                 case 'edge-label':
@@ -333,45 +334,30 @@
                 this.$.selectHelp.setAttribute('height', 0);
             },
             middleMouseDown: function (e) {
-                var me = this;
-                var targetEl = e.target;
-                var targetElNetworkType = targetEl.getAttribute('network-type');
-                var br = this.getBoundingClientRect();
-                var downX = e.clientX - br.left;
-                var downY = e.clientY - br.top;
                 switch (this.mode) {
                     case "add":
+                    case "move":
                     case "join":
                     case "delete":
                     case "select":
                     case "selectbackground":
-                        me.style.cursor = "all-scroll";
-                        var lastX = downX;
-                        var lastY = downY;
-                        var handler = function (moveEvent) {
-                            moveEvent.preventDefault();
-                            var moveX = moveEvent.clientX - br.left;
-                            var moveY = moveEvent.clientY - br.top;
-                            var dispX = moveX - lastX;
-                            var dispY = moveY - lastY;
-
-                            me.tx += dispX;
-                            me.ty += dispY;
-                            me.x += dispX;
-                            me.y += dispY;
-
-                            lastX = moveX;
-                            lastY = moveY;
-                        };
-                        this.$.svg.addEventListener('mousemove', handler);
-                        this.moveHandlers.push(handler);
+                        this._handleDownMoveCanvas(e);
                         break;
                     default:
                 }
             },
             middleMouseUp: function (event) {
-                this.style.cursor = "";
-                this._removeMouseMoveHandlers();
+                switch (this.mode) {
+                    case "add":
+                    case "move":
+                    case "join":
+                    case "delete":
+                    case "select":
+                    case "selectbackground":
+                        this._handleUp(e);
+                        break;
+                    default:
+                }
             },
             contextMenu: function (e) {
 
@@ -389,6 +375,7 @@
                 var downY = e.clientY - br.top;
                 switch (this.mode) {
                     case "add":
+                    case "move":
                     case "join":
                     case "delete":
                     case "select":
@@ -411,6 +398,89 @@
                 }
                 this.moveHandlers = [];
             },
+
+
+            /* NEW HANDLERS */
+            /**/
+            _handleUp: function (e) {
+                this.style.cursor = "";
+                this._removeMouseMoveHandlers();
+            },
+            _handleDownMoveCanvas: function (e) {
+                var me = this;
+                var targetEl = e.target;
+                var targetElNetworkType = targetEl.getAttribute('network-type');
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
+
+                this.style.cursor = "all-scroll";
+                var lastX = downX;
+                var lastY = downY;
+                var handler = function (moveEvent) {
+                    moveEvent.preventDefault();
+                    var moveX = moveEvent.clientX - br.left;
+                    var moveY = moveEvent.clientY - br.top;
+                    var dispX = moveX - lastX;
+                    var dispY = moveY - lastY;
+
+                    me.tx += dispX;
+                    me.ty += dispY;
+                    me.x += dispX;
+                    me.y += dispY;
+
+                    lastX = moveX;
+                    lastY = moveY;
+                };
+                this.$.svg.addEventListener('mousemove', handler);
+                this.moveHandlers.push(handler);
+            },
+
+            _handleDownSelectVertex: function (e) {
+                var me = this;
+                var targetEl = e.target;
+                var targetElNetworkType = targetEl.getAttribute('network-type');
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
+
+                var vertexId = this.getVertexId(targetEl);
+                this.fire('selectvertex', {vertexId: vertexId, addToSelection: e.ctrlKey});
+                var lastX = downX;
+                var lastY = downY;
+                var handler = function (moveEvent) {
+                    moveEvent.preventDefault();
+                    var moveX = moveEvent.clientX - br.left;
+                    var moveY = moveEvent.clientY - br.top;
+                    var dispX = moveX - lastX;
+                    var dispY = moveY - lastY;
+
+                    me.fire('moveselectedvertices', {dispX: dispX, dispY: dispY});
+
+                    lastX = moveX;
+                    lastY = moveY;
+                };
+                this.$.svg.addEventListener('mousemove', handler);
+                this.moveHandlers.push(handler);
+            },
+            _handleUpSelectVertex: function (e) {
+                var me = this;
+                var targetEl = e.target;
+
+                var vertexId = this.getVertexId(targetEl);
+                this.fire('leftclickvertex', {vertexId: vertexId});
+                this._handleUp();
+            },
+
+            /**/
+            /**/
+
+
+
+
+
+
+
             getVertexId: function (targetEl) {
                 return targetEl.parentNode.getAttribute('id');
             },
