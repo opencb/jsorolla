@@ -24,6 +24,10 @@
                 cursor: pointer;
             }
 
+            div.dropdown > div:first-of-type:hover {
+                color: white;
+            }
+
             div.dropdown > div:first-of-type + div {
                 position: absolute;
                 visibility: hidden;
@@ -31,7 +35,7 @@
                 transition: all 0.25s;
 
                 right: 0;
-                padding: 20px 20px 20px 20px;
+                padding: 10px 15px;
                 background-color: #314559;
                 text-transform: none;
                 line-height: 25px;
@@ -63,6 +67,7 @@
                 content: '\f0da';
                 margin-right: 5px;
             }
+
         </style>
         <div class="dropdown">
             <div tabindex="-1">

@@ -22,6 +22,10 @@
                  style="border-right: none">
                 <font-awesome icon="hand-o-up"></font-awesome>
             </div>
+            <div class="button" data-checked="{{mode == 'move'}}" data-mode="move" on-click="{{handleMode}}"
+                 style="border-right: none">
+                <font-awesome icon="arrows"></font-awesome>
+            </div>
             <div class="button" data-checked="{{mode == 'selectbackground'}}" data-mode="selectbackground"
                  on-click="{{handleMode}}">
                 <font-awesome icon="image"></font-awesome>
@@ -108,6 +112,9 @@
             <div id="zoomInButton" on-click="{{handleZoomInButton}}" class="button">
                 <font-awesome icon="plus"></font-awesome>
             </div>
+            <div id="helpButton" on-click="{{handleHelpButton}}" class="button" style="margin-left: 10px">
+                <font-awesome icon="life-saver"></font-awesome>
+            </div>
         </div>
 
     </template>
@@ -179,6 +186,9 @@
             },
             setZoom: function (zoom) {
                 this.zoom = zoom;
+            },
+            handleHelpButton: function () {
+                window.open("https://github.com/opencb/cell-maps/wiki");
             }
         });
     </script>

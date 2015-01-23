@@ -76,7 +76,7 @@
         </style>
         <div class="title" horizontal layout>
             <div flex>
-                Single enrichment analysis
+                Single enrichment
             </div>
             <div class="close" on-click="{{handleCancel}}">
                 <font-awesome icon="times"></font-awesome>
@@ -123,7 +123,11 @@
                             on-file-select="{{handleFileSelect}}"
                             bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
                             ></jso-project-browser-window>
-
+                    <template if="{{networkViewer}}">
+                        <br>
+                        <label>You can also select nodes from the network:</label>
+                        <jso-network-list-select networkViewer="{{networkViewer}}" textAreaValue="{{$.inputFile.textAreaValue}}"></jso-network-list-select>
+                    </template>
                 </div>
             </div>
 

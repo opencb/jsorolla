@@ -1,4 +1,4 @@
-<polymer-element name="jso-network-list-select-import" attributes="networkViewer">
+<polymer-element name="jso-network-list-select" attributes="networkViewer textAreaValue">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -8,6 +8,7 @@
                 position: relative;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
+                width: 300px;
             }
 
             .selbox {
@@ -30,112 +31,82 @@
                 margin: 3px;
             }
         </style>
-        <div class="container" flex horizontal layout>
-
-            <div vertical layout style="width:230px;padding:5px;">
-                <label class="control">
-                    <input type="radio" name="mode" value="nodes">
-                    <span>Network nodes</span>
-                </label>
-                <label class="control">
-                    <input type="radio" name="mode" value="selection">
-                    <span>Network selection</span>
-                </label>
-                <label class="control">
-                    <input type="radio" name="mode" value="text">
-                    <span>List from text</span>
-                </label>
-                <label style="margin-top: 10px;">Attributes</label>
-
-                <div class="selbox" style="height: 100px;">
-                    <template repeat="{{column in networkViewer.vAttr.columns}}">
-                        <div class="selitem"
-                             data-checked="{{ columnSelected == column.name }}"
-                             on-click="{{handleBoxSelect}}">{{column.title}}
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-            <div flex vertical layout>
-                <textarea id="textarea" flex></textarea>
-            </div>
-            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        <div horizontal layout>
+            <!--<label>Select input list from network:</label>-->
+            <label class="control">
+                <input type="radio" name="mode" value="nodes" on-change="{{handleRadio}}" checked>
+                <span>Network nodes</span>
+            </label>
+            <label class="control">
+                <input type="radio" name="mode" value="selection" on-change="{{handleRadio}}">
+                <span>Network selection</span>
+            </label>
         </div>
+        <label style="margin-top: 5px;">Use attribute:</label>
+
+        <div class="selbox" style="height: 100px;">
+            <template repeat="{{column in networkViewer.vAttr.columns}}">
+                <div class="selitem"
+                     data-checked="{{ columnSelected == column.name }}"
+                     on-click="{{handleBoxSelect}}">{{column.title}}
+                </div>
+            </template>
+        </div>
+        <div class="button action" on-click="{{handleApply}}" style="margin-top:3px;">Apply</div>
     </template>
     <script>
         Polymer({
             created: function () {
                 this.columnSelected = "id";
-                this.selectedMode = 'text';
+                this.selectNodes = "nodes";
             },
-            observe: {
-                'networkViewer.vAttr.selected': 'handleSelectionChange',
-                'networkViewer.vAttr.data': 'handleNodesChange'
-            },
-            handleClose: function () {
-                this.hideFlag = true;
+//            observe: {
+//                'networkViewer.vAttr.selected': 'handleSelectionChange',
+//                'networkViewer.vAttr.data': 'handleNodesChange'
+//            },
+            handleRadio: function (e) {
+                this.selectNodes = e.target.getAttribute("value");
             },
             handleBoxSelect: function (e) {
                 this.columnSelected = e.target.templateInstance.model.column.name;
             },
-            handleNodesChange: function () {
-                if (this.selectedMode == 'nodes') {
-                    this.handleSelectNodesList();
-                }
-            },
-            handleSelectionChange: function () {
-                if (this.selectedMode == 'selection') {
-                    this.handleSelectSelectionList();
-                }
-            },
-            handleSelectNodesList: function () {
-                this.selectedMode = 'nodes';
+//            handleNodesChange: function () {
+//                if (this.selectNodes == 'nodes') {
+//                    this.handleNodesList();
+//                }
+//            },
+//            handleSelectionChange: function () {
+//                if (this.selectNodes == 'selection') {
+//                    this.handleSelectionList();
+//                }
+//            },
+            handleNodesList: function () {
+                this.selectNodes = 'nodes';
                 var value = '';
                 for (var i = 0; i < this.networkViewer.vAttr.data.length; i++) {
                     var row = this.networkViewer.vAttr.data[i];
                     value += row[this.columnSelected] + '\n';
                 }
-                this.$.textarea.value = value;
+                this.textAreaValue = value.trim();
             },
-            handleSelectSelectionList: function () {
-                this.selectedMode = 'selection';
+            handleSelectionList: function () {
+                this.selectNodes = 'selection';
                 var value = '';
                 for (var i = 0; i < this.networkViewer.vAttr.selected.length; i++) {
                     var row = this.networkViewer.vAttr.selected[i];
                     value += row[this.columnSelected] + '\n';
                 }
-                this.$.textarea.value = value;
+
+                this.textAreaValue = value.trim();
             },
-            handleSelectTextList: function () {
-                this.$.textarea.value = '';
-                this.selectedMode = 'text';
-            },
-            handleSelectFileList: function () {
-                this.$.inputFile.click();
-            },
-            handleInputFileChange: function (e) {
-                var me = this;
-                var file = this.$.inputFile.files[0];
-                var reader = new FileReader();
-                reader.onload = function (evt) {
-                    me.selectedMode = 'file';
-                    var content = evt.target.result;
-                    me.$.textarea.value = content;
-                };
-                reader.readAsText(file);
-                e.currentTarget.value = null;
-            },
-            getContent: function () {
-                var fileContent = '';
-                var parseList = this.$.textarea.value.split('\n');
-                for (var i = 0; i < parseList.length; i++) {
-                    var item = parseList[i].trim();
-                    if (item !== '') {
-                        fileContent += item + '\n';
+            handleApply: function (e) {
+                if (this.columnSelected !== "") {
+                    if (this.selectNodes == "nodes") {
+                        this.handleNodesList();
+                    } else if (this.selectNodes == "selection") {
+                        this.handleSelectionList();
                     }
                 }
-                return fileContent;
             }
         });
     </script>
