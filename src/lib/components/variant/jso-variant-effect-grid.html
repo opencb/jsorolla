@@ -12,16 +12,65 @@
             sortable-table {
             }
 
+            sortable-table::shadow .column-pos {
+                width: 100px;
+            }
+
+            sortable-table::shadow .column-snpId {
+                width: 70px;
+            }
+
+            sortable-table::shadow .column-consequenceTypeObo {
+                width: 160px;
+            }
+
+            sortable-table::shadow .column-aaChange {
+                width: 160px;
+            }
+
+            sortable-table::shadow .column-gene {
+                width: 190px;
+            }
+
+            sortable-table::shadow .column-transcriptId {
+                width: 115px;
+            }
 
         </style>
         <sortable-table class="bootstrap"
-                        id="dataGrid"
+                        id="effectGrid"
                         footerTemplate="defaultPager"
                         pageSize="10"
                         columns="{{ columns }}"
                         loading="true"
                         data="{{data}}">
 
+            <template id="consequenceTypeTemplate">
+                <td>
+                    <a href="http://www.sequenceontology.org/browser/current_svn/term/{{value}}" target="_blank">{{value}}</a>
+                </td>
+            </template>
+            <template id="snpIdTemplate">
+                <td>
+                    <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs={{value}}"
+                       target="_blank">{{value}}</a>
+
+                </td>
+            </template>
+            <template id="aaTemplate">
+                <td>{{value.aminoacidChange} - {{value.codonChange}} ({{ value.aaPosiion}})</td>
+            </template>
+            <template id="geneTemplate">
+                <td>{{value.geneName}} (<a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value.geneId}}"
+                                           target="_blank">{{value.geneId}}</a>)
+                </td>
+            </template>
+            <template id="transcriptTemplate">
+                <td>
+                    <a href="http://www.ensembl.org/Homo_sapiens/Location/View?t={{value}}"
+                       target="_blank">{{value}}</a>
+                </td>
+            </template>
         </sortable-table>
 
     </template>
@@ -31,36 +80,60 @@
             columns: null,
             data: null,
             created: function () {
-                this.data = [];
-                this.columns = [
-                    {name: "featureId", title: "FeatureId"},
-                    {name: "featureName", title: "FeatureName"},
-                    {name: "featureType", title: "FeatureType"},
-                    {name: "featureBiotype", title: "FeatureBiotype"},
-                    {name: "featureChromosome", title: "FeatureChromosome"},
-                    {name: "featureStart", title: "FeatureStart"},
-                    {name: "featureEnd", title: "FeatureEnd"},
-                    {name: "featureStrand", title: "FeatureStrand"},
-                    {name: "snpId", title: "SnpId"},
-                    {name: "ancestral", title: "Ancestral"},
-                    {name: "alternative", title: "Alternative"},
-                    {name: "geneId", title: "GeneId"},
-                    {name: "transcriptId", title: "TranscriptId"},
-                    {name: "geneName", title: "GeneName"},
-                    {name: "consequenceType", title: "ConsequenceType"},
-                    {name: "consequenceTypeObo", title: "ConsequenceTypeObo"},
-                    {name: "consequenceTypeDesc", title: "ConsequenceTypeDesc"},
-                    {name: "consequenceTypeType", title: "ConsequenceTypeType"},
-                    {name: "aaPosition", title: "AaPosition"},
-                    {name: "aminoacidChange", title: "AminoacidChange"},
-                    {name: "codonChange", title: "CodonChange"},
-                    {name: "polyphenScore", title: "PolyphenScore"},
-                    {name: "polyphenEfect", title: "PolyphenEfect"},
-                    {name: "siftScore", title: "SiftScore"},
-                    {name: "siftEffect", title: "SiftEffect"}
-                ];
             },
             ready: function () {
+                this.columns = [
+                    {
+                        name: 'pos',
+                        title: "Position",
+                        formula: function (row) {
+                            var res = row.featureChromosome + ":" + row.position + ((row.featureStrand == 1) ? " (+)" : " (-)");
+                            return res;
+                        }
+                    },
+                    {
+                        name: "snpId",
+                        title: "SNP Id",
+                        cellTemplate: 'snpIdTemplate'
+                    },
+                    {
+                        name: "consequenceTypeObo",
+                        title: "Consequence Type",
+                        cellTemplate: 'consequenceTypeTemplate'
+                    },
+                    {
+                        name: "aaChange",
+                        title: "AminoacidChange",
+                        cellTemplate: 'aaTemplate',
+                        formula: function (row) {
+                            return row;
+                        }
+                    },
+                    {
+                        name: "gene",
+                        title: "Gene (EnsemblId)",
+                        cellTemplate: 'geneTemplate',
+                        formula: function (row) {
+                            console.log(row.geneName);
+                            return row;
+                        }
+                    },
+                    {
+                        name: "transcriptId",
+                        title: "TranscriptId",
+                        cellTemplate: 'transcriptTemplate'
+                    },
+
+                    {name: "featureId", title: "Feature Id"},
+                    {name: "featureName", title: "Feature Name"},
+                    {name: "featureType", title: "Feature Type"},
+                    {name: "featureBiotype", title: "Feature Biotype"},
+//                    {name: "polyphenScore", title: "Polyphen Score"},
+//                    {name: "polyphenEfect", title: "Polyphen Efect"},
+//                    {name: "siftScore", title: "Sift Score"},
+//                    {name: "siftEffect", title: "Sift Effect"}
+                ];
+//                this.data = [];
             },
             variantChanged: function (oldValue, newValue) {
 
