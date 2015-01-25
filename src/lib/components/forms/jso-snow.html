@@ -62,7 +62,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}" style="width:300px;">Downregulated in fibroblasts from old individuals, compared to young</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">Downregulated in fibroblasts from old individuals, compared to young</div>
                 </div>
             </div>
             <div class="formbox">
@@ -102,9 +102,9 @@
                 <div class="formtitle">List nature</div>
                 <div class="formcontent">
                     <div id="typeDiv">
-                        <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">Transcripts<br>
-                        <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>Proteins<br>
-                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes">Genes<br>
+                        <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts"> Transcripts<br>
+                        <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked> Proteins<br>
+                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes"> Genes<br>
                     </div>
                 </div>
             </div>
@@ -131,7 +131,7 @@
                     <div id="groupDiv">
                         <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis (all protein Protein-Protein
                         Interactions detected experimentally)<br>
-                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">curated (Protein-Protein
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked"> curated (Protein-Protein
                         Interactions detected with, at least, two different experimental methods)<br>
                     </div>
                 </div>
@@ -140,8 +140,8 @@
                 <div class="formtitle">Side for statistical tests</div>
                 <div class="formcontent">
                     <div id="sideDiv">
-                        <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">Greater<br>
-                        <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less">Less
+                        <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked"> Greater<br>
+                        <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less"> Less
                     </div>
                 </div>
             </div>
@@ -198,6 +198,7 @@
                 this.jobName = 'JobName';
                 this.toolName = "snow";
                 this.message = '';
+                this.description = "";
 
                 /** Default values **/
                 this.type = "genes";
@@ -258,7 +259,7 @@
                     studyId: this.selectedStudy.id,
                     toolId: this.toolName,
                     name: this.jobName,
-                    description: "description",
+                    description: this.description,
 //                    list1: this.$.inputFile.selectedFile.id,
                     outdir: this.$.outdir.selectedFile.id,
                     "o-name": "result",

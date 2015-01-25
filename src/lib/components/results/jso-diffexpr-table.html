@@ -25,6 +25,11 @@
 
 
             <div id="heatMap" style="height: 600px; overflow-y: auto"></div>
+
+            <h3>Network viewer</h3>
+
+            <jso-protein-viewer nodes="{{nodes}}"></jso-protein-viewer>
+
             <h3>Continue processing</h3>
 
             <div id="redirection" style="margin-left: 20px">
@@ -73,9 +78,7 @@
 
             </div>
 
-            <h3>Network viewer</h3>
 
-            <jso-protein-viewer nodes="{{nodes}}"></jso-protein-viewer>
             <!--<div id="networkWidget">-->
             <!--<div style="margin-bottom: 5px" flex horizontal layout>-->
             <!--<label>Select number of top list in the differential expression result</label>-->
@@ -132,8 +135,17 @@
                             nodes.push(localData[0]);
                             for (var z = 0; z < localData.length; z++) {
                                 var value = localData[z];
-                                if (isFinite(value))
-                                    value = parseFloat(value).toFixed(3);
+                                if(!isNaN(value)){
+                                    value = parseFloat(value);
+                                    if(value < 0.001)
+                                        value = value.toExponential(2);
+                                    else
+                                        value = value.toFixed(3);
+//                                    if(value < 0)
+//                                        value
+                                }
+//                                if (isFinite(value))
+//                                    value = parseFloat(value).toFixed(3);
                                 localArray.push(value);
                             }
                             this.data.push(localArray);

@@ -56,8 +56,8 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <!--<div class="button action" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>-->
-                    <div class="button action" on-click="{{loadExample1}}" style="width:300px;">Essential genes in cancer cell line K562</div>
+                    <!--<div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>-->
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">Essential genes in cancer cell line K562</div>
                 </div>
             </div>
 
@@ -216,7 +216,7 @@
                     studyId: this.selectedStudy.id,
                     toolId: this.toolName,
                     name: this.jobName,
-                    description: "description",
+                    description: this.description,
 //                    list: this.$.inputFile.selectedFile.id,
                     outdir: this.$.outdir.selectedFile.id,
                     "o-name": "result",

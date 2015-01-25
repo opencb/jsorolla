@@ -55,10 +55,11 @@
                     if (data[i].indexOf("##") >= 0) continue;
                     if (data[i].indexOf("ID") == 0) continue;
                     var localData = data[i].split("\t");
+                    console.log(localData)
                     var obj = {
                         "ident": localData[0],
-                        "pvalue": parseFloat(localData[1]).toFixed(3),
-                        "qvalue": parseFloat(localData[2]).toFixed(3)
+                        "pvalue": localData[1],//Number(localData[1]).toExponential(),//parseFloat(localData[1]).toFixed(3),
+                        "qvalue": localData[2]//Number(localData[2]).toExponential()//parseFloat(localData[2]).toFixed(3)
                     };
                     this.data.push(obj)
                 }

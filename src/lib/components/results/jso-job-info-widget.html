@@ -6,6 +6,7 @@
             .data {
                 margin-left: 20px;
             }
+
             .level-0 {
                 /*border: 1px solid grey;*/
                 padding: 20px;
@@ -17,6 +18,7 @@
                 font-weight: bold;
                 padding: 5px;
             }
+
             .message > label {
                 margin-right: 10px;
             }
@@ -34,19 +36,26 @@
 
             }
         </style>
-        <div class="level-0"> 
-           <div class="headerTitle">Job information</div> 
-           <div class="data"> 
-                   <div class="message" horizontal="" layout=""> 
-                           <label>Name </label> 
-                           <div class="messageValue">  {{jobItem.name }} </div>
-                       </div> 
-                   <div class="message" horizontal="" layout=""> 
-                           <label>Description </label> 
-                           <div class="messageValue">  {{jobItem.description }} </div>
-                       </div> 
-               </div> 
-           <div class="children"></div> 
+        <div class="level-0">
+            <div class="headerTitle">Job information</div>
+            <div class="data">
+                <div class="message" horizontal="" layout="">
+                    <label>Name </label>
+
+                    <div class="messageValue"> {{jobItem.name }}</div>
+                </div>
+                <div class="message" horizontal="" layout="">
+                    <label>Description </label>
+
+                    <div class="messageValue"> {{jobItem.description }}</div>
+                </div>
+                <!--<div class="message" horizontal="" layout="">-->
+                    <!--<label>Tool </label>-->
+
+                    <!--<div class="messageValue"> {{jobItem.toolName }}</div>-->
+                <!--</div>-->
+            </div>
+            <div class="children"></div>
         </div>
 
     </template>

@@ -9,6 +9,22 @@
                 background-color: white;
             }
 
+            .data {
+                margin-left: 20px;
+            }
+
+            .level-0 {
+                /*border: 1px solid grey;*/
+                padding: 20px;
+
+            }
+
+            .level-0 > .headerTitle {
+                font-size: 15pt;
+                font-weight: bold;
+                padding: 5px;
+            }
+
             .message > label {
                 margin-right: 10px;
             }
@@ -57,65 +73,78 @@
         <div class="output">
             <h1> RNASeq Normalization</h1>
 
-            <div>
-                <jso-job-info-widget jobItem="{{jobItem}}"></jso-job-info-widget>
-                <h3>Input parameters</h3>
+            <jso-job-info-widget jobItem="{{jobItem}}"></jso-job-info-widget>
 
-                <div class="message" horizontal="" layout="">
-                    <label>Data file</label>
-
-                    <div class="messageValue">{{dataFile}}</div>
-                </div>
-                <template if="{{glFile!=''}}">
+            <div class="level-0">
+                <div class="headerTitle">Input parameters</div>
+                <div class="data">
                     <div class="message" horizontal="" layout="">
-                        <label>Gene length file</label>
+                        <label>Data file</label>
 
-                        <div class="messageValue">{{glFile}}</div>
+                        <div class="messageValue">{{dataFile}}</div>
                     </div>
-                </template>
-                <div class="message" horizontal="" layout="">
-                    <label>Method</label>
+                    <template if="{{glFile!=''}}">
+                        <div class="message" horizontal="" layout="">
+                            <label>Gene length file</label>
 
-                    <div class="messageValue">{{method}}</div>
+                            <div class="messageValue">{{glFile}}</div>
+                        </div>
+                    </template>
+                    <div class="message" horizontal="" layout="">
+                        <label>Method</label>
+
+                        <div class="messageValue">{{method}}</div>
+                    </div>
+
                 </div>
             </div>
-            <div>
-                <h3>Normalized data results</h3>
-                <template if="{{glFile!=''}}">
+
+
+            <div class="level-0">
+                <div class="headerTitle">Normalized data results</div>
+                <div class="data">
+                    <template if="{{glFile!=''}}">
+                        <div flex horizontal layout>
+                            <div>
+                                <h4>RNA composition before normalization</h4>
+                                <img src="{{RNAComposition_beforeNorm}}">
+                            </div>
+                            <div>
+                                <h4>RNA composition after normalization</h4>
+                                <img src="{{RNAComposition_afterNorm}}">
+                            </div>
+                        </div>
+                    </template>
                     <div flex horizontal layout>
                         <div>
-                            <h4>RNA composition before normalization</h4>
-                            <img src="{{RNAComposition_beforeNorm}}">
+                            <h4>Boxplot expression values before normalization</h4>
+                            <img src="{{boxplot_beforeNorm}}">
                         </div>
                         <div>
-                            <h4>RNA composition after normalization</h4>
-                            <img src="{{RNAComposition_afterNorm}}">
+                            <h4>Boxplot expression values after normalization</h4>
+                            <img src="{{boxplot_afterNorm}}">
                         </div>
                     </div>
-                </template>
-                <div flex horizontal layout>
-                    <div>
-                        <h4>Boxplot expression values before normalization</h4>
-                        <img src="{{boxplot_beforeNorm}}">
+                    <div class="file"><label>File</label>
+                        <a href="{{normalizedFileUrl}}" target="_blank">normalized_results.txt</a>
                     </div>
-                    <div>
-                        <h4>Boxplot expression values after normalization</h4>
-                        <img src="{{boxplot_afterNorm}}">
-                    </div>
-                </div>
-                <div class="file"><label>File</label>
-                    <a href="{{normalizedFileUrl}}" target="_blank">normalized_results.txt</a>
-                </div>
-                <!--<div>Loading table...</div>-->
-                <sortable-table id="table"
-                                data="{{data}}"
-                                columns="{{columns}}"
-                                footerTemplate="{{footerTemplate}}"
-                                pageSize="{{pageSize}}"
-                                flex>
-                </sortable-table>
+                    <template if="{{loadingTable}}">
+                        <div>
+                            <font-awesome icon="spinner" animation="spin"></font-awesome>
+                            Loading table...
+                        </div>
+                    </template>
+
+                    <sortable-table id="table"
+                                    data="{{data}}"
+                                    columns="{{columns}}"
+                                    footerTemplate="{{footerTemplate}}"
+                                    pageSize="{{pageSize}}"
+                                    flex>
+                    </sortable-table>
 
 
+                </div>
             </div>
         </div>
     </template>
@@ -124,6 +153,8 @@
             created: function () {
                 this.dataFile = "";
                 this.glFile = "";
+
+                this.loadingTable = true;
 
             },
             parseCommandLine: function () {
@@ -146,7 +177,7 @@
             },
             clearFields: function () {
                 this.dataFile = "";
-                this.method = "";
+                this.method = "getting method... ";
                 this.glFile = "";
             },
             jobItemChanged: function (oldV, newV) {
@@ -167,22 +198,22 @@
                                 for (var i = 0; i < fileList.length; i++) {
                                     var fileName = fileList[i].name;
                                     if (fileName == "normalize_results.txt") {
-                                        me.normalizedFileUrl = me.getUrl(fileList[i].id);
+                                        me.normalizedFileUrl = Utils.getUrl(fileList[i].id);
                                         me.getFileContent(function (content) {
                                             me.parseTable(content);
                                         }, fileList[i].id);
                                     }
                                     if (fileName == "RNAComposition_afterNorm.jpg") {
-                                        me.RNAComposition_afterNorm = me.getUrl(fileList[i].id);
+                                        me.RNAComposition_afterNorm = Utils.getUrl(fileList[i].id);
                                     }
                                     if (fileName == "RNAComposition_beforeNorm.jpg") {
-                                        me.RNAComposition_beforeNorm = me.getUrl(fileList[i].id);
+                                        me.RNAComposition_beforeNorm = Utils.getUrl(fileList[i].id);
                                     }
                                     if (fileName == "boxplot_beforeNorm.jpg") {
-                                        me.boxplot_beforeNorm = me.getUrl(fileList[i].id);
+                                        me.boxplot_beforeNorm = Utils.getUrl(fileList[i].id);
                                     }
                                     if (fileName == "boxplot_afterNorm.jpg") {
-                                        me.boxplot_afterNorm = me.getUrl(fileList[i].id);
+                                        me.boxplot_afterNorm = Utils.getUrl(fileList[i].id);
                                     }
 
                                 }
@@ -191,17 +222,6 @@
                         error: function () {
                             me.message = 'Server error, try again later.';
                         }
-                    }
-                });
-            },
-            getUrl: function (fileId) {
-                return OpencgaManager.files.content({
-                    id: fileId,
-                    query: {
-                        sid: Cookies("bioinfo_sid")
-                    },
-                    request: {
-                        url: true
                     }
                 });
             },
@@ -247,6 +267,7 @@
 
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
+                this.loadingTable = false;
 
             },
             isInt: function (n) {

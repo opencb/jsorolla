@@ -82,7 +82,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action"  style="width:150px;" on-click="{{loadExample1}}">Fluorouridine dataset</div>
+                    <div class="button action" style="display: inline-block" on-click="{{loadExample1}}">Fluorouridine dataset</div>
                 </div>
             </div>
             <div>
@@ -113,9 +113,9 @@
                     <div id="databases">
                         <select name="species" id="species" class="fc-combobox" type="text" value="none"
                                 on-change="{{handleSpecies}}">
-                            <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
+                            <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
                             <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
-                                    selected="selected">Human (homo sapiens)
+                                    >Human (homo sapiens)
                             </option>
                             <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
                                 musculus)
@@ -260,7 +260,7 @@
                         <div horizontal layout>
                             <label class="control">
                                 <input name="recon" id="recon" type="checkbox" value="recon">
-                                <span>Recon</span>
+                                <span>Genome-Scale Metabolic Network</span>
                             </label>
 
                             <div class="button action" on-click="{{reconOptionsFunction}}">Show options...</div>
@@ -287,17 +287,17 @@
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
                         <div horizontal layout>
                             <label class="control">
-                                <input name="" id="" type="checkbox" value="">
+                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
                                 <span>Your annotations</span>
 
-                                <div style="margin-left: 30px">
-                                    <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
-                                                                selectedStudy="{{selectedStudy}}"
-                                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                                bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
-                                </div>
                             </label>
                         </div>
+                    </div>
+                    <div style="margin-left: 30px">
+                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                                                    selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                    bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
                     </div>
                 </div>
             </div>
@@ -379,7 +379,13 @@
                 if (this.$.inputFile.textAreaValue != "") {
                     query["ranked-list-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
                 }
-                if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked) {
+                if (!this.$.go_bp.checked
+                        && !this.$.go_cc.checked
+                        && !this.$.go_mf.checked
+                        && !this.$.go_slim.checked
+                        && !this.$.interpro.checked
+                        && !this.$.recon.checked
+                        && !this.$.your_annotations.checked) {
                     alert("Sorry. No database selected. Please select one");
                     return;
                 }

@@ -86,7 +86,9 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}" style="width:150px;">motor vs apoptosis</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"
+                         style="width:150px;">motor vs apoptosis
+                    </div>
                 </div>
             </div>
 
@@ -126,7 +128,8 @@
                     <template if="{{networkViewer}}">
                         <br>
                         <label>You can also select nodes from the network:</label>
-                        <jso-network-list-select networkViewer="{{networkViewer}}" textAreaValue="{{$.inputFile.textAreaValue}}"></jso-network-list-select>
+                        <jso-network-list-select networkViewer="{{networkViewer}}"
+                                                 textAreaValue="{{$.inputFile.textAreaValue}}"></jso-network-list-select>
                     </template>
                 </div>
             </div>
@@ -198,9 +201,10 @@
                     <div id="databases">
                         <select name="species" id="species" class="fc-combobox" type="text" value="none"
                                 on-change="{{handleSpecies}}">
+                            <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
                             <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
                             <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
-                                    selected="selected">Human (homo sapiens)
+                                    >Human (homo sapiens)
                             </option>
                             <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
                                 musculus)
@@ -233,7 +237,9 @@
                                 <span>GO biological process</span>
                             </label>
 
-                            <div id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show options...</div>
+                            <div id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show
+                                options...
+                            </div>
                         </div>
                         <div id="bpOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -256,7 +262,9 @@
                                 <span>GO molecular function</span>
                             </label>
 
-                            <div id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show options...</div>
+                            <div id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show
+                                options...
+                            </div>
                         </div>
                         <div id="mfOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -279,7 +287,9 @@
                                 <span>GO cellular component</span>
                             </label>
 
-                            <div id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show options...</div>
+                            <div id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show
+                                options...
+                            </div>
                         </div>
                         <div id="ccOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -302,7 +312,9 @@
                                 <span>GOSlim GOA</span>
                             </label>
 
-                            <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show options...</div>
+                            <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show
+                                options...
+                            </div>
                         </div>
                         <div id="slimOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -325,7 +337,9 @@
                                 <span>Interpro</span>
                             </label>
 
-                            <div id="interproOptionsButton" class="button action" on-click="{{interproOptionsFunction}}">Show options...</div>
+                            <div id="interproOptionsButton" class="button action"
+                                 on-click="{{interproOptionsFunction}}">Show options...
+                            </div>
                         </div>
                         <div id="interproOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -345,10 +359,12 @@
                         <div horizontal layout>
                             <label class="control">
                                 <input name="recon" id="recon" type="checkbox" value="recon">
-                                <span>Recon</span>
+                                <span>Genome-Scale Metabolic Network</span>
                             </label>
 
-                            <div id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show options...</div>
+                            <div id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show
+                                options...
+                            </div>
                         </div>
                         <div id="reconOptions" class="db_options" hidden>
                             Filter terms by number of annotated ids in DB<br>
@@ -370,18 +386,18 @@
                         <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
                         <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
-                        <div horizontal layout>
+                        <div horizontal layout >
                             <label class="control">
-                                <input name="" id="" type="checkbox" value="">
+                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
                                 <span>Your annotations</span>
 
-                                <div style="margin-left: 30px">
-                                    <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
-                                                                selectedStudy="{{selectedStudy}}"
-                                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                                bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
-                                </div>
                             </label>
+                        </div>
+                        <div style="margin-left: 30px">
+                            <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                                                        selectedStudy="{{selectedStudy}}"
+                                                        selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                        bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
                         </div>
 
 
@@ -416,7 +432,6 @@
                 this.jobName = 'JobName';
                 this.toolName = "fatigo";
                 this.description = "Description";
-
 
             },
             argsChanged: function () {
@@ -497,22 +512,23 @@
                     studyId: this.selectedStudy.id,
                     toolId: this.toolName,
                     name: this.jobName,
-                    description: "description",
+                    description: this.description,
                     outdir: this.$.outdir.selectedFile.id,
 //                    list1: "",
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value
                 };
+
                 if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
                     alert("Sorry. No input selected. Please select a file or write something in the text area");
                     return;
                 }
-                if (this.$.inputFile.selectedFile !== undefined) {
-                    query["list1"] = this.$.inputFile.selectedFile.id;
-                }
                 if (this.$.inputFile.textAreaValue != "") {
                     query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+                else if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list1"] = this.$.inputFile.selectedFile.id;
                 }
                 this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
                 if (this.comparison == "list2list") {
@@ -530,16 +546,17 @@
                 else if (this.comparison == "list2genome") {
                     query["genome"] = "";
                 }
-                else if (this.comparison == "list2rest") {
-                    if (this.$.annotationsFile.selectedFile !== undefined) {
-                        if (this.$.annotationsFile.selectedFile.type != "FILE") {
-                            alert("no annotation file selected")
-                            return;
-                        }
+                //else if (this.comparison == "list2rest") {
+                if (this.$.your_annotations.checked) {
+                    if (this.$.annotationsFile.selectedFile === undefined) {
+                        alert("no annotation file selected")
+                        return;
                     }
-                    query["annotations"] = this.$.annotationsFile.selectedFile.id;
+                    else
+                        query["annotations"] = this.$.annotationsFile.selectedFile.id;
                 }
-                if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked) {
+                // }
+                if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked && !this.$.your_annotations.checked) {
                     alert("Sorry. No database selected. Please select one");
                     return;
                 }
@@ -670,7 +687,7 @@
                 }
                 if (this.species == "ath") {
                     this.$.go_slim.disabled = true;
-                    this.$.interpro.disabled = true;
+                    this.$.interpro.disabled = false;
                     this.$.recon.disabled = true;
 
                 }
