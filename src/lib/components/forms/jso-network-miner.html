@@ -78,18 +78,32 @@
                 </div>
             </div>
 
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">List nature</div>-->
+                <!--<div class="formcontent">-->
+
+                    <!--<select name="listTags" id="listTags" class="fc-combobox" type="text" value="gene">-->
+                        <!--<option name="listTags_1" id="listTags_1" class="fc-combobox-item" value="gene" selected="selected">Gene</option>-->
+                        <!--<option name="listTags_2" id="listTags_5" class="fc-combobox-item" value="protein">Protein</option>-->
+                        <!--<option name="listTags_3" id="listTags_6" class="fc-combobox-item" value="transcript">Transcript-->
+                        <!--</option>-->
+                    <!--</select>-->
+                <!--</div>-->
+            <!--</div>-->
+
+
             <div class="formbox">
                 <div class="formtitle">List nature</div>
                 <div class="formcontent">
-
-                    <select name="listTags" id="listTags" class="fc-combobox" type="text" value="gene">
-                        <option name="listTags_1" id="listTags_1" class="fc-combobox-item" value="gene" selected="selected">Gene</option>
-                        <option name="listTags_2" id="listTags_5" class="fc-combobox-item" value="protein">Protein</option>
-                        <option name="listTags_3" id="listTags_6" class="fc-combobox-item" value="transcript">Transcript
-                        </option>
-                    </select>
+                    <div id="typeDiv">
+                        <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcript"> Transcripts<br>
+                        <input id="type_2" name="type" class="fc-radioitem" type="radio" value="protein" checked> Proteins<br>
+                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="gene"> Genes<br>
+                    </div>
                 </div>
             </div>
+
+
             <div class="formbox">
                 <div class="formtitle">Species</div>
                 <div class="formcontent">
@@ -103,41 +117,73 @@
                     </select>
                 </div>
             </div>
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Select interactome confidence</div>-->
+                <!--<div class="formcontent">-->
+                    <!--<select name="group" id="group" class="fc-combobox" type="text" value="curated">-->
+                        <!--<option name="group_1" id="group_1" class="fc-combobox-item" value="curated" selected="selected">Curated-->
+                            <!--(detected by at least two methods)-->
+                        <!--</option>-->
+                        <!--<option name="group_2" id="group_2" class="fc-combobox-item" value="all">Non curated</option>-->
+                    <!--</select>-->
+                <!--</div>-->
+            <!--</div>-->
+
             <div class="formbox">
                 <div class="formtitle">Select interactome confidence</div>
                 <div class="formcontent">
-                    <select name="group" id="group" class="fc-combobox" type="text" value="curated">
-                        <option name="group_1" id="group_1" class="fc-combobox-item" value="curated" selected="selected">Curated
-                            (detected by at least two methods)
-                        </option>
-                        <option name="group_2" id="group_2" class="fc-combobox-item" value="all">Non curated</option>
-                    </select>
+                    <div id="groupDiv">
+                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis (all protein Protein-Protein
+                        Interactions detected experimentally)<br>
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated"> curated (Protein-Protein
+                        Interactions detected with, at least, two different experimental methods)<br>
+                    </div>
+                </div>
+            </div>
+
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Sort ranked list</div>-->
+                <!--<div class="formcontent">-->
+                    <!--<select name="order" id="order" class="fc-combobox" type="text" value="ascending">-->
+                        <!--<option name="order_1" id="order_1" class="fc-combobox-item" value="ascending" selected>-->
+                            <!--Ascending-->
+                            <!--(detected by at least two methods)-->
+                        <!--</option>-->
+                        <!--<option name="order_2" id="order_2" class="fc-combobox-item" value="descending">Descending</option>-->
+                    <!--</select>-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="formbox">
+                <div class="formtitle">Sort ranked list</div>
+                <div class="formcontent">
+                    <div id="orderDiv">
+                        <input id="order_1" name="order" class="fc-radioitem" type="radio" value="ascending" checked="checked"> Ascending <br>
+                        <input id="order_2" name="order" class="fc-radioitem" type="radio" value="descending" > Descending<br>
+                    </div>
                 </div>
             </div>
 
             <div class="formbox">
-                <div class="formtitle">Sort ranked list</div>
-                <div class="formcontent">
-                    <select name="order" id="order" class="fc-combobox" type="text" value="ascending">
-                        <option name="order_1" id="order_1" class="fc-combobox-item" value="ascending" selected>
-                            Ascending
-                            (detected by at least two methods)
-                        </option>
-                        <option name="order_2" id="order_2" class="fc-combobox-item" value="descending">Descending</option>
-                    </select>
-                </div>
-            </div>
-            <div class="formbox">
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
                 <div class="formcontent">
-                    <select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">
-                        <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"
-                                selected="selected">0
-                        </option>
-                        <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>
-                    </select>
+                    <div id="intermediateDiv">
+                        <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0"> No<br>
+                        <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked"> Yes<br>
+                    </div>
                 </div>
             </div>
+
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+                <!--<div class="formcontent">-->
+                    <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
+                        <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
+                                <!--selected="selected">0-->
+                        <!--</option>-->
+                        <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
+                    <!--</select>-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="formbox">
                 <div class="formtitle">Job information</div>
                 <div class="formcontent">
@@ -211,6 +257,7 @@
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
+                debugger
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -221,14 +268,14 @@
                     outdir: this.$.outdir.selectedFile.id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
-                    intermediate: this.$.intermediate.value,
-                    group: this.$.group.value,
+                    intermediate: this.$.intermediateDiv.querySelector('input[name="intermediate"]:checked').value,
+                    group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
                     components: true,
                     randoms: 1000,
-                    order: this.$.order.value,
+                    order: this.$.orderDiv.querySelector('input[name="order"]:checked').value,
                     "significant-value": 0.05,
 //                        components: false,
-                    "list-tags": this.$.listTags.value
+                    "list-tags": this.$.typeDiv.querySelector('input[name="type"]:checked').value
                     //ranked-list:
                 };
 
@@ -291,11 +338,11 @@
                 this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (K562.txt).";
 //                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
                 this.$.inputFile.selectedFile = {id: "example_K562.txt", path: "K562.txt", type: "FILE"};
-                this.$.listTags_1.selected = true;
+                this.$.type_3.checked = true;
                 this.$.interactome.value = "hsa";
-                this.$.group.value = "curated";
-                this.$.intermediate.value = 1;
-                this.$.order_1.selected = true;
+                this.$.group_2.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_1.checked = true;
                 var exampleFolder = "nm_k562_symbol";
                 this.createExampleFolder(exampleFolder);
 

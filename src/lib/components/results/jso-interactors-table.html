@@ -52,6 +52,11 @@
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}">
+                <template id="linkTemplate">
+                <td>
+                    <a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>
+                </td>
+            </template>
         </sortable-table>
 
     </template>
@@ -73,11 +78,16 @@
                     };
                     var columnIdx = 2;
                     obj["rank"] = parseFloat(localData[++columnIdx]).toFixed(3);
+                    if(isNaN(obj["rank"])){
+                        obj["rank"] = "-";
+                    }
                     obj["bet"] = parseFloat(localData[++columnIdx]).toFixed(3);
                     obj["clust"] = parseFloat(localData[++columnIdx]).toFixed(3);
                     obj["conn"] = localData[++columnIdx];
                     obj["go_names"] = localData[++columnIdx];
                     obj["go_ids"] = localData[++columnIdx];
+//                    var links = Utils.getLinks(obj["go_ids"].split(","));
+//                    debugger
                     this.data.push(obj)
                 }
                 this.columns = new Array();
