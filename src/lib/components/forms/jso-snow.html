@@ -45,6 +45,9 @@
                 height: 50px;
             }
 
+            label{
+                display: block ;
+            }
 
         </style>
         <div class="title" horizontal layout>
@@ -128,15 +131,17 @@
                 <div class="formtitle">Species</div>
                 <div class="formcontent">
                     <div id="interactomeDiv">
-                        <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
-                            <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
-                            <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus musculus</option>
-                            <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
-                            <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
-                            <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
-                            <!--<option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>-->
-                            <!--<option name="interactome_7" id="interactome_7" class="fc-combobox-item" value="own">Own</option>-->
-                        </select>
+                        <div class="select" style="width:200px;">
+                            <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                                <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
+                                <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus musculus</option>
+                                <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
+                                <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                                <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                                <!--<option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>-->
+                                <!--<option name="interactome_7" id="interactome_7" class="fc-combobox-item" value="own">Own</option>-->
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -196,17 +201,17 @@
             <!--</div>-->
             <!--</div>-->
             <!--<div class="formbox">-->
-                <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
-                <!--<div class="formcontent">-->
-                    <!--<div id="intermediateDiv">-->
-                        <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
-                            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
-                                    <!--selected="selected">0-->
-                            <!--</option>-->
-                            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
-                        <!--</select>-->
-                    <!--</div>-->
-                <!--</div>-->
+            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+            <!--<div class="formcontent">-->
+            <!--<div id="intermediateDiv">-->
+            <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
+            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
+            <!--selected="selected">0-->
+            <!--</option>-->
+            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
             <!--</div>-->
 
             <div class="formbox">
