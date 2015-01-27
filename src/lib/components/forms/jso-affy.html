@@ -117,6 +117,9 @@
                 this.description = "Job info..."
                 this.compressed_file = '';
             },
+            reset: function(){
+                this.$.inputFile.selectedFile = undefined;
+            },
             handleForm: function () {
                 var me = this;
                 this.message = '';

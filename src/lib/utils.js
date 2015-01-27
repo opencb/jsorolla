@@ -178,15 +178,15 @@ var Utils = {
             }
         })
     },
-    argsParser: function(form, args){
-        for(var key in args){
+    argsParser: function (form, args) {
+        for (var key in args) {
             if (typeof(args[key]) == "object") {
-                if(form.$[key] !== undefined)
+                if (form.$[key] !== undefined)
                     form.$[key].selectedFile = args[key];
             }
             else {
-                var elems = form.shadowRoot.querySelectorAll('input[name="'+key+'"]');
-                if (form.$[key] !== undefined ) {
+                var elems = form.shadowRoot.querySelectorAll('input[name="' + key + '"]');
+                if (form.$[key] !== undefined) {
                     switch (form.$[key].type) {
                         case "checkbox":
                             form.$[key].checked = args[key];
@@ -202,6 +202,30 @@ var Utils = {
 
             }
         }
+    },
+    getLinks: function (terms) {
+        var links = [];
+        for (var i = 0; i < terms.length; i++) {
+            var term = terms[i];
+            links.push(Utils.getLink(term));
+        }
+        return links;
+    },
+    getLink: function (term) {
+        var link = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
+        if (term.indexOf("(")>=0) {
+            var id = term.split("(");
+            if (id.length > 1)
+                id = id[1];
+            id = id.split(")")[0];
+
+        }
+        else
+            id = term;
+        if (id.indexOf("IPR") == 0)
+            link = "http://www.ebi.ac.uk/interpro/entry/";
+        link = link + id;
+        return link;
     },
     test: function () {
         return this;

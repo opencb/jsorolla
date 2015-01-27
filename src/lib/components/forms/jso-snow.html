@@ -35,12 +35,9 @@
                 color: #ffad76;
             }
 
-
-
             .message {
                 margin-top: 20px;
             }
-
 
             .inputListTextArea {
                 width: 300px;
@@ -62,7 +59,9 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">Downregulated in fibroblasts from old individuals, compared to young</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">Downregulated in fibroblasts from old individuals,
+                        compared to young
+                    </div>
                 </div>
             </div>
             <div class="formbox">
@@ -110,7 +109,7 @@
             </div>
 
             <div class="formbox">
-                <div class="formtitle">Specie</div>
+                <div class="formtitle">Species</div>
                 <div class="formcontent">
                     <div id="interactomeDiv">
                         <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
@@ -158,15 +157,38 @@
             <!--</div>-->
             <!--</div>-->
             <!--</div>-->
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+            <!--<div class="formcontent">-->
+
+            <!--<div id="intermediateDiv">-->
+            <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="1">-->
+            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0">No</option>-->
+            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">Yes</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+                <!--<div class="formcontent">-->
+                    <!--<div id="intermediateDiv">-->
+                        <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
+                            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
+                                    <!--selected="selected">0-->
+                            <!--</option>-->
+                            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+
             <div class="formbox">
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
                 <div class="formcontent">
-
                     <div id="intermediateDiv">
-                        <select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="1">
-                            <option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0">No</option>
-                            <option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">Yes</option>
-                        </select>
+                        <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0"> No<br>
+                        <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked"> Yes<br>
                     </div>
                 </div>
             </div>
@@ -264,7 +286,7 @@
                     outdir: this.$.outdir.selectedFile.id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
-                    intermediate: this.$.intermediate.value,
+                    intermediate: this.$.intermediateDiv.querySelector('input[name="intermediate"]:checked').value,
                     type: this.$.typeDiv.querySelector('input[name="type"]:checked').value,
                     group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
                     components: true,
@@ -286,7 +308,7 @@
                 }
 
                 if (this.$.mode_2.checked) {
-                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "" ) {
+                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
                         alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
                         return;
                     }
@@ -319,14 +341,15 @@
             loadExample1: function (e) {
                 this.message = '';
                 this.jobName = "Downregulated";
-                this.description = "Description downregulated"
+                this.description = "Description downregulated";
                 this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;
                 this.$.side_1.checked = true;
                 this.$.group_2.checked = true;
 //                this.$.randoms.value = 500;
-                this.$.intermediate.value = 1;
+//                this.$.intermediate.value = 1;
+                this.$.intermediate_2.checked = true;
                 var exampleFolder = "snow_downregulated";
                 this.createExampleFolder(exampleFolder);
 
