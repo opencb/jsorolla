@@ -158,6 +158,7 @@ input[type=password] {
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
+textarea,
 input[type=text]:-moz-ui-invalid,
 input[type=email]:-moz-ui-invalid,
 input[type=number]:-moz-ui-invalid,
