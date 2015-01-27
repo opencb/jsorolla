@@ -47,23 +47,33 @@
 
             <template id="consequenceTypeTemplate">
                 <td>
-                    <a href="http://www.sequenceontology.org/browser/current_svn/term/{{value}}" target="_blank">{{value}}</a>
+                    <a href="http://www.sequenceontology.org/browser/current_svn/term/{{value.consequenceType}}" target="_blank">{{value.consequenceTypeObo}}</a>
                 </td>
             </template>
             <template id="snpIdTemplate">
                 <td>
                     <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs={{value}}"
                        target="_blank">{{value}}</a>
-
                 </td>
             </template>
             <template id="aaTemplate">
-                <td>{{value.aminoacidChange} - {{value.codonChange}} ({{ value.aaPosiion}})</td>
+                <template if="{{value.aminoacidChange != ''}}">
+                    <td>{{value.aminoacidChange} - {{value.codonChange}} ({{ value.aaPosiion}})</td>
+                </template>
+                <template if="{{value.aminoacidChange == ''}}">
+                    <td>.</td>
+                </template>
             </template>
             <template id="geneTemplate">
-                <td>{{value.geneName}} (<a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value.geneId}}"
-                                           target="_blank">{{value.geneId}}</a>)
-                </td>
+                <template if="{{value.geneName != ''}}">
+                    <td>{{value.geneName}} (<a
+                            href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value.geneId}}"
+                            target="_blank">{{value.geneId}}</a>)
+                    </td>
+                </template>
+                <template if="{{value.geneName == ''}}">
+                    <td>.</td>
+                </template>
             </template>
             <template id="transcriptTemplate">
                 <td>
@@ -97,9 +107,12 @@
                         cellTemplate: 'snpIdTemplate'
                     },
                     {
-                        name: "consequenceTypeObo",
+                        name: "ct",
                         title: "Consequence Type",
-                        cellTemplate: 'consequenceTypeTemplate'
+                        cellTemplate: 'consequenceTypeTemplate',
+                        formula: function(row){
+                            return row;
+                        }
                     },
                     {
                         name: "aaChange",
@@ -114,7 +127,6 @@
                         title: "Gene (EnsemblId)",
                         cellTemplate: 'geneTemplate',
                         formula: function (row) {
-                            console.log(row.geneName);
                             return row;
                         }
                     },
@@ -123,7 +135,6 @@
                         title: "TranscriptId",
                         cellTemplate: 'transcriptTemplate'
                     },
-
                     {name: "featureId", title: "Feature Id"},
                     {name: "featureName", title: "Feature Name"},
                     {name: "featureType", title: "Feature Type"},
@@ -133,15 +144,12 @@
 //                    {name: "siftScore", title: "Sift Score"},
 //                    {name: "siftEffect", title: "Sift Effect"}
                 ];
-//                this.data = [];
+
             },
             variantChanged: function (oldValue, newValue) {
-
                 var me = this;
-
                 this.data = [];
                 if (newValue != '') {
-
                     CellBaseManager.get({
                         species: 'hsa',
                         host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
@@ -163,7 +171,6 @@
                         }
                     });
                 }
-
             },
             _filterEffectData: function (data) {
                 var _this = this;

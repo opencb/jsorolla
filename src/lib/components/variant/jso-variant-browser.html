@@ -214,7 +214,6 @@
                             </div>
                         </th>
                     </template>
-
                     <template id="mafStaticHT">
                         <style>
                             .column-total {
@@ -284,8 +283,6 @@
                             </div>
                         </th>
                     </template>
-
-
                     <template id="mafStaticCT">
                         <style>
                             .row-total {
@@ -309,21 +306,6 @@
                         </td>
                     </template>
 
-                    <template id="mafCT">
-                        <style>
-                            .row-total {
-                                width: 240px;
-                            }
-                        </style>
-                        <td horizontal layout class="row-total">
-                            <div flex horizontal layout center-justified flex>{{ value.stats.gt00 || "." }}</div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.gt01 || "."}}</div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.gt11 || "."}}</div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.refmaf}}</div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.altmaf }}</div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.maf }}</div>
-                        </td>
-                    </template>
                     <jso-sortable-table-ajax id="jsoSortableTableAjax"
                                              role="datasource"
                                              url="{{url}}"
@@ -352,7 +334,7 @@
     </template>
     <script>
         Polymer({
-            parsefunction: null,
+            parseFunction: null,
             species: 'Homo sapiens',
             jobItem: null,
             args: null,
@@ -392,8 +374,7 @@
                     {name: 'sift', title: 'SIFT'},
                     {
                         name: 'polyphen', title: 'POLYPHEN'
-                    }
-                    ,
+                    },
                     {
                         name: 'phenotype', title: 'Phenotype'
                     }
@@ -416,11 +397,11 @@
                     me._getGenes(data);
                     me._getSNPId(data);
 
-                    for (var i = 0; i < data.length; i++) {
-                        var row = data[i];
-
-                        for (var key in row.sourceEntries) {
-
+//                    for (var i = 0; i < data.length; i++) {
+//                        var row = data[i];
+//
+//                        for (var key in row.sourceEntries) {
+//
 //                            var gt00 = entry.stats.genotypesCount["0/0"];
 //                            if ("0|0" in entry.stats.genotypesCount) {
 //                                if (gt00 != null) {
@@ -446,8 +427,8 @@
 //                                    gt11 = entry.stats.genotypesCount["1|1"];
 //                                }
 //                            }
-                        }
-                    }
+//                        }
+//                    }
                     return data;
                 }
             }
@@ -475,31 +456,8 @@
             ,
             selectedTabChanged: function (oldValue, newValue) {
                 console.log(newValue);
-
             },
             handleDataGridChanged: function (oldValue, newValue) {
-
-//                var me = this;
-//
-//                if (newValue.length == 0) {
-//                    return;
-//                }
-//
-//                console.log(newValue);
-//                var speciesCode = Utils.getSpeciesCode(me.species);
-//
-//                var regions = [];
-//                for (var i = 0; i < newValue.length; i++) {
-//                    var row = newValue[i];
-//                    regions.push(row.chromosome + ":" + row.start + "-" + (row.start + 1));
-//
-//                }
-//
-////                this._getPhenotypes(newValue);
-//                this._getGenes(newValue);
-//                this._getSNPId(newValue);
-
-
             },
             _getSNPId: function (records) {
                 var speciesCode = Utils.getSpeciesCode(this.species);
@@ -534,7 +492,6 @@
                                         for (var k = 0; k < snps.length; k++) {
                                             var snp = snps[k];
                                             newSNPs.push(snp.id);
-
                                         }
                                         if (newSNPs.length > 0) {
                                             records[j].snpId = newSNPs.join(",");
@@ -542,13 +499,10 @@
                                     }
                                 }
                             } catch (e) {
-
                             }
                         }
                     });
-
                 }
-
             },
             _getGenes: function (records) {
                 var speciesCode = Utils.getSpeciesCode(this.species);
@@ -573,7 +527,6 @@
                             include: 'name'
                         },
                         success: function (response) {
-
                             try {
                                 var genesData = response.response;
                                 for (var j = 0; j < genesData.length; j++) {
@@ -584,26 +537,17 @@
                                         for (var k = 0; k < genes.length; k++) {
                                             var gene = genes[k];
                                             newGenes.push(gene.name);
-
                                         }
                                         if (newGenes.length > 0) {
                                             records[j].genes = newGenes.join(",");
                                         }
                                     }
-
-
                                 }
-
-
                             } catch (e) {
-
                             }
-
                         }
                     });
-
                 }
-
             },
             _getEffect: function (record) {
                 var req = record.chromosome + ":" + record.start + ":" + record.reference + ":" + record.alternate;
