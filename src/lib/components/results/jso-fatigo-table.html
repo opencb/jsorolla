@@ -70,17 +70,7 @@
             created: function () {
 
             },
-            getLink: function(term) {
-                var link = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
-                var id = term.split("(");
-                if(id.length > 1)
-                    id = id[1];
-                id = id.split(")")[0];
-                if(id.indexOf("IPR")==0)
-                    link = "http://www.ebi.ac.uk/interpro/entry/";
-                link = link+id;
-                return link;
-            },
+
             contentChanged: function () {
 
                 var data = this.content.split("\n");
@@ -89,7 +79,7 @@
                     var localData = data[i].split("\t");
                     var listObj = {list1:localData[9],list2:localData[10]};
                     var listObjPerc = {list1:localData[5],list2:localData[8]};
-                    var link = this.getLink(localData[0])
+                    var link = Utils.getLink(localData[0]);
                     var obj = {
                         "term": localData[0],
                         "term_size": localData[1],

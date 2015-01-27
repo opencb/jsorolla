@@ -41,8 +41,8 @@
             domReady: function () {
                 this.$.networkViewer.hideNodeSimpleRendering = true;
                 this.$.networkViewer.hideEdgeSimpleRendering = true;
-                this.$.networkViewer.selectVerticesByAttribute("id", "all");
-                this.$.networkViewer.setLayout("Tree");
+//                this.$.networkViewer.selectVerticesByAttribute("id", "all");
+                this.$.networkViewer.setLayout("Force directed");
             },
             setContent: function (sifContent, attrContent, attr2Content) {
                 var me = this;

@@ -60,8 +60,8 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">Downregulated in fibroblasts from
-                        old individuals, compared to young
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">
+                        Downregulated in fibroblasts from old individuals, compared to young
                     </div>
                 </div>
             </div>
@@ -125,7 +125,7 @@
             </div>
 
             <div class="formbox">
-                <div class="formtitle">Specie</div>
+                <div class="formtitle">Species</div>
                 <div class="formcontent">
                     <div id="interactomeDiv">
                         <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
@@ -183,23 +183,44 @@
             <!--</div>-->
             <!--</div>-->
             <!--</div>-->
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+            <!--<div class="formcontent">-->
+
+            <!--<div id="intermediateDiv">-->
+            <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="1">-->
+            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0">No</option>-->
+            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">Yes</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--<div class="formbox">-->
+                <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+                <!--<div class="formcontent">-->
+                    <!--<div id="intermediateDiv">-->
+                        <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
+                            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
+                                    <!--selected="selected">0-->
+                            <!--</option>-->
+                            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+
             <div class="formbox">
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
                 <div class="formcontent">
-
                     <div id="intermediateDiv">
                         <label class="control">
-                            <input id="intermediate_2" name="intermediate" class="fc-combobox-item" type="radio" value="1" checked="checked">
+                            <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
                             <span>Yes</span>
                         </label>
                         <label class="control">
-                            <input id="intermediate_1" name="intermediate" class="fc-combobox-item" type="radio" value="0">
+                            <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
                             <span>No</span>
                         </label>
-                        <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="1">-->
-                        <!--<option name="intermediate_1" id="intermediate_1" class="" value="0">No</option>-->
-                        <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">Yes</option>-->
-                        <!--</select>-->
                     </div>
                 </div>
             </div>
@@ -353,14 +374,15 @@
             loadExample1: function (e) {
                 this.message = '';
                 this.jobName = "Downregulated";
-                this.description = "Description downregulated"
+                this.description = "Description downregulated";
                 this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;
                 this.$.side_1.checked = true;
                 this.$.group_2.checked = true;
 //                this.$.randoms.value = 500;
-                this.$.intermediate.value = 1;
+//                this.$.intermediate.value = 1;
+                this.$.intermediate_2.checked = true;
                 var exampleFolder = "snow_downregulated";
                 this.createExampleFolder(exampleFolder);
 
