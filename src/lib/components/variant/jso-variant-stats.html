@@ -9,15 +9,15 @@
                 background-color: white;
             }
 
-
+            #gtCount{
+                width: 300px; 
+                height: 200px; 
+                margin: 0 auto
+            }
         </style>
 
         <div id="stats">
-
-
-            <div id="gtCount" style="width: 300px; height: 200px; margin: 0 auto"></div>
-
-
+            <div id="gtCount"></div>
         </div>
 
     </template>
@@ -27,8 +27,6 @@
             created: function () {
             },
             ready: function () {
-
-
             },
             statsChanged: function (oldValue, newValue) {
 
@@ -38,8 +36,6 @@
                 }
 
                 if (gts.length > 0) {
-
-
                     var heatMap = new Highcharts.Chart({
                         chart: {
                             renderTo: this.$.gtCount,
@@ -71,15 +67,9 @@
                             name: 'Count',
                             data: gts
                         }]
-
                     });
                 }
-
             }
-
-
         });
     </script>
 </polymer-element>
-
-
