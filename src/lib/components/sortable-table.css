@@ -123,3 +123,6 @@ sortable-table::shadow button {
 sortable-table::shadow button:hover {
     background-color: #eaeaea;
 }
+sortable-table {
+    border: solid 1px #d3d3d3;
+}

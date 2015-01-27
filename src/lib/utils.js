@@ -170,7 +170,7 @@ var Utils = {
             },
             request: {
                 success: function (response) {
-                    callback(response)
+                    callback(response);
                 },
                 error: function () {
                     this.message = 'Server error, try again later.';
@@ -178,6 +178,27 @@ var Utils = {
             }
         })
     },
+    loadExampleFile: function (callback, toolName, exampleFileName) {
+
+                var me = this;
+                OpencgaManager.files.contentExample({
+                    query: {
+                        toolName: toolName,
+                        fileName: exampleFileName
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                             callback(response);
+//                            debugger
+//                            me.loadedMainSelectChanged(false,true);
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                })
+            },
     argsParser: function (form, args) {
         for (var key in args) {
             if (typeof(args[key]) == "object") {

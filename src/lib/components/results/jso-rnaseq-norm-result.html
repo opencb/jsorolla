@@ -157,6 +157,7 @@
                 this.loadingTable = true;
 
             },
+
             parseCommandLine: function () {
                 this.clearFields();
                 var fields = this.jobItem.commandLine.split(" ");
@@ -174,12 +175,14 @@
 //                    }
                 }
 
-            },
+            }
+            ,
             clearFields: function () {
                 this.dataFile = "";
                 this.method = "getting method... ";
                 this.glFile = "";
-            },
+            }
+            ,
             jobItemChanged: function (oldV, newV) {
                 this.parseCommandLine();
                 /** get url **/
@@ -224,7 +227,8 @@
                         }
                     }
                 });
-            },
+            }
+            ,
             parseTable: function (content) {
                 this.data = [];
                 this.columns = [];
@@ -260,6 +264,7 @@
                                 obj[this.columns[j]["name"]] = parseFloat(value).toFixed(3);
                             else
                                 obj[this.columns[j]["name"]] = parseInt(value);
+
                         }
                     }
                     this.data.push(obj);
@@ -269,10 +274,12 @@
                 this.footerTemplate = "simplePager";
                 this.loadingTable = false;
 
-            },
+            }
+            ,
             isInt: function (n) {
                 return n % 1 === 0;
-            },
+            }
+            ,
 
             getFileContent: function (callback, fileId) {
                 OpencgaManager.files.content({

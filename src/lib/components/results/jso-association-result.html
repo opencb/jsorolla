@@ -117,7 +117,9 @@
                 /** get url **/
                 var me = this;
                 for (var i = 0; i < this.files.length; i++) {
+
                     var file = this.files[i];
+                    console.log(file.name)
                     if (file.name.indexOf("manhattan_plot-") >= 0) {
 
                         me.manhattanPlot = Utils.getUrl(file.id);
