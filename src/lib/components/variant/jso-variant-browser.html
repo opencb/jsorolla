@@ -1,4 +1,5 @@
 <link rel="import" href="jso-variant-effect-grid.html">
+<link rel="import" href="jso-variant-stats.html">
 <polymer-element name="jso-variant-browser" attributes="jobItem samples url fileId studyId">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
@@ -108,6 +109,9 @@
 
             paper-tabs paper-tab::shadow #ink {
                 color: #435f7a;
+            }
+            #tool{
+                margin-top: 20px;
             }
 
         </style>
@@ -320,14 +324,14 @@
                 <paper-tabs selected="{{selectedTab}}" scrollable="true">
                     <paper-tab>Genomic Context</paper-tab>
                     <paper-tab>Effect & Annotation</paper-tab>
-                    <paper-tab>Summary</paper-tab>
+                    <paper-tab>Stats</paper-tab>
                 </paper-tabs>
 
                 <div id="tool" vertical layout flex>
                     <div hidden?="{{ selectedTab != 0}}" id="genomeViewer"></div>
                     <jso-variant-effect-grid hidden?="{{ selectedTab != 1}}"
                                              variant="{{ variantEffect }}"></jso-variant-effect-grid>
-                    <div hidden?="{{ selectedTab != 2}}">SUMMARY</div>
+                    <jso-variant-stats id="jsoVariantStats" hidden?="{{ selectedTab != 2}}"></jso-variant-stats>
                 </div>
             </div>
         </div>
@@ -338,7 +342,7 @@
             species: 'Homo sapiens',
             jobItem: null,
             args: null,
-            selectedTab: 1,
+            selectedTab: 0,
             variantEffect: null,
             ready: function () {
                 var me = this;
@@ -640,6 +644,7 @@
             },
             handleDataGridSelected: function (oldValue, newValue) {
                 console.log(newValue);
+                var me = this;
                 var reg = newValue.chromosome + ":" + newValue.start + "-" + newValue.end;
                 var region = new Region(reg);
                 this.genomeViewer.setRegion(region);
@@ -648,6 +653,7 @@
                 var variant = newValue.chromosome + ":" + newValue.start + ":" + newValue.reference + ":" + newValue.alternate;
                 this.variantEffect = variant;
 
+                this.$.jsoVariantStats.stats = newValue.sourceEntries[me.studyId + "_" + me.fileId].stats;
             },
             domReady: function () {
                 this.createGenomeViewer();
