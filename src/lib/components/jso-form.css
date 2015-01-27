@@ -2,10 +2,6 @@ label.control {
     color: inherit;
 }
 
-label.control::after {
-    content: none;
-}
-
 label.control > input[type=radio],
 label.control > input[type=checkbox] {
     display: none;
@@ -26,35 +22,27 @@ label.control > input[type=checkbox] + span {
 
 label.control > input[type=radio] + span:before,
 label.control > input[type=checkbox] + span:before {
+    font-family: 'FontAwesome';
     display: inline-block;
     width: 20px;
     position: relative;
-    font-family: 'FontAwesome';
     top: 2px;
     font-size: 18px;
     color: #666;
-
 }
 
-/*label.control > input[type=radio]:disabled + span,*/
-/*label.control > input[type=radio]:disabled + span:before,*/
-/*label.control > input[type=checkbox]:disabled + span,*/
-/*label.control > input[type=checkbox]:disabled + span:before,*/
-/*{*/
-    /*color:#d3d3d3!important;*/
-/*}*/
 label.control > input[type=radio] + span:before {
-    content: '\f10c'
+    content: '\f10c';
 }
 
 label.control > input[type=radio]:checked + span:before {
-    content: '\f192'
+    content: '\f192';
 }
 
 label.control > input[type=checkbox] + span:before {
-    content: '\f096'
+    content: '\f096';
 }
 
 label.control > input[type=checkbox]:checked + span:before {
-    content: '\f046'
+    content: '\f046';
 }

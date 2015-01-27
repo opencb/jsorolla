@@ -17,10 +17,13 @@
                 height: 100%;
             }
 
+            #container {
+                overflow-y: auto;
+            }
+
             .attributelist {
                 box-sizing: border-box;
                 padding: 0 5px 5px 5px;
-                overflow-y: auto;
             }
 
             .attributelist .item {
@@ -66,14 +69,14 @@
                 text-decoration: underline;
             }
         </style>
-        <div class="panel panel-shadow" id="panel" vertical layout>
+        <div id="panel" class="panel panel-shadow" vertical layout>
             <div class="header" id="header" horizontal layout>
                 <div class="text">Reactome import</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
-            <div class="container" flex horizontal layout>
+            <div id="container" class="container" flex horizontal layout>
 
                 <div class="attributelist" flex>
                     <template bind="{{imgs as images}}">

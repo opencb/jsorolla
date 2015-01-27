@@ -59,10 +59,10 @@
                 color: #FFFFFF;
             }
 
-            div.icon {
-                font-size: 30px;
-                margin-left: 2vw;
-            }
+            /*div.icon {*/
+                /*font-size: 30px;*/
+                /*margin-left: 2vw;*/
+            /*}*/
 
             div.title {
                 font-size: 30px;
@@ -266,7 +266,7 @@
 
                 this.isLogged = false;
             },
-            ready: function () {
+            domReady: function () {
                 if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
                     this.sessionInitiated();
                 } else {
