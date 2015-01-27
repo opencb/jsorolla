@@ -218,8 +218,6 @@
 
                 backgroundColor="{{backgroundColor}}"
 
-                on-wheel="{{handleWheel}}"
-
                 on-createvertex="{{handleCreateVertex}}"
                 on-selectvertex="{{handleSelectVertex}}"
                 on-moveselectedvertices="{{handleMoveSelectedVertices}}"
@@ -869,15 +867,6 @@
                 }
             },
 
-
-            handleWheel: function (e) {
-                e.preventDefault();
-                if (e.deltaY < 0) {
-                    this.zoom = Math.min(100, this.zoom + 2);
-                } else {
-                    this.zoom = Math.max(0, this.zoom - 2);
-                }
-            },
 
 
             /* Bar Handlers*/

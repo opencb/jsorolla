@@ -54,20 +54,20 @@
             textarea {
                 margin: 3px;
             }
+
             input[name=recon]:disabled + span,
-            input[name=recon]:disabled + span:before
-            {
-                color:#d3d3d3!important;
+            input[name=recon]:disabled + span:before {
+                color: #d3d3d3 !important;
             }
+
             input[name=go_slim]:disabled + span,
-            input[name=go_slim]:disabled + span:before
-            {
-                color:#d3d3d3!important;
+            input[name=go_slim]:disabled + span:before {
+                color: #d3d3d3 !important;
             }
+
             input[name=interpro]:disabled + span,
-            input[name=interpro]:disabled + span:before
-            {
-                color:#d3d3d3!important;
+            input[name=interpro]:disabled + span:before {
+                color: #d3d3d3 !important;
             }
         </style>
         <div class="tooltitle">
@@ -313,12 +313,13 @@
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -339,7 +340,7 @@
             argsChanged: function () {
                 Utils.argsParser(this, this.args);
                 /** temporal hack **/
-                if(this.$.inputFile.selectedFile === undefined)
+                if (this.$.inputFile.selectedFile === undefined)
                     this.$.inputFile.selectedFile = this.args.ranked_list;
             },
             launchJob: function () {

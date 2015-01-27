@@ -53,13 +53,20 @@
                 margin-bottom: 10px;
             }
 
+            #buttons_container{
+                margin-top:10px;
+            }
+            #buttons_container > #clearButton{
+                margin-right: 10px;
+            }
+
 
         </style>
         <form id="filter_form" vertical layout>
             <div vertical layout>
-                <div id="buttons_container" horizontal layout end-justified>
-                    <div class="button" on-click="{{ clearForm }}">Clear</div>
-                    <div class="button" on-click="{{ submitForm }}">Search</div>
+                <div id="buttons_container" horizontal layout center-justified>
+                    <div class="button" id="clearButton" on-click="{{ clearForm }}">Clear</div>
+                    <div class="button" id="searchButton" on-click="{{ submitForm }}">Search</div>
                 </div>
                 <div class="form_block">
                     <div id="headerTitle">Segregation</div>
@@ -127,9 +134,8 @@
     </template>
     <script>
         Polymer({
-//            sampleNames: null,
-            regionValue: '1:1-100000',
-            genevalue: '',
+            regionValue: '1:1-100000000',
+            geneValue: null,
             snpValue: '',
             floatDecimals: 3,
             expanded: false,

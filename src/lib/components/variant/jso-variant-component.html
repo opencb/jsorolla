@@ -67,7 +67,6 @@
                             success: function (response) {
                                 try {
                                     var result = response.response[0].result[0];
-//                                    me.samples = Object.keys(result.samplesPosition);
                                     me.samples = result.samplesPosition;
                                     me.studyId = result.studyId;
 

@@ -12,28 +12,40 @@
             sortable-table {
             }
 
-            sortable-table::shadow .column-pos {
+            sortable-table::shadow .column-codon {
+                width: 50px;
+            }
+
+            sortable-table::shadow .column-strand {
+                width: 50px;
+            }
+
+            sortable-table::shadow .column-biotype {
                 width: 100px;
             }
 
-            sortable-table::shadow .column-snpId {
+            sortable-table::shadow .column-ensemblGeneId {
+                width: 120px;
+            }
+
+            sortable-table::shadow .column-ensemblTranscriptId {
+                width: 120px;
+            }
+
+            sortable-table::shadow .column-cDnaPosition {
+                width: 80px;
+            }
+
+            sortable-table::shadow .column-cdsPosition {
                 width: 70px;
             }
 
-            sortable-table::shadow .column-consequenceTypeObo {
-                width: 160px;
+            sortable-table::shadow .column-aPosition {
+                width: 70px;
             }
 
-            sortable-table::shadow .column-aaChange {
-                width: 160px;
-            }
-
-            sortable-table::shadow .column-gene {
-                width: 190px;
-            }
-
-            sortable-table::shadow .column-transcriptId {
-                width: 115px;
+            sortable-table::shadow .column-aChange {
+                width: 70px;
             }
 
         </style>
@@ -41,31 +53,29 @@
                         id="effectGrid"
                         footerTemplate="defaultPager"
                         pageSize="10"
+                        page="{{page}}"
                         columns="{{ columns }}"
                         loading="true"
                         data="{{data}}">
 
-            <template id="consequenceTypeTemplate">
+            <template id="proteinSubstitutionScoresTemplate">
                 <td>
-                    <a href="http://www.sequenceontology.org/browser/current_svn/term/{{value}}" target="_blank">{{value}}</a>
+                    {{value.score}} - {{value.description}}
                 </td>
             </template>
-            <template id="snpIdTemplate">
+            <template id="seqOntologyTemplate">
                 <td>
-                    <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs={{value}}"
+                    <a href="http://www.sequenceontology.org/browser/current_svn/term/SO:{{value.soaccession}}"
+                       target="_blank">{{value.soname}}</a>
+                </td>
+            </template>
+            <template id="ensemblGeneIdTemplate">
+                <td>
+                    <a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value}}"
                        target="_blank">{{value}}</a>
-
                 </td>
             </template>
-            <template id="aaTemplate">
-                <td>{{value.aminoacidChange} - {{value.codonChange}} ({{ value.aaPosiion}})</td>
-            </template>
-            <template id="geneTemplate">
-                <td>{{value.geneName}} (<a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value.geneId}}"
-                                           target="_blank">{{value.geneId}}</a>)
-                </td>
-            </template>
-            <template id="transcriptTemplate">
+            <template id="ensemblTranscriptIdTemplate">
                 <td>
                     <a href="http://www.ensembl.org/Homo_sapiens/Location/View?t={{value}}"
                        target="_blank">{{value}}</a>
@@ -79,91 +89,105 @@
             variant: null,
             columns: null,
             data: null,
+            page: 0,
             created: function () {
             },
             ready: function () {
                 this.columns = [
+                    {name: "geneName", title: "Gene Name"},
+                    {name: "ensemblGeneId", title: "Ensembl Gene Id", cellTemplate: "ensemblGeneIdTemplate"},
                     {
-                        name: 'pos',
-                        title: "Position",
+                        name: "ensemblTranscriptId",
+                        title: "Ensembl Transcript Id",
+                        cellTemplate: 'ensemblTranscriptIdTemplate'
+                    },
+                    {
+                        name: "so",
+                        title: "Conseq. type",
+                        cellTemplate: 'seqOntologyTemplate',
                         formula: function (row) {
-                            var res = row.featureChromosome + ":" + row.position + ((row.featureStrand == 1) ? " (+)" : " (-)");
-                            return res;
-                        }
-                    },
-                    {
-                        name: "snpId",
-                        title: "SNP Id",
-                        cellTemplate: 'snpIdTemplate'
-                    },
-                    {
-                        name: "consequenceTypeObo",
-                        title: "Consequence Type",
-                        cellTemplate: 'consequenceTypeTemplate'
-                    },
-                    {
-                        name: "aaChange",
-                        title: "AminoacidChange",
-                        cellTemplate: 'aaTemplate',
-                        formula: function (row) {
-                            return row;
-                        }
-                    },
-                    {
-                        name: "gene",
-                        title: "Gene (EnsemblId)",
-                        cellTemplate: 'geneTemplate',
-                        formula: function (row) {
-                            console.log(row.geneName);
-                            return row;
-                        }
-                    },
-                    {
-                        name: "transcriptId",
-                        title: "TranscriptId",
-                        cellTemplate: 'transcriptTemplate'
-                    },
+                            var aux = {};
+                            if (row.soname && row.soaccession) {
 
-                    {name: "featureId", title: "Feature Id"},
-                    {name: "featureName", title: "Feature Name"},
-                    {name: "featureType", title: "Feature Type"},
-                    {name: "featureBiotype", title: "Feature Biotype"},
-//                    {name: "polyphenScore", title: "Polyphen Score"},
-//                    {name: "polyphenEfect", title: "Polyphen Efect"},
-//                    {name: "siftScore", title: "Sift Score"},
-//                    {name: "siftEffect", title: "Sift Effect"}
+                                aux.soname = row.soname;
+                                aux.soaccession = Utils.repeat("0", (7 - row.soaccession.toString().length)) + row.soaccession;
+                            }
+                            return aux;
+                        }
+                    },
+                    {name: "relativePosition", title: "Relative Position"},
+                    {name: "codon", title: "Codon"},
+                    {name: "strand", title: "Strand"},
+                    {name: "biotype", title: "Biotype"},
+                    {name: "cDnaPosition", title: "cDna Position"},
+                    {name: "cdsPosition", title: "cds Position"},
+                    {name: "aPosition", title: "AA Position"},
+                    {name: "aChange", title: "AA Change"},
+                    {
+                        name: "sift",
+                        title: "Sift",
+                        cellTemplate: 'proteinSubstitutionScoresTemplate',
+                        formula: function (row) {
+                            var pss = row.proteinSubstitutionScores;
+
+                            if (pss != null && pss.length > 0) {
+                                for (var i = 0; i < pss.length; i++) {
+                                    var elem = pss[i];
+                                    if (elem.source == "Sift") {
+                                        return elem;
+                                    }
+                                }
+                            }
+                            return {};
+
+                        }
+                    },
+                    {
+                        name: "polyphen", title: "Polyphen", cellTemplate: 'proteinSubstitutionScoresTemplate',
+                        formula: function (row) {
+                            var pss = row.proteinSubstitutionScores;
+
+                            if (pss != null && pss.length > 0) {
+                                for (var i = 0; i < pss.length; i++) {
+                                    var elem = pss[i];
+                                    if (elem.source == "Polyphen") {
+                                        return elem;
+                                    }
+                                }
+                            }
+                            return {};
+
+                        }
+                    }
+
                 ];
-//                this.data = [];
+
             },
             variantChanged: function (oldValue, newValue) {
-
                 var me = this;
-
+                this.page = 0;
                 this.data = [];
                 if (newValue != '') {
-
+                    // http://wwwdev.ebi.ac.uk/cellbase/webservices/rest/v3/hsapiens/genomic/variant/22:17468875:C:A/full_annotation
                     CellBaseManager.get({
-                        species: 'hsa',
-                        host: 'http://ws.bioinfo.cipf.es/cellbase/rest',
-                        version: 'latest',
+                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                        version: 'v3',
+                        species: 'hsapiens',
                         category: 'genomic',
                         subCategory: 'variant',
-                        resource: 'consequence_type',
+                        resource: 'full_annotation',
                         query: newValue,
                         async: false,
-                        params: {
-                            of: 'json'
-                        },
                         success: function (response) {
                             try {
-                                me.data = me._filterEffectData(response);
+                                me.data = response.response[0].result[0].consequenceTypes
                             } catch (e) {
 
+                                me.data = [];
                             }
                         }
                     });
                 }
-
             },
             _filterEffectData: function (data) {
                 var _this = this;
