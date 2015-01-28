@@ -59,19 +59,25 @@
                 color: #FFFFFF;
             }
 
-            div.icon {
-                font-size: 30px;
-                margin-left: 2vw;
-            }
+            /*div.icon {*/
+                /*font-size: 30px;*/
+                /*margin-left: 2vw;*/
+            /*}*/
 
             div.title {
                 font-size: 30px;
             }
 
             div.description {
-                /*color: #6599FF;*/
                 color: #ffad76;
-                /*font-size: 20px;*/
+                font-size: 20px;
+                padding-top:3px;
+                line-height: 60px;
+            }
+
+            div.description:hover {
+                color: #ffad76;
+                cursor:default;
             }
 
             @media (max-width: 1250px) {
@@ -83,37 +89,6 @@
             #user {
                 color: #ffad76;
             }
-
-            /*ul.help-menu > li:hover {*/
-            /*color: white;*/
-            /*cursor: pointer;*/
-            /*background-color: #435f7a;*/
-            /*}*/
-
-            /*div.help-menu {*/
-            /*text-align: left;*/
-            /*margin: 0;*/
-            /*padding: 0 0 0 15px;*/
-            /*background-color: #314559;*/
-            /*list-style: none;*/
-            /*text-transform: none;*/
-            /*line-height: 60px;*/
-            /*font-size: 16px;*/
-            /*position: absolute;*/
-            /*z-index: 60000;*/
-            /*top: 60px;*/
-            /*right: 0px;*/
-            /*width: 200px;*/
-            /*visibility: hidden;*/
-            /*opacity: 0;*/
-            /*transition: all 0.2s;*/
-            /*box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.3);*/
-            /*}*/
-
-            /*div.help-menu-shown {*/
-            /*visibility: visible !important;*/
-            /*opacity: 1 !important;*/
-            /*}*/
 
             jso-job-list {
                 height: calc(100vh - 160px);
@@ -291,7 +266,7 @@
 
                 this.isLogged = false;
             },
-            ready: function () {
+            domReady: function () {
                 if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
                     this.sessionInitiated();
                 } else {
@@ -423,41 +398,41 @@
                     });
                 }
             },
-            handleHomeHelp: function (event) {
-                if (this.homeLink != '') {
-                    window.open(this.homeLink);
-                } else {
-                    alert("Home is not defined!");
-                }
-
-            },
-            handleDocumentation: function (event) {
-                if (this.helpLink != '') {
-                    window.open(this.helpLink);
-                } else {
-                    alert("Help is not defined!");
-                }
-
-            },
-            handleTutorial: function (event) {
-                if (this.tutorialLink != '') {
-                    window.open(this.tutorialLink);
-                } else {
-                    alert("Tutorial is not defined!");
-                }
-
-            },
-            handleWorkedExamples: function (event) {
-                if (this.tutorialLink != '') {
-                    window.open(this.workedExamplesLink);
-                } else {
-                    alert("worked examples is not defined!");
-                }
-
-            },
-            handleAbout: function (event) {
-                alert("About is not defined!");
-            },
+//            handleHomeHelp: function (event) {
+//                if (this.homeLink != '') {
+//                    window.open(this.homeLink);
+//                } else {
+//                    alert("Home is not defined!");
+//                }
+//
+//            },
+//            handleDocumentation: function (event) {
+//                if (this.helpLink != '') {
+//                    window.open(this.helpLink);
+//                } else {
+//                    alert("Help is not defined!");
+//                }
+//
+//            },
+//            handleTutorial: function (event) {
+//                if (this.tutorialLink != '') {
+//                    window.open(this.tutorialLink);
+//                } else {
+//                    alert("Tutorial is not defined!");
+//                }
+//
+//            },
+//            handleWorkedExamples: function (event) {
+//                if (this.tutorialLink != '') {
+//                    window.open(this.workedExamplesLink);
+//                } else {
+//                    alert("worked examples is not defined!");
+//                }
+//
+//            },
+//            handleAbout: function (event) {
+//                alert("About is not defined!");
+//            },
             handleJobItemClick: function (e) {
                 this.showJobs = false;
             }

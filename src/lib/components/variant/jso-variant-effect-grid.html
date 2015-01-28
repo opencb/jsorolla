@@ -1,0 +1,220 @@
+<polymer-element name="jso-variant-effect-grid" attributes="variant">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                background-color: white;
+            }
+
+            sortable-table {
+            }
+
+            sortable-table::shadow .column-codon {
+                width: 50px;
+            }
+
+            sortable-table::shadow .column-strand {
+                width: 50px;
+            }
+
+            sortable-table::shadow .column-biotype {
+                width: 100px;
+            }
+
+            sortable-table::shadow .column-ensemblGeneId {
+                width: 120px;
+            }
+
+            sortable-table::shadow .column-ensemblTranscriptId {
+                width: 120px;
+            }
+
+            sortable-table::shadow .column-cDnaPosition {
+                width: 80px;
+            }
+
+            sortable-table::shadow .column-cdsPosition {
+                width: 70px;
+            }
+
+            sortable-table::shadow .column-aPosition {
+                width: 70px;
+            }
+
+            sortable-table::shadow .column-aChange {
+                width: 70px;
+            }
+
+        </style>
+        <sortable-table class="bootstrap"
+                        id="effectGrid"
+                        footerTemplate="defaultPager"
+                        pageSize="10"
+                        page="{{page}}"
+                        columns="{{ columns }}"
+                        loading="true"
+                        data="{{data}}">
+
+            <template id="proteinSubstitutionScoresTemplate">
+                <td>
+                    {{value.score}} - {{value.description}}
+                </td>
+            </template>
+            <template id="seqOntologyTemplate">
+                <td>
+                    <a href="http://www.sequenceontology.org/browser/current_svn/term/SO:{{value.soaccession}}"
+                       target="_blank">{{value.soname}}</a>
+                </td>
+            </template>
+            <template id="ensemblGeneIdTemplate">
+                <td>
+                    <a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value}}"
+                       target="_blank">{{value}}</a>
+                </td>
+            </template>
+            <template id="ensemblTranscriptIdTemplate">
+                <td>
+                    <a href="http://www.ensembl.org/Homo_sapiens/Location/View?t={{value}}"
+                       target="_blank">{{value}}</a>
+                </td>
+            </template>
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            variant: null,
+            columns: null,
+            data: null,
+            page: 0,
+            created: function () {
+            },
+            ready: function () {
+                this.columns = [
+                    {name: "geneName", title: "Gene Name"},
+                    {name: "ensemblGeneId", title: "Ensembl Gene Id", cellTemplate: "ensemblGeneIdTemplate"},
+                    {
+                        name: "ensemblTranscriptId",
+                        title: "Ensembl Transcript Id",
+                        cellTemplate: 'ensemblTranscriptIdTemplate'
+                    },
+                    {
+                        name: "so",
+                        title: "Conseq. type",
+                        cellTemplate: 'seqOntologyTemplate',
+                        formula: function (row) {
+                            var aux = {};
+                            if (row.soname && row.soaccession) {
+
+                                aux.soname = row.soname;
+                                aux.soaccession = Utils.repeat("0", (7 - row.soaccession.toString().length)) + row.soaccession;
+                            }
+                            return aux;
+                        }
+                    },
+                    {name: "relativePosition", title: "Relative Position"},
+                    {name: "codon", title: "Codon"},
+                    {name: "strand", title: "Strand"},
+                    {name: "biotype", title: "Biotype"},
+                    {name: "cDnaPosition", title: "cDna Position"},
+                    {name: "cdsPosition", title: "cds Position"},
+                    {name: "aPosition", title: "AA Position"},
+                    {name: "aChange", title: "AA Change"},
+                    {
+                        name: "sift",
+                        title: "Sift",
+                        cellTemplate: 'proteinSubstitutionScoresTemplate',
+                        formula: function (row) {
+                            var pss = row.proteinSubstitutionScores;
+
+                            if (pss != null && pss.length > 0) {
+                                for (var i = 0; i < pss.length; i++) {
+                                    var elem = pss[i];
+                                    if (elem.source == "Sift") {
+                                        return elem;
+                                    }
+                                }
+                            }
+                            return {};
+
+                        }
+                    },
+                    {
+                        name: "polyphen", title: "Polyphen", cellTemplate: 'proteinSubstitutionScoresTemplate',
+                        formula: function (row) {
+                            var pss = row.proteinSubstitutionScores;
+
+                            if (pss != null && pss.length > 0) {
+                                for (var i = 0; i < pss.length; i++) {
+                                    var elem = pss[i];
+                                    if (elem.source == "Polyphen") {
+                                        return elem;
+                                    }
+                                }
+                            }
+                            return {};
+
+                        }
+                    }
+
+                ];
+
+            },
+            variantChanged: function (oldValue, newValue) {
+                var me = this;
+                this.page = 0;
+                this.data = [];
+                if (newValue != '') {
+                    // http://wwwdev.ebi.ac.uk/cellbase/webservices/rest/v3/hsapiens/genomic/variant/22:17468875:C:A/full_annotation
+                    CellBaseManager.get({
+                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                        version: 'v3',
+                        species: 'hsapiens',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'full_annotation',
+                        query: newValue,
+                        async: false,
+                        success: function (response) {
+                            try {
+                                me.data = response.response[0].result[0].consequenceTypes
+                            } catch (e) {
+
+                                me.data = [];
+                            }
+                        }
+                    });
+                }
+            },
+            _filterEffectData: function (data) {
+                var _this = this;
+                var res = [];
+
+                var regulatory = {};
+
+                for (var i = 0; i < data.length; i++) {
+                    var elem = data[i];
+                    if (elem.consequenceTypeObo == "coding_sequence_variant" || elem.consequenceTypeObo == "exon_variant" || elem.consequenceTypeObo == "intron_variant") {
+                        continue;
+                    } else if (elem.consequenceTypeObo == "regulatory_region_variant") {
+                        if (!(elem.featureId in regulatory)) {
+                            regulatory[elem.featureId] = elem;
+                        }
+                        continue;
+                    }
+                    res.push(elem);
+                }
+
+                for (var elem in regulatory) {
+                    res.push(regulatory[elem]);
+                }
+                return res;
+            }
+        });
+    </script>
+</polymer-element>
+
+

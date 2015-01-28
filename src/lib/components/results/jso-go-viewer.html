@@ -27,6 +27,7 @@
                 id="networkViewer"
                 hideBar="true"
                 ></jso-network-viewer>
+        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode <font-awesome icon="arrows"></font-awesome></label>
         <br>
     </template>
     networkViewer =
@@ -40,8 +41,8 @@
             domReady: function () {
                 this.$.networkViewer.hideNodeSimpleRendering = true;
                 this.$.networkViewer.hideEdgeSimpleRendering = true;
-                this.$.networkViewer.selectVerticesByAttribute("id", "all");
-                this.$.networkViewer.setLayout("Tree");
+//                this.$.networkViewer.selectVerticesByAttribute("id", "all");
+                this.$.networkViewer.setLayout("Force directed");
             },
             setContent: function (sifContent, attrContent, attr2Content) {
                 var me = this;

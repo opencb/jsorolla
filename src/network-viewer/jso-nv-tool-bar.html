@@ -22,6 +22,10 @@
                  style="border-right: none">
                 <font-awesome icon="hand-o-up"></font-awesome>
             </div>
+            <div class="button" data-checked="{{mode == 'move'}}" data-mode="move" on-click="{{handleMode}}"
+                 style="border-right: none">
+                <font-awesome icon="arrows"></font-awesome>
+            </div>
             <div class="button" data-checked="{{mode == 'selectbackground'}}" data-mode="selectbackground"
                  on-click="{{handleMode}}">
                 <font-awesome icon="image"></font-awesome>
@@ -50,7 +54,7 @@
                 </div>
                 <ul id="layoutMenu">
                     <li on-click="{{handleLayoutMenu}}" data-value="Force directed">Force directed</li>
-                    <li on-click="{{handleLayoutMenu}}" data-value="Tree">Tree</li>
+                    <!--<li on-click="{{handleLayoutMenu}}" data-value="Tree">Tree</li>-->
                     <li on-click="{{handleLayoutMenu}}" data-value="Circle">Circle</li>
                     <li on-click="{{handleLayoutMenu}}" data-value="Random">Random</li>
                 </ul>
@@ -107,6 +111,9 @@
             </div>
             <div id="zoomInButton" on-click="{{handleZoomInButton}}" class="button">
                 <font-awesome icon="plus"></font-awesome>
+            </div>
+            <div id="helpButton" on-click="{{handleHelpButton}}" class="button" style="margin-left: 10px">
+                <font-awesome icon="question-circle"></font-awesome>
             </div>
         </div>
 
@@ -179,6 +186,9 @@
             },
             setZoom: function (zoom) {
                 this.zoom = zoom;
+            },
+            handleHelpButton: function () {
+                window.open("https://github.com/opencb/cell-maps/wiki");
             }
         });
     </script>

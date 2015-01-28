@@ -61,19 +61,7 @@
                 /*background-color: blue;*/
             }
 
-            /*jso-network-viewer {*/
-            /*max-width: 1000px;*/
-            /*height: 800px;*/
 
-            /*border-color: rgb(217, 217, 217);*/
-            /*border-style: solid;*/
-            /*border-width: 1px;*/
-            /*}*/
-
-            /*TODO temporal fix*/
-            /*jso-network-viewer::shadow jso-nv-layout {*/
-            /*height: calc(100% - 96px);*/
-            /*}*/
 
             sortable-table {
                 max-width: 1000px;
@@ -93,6 +81,7 @@
                 font-weight: bold;
                 font-style: italic;
                 color: #55f;
+                line-height: 21px;
             }
 
             .file > label {
@@ -137,32 +126,32 @@
             <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
         </template>
 
-        <template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">
-            <div id="fatigoOutput" class="output">
-                <div class="level-0">
-                    <div class="headerTitle">Other Actions</div>
-                    <div class="children">
-                        <div class="level-1">
-                            <div class="headerTitle">Select p-value</div>
-                            <div horizontal="" layout="">
-                                <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">
-                                    0.1
-                                </div>
-                                <div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">
-                                    0.05
-                                </div>
-                                <div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">
-                                    0.01
-                                </div>
-                                <div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">
-                                    0.005
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
+        <!--<template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">-->
+            <!--<div id="fatigoOutput" class="output">-->
+                <!--<div class="level-0">-->
+                    <!--<div class="headerTitle">Other Actions</div>-->
+                    <!--<div class="children">-->
+                        <!--<div class="level-1">-->
+                            <!--<div class="headerTitle">Select p-value</div>-->
+                            <!--<div horizontal="" layout="">-->
+                                <!--<div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">-->
+                                    <!--0.1-->
+                                <!--</div>-->
+                                <!--<div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">-->
+                                    <!--0.05-->
+                                <!--</div>-->
+                                <!--<div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">-->
+                                    <!--0.01-->
+                                <!--</div>-->
+                                <!--<div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">-->
+                                    <!--0.005-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</template>-->
         <div id="output" class="output"></div>
 
     </template>
@@ -172,17 +161,17 @@
                 this.createdElements = {};
                 this.selectedOption = "";
                 this.pvalue = 0.05;
+
             },
             domReady: function () {
 
             },
-            handlePvalue: function (event, clicked, elem) {
-                this.pvalue = parseFloat(elem.innerHTML);
-            },
-            pvalueChanged: function (oldValue, newValue) {
-
-                this.jobItemChanged();
-            },
+//            handlePvalue: function (event, clicked, elem) {
+//                this.pvalue = parseFloat(elem.innerHTML);
+//            },
+//            pvalueChanged: function (oldValue, newValue) {
+//                this.jobItemChanged(oldValue, newValue);
+//            },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
 
@@ -190,6 +179,9 @@
                 while (this.$.output.firstChild) {
                     this.$.output.removeChild(this.$.output.firstChild);
                 }
+                if( typeof newV == "object")
+                    this.pvalue = 0.05;
+
 
                 if (this.jobItem.toolName == "rnaseq-norm") {
                     this.loading = false;
@@ -860,6 +852,7 @@
                             if (element.tags.indexOf("SIGNIFICANT_COUNT_TABLE") >= 0) {
                                 var dataArray = [];
                                 var columns = [];
+
                                 element.value = element.value.replace("${pvalue}", me.pvalue);
                                 this.getFileContent(function (content) {
                                     var data = content.split("\n");
@@ -883,6 +876,14 @@
                                 sortableTable.data = dataArray;
                                 sortableTable.pageSize = "10";
                                 sortableTable.footerTemplate = "simplePager";
+                                var pvalueButton = document.createElement('jso-pvalue-button');
+                                pvalueButton.id = "pvalueButton";
+                                pvalueButton.pvalue = me.pvalue;
+                                pvalueButton.onclick= function(){
+                                    me.pvalue = this.pvalue;
+                                    me.jobItemChanged();
+                                };
+                                res.appendChild(pvalueButton);
 
                                 res.appendChild(sortableTable);
                             }

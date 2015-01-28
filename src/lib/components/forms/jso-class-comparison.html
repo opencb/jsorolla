@@ -42,25 +42,12 @@
                 content: ':'
             }
 
-            .action {
-                /*margin-top: 30px;*/
-                background-color: #f5f5f5 !important;
-                text-align: center;
-            }
-
-            .action:active {
-                background-color: #445D76 !important;
-                color: #fff !important;
-            }
 
             .message {
                 margin-top: 20px;
             }
 
-            div.button {
-                /*display: inline-block;*/
-                width: 300px
-            }
+
 
             /*jso-file-browser {*/
             /*width: 70%;*/
@@ -82,7 +69,8 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">Differential expression - Class comparison demo (correlation.txt)</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Differential expression - Class comparison demo (class_comparison.txt)</div>
+                    <!--<div class="button action" style="display:inline-block" on-click="{{loadExample2}}" style="margin-top: 5px">Differential expression - Class comparison demo (twoclasses.txt)</div>-->
                 </div>
             </div>
 
@@ -161,12 +149,13 @@
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
+            <div class="botbar" horizontal layout center-justified>
                 <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
 
     </template>
@@ -189,7 +178,7 @@
                 this.test = "";
 
             },
-            argsChanged: function(){
+            argsChanged: function () {
                 this.message = '';
                 this.jobName = "Job name";
                 this.description = "description";
@@ -211,6 +200,7 @@
                     this.getContentFile(file);
             },
             loadExampleFile: function (exampleFileName) {
+
                 var me = this;
                 OpencgaManager.files.contentExample({
                     query: {
@@ -220,7 +210,9 @@
                     request: {
                         //method: 'POST',
                         success: function (response) {
+//                            debugger
                             me.contentFile = response;
+//                            me.loadedMainSelectChanged(false,true);
                         },
                         error: function () {
                             me.message = 'Server error, try again later.';
@@ -271,7 +263,7 @@
                     return;
                 }
                 this.class_values = this.getClassValues();
-                if ( this.class_values == "") {
+                if (this.class_values == "") {
                     alert("Sorry: Please select values for your class.");
                     return;
                 }
@@ -296,7 +288,7 @@
                     query["fold-change-value"] = this.$.fold_change_value.value;
                 else {
                     query["correction"] = this.$.multiple_test_correction_div.querySelector('input[name="correction"]:checked').value;
-                    if(this.$.p_value.value == "" || isNaN(this.$.p_value.value)){
+                    if (this.$.p_value.value == "" || isNaN(this.$.p_value.value)) {
                         alert("Sorry. P is value not a number. ");
                         return;
                     }
@@ -325,13 +317,27 @@
 
                 this.jobName = "Differential expression - Class comparison demo (correlation.txt)";
                 this.description = "Just a differencial expression demo";
-                this.$.inputFile.selectedFile = {id: "example_correlation.txt", path: "correlation.txt", type: "FILE"};
+                this.$.inputFile.selectedFile = {id: "example_class_comparison.txt", path: "class_comparison.txt", type: "FILE"};
                 this.p_value = 0.05;
                 this.$.multi_rg_1.checked = true;
                 this.$.correction_1.checked = true;
 
                 this.getContentFile(this.$.inputFile.selectedFile);
                 var exampleFolder = "classComparison";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample2: function (e) {
+
+                this.jobName = "Differential expression - Two-classes demo (t-test)";
+                this.description = "Just a differencial expression demo";
+                this.$.inputFile.selectedFile = {id: "example_twoclasses.txt", path: "twoclasses.txt", type: "FILE"};
+                this.p_value = 0.05;
+                this.$.two_rg_1.checked = true;
+                this.$.correction_1.checked = true;
+
+                this.getContentFile(this.$.inputFile.selectedFile);
+                var exampleFolder = "cc_twoclasses";
                 this.createExampleFolder(exampleFolder);
 
             },
@@ -386,9 +392,12 @@
                     select.addEventListener("change", function () {
                         me.manageClass()
                     });
-
-                    if (this.$.inputFile.selectedFile !== undefined && this.$.inputFile.selectedFile.id == "example_correlation.txt") {
+                    if (this.$.inputFile.selectedFile !== undefined && this.$.inputFile.selectedFile.id == "example_class_comparison.txt") {
                         select.value = "indep";
+                        this.$.jsoClassViewer.selectChange();
+                    }
+                    if (this.$.inputFile.selectedFile !== undefined && this.$.inputFile.selectedFile.id == "example_twoclasses.txt") {
+                        select.value = "class";
                         this.$.jsoClassViewer.selectChange();
                     }
                 }
@@ -404,7 +413,7 @@
                         });
                     }
                     /** This is mainly for the examples **/
-                    if (this.$.inputFile.selectedFile.id == "example_correlation.txt") {
+                    if (this.$.inputFile.selectedFile.id == "example_class_comparison.txt") {
 
                         childrenSelect[0].value = 1;
                         childrenSelect[1].value = 3;
@@ -418,6 +427,19 @@
                         this.$.two_rg_3.disabled = true;
                         this.$.multi_rg_1.disabled = false;
                         this.$.multi_rg_2.disabled = false;
+                    }
+                    /** This is mainly for the examples **/
+                    if (this.$.inputFile.selectedFile.id == "example_twoclasses.txt") {
+
+                        childrenSelect[0].value = "basal";
+                        childrenSelect[1].value = "luminal";
+
+                        this.$.one_rg_1.disabled = true;
+                        this.$.two_rg_1.disabled = false;
+                        this.$.two_rg_2.disabled = false;
+                        this.$.two_rg_3.disabled = false;
+                        this.$.multi_rg_1.disabled = true;
+                        this.$.multi_rg_2.disabled = true;
                     }
                 }
             },

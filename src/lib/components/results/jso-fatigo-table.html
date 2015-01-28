@@ -41,6 +41,11 @@
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}">
+            <template id="linkTemplate">
+                <td>
+                    <a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>
+                </td>
+            </template>
             <template id="listTemplate">
                 <td>
                     <span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}</span>
@@ -65,6 +70,7 @@
             created: function () {
 
             },
+
             contentChanged: function () {
 
                 var data = this.content.split("\n");
@@ -73,6 +79,7 @@
                     var localData = data[i].split("\t");
                     var listObj = {list1:localData[9],list2:localData[10]};
                     var listObjPerc = {list1:localData[5],list2:localData[8]};
+                    var link = Utils.getLink(localData[0]);
                     var obj = {
                         "term": localData[0],
                         "term_size": localData[1],
@@ -81,7 +88,8 @@
                         "annotated_ids_list":listObj,
                         "odds_ratio":  parseFloat(localData[11]).toExponential(2),
                         "pvalue": parseFloat(localData[12]).toFixed(3),
-                        "adj_pvalue": parseFloat(localData[13]).toFixed(3)
+                        "adj_pvalue": parseFloat(localData[13]).toFixed(3),
+                        link: link
                     };
                     this.data.push(obj)
                 }
@@ -90,7 +98,8 @@
                 this.columns = [
                     {
                         name: "term",
-                        title: "Term"
+                        title: "Term",
+                        cellTemplate: "linkTemplate"
 
                     },
                     {

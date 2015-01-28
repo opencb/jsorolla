@@ -53,13 +53,20 @@
                 margin-bottom: 10px;
             }
 
+            #buttons_container{
+                margin-top:10px;
+            }
+            #buttons_container > #clearButton{
+                margin-right: 10px;
+            }
+
 
         </style>
         <form id="filter_form" vertical layout>
             <div vertical layout>
-                <div id="buttons_container" horizontal layout end-justified>
-                    <div class="button" on-click="{{ clearForm }}">Clear</div>
-                    <div class="button" on-click="{{ submitForm }}">Search</div>
+                <div id="buttons_container" horizontal layout center-justified>
+                    <div class="button" id="clearButton" on-click="{{ clearForm }}">Clear</div>
+                    <div class="button" id="searchButton" on-click="{{ submitForm }}">Search</div>
                 </div>
                 <div class="form_block">
                     <div id="headerTitle">Segregation</div>
@@ -127,9 +134,8 @@
     </template>
     <script>
         Polymer({
-//            sampleNames: null,
-            regionValue: '1:1-100000',
-            genevalue: '',
+            regionValue: '1:1-100000000',
+            geneValue: null,
             snpValue: '',
             floatDecimals: 3,
             expanded: false,
@@ -232,9 +238,10 @@
             },
             samplesChanged: function (oldValue, newValue) {
 
-                for (var i = 0; i < newValue.length; i++) {
-                    var sample = newValue[i];
+                var sampleNames = Object.keys(newValue);
 
+                for (var i = 0; i < sampleNames.length; i++) {
+                    var sample = sampleNames[i];
 
                     var sampleDiv = document.createElement("div");
                     sampleDiv.setAttribute("horizontal", "");
@@ -251,7 +258,7 @@
                     var checkbox00 = document.createElement('input');
                     checkbox00.type = "checkbox";
                     checkbox00.name = checkboxName;
-                    checkbox00.value = "0/0";
+                    checkbox00.value = "0/0;0|0";
                     checkbox00.id = checkboxName;
                     checkbox00.classList.add("segregation");
 
@@ -259,21 +266,21 @@
                     var checkbox01 = document.createElement('input');
                     checkbox01.type = "checkbox";
                     checkbox01.name = checkboxName;
-                    checkbox01.value = "0/1";
+                    checkbox01.value = "0/1;0|1;1/0;1|0";
                     checkbox01.id = checkboxName;
                     checkbox01.classList.add("segregation");
 
                     var checkbox11 = document.createElement('input');
                     checkbox11.type = "checkbox";
                     checkbox11.name = checkboxName;
-                    checkbox11.value = "1/1";
+                    checkbox11.value = "1/1;1|1";
                     checkbox11.id = checkboxName;
                     checkbox11.classList.add("segregation");
 
                     var checkboxMiss = document.createElement('input');
                     checkboxMiss.type = "checkbox";
                     checkboxMiss.name = checkboxName;
-                    checkboxMiss.value = "./.";
+                    checkboxMiss.value = "-1/-1;-1|-1";
                     checkboxMiss.id = checkboxName;
                     checkboxMiss.classList.add("segregation");
 
@@ -335,6 +342,7 @@
                 };
 
                 var search = false;
+                var form = this.$.filter_form;
 
                 if (this.$.filter_form.checkValidity()) {
 
@@ -368,6 +376,31 @@
                         });
                     }
 
+                    // Genotypes
+                    var genotypes = [];
+
+                    for (var sample in me.samples) {
+//                        console.log(sample);
+                        var checkboxName = "GT_" + sample;
+                        var selectedCheckboxes = this.shadowRoot.querySelectorAll("input[name='" + checkboxName + "']:checked");
+                        var gtValues = [];
+                        for (var i = 0; i < selectedCheckboxes.length; i++) {
+                            var obj = selectedCheckboxes[i];
+                            gtValues.push(obj.value);
+                        }
+                        if (gtValues.length > 0) {
+                            var aux = me.samples[sample] + ":" + gtValues.join(";");
+                            genotypes.push(aux);
+
+                        }
+
+                    }
+
+                    if (genotypes.length > 0) {
+
+                        query.genotype = genotypes.join(",").replace(new RegExp("\/", "gi"), "%2f");
+                    }
+
                     if (search) {
                         var regionQuery = regions.join(",");
 
@@ -379,6 +412,7 @@
 //                            }
 //                        });
                         query.region = regionQuery;
+                        query.fileId = "";
 
                         var url = OpencgaManager.files.fetch({
                             id: me.fileId,

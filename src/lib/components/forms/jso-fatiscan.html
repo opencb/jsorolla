@@ -54,20 +54,20 @@
             textarea {
                 margin: 3px;
             }
+
             input[name=recon]:disabled + span,
-            input[name=recon]:disabled + span:before
-            {
-                color:#d3d3d3!important;
+            input[name=recon]:disabled + span:before {
+                color: #d3d3d3 !important;
             }
+
             input[name=go_slim]:disabled + span,
-            input[name=go_slim]:disabled + span:before
-            {
-                color:#d3d3d3!important;
+            input[name=go_slim]:disabled + span:before {
+                color: #d3d3d3 !important;
             }
+
             input[name=interpro]:disabled + span,
-            input[name=interpro]:disabled + span:before
-            {
-                color:#d3d3d3!important;
+            input[name=interpro]:disabled + span:before {
+                color: #d3d3d3 !important;
             }
         </style>
         <div class="tooltitle">
@@ -82,7 +82,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action"  style="width:150px;" on-click="{{loadExample1}}">Fluorouridine dataset</div>
+                    <div class="button action" style="display: inline-block" on-click="{{loadExample1}}">Fluorouridine dataset</div>
                 </div>
             </div>
             <div>
@@ -113,9 +113,9 @@
                     <div id="databases">
                         <select name="species" id="species" class="fc-combobox" type="text" value="none"
                                 on-change="{{handleSpecies}}">
-                            <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
+                            <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
                             <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
-                                    selected="selected">Human (homo sapiens)
+                                    >Human (homo sapiens)
                             </option>
                             <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
                                 musculus)
@@ -260,7 +260,7 @@
                         <div horizontal layout>
                             <label class="control">
                                 <input name="recon" id="recon" type="checkbox" value="recon">
-                                <span>Recon</span>
+                                <span>Genome-Scale Metabolic Network</span>
                             </label>
 
                             <div class="button action" on-click="{{reconOptionsFunction}}">Show options...</div>
@@ -285,12 +285,19 @@
                         <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
                         <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
                         <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
-                        Your annotations
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
+                                <span>Your annotations</span>
+
+                            </label>
+                        </div>
+                    </div>
+                    <div style="margin-left: 30px">
                         <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
                                                     selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file" on-file-select="{{handleFileSelect}}"
                                                     bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
-
                     </div>
                 </div>
             </div>
@@ -306,12 +313,13 @@
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -332,7 +340,7 @@
             argsChanged: function () {
                 Utils.argsParser(this, this.args);
                 /** temporal hack **/
-                if(this.$.inputFile.selectedFile === undefined)
+                if (this.$.inputFile.selectedFile === undefined)
                     this.$.inputFile.selectedFile = this.args.ranked_list;
             },
             launchJob: function () {
@@ -372,7 +380,13 @@
                 if (this.$.inputFile.textAreaValue != "") {
                     query["ranked-list-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
                 }
-                if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked) {
+                if (!this.$.go_bp.checked
+                        && !this.$.go_cc.checked
+                        && !this.$.go_mf.checked
+                        && !this.$.go_slim.checked
+                        && !this.$.interpro.checked
+                        && !this.$.recon.checked
+                        && !this.$.your_annotations.checked) {
                     alert("Sorry. No database selected. Please select one");
                     return;
                 }

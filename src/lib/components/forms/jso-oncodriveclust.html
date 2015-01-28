@@ -42,25 +42,12 @@
                 content: ':'
             }
 
-            .action {
-                /*margin-top: 30px;*/
-                background-color: #f5f5f5 !important;
-                text-align: center;
-            }
-
-            .action:active {
-                background-color: #445D76 !important;
-                color: #fff !important;
-            }
 
             .message {
                 margin-top: 20px;
             }
 
-            div.button {
-                /*display: inline-block;*/
-                width: 300px
-            }
+
 
             /*jso-file-browser {*/
             /*width: 70%;*/
@@ -83,14 +70,14 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" on-click="{{loadExample1}}">TCGA BRCA example</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA example</div>
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat=""></jso-project-browser-window>
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="VARIANT"></jso-project-browser-window>
                 </div>
             </div>
 

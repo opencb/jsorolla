@@ -10,6 +10,7 @@
             sortable-table {
                 border: 1px solid #d3d3d3;
             }
+
             sortable-table::shadow thead tr th {
                 /*width: 1000px;*/
                 white-space: inherit;
@@ -17,6 +18,7 @@
                 text-overflow: inherit;
 
             }
+
             sortable-table::shadow tbody tr td {
                 /*width: 1000px;*/
                 white-space: inherit;
@@ -24,12 +26,13 @@
                 text-overflow: inherit;
 
             }
+
             sortable-table::shadow .column-term_size,
             sortable-table::shadow .column-term_size_genome,
             sortable-table::shadow .column-term_annotations_list_perc,
             sortable-table::shadow .column-lor,
             sortable-table::shadow .column-converged,
-            sortable-table::shadow .column-adj_pvalue{
+            sortable-table::shadow .column-adj_pvalue {
                 width: 70px;
                 /*white-space: nowrap;*/
             }
@@ -40,6 +43,11 @@
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}">
+            <template id="linkTemplate">
+                <td>
+                    <a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>
+                </td>
+            </template>
         </sortable-table>
 
     </template>
@@ -53,15 +61,17 @@
                 for (var i = 1; i < data.length; i++) {
                     if (data[i] == "") continue;
                     var localData = data[i].split("\t");
-                    var listObj = {list1:localData[9],list2:localData[10]}
+                    var listObj = {list1: localData[9], list2: localData[10]};
+                    var link = Utils.getLink(localData[0]);
                     var obj = {
                         "term": localData[0],
                         "term_size": localData[1],
                         "term_size_genome": localData[2],
                         "annotated_genes": localData[3],
-                        "converged":localData[4],
-                        "lor":  parseFloat(localData[5]).toFixed(3),
-                        "adj_pvalue": parseFloat(localData[6]).toFixed(3)
+                        "converged": localData[4],
+                        "lor": parseFloat(localData[5]).toFixed(3),
+                        "adj_pvalue": parseFloat(localData[6]).toFixed(3),
+                        link: link
                     };
                     this.data.push(obj)
                 }
@@ -69,7 +79,9 @@
                 this.columns = [
                     {
                         name: "term",
-                        title: "Term"
+                        title: "Term",
+                        cellTemplate: "linkTemplate"
+
 
                     },
                     {
@@ -86,7 +98,7 @@
                     },
                     {
                         name: "converged",
-                        title: "converged ids list",
+                        title: "converged ids list"
                     },
                     {
                         name: "lor",

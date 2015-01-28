@@ -12,22 +12,29 @@
                 /*width: 1000px;*/
             }
 
-            sortable-table::shadow thead tr th {
+            /*sortable-table::shadow thead tr th {*/
                 /*width: 1000px;*/
-                white-space: inherit;
+                /*white-space: inherit;*/
+                /*overflow: auto;*/
+                /*text-overflow: inherit;*/
+
+            /*}*/
+
+            /*sortable-table::shadow tbody tr td {*/
+                /*white-space: normal;*/
+                /*overflow:auto;*/
+                /*height: 30px;*/
+                /*text-overflow: inherit;*/
+                /*text-overflow: clip;*/
+
+            /*}*/
+            sortable-table::shadow .column-go_names,
+            sortable-table::shadow .column-go_ids {
+
+                white-space: nowrap;
                 overflow: auto;
-                text-overflow: inherit;
-
+                text-overflow: clip;
             }
-
-            sortable-table::shadow tbody tr td {
-                /*width: 1000px;*/
-                white-space: inherit;
-                overflow: auto;
-                text-overflow: inherit;
-
-            }
-
             sortable-table::shadow .column-input_id,
                 sortable-table::shadow .column-id,
             sortable-table::shadow .column-type,
@@ -45,6 +52,11 @@
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}">
+                <template id="linkTemplate">
+                <td>
+                    <a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>
+                </td>
+            </template>
         </sortable-table>
 
     </template>
@@ -66,11 +78,16 @@
                     };
                     var columnIdx = 2;
                     obj["rank"] = parseFloat(localData[++columnIdx]).toFixed(3);
+                    if(isNaN(obj["rank"])){
+                        obj["rank"] = "-";
+                    }
                     obj["bet"] = parseFloat(localData[++columnIdx]).toFixed(3);
                     obj["clust"] = parseFloat(localData[++columnIdx]).toFixed(3);
                     obj["conn"] = localData[++columnIdx];
                     obj["go_names"] = localData[++columnIdx];
                     obj["go_ids"] = localData[++columnIdx];
+//                    var links = Utils.getLinks(obj["go_ids"].split(","));
+//                    debugger
                     this.data.push(obj)
                 }
                 this.columns = new Array();
@@ -108,12 +125,12 @@
                     title: "Connections"
                 });
                 this.columns.push({
-                    name: "go_ids",
-                    title: "GO ids"
-                });
-                this.columns.push({
                     name: "go_names",
                     title: "Go names"
+                });
+                this.columns.push({
+                    name: "go_ids",
+                    title: "GO ids"
                 });
 
                 this.pageSize = "10";

@@ -17,10 +17,13 @@
                 height: 100%;
             }
 
+            #container {
+                overflow-y: auto;
+            }
+
             .attributelist {
                 box-sizing: border-box;
                 padding: 0 5px 5px 5px;
-                overflow-y: auto;
             }
 
             .attributelist > * {
@@ -50,14 +53,14 @@
                 margin: 3px;
             }
         </style>
-        <div class="panel panel-shadow" id="panel" vertical layout>
+        <div id="panel" class="panel panel-shadow"  vertical layout>
             <div class="header" id="header" horizontal layout>
                 <div class="text">Kegg import</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
-            <div class="container" horizontal layout flex>
+            <div id="container" class="container" horizontal layout flex>
 
                 <div class="attributelist" flex>
                     <template repeat="{{item in pathwayList}}">
