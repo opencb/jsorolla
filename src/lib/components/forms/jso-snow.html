@@ -1,6 +1,7 @@
 <polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -44,6 +45,9 @@
                 height: 50px;
             }
 
+            label{
+                display: block ;
+            }
 
         </style>
         <div class="title" horizontal layout>
@@ -59,16 +63,22 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">Downregulated in fibroblasts from old individuals,
-                        compared to young
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">
+                        Downregulated in fibroblasts from old individuals, compared to young
                     </div>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Define your input data</div>
                 <div class="formcontent">
-                    <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}"> One list<br>
-                    <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="{{modeChanged}}"> Comparing two lists
+                    <label class="control">
+                        <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">
+                        <span>One list</span>
+                    </label>
+                    <label class="control">
+                        <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="{{modeChanged}}">
+                        <span>Comparing two lists</span>
+                    </label>
                 </div>
             </div>
             <div class="formbox">
@@ -101,9 +111,18 @@
                 <div class="formtitle">List nature</div>
                 <div class="formcontent">
                     <div id="typeDiv">
-                        <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts"> Transcripts<br>
-                        <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked> Proteins<br>
-                        <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes"> Genes<br>
+                        <label class="control">
+                            <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">
+                            <span>Transcripts</span>
+                        </label>
+                        <label class="control">
+                            <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>
+                            <span>Proteins</span>
+                        </label>
+                        <label class="control">
+                            <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes">
+                            <span>Genes</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -112,26 +131,32 @@
                 <div class="formtitle">Species</div>
                 <div class="formcontent">
                     <div id="interactomeDiv">
-                        <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
-                            <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
-                            <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus musculus</option>
-                            <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
-                            <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
-                            <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
-                            <!--<option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>-->
-                            <!--<option name="interactome_7" id="interactome_7" class="fc-combobox-item" value="own">Own</option>-->
-                        </select>
+                        <div class="select" style="width:200px;">
+                            <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                                <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
+                                <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus musculus</option>
+                                <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
+                                <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                                <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                                <!--<option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>-->
+                                <!--<option name="interactome_7" id="interactome_7" class="fc-combobox-item" value="own">Own</option>-->
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select interactome confidence</div>
                 <div class="formcontent">
-                    <div id="groupDiv">
-                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked"> all ppis (all protein Protein-Protein
-                        Interactions detected experimentally)<br>
-                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked"> curated (Protein-Protein
-                        Interactions detected with, at least, two different experimental methods)<br>
+                    <div id="groupDiv" vertical layout>
+                        <label class="control">
+                            <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
+                            <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
+                        </label>
+                        <label class="control">
+                            <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
+                            <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -139,8 +164,14 @@
                 <div class="formtitle">Side for statistical tests</div>
                 <div class="formcontent">
                     <div id="sideDiv">
-                        <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked"> Greater<br>
-                        <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less"> Less
+                        <label class="control">
+                            <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">
+                            <span>Greater</span>
+                        </label>
+                        <label class="control">
+                            <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less">
+                            <span>Less</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -170,25 +201,31 @@
             <!--</div>-->
             <!--</div>-->
             <!--<div class="formbox">-->
-                <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
-                <!--<div class="formcontent">-->
-                    <!--<div id="intermediateDiv">-->
-                        <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
-                            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
-                                    <!--selected="selected">0-->
-                            <!--</option>-->
-                            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
-                        <!--</select>-->
-                    <!--</div>-->
-                <!--</div>-->
+            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+            <!--<div class="formcontent">-->
+            <!--<div id="intermediateDiv">-->
+            <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
+            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
+            <!--selected="selected">0-->
+            <!--</option>-->
+            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
             <!--</div>-->
 
             <div class="formbox">
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
                 <div class="formcontent">
                     <div id="intermediateDiv">
-                        <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0"> No<br>
-                        <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked"> Yes<br>
+                        <label class="control">
+                            <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
+                            <span>Yes</span>
+                        </label>
+                        <label class="control">
+                            <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
+                            <span>No</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -199,14 +236,15 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label>
+                    <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
