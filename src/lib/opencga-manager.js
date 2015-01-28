@@ -204,7 +204,11 @@ var OpencgaManager = {
         },
         modify: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'modify');
+        },
+        download: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'download');
         }
+
     },
     jobs: {
         create: function (args) {

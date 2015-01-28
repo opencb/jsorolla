@@ -65,24 +65,25 @@
 
                 var intactImport = this.$.networkViewer.$.intactImport;
                 var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
-
+                var xrefDatabase = "hgnc_symbol";
+                var xrefDatabaseId = xrefDatabase+"id";
                 console.log(nodes)
                 intactImport.getGraph('hsapiens', nodes, function (graph) {
                     me.$.networkViewer.setGraph(graph);
                     me.$.networkViewer.setLayout('Force directed');
 
                     cellbaseAttributeImport.uncheckAllDatabases();
-                    cellbaseAttributeImport.checkDatabase('Uniprot_gn');
+                    cellbaseAttributeImport.checkDatabase(xrefDatabase);
 
                     cellbaseAttributeImport.retrieveData('id', 'hsapiens', function () {
-                        me.$.networkViewer.selectVertexDefaultLabelAttribute('Uniprot_gnid');
+                        me.$.networkViewer.selectVertexDefaultLabelAttribute(xrefDatabaseId);
                         cellbaseAttributeImport.uncheckAllDatabases();
 
                         for (var i = 0; i < me.$.networkViewer.vAttr.data.length; i++) {
                             var row = me.$.networkViewer.vAttr.data[i];
-                            var val = row['Uniprot_gnid'];
+                            var val = row[xrefDatabaseId];
                             if (!val || val == '') {
-                                row['Uniprot_gnid'] = row['id'];
+                                row[xrefDatabaseId] = row['id'];
                             }
                             else {
                                 var vals = val.split(",");
@@ -93,9 +94,9 @@
                                         newVals.push(v);
                                     }
                                 }
-                                row['Uniprot_gnid'] = newVals.join(',')
+                                row[xrefDatabaseId] = newVals.join(',')
                             }
-                            if (nodesMap[row['Uniprot_gnid']] == true) {
+                            if (nodesMap[row[xrefDatabaseId]] == true) {
                                 var vertex = me.$.networkViewer.graph.getVertexById(row['id']);
                                 vertex.renderer.set("color", '' +
                                 '#f99494');

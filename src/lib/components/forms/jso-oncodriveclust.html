@@ -1,6 +1,7 @@
 <polymer-element name="jso-oncodriveclust" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
             display: block;
@@ -31,16 +32,7 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
 
-            label::after {
-                content: ':'
-            }
 
 
             .message {
@@ -53,9 +45,6 @@
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
         </style>
         <div class="tooltitle">
             <div>
@@ -106,8 +95,7 @@
                 </div>
             </div>
 <div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="button action big" on-click="{{handleForm}}">                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
             </div>        </form>

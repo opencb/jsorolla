@@ -64,6 +64,11 @@
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">Essential genes in cancer cell line
                         K562
                     </div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample2}}" style="width:300px;">Essential genes in cancer cell line JURKAT
+                    </div>
+                    <!--<div class="button action" style="display:inline-block" on-click="{{loadExample3}}" style="width:300px;">Genes Up-regulated in Fanconi Anemia-->
+                    <!--</div>-->
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample4}}" style="width:300px;">Genes Down-regulated in Fanconi Anemia
                 </div>
             </div>
 
@@ -291,7 +296,6 @@
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
-                debugger
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
@@ -357,17 +361,7 @@
                 })
             },
             loadExample1: function (e) {
-                /*this.message = '';
 
-                 this.$.inputFile.selectedFile = {id: "example_BD-GWASplink.txt", path: "BD-GWASplink.txt", type:"FILE"};
-                 this.$.seedList.selectedFile = {id: "example_BD-associatedgenesUniprot.txt", path: "BD-associatedgenesUniprot.txt", type:"FILE"};
-                 this.$.listTags_1.selected = true;
-                 this.$.interactome.value = "hsa";
-                 this.$.group.value = "curated";
-                 this.$.intermediate.value = 1;
-                 this.$.order_1.selected = true;
-                 var exampleFolder = "nm_gwas";
-                 this.createExampleFolder(exampleFolder);*/
                 this.jobName = "Essential genes in cancer cell line K562";
                 this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (K562.txt).";
 //                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
@@ -381,9 +375,51 @@
                 this.createExampleFolder(exampleFolder);
 
             },
+            loadExample2: function (e) {
+
+                this.jobName = "Essential genes in cancer cell line JURKAT";
+                this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (JURKAT.txt).";
+//                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
+                this.$.inputFile.selectedFile = {id: "example_JURKAT.txt", path: "JURKAT.txt", type: "FILE"};
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_2.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_1.checked = true;
+                var exampleFolder = "nm_jurkat";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample3: function (e) {
+
+                this.jobName = "Genes Up-regulated in Fanconi Anemia";
+                this.description = "Expression data comes form a recent study of the gene expression in Fanconi Anemia (Vanderwerf et al. 2009; GEO:GSE16334).  Differential gene expression of control versus case samples was carried out using the Limma option in Differential expression analysis. Here, genes are ranked according the statistic (FA-differentialExpression-statistic.txt).";
+                this.$.inputFile.selectedFile = {id: "example_FA-differentialExpression-statistic.txt", path: "FA-differentialExpression-statistic.txt", type: "FILE"};
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_1.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_1.checked = true;
+                var exampleFolder = "nm_fanconi_up";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample4: function (e) {
+
+                this.jobName = "Genes Down-regulated in Fanconi Anemia";
+                this.description = "Expression data comes form a recent study of the gene expression in Fanconi Anemia (Vanderwerf et al. 2009; GEO:GSE16334).  Differential gene expression of control versus case samples was carried out using the Limma option in Differential expression analysis. Here, genes are ranked according the statistic (FA-differentialExpression-statistic.txt).";
+                this.$.inputFile.selectedFile = {id: "example_FA-differentialExpression-statistic.txt", path: "FA-differentialExpression-statistic.txt", type: "FILE"};
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_1.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_2.checked = true;
+                var exampleFolder = "nm_fanconi_down";
+                this.createExampleFolder(exampleFolder);
+
+            },
             createExampleFolder: function (exampleFolder) {
-                var me = this;
-                OpencgaManager.files.search({
+                var me = this;                OpencgaManager.files.search({
                     query: {
                         sid: Cookies('bioinfo_sid'),
                         studyId: me.$.outdir.selectedStudy.id,

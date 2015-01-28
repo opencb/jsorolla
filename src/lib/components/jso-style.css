@@ -63,15 +63,10 @@ input, select {
 .select:after {
     position: absolute;
     box-sizing: border-box;
-    height: 23px;
-    top: 0px;
-    right: 0px;
-    line-height: 21px;
-    padding: 0px 3px;
+    top: 6px;
+    right: 5px;
     color: inherit;
-    background-color: #fff;
     font-family: FontAwesome;
-    border: 1px solid #d3d3d3;
     content: '\f0d7';
 }
 

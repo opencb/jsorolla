@@ -633,6 +633,11 @@
                     <font-awesome icon="trash"></font-awesome>
                 </div>
             </template>
+            <template if="{{ selectedFile != null && selectedFile.type == 'FILE' }}">
+                <div class="button action" on-click="{{handleDownloadFile}}">
+                    <font-awesome icon="download"></font-awesome>
+                </div>
+            </template>
             <template
                     if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'VARIANT' }}">
                 <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
@@ -665,6 +670,7 @@
                 on-file-uploaded="{{handleFileUploaded}}"
                 hidden?="{{hideUploadFile}}"
                 bioformat="{{bioformat}}"></jso-opencga-upload>
+
     </template>
     <script>
         Polymer({
@@ -781,6 +787,34 @@
                         }
                     });
                 }
+            },
+            handleDownloadFile: function () {
+
+                var url = OpencgaManager.files.download({
+                    id: this.selectedFile.id,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        url: true
+                    }
+                });
+
+
+                var link = document.createElement('a');
+                link.href = url;
+                link.download = this.selectedFile.name;
+                var event = new MouseEvent('click', {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true
+                });
+                link.dispatchEvent(event);
+
+//                console.log(xx)
+//                 var win = window.open(xx, '_blank');
+//                    win.focus();
+
             },
             refreshFolder: function () {
                 var me = this;

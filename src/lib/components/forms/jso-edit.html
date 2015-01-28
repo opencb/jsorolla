@@ -1,6 +1,7 @@
 <polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -30,16 +31,7 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
 
-            label::after {
-                content: ':'
-            }
 
             .action {
                 /*margin-top: 30px;*/
@@ -65,9 +57,6 @@
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
 
 
         </style>
