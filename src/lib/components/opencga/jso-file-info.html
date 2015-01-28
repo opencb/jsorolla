@@ -32,7 +32,7 @@
 
             .item_info > span {
                 margin-left: 5px;
-                width: 180px;
+                /*width: 180px;*/
 
             }
 
@@ -59,7 +59,7 @@
 
         <template if="{{file != null && file.name != '.'}}">
             <div style="margin-left: 5px;margin-top: 5px; font-weight: bold;">
-                <font-awesome icon="folder-o"></font-awesome>
+                <font-awesome icon="{{iconMap[file.type]}}"></font-awesome>
                 File info
             </div>
             <div class="item_info" flex vertical layout>
@@ -75,15 +75,12 @@
             </div>
 
             <div class="item_info" vertical layout>
-                <label>Bioformat:</label>
-
-                <div horizontal layout>
-                        <span style="width: 180px">{{bioformatText}}
-                            <template if="{{file.type=='FILE'}}">
-                                <font-awesome class="edit" icon="pencil" on-click="{{handleShowBioformat}}"></font-awesome>
-                            </template>
-                        </span>
-                </div>
+                <label>Bioformat:
+                    <template if="{{file.type=='FILE'}}">
+                        <font-awesome class="edit" icon="pencil" on-click="{{handleShowBioformat}}"></font-awesome>
+                    </template>
+                </label>
+                <span style="width: 180px">{{bioformatText}}</span>
             </div>
             <template if="{{showBioformat}}">
                 <div id="showBioformat">
@@ -106,7 +103,11 @@
             created: function () {
                 this.message = "";
                 this.showBioformat = false;
-
+                this.iconMap = {
+                    FILE: 'file-o',
+                    FOLDER: 'folder',
+                    INDEX: 'file'
+                }
             },
             fileChanged: function (oldV, newV) {
                 if (oldV !== undefined)
