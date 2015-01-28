@@ -53,10 +53,11 @@
                 margin-bottom: 10px;
             }
 
-            #buttons_container{
-                margin-top:10px;
+            #buttons_container {
+                margin-top: 10px;
             }
-            #buttons_container > #clearButton{
+
+            #buttons_container > #clearButton {
                 margin-right: 10px;
             }
 
@@ -143,36 +144,52 @@
             url: '',
             created: function () {
                 this.consequenceTypes = [
-                    "splice_donor_variant",
-                    "splice_acceptor_variant",
-                    "stop_gained",
-                    "frameshift_variant",
-                    "stop_lost",
-                    "initiator_codon_variant",
-                    "inframe_insertion",
-                    "inframe_deletion",
-                    "missense_variant",
-                    "splice_region_variant",
-                    "incomplete_terminal_codon_variant",
-                    "stop_retained_variant",
-                    "synonymous_variant",
-                    "coding_sequence_variant",
-                    "mature_miRNA_variant",
-                    "5_prime_UTR_variant",
-                    "3_prime_UTR_variant",
-                    "non_coding_transcript_exon_variant",
-                    "intron_variant",
-                    "NMD_transcript_variant",
-                    "non_coding_transcript_variant",
-                    "upstream_gene_variant",
-                    "downstream_gene_variant",
-                    "TF_binding_site_variant",
-                    "regulatory_region_variant",
-                    "feature_elongation",
-                    "feature_truncation",
-                    "intergenic_variant",
-                    "2kb_upstream_gene_variant",
-                    "2kb_downstream_gene_variant"
+                    {name: "transcript_ablation", value: 1893},
+                    {name: "splice_donor_variant", value: 1575},
+                    {name: "splice_acceptor_variant", value: 1574},
+                    {name: "stop_gained", value: 1587},
+                    {name: "frameshift_variant", value: 1589},
+                    {name: "stop_lost", value: 1578},
+                    {name: "initiator_codon_variant", value: 1582},
+                    {name: "inframe_insertion", value: 1821},
+                    {name: "inframe_deletion", value: 1822},
+                    {name: "missense_variant", value: 1583},
+                    {name: "transcript_amplification", value: 1889},
+                    {name: "splice_region_variant", value: 1630},
+                    {name: "incomplete_terminal_codon_variant", value: 1626},
+                    {name: "synonymous_variant", value: 1819},
+                    {name: "stop_retained_variant", value: 1567},
+                    {name: "coding_sequence_variant", value: 1580},
+                    {name: "miRNA", value: 276},
+                    {name: "miRNA_target_site", value: 934},
+                    {name: "mature_miRNA_variant", value: 1620},
+                    {name: "5_prime_UTR_variant", value: 1623},
+                    {name: "3_prime_UTR_variant", value: 1624},
+                    {name: "exon_variant", value: 1791},
+                    {name: "non_coding_exon_variant", value: 1792},
+                    {name: "non_coding_transcript_variant", value: 1619},
+                    {name: "intron_variant", value: 1627},
+                    {name: "NMD_transcript_variant", value: 1621},
+                    {name: "upstream_gene_variant", value: 1631},
+                    {name: "downstream_gene_variant", value: 1632},
+                    {name: "TFBS_ablation", value: 1895},
+                    {name: "TFBS_amplification", value: 1892},
+                    {name: "TF_binding_site_variant", value: 1782},
+                    {name: "regulatory_region_variant", value: 1566},
+                    {name: "regulatory_region_ablation", value: 1894},
+                    {name: "regulatory_region_amplification", value: 1891},
+                    {name: "feature_elongation", value: 1907},
+                    {name: "feature_truncation", value: 1906},
+                    {name: "intergenic_variant", value: 1628},
+                    {name: "lincRNA", value: 1463},
+                    {name: "5KB_downstream_variant", value: 1633},
+                    {name: "5KB_upstream_variant", value: 1635},
+                    {name: "SNV", value: 1483},
+                    {name: "SNP", value: 694},
+                    {name: "RNA_polymerase_promoter", value: 1203},
+                    {name: "CpG_island", value: 307},
+                    {name: "DNAseI_hypersensitive_site", value: 685},
+                    {name: "polypeptide_variation_site", value: 336}
                 ];
             },
             ready: function () {
@@ -217,7 +234,7 @@
                     var ctDiv = document.createElement("div");
 
 
-                    var ctName = Utils.formatText(ct, "_");
+                    var ctName = Utils.formatText(ct.name, "_");
                     var ctNameLabel = document.createElement("span");
                     ctNameLabel.innerHTML = ctName;
 
@@ -225,7 +242,7 @@
                     var checkbox = document.createElement('input');
                     checkbox.type = "checkbox";
                     checkbox.name = "consequence_type";
-                    checkbox.value = ct;
+                    checkbox.value = ct.value;
                     checkbox.id = "consequence_type";
 
                     ctDiv.appendChild(checkbox);
@@ -400,6 +417,20 @@
 
                         query.genotype = genotypes.join(",").replace(new RegExp("\/", "gi"), "%2f");
                     }
+
+                    // Consequence Types
+                    var cts = [];
+
+                    var selectedConsequenceTypes = this.shadowRoot.querySelectorAll("input[name='consequence_type']:checked");
+                    for (var i = 0; i < selectedConsequenceTypes.length; i++) {
+                        var ctInput = selectedConsequenceTypes[i];
+                        cts.push(ctInput.value);
+                    }
+                    if(cts.length > 0){
+                        query["annot-ct"] = cts.join(",");
+                    }
+
+                    console.log(query);
 
                     if (search) {
                         var regionQuery = regions.join(",");
