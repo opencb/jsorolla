@@ -3,35 +3,35 @@
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
-            sortable-table {
-                border: 1px solid #d3d3d3;
+            /*sortable-table {*/
+                /*border: 1px solid #d3d3d3;*/
 
-            }
+            /*}*/
 
-            sortable-table::shadow thead tr th {
+            /*sortable-table::shadow thead tr th {*/
                 /*width: 1000px;*/
-                white-space: inherit;
-                overflow: auto;
-                text-overflow: inherit;
+                /*white-space: inherit;*/
+                /*overflow: auto;*/
+                /*text-overflow: inherit;*/
 
-            }
+            /*}*/
 
-            sortable-table::shadow tbody tr td {
+            /*sortable-table::shadow tbody tr td {*/
                 /*width: 1000px;*/
-                white-space: inherit;
-                overflow: auto;
-                text-overflow: inherit;
+                /*white-space: inherit;*/
+                /*overflow: auto;*/
+                /*text-overflow: inherit;*/
 
-            }
+            /*}*/
 
-            sortable-table::shadow .column-ident {
-                width: 200px;
-            }
+            /*sortable-table::shadow .column-ident {*/
+                /*width: 200px;*/
+            /*}*/
 
-            sortable-table::shadow .column-pvalue,
-            sortable-table::shadow .column-qvalue {
-                width: 70px;
-            }
+            /*sortable-table::shadow .column-pvalue,*/
+            /*sortable-table::shadow .column-qvalue {*/
+                /*width: 70px;*/
+            /*}*/
 
         </style>
         <sortable-table id="table"
@@ -57,17 +57,22 @@
                     var localData = data[i].split("\t");
                     console.log(localData)
                     var obj = {
-                        "ident": localData[0],
-                        "pvalue": localData[1],//Number(localData[1]).toExponential(),//parseFloat(localData[1]).toFixed(3),
-                        "qvalue": localData[2]//Number(localData[2]).toExponential()//parseFloat(localData[2]).toFixed(3)
+                        "hgnc": localData[0],
+                        "ensembl": localData[1],
+                        "pvalue": localData[2],//Number(localData[1]).toExponential(),//parseFloat(localData[1]).toFixed(3),
+                        "qvalue": localData[3]//Number(localData[2]).toExponential()//parseFloat(localData[2]).toFixed(3)
                     };
                     this.data.push(obj)
                 }
 
                 this.columns = [
                     {
-                        name: "ident",
-                        title: "ID"
+                        name: "hgnc",
+                        title: "hgnc"
+                    },
+                    {
+                        name: "ensembl",
+                        title: "ensembl"
                     },
                     {
                         name: "pvalue",
@@ -78,7 +83,7 @@
                         title: "q-value"
                     }
                 ];
-                this.pageSize = "10";
+                this.pageSize = "20";
                 this.footerTemplate = "simplePager";
 
             }
