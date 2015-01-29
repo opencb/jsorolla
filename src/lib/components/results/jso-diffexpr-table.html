@@ -136,11 +136,16 @@
                             for (var z = 0; z < localData.length; z++) {
                                 var value = localData[z];
                                 if(!isNaN(value)){
-                                    value = parseFloat(value);
-                                    if(value < 0.001)
-                                        value = value.toExponential(2);
-                                    else
-                                        value = value.toFixed(3);
+
+                                    value = Utils.formatNumber(value);
+
+
+
+//                                    value = parseFloat(value);
+//                                    if(value < 0.001)
+//                                        value = value.toExponential(2);
+//                                    else
+//                                        value = value.toFixed(3);
 //                                    if(value < 0)
 //                                        value
                                 }

@@ -16,15 +16,15 @@
         </style>
         <div id="networkWidget">
             <div>
-                <!--<div class="select">-->
-                    <!--<select id="species" value="hsapiens" on-change="{{handleSpecies}}">-->
-                        <!--<template repeat="{{spe in species}}">-->
-                            <!--<option value="{{spe.value}}">-->
-                                <!--{{spe.name}}-->
-                            <!--</option>-->
-                        <!--</template>-->
-                    <!--</select>-->
-                <!--</div>-->
+                <div class="select">
+                    <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
+                        <template repeat="{{spe in species}}">
+                            <option value="{{spe.value}}">
+                                {{spe.name}}
+                            </option>
+                        </template>
+                    </select>
+                </div>
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label>Select number of nodes in the top list of the differential expression result</label>
                     <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesTop}}">
@@ -45,19 +45,12 @@
     <script>
         Polymer({
             created: function () {
+
                 this.ids = [];
                 this.networkNodesTop = 10;
                 this.networkNodesBottom = 10;
-                this.species = [
-                    {name: "Homo sapiens", value: "hsapiens"},
-                    {name: "Mus musculus", value: "mmusculus"},
-                    {name: "Rattus norvegicus", value: "rnorvegicus"},
-                    {name: "Drosophila melanogaster", value: "dmelanogaster"},
-                    {name: "Caenorhabditis elegans", value: "celegans"},
-                    {name: "Saccharomyces cerevisiae", value: "scerevisiae"},
-                    {name: "Danio rerio", value: "drerio"},
-                    {name: "Arabidopsis thaliana", value: "athaliana"}
-                ];
+                this.species = SPECIES;
+
 
             },
             domReady: function () {
@@ -84,19 +77,21 @@
 
                 var intactImport = this.$.networkViewer.$.intactImport;
                 var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
-                var xrefDatabase = "hgnc_symbol";
+                var species = Utils.getSpecies(this.$.species.value, SPECIES);
+
+
+                var xrefDatabase = species.dbname;
                 var xrefDatabaseId = xrefDatabase + "id";
                 console.log(nodes);
-//                var species = this.$.species.value;
-                var species = "hsapiens";
-                intactImport.getGraph(species, nodes, function (graph) {
+//                var species = "hsapiens";
+                intactImport.getGraph(species.value, nodes, function (graph) {
                     me.$.networkViewer.setGraph(graph);
                     me.$.networkViewer.setLayout('Force directed');
 
                     cellbaseAttributeImport.uncheckAllDatabases();
                     cellbaseAttributeImport.checkDatabase(xrefDatabase);
 
-                    cellbaseAttributeImport.retrieveData('id', 'hsapiens', function () {
+                    cellbaseAttributeImport.retrieveData('id', species.value, function () {
                         me.$.networkViewer.selectVertexDefaultLabelAttribute(xrefDatabaseId);
                         cellbaseAttributeImport.uncheckAllDatabases();
 

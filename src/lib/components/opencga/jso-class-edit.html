@@ -2,6 +2,7 @@
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 position: relative;
@@ -99,7 +100,7 @@
 
                 <label style="margin-top: 0px;">Add new attribute</label>
 
-                <div horizontal layout style="margin-bottom: 10px;">
+                <div class="select" horizontal layout style="margin-bottom: 10px;">
                     <select flex id="typeVar" type="text" on-change="{{changeCategoricalValue}}">
                         <option id="item-0-CATEGORICAL" value="CATEGORICAL" selected="true">Categorical</option>
                         <option id="item-0-NUMERIC" value="NUMERIC">Numeric</option>
@@ -113,17 +114,16 @@
                 </div>
 
                 <label style="margin-top:10px;">Delete attribute</label>
-
                 <div horizontal layout>
-                    <select id="selectDelete" flex>
+                <div class="select">
+                    <select id="selectDelete">
                         <template repeat="{{column in columns}}">
                             <option value="{{column.name}}">{{column.title}}</option>
                         </template>
                     </select>
-
-                    <div class="button remove" on-click="{{handleRemoveApply}}"></div>
                 </div>
-
+                <div class="button remove" on-click="{{handleRemoveApply}}"></div>
+                </div>
             </div>
 
             <div flex vertical layout>
@@ -301,7 +301,7 @@
 //            this.$.categoricalValuesId.hidden = true
             },
             contentFileChanged: function (oldV, newV) {
-            /** Clear dataset **/
+                /** Clear dataset **/
                 this.columns = [];
                 this.data = [];
 
@@ -349,12 +349,12 @@
                 this.columns = [];
 
                 /** Hack for the sortable **/
-                for (var i = 0; i < this.oriColumns.length; i++){
-                    var cl =  JSON.parse(JSON.stringify(this.oriColumns[i]));
+                for (var i = 0; i < this.oriColumns.length; i++) {
+                    var cl = JSON.parse(JSON.stringify(this.oriColumns[i]));
                     this.columns.push(cl);
                 }
-                for (var i = 0; i < this.oriData.length; i++){
-                    var dt =  JSON.parse(JSON.stringify(this.oriData[i]));
+                for (var i = 0; i < this.oriData.length; i++) {
+                    var dt = JSON.parse(JSON.stringify(this.oriData[i]));
                     this.data.push(dt);
                 }
             },
@@ -377,7 +377,7 @@
                     for (var j = 0; j < this.data.length; j++) {
                         var value = this.data[j][name];
                         value = value.trim();
-                        if(value == "")
+                        if (value == "")
                             error = true;
                         typeValues[value] = "";
                         dataBrackets.push(value);
@@ -394,7 +394,7 @@
                     dataBrackets.push(value);
                 }
                 strHeader += "#NAMES\t" + dataBrackets.join("\t");
-                if(error)
+                if (error)
                     return "error";
                 return strHeader;
             }

@@ -390,9 +390,9 @@
                     this.nodes.push(localData[0]);
                     var obj = new Object();
                     obj[this.columns[0]["name"]] = localData[0];
-                    obj[this.columns[1]["name"]] = parseFloat(localData[1]).toFixed(3);
-                    obj[this.columns[2]["name"]] = parseFloat(localData[2]).toExponential(2);
-                    obj[this.columns[3]["name"]] =parseFloat(localData[3]).toExponential(2);
+                    obj[this.columns[1]["name"]] = Utils.formatNumber(localData[1]);//parseFloat(localData[1]).toFixed(3);
+                    obj[this.columns[2]["name"]] = Utils.formatNumber(localData[2]);//parseFloat(localData[2]).toExponential(2);
+                    obj[this.columns[3]["name"]] = Utils.formatNumber(localData[3]);//parseFloat(localData[3]).toExponential(2);
 //                    for (var j = 0; j < localData.length; j++) {
 //                        var value = localData[j];
 //                        if (isNaN(value))

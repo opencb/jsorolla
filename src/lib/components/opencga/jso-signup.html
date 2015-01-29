@@ -192,14 +192,14 @@
             createStudy: function (e) {
                 var me = this;
                 this.message = '';
-                var studyName = "WorkSpace";
+//                var studyName = "WorkSpace";
                 OpencgaManager.studies.create({
                     query: {
                         sid: me.sid,
-                        name: studyName,
-                        alias: studyName,
-                        description: studyName,
-                        organization: studyName,
+                        name: STUDY_NAME,
+                        alias: STUDY_NAME,
+                        description: STUDY_NAME,
+                        organization: STUDY_NAME,
 //                    type: "default",
                         projectId: me.projectId
 

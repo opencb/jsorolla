@@ -142,6 +142,14 @@
                                     pageSize="{{pageSize}}"
                                     flex>
                     </sortable-table>
+                    <jso-redirection titleRed=""
+                                     fileName=""
+                                     fileUrl=""
+                                     buttonLabel="Send to Attribute editor"
+                                     args="{{normalizedFileUrl_args}}" id="">
+
+                    </jso-redirection>
+
 
 
                 </div>
@@ -204,6 +212,10 @@
                                         me.getFileContent(function (content) {
                                             me.parseTable(content);
                                         }, fileList[i].id);
+                                        me.normalizedFileUrl_args = {
+                                            tool: "edit",
+                                            inputFile: fileList[i]
+                                        };
                                     }
                                     if (fileName == "RNAComposition_afterNorm.png") {
                                         me.RNAComposition_afterNorm = Utils.getUrl(fileList[i].id);
@@ -260,9 +272,9 @@
                             obj[this.columns[j]["name"]] = value;
                         else {
                             if (!this.isInt(value))
-                                obj[this.columns[j]["name"]] = parseFloat(value).toFixed(3);
+                                obj[this.columns[j]["name"]] = Utils.formatNumber(value);
                             else
-                                obj[this.columns[j]["name"]] = parseInt(value);
+                                obj[this.columns[j]["name"]] = Utils.formatNumber(value);
 
                         }
                     }
