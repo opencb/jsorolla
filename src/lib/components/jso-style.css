@@ -56,7 +56,6 @@ input, select {
     width: 100%;
 }
 
-
 .select:after {
     position: absolute;
     box-sizing: border-box;
@@ -93,6 +92,9 @@ label.button > input[type=checkbox] + span {
 .select {
     position: relative;
     display: inline-block;
+}
+.select > select{
+    padding-right:15px;
 }
 
 

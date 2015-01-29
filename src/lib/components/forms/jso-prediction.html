@@ -189,20 +189,22 @@
                 this.description = "Job description";
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                if (this.args.list1 !== undefined)
-                    this.$.inputFile.selectedFile = this.args.list1;
-                if (this.args.inputFile !== undefined)
-                    this.$.inputFile.selectedFile = this.args.inputFile;
-                var radios = this.shadowRoot.querySelectorAll('input[name="svm"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.method)
-                        radio.checked = true;
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = "Job name";
+                    this.description = "description";
+                    if (this.args.list1 !== undefined)
+                        this.$.inputFile.selectedFile = this.args.list1;
+                    if (this.args.inputFile !== undefined)
+                        this.$.inputFile.selectedFile = this.args.inputFile;
+                    var radios = this.shadowRoot.querySelectorAll('input[name="svm"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.method)
+                            radio.checked = true;
+                    }
+                    this.getContentFile(this.$.inputFile.selectedFile);
                 }
-                this.getContentFile(this.$.inputFile.selectedFile);
             },
             list1Changed: function (oldV, newV) {
                 if (typeof oldV != 'undefined') {

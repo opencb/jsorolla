@@ -1,4 +1,4 @@
-<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy studies">
+<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -31,8 +31,6 @@
                 font-size: 50px;
             }
 
-
-
             .action {
                 /*margin-top: 30px;*/
                 /*background-color: #f5f5f5 !important;*/
@@ -56,7 +54,6 @@
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
-
 
 
         </style>
@@ -101,9 +98,15 @@
             created: function () {
                 this.messageSave = "";
                 this.onOk = false;
+                this.toolName = "edit";
 
             },
-
+            argsChanged: function () {
+                if (this.toolName == this.args.tool) {
+                    this.$.inputFile.selectedFile = this.args.inputFile;
+                    this.handleBrowseSelect()
+                }
+            },
             getContentFile: function () {
                 var me = this;
                 OpencgaManager.files.content({

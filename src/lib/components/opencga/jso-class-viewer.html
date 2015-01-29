@@ -1,7 +1,10 @@
 <polymer-element name="jso-class-viewer" attributes="contentFile loadedMainSelect loadedChildrenSelect childrenDisplay variableTypes childrenSelectNumber">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-panel.css">
+        <link rel="stylesheet" href="../jso-form.css">
+
+
+        <!--<link rel="stylesheet" href="../jso-panel.css">-->
         <style>
             :host {
             }
@@ -20,12 +23,13 @@
         <div id="jsoClassViewerId">
             <label>Variables</label>
 
-            <div id="mainSelect">
+            <div id="mainSelect" class="select">
                 <!--<select id="selectClass" on-change="{{selectChange}}">-->
                 <select id="selectClass">
                     <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
                 </select>
             </div>
+            <br>
             <div id="childrenSelect">
             </div>
         </div>
@@ -151,7 +155,12 @@
                                 option.appendChild(text);
                                 select.appendChild(option);
                             }
-                            this.$.childrenSelect.appendChild(select);
+                            var div = document.createElement("div");
+
+                            div.setAttribute("class","select");
+                            div.setAttribute("style","margin-left:1px");
+                            div.appendChild(select);
+                            this.$.childrenSelect.appendChild(div);
                         }
                     }
                 }
@@ -164,7 +173,7 @@
                 return this.$.selectClass;
             },
             getChildrenSelect: function () {
-                return this.$.childrenSelect;
+                return this.$.childrenSelect.querySelectorAll("select");
             }
         });
     </script>

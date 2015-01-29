@@ -76,6 +76,10 @@
             label {
                 display: block;
             }
+
+            input[type=text] {
+                width: 150px;
+            }
         </style>
         <div class="title" horizontal layout>
             <div flex>
@@ -428,17 +432,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="formbox">
-                    <div class="formtitle">Job information</div>
-                    <div class="formcontent">
-                        <label>Output folder</label>
-                        <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                        <br>
-                        <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required >
-                        <label>Description</label>
-                        <textarea value="{{description}}" required></textarea>
-                    </div>
+
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <br>
+                    <label>Job name</label>
+                    <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 

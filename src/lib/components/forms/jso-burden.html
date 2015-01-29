@@ -78,7 +78,7 @@
                 <div class="formcontent">
                     <div id="methodDiv">
                         Human genome version:
-                        <div class="select">
+                        <div class="select" style="margin-bottom: 2px">
                             <select name="gver" id="gver" type="text" value="none">
                                 <option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>
                                 <option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>
@@ -86,14 +86,14 @@
                         </div>
                         <br/>
                         Query region:
-                        <div class="select">
+                        <div class="select" style="margin-bottom: 2px">
                             <select name="query" id="query" type="text" value="none" on-change="{{queryChange}}">
                                 <option name="query_genes" id="query_genes" value="genes" selected="selected">All protein coding genes</option>
                                 <option name="query_custom" id="query_custom" value="custom">Custom region</option>
                             </select>
 
                         </div>
-                        <div hidden id="customRegionDiv"><input type="text" id="customQuery" placeholder="17:41196312-41277500"></div>
+                        <div hidden id="customRegionDiv"><input type="text" id="customQuery" style="width: 180px;" placeholder="17:41196312-41277500"></div>
                     </div>
                 </div>
             </div>

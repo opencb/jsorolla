@@ -169,6 +169,8 @@
                 this.description = "just_an_rna_example";
                 this.$.inputFile.selectedFile = {id: "example_normalization.txt", path: "normalization.txt", type: "FILE"};
                 this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"};
+                this.$.chooseMan.checked = true;
+                this.chooseClicked();
                 this.$.tmm.checked = true;
                 var exampleFolder = "rna_norm";
                 this.createExampleFolder(exampleFolder);
