@@ -76,6 +76,10 @@
             label {
                 display: block;
             }
+
+            input[type=text] {
+                width: 150px;
+            }
         </style>
         <div class="title" horizontal layout>
             <div flex>
@@ -436,7 +440,8 @@
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
                     <br>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
+                    <label>Job name</label>
+                    <input type="text" id="jobName" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>

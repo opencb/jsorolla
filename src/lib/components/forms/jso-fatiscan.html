@@ -69,6 +69,10 @@
             input[name=interpro]:disabled + span:before {
                 color: #d3d3d3 !important;
             }
+
+            input[type=text] {
+                width: 150px;
+            }
         </style>
         <div class="tooltitle">
             <div>
@@ -96,8 +100,11 @@
                                                     on-file-select="{{handleFileSelect}}"
                                                     bioformat="IDLIST_RANKED"></jso-project-browser-window>
                         <br>
-                        <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox"
-                               value="true"> Remove duplicates
+
+                        <label class="control">
+                            <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">
+                            <span>Remove duplicates</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -111,37 +118,39 @@
                 <div class="formtitle">Databases</div>
                 <div class="formcontent">
                     <div id="databases">
-                        <select name="species" id="species" class="fc-combobox" type="text" value="none"
-                                on-change="{{handleSpecies}}">
-                            <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
-                            <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
-                                    >Human (homo sapiens)
-                            </option>
-                            <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
-                                musculus)
-                            </option>
-                            <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus
-                                norvegicus)
-                            </option>
-                            <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly
-                                (drosophila melanogaster)
-                            </option>
-                            <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                            <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish
-                                (danio rerio)
-                            </option>
-                            <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces
-                                cerevisiae
-                            </option>
-                            <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis
-                                elegans
-                            </option>
-                            <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis
-                                thaliana
-                            </option>
-                        </select>
+                        <div class="select">
+                            <select name="species" id="species" class="fc-combobox" type="text" value="none"
+                                    on-change="{{handleSpecies}}">
+                                <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
+                                <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
+                                        >Human (homo sapiens)
+                                </option>
+                                <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
+                                    musculus)
+                                </option>
+                                <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus
+                                    norvegicus)
+                                </option>
+                                <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly
+                                    (drosophila melanogaster)
+                                </option>
+                                <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
+                                <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish
+                                    (danio rerio)
+                                </option>
+                                <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces
+                                    cerevisiae
+                                </option>
+                                <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis
+                                    elegans
+                                </option>
+                                <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis
+                                    thaliana
+                                </option>
+                            </select>
+                        </div>
                         <br>
-
+                        <br>
                         <div horizontal layout>
                             <label class="control">
                                 <input name="go_bp" id="go_bp" type="checkbox" value="gobp">
@@ -319,7 +328,8 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label>
+                    <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
