@@ -76,7 +76,6 @@
             label {
                 display: block;
             }
-
         </style>
         <div class="title" horizontal layout>
             <div flex>
@@ -170,7 +169,7 @@
                     <div id="options">
                         <label>Fisher exact test</label>
 
-                        <div class="select" style="width:200px;">
+                        <div class="select">
                             <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
                                 <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two
                                     tailed
@@ -186,7 +185,7 @@
                         </div>
                         <label>Remove duplicates</label>
 
-                        <div class="select" style="width:200px;">
+                        <div class="select">
                             <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
                                 <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never
                                 </option>
@@ -209,7 +208,7 @@
                 <div class="formtitle">Databases</div>
                 <div class="formcontent">
                     <div id="databases">
-                        <div class="select" style="width:200px;">
+                        <div class="select">
                             <select name="species" id="species" class="fc-combobox" type="text" value="none"
                                     on-change="{{handleSpecies}}">
                                 <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
@@ -429,25 +428,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="formbox">
-                    <div class="formtitle">Job information</div>
-                    <div class="formcontent">
-                        <label>Output folder</label>
-                        <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                        <br>
-                        <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
-                        <label>Description</label>
-                        <textarea value="{{description}}" required></textarea>
-                    </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <br>
+                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
                 </div>
+            </div>
 
-                <div class="botbar" horizontal layout center-justified>
-                    <div class="button action big" on-click="{{handleForm}}">
-                        <font-awesome icon="rocket"></font-awesome>
-                        &nbsp; Launch job
-                    </div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
                 </div>
+            </div>
             </div>
         </form>
         <div class="message">{{message}}</div>

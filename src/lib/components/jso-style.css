@@ -56,9 +56,6 @@ input, select {
     width: 100%;
 }
 
-.select {
-    position: relative;
-}
 
 .select:after {
     position: absolute;
@@ -92,6 +89,10 @@ label.button > input[type=checkbox] + span {
     font-family: inherit;
     color: inherit;
     height: 23px;
+}
+.select {
+    position: relative;
+    display: inline-block;
 }
 
 input[type=number] {
