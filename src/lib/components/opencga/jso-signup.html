@@ -91,8 +91,17 @@
             },
             handleForm: function (e) {
                 this.message = '';
-                if (this.$.form.checkValidity() && (this.password === this.check)) {
-                    this._signup();
+
+                if (this.$.form.checkValidity()) {
+                    if (this.password === this.check) {
+                        this._signup();
+                    }
+                    else{
+                        alert("Sorry, your password does not match");
+                    }
+                }
+                else{
+                    alert("Please, you should fill all the fields. Email should be in standard format.");
                 }
             },
             _signup: function () {
@@ -114,6 +123,7 @@
                                 me.login()
 
                             } else {
+                                debugger
                                 me.message = response.response[0].errorMsg;
                                 //Delete cookies
                                 Cookies.expire('bioinfo_sid');
