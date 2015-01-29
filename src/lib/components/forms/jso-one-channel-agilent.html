@@ -69,21 +69,25 @@
                 <div class="formtitle">Analysis</div>
                 <div class="formcontent" vertical layout>
                     Background correction:
-                    <select name="bg_correction" id="bg_correction" type="text" value="none">
-                        <option name="bg_correction_1" id="bg_correction_1" value="agilent" selected="selected">agilent</option>
-                        <option name="bg_correction_2" id="bg_correction_2" value="normexp">normexp</option>
-                        <option name="bg_correction_3" id="bg_correction_3" value="rma">rma</option>
-                        <option name="bg_correction_4" id="bg_correction_4" value="half">half</option>
-                        <option name="bg_correction_5" id="bg_correction_5" value="subtract">subtract</option>
-                        <option name="bg_correction_6" id="bg_correction_6" value="none">none</option>
-                    </select>
+                    <div class="select">
+                        <select name="bg_correction" id="bg_correction" type="text" value="none">
+                            <option name="bg_correction_1" id="bg_correction_1" value="agilent" selected="selected">agilent</option>
+                            <option name="bg_correction_2" id="bg_correction_2" value="normexp">normexp</option>
+                            <option name="bg_correction_3" id="bg_correction_3" value="rma">rma</option>
+                            <option name="bg_correction_4" id="bg_correction_4" value="half">half</option>
+                            <option name="bg_correction_5" id="bg_correction_5" value="subtract">subtract</option>
+                            <option name="bg_correction_6" id="bg_correction_6" value="none">none</option>
+                        </select>
+                    </div>
                     <br>
                     Between arrays normalization:
-                    <select name="ba_normalization" id="ba_normalization" type="text" value="quantiles">
-                        <option name="ba_normalization_1" id="ba_normalization_1" value="quantiles" selected="selected">quantiles</option>
-                        <option name="ba_normalization_2" id="ba_normalization_2" value="scale">scale</option>
-                        <option name="ba_normalization_3" id="ba_normalization_3" value="none">none</option>
-                    </select>
+                    <div class="select">
+                        <select name="ba_normalization" id="ba_normalization" type="text" value="quantiles">
+                            <option name="ba_normalization_1" id="ba_normalization_1" value="quantiles" selected="selected">quantiles</option>
+                            <option name="ba_normalization_2" id="ba_normalization_2" value="scale">scale</option>
+                            <option name="ba_normalization_3" id="ba_normalization_3" value="none">none</option>
+                        </select>
+                    </div>
                     <label class="control">
                         <input name="flags_no_fitted" id="flags_no_fitted" type="checkbox" value="true" checked="checked">
                         <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span></label>
@@ -98,7 +102,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>

@@ -2,7 +2,6 @@
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
-        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -36,6 +35,7 @@
             .message {
                 margin-top: 20px;
             }
+
 
 
         </style>
@@ -93,7 +93,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>

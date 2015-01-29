@@ -248,6 +248,23 @@ var Utils = {
         link = link + id;
         return link;
     },
+    myRound: function(value, decimals){
+        decimals = typeof decimals !== 'undefined' ? decimals : 2;
+        value = parseFloat(value);
+        /** rounding **/
+        if( value >= 1)
+            value = value.toFixed(decimals);
+        else
+            value = value.toPrecision(decimals);
+        value = parseFloat(value);
+        return value;
+    },
+    formatNumber: function(value, decimals){
+        value = Utils.myRound(value, decimals);
+        if(value < 0.001)
+            value = value.toExponential();
+        return value;
+    },
     test: function () {
         return this;
     },
