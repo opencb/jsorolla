@@ -16,6 +16,15 @@
         </style>
         <div id="networkWidget">
             <div>
+                <div class="select">
+                    <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
+                        <template repeat="{{spe in species}}">
+                            <option value="{{spe.value}}">
+                                {{spe.name}}
+                            </option>
+                        </template>
+                    </select>
+                </div>
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label>Select number of nodes in the top list of the differential expression result</label>
                     <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesTop}}">
@@ -39,6 +48,16 @@
                 this.ids = [];
                 this.networkNodesTop = 10;
                 this.networkNodesBottom = 10;
+                this.species = [
+                    {name: "Homo sapiens", value: "hsapiens"},
+                    {name: "Mus musculus", value: "mmusculus"},
+                    {name: "Rattus norvegicus", value: "rnorvegicus"},
+                    {name: "Drosophila melanogaster", value: "dmelanogaster"},
+                    {name: "Caenorhabditis elegans", value: "celegans"},
+                    {name: "Saccharomyces cerevisiae", value: "scerevisiae"},
+                    {name: "Danio rerio", value: "drerio"},
+                    {name: "Arabidopsis thaliana", value: "athaliana"}
+                ];
 
             },
             domReady: function () {
@@ -66,9 +85,10 @@
                 var intactImport = this.$.networkViewer.$.intactImport;
                 var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
                 var xrefDatabase = "hgnc_symbol";
-                var xrefDatabaseId = xrefDatabase+"id";
-                console.log(nodes)
-                intactImport.getGraph('hsapiens', nodes, function (graph) {
+                var xrefDatabaseId = xrefDatabase + "id";
+                console.log(nodes);
+                var species = this.$.species.value;
+                intactImport.getGraph(species, nodes, function (graph) {
                     me.$.networkViewer.setGraph(graph);
                     me.$.networkViewer.setLayout('Force directed');
 
