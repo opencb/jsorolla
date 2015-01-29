@@ -179,9 +179,7 @@
                     return;
                 }
 
-
-//                this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
-                this.correction = this.shadowRoot.querySelectorAll('input[name="correction"]').value;
+                this.correction = this.shadowRoot.querySelector('input[name="correction"]:checked').value;
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
