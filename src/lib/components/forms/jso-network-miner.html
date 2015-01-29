@@ -43,8 +43,9 @@
             .botbar {
                 margin-top: 10px;
             }
-            label{
-                display: block ;
+
+            label {
+                display: block;
             }
         </style>
         <div class="title" horizontal layout>
@@ -68,6 +69,7 @@
                     <!--<div class="button action" style="display:inline-block" on-click="{{loadExample3}}" style="width:300px;">Genes Up-regulated in Fanconi Anemia-->
                     <!--</div>-->
                     <div class="button action" on-click="{{loadExample4}}" style="width:300px;margin-top:5px;">Genes Down-regulated in Fanconi Anemia
+                    </div>
                 </div>
             </div>
 
@@ -418,7 +420,8 @@
 
             },
             createExampleFolder: function (exampleFolder) {
-                var me = this;                OpencgaManager.files.search({
+                var me = this;
+                OpencgaManager.files.search({
                     query: {
                         sid: Cookies('bioinfo_sid'),
                         studyId: me.$.outdir.selectedStudy.id,
