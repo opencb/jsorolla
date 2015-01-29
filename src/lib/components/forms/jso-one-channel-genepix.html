@@ -67,25 +67,32 @@
 
             <div class="formbox">
                 <div class="formtitle">Analysis</div>
-                <div class="formcontent" vertical layout>
+                <div class="formcontent">
                     Background correction:
-                    <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
-                        <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp" selected="selected">normexp</option>
-                        <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="rma">rma</option>
-                        <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="half">half</option>
-                        <option name="bg_correction_4" id="bg_correction_4" class="fc-combobox-item" value="subtract">subtract</option>
-                        <option name="bg_correction_5" id="bg_correction_5" class="fc-combobox-item" value="none">none</option>
-                    </select>
-                    <br>
+
+                    <div class="select">
+                        <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
+                            <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp" selected="selected">normexp</option>
+                            <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="rma">rma</option>
+                            <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="half">half</option>
+                            <option name="bg_correction_4" id="bg_correction_4" class="fc-combobox-item" value="subtract">subtract</option>
+                            <option name="bg_correction_5" id="bg_correction_5" class="fc-combobox-item" value="none">none</option>
+                        </select>
+                    </div>
+                    <br/>
                     Between arrays normalization:
-                    <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
-                        <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item" value="quantiles" selected="selected">quantiles</option>
-                        <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item" value="scale">scale</option>
-                        <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="none">none</option>
-                    </select>
+                    <div class="select">
+                        <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
+                            <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item" value="quantiles" selected="selected">quantiles</option>
+                            <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item" value="scale">scale</option>
+                            <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="none">none</option>
+                        </select>
+                    </div>
+                    <br>
                     <label class="control">
                         <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true" checked="checked">
                         <span>Check if flagged spots not be used in the fitting of the parameters of the normalization steps</span></label>
+                    <br>
                     <label class="control">
                         <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox" value="true">
                         <span>Check if true flagged spots will have a missing (NA) normalized value and A-value as well</span></label>

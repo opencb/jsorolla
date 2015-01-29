@@ -72,9 +72,10 @@
 
             <div class="formbox">
                 <div class="formtitle">Analysis</div>
-                <div class="formcontent" vertical layout>
+                <div class="formcontent">
                     Background correction:
-                    <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
+                   <div class="select">
+                        <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
                         <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp" selected="selected">normexp</option>
                         <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="half">half</option>
                         <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="subtract">subtract</option>
@@ -84,26 +85,32 @@
                         <option name="bg_correction_7" id="bg_correction_7" class="fc-combobox-item" value="rma">rma</option>
                         <option name="bg_correction_8" id="bg_correction_8" class="fc-combobox-item" value="none">none</option>
                     </select>
-                    <br>
+                                </div>
+                                <br/>
                     Within arrays normalization:
-                    <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text" value="loess">
+                   <div class="select">
+                        <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text" value="loess">
                         <option name="wa_normalization_1" id="wa_normalization_1" class="fc-combobox-item" value="loess" selected="selected">loess</option>
                         <option name="wa_normalization_2" id="wa_normalization_2" class="fc-combobox-item" value="median">median</option>
                         <option name="wa_normalization_3" id="wa_normalization_3" class="fc-combobox-item" value="none">none</option>
                     </select>
-                    <br>
+                                </div>
+                                <br/>
                     Between arrays normalization
-                    <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
+                   <div class="select">
+                        <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
                         <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item" value="quantiles" selected="selected">quantiles</option>
                         <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item" value="scale">scale</option>
                         <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="vsn">vsn</option>
                         <option name="ba_normalization_4" id="ba_normalization_4" class="fc-combobox-item" value="none">none</option>
                     </select>
-                    <br>
+                                </div>
+                                <br/>
                     <label class="control">
                     <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true" checked="checked">
                     <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span>
                     </label>
+                    <br>
                     <label class="control">
                     <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox" value="true">
                     <span>Check if flagged spots will have a missing (NA) normalized value and A-value as well</span></label>

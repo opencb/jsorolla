@@ -36,6 +36,9 @@
                 margin-top: 20px;
             }
 
+            /*label {*/
+            /*display: block;*/
+            /*}*/
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
@@ -65,9 +68,10 @@
                                                 bioformat="MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT"></jso-project-browser-window>
                 </div>
             </div>
+
             <div class="formbox">
                 <div class="formtitle">Analysis</div>
-                <div class="formcontent" vertical layout>
+                <div class="formcontent">
                     Background correction:
                     <div class="select">
                         <select name="bg_correction" id="bg_correction" type="text" value="none">
@@ -88,9 +92,11 @@
                             <option name="ba_normalization_3" id="ba_normalization_3" value="none">none</option>
                         </select>
                     </div>
+                    <br>
                     <label class="control">
                         <input name="flags_no_fitted" id="flags_no_fitted" type="checkbox" value="true" checked="checked">
                         <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span></label>
+                    <br>
                     <label class="control">
                         <input name="flags_as_missing" id="flags_as_missing" type="checkbox" value="true">
                         <span>Check if flagged spots will have a missing (NA) normalized value and A-value as well</span></label>
