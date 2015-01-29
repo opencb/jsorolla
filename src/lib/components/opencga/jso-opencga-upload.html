@@ -6,16 +6,6 @@
                 display: block;
                 background-color: #f0f0f0;
             }
-
-            label {
-                display: inline-block;
-                color: #666;
-            }
-
-            label::after {
-                content: ':'
-            }
-
             .action {
                 margin-top: 5px;
             }
@@ -87,7 +77,7 @@
 
             <!--<div hidden>-->
             <div>
-                <label>Select format</label>
+                <label>Select format:</label>
                 <jso-bioformat id="bioformat" bioformat="{{bioformat}}"></jso-bioformat>
             </div>
             <div hidden>
@@ -134,7 +124,7 @@
                 <!--<option value="VCF4">VCF4</option>-->
                 <!--<option value="NONE">NONE</option>-->
                 <!--</select>-->
-                <label>Description</label>
+                <label>Description:</label>
                 <input type="text" id="description" value="{{description}}" pattern="[a-zA-Z0-9\s]+">
 
                 <br>
@@ -177,56 +167,6 @@
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
             },
-            uploadFile: function (fileName) {
-                var me = this;
-                this.message = '';
-                var bioformat = this.$.bioformat.getSelected();
-                if (bioformat == "") {
-                    this.message = "Error: Please select a format";
-                    return;
-                }
-                if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
-
-                    this.uploading = true;
-
-                    var inputFile = this.$.fileInput.files[0];
-//                    var relativeFilePath = this.folder.path + inputFile.name.replace(/[^a-z0-9]/gi, '_');
-//                    var relativeFilePath = this.folder.path + inputFile.name;
-                    var relativeFilePath = this.folder.path + fileName;
-
-                    var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
-
-                    fileuploadWorker.onmessage = function (e) {
-                        var res = e.data;
-                        console.log("@@@@@@@@@@@@@@@@ WORKER event message");
-                        console.log(res);
-                        var part = res.chunkId + 1;
-                        me.percentProgress = Math.round((part / res.total) * 100);
-                        if (res.finished == true) {
-                            me.message = 'Done';
-                            me.uploading = false;
-                            me.fire('file-uploaded');
-                        }
-                    };
-
-
-                    fileuploadWorker.postMessage({
-                        'host': OPENCGA_HOST,
-                        'userId': Cookies("bioinfo_user"),
-                        'sid': Cookies("bioinfo_sid"),
-
-                        'studyId': this.study.id,
-                        'file': inputFile,
-                        'fileName': fileName,
-                        'fileFormat': this.fileFormat,
-                        'bioFormat': bioformat,
-                        'description': this.description,
-                        'relativeFilePath': relativeFilePath,
-
-                        'resume': true
-                    });
-                }
-            },
             handleForm: function () {
                 var me = this;
                 OpencgaManager.files.filesByFolder({
@@ -238,16 +178,17 @@
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var filesList = response.response[0].result;
-                                var fileName = me.$.fileInput.files[0].name;
+                                me.fileName = me.$.fileInput.files[0].name;
                                 for (var i = 0; i < filesList.length; i++) {
                                     var file = filesList[i];
-                                    if (file.name == fileName) {
-                                        fileName = fileName + Math.floor(Math.random() * (999 - 100 + 1));
-                                        alert("File already exists. It will be uploaded as " + fileName + ".");
+                                    if (file.name == me.fileName) {
+                                        me.fileName = me.fileName + Math.floor(Math.random() * (999 - 100 + 1));
+                                        alert("File already exists. It will be uploaded as " + me.fileName + ".");
                                         break;
                                     }
                                 }
-                                me.uploadFile(fileName);
+                                me.relativeFilePath = me.folder.path + me.fileName;
+                                me.uploadFile();
 
                             }
                         },
@@ -255,57 +196,165 @@
                             me.message = 'Server error, try again later.';
                         }
                     }
-                })
-
-
-//                var me = this;
-//                this.message = '';
-//                var bioformat = this.$.bioformat.getSelected();
-//                if (bioformat == "") {
-//                    this.message = "Error: Please select a format";
-//                    return;
-//                }
-//                if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
-//
-//                    this.uploading = true;
-//
-//                    var inputFile = this.$.fileInput.files[0];
-////                    var relativeFilePath = this.folder.path + inputFile.name.replace(/[^a-z0-9]/gi, '_');
-//                    var relativeFilePath = this.folder.path + inputFile.name;
-//
-//                    var fileuploadWorker = new Worker(WORKERS_PATH + 'worker-fileupload.js');
-//
-//                    fileuploadWorker.onmessage = function (e) {
-//                        var res = e.data;
-//                        console.log("@@@@@@@@@@@@@@@@ WORKER event message");
-//                        console.log(res);
-//                        var part = res.chunkId + 1;
-//                        me.percentProgress = Math.round((part / res.total) * 100);
-//                        if (res.finished == true) {
-//                            me.message = 'Done';
-//                            me.uploading = false;
-//                            me.fire('file-uploaded');
-//                        }
-//                    };
-//
-//
-//                    fileuploadWorker.postMessage({
-//                        'host': OPENCGA_HOST,
-//                        'userId': Cookies("bioinfo_user"),
-//                        'sid': Cookies("bioinfo_sid"),
-//
-//                        'studyId': this.study.id,
-//                        'file': inputFile,
-//                        'fileFormat': this.fileFormat,
-//                        'bioFormat': bioformat,
-//                        'description': this.description,
-//                        'relativeFilePath': relativeFilePath,
-//
-//                        'resume': true
-//                    });
-//                }
+                });
             },
-            searchFile: function (fileName) {
+            uploadFile: function () {
+                var me = this;
+                this.message = '';
+                this.bioformat = this.$.bioformat.getSelected();
+                if (this.bioformat == "") {
+                    this.message = "Error: Please select a format";
+                    return;
+                }
+                if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
+
+                    this.uploading = true;
+                    this._upload(function (chunk, total) {
+                        me.percentProgress = Math.round((chunk.id / total) * 100);
+                        if (chunk.last) {
+                            me.percentProgress = 100;
+                            me.message = 'Done';
+                            me.uploading = false;
+                            me.fire('file-uploaded');
+                        }
+                    });
+
+                }
+            },
+            _upload: function (callbackProgress) {
+                var me = this;
+                var url = OpencgaManager.files.upload({
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        url: true
+                    }
+                });
+                var inputFile = this.$.fileInput.files[0];
+                var fileName = this.fileName;
+                var userId = Cookies("bioinfo_user");
+                var studyId = this.study.id;
+                var relativeFilePath = this.relativeFilePath;
+                var fileFormat = this.fileFormat;
+                var bioFormat = this.bioformat;
+                var description = this.description;
+
+                var resume = true;
+                var resumeInfo = {};
+                var chunkMap = {};
+                var chunkId = 0;
+                var blob = inputFile;
+                var BYTES_PER_CHUNK = 2 * 1024 * 1024;
+                var SIZE = blob.size;
+                var NUM_CHUNKS = Math.max(Math.ceil(SIZE / BYTES_PER_CHUNK), 1);
+                var start;
+                var end;
+
+
+                var getResumeInfo = function (formData) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', url, false);//false = sync call
+                    xhr.send(formData);
+                    var response = JSON.parse(xhr.responseText);
+                    return response.response[0];
+                };
+                var checkChunk = function (id, size, resumeInfo) {
+                    if (typeof resumeInfo[id] === 'undefined') {
+                        return false;
+                    } else if (resumeInfo[id].size != size /*|| resumeInfo[id].hash != hash*/) {
+                        return false;
+                    }
+                    return true;
+                };
+                var processChunk = function (c) {
+                    var chunkBlob = blob.slice(c.start, c.end);
+
+                    if (checkChunk(c.id, chunkBlob.size, resumeInfo) == false) {
+                        var formData = new FormData();
+                        formData.append('chunk_content', chunkBlob);
+                        formData.append('chunk_id', c.id);
+                        formData.append('chunk_size', chunkBlob.size);
+                        /*formData.append('chunk_hash', hash);*/
+                        formData.append("filename", fileName);
+                        formData.append('userId', userId);
+                        formData.append('studyId', studyId);
+                        formData.append('relativeFilePath', relativeFilePath);
+                        /*formData.append('chunk_gzip', );*/
+                        if (c.last) {
+                            formData.append("last_chunk", true);
+                            formData.append("total_size", SIZE);
+                            formData.append("fileFormat", fileFormat);
+                            formData.append("bioFormat", bioFormat);
+                            formData.append("description", description);
+                        }
+                        uploadChunk(formData, c, function () {
+                            callbackProgress(c, NUM_CHUNKS);
+                            if (!c.last) {
+                                processChunk(chunkMap[(c.id + 1)]);
+                            } else {
+
+                            }
+                        });
+                    } else {
+                        callbackProgress(c, NUM_CHUNKS);
+                        if (!c.last) {
+                            processChunk(chunkMap[(c.id + 1)]);
+                        } else {
+
+                        }
+                    }
+
+                };
+                var uploadChunk = function (formData, chunk, callback) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', url, true);
+                    xhr.upload.onprogress = function (e) {
+                        if (e.lengthComputable) {
+                            var value = parseFloat(Math.round((e.loaded / e.total) * 100));
+                            console.log(parseFloat(value) + '%');
+                        }
+                    };
+                    xhr.onloadend = function (e) {
+//                        console.log('All Done!');
+                        chunk.done = true;
+                        callback();
+                    };
+                    xhr.send(formData);
+                };
+
+                /**/
+                /**/
+
+                if (resume) {
+                    var resumeFormData = new FormData();
+                    resumeFormData.append('resume_upload', resume);
+                    resumeFormData.append('filename', fileName);
+                    resumeFormData.append('userId', userId);
+                    resumeFormData.append('studyId', studyId);
+                    resumeFormData.append('relativeFilePath', relativeFilePath);
+                    resumeInfo = getResumeInfo(resumeFormData);
+                }
+
+                start = 0;
+                end = BYTES_PER_CHUNK;
+                while (start < SIZE) {
+                    var last = false;
+                    if (chunkId == (NUM_CHUNKS - 1)) {
+                        last = true;
+                    }
+                    chunkMap[chunkId] = {
+                        id: chunkId,
+                        start: start,
+                        end: end,
+                        done: false,
+                        last: last
+                    };
+                    start = end;
+                    end = start + BYTES_PER_CHUNK;
+                    chunkId++;
+                }
+                processChunk(chunkMap[0]);
 
             }
         });

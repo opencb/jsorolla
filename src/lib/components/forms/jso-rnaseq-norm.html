@@ -1,6 +1,8 @@
 <polymer-element name="jso-rnaseq-norm" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -31,31 +33,11 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-
             .message {
                 margin-top: 20px;
             }
 
 
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-            span {
-                border: 1px solid;
-            }
         </style>
         <div class="tooltitle">
             <div>
@@ -91,12 +73,17 @@
             <div class="formbox">
                 <div class="formtitle">Normalization method</div>
                 <div class="formcontent">
-                    <div id="methodDiv">
-                        <input id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">Choose automatically the
-                        normalization method<br>
-                        <input id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}">Choose manually the normalization method<br>
-                        <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}" style="margin-left: 20px">TMM<br>
-                        <input id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}" style="margin-left: 20px">RPKM
+                    <div id="methodDiv" vertical layout>
+                        <label class="control">
+                            <input id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">
+                            <span>Choose automatically the normalization method</span>
+                        </label>
+                        <label class="control">
+                            <input id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}"><span>Choose manually the normalization method</span></label>
+                        <label class="control" style="margin-left: 20px">
+                            <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}" ><span>TMM</span></label>
+                        <label class="control"  style="margin-left: 20px">
+                            <input id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}"><span>RPKM</span></label>
                     </div>
                 </div>
             </div>
@@ -111,12 +98,13 @@
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -179,7 +167,7 @@
             loadExample1: function (e) {
                 this.jobName = "rna_norm";
                 this.description = "just_an_rna_example";
-                this.$.inputFile.selectedFile = {id: "example_counts_table_4babelomics.txt", path: "counts_table_4babelomics.txt", type: "FILE"};
+                this.$.inputFile.selectedFile = {id: "example_normalization.txt", path: "normalization.txt", type: "FILE"};
                 this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"};
                 this.$.tmm.checked = true;
                 var exampleFolder = "rna_norm";

@@ -20,8 +20,7 @@
  */
 
 var CellBaseManager = {
-    host: 'https://www.ebi.ac.uk/cellbase/webservices/rest',
-    //host: 'https://wwwdev.ebi.ac.uk/cellbase/webservices/rest/',
+    host: (typeof CELLBASE_HOST === 'undefined') ? 'https://www.ebi.ac.uk/cellbase/webservices/rest' : CELLBASE_HOST,
     version: 'v3',
     get: function (args) {
         var success = args.success;

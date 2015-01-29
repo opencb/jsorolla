@@ -1,6 +1,7 @@
 <polymer-element name="jso-clustering" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -31,31 +32,13 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-
             .message {
                 margin-top: 20px;
             }
 
-
-
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
-
-            span {
-                border: 1px solid;
-            }
 
             input[type="text"]:disabled {
                 background: #dddddd;
@@ -89,26 +72,30 @@
             <div class="formbox">
                 <div class="formtitle">Select type of clustering: samples and/or genes</div>
                 <div class="formcontent">
+                    <label class="control">
                     <input name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox"
                            value="true" checked="checked" on-click="{{clusteringTypeClick}}">
-                    Clustering of samples
-                    <br>
+                    <span>Clustering of samples</span></label>
+                    <label class="control">
                     <input name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true"
                            on-click="{{clusteringTypeClick}}">
-                    Clustering of genes
+                    <span>Clustering of genes</span></label>
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">Select method</div>
                 <div class="formcontent">
-                    <div id="methodDiv">
-                        <input id="method_1" name="method" class="fc-radioitem" type="radio" value="upgma"
-                               checked="checked" on-click="{{methodClick}}"> UPGMA <br>
-                        <input id="method_2" name="method" class="fc-radioitem" type="radio" value="sota"
-                               on-click="{{methodClick}}"> SOTA<br>
-                        <input id="method_3" name="method" class="fc-radioitem" type="radio" value="kmeans"
-                               on-click="{{methodClick}}"> K-means<br>
+                    <div id="methodDiv" vertical layout>
+                        <label class="control">
+                            <input id="method_1" name="method" class="fc-radioitem" type="radio" value="upgma"
+                                   checked="checked" on-click="{{methodClick}}"> <span>UPGMA </span></label>
+                        <label class="control">
+                            <input id="method_2" name="method" class="fc-radioitem" type="radio" value="sota"
+                                   on-click="{{methodClick}}"><span> SOTA </span></label>
+                        <label class="control">
+                            <input id="method_3" name="method" class="fc-radioitem" type="radio" value="kmeans"
+                                   on-click="{{methodClick}}"> <span>K-means </span></label>
                     </div>
                     <label>Number of sample-clusters (k-value)</label>
                     <input name="sample_kvalue" id="sample_kvalue" class="fc-int fc-text" type="text"
@@ -121,15 +108,19 @@
             <div class="formbox">
                 <div class="formtitle">Select distance</div>
                 <div class="formcontent">
-                    <div id="distanceDiv">
-                        <input id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean"
-                               checked="checked">Euclidean (normal)<br>
-                        <input id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square">
-                        Euclidean (square)<br>
-                        <input id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman">
-                        Correlation coeff. (Spearman)<br>
-                        <input id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">Pearson
-                        correlation coeff.
+                    <div id="distanceDiv" vertical layout>
+                        <label class="control">
+                            <input id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean"
+                                   checked="checked"><span>Euclidean (normal)</span></label>
+                        <label class="control">
+                            <input id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square">
+                            <span>Euclidean (square)</span></label>
+                        <label class="control">
+                            <input id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman">
+                            <span>Correlation coeff. (Spearman)</span></label>
+                        <label class="control">
+                            <input id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">
+                            <span>Pearson correlation coeff.</span></label>
                     </div>
                 </div>
             </div>
@@ -145,12 +136,13 @@
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>

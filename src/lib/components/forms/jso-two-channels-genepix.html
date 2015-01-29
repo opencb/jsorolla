@@ -1,6 +1,7 @@
 <polymer-element name="jso-two-channels-genepix" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -31,31 +32,14 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-
             .message {
                 margin-top: 20px;
             }
-
-
 
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
         </style>
         <div class="tooltitle">
             <div>
@@ -84,7 +68,7 @@
 
             <div class="formbox">
                 <div class="formtitle">Analysis</div>
-                <div class="formcontent">
+                <div class="formcontent" vertical layout>
                     Background correction:
                     <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
                         <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp"
@@ -144,13 +128,15 @@
                         </option>
                     </select>
                     <br>
-                    <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true"
-                           checked="checked">
-                    Check if flagged spots will not be used in the fitting of the parameters of the normalization steps
-                    <br>
-                    <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox"
-                           value="true">
-                    Check if flagged spots will have a missing (NA) normalized value and A-value as well
+                    <label class="control">
+                        <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true"
+                               checked="checked">
+
+                        <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span></label>
+                    <label class="control">
+                        <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox"
+                               value="true">
+                        <span>Check if flagged spots will have a missing (NA) normalized value and A-value as well</span></label>
                 </div>
             </div>
 
@@ -167,12 +153,13 @@
             </div>
             </div>
             </div>
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>

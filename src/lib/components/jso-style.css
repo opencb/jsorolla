@@ -56,22 +56,13 @@ input, select {
     width: 100%;
 }
 
-.select {
-    position: relative;
-}
-
 .select:after {
     position: absolute;
     box-sizing: border-box;
-    height: 23px;
-    top: 0px;
-    right: 0px;
-    line-height: 21px;
-    padding: 0px 3px;
+    top: 6px;
+    right: 5px;
     color: inherit;
-    background-color: #fff;
     font-family: FontAwesome;
-    border: 1px solid #d3d3d3;
     content: '\f0d7';
 }
 
@@ -97,6 +88,13 @@ label.button > input[type=checkbox] + span {
     font-family: inherit;
     color: inherit;
     height: 23px;
+}
+.select {
+    position: relative;
+    display: inline-block;
+}
+.select > select{
+    padding-right:15px;
 }
 
 input[type=number] {

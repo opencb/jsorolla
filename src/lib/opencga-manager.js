@@ -85,7 +85,7 @@
 var OpencgaManager = {
 //    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080/opencga/rest' : OPENCGA_HOST,
-    version: 'v3',
+    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v3' : OPENCGA_VERSION,
 
     users: {
         login: function (args) {
@@ -157,7 +157,7 @@ var OpencgaManager = {
         analysis: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'analysis');
         },
-        job:function(args){
+        job: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'job');
         }
     },
@@ -204,7 +204,15 @@ var OpencgaManager = {
         },
         modify: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'modify');
+        },
+        download: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'download');
+        },
+        upload: function (args) {
+            //chunked upload only
+            return OpencgaManager._doRequest(args, 'files', 'upload');
         }
+
     },
     jobs: {
         create: function (args) {
