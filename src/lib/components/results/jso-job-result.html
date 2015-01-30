@@ -837,6 +837,20 @@
                             res.appendChild(sortableTable);
 //                            }
                         }
+                        if (element.tags.indexOf("TABLE,BURDEN") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+//                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            var sortableTable = document.createElement('jso-generic-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
+
                         if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
 
                             if (element.value.indexOf(me.pvalue) >= 0) {
