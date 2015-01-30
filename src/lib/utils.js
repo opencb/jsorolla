@@ -254,7 +254,7 @@ var Utils = {
         decimals = typeof decimals !== 'undefined' ? decimals : 2;
         value = parseFloat(value);
         /** rounding **/
-        if( value >= 1)
+        if( Math.abs(value) >= 1)
             value = value.toFixed(decimals);
         else
             value = value.toPrecision(decimals);
@@ -263,9 +263,19 @@ var Utils = {
     },
     formatNumber: function(value, decimals){
         value = Utils.myRound(value, decimals);
-        if(value < 0.001)
+
+        if(Math.abs(value) > 0 && Math.abs(value) < 0.001)
             value = value.toExponential();
         return value;
+    },
+    getSpecies: function(specieValue, species){
+        for (var i = 0; i < species.length; i++) {
+            var specie = species[i];
+            if(specie.value == specieValue){
+                return specie;
+            }
+        }
+        return null;
     },
     test: function () {
         return this;

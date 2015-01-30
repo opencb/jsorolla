@@ -69,8 +69,8 @@
                         "term_size_genome": localData[2],
                         "annotated_genes": localData[3],
                         "converged": localData[4],
-                        "lor": parseFloat(localData[5]).toFixed(3),
-                        "adj_pvalue": parseFloat(localData[6]).toFixed(3),
+                        "lor": Utils.formatNumber(localData[5]),
+                        "adj_pvalue": Utils.formatNumber(localData[6]),
                         link: link
                     };
                     this.data.push(obj)

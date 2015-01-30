@@ -95,9 +95,9 @@
                         "term_size_genome": localData[2],
                         "term_annotations_list_perc": listObjPerc,//"list 1: "+localData[5]+"%"+",list 2: "+localData[8]+"%",
                         "annotated_ids_list": listObj,
-                        "odds_ratio": parseFloat(localData[11]).toExponential(2),
-                        "pvalue": parseFloat(localData[12]).toFixed(3),
-                        "adj_pvalue": parseFloat(localData[13]).toFixed(3),
+                        "odds_ratio": Utils.formatNumber(localData[11]),
+                        "pvalue": Utils.formatNumber(localData[12]),
+                        "adj_pvalue": Utils.formatNumber(localData[13]),
                         link: link
                     };
                     this.data.push(obj)

@@ -539,6 +539,10 @@
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
+                if(this.$.species.value == "none"){
+                    alert("Sorry. No species selected. Please select one. ");
+                    return
+                }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,
