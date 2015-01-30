@@ -1,6 +1,7 @@
 <polymer-element name="jso-oncodrivefm" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -31,31 +32,14 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-
             .message {
                 margin-top: 20px;
             }
-
-
 
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
         </style>
         <div class="tooltitle">
             <div>
@@ -70,14 +54,17 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA example</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA
+                        example
+                    </div>
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
                                                 bioformat="VARIANT"></jso-project-browser-window>
                 </div>
             </div>
@@ -87,24 +74,32 @@
                 <div class="formcontent">
                     <div id="methodDiv">
                         Human genome version:
-                        <select name="gver" id="gver" type="text" value="none">
-                            <option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>
-                            <option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>
-                        </select>
+                        <div class="select" style="margin-bottom: 2px">
+                            <select name="gver" id="gver" type="text" value="none">
+                                <option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>
+                                <option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>
+                            </select>
+                        </div>
                         <br/>
                         Global score estimator:
-                        <select name="estimator" id="estimator" type="text" value="none">
-                            <option name="estimator_median" id="estimator_median" value="median" selected="selected">median</option>
-                            <option name="estimator_mean" id="estimator_mean" value="mean">mean</option>
-                        </select>
+                        <div class="select">
+                            <select name="estimator" id="estimator" type="text" value="none">
+                                <option name="estimator_median" id="estimator_median" value="median"
+                                        selected="selected">median
+                                </option>
+                                <option name="estimator_mean" id="estimator_mean" value="mean">mean</option>
+                            </select>
+                        </div>
                         <br/>
                         Minimum number of mutations per gene:
-                        <select name="gt" id="gt" type="text" value="none">
-                            <option name="gt1" id="gt1" value="1">1</option>
-                            <option name="gt3" id="gt3" value="3" selected="selected">3</option>
-                            <option name="gt5" id="gt5" value="5">5</option>
-                            <option name="gt10" id="gt10" value="10">10</option>
-                        </select>
+                        <div class="select">
+                            <select name="gt" id="gt" type="text" value="none">
+                                <option name="gt1" id="gt1" value="1">1</option>
+                                <option name="gt3" id="gt3" value="3" selected="selected">3</option>
+                                <option name="gt5" id="gt5" value="5">5</option>
+                                <option name="gt10" id="gt10" value="10">10</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -113,14 +108,16 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                                                selectionMode="folder"
+                                                showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}"
+                                                   required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>

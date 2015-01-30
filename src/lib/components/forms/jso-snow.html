@@ -45,8 +45,8 @@
                 height: 50px;
             }
 
-            label{
-                display: block ;
+            label {
+                display: block;
             }
 
         </style>
@@ -62,9 +62,12 @@
         <form id="form">
             <div class="formbox">
                 <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}" style="width:300px;">
+                <div class="formcontent" vertical layout>
+                    <div class="button action" style="width:500px;" on-click="{{loadExample1}}">
                         Downregulated in fibroblasts from old individuals, compared to young
+                    </div>
+                    <div class="button action" style="width:500px;margin-top:5px;" on-click="{{loadExample2}}">
+                        Upregulated by induction of exogenous BRCA1 in EcR-293 cells
                     </div>
                 </div>
             </div>
@@ -265,17 +268,18 @@
                 this.randoms = 500;
             },
             argsChanged: function () {
-                Utils.argsParser(this, this.args);
-                if (this.args.mode !== undefined) {
-                    var radios = this.shadowRoot.querySelectorAll('input[name="mode"]');
-                    for (var i = 0; i < radios.length; i++) {
-                        var radio = radios[i];
-                        if (radio.value == this.args.mode)
-                            radio.checked = true;
+                if (this.toolName == this.args.tool) {
+                    Utils.argsParser(this, this.args);
+                    if (this.args.mode !== undefined) {
+                        var radios = this.shadowRoot.querySelectorAll('input[name="mode"]');
+                        for (var i = 0; i < radios.length; i++) {
+                            var radio = radios[i];
+                            if (radio.value == this.args.mode)
+                                radio.checked = true;
+                        }
+                        this.modeChanged();
                     }
-                    this.modeChanged();
                 }
-
 //                this.message = '';
 //                this.jobName = "Job name";
 //                this.description = "description";
@@ -389,6 +393,22 @@
 //                this.$.intermediate.value = 1;
                 this.$.intermediate_2.checked = true;
                 var exampleFolder = "snow_downregulated";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample2: function (e) {
+                this.message = '';
+                this.jobName = "Upregulated by induction of exogenous BRCA1 in EcR-293 cells";
+                this.description = "";
+                this.$.inputFile.selectedFile = {id: "example_brca1_overexp_up.txt", path: "brca1_overexp_up.txt", type: "FILE"};
+                this.$.interactome.value = "hsa";
+                this.$.type_3.checked = true;
+                this.$.side_1.checked = true;
+                this.$.group_2.checked = true;
+//                this.$.randoms.value = 500;
+//                this.$.intermediate.value = 1;
+                this.$.intermediate_1.checked = true;
+                var exampleFolder = "snow_Upregulated";
                 this.createExampleFolder(exampleFolder);
 
             },

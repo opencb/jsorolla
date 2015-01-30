@@ -16,13 +16,22 @@
         </style>
         <div id="networkWidget">
             <div>
+                <div class="select">
+                    <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
+                        <template repeat="{{spe in species}}">
+                            <option value="{{spe.value}}">
+                                {{spe.name}}
+                            </option>
+                        </template>
+                    </select>
+                </div>
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label>Select number of nodes in the top list of the differential expression result</label>
-                    <input type="text" style="margin-right: 2px" value="{{networkNodesTop}}" size="4">
+                    <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesTop}}">
                 </div>
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label>Select number of nodes in the bottom list of the differential expression result</label>
-                    <input type="text" style="margin-right: 2px" value="{{networkNodesBottom}}" size="4">
+                    <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesBottom}}">
                 </div>
                 <div class="button action"
                      style="width: 110px; margin-top: 5px; margin-bottom: 5px; "
@@ -39,6 +48,16 @@
                 this.ids = [];
                 this.networkNodesTop = 10;
                 this.networkNodesBottom = 10;
+                this.species = [
+                    {name: "Homo sapiens", value: "hsapiens"},
+                    {name: "Mus musculus", value: "mmusculus"},
+                    {name: "Rattus norvegicus", value: "rnorvegicus"},
+                    {name: "Drosophila melanogaster", value: "dmelanogaster"},
+                    {name: "Caenorhabditis elegans", value: "celegans"},
+                    {name: "Saccharomyces cerevisiae", value: "scerevisiae"},
+                    {name: "Danio rerio", value: "drerio"},
+                    {name: "Arabidopsis thaliana", value: "athaliana"}
+                ];
 
             },
             domReady: function () {
@@ -65,24 +84,26 @@
 
                 var intactImport = this.$.networkViewer.$.intactImport;
                 var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
-
-                console.log(nodes)
-                intactImport.getGraph('hsapiens', nodes, function (graph) {
+                var xrefDatabase = "hgnc_symbol";
+                var xrefDatabaseId = xrefDatabase + "id";
+                console.log(nodes);
+                var species = this.$.species.value;
+                intactImport.getGraph(species, nodes, function (graph) {
                     me.$.networkViewer.setGraph(graph);
                     me.$.networkViewer.setLayout('Force directed');
 
                     cellbaseAttributeImport.uncheckAllDatabases();
-                    cellbaseAttributeImport.checkDatabase('Uniprot_gn');
+                    cellbaseAttributeImport.checkDatabase(xrefDatabase);
 
                     cellbaseAttributeImport.retrieveData('id', 'hsapiens', function () {
-                        me.$.networkViewer.selectVertexDefaultLabelAttribute('Uniprot_gnid');
+                        me.$.networkViewer.selectVertexDefaultLabelAttribute(xrefDatabaseId);
                         cellbaseAttributeImport.uncheckAllDatabases();
 
                         for (var i = 0; i < me.$.networkViewer.vAttr.data.length; i++) {
                             var row = me.$.networkViewer.vAttr.data[i];
-                            var val = row['Uniprot_gnid'];
+                            var val = row[xrefDatabaseId];
                             if (!val || val == '') {
-                                row['Uniprot_gnid'] = row['id'];
+                                row[xrefDatabaseId] = row['id'];
                             }
                             else {
                                 var vals = val.split(",");
@@ -93,9 +114,9 @@
                                         newVals.push(v);
                                     }
                                 }
-                                row['Uniprot_gnid'] = newVals.join(',')
+                                row[xrefDatabaseId] = newVals.join(',')
                             }
-                            if (nodesMap[row['Uniprot_gnid']] == true) {
+                            if (nodesMap[row[xrefDatabaseId]] == true) {
                                 var vertex = me.$.networkViewer.graph.getVertexById(row['id']);
                                 vertex.renderer.set("color", '' +
                                 '#f99494');

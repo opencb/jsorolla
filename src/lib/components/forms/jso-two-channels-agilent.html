@@ -1,6 +1,7 @@
 <polymer-element name="jso-two-channels-agilent" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
             display: block;
@@ -31,16 +32,7 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
 
-            label::after {
-                content: ':'
-            }
 
 
             .message {
@@ -53,9 +45,6 @@
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
         </style>
         <div class="tooltitle">
             <div>
@@ -85,7 +74,8 @@
                 <div class="formtitle">Analysis</div>
                 <div class="formcontent">
                     Background correction:
-                    <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
+                   <div class="select">
+                        <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
                         <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp" selected="selected">normexp</option>
                         <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="half">half</option>
                         <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="subtract">subtract</option>
@@ -95,27 +85,35 @@
                         <option name="bg_correction_7" id="bg_correction_7" class="fc-combobox-item" value="rma">rma</option>
                         <option name="bg_correction_8" id="bg_correction_8" class="fc-combobox-item" value="none">none</option>
                     </select>
-                    <br>
+                                </div>
+                                <br/>
                     Within arrays normalization:
-                    <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text" value="loess">
+                   <div class="select">
+                        <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text" value="loess">
                         <option name="wa_normalization_1" id="wa_normalization_1" class="fc-combobox-item" value="loess" selected="selected">loess</option>
                         <option name="wa_normalization_2" id="wa_normalization_2" class="fc-combobox-item" value="median">median</option>
                         <option name="wa_normalization_3" id="wa_normalization_3" class="fc-combobox-item" value="none">none</option>
                     </select>
-                    <br>
+                                </div>
+                                <br/>
                     Between arrays normalization
-                    <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
+                   <div class="select">
+                        <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
                         <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item" value="quantiles" selected="selected">quantiles</option>
                         <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item" value="scale">scale</option>
                         <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="vsn">vsn</option>
                         <option name="ba_normalization_4" id="ba_normalization_4" class="fc-combobox-item" value="none">none</option>
                     </select>
-                    <br>
+                                </div>
+                                <br/>
+                    <label class="control">
                     <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true" checked="checked">
-                    Check if flagged spots will not be used in the fitting of the parameters of the normalization steps
+                    <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span>
+                    </label>
                     <br>
+                    <label class="control">
                     <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox" value="true">
-                    Check if flagged spots will have a missing (NA) normalized value and A-value as well
+                    <span>Check if flagged spots will have a missing (NA) normalized value and A-value as well</span></label>
                 </div>
             </div>
             <div class="formbox">
@@ -124,15 +122,14 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
 <div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="button action big" on-click="{{handleForm}}">                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
             </div>        </form>

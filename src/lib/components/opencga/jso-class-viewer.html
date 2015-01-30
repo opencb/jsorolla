@@ -1,7 +1,10 @@
-<polymer-element name="jso-class-viewer" attributes="contentFile loadedMainSelect loadedChildrenSelect childrenDisplay variableTypes">
+<polymer-element name="jso-class-viewer" attributes="contentFile loadedMainSelect loadedChildrenSelect childrenDisplay variableTypes childrenSelectNumber">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-panel.css">
+        <link rel="stylesheet" href="../jso-form.css">
+
+
+        <!--<link rel="stylesheet" href="../jso-panel.css">-->
         <style>
             :host {
             }
@@ -18,16 +21,16 @@
         <!--<option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>-->
         <!--</select>-->
         <div id="jsoClassViewerId">
-            <label>Class name</label>
+            <label>Variables</label>
 
-            <div id="mainSelect">
+            <div id="mainSelect" class="select">
                 <!--<select id="selectClass" on-change="{{selectChange}}">-->
                 <select id="selectClass">
                     <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
                 </select>
             </div>
+            <br>
             <div id="childrenSelect">
-
             </div>
         </div>
     </template>
@@ -44,6 +47,9 @@
 
                 /** variableTypes is the type of variables that we want to display **/
                 this.variableTypes = "CATEGORICAL,NUMERIC,STRING";
+
+                /** number of childrensSelect **/
+                this.childrenSelectNumber = -1;
             },
             contentFileChanged: function (oldV, newV) {
                 var me = this;
@@ -57,6 +63,9 @@
                 this.$.childrenSelect.innerHTML = "";
                 this.loadedMainSelect = false;
                 this.loadedChildrenSelect = false;
+
+
+
 
                 /** Load data from content **/
                 var parseMatrix = new ParseMatrix(newV);
@@ -113,13 +122,23 @@
                 var me = this;
 //                this.loadedChildrenSelect = false;
                 this.$.childrenSelect.innerHTML = "";
+
+                /** add title element **/
+                var text = document.createTextNode("Attributes");
+                this.$.childrenSelect.appendChild(text);
+
                 var variables = this.dataClass["#VARIABLE"];
                 for (var i = 0; i < variables.length; i++) {
                     var variable = variables[i];
                     var name = variable[1];
                     if (name == this.$.selectClass.value) {
                         var typeValues = variable[2].split("{")[1].split("}")[0].split(",");
-                        for (var j = 0; j < typeValues.length; j++) {
+//                        for (var j = 0; j < typeValues.length; j++) {
+                        var selectNumber = typeValues.length;
+                        if (this.childrenSelectNumber != -1) {
+                            selectNumber = this.childrenSelectNumber;
+                        }
+                        for (var j = 0; j < selectNumber; j++) {
                             var select = document.createElement("select");
 //                            select.addEventListener("change", function () {
 //                                me.changeChildrenSelect()
@@ -136,7 +155,12 @@
                                 option.appendChild(text);
                                 select.appendChild(option);
                             }
-                            this.$.childrenSelect.appendChild(select);
+                            var div = document.createElement("div");
+
+                            div.setAttribute("class","select");
+                            div.setAttribute("style","margin-left:1px");
+                            div.appendChild(select);
+                            this.$.childrenSelect.appendChild(div);
                         }
                     }
                 }
@@ -149,7 +173,7 @@
                 return this.$.selectClass;
             },
             getChildrenSelect: function () {
-                return this.$.childrenSelect;
+                return this.$.childrenSelect.querySelectorAll("select");
             }
         });
     </script>

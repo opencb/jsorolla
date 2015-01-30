@@ -433,7 +433,8 @@
                                     || this.jobItem.toolName == "survival"
                                     || this.jobItem.toolName == "correlation"
                                     || this.jobItem.toolName == "burden"
-                                    || this.jobItem.toolName == "oncodrivefm") {
+                                    || this.jobItem.toolName == "oncodrivefm"
+                                    || this.jobItem.toolName == "oncodriveclust") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                 me.getFileContent(function (content) {
                                         var args = me._getRedirectionArgs(content);
@@ -570,7 +571,6 @@
 
                         break;
                     case "FILE":
-
 
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
                             if (this.jobItem.toolName == "affy-expression-normalization"

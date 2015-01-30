@@ -59,8 +59,8 @@
                     var obj = {
                         "hgnc": localData[0],
                         "ensembl": localData[1],
-                        "pvalue": localData[2],//Number(localData[1]).toExponential(),//parseFloat(localData[1]).toFixed(3),
-                        "qvalue": localData[3]//Number(localData[2]).toExponential()//parseFloat(localData[2]).toFixed(3)
+                        "pvalue": Utils.formatNumber(localData[2]),//Number(localData[1]).toExponential(),//parseFloat(localData[1]).toFixed(3),
+                        "qvalue": Utils.formatNumber(localData[3])//Number(localData[2]).toExponential()//parseFloat(localData[2]).toFixed(3)
                     };
                     this.data.push(obj)
                 }

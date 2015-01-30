@@ -1,6 +1,7 @@
 <polymer-element name="jso-prediction" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -31,31 +32,14 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-
             .message {
                 margin-top: 20px;
             }
-
-
 
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
         </style>
         <div class="tooltitle">
             <div>
@@ -100,47 +84,58 @@
             <div class="formbox">
                 <div class="formtitle">Algorithms</div>
                 <div class="formcontent">
-                    <div id="algorithmsDiv">
-                        <input name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked">
-                        SVM <br>
-                        <input name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> KNN <br>
-                        <input name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true">
-                        Random forest
+                    <div id="algorithmsDiv" vertical layout>
+                        <label class="control">
+                            <input name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked">
+                            <span>SVM</span></label>
+                        <label class="control">
+                            <input name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> <span>KNN </span></label>
+                        <label class="control">
+
+                            <input name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true">
+                            <span>Random forest</span></label>
                     </div>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Error estimation</div>
-                <div class="formcontent">
+                <div class="formcontent" vertical layout>
                     <label>Validations</label>
-                    <br>
-                    <input id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo"
-                           on-click="{{errorStimationClick}}"> Leave-one-out <br>
-                    <input id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold"
-                           on-click="{{errorStimationClick}}" checked="checked">KFold<br>
+                    <label class="control">
+                        <input id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo"
+                               on-click="{{errorStimationClick}}"><span>Leave-one-out</span></label>
+                    <label class="control">
+                        <input id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold"
+                               on-click="{{errorStimationClick}}" checked="checked"><span>KFold</span></label>
 
                     <div id="kfoldProp">
                         <label>repeats</label>
-                        <select name="repeats" id="repeats" class="fc-combobox" type="text" value="10">
-                            <option name="repeats_1" id="repeats_1" class="fc-combobox-item" value="5">5</option>
-                            <option name="repeats_2" id="repeats_2" class="fc-combobox-item" value="10"
-                                    selected="selected">10
-                            </option>
-                            <option name="repeats_3" id="repeats_3" class="fc-combobox-item" value="15">15</option>
-                            <option name="repeats_4" id="repeats_4" class="fc-combobox-item" value="20">20</option>
-                            <option name="repeats_5" id="repeats_5" class="fc-combobox-item" value="30">30</option>
-                        </select>
+
+                        <div class="select">
+                            <select name="repeats" id="repeats" class="fc-combobox" type="text" value="10">
+                                <option name="repeats_1" id="repeats_1" class="fc-combobox-item" value="5">5</option>
+                                <option name="repeats_2" id="repeats_2" class="fc-combobox-item" value="10"
+                                        selected="selected">10
+                                </option>
+                                <option name="repeats_3" id="repeats_3" class="fc-combobox-item" value="15">15</option>
+                                <option name="repeats_4" id="repeats_4" class="fc-combobox-item" value="20">20</option>
+                                <option name="repeats_5" id="repeats_5" class="fc-combobox-item" value="30">30</option>
+                            </select>
+                        </div>
                         <br>
                         <label>folds</label>
-                        <select name="folds" id="folds" class="fc-combobox" type="text" value="5">
-                            <option name="folds_1" id="folds_1" class="fc-combobox-item" value="5" selected="selected">
-                                5
-                            </option>
-                            <option name="folds_2" id="folds_2" class="fc-combobox-item" value="10">10</option>
-                            <option name="folds_3" id="folds_3" class="fc-combobox-item" value="15">15</option>
-                            <option name="folds_4" id="folds_4" class="fc-combobox-item" value="20">20</option>
-                            <option name="folds_5" id="folds_5" class="fc-combobox-item" value="30">30</option>
-                        </select>
+
+                        <div class="select">
+                            <select name="folds" id="folds" class="fc-combobox" type="text" value="5">
+                                <option name="folds_1" id="folds_1" class="fc-combobox-item" value="5" selected="selected">
+                                    5
+                                </option>
+                                <option name="folds_2" id="folds_2" class="fc-combobox-item" value="10">10</option>
+                                <option name="folds_3" id="folds_3" class="fc-combobox-item" value="15">15</option>
+                                <option name="folds_4" id="folds_4" class="fc-combobox-item" value="20">20</option>
+                                <option name="folds_5" id="folds_5" class="fc-combobox-item" value="30">30</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -149,15 +144,18 @@
                 <div class="formcontent">
                     <label>Subset selection method</label><br>
 
-                    <div id="featureSelectionDiv">
-                        <input id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio"
-                               value="cfs">Correlation-based
-                        Feature Selection (CFS) <br>
-                        <input id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio"
-                               value="pca">Principal
-                        Component Analysis (PCA) <br>
-                        <input id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio"
-                               value="none" checked="checked"> None
+                    <div id="featureSelectionDiv" vertical layout>
+                        <label class="control">
+                            <input id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio"
+                                   value="cfs"><span>Correlation-based
+                        Feature Selection (CFS)</span></label>
+                        <label class="control">
+                            <input id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio"
+                                   value="pca"><span>Principal
+                        Component Analysis (PCA)</span></label>
+                        <label class="control">
+                            <input id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio"
+                                   value="none" checked="checked"><span> None</span></label>
                     </div>
                 </div>
             </div>
@@ -168,18 +166,19 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -189,21 +188,23 @@
                 this.toolName = "class-prediction";
                 this.description = "Job description";
             },
-            argsChanged: function(){
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                if (this.args.list1 !== undefined)
-                    this.$.inputFile.selectedFile = this.args.list1;
-                if (this.args.inputFile !== undefined)
-                    this.$.inputFile.selectedFile = this.args.inputFile;
-                var radios = this.shadowRoot.querySelectorAll('input[name="svm"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.method)
-                        radio.checked = true;
+            argsChanged: function () {
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = "Job name";
+                    this.description = "description";
+                    if (this.args.list1 !== undefined)
+                        this.$.inputFile.selectedFile = this.args.list1;
+                    if (this.args.inputFile !== undefined)
+                        this.$.inputFile.selectedFile = this.args.inputFile;
+                    var radios = this.shadowRoot.querySelectorAll('input[name="svm"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.method)
+                            radio.checked = true;
+                    }
+                    this.getContentFile(this.$.inputFile.selectedFile);
                 }
-                this.getContentFile(this.$.inputFile.selectedFile);
             },
             list1Changed: function (oldV, newV) {
                 if (typeof oldV != 'undefined') {

@@ -1,6 +1,7 @@
 <polymer-element name="jso-association" attributes="userData selectedOption selectedStudy studies">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -31,31 +32,16 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
 
 
             .message {
                 margin-top: 20px;
             }
 
-
-
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
 
             input[type="text"]:disabled {
                 background: #dddddd;
@@ -89,15 +75,22 @@
             <div class="formbox">
                 <div class="formtitle">Select the association test</div>
                 <div class="formcontent">
-                    <div id="testDiv">
-                        <input id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc"
-                               checked="checked">Chi-square case/control association test<br>
-                        <input id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher">Fisher's exact
-                        test (allelic association)<br>
-                        <input id="test_3" name="test" class="fc-radioitem" type="radio" value="linear">Linear<br>
-                        <input id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic">Logistic<br>
-                        <input id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt">TDT (only for
-                        family-based analysis)
+                    <div id="testDiv" flex layout vertical>
+                        <label class="control">
+                            <input id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc"
+                                   checked="checked">
+                            <span>Chi-square case/control association test</span>
+                        </label>
+                        <label class="control">
+                            <input id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher"><span>Fisher's exact
+                        test (allelic association)</span></label>
+                        <label class="control">
+                            <input id="test_3" name="test" class="fc-radioitem" type="radio" value="linear"><span>Linear</span></label>
+                        <label class="control">
+                            <input id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic"><span>Logistic</span></label>
+                        <label class="control">
+                            <input id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt"><span>TDT (only for
+                        family-based analysis)</span></label>
                     </div>
                 </div>
             </div>
@@ -105,7 +98,7 @@
                 <div class="formtitle">Minor allele frequency</div>
                 <div class="formcontent">
                     <label>Select MAF value</label><input name="maf" id="maf" class="fc-int fc-text" type="text"
-                                                          value="{{maf}}" required>
+                                                          value="{{maf}}" style="width:50px;" required>
                 </div>
             </div>
             <div class="formbox">
@@ -114,18 +107,19 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>

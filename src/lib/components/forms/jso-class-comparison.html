@@ -1,6 +1,7 @@
 <polymer-element name="jso-class-comparison" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -31,31 +32,14 @@
                 font-size: 50px;
             }
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 3px;
-                /*width: 150px;*/
-            }
-
-            label::after {
-                content: ':'
-            }
-
-
             .message {
                 margin-top: 20px;
             }
-
-
 
             /*jso-file-browser {*/
             /*width: 70%;*/
             /*}*/
 
-            span {
-                border: 1px solid;
-            }
         </style>
         <div class="tooltitle">
             <div>
@@ -94,36 +78,53 @@
                 <div class="formtitle">Select test</div>
                 <div class="formcontent">
                     <div id="testDiv">
-                        <input id="one_rg_1" name="one_rg" class="fc-radioitem fc-disabled" type="radio" value="limma" checked="checked" disabled on-click="{{radioTestClicked}}">Limma
+                        <label class="control">
+                            <input id="one_rg_1" name="one_rg" class="fc-radioitem fc-disabled" type="radio" value="limma" checked="checked" disabled
+                                   on-click="{{radioTestClicked}}"><span>Limma</span>
+                        </label>
                         <hr>
-                        <input id="two_rg_1" name="two_rg" class="fc-radioitem" type="radio" value="t" checked="checked" disabled on-click="{{radioTestClicked}}">T-test<br>
-                        <input id="two_rg_2" name="two_rg" class="fc-radioitem" type="radio" value="limma" disabled on-click="{{radioTestClicked}}">Limma<br>
-                        <input id="two_rg_3" name="two_rg" class="fc-radioitem" type="radio" value="fold_change" disabled on-click="{{radioTestClicked}}">Fold-change
+                        <label class="control">
+                            <input id="two_rg_1" name="two_rg" class="fc-radioitem" type="radio" value="t" checked="checked" disabled
+                                   on-click="{{radioTestClicked}}"><span>T-test</span></label>
+                        <label class="control">
+                            <input id="two_rg_2" name="two_rg" class="fc-radioitem" type="radio" value="limma" disabled on-click="{{radioTestClicked}}"><span>Limma</span></label>
+                        <label class="control">
+                            <input id="two_rg_3" name="two_rg" class="fc-radioitem" type="radio" value="fold_change" disabled
+                                   on-click="{{radioTestClicked}}"><span>Fold-change</span></label>
+
                         <div id="fold_change_div" hidden>
                             <h3>Select fold-change value</h3>
                             <label>Fold-change value</label>
                             <input name="fold_change_value" id="fold_change_value" class="fc-decimal fc-text fc-disabled" type="text" value="2">
                         </div>
                         <hr>
-                        <input id="multi_rg_1" name="multi_rg" class="fc-radioitem fc-disabled" type="radio" value="anova" checked="checked" disabled
-                               on-click="{{radioTestClicked}}">Anova<br>
-                        <input id="multi_rg_2" name="multi_rg" class="fc-radioitem fc-disabled" type="radio" value="limma" disabled on-click="{{radioTestClicked}}">Limma<br>
+                        <label class="control">
+                            <input id="multi_rg_1" name="multi_rg" class="fc-radioitem fc-disabled" type="radio" value="anova" checked="checked" disabled
+                                   on-click="{{radioTestClicked}}"><span>Anova</span></label>
+                        <label class="control">
+                            <input id="multi_rg_2" name="multi_rg" class="fc-radioitem fc-disabled" type="radio" value="limma" disabled
+                                   on-click="{{radioTestClicked}}"><span>Limma</span></label>
                     </div>
                 </div>
             </div>
             <div id="multiple_test_correction_div">
                 <div class="formbox">
                     <div class="formtitle">Select multiple-test correction</div>
-                    <div class="formcontent">
+                    <div class="formcontent" vertical layout>
 
-                        <input id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked">Benjamini
-                        and Hochberg (BH), FDR <br>
-                        <input id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"> Benjamini and
-                        Yekutieli (BY) <br>
-                        <input id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg">Hochberg <br>
-                        <input id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm">Holm <br>
-                        <input id="correction_5" name="correction" class="fc-radioitem" type="radio"
-                               value="bonferroni">Bonferroni<br>
+                        <label class="control">
+                            <input id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked"><span>Benjamini
+                            and Hochberg (BH), FDR </span></label>
+                        <label class="control">
+                            <input id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"><span> Benjamini and
+                                Yekutieli (BY) </span></label>
+                        <label class="control">
+                            <input id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg"><span>Hochberg </span></label>
+                        <label class="control">
+                            <input id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm"><span>Holm </span></label>
+                        <label class="control">
+                            <input id="correction_5" name="correction" class="fc-radioitem" type="radio"
+                                   value="bonferroni"><span>Bonferroni</span></label>
                     </div>
                 </div>
             </div>
@@ -143,14 +144,14 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action" style="padding: 20px 50px" on-click="{{handleForm}}">
+                <div class="button action big" on-click="{{handleForm}}">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
@@ -179,20 +180,22 @@
 
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                if (this.args.list1 !== undefined)
-                    this.$.inputFile.selectedFile = this.args.list1;
-                if (this.args.inputFile !== undefined)
-                    this.$.inputFile.selectedFile = this.args.inputFile;
-                var radios = this.shadowRoot.querySelectorAll('input[name="correction"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.method)
-                        radio.checked = true;
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = "Job name";
+                    this.description = "description";
+                    if (this.args.list1 !== undefined)
+                        this.$.inputFile.selectedFile = this.args.list1;
+                    if (this.args.inputFile !== undefined)
+                        this.$.inputFile.selectedFile = this.args.inputFile;
+                    var radios = this.shadowRoot.querySelectorAll('input[name="correction"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.method)
+                            radio.checked = true;
+                    }
+                    this.getContentFile(this.$.inputFile.selectedFile);
                 }
-                this.getContentFile(this.$.inputFile.selectedFile);
             },
             handleFileSelect: function (e) {
                 var file = e.detail.file;
@@ -405,7 +408,7 @@
             loadedChildrenSelectChanged: function (oldV, newV) {
                 var me = this;
                 if (newV == true) {
-                    var childrenSelect = this.$.jsoClassViewer.getChildrenSelect().children;
+                    var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
                     for (var i = 0; i < childrenSelect.length; i++) {
                         var select = childrenSelect[i];
                         select.addEventListener("change", function () {
@@ -456,7 +459,7 @@
                 }
             },
             manageTest: function () {
-                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect().children;
+                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
                 var count = 0;
                 for (var i = 0; i < childrenSelect.length; i++) {
                     var select = childrenSelect[i];
@@ -518,7 +521,7 @@
                 }
             },
             getClassValues: function () {
-                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect().children;
+                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
                 var classValues = new Array();
                 for (var i = 0; i < childrenSelect.length; i++) {
                     var children = childrenSelect[i];
