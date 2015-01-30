@@ -54,7 +54,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA example</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA examplee</div>
                 </div>
             </div>
 
@@ -78,6 +78,15 @@
                             </select>
                         </div>
                         <br/>
+                        Minimum number of mutations per gene:
+                        <div class="select">
+                            <select name="gt" id="gt" type="text" value="none">
+                                <option name="gt1" id="gt1" value="1">1</option>
+                                <option name="gt3" id="gt3" value="3" selected="selected">3</option>
+                                <option name="gt5" id="gt5" value="5">5</option>
+                                <option name="gt10" id="gt10" value="10">10</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -5,7 +5,7 @@
         <style>
             sortable-table {
                 border: 1px solid #d3d3d3;
-
+                margin-bottom: 20px;
             }
 
             sortable-table::shadow thead tr th {
@@ -24,15 +24,16 @@
 
             }
 
-            sortable-table::shadow .column-ident {
-                width: 200px;
+            @-moz-document url-prefix() {
+                sortable-table::shadow tbody tr td {
+                    text-overflow: ellipsis !important;
+                }
             }
 
-            sortable-table::shadow .column-pvalue,
-            sortable-table::shadow .column-qvalue {
-                width: 70px;
+            sortable-table::shadow .column-CLUST_COORDS {
+                width: 100px;
+                /*white-space: nowrap;*/
             }
-
         </style>
         <sortable-table id="table"
                         data="{{data}}"
@@ -62,10 +63,12 @@
                         "GENE_NUM_MUTS": localData[3],
                         "MUTS_IN_CLUST": localData[4],
                         "NUM_CLUSTERS": localData[5],
-                        "GENE_SCORE": parseFloat(localData[6]).toFixed(3),
-                        "ZSCORE": parseFloat(localData[7]).toFixed(3),
-                        "PVALUE": parseFloat(localData[8]).toFixed(3),
-                        "QVALUE": parseFloat(localData[9]).toFixed(3)
+                        "CLUST_COORDS": localData[6],
+                        "DOM_COORDS": localData[7],
+                        "GENE_SCORE": Utils.formatNumber(localData[8]),
+                        "ZSCORE": Utils.formatNumber(localData[9]),
+                        "PVALUE": Utils.formatNumber(localData[10]),
+                        "QVALUE": Utils.formatNumber(localData[11])
                     };
                     this.data.push(obj)
                 }
@@ -96,6 +99,14 @@
                         title: "Num clust"
                     },
                     {
+                        name: "CLUST_COORDS",
+                        title: "Clust coords"
+                    },
+                    {
+                        name: "DOM_COORDS",
+                        title: "Dom coords"
+                    },
+                    {
                         name: "GENE_SCORE",
                         title: "Gene score"
                     },
@@ -112,7 +123,7 @@
                         title: "Q value"
                     }
                 ];
-                this.pageSize = "10";
+                this.pageSize = "15";
                 this.footerTemplate = "simplePager";
 
             }

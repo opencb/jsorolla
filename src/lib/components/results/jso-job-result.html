@@ -432,7 +432,9 @@
                             if (this.jobItem.toolName == "class-comparison"
                                     || this.jobItem.toolName == "survival"
                                     || this.jobItem.toolName == "correlation"
-                                    || this.jobItem.toolName == "burden") {
+                                    || this.jobItem.toolName == "burden"
+                                    || this.jobItem.toolName == "oncodrivefm"
+                                    || this.jobItem.toolName == "oncodriveclust") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                 me.getFileContent(function (content) {
                                         var args = me._getRedirectionArgs(content);
@@ -720,7 +722,19 @@
 
                             res.appendChild(networkViewer);
                         }
+                        if (element.tags.indexOf("PROTEIN_VIEWER") >= 0) {
+                            var dataArray = new Array();
+                            var viewer = document.createElement('jso-protein-viewer');
 
+                            this.getFileContent(function (content) {
+                                viewer.nodes = content.split("\n");
+                                viewer.speciesSelection = "hsapiens";
+                                viewer.nodeSelection = false;
+                            }, element.value);
+
+                            res.appendChild(viewer);
+
+                        }
                         if (element.tags.indexOf("DIFF_EXPRESSION_VIEWER") >= 0) {
                             console.log("DIFF_EXPRESSION_VIEWER");
                             var json = JSON.parse(element.value.replace(/\\/g, ''))
@@ -792,6 +806,7 @@
 
 //                            if (element.value.indexOf("0.05") >= 0) {
 
+//                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
                             var sortableTable = document.createElement('jso-oncodrive-genes-table');
                             this.getFileContent(function (content) {
                                 sortableTable.content = content;
