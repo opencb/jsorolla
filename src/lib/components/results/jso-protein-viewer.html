@@ -1,4 +1,4 @@
-<polymer-element name="jso-protein-viewer" attributes="nodes">
+<polymer-element name="jso-protein-viewer" attributes="nodes speciesSelection nodeSelection">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
@@ -15,16 +15,21 @@
             }
         </style>
         <div id="networkWidget">
-            <div>
-                <div class="select">
-                    <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
-                        <template repeat="{{spe in species}}">
-                            <option value="{{spe.value}}">
-                                {{spe.name}}
-                            </option>
-                        </template>
-                    </select>
+            <template if="{{speciesSelection == ''}}">
+                <div>
+                    <div class="select">
+                        <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
+                            <template repeat="{{spe in species}}">
+                                <option value="{{spe.value}}">
+                                    {{spe.name}}
+                                </option>
+                            </template>
+                        </select>
+                    </div>
                 </div>
+            </template>
+            <template if="{{nodeSelection == true}}">
+
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label>Select number of nodes in the top list of the differential expression result</label>
                     <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesTop}}">
@@ -37,8 +42,9 @@
                      style="width: 110px; margin-top: 5px; margin-bottom: 5px; "
                      on-click="{{nodesChanged}}">Draw network
                 </div>
-            </div>
-            <jso-network-viewer id="networkViewer" hideBar="true"></jso-network-viewer>
+            </template>
+        </div>
+        <jso-network-viewer id="networkViewer" hideBar="true"></jso-network-viewer>
         </div>
 
     </template>
@@ -50,6 +56,8 @@
                 this.networkNodesTop = 10;
                 this.networkNodesBottom = 10;
                 this.species = SPECIES;
+                this.speciesSelection = "";
+                this.nodeSelection = true;
 
 
             },
@@ -77,7 +85,11 @@
 
                 var intactImport = this.$.networkViewer.$.intactImport;
                 var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
-                var species = Utils.getSpecies(this.$.species.value, SPECIES);
+
+                if(this.speciesSelection == "")
+                    var species = Utils.getSpecies(this.$.species.value, SPECIES);
+                else
+                    var species = Utils.getSpecies(this.speciesSelection, SPECIES);
 
 
                 var xrefDatabase = species.dbname;

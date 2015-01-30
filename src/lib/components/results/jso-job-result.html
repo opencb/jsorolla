@@ -722,7 +722,19 @@
 
                             res.appendChild(networkViewer);
                         }
+                        if (element.tags.indexOf("PROTEIN_VIEWER") >= 0) {
+                            var dataArray = new Array();
+                            var viewer = document.createElement('jso-protein-viewer');
 
+                            this.getFileContent(function (content) {
+                                viewer.nodes = content.split("\n");
+                                viewer.speciesSelection = "hsapiens";
+                                viewer.nodeSelection = false;
+                            }, element.value);
+
+                            res.appendChild(viewer);
+
+                        }
                         if (element.tags.indexOf("DIFF_EXPRESSION_VIEWER") >= 0) {
                             console.log("DIFF_EXPRESSION_VIEWER");
                             var json = JSON.parse(element.value.replace(/\\/g, ''))
