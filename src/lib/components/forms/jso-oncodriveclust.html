@@ -70,14 +70,14 @@
                 <div class="formtitle">Prioritization parameters</div>
                 <div class="formcontent">
                     <div id="methodDiv">
-                        Human genome version:
-                        <div class="select">
-                            <select name="gver" id="gver" type="text" value="none">
-                                <option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>
-                                <option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>
-                            </select>
-                        </div>
-                        <br/>
+                        <!--Human genome version:-->
+                        <!--<div class="select">-->
+                            <!--<select name="gver" id="gver" type="text" value="none">-->
+                                <!--<option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>-->
+                                <!--<option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>-->
+                            <!--</select>-->
+                        <!--</div>-->
+                        <!--<br/>-->
                         Minimum number of mutations per gene:
                         <div class="select">
                             <select name="gt" id="gt" type="text" value="none">
@@ -135,7 +135,7 @@
                     outdir: this.$.outdir.selectedFile.id,
                     name: this.jobName,
                     vcf: this.$.inputFile.selectedFile.id,
-                    gver: this.$.gver.value,
+//                    gver: this.$.gver.value,
                     description: this.description
                 };
 
@@ -162,7 +162,7 @@
                 this.jobName = "TCGA BRCA";
                 this.description = "BRCA cancer set from TCGA";
                 this.$.inputFile.selectedFile = {id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"};
-                this.$.gver.value = "hg19"
+//                this.$.gver.value = "hg19"
                 var exampleFolder = "tcga_brca_example_oncodriveclust2"
                 this.createExampleFolder(exampleFolder);
             },
