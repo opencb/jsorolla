@@ -129,7 +129,7 @@
 
                 <br>
             </div>
-            <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+            <div class="button action filetext" on-click="{{handleBrowseClick}}" pattern="[a-zA-Z0-9_-]+">{{fileName}}</div>
             <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
 
             <div class="button action" on-click="{{handleForm}}">Upload</div>
@@ -168,6 +168,12 @@
                 this.fileName = inputFile.name
             },
             handleForm: function () {
+
+                if(  !(/^([a-zA-Z0-9._-]+)$/.test(this.fileName))  ){
+                    alert("Sorry, some characters in your input file are not allowed. We only permit letters, numbers, dash(- or _) and point(.).");
+                    return;
+                }
+
                 var me = this;
                 OpencgaManager.files.filesByFolder({
                     id: me.folder.id,
@@ -201,9 +207,9 @@
             uploadFile: function () {
                 var me = this;
                 this.message = '';
-                this.bioformat = this.$.bioformat.getSelected();
-                if (this.bioformat == "") {
-                    this.message = "Error: Please select a format";
+                var bioformat = this.$.bioformat.getSelected();
+                if (bioformat == "") {
+                    alert("Error: Please select a format");
                     return;
                 }
                 if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
