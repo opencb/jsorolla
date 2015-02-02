@@ -124,22 +124,27 @@
                 <div class="formtitle">Impute missing values</div>
                 <div class="formcontent" vertical layout>
                     <label class="control">
+                        <div horizontal layout></div>
                         <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none"
-                               checked="checked"><span>Do not impute</span></label>
+                               checked="checked" on-click="{{knnClicked}}">
+                        <span>Do not impute</span>
+                    </label>
+
+                    <div horizontal layout>
+                        <label class="control">
+                            <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn" on-click="{{knnClicked}}"><span>KNN imputation</span>
+                        </label>
+                        <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" style="width: 30px" value="15" disabled>
+                    </div>
                     <label class="control">
-                        <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn"><span>KNN
-                    imputation</span></label>
-                    <label class="control">
-                        <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean"><span>Row
+                        <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean" on-click="{{knnClicked}}"><span>Row
                     mean imputation </span></label>
                     <label class="control">
-                        <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median"><span>Row
+                        <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median" on-click="{{knnClicked}}"><span>Row
                     median imputation </span></label>
                     <label class="control">
-                        <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero"><span>Impute
+                        <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero" on-click="{{knnClicked}}"><span>Impute
                     with zeros</span></label>
-                    <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" style="width: 30px"
-                                                 value="15">
                 </div>
             </div>
             <div class="formbox">
@@ -377,7 +382,15 @@
                         }
                     }
                 });
+            },
+            knnClicked: function(){
+                if(this.$.impute_missing_2.checked){
+                    this.$.kvalue.disabled = false;
+                }
+                else
+                    this.$.kvalue.disabled = true;
             }
+
         });
     </script>
 </polymer-element>

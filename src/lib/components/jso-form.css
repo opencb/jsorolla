@@ -51,3 +51,6 @@ label.control > input[type=radio]:disabled + span,
 label.control > input[type=radio]:disabled + span:before {
     color: #d3d3d3 !important;
 }
+input[type=text]:disabled{
+    color: #d3d3d3 !important;
+}
