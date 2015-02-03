@@ -7,6 +7,7 @@
                 display: block;
                 background-color: #f0f0f0;
             }
+
             .action {
                 margin-top: 5px;
             }
@@ -36,6 +37,7 @@
                 height: 100%;
                 width: 100%;
                 background-color: #eaeaea;
+                margin-top: 10px;
             }
 
             .uploadtext {
@@ -136,7 +138,7 @@
             <div class="button action" on-click="{{handleForm}}">Upload</div>
         </form>
         <template if="{{uploading}}">
-            <div flex class="uploadbar" style="margin-top: 10px;">
+            <div class="uploadbar">
                 <div style="width:{{percentProgress}}%;" class="uploadprogress"></div>
                 <div class="uploadtext">
                     <font-awesome icon="spinner" animation="spin"></font-awesome>
