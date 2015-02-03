@@ -1,5 +1,6 @@
 <link rel="import" href="jso-variant-effect-grid.html">
 <link rel="import" href="jso-variant-stats.html">
+<link rel="import" href="jso-variant-phenotype-grid.html">
 <polymer-element name="jso-variant-browser" attributes="jobItem samples url fileId studyId">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
@@ -106,9 +107,12 @@
             paper-tabs paper-tab::shadow #ink {
                 color: #435f7a;
             }
-            #tool{
+
+            #tool {
                 margin-top: 20px;
+                /*overflow-y: auto;*/
             }
+
 
         </style>
 
@@ -319,7 +323,8 @@
             <div id="tools" flex>
                 <paper-tabs selected="{{selectedTab}}" scrollable="true">
                     <paper-tab>Genomic Context</paper-tab>
-                    <paper-tab>Effect & Annotation</paper-tab>
+                    <paper-tab>Effect</paper-tab>
+                    <paper-tab>Phenotype</paper-tab>
                     <paper-tab>Stats</paper-tab>
                 </paper-tabs>
 
@@ -327,7 +332,9 @@
                     <div hidden?="{{ selectedTab != 0}}" id="genomeViewer"></div>
                     <jso-variant-effect-grid hidden?="{{ selectedTab != 1}}"
                                              variant="{{ variantEffect }}"></jso-variant-effect-grid>
-                    <jso-variant-stats id="jsoVariantStats" hidden?="{{ selectedTab != 2}}"></jso-variant-stats>
+                    <jso-variant-phenotype-grid hidden?="{{ selectedTab != 2}}"
+                                                variant="{{ variantEffect }}"></jso-variant-phenotype-grid>
+                    <jso-variant-stats id="jsoVariantStats" hidden?="{{ selectedTab != 3}}"></jso-variant-stats>
                 </div>
             </div>
         </div>
@@ -338,7 +345,7 @@
             species: 'Homo sapiens',
             jobItem: null,
             args: null,
-            selectedTab: 0,
+            selectedTab: 2,
             variantEffect: null,
             ready: function () {
                 var me = this;
@@ -371,14 +378,10 @@
                         }
                     },
                     {name: 'genes', title: 'Genes'},
+                    {name: 'ct', title: 'Conseq. Type'},
                     {name: 'sift', title: 'SIFT'},
-                    {
-                        name: 'polyphen', title: 'POLYPHEN'
-                    },
-                    {
-                        name: 'phenotype', title: 'Phenotype'
-                    }
-                    ,
+                    {name: 'polyphen', title: 'POLYPHEN'},
+                    {name: 'phenotype', title: 'Phenotype'}
                 ];
 
                 this.parseFunction = function (data) {
@@ -389,55 +392,120 @@
 
                     for (var i = 0; i < data.length; i++) {
                         var variant = data[i];
-                        me._getEffect(variant);
-                        me._getPolyphenSift(variant);
+
+                        var ctsAux = {};
+                        var genesAux = {};
+
+                        for (var j = 0; j < variant.annotation.consequenceTypes.length; j++) {
+                            var ct = variant.annotation.consequenceTypes[j];
+                            if (ct.soname != null) {
+                                ctsAux[ct.soname] = true;
+                            }
+                        }
+
+                        for (var j = 0; j < variant.annotation.xrefs.length; j++) {
+                            var xref = variant.annotation.xrefs[j];
+
+                            if (xref.src == "HGNC") {
+                                genesAux[xref.id] = true;
+                            }
+
+                        }
+
+
+                        var cts = Object.keys(ctsAux);
+                        if (cts.length > 0) {
+                            variant.ct = cts.join(",");
+                        }
+                        var genes = Object.keys(genesAux);
+                        if (genes.length > 0) {
+                            variant.genes = genes.join(",");
+                        }
                     }
 
-                    me._getPhenotypes(data);
-                    me._getGenes(data);
+//                    me._getPhenotypes(data);
+//                    me._getGenes(data);
                     me._getSNPId(data);
 
-//                    for (var i = 0; i < data.length; i++) {
-//                        var row = data[i];
-//
-//                        for (var key in row.sourceEntries) {
-//
-//                            var gt00 = entry.stats.genotypesCount["0/0"];
-//                            if ("0|0" in entry.stats.genotypesCount) {
-//                                if (gt00 != null) {
-//                                    gt00 += entry.stats.genotypesCount["0|0"];
-//                                } else {
-//                                    gt00 = entry.stats.genotypesCount["0|0"];
-//                                }
-//                            }
-//
-//                            var gt01 = entry.stats.genotypesCount["0/1"];
-//                            if ("0|1" in entry.stats.genotypesCount) {
-//                                if (gt01 != null) {
-//                                    gt01 += entry.stats.genotypesCount["0|1"];
-//                                } else {
-//                                    gt01 = entry.stats.genotypesCount["0|1"];
-//                                }
-//                            }
-//                            var gt11 = entry.stats.genotypesCount["1/1"];
-//                            if ("0|1" in entry.stats.genotypesCount) {
-//                                if (gt11 != null) {
-//                                    gt11 += entry.stats.genotypesCount["1|1"];
-//                                } else {
-//                                    gt11 = entry.stats.genotypesCount["1|1"];
-//                                }
-//                            }
-//                        }
-//                    }
                     return data;
                 }
+            },
+            _getConsequenceTypes: function (data) {
+                var variants = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    var variant = data[i];
+                    var aux = variant.chromosome + ":" + variant.start + ":" + variant.reference + ":" + variant.alternate;
+                    variants.push(aux);
+                }
+
+
+                if (variants.length > 0) {
+                    var query = variants.join(",");
+
+                    CellBaseManager.get({
+                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                        version: 'v3',
+                        species: 'hsapiens',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'full_annotation',
+                        query: query,
+                        async: false,
+                        success: function (response) {
+                            try {
+                                for (var i = 0; i < response.response.length; i++) {
+                                    var elem = response.response[i];
+
+                                    if (elem.result.length > 0) {
+                                        var variant = data[i];
+                                        var results = elem.result[0];
+
+                                        var genesAux = {};
+                                        var ctsAux = {};
+                                        for (var j = 0; j < results.consequenceTypes.length; j++) {
+                                            var ct = results.consequenceTypes[j];
+                                            for (var k = 0; k < ct.soTerms.length; k++) {
+                                                var soTerm = ct.soTerms[k];
+                                                ctsAux[soTerm.soName] = true;
+                                            }
+                                            genesAux[ct.geneName] = true;
+
+                                        }
+
+                                        var cts = Object.keys(ctsAux);
+                                        var genes = Object.keys(genesAux);
+
+                                        if (cts.length > 0) {
+                                            variant.ct = cts.join(",");
+                                        }
+                                        if (genes.length > 0) {
+                                            variant.genes = genes.join(",");
+                                        }
+
+
+                                    }
+
+                                }
+
+                            } catch (e) {
+                                console.log(e);
+
+                            }
+                        }
+                    });
+                }
+
+
             }
+
             ,
             created: function () {
                 this.selectedSpecies = DEFAULT_SPECIES;
                 this.region = new Region();
                 this.region.load("1:1004608-1004608");
-            },
+            }
+            ,
             observe: {
                 '$.dataGrid.selected': "handleDataGridSelected",
                 '$.dataGrid.data': "handleDataGridChanged"
@@ -451,14 +519,18 @@
             }
             ,
             urlChanged: function (oldValue, newValue) {
+                this.data = [];
+                this.page = 0;
                 console.log("Form URL " + this.url);
             }
             ,
             selectedTabChanged: function (oldValue, newValue) {
                 console.log(newValue);
-            },
+            }
+            ,
             handleDataGridChanged: function (oldValue, newValue) {
-            },
+            }
+            ,
             _getSNPId: function (records) {
                 var speciesCode = Utils.getSpeciesCode(this.species);
 
@@ -503,7 +575,8 @@
                         }
                     });
                 }
-            },
+            }
+            ,
             _getGenes: function (records) {
                 var speciesCode = Utils.getSpeciesCode(this.species);
 
@@ -548,11 +621,11 @@
                         }
                     });
                 }
-            },
+            }
+            ,
             _getEffect: function (record) {
                 var req = record.chromosome + ":" + record.start + ":" + record.reference + ":" + record.alternate;
                 var url = "http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/variant/" + req + "/consequence_type?of=json";
-                console.log(url);
 
                 $.ajax({
                     url: url,
@@ -575,38 +648,8 @@
                         console.log('Error loading Effect');
                     }
                 });
-            },
-            _getPolyphenSift: function (variant) {
-
-                if (variant.aaPos != undefined && variant.aaPos >= 0) {
-                    var change = variant.aaChange.split("/")[1];
-                    var url = "http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/" + variant.transcript + "/function_prediction?aaPosition=" + variant.aaPos + "&aaChange=" + change;
-                    $.ajax({
-                        url: url,
-                        dataType: 'json',
-                        async: false,
-                        success: function (response, textStatus, jqXHR) {
-                            var res = response.response[0];
-                            if (res.numResults > 0) {
-                                if (res.result[0].aaPositions[variant.aaPos]) {
-                                    res = res.result[0].aaPositions[variant.aaPos][change];
-                                    if (res !== undefined) {
-                                        if (res.ps != null) {
-                                            variant.polyphen = res.ps
-                                        }
-                                        if (res.ss != null) {
-                                            variant.sift = res.ss;
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.log('Error loading PolyPhen/SIFT');
-                        }
-                    });
-                }
-            },
+            }
+            ,
             _getPhenotypes: function (records) {
                 var regs = [];
                 for (var i = 0; i < records.length; i++) {
@@ -637,9 +680,9 @@
                         }
                     });
                 }
-            },
+            }
+            ,
             handleDataGridSelected: function (oldValue, newValue) {
-                console.log(newValue);
                 var me = this;
                 var reg = newValue.chromosome + ":" + newValue.start + "-" + newValue.end;
                 var region = new Region(reg);
@@ -650,13 +693,15 @@
                 this.variantEffect = variant;
 
                 this.$.jsoVariantStats.stats = newValue.sourceEntries[me.studyId + "_" + me.fileId].stats;
-            },
+            }
+            ,
             domReady: function () {
                 this.createGenomeViewer();
                 this.genomeViewer.draw();
                 this.genomeViewer.toggleAutoHeight(true);
             }
-            , createGenomeViewer: function () {
+            ,
+            createGenomeViewer: function () {
                 this.genomeViewer = new GenomeViewer({
                     cellBaseHost: 'https://www.ebi.ac.uk/cellbase/webservices/rest',
                     cellBaseVersion: 'v3',
@@ -822,7 +867,6 @@
                 this.genomeViewer.addTrack(this.snp);
                 return this.genomeViewer;
             }
-
         })
     </script>
 </polymer-element>

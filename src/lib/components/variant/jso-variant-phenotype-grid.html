@@ -1,0 +1,116 @@
+<polymer-element name="jso-variant-phenotype-grid" attributes="variant">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                background-color: white;
+            }
+
+        </style>
+
+        <div>Cosmic</div>
+        <sortable-table id="cosmicGrid"
+                        class="bootstrap"
+                        footerTemplate="defaultPager"
+                        pageSize="10"
+                        page="{{page}}"
+                        loading="true"
+                        data="{{dataCosmic}}">
+        </sortable-table>
+        <div>Gwas</div>
+        <sortable-table id="gwasGrid"
+                        class="bootstrap"
+                        footerTemplate="defaultPager"
+                        pageSize="10"
+                        page="{{page}}"
+                        loading="true"
+                        data="{{dataGwas}}">
+        </sortable-table>
+        <div>Clinvar</div>
+        <sortable-table id="clinvarGrid"
+                        class="bootstrap"
+                        footerTemplate="defaultPager"
+                        pageSize="10"
+                        page="{{page}}"
+                        loading="true"
+                        data="{{dataClinvar}}">
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            variant: null,
+            created: function () {
+            },
+            ready: function () {
+
+            },
+            variantChanged: function (oldValue, newValue) {
+                var me = this;
+
+                var me = this;
+
+                this.page = 0;
+                this.dataCosmic = [];
+                this.dataGwas = [];
+                this.dataClinvar = [];
+
+                if (newValue != '') {
+                    CellBaseManager.get({
+                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                        version: 'v3',
+                        species: 'hsapiens',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'full_annotation',
+                        query: newValue,
+                        async: false,
+                        success: function (response) {
+                            try {
+
+                                var clinicalData = response.response[0].result[0].clinicalData;
+
+                                if (clinicalData.Cosmic != null) {
+                                    for (var i = 0; i < clinicalData.Cosmic.length; i++) {
+                                        var cosmic = clinicalData.Cosmic[i];
+                                        me.dataCosmic.push(cosmic);
+                                    }
+                                }
+                                if (clinicalData.Gwas != null) {
+                                    for (var i = 0; i < clinicalData.Gwas.length; i++) {
+                                        var gwas = clinicalData.Gwas[i];
+                                        me.dataGwas.push(gwas);
+                                    }
+                                }
+                                if (clinicalData.Clinvar != null) {
+                                    for (var i = 0; i < clinicalData.Clinvar.length; i++) {
+                                        var clinvar = clinicalData.Clinvar[i];
+                                        me.dataClinvar.push(clinvar);
+                                    }
+                                }
+
+                                console.log(me.dataCosmic);
+                                console.log(me.dataGwas);
+                                console.log(me.dataClinvar);
+
+
+                            } catch (e) {
+                                console.log(e);
+                                me.dataCosmic = [];
+                                me.dataGwas = [];
+                                me.dataCinvar = [];
+
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
+    </script>
+</polymer-element>
+
+

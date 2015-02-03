@@ -139,7 +139,6 @@
                                 }
                             }
                             return {};
-
                         }
                     },
                     {
@@ -156,19 +155,17 @@
                                 }
                             }
                             return {};
-
                         }
                     }
-
                 ];
-
             },
             variantChanged: function (oldValue, newValue) {
                 var me = this;
+
                 this.page = 0;
                 this.data = [];
+
                 if (newValue != '') {
-                    // http://wwwdev.ebi.ac.uk/cellbase/webservices/rest/v3/hsapiens/genomic/variant/22:17468875:C:A/full_annotation
                     CellBaseManager.get({
                         host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
                         version: 'v3',
@@ -182,36 +179,11 @@
                             try {
                                 me.data = response.response[0].result[0].consequenceTypes
                             } catch (e) {
-
                                 me.data = [];
                             }
                         }
                     });
                 }
-            },
-            _filterEffectData: function (data) {
-                var _this = this;
-                var res = [];
-
-                var regulatory = {};
-
-                for (var i = 0; i < data.length; i++) {
-                    var elem = data[i];
-                    if (elem.consequenceTypeObo == "coding_sequence_variant" || elem.consequenceTypeObo == "exon_variant" || elem.consequenceTypeObo == "intron_variant") {
-                        continue;
-                    } else if (elem.consequenceTypeObo == "regulatory_region_variant") {
-                        if (!(elem.featureId in regulatory)) {
-                            regulatory[elem.featureId] = elem;
-                        }
-                        continue;
-                    }
-                    res.push(elem);
-                }
-
-                for (var elem in regulatory) {
-                    res.push(regulatory[elem]);
-                }
-                return res;
             }
         });
     </script>

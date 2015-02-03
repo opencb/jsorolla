@@ -44,9 +44,11 @@
             }
 
             input.segregation, .segregationValue {
-
                 width: 30px;
+            }
 
+            input#consequence_type {
+                width: 30px;
             }
 
             .segregationLine {
@@ -61,7 +63,14 @@
                 margin-right: 10px;
             }
 
+            #consequenceTypes {
+                /*height: 300px;*/
+                /*overflow-y: auto;*/
+            }
 
+            .ctElem {
+                height: 20px;
+            }
         </style>
         <form id="filter_form" vertical layout>
             <div vertical layout>
@@ -119,6 +128,12 @@
                             </div>
                         </div>
                     </div>
+                    <div class="input_container" vertical layout>
+                        <label class="input_label">Bed File</label>
+
+                        <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+                        <input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">
+                    </div>
                 </div>
 
                 <div class="form_block">
@@ -126,22 +141,19 @@
                     <div id="consequenceTypes" class="input_container" vertical layout>
                     </div>
                 </div>
-
-
             </div>
-
         </form>
-
     </template>
     <script>
         Polymer({
-            regionValue: '1:1-100000000',
+            regionValue: '1:1-1000000',
             geneValue: null,
             snpValue: '',
             floatDecimals: 3,
             expanded: false,
             parseFunction: null,
             url: '',
+            fileName: 'Choose file...',
             created: function () {
                 this.consequenceTypes = [
                     {name: "transcript_ablation", value: 1893},
@@ -211,33 +223,26 @@
                             var values = me.$.gene.value.split(',').filter(function (el) {
                                 return el.length != 0
                             });
-
                             values.push(item.name);
                             values = values.filter(function (item, index, inputArray) {
                                 return inputArray.indexOf(item) == index;
                             });
-
                             me.$.gene.value = values.join(",");
-
-
                         } else {
                             this.classList.add('error');
                         }
                     }
                 });
 
-
                 for (var i = 0; i < this.consequenceTypes.length; i++) {
                     var ct = this.consequenceTypes[i];
 
-
                     var ctDiv = document.createElement("div");
-
+                    ctDiv.classList.add("ctElem");
 
                     var ctName = Utils.formatText(ct.name, "_");
                     var ctNameLabel = document.createElement("span");
                     ctNameLabel.innerHTML = ctName;
-
 
                     var checkbox = document.createElement('input');
                     checkbox.type = "checkbox";
@@ -249,12 +254,9 @@
                     ctDiv.appendChild(ctNameLabel);
 
                     this.$.consequenceTypes.appendChild(ctDiv);
-
                 }
-
             },
             samplesChanged: function (oldValue, newValue) {
-
                 var sampleNames = Object.keys(newValue);
 
                 for (var i = 0; i < sampleNames.length; i++) {
@@ -275,7 +277,7 @@
                     var checkbox00 = document.createElement('input');
                     checkbox00.type = "checkbox";
                     checkbox00.name = checkboxName;
-                    checkbox00.value = "0/0;0|0";
+                    checkbox00.value = "0/0,0|0";
                     checkbox00.id = checkboxName;
                     checkbox00.classList.add("segregation");
 
@@ -283,21 +285,21 @@
                     var checkbox01 = document.createElement('input');
                     checkbox01.type = "checkbox";
                     checkbox01.name = checkboxName;
-                    checkbox01.value = "0/1;0|1;1/0;1|0";
+                    checkbox01.value = "0/1,0|1,1/0,1|0";
                     checkbox01.id = checkboxName;
                     checkbox01.classList.add("segregation");
 
                     var checkbox11 = document.createElement('input');
                     checkbox11.type = "checkbox";
                     checkbox11.name = checkboxName;
-                    checkbox11.value = "1/1;1|1";
+                    checkbox11.value = "1/1,1|1";
                     checkbox11.id = checkboxName;
                     checkbox11.classList.add("segregation");
 
                     var checkboxMiss = document.createElement('input');
                     checkboxMiss.type = "checkbox";
                     checkboxMiss.name = checkboxName;
-                    checkboxMiss.value = "-1/-1;-1|-1";
+                    checkboxMiss.value = "-1/-1,-1|-1";
                     checkboxMiss.id = checkboxName;
                     checkboxMiss.classList.add("segregation");
 
@@ -311,7 +313,6 @@
                 }
             },
             _setQuickSearchMenu: function (query) {
-
                 while (this.$.searchDataList.firstChild) {
                     this.$.searchDataList.removeChild(this.$.searchDataList.firstChild);
                 }
@@ -349,11 +350,29 @@
                 });
                 return results;
             },
+            clearForm: function () {
+                var me = this;
+
+                for (var sample in me.samples) {
+                    var checkboxName = "GT_" + sample;
+                    var selectedCheckboxes = this.shadowRoot.querySelectorAll("input[name='" + checkboxName + "']:checked");
+                    var gtValues = [];
+                    for (var i = 0; i < selectedCheckboxes.length; i++) {
+                        var obj = selectedCheckboxes[i];
+                        obj.checked = false;
+                    }
+                }
+                // Consequence Types
+
+                var selectedConsequenceTypes = this.shadowRoot.querySelectorAll("input[name='consequence_type']:checked");
+                for (var i = 0; i < selectedConsequenceTypes.length; i++) {
+                    var ctInput = selectedConsequenceTypes[i];
+                    ctInput.checked = false;
+                }
+
+            },
             submitForm: function () {
                 var me = this;
-                var auxStudies = [];
-                var auxDiseases = [];
-                var auxPhenotypes = [];
                 var query = {
                     sid: Cookies("bioinfo_sid")
                 };
@@ -367,7 +386,6 @@
 
                     if (this.regionValue) {
                         regions = this.regionValue.split(",");
-                        search |= true;
                     }
 
                     if (this.geneValue) {
@@ -388,7 +406,6 @@
                                     var region = new Region(queryResult.result[0]);
                                     regions.push(region.toString());
                                 }
-                                search |= true;
                             }
                         });
                     }
@@ -406,16 +423,13 @@
                             gtValues.push(obj.value);
                         }
                         if (gtValues.length > 0) {
-                            var aux = me.samples[sample] + ":" + gtValues.join(";");
+                            var aux = me.samples[sample] + ":" + gtValues.join(",");
                             genotypes.push(aux);
-
                         }
-
                     }
 
                     if (genotypes.length > 0) {
-
-                        query.genotype = genotypes.join(",").replace(new RegExp("\/", "gi"), "%2f");
+                        query.genotype = genotypes.join(";"); //.replace(new RegExp("\/", "gi"), "%2f");
                     }
 
                     // Consequence Types
@@ -426,40 +440,68 @@
                         var ctInput = selectedConsequenceTypes[i];
                         cts.push(ctInput.value);
                     }
-                    if(cts.length > 0){
+                    if (cts.length > 0) {
                         query["annot-ct"] = cts.join(",");
                     }
 
+                    var regionQuery = regions.join(",");
+
+                    query.region = regionQuery;
+                    query.fileId = "";
+
                     console.log(query);
 
-                    if (search) {
-                        var regionQuery = regions.join(",");
 
-//                        var url = PVSManager.variants.fetch({
-//                            id: regionQuery,
-//                            query: query,
-//                            request: {
-//                                url: true
-//                            }
+//                    if (this.fileName != '') {
+//
+//                        var inputFile = this.$.fileInput.files[0];
+//
+//                        var file = new FileDataSource({
+//                            file: inputFile
 //                        });
-                        query.region = regionQuery;
-                        query.fileId = "";
+//
+//                        file.on("success", function (data) {
+//
+//
+//
+//                        });
+//                        file.fetch(true);
+//
+//
+//                    } else {
+                        this.search(query);
+//                    }
 
-                        var url = OpencgaManager.files.fetch({
-                            id: me.fileId,
-                            query: query,
-                            request: {
-                                url: true
-                            }
-                        });
 
-                        this.url = url;
-                    }
                 } else {
-                    alert("Please add a region/gene and check any study, disease or phenotype");
+                    alert("Please add a region/gene");
+                }
+            },
+
+            search: function (query) {
+                var me = this;
+
+                if (query.region != null && query.region.length > 0) {
+
+                    var url = OpencgaManager.files.fetch({
+                        id: me.fileId,
+                        query: query,
+                        request: {
+                            url: true
+                        }
+                    });
+
+                    this.url = url;
                 }
 
             },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name
+            }
         })
     </script>
 </polymer-element>
