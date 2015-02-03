@@ -268,17 +268,18 @@
                 this.randoms = 500;
             },
             argsChanged: function () {
-                Utils.argsParser(this, this.args);
-                if (this.args.mode !== undefined) {
-                    var radios = this.shadowRoot.querySelectorAll('input[name="mode"]');
-                    for (var i = 0; i < radios.length; i++) {
-                        var radio = radios[i];
-                        if (radio.value == this.args.mode)
-                            radio.checked = true;
+                if (this.toolName == this.args.tool) {
+                    Utils.argsParser(this, this.args);
+                    if (this.args.mode !== undefined) {
+                        var radios = this.shadowRoot.querySelectorAll('input[name="mode"]');
+                        for (var i = 0; i < radios.length; i++) {
+                            var radio = radios[i];
+                            if (radio.value == this.args.mode)
+                                radio.checked = true;
+                        }
+                        this.modeChanged();
                     }
-                    this.modeChanged();
                 }
-
 //                this.message = '';
 //                this.jobName = "Job name";
 //                this.description = "description";
@@ -382,7 +383,7 @@
             loadExample1: function (e) {
                 this.message = '';
                 this.jobName = "Downregulated";
-                this.description = "Description downregulated";
+                this.description = "Downregulated in fibroblasts from old individuals, compared to young";
                 this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;

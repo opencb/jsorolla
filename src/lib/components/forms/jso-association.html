@@ -98,7 +98,7 @@
                 <div class="formtitle">Minor allele frequency</div>
                 <div class="formcontent">
                     <label>Select MAF value</label><input name="maf" id="maf" class="fc-int fc-text" type="text"
-                                                          value="{{maf}}" required>
+                                                          value="{{maf}}" style="width:50px;" required>
                 </div>
             </div>
             <div class="formbox">
@@ -107,7 +107,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>

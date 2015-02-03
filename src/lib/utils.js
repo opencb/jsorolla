@@ -180,47 +180,49 @@ var Utils = {
     },
     loadExampleFile: function (callback, toolName, exampleFileName) {
 
-                var me = this;
-                OpencgaManager.files.contentExample({
-                    query: {
-                        toolName: toolName,
-                        fileName: exampleFileName
-                    },
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                             callback(response);
+        var me = this;
+        OpencgaManager.files.contentExample({
+            query: {
+                toolName: toolName,
+                fileName: exampleFileName
+            },
+            request: {
+                //method: 'POST',
+                success: function (response) {
+                    callback(response);
 //                            debugger
 //                            me.loadedMainSelectChanged(false,true);
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
+                },
+                error: function () {
+                    alert('Server error, try again later.');
+                }
+            }
+        })
+    },
+    argsParser: function (form, args) {
+        if (form.toolName == args.tool) {
+            for (var key in args) {
+                if (typeof(args[key]) == "object") {
+                    if (form.$[key] !== undefined)
+                        form.$[key].selectedFile = args[key];
+                }
+                else {
+                    var elems = form.shadowRoot.querySelectorAll('input[name="' + key + '"]');
+                    if (form.$[key] !== undefined) {
+                        switch (form.$[key].type) {
+                            case "checkbox":
+                                form.$[key].checked = args[key];
+                            default:
+                                form.$[key].value = args[key];
                         }
                     }
-                })
-            },
-    argsParser: function (form, args) {
-        for (var key in args) {
-            if (typeof(args[key]) == "object") {
-                if (form.$[key] !== undefined)
-                    form.$[key].selectedFile = args[key];
-            }
-            else {
-                var elems = form.shadowRoot.querySelectorAll('input[name="' + key + '"]');
-                if (form.$[key] !== undefined) {
-                    switch (form.$[key].type) {
-                        case "checkbox":
-                            form.$[key].checked = args[key];
-                        default:
-                            form.$[key].value = args[key];
+                    for (var i = 0; i < elems.length; i++) {
+                        var elem = elems[i];
+                        if (elem.value == args[key])
+                            elem.checked = true;
                     }
-                }
-                for (var i = 0; i < elems.length; i++) {
-                    var elem = elems[i];
-                    if (elem.value == args[key])
-                        elem.checked = true;
-                }
 
+                }
             }
         }
     },
@@ -247,6 +249,33 @@ var Utils = {
             link = "http://www.ebi.ac.uk/interpro/entry/";
         link = link + id;
         return link;
+    },
+    myRound: function(value, decimals){
+        decimals = typeof decimals !== 'undefined' ? decimals : 2;
+        value = parseFloat(value);
+        /** rounding **/
+        if( Math.abs(value) >= 1)
+            value = value.toFixed(decimals);
+        else
+            value = value.toPrecision(decimals);
+        value = parseFloat(value);
+        return value;
+    },
+    formatNumber: function(value, decimals){
+        value = Utils.myRound(value, decimals);
+
+        if(Math.abs(value) > 0 && Math.abs(value) < 0.001)
+            value = value.toExponential();
+        return value;
+    },
+    getSpecies: function(specieValue, species){
+        for (var i = 0; i < species.length; i++) {
+            var specie = species[i];
+            if(specie.value == specieValue){
+                return specie;
+            }
+        }
+        return null;
     },
     test: function () {
         return this;

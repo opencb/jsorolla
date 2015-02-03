@@ -68,71 +68,78 @@
 
             <div class="formbox">
                 <div class="formtitle">Analysis</div>
-                <div class="formcontent" vertical layout>
+                <div class="formcontent">
                     Background correction:
-                    <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
-                        <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp"
-                                selected="selected">normexp
-                        </option>
-                        <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="half">half
-                        </option>
-                        <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="subtract">
-                            subtract
-                        </option>
-                        <option name="bg_correction_4" id="bg_correction_4" class="fc-combobox-item" value="minimum">
-                            minimum
-                        </option>
-                        <option name="bg_correction_5" id="bg_correction_5" class="fc-combobox-item" value="movingmin">
-                            movingmin
-                        </option>
-                        <option name="bg_correction_6" id="bg_correction_6" class="fc-combobox-item" value="edwards">
-                            edwards
-                        </option>
-                        <option name="bg_correction_7" id="bg_correction_7" class="fc-combobox-item" value="rma">rma
-                        </option>
-                        <option name="bg_correction_8" id="bg_correction_8" class="fc-combobox-item" value="none">none
-                        </option>
-                    </select>
-                    <br>
+                    <div class="select">
+                        <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
+                            <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp"
+                                    selected="selected">normexp
+                            </option>
+                            <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="half">half
+                            </option>
+                            <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="subtract">
+                                subtract
+                            </option>
+                            <option name="bg_correction_4" id="bg_correction_4" class="fc-combobox-item" value="minimum">
+                                minimum
+                            </option>
+                            <option name="bg_correction_5" id="bg_correction_5" class="fc-combobox-item" value="movingmin">
+                                movingmin
+                            </option>
+                            <option name="bg_correction_6" id="bg_correction_6" class="fc-combobox-item" value="edwards">
+                                edwards
+                            </option>
+                            <option name="bg_correction_7" id="bg_correction_7" class="fc-combobox-item" value="rma">rma
+                            </option>
+                            <option name="bg_correction_8" id="bg_correction_8" class="fc-combobox-item" value="none">none
+                            </option>
+                        </select>
+                    </div>
+                    <br/>
                     Within arrays normalization:
-                    <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text"
-                            value="printtiploess">
-                        <option name="wa_normalization_1" id="wa_normalization_1" class="fc-combobox-item"
-                                value="printtiploess" selected="selected">printtiploess
-                        </option>
-                        <option name="wa_normalization_2" id="wa_normalization_2" class="fc-combobox-item"
-                                value="loess">loess
-                        </option>
-                        <option name="wa_normalization_3" id="wa_normalization_3" class="fc-combobox-item"
-                                value="median">median
-                        </option>
-                        <option name="wa_normalization_4" id="wa_normalization_4" class="fc-combobox-item" value="none">
-                            none
-                        </option>
-                    </select>
-                    <br>
+                    <div class="select">
+                        <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text"
+                                value="printtiploess">
+                            <option name="wa_normalization_1" id="wa_normalization_1" class="fc-combobox-item"
+                                    value="printtiploess" selected="selected">printtiploess
+                            </option>
+                            <option name="wa_normalization_2" id="wa_normalization_2" class="fc-combobox-item"
+                                    value="loess">loess
+                            </option>
+                            <option name="wa_normalization_3" id="wa_normalization_3" class="fc-combobox-item"
+                                    value="median">median
+                            </option>
+                            <option name="wa_normalization_4" id="wa_normalization_4" class="fc-combobox-item" value="none">
+                                none
+                            </option>
+                        </select>
+                    </div>
+                    <br/>
                     Between arrays normalization:
-                    <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text"
-                            value="quantiles">
-                        <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item"
-                                value="quantiles" selected="selected">quantiles
-                        </option>
-                        <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item"
-                                value="scale">scale
-                        </option>
-                        <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="vsn">
-                            vsn
-                        </option>
-                        <option name="ba_normalization_4" id="ba_normalization_4" class="fc-combobox-item" value="none">
-                            none
-                        </option>
-                    </select>
-                    <br>
+                    <div class="select">
+                        <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text"
+                                value="quantiles">
+                            <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item"
+                                    value="quantiles" selected="selected">quantiles
+                            </option>
+                            <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item"
+                                    value="scale">scale
+                            </option>
+                            <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="vsn">
+                                vsn
+                            </option>
+                            <option name="ba_normalization_4" id="ba_normalization_4" class="fc-combobox-item" value="none">
+                                none
+                            </option>
+                        </select>
+                    </div>
+                    <br/>
                     <label class="control">
                         <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true"
                                checked="checked">
 
                         <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span></label>
+                    <br>
                     <label class="control">
                         <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox"
                                value="true">
@@ -146,7 +153,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>

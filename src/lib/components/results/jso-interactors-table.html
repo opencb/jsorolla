@@ -77,12 +77,12 @@
                         "type": localData[2]
                     };
                     var columnIdx = 2;
-                    obj["rank"] = parseFloat(localData[++columnIdx]).toFixed(3);
+                    obj["rank"] = Utils.formatNumber(localData[++columnIdx]);
                     if(isNaN(obj["rank"])){
                         obj["rank"] = "-";
                     }
-                    obj["bet"] = parseFloat(localData[++columnIdx]).toFixed(3);
-                    obj["clust"] = parseFloat(localData[++columnIdx]).toFixed(3);
+                    obj["bet"] = Utils.formatNumber(localData[++columnIdx]);
+                    obj["clust"] = Utils.formatNumber(localData[++columnIdx]);
                     obj["conn"] = localData[++columnIdx];
                     obj["go_names"] = localData[++columnIdx];
                     obj["go_ids"] = localData[++columnIdx];

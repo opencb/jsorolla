@@ -32,14 +32,9 @@
                 font-size: 50px;
             }
 
-
-
-
             .message {
                 margin-top: 20px;
             }
-
-
 
             /*jso-file-browser {*/
             /*width: 70%;*/
@@ -78,14 +73,14 @@
                 <div class="formtitle">Log-transform</div>
                 <div class="formcontent" vertical layout>
                     <label class="control">
-                            <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none"
-                           checked="checked"><span>none</span></label>
+                        <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none"
+                               checked="checked"><span>none</span></label>
                     <label class="control">
-                            <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2"><span>Log 2</span></label>
+                        <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2"><span>Log 2</span></label>
                     <label class="control">
-                            <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e"><span>Log e</span></label>
+                        <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e"><span>Log e</span></label>
                     <label class="control">
-                            <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10"><span>Log 10</span></label>
+                        <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10"><span>Log 10</span></label>
                     </h3>
                 </div>
             </div>
@@ -93,28 +88,28 @@
                 <div class="formtitle">Exponential function</div>
                 <div class="formcontent" vertical layout>
                     <label class="control">
-                            <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none"
-                           checked="checked"><span>none</span></label>
+                        <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none"
+                               checked="checked"><span>none</span></label>
                     <label class="control">
-                            <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2"><span>2</span></label>
+                        <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2"><span>2</span></label>
                     <label class="control">
-                            <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e"><span>e</span></label>
+                        <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e"><span>e</span></label>
                     <label class="control">
-                            <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10"><span>10</span></label>
+                        <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10"><span>10</span></label>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Merge replicates</div>
                 <div class="formcontent" vertical layout>
-                    <label class="control" >
-                            <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio"
-                           value="none" checked="checked"><span>none</span></label>
                     <label class="control">
-                            <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio"
-                           value="mean"><span>Average</span></label>
+                        <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio"
+                               value="none" checked="checked"><span>none</span></label>
                     <label class="control">
-                            <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio"
-                           value="median"><span>Median</span></label>
+                        <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio"
+                               value="mean"><span>Average</span></label>
+                    <label class="control">
+                        <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio"
+                               value="median"><span>Median</span></label>
                 </div>
             </div>
             <div class="formbox">
@@ -122,36 +117,41 @@
                 <div class="formcontent">
                     <!--<input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>-->
                     <label>Minimum percentage of existing values (%)</label>
-                    <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" value="">
+                    <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" style="width: 30px" value="">
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Impute missing values</div>
                 <div class="formcontent" vertical layout>
                     <label class="control">
-                            <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none"
-                           checked="checked"><span>Do not impute</span></label>
+                        <div horizontal layout></div>
+                        <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none"
+                               checked="checked" on-click="{{knnClicked}}">
+                        <span>Do not impute</span>
+                    </label>
+
+                    <div horizontal layout>
+                        <label class="control">
+                            <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn" on-click="{{knnClicked}}"><span>KNN imputation</span>
+                        </label>
+                        <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" style="width: 30px" value="15" disabled>
+                    </div>
                     <label class="control">
-                            <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn"><span>KNN
-                    imputation</span></label>
-                    <label class="control">
-                            <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean"><span>Row
+                        <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean" on-click="{{knnClicked}}"><span>Row
                     mean imputation </span></label>
                     <label class="control">
-                            <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median"><span>Row
+                        <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median" on-click="{{knnClicked}}"><span>Row
                     median imputation </span></label>
                     <label class="control">
-                            <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero"><span>Impute
+                        <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero" on-click="{{knnClicked}}"><span>Impute
                     with zeros</span></label>
-                    <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text"
-                                                 value="15">
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Extract IDs from dataset and save into a file</div>
                 <div class="formcontent">
-                    <label class="control" >
-                    <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true"><span>Check to
+                    <label class="control">
+                        <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true"><span>Check to
                     extract IDs</span></label>
                 </div>
             </div>
@@ -200,14 +200,15 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">                     <font-awesome icon="rocket"></font-awesome>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -224,23 +225,25 @@
                 this.launchJob();
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = this.args.jobName;
-                this.description = this.args.description;
-                this.$.inputFile.selectedFile = this.args.inputFile;
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = this.args.jobName;
+                    this.description = this.args.description;
+                    this.$.inputFile.selectedFile = this.args.inputFile;
 //                this.$.inputFile2.selectedFile = this.args.list2;
 
-                var radios = this.shadowRoot.querySelectorAll('input[name="merge_replicates"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.merge_replicates)
-                        radio.checked = true;
-                }
-                var radios = this.shadowRoot.querySelectorAll('input[name="impute_missing"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.impute_missing)
-                        radio.checked = true;
+                    var radios = this.shadowRoot.querySelectorAll('input[name="merge_replicates"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.merge_replicates)
+                            radio.checked = true;
+                    }
+                    var radios = this.shadowRoot.querySelectorAll('input[name="impute_missing"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.impute_missing)
+                            radio.checked = true;
+                    }
                 }
             },
             launchJob: function () {
@@ -379,7 +382,15 @@
                         }
                     }
                 });
+            },
+            knnClicked: function(){
+                if(this.$.impute_missing_2.checked){
+                    this.$.kvalue.disabled = false;
+                }
+                else
+                    this.$.kvalue.disabled = true;
             }
+
         });
     </script>
 </polymer-element>

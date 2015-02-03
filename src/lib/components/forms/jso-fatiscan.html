@@ -89,6 +89,7 @@
                     <div class="button action" style="display: inline-block" on-click="{{loadExample1}}">Fluorouridine dataset</div>
                 </div>
             </div>
+
             <div>
                 <div class="formbox">
                     <div class="formtitle">Select your data</div>
@@ -328,8 +329,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label>
-                    <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
@@ -374,6 +374,10 @@
                 if (this.$.outdir.selectedFile === undefined) {
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
+                }
+                if(this.$.species.value == "none"){
+                    alert("Sorry. No species selected. Please select one. ");
+                    return
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),

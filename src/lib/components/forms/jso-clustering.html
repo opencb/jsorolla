@@ -99,10 +99,10 @@
                     </div>
                     <label>Number of sample-clusters (k-value)</label>
                     <input name="sample_kvalue" id="sample_kvalue" class="fc-int fc-text" type="text"
-                           value="{{sample_kvalue}}" disabled="true">
+                           value="{{sample_kvalue}}" disabled="true" style="width: 50px">
                     <label>Number of gene-clusters (k-value)</label>
                     <input name="gene_kvalue" id="gene_kvalue" class="fc-int fc-text" type="text"
-                           value="{{gene_kvalue}}" disabled="true">
+                           value="{{gene_kvalue}}" disabled="true" style="width: 50px">
                 </div>
             </div>
             <div class="formbox">
@@ -130,7 +130,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
@@ -156,38 +156,39 @@
                 this.gene_kvalue = 15;
             },
             argsChanged: function () {
-                this.message = '';
-                this.jobName = "Job name";
-                this.description = "description";
-                if (this.args.list1 !== undefined)
-                    this.$.inputFile.selectedFile = this.args.list1;
-                if (this.args.inputFile !== undefined)
-                    this.$.inputFile.selectedFile = this.args.inputFile;
+                if(this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = "Job name";
+                    this.description = "description";
+                    if (this.args.list1 !== undefined)
+                        this.$.inputFile.selectedFile = this.args.list1;
+                    if (this.args.inputFile !== undefined)
+                        this.$.inputFile.selectedFile = this.args.inputFile;
 
-                if (this.args.sample_clustering !== undefined)
-                    this.$.sample_clustering.checked = true;
-                else
-                    this.$.sample_clustering.checked = false;
+                    if (this.args.sample_clustering !== undefined)
+                        this.$.sample_clustering.checked = true;
+                    else
+                        this.$.sample_clustering.checked = false;
 
-                if (this.args.gene_clustering !== undefined)
-                    this.$.gene_clustering.checked = true;
-                else
-                    this.$.gene_clustering.checked = false;
+                    if (this.args.gene_clustering !== undefined)
+                        this.$.gene_clustering.checked = true;
+                    else
+                        this.$.gene_clustering.checked = false;
 
 
-                var radios = this.shadowRoot.querySelectorAll('input[name="method"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.method)
-                        radio.checked = true;
+                    var radios = this.shadowRoot.querySelectorAll('input[name="method"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.method)
+                            radio.checked = true;
+                    }
+                    var radios = this.shadowRoot.querySelectorAll('input[name="distance"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.distance)
+                            radio.checked = true;
+                    }
                 }
-                var radios = this.shadowRoot.querySelectorAll('input[name="distance"]');
-                for (var i = 0; i < radios.length; i++) {
-                    var radio = radios[i];
-                    if (radio.value == this.args.distance)
-                        radio.checked = true;
-                }
-
 
             },
 

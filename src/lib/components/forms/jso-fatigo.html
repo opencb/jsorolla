@@ -432,6 +432,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
             <div class="formbox">
                 <div class="formtitle">Job information</div>
@@ -537,6 +538,10 @@
                 if (this.$.outdir.selectedFile === undefined) {
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
+                }
+                if(this.$.species.value == "none"){
+                    alert("Sorry. No species selected. Please select one. ");
+                    return
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),

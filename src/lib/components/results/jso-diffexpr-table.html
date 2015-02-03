@@ -13,82 +13,78 @@
                 border: 1px solid #d3d3d3;
             }
         </style>
-        <div class="file"><label>Significative table</label>
-            <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
-            <sortable-table id="table"
-                            data="{{data}}"
-                            columns="{{columns}}"
-                            footerTemplate="{{footerTemplate}}"
-                            pageSize="{{pageSize}}">
+        <template if="{{data.length>0}}">
+            <div class="file"><label>Significative table</label>
+                <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
+                <sortable-table id="table"
+                                data="{{data}}"
+                                columns="{{columns}}"
+                                footerTemplate="{{footerTemplate}}"
+                                pageSize="{{pageSize}}">
 
-            </sortable-table>
+                </sortable-table>
 
+                <div id="heatMap" style="height: 600px; overflow-y: auto"></div>
 
-            <div id="heatMap" style="height: 600px; overflow-y: auto"></div>
+                <h3>Network viewer</h3>
 
-            <h3>Network viewer</h3>
+                <jso-protein-viewer nodes="{{nodes}}"></jso-protein-viewer>
 
-            <jso-protein-viewer nodes="{{nodes}}"></jso-protein-viewer>
+                <h3>Continue processing</h3>
 
-            <h3>Continue processing</h3>
+                <div id="redirection" style="margin-left: 20px">
+                    <h3>Single enrichment analysis</h3>
+                    <template if="{{topNumber>0}}">
+                        <jso-redirection titleRed="Top list vs Genome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
+                                         buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{topListFileUrlSeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{bottomNumber>0}}">
 
-            <div id="redirection" style="margin-left: 20px">
-                <h3>Single enrichment analysis</h3>
-                <template if="{{topNumber>0}}">
-                    <jso-redirection titleRed="Top list vs Genome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
-                                     buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{topListFileUrlSeaArgs}}" id=""></jso-redirection>
-                </template>
-                <template if="{{bottomNumber>0}}">
+                        <jso-redirection titleRed="Bottom list vs Genome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
+                                         buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{bottomListFileUrlSeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{topNumber>0 && bottomNumber > 0}}">
+                        <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
+                                         buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{sendTopVsBottomSeaArgs}}" id=""></jso-redirection>
+                    </template>
 
-                    <jso-redirection titleRed="Bottom list vs Genome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
-                                     buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{bottomListFileUrlSeaArgs}}" id=""></jso-redirection>
-                </template>
-                <template if="{{topNumber>0 && bottomNumber > 0}}">
-                    <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
-                                     buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{sendTopVsBottomSeaArgs}}" id=""></jso-redirection>
-                </template>
+                    <h3>Gene set enrichment analysis</h3>
+                    <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                                     buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileArgs}}" id=""></jso-redirection>
 
-                <h3>Gene set enrichment analysis</h3>
-                <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
-                                 buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileArgs}}" id=""></jso-redirection>
+                    <h3>Network enrichment analysis</h3>
+                    <template if="{{topNumber>0}}">
+                        <jso-redirection titleRed="Top list vs Interactome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
+                                         buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{topListFileUrlNeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{bottomNumber>0}}">
 
-                <h3>Network enrichment analysis</h3>
-                <template if="{{topNumber>0}}">
-                    <jso-redirection titleRed="Top list vs Interactome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
-                                     buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{topListFileUrlNeaArgs}}" id=""></jso-redirection>
-                </template>
-                <template if="{{bottomNumber>0}}">
+                        <jso-redirection titleRed="Bottom list vs Interactome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
+                                         buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{bottomListFileUrlNeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{topNumber>0 && bottomNumber > 0}}">
+                        <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
+                                         buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{sendTopVsBottomNeaArgs}}" id=""></jso-redirection>
+                    </template>
 
-                    <jso-redirection titleRed="Bottom list vs Interactome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
-                                     buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{bottomListFileUrlNeaArgs}}" id=""></jso-redirection>
-                </template>
-                <template if="{{topNumber>0 && bottomNumber > 0}}">
-                    <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
-                                     buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{sendTopVsBottomNeaArgs}}" id=""></jso-redirection>
-                </template>
+                    <h3>Network set enrichment analysis</h3>
+                    <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                                     buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileNseaArgs}}" id=""></jso-redirection>
 
-                <h3>Network set enrichment analysis</h3>
-                <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
-                                 buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileNseaArgs}}" id=""></jso-redirection>
+                    <h3>Clustering</h3>
 
-                <h3>Clustering</h3>
+                    <jso-redirection titleRed="Dataset containing the significative values" fileName="{{significativeFile.name}}" fileUrl="{{significativeFileUrl}}"
+                                     buttonLabel="Send to clustering" buttonWidth="200px" args="{{sendClusteringArgs}}" id=""></jso-redirection>
 
-                <jso-redirection titleRed="Dataset containing the significative values" fileName="{{significativeFile.name}}" fileUrl="{{significativeFileUrl}}"
-                                 buttonLabel="Send to clustering" buttonWidth="200px" args="{{sendClusteringArgs}}" id=""></jso-redirection>
+                </div>
+
 
             </div>
+        </template>
+        <template if="{{data.length == 0}}">
+            <label>No significative results found</label>
+        </template>
 
-
-            <!--<div id="networkWidget">-->
-            <!--<div style="margin-bottom: 5px" flex horizontal layout>-->
-            <!--<label>Select number of top list in the differential expression result</label>-->
-            <!--<input type="text" style="margin-right: 2px" value="{{networkNodes}}" width="20px">-->
-
-            <!--<div class="button action" style="width: 110px" on-click="{{drawNetwork}}">Draw network</div>-->
-            <!--</div>-->
-            <!--<jso-network-viewer id="networkViewer" hideBar="false"></jso-network-viewer>-->
-            <!--</div>-->
-        </div>
 
     </template>
     <script>
@@ -135,12 +131,16 @@
                             nodes.push(localData[0]);
                             for (var z = 0; z < localData.length; z++) {
                                 var value = localData[z];
-                                if(!isNaN(value)){
-                                    value = parseFloat(value);
-                                    if(value < 0.001)
-                                        value = value.toExponential(2);
-                                    else
-                                        value = value.toFixed(3);
+                                if (!isNaN(value)) {
+
+                                    value = Utils.formatNumber(value);
+
+
+//                                    value = parseFloat(value);
+//                                    if(value < 0.001)
+//                                        value = value.toExponential(2);
+//                                    else
+//                                        value = value.toFixed(3);
 //                                    if(value < 0)
 //                                        value
                                 }
@@ -154,11 +154,13 @@
                     }
                 }
                 this.getFiles();
-                this.heatMapData();
                 this.nodes = nodes;
 
             },
+            dataChanged: function(){
+                this.heatMapData();
 
+            },
             getFiles: function () {
                 var me = this;
 
@@ -365,7 +367,7 @@
                 }
                 var heatMap = new Highcharts.Chart({
                     chart: {
-                        renderTo: this.$.heatMap,
+                        renderTo: this.shadowRoot.querySelector("#heatMap"),
                         type: 'heatmap',
                         //  marginTop: 100,
                         //marginBottom: 40,

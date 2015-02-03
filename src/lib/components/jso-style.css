@@ -97,6 +97,7 @@ label.button > input[type=checkbox] + span {
     padding-right:15px;
 }
 
+
 input[type=number] {
     padding-right: 0px;
 }

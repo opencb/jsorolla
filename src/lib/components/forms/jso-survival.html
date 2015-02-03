@@ -4,20 +4,20 @@
         <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
-            display: block;
-            position: relative;
-            box-sizing: border-box;
-            padding: 15px 40px;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
 
-            z-index: 50000;
-            margin: 0px auto 0px auto;
+                z-index: 50000;
+                margin: 0px auto 0px auto;
 
-            width: 80%;
-            min-width: 800px;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
 
             }
 
@@ -32,14 +32,9 @@
                 font-size: 50px;
             }
 
-
-
-
             .message {
                 margin-top: 20px;
             }
-
-
 
             /*jso-file-browser {*/
             /*width: 70%;*/
@@ -66,7 +61,8 @@
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -125,17 +121,19 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
-<div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">                     <font-awesome icon="rocket"></font-awesome>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
-            </div>        </form>
+            </div>
+        </form>
         <div class="message">{{message}}</div>
     </template>
     <script>
@@ -161,12 +159,12 @@
                 this.launchJob();
             },
             launchJob: function () {
-               var me = this;
+                var me = this;
                 if (!Utils.basicValidationForm(this)) {
                     return;
                 }
 
-                if(this.$.p_value.value == "" || isNaN(this.$.p_value.value)){
+                if (this.$.p_value.value == "" || isNaN(this.$.p_value.value)) {
                     alert("Sorry. P is value not a number. ");
                     return;
                 }
@@ -176,14 +174,12 @@
                     alert("Sorry: Either censored class or time class are missing. Please select them.");
                     return;
                 }
-                if (this.censored_class == this.time_class ) {
+                if (this.censored_class == this.time_class) {
                     alert("Sorry: Censored class and time class can't be the same.");
                     return;
                 }
 
-
-//                this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
-                this.correction = this.$.multipleTestCorrectionDiv.querySelector('input[name="correction"]:checked').value;
+                this.correction = this.shadowRoot.querySelector('input[name="correction"]:checked').value;
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,

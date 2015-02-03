@@ -1,4 +1,4 @@
-<polymer-element name="jso-protein-viewer" attributes="nodes">
+<polymer-element name="jso-protein-viewer" attributes="nodes speciesSelection nodeSelection">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
@@ -15,30 +15,50 @@
             }
         </style>
         <div id="networkWidget">
-            <div>
+            <template if="{{speciesSelection == ''}}">
+                <div>
+                    <div class="select">
+                        <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
+                            <template repeat="{{spe in species}}">
+                                <option value="{{spe.value}}">
+                                    {{spe.name}}
+                                </option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+            </template>
+            <template if="{{nodeSelection == true}}">
+
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label>Select number of nodes in the top list of the differential expression result</label>
-                    <input type="text" style="margin-right: 2px" value="{{networkNodesTop}}" size="4">
+                    <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesTop}}">
                 </div>
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label>Select number of nodes in the bottom list of the differential expression result</label>
-                    <input type="text" style="margin-right: 2px" value="{{networkNodesBottom}}" size="4">
+                    <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesBottom}}">
                 </div>
                 <div class="button action"
                      style="width: 110px; margin-top: 5px; margin-bottom: 5px; "
                      on-click="{{nodesChanged}}">Draw network
                 </div>
-            </div>
-            <jso-network-viewer id="networkViewer" hideBar="true"></jso-network-viewer>
+            </template>
+        </div>
+        <jso-network-viewer id="networkViewer" hideBar="true"></jso-network-viewer>
         </div>
 
     </template>
     <script>
         Polymer({
             created: function () {
+
                 this.ids = [];
                 this.networkNodesTop = 10;
                 this.networkNodesBottom = 10;
+                this.species = SPECIES;
+                this.speciesSelection = "";
+                this.nodeSelection = true;
+
 
             },
             domReady: function () {
@@ -65,17 +85,25 @@
 
                 var intactImport = this.$.networkViewer.$.intactImport;
                 var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
-                var xrefDatabase = "hgnc_symbol";
-                var xrefDatabaseId = xrefDatabase+"id";
-                console.log(nodes)
-                intactImport.getGraph('hsapiens', nodes, function (graph) {
+
+                if(this.speciesSelection == "")
+                    var species = Utils.getSpecies(this.$.species.value, SPECIES);
+                else
+                    var species = Utils.getSpecies(this.speciesSelection, SPECIES);
+
+
+                var xrefDatabase = species.dbname;
+                var xrefDatabaseId = xrefDatabase + "id";
+                console.log(nodes);
+//                var species = "hsapiens";
+                intactImport.getGraph(species.value, nodes, function (graph) {
                     me.$.networkViewer.setGraph(graph);
                     me.$.networkViewer.setLayout('Force directed');
 
                     cellbaseAttributeImport.uncheckAllDatabases();
                     cellbaseAttributeImport.checkDatabase(xrefDatabase);
 
-                    cellbaseAttributeImport.retrieveData('id', 'hsapiens', function () {
+                    cellbaseAttributeImport.retrieveData('id', species.value, function () {
                         me.$.networkViewer.selectVertexDefaultLabelAttribute(xrefDatabaseId);
                         cellbaseAttributeImport.uncheckAllDatabases();
 

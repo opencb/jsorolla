@@ -3,34 +3,17 @@
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
-            sortable-table {
-                border: 1px solid #d3d3d3;
-
-            }
-
-            sortable-table::shadow thead tr th {
-                /*width: 1000px;*/
-                white-space: inherit;
-                overflow: auto;
-                text-overflow: inherit;
-
-            }
 
             sortable-table::shadow tbody tr td {
-                /*width: 1000px;*/
                 white-space: inherit;
                 overflow: auto;
-                text-overflow: inherit;
-
+                text-overflow: clip;
             }
 
-            sortable-table::shadow .column-ident {
-                width: 200px;
-            }
-
-            sortable-table::shadow .column-pvalue,
-            sortable-table::shadow .column-qvalue {
-                width: 70px;
+            @-moz-document url-prefix() {
+                sortable-table::shadow tbody tr td {
+                    text-overflow: ellipsis !important;
+                }
             }
 
         </style>
@@ -40,7 +23,8 @@
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}"
                         rowSelection="true"
-                        selected="{{selected}}">
+                        selected="{{selected}}"
+                >
         </sortable-table>
     </template>
     <script>
@@ -50,9 +34,12 @@
             created: function () {
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
+
+
+                // parseFloat((0.0001).toPrecision(3)).toExponential()
             },
             selectedChanged: function (oldValue, newValue) {
-                console.log(newValue);
+//                console.log(newValue);
 //                debugger
             },
             contentChanged: function () {
@@ -83,10 +70,14 @@
                     var row = data[i].split("\t");
                     for (var j = 0; j < columns.length; j++) {
                         var columnName = columns[j].name;
-                        newRow[columnName] = row[j];
+                        var value = row[j];
+                        if (!isNaN(value)) {
+                            value = Utils.formatNumber(value);
+                        }
+                        newRow[columnName] = value;
                     }
 
-                    console.log(newRow);
+//                    console.log(newRow);
                     finalData.push(newRow);
 
 

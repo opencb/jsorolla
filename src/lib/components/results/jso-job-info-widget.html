@@ -49,10 +49,15 @@
 
                     <div class="messageValue"> {{jobItem.description }}</div>
                 </div>
-                <!--<div class="message" horizontal="" layout="">-->
-                    <!--<label>Tool </label>-->
+                <div class="message" horizontal="" layout="">
+                    <label>Output folder </label>
 
-                    <!--<div class="messageValue"> {{jobItem.toolName }}</div>-->
+                    <div class="messageValue"> {{jobItem.outDirPath }}</div>
+                </div>
+                <!--<div class="message" horizontal="" layout="">-->
+                <!--<label>Tool </label>-->
+
+                <!--<div class="messageValue"> {{jobItem.toolName }}</div>-->
                 <!--</div>-->
             </div>
             <div class="children"></div>
@@ -62,6 +67,31 @@
     <script>
         Polymer({
             created: function () {
+
+            },
+            jobItemChanged: function () {
+                this.getFileInfo(this.jobItem.outDirId);
+            },
+            getFileInfo: function (fileId) {
+                var me = this;
+                OpencgaManager.files.info({
+                    id: fileId,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.jobItem.outDirPath = STUDY_NAME+"/"+response.response[0].result[0].path;
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
             }
         })
     </script>

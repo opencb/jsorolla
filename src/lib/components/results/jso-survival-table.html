@@ -48,7 +48,7 @@
                             for (var z = 0; z < localData.length; z++) {
                                 var value = localData[z];
                                 if (isFinite(value))
-                                    value = parseFloat(value).toFixed(3);
+                                    value = Utils.formatNumber(value);
                                 if (z == 3 && value <= this.adjPvalue) {
                                     addFeature = true;
                                 }

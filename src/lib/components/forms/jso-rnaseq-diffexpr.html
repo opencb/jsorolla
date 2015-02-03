@@ -133,7 +133,7 @@
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
@@ -176,7 +176,6 @@
                         me.manageClass()
                     });
                     if (this.$.inputFile.selectedFile !== undefined && this.$.inputFile.selectedFile.id == "example_expression.txt") {
-
                         select.value = "organ";
                         this.$.jsoClassViewer.selectChange();
                     }
@@ -185,13 +184,14 @@
             loadedChildrenSelectChanged: function (oldV, newV) {
                 var me = this;
                 if (newV == true) {
-                    var childrenSelect = this.$.jsoClassViewer.getChildrenSelect().children;
-                    for (var i = 0; i < childrenSelect.length; i++) {
-                        var select = childrenSelect[i];
-//                         select.addEventListener("change", function () {
-//                             me.manageTest()
-//                         });
-                    }
+//                    var childrenSelect = this.$.jsoClassViewer.getChildrenSelect().children;
+                    var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
+//                    for (var i = 0; i < childrenSelect.length; i++) {
+//                        var select = childrenSelect[i];
+////                         select.addEventListener("change", function () {
+////                             me.manageTest()
+////                         });
+//                    }
                     /** This is mainly for the examples **/
                     if (this.$.inputFile.selectedFile.id == "example_expression.txt") {
 
@@ -213,7 +213,7 @@
                 }
             },
             getClassValues: function () {
-                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect().children;
+                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
                 var classValues = new Array();
                 for (var i = 0; i < childrenSelect.length; i++) {
                     var children = childrenSelect[i];
