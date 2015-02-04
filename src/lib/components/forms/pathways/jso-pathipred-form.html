@@ -1,7 +1,7 @@
 <polymer-element name="jso-pathipred-form" attributes="studies selectedOption">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
-        <link rel="stylesheet" href="../../jso-panel.css">
+        <link rel="stylesheet" href="../../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -89,7 +89,6 @@
             }
 
 
-
         </style>
         <form id="form" on-keypress="{{handleFormKey}}">
             <div class="title">
@@ -110,158 +109,157 @@
                     &nbsp; Run example
                 </div>
             </div>
-
             <div class="formbox">
                 <div class="formtitle">
-                    VCF file
+                    Species and Platform
                 </div>
-                <div class="formcontent">
-                    <span class="errmsg">{{vcfFileMessage}}</span>
+                <div vertical layout class="formcontent">
+                    <label>Species:</label>
 
-                    <div class="button action" style="width:150px;" on-click="{{handleSelectFile}}">Select VCF file...
-                    </div>
-                    <div style="margin-top:5px;">
-                        {{selectedStudy.name}}
-                        <template if="{{selectedStudy}}">
-                            /
-                        </template>
-                        {{vcfFile.path}}
-                    </div>
-                    <template if="{{ showBrowser }}">
-                        <jso-project-browser
-                                on-file-select="{{handleBrowseSelect}}"
-                                studies="{{studies}}"
-                                selectedStudy="{{selectedStudy}}"
-                                >
-                        </jso-project-browser>
-                        <div horizontal layout end-justified
-                             style="padding:4px; background-color: #fafafa; border:1px solid #d3d3d3; border-top-width: 0;">
-                            <div class="button action" style="width:150px;margin-right:5px;"
-                                 on-click="{{handleSelectFileCancel}}">
-                                Cancel
-                            </div>
-                            <div class="button action" style="width:150px;"
-                                 on-click="{{handleSelectFileOk}}">
-                                OK
-                            </div>
-                        </div>
-                    </template>
-
+                    <label class="control">
+                        <input type="radio" name="species" value="hsa" checked>
+                        <span>Human (Homo sapiens)</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="species" value="mmu">
+                        <span>Mouse (Mus musculus)</span>
+                    </label>
+                    <br>
+                    <label>Platform:</label>
+                    <label class="control">
+                        <input type="radio" name="platform" value="HGU133Plus2" checked>
+                        <span>Affymetrix Human Genome U133 Plus 2.0 Array</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="platform" value="HGU133A">
+                        <span>Affymetrix Human Genome U133A Array</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="platform" value="HGU133A_2">
+                        <span>Affymetrix Human Genome U133A 2.0 Array</span>
+                    </label>
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">
-                    Sample name from VCF
+                    Select your data
                 </div>
-                <div class="formcontent">
-                    <span class="message">{{samplecolMessage}}</span>
-                    <select flex value="{{samplecol}}" required>
-                        <template repeat="{{sampleName in sampleNames}}">
-                            <option value="{{sampleName}}">{{sampleName}}</option>
-                        </template>
-                    </select>
+                <div vertical layout class="formcontent">
+                    <label>Platform:</label>
+                    <label class="control">
+                        <input type="radio" name="platform" value="true" checked>
+                        <span>CEL compressed file</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="platform" value="false">
+                        <span>Normalized matrix</span>
+                    </label>
+                    <br>
+                    <jso-project-browser-window
+                            id="inputFile"
+                            studies="{{studies}}"
+                            selectedStudy="{{selectedStudy}}"
+                            selectionMode="file"
+                            allowTextArea="false"
+                            on-file-select="{{handleFileSelect}}"
+                            on-ok="{{handleFileSelect}}"
+                            bioformat="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX,DATAMATRIX_EXPRESSION"
+                            ></jso-project-browser-window>
                 </div>
             </div>
 
             <div class="formbox">
                 <div class="formtitle">
-                    Inheritance pattern
+                    Experimental design
                 </div>
-                <div class="formcontent">
-                    <div>
-                        <span class="message">{{modelMessage}}</span>
-                        <select flex value="{{model}}" required>
-                            <option value="recessive">Recessive</option>
-                            <option value="dominant">Dominant</option>
-                        </select>
+                <div vertical layout class="formcontent">
+                    <jso-project-browser-window
+                            id="experimentalFile"
+                            studies="{{studies}}"
+                            selectedStudy="{{selectedStudy}}"
+                            selectionMode="file"
+                            allowTextArea="false"
+                            on-file-select="{{handleFileSelect}}"
+                            on-ok="{{handleFileSelect}}"
+                            bioformat="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX,DATAMATRIX_EXPRESSION"
+                            ></jso-project-browser-window>
+                    <br>
+                    <label>Exp. design type:</label>
+                    <label class="control">
+                        <input type="radio" name="expdesigntype" value="categorical" checked>
+                        <span>Categorical</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="expdesigntype" value="continuous">
+                        <span>Continuous</span>
+                    </label>
 
-                        <div hidden?="{{model == 'dominant'}}">
-                            <label>Should compound heterozygotes be included?</label>
-                            <span class="message">{{comhomMessage}}</span>
-                            <select flex value="{{comhom}}">
-                                <option value="Y">Yes</option>
-                                <option value="N">No</option>
-                            </select>
-                        </div>
+                    <br>
+                    <label>Condition 1:</label>
+
+                    <div style="width:150px;">
+                        <input type="text" name="" value="">
+                    </div>
+                    <label>Condition 2:</label>
+
+                    <div style="width:150px;">
+                        <input type="text" name="" value="">
                     </div>
                 </div>
             </div>
-
-            <div class="formbox">
-                <div class="formtitle" horizontal layout>
-                    <div flex>Consequence types</div>
-                    <div style="font-size:13px;" class="button" on-click="{{handleSelectAllCt}}">Select all</div>
-                    <div style="font-size:13px;" class="button" on-click="{{handleDeselectAllCt}}">Deselect all
-                    </div>
-                </div>
-                <div class="formcontent">
-                    <div class="errmsg">{{consequenceTypeMessage}}</div>
-                    <div class="check-list">
-                        <template repeat="{{item in consequenceTypes}}">
-                            <div horizontal layout>
-                                <div class="button action checkbox" data-checked?="{{ item.selected }}"
-                                     on-click="{{handleItemSelect}}"></div>
-                                <div class="check-name">{{item.text}}</div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-
-
             <div class="formbox">
                 <div class="formtitle">
-                    Deleteriousness indexes
+                    Other parameters
                 </div>
-                <div class="formcontent">
-                    <div class="errmsg">{{methodScoreMessage}}</div>
-                    <div horizontal layout style="line-height: 25px;">
-                        <div class="button action checkbox" data-checked?="{{ siftSelected }}"
-                             on-click="{{handleSiftSelect}}"></div>
-                        <div class="check-name" style="width:100px;">SIFT</div>
+                <div vertical layout class="formcontent">
 
-                        <div horizontal layout style="margin-left:10px;"
-                             hidden?="{{ !siftSelected }}">
-                            <div class="lbl">treshold: &nbsp;</div>
-                            <input type="number" step="0.01" max="1" min="0" value="{{tresholdSift}}"
-                                   required?="{{ siftSelected }}">
+                    <label>Summarize:</label>
+                    <label class="control">
+                        <input type="radio" name="summ" value="mean">
+                        <span>Mean</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="summ" value="median">
+                        <span>Median</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="summ" value="max">
+                        <span>Maximum</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="summ" value="min">
+                        <span>Minimum</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="summ" value="per90" checked>
+                        <span>90th percentile</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="summ" value="per95">
+                        <span>95th percentile</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="summ" value="per99">
+                        <span>99th percentile</span>
+                    </label>
 
-                            <div style="color:#666">&nbsp; Values below the threshold (0.05 default) predict protein DAMAGE</div>
-                        </div>
+                    <br>
+                    <label>K-fold:</label>
+
+                    <div style="width:150px">
+                        <input type="number" name="k" min="1" value="10">
                     </div>
-
-                    <div horizontal layout style="line-height: 25px;">
-                        <div class="button action checkbox" data-checked?="{{ polyphenSelected }}"
-                             on-click="{{handlePolyphenSelect}}"></div>
-                        <div class="check-name" style="width:100px;">PolyPhen</div>
-
-
-                        <div horizontal layout style="margin-left:10px;"
-                             hidden?="{{ !polyphenSelected}}">
-                            <div class="lbl">treshold: &nbsp;</div>
-                            <input type="number" step="0.01" max="1" min="0" value="{{tresholdPolyphen}}"
-                                   required?="{{ polyphenSelected }}">
-
-                            <div style="color:#666">&nbsp; Values over the threshold (0.95 default) predict protein DAMAGE</div>
-                        </div>
-                    </div>
-
-                    <div horizontal layout style="line-height: 25px;">
-                        <div class="button action checkbox" data-checked?="{{ consSelected }}"
-                             on-click="{{handleConsSelect}}"></div>
-                        <div class="check-name" style="width:100px;">PhastCons</div>
-
-                        <template if="{{consSelected}}">
-                            <div horizontal layout style="margin-left:10px;">
-                                <div class="lbl">treshold: &nbsp;</div>
-                                <input type="number" max="1000" min="0" value="{{tresholdCons}}" required>
-
-                                <div style="color:#666">&nbsp; Values over the threshold (200 default) predict DAMAGE</div>
-                            </div>
-                        </template>
-
-                    </div>
+                    <br>
+                    <label>Prediction method:</label>
+                    <label class="control">
+                        <input type="radio" name="predmethod" value="model">
+                        <span>Best model</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="predmethod" value="prior">
+                        <span>Mechanism-based biomarkers prioritization</span>
+                    </label>
                 </div>
             </div>
 
@@ -286,54 +284,15 @@
                         </div>
                     </div>
                 </div>
-
-
-
-                <div class="formbox">
-                    <div class="formtitle" horizontal layout>
-                        <div flex>Tissues</div>
-                        <div style="font-size:13px;" class="button"
-                             data-checked?="{{tissues == expressionAtlasTissues}}"
-                             on-click="{{handleExpressionTissues}}">Expression atlas
-                        </div>
-                        <div style="font-size:13px;" class="button"
-                             data-checked?="{{tissues == humanProteinAtlasTissues}}"
-                             on-click="{{handleHumanProteinTissues}}">Human protein atlas
-                        </div>
-                    </div>
-                    <div class="formcontent">
-                        <div class="errmsg">{{tissueMessage}}</div>
-                        <div class="check-list">
-                            <template repeat="{{item in tissues}}">
-                                <div horizontal layout>
-                                    <div class="button action checkbox" data-checked?="{{ item.selected }}"
-                                         on-click="{{handleTissueItemSelect}}"></div>
-                                    <div class="check-name">{{item.name}}</div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
             </div>
-
-
-            <!--<div class="botbar" horizontal layout center-justified>-->
-                <!--<div class="text" style="color:#666">Job name:</div>-->
-                <!--<input type="text" value="{{jobName}}" style="width: 150px;margin-right:10px;">-->
-
-                <!--<div class="button action" style="width: 150px;" on-click="{{launchJob}}">-->
-                    <!--<font-awesome icon="rocket"></font-awesome>-->
-                    <!--&nbsp; Launch job-->
-                <!--</div>-->
-                <!--&lt;!&ndash;<div class="button action" style="width: 100px;" on-click="{{handleGetFolderIdToTest}}">&ndash;&gt;-->
-            <!--</div>-->
-
-
-
 
             <div class="formbox">
                 <div class="formtitle">Job information</div>
                 <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <br>
                     <label>Job name</label>
                     <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
                     <label>Description</label>
@@ -356,17 +315,18 @@
     <script>
         Polymer({
             created: function () {
+
                 this._initVariables();
 
                 this.selectedStudy;
 
                 this.toolName = "pathiways";
-                this.execution = "pathivar";
+                this.execution = "pathipred";
 
                 this.analysisId = 1;
                 this.outdirId = 1222;
 
-                this.jobName = 'Pathivar job';
+                this.jobName = 'Pathipred job';
                 this.description = 'Description';
 
 
@@ -524,83 +484,50 @@
                 return folder;
             },
             runExample: function () {
-                var me = this;
-                this.selectedStudy = this.studies[0];
-                var outputFolder = this.generateRandomFolder();
-                OpencgaManager.jobs.create({
-                    query: {
-                        sid: Cookies("bioinfo_sid"),
-                        execution: this.execution,
-                        studyId: this.selectedStudy.id,
-                        toolId: this.toolName,
-                        name: "Pathivar example",
-                        description: this.description,
-                        outdir: outputFolder.id,
-
-                        annotvcf: "example_annotvcf1000g.vpa",
-                        ctypes: "splice_acceptor_variant,splice_donor_variant,stop_gained,stop_lost,non_synonymous_codon,exon_variant",
-                        samplecol: "NA19600",
-                        pathways: "hsa04012,hsa04020,hsa04080,hsa04210",
-                        tissue: "lung",
-                        model: "recessive",
-                        comhom: "Y",
-                        methodscore: "siftpolyphen",
-                        treshold: "0.05:0.85:NA",
-                        tissueSet: "ea"
-                    },
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var jobId = response.response[0].result[0].id;
-//                                    me.message = jobId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                            me.selectedStudy = null;
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                });
+//                var me = this;
+//                this.selectedStudy = this.studies[0];
+//                var outputFolder = this.generateRandomFolder();
+//                OpencgaManager.jobs.create({
+//                    query: {
+//                        sid: Cookies("bioinfo_sid"),
+//                        execution: this.execution,
+//                        studyId: this.selectedStudy.id,
+//                        toolId: this.toolName,
+//                        name: "Pathivar example",
+//                        description: this.description,
+//                        outdir: outputFolder.id,
+//
+//                        annotvcf: "example_annotvcf1000g.vpa",
+//                        ctypes: "splice_acceptor_variant,splice_donor_variant,stop_gained,stop_lost,non_synonymous_codon,exon_variant",
+//                        samplecol: "NA19600",
+//                        pathways: "hsa04012,hsa04020,hsa04080,hsa04210",
+//                        tissue: "lung",
+//                        model: "recessive",
+//                        comhom: "Y",
+//                        methodscore: "siftpolyphen",
+//                        treshold: "0.05:0.85:NA",
+//                        tissueSet: "ea"
+//                    },
+//                    request: {
+//                        //method: 'POST',
+//                        success: function (response) {
+//                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                var jobId = response.response[0].result[0].id;
+////                                    me.message = jobId + ' created';
+//                                me.selectedOption = "jobLaunched"
+//                            } else {
+//                                me.message = response.response[0].errorMsg;
+//                            }
+//                            me.selectedStudy = null;
+//                        },
+//                        error: function () {
+//                            me.message = 'Server error, try again later.';
+//                        }
+//                    }
+//                });
             },
             launchJob: function () {
                 var me = this;
-
-
-//                this.vcfFile = "";
-//                this.annotvcf = "/tmp/pv/annotvcf.vpa";
-//                this.ctypes = "splice_acceptor_variant,splice_donor_variant,stop_gained,stop_lost,non_synonymous_codon,exon_variant"
-//                this.samplecol = "muestra_A";
-//                this.pathways = "hsa04012,hsa04020,hsa04080,hsa04210"
-//                this.tissue = "lung"
-//                this.model = "recessive"
-//                this.comhom = "Y"
-//                this.methodscore = "siftpolyphen"
-//                this.treshold = "0.05:0.85:NA"
-
-
-//                "outputParam": "outdir",
-//                        "validParams": [
-//                    {"name":"annotvcf", "description":"", "required":"false"},
-//                    {"name":"vcfFile", "description":"", "required":"false"},
-//
-//                    {"name":"ctypes", "description":"", "required":"true"},
-//                    {"name":"samplecol", "description":"", "required":"true"},
-//                    {"name":"pathways", "description":"", "required":"true"},
-//                    {"name":"tissue", "description":"", "required":"true"},
-//                    {"name":"model", "description":"", "required":"true"},
-//                    {"name":"comhom", "description":"", "required":"true"},
-//                    {"name":"methodscore", "description":"", "required":"true"},
-//                    {"name":"treshold", "description":"", "required":"true"},
-
-
-//                this.consequenceTypes
-//                this.humanProteinAtlasTissues
-//                this.expressionAtlasTissues
-
 
                 this.pathways = [];
                 for (var i = 0; i < this.pathwaysSet.length; i++) {
@@ -790,155 +717,6 @@
                     {name: 'GnRH SIGNALING PATHWAY', selected: false, value: '04912'},
                     {name: 'MELANOGENESIS', selected: false, value: '04916'},
                     {name: 'ADIPOCYTOKINE SIGNALING PATHWAY', selected: false, value: '04920'}
-                ];
-
-                this.consequenceTypes = [
-                    {name: "splice_acceptor_variant", text: "splice acceptor variant", selected: true},
-                    {name: "splice_donor_variant", text: "splice donor variant", selected: true},
-                    {name: "stop_gained", text: "stop gained", selected: true},
-                    {name: "stop_lost", text: "stop lost", selected: true},
-                    {name: "non_synonymous_codon", text: "non synonymous codon", selected: true},
-                    {name: "splice_region_variant", text: "splice region variant", selected: false},
-                    {name: "synonymous_codon", text: "synonymous codon", selected: false},
-                    {name: "exon_variant", text: "exon variant", selected: false},
-                    {name: "coding_sequence_variant", text: "coding sequence variant", selected: false},
-                    {name: "5_prime_UTR_variant", text: "5 prime UTR variant", selected: false},
-                    {name: "3_prime_UTR_variant", text: "3 prime UTR variant", selected: false},
-                    {name: "intron_variant", text: "intron variant", selected: false},
-                    {name: "NMD_transcript_variant", text: "NMD transcript variant", selected: false},
-                    {name: "nc_transcript_variant", text: "nc transcript variant", selected: false},
-                    {name: "5KB_upstream_variant", text: "5KB upstream variant", selected: false},
-                    {name: "5KB_downstream_variant", text: "5KB downstream variant", selected: false},
-                    {name: "TF_binding_site_variant", text: "TF binding site variant", selected: false},
-                    {name: "regulatory_region_variant", text: "regulatory region variant", selected: false},
-                    {name: "DNAseI_hypersensitive_site", text: "DNAseI hypersensitive site", selected: false},
-                    {name: "RNA_polymerase_promoter", text: "RNA polymerase promoter", selected: false},
-                    {name: "miRNA_target_site", text: "miRNA target site", selected: false},
-                    {name: "miRNA", text: "miRNA", selected: false},
-                    {name: "lincRNA", text: "lincRNA", selected: false},
-                    {name: "pseudogene", text: "pseudogene", selected: false},
-                    {name: "SNPe", text: "SNPe", selected: false},
-                    {name: "intergenic_variant", text: "intergenic variant", selected: false}
-                ];
-
-                this.humanProteinAtlasTissues = [
-                    {name: "adrenal gland", selected: false},
-                    {name: "appendix", selected: false},
-                    {name: "bone marrow", selected: false},
-                    {name: "breast", selected: false},
-                    {name: "bronchus", selected: false},
-                    {name: "cerebellum", selected: false},
-                    {name: "cerebral cortex", selected: false},
-                    {name: "cervix, uterine", selected: false},
-                    {name: "colon", selected: false},
-                    {name: "duodenum", selected: false},
-                    {name: "endometrium 1", selected: false},
-                    {name: "endometrium 2", selected: false},
-                    {name: "epididymis", selected: false},
-                    {name: "esophagus", selected: false},
-                    {name: "fallopian tube", selected: false},
-                    {name: "gallbladder", selected: false},
-                    {name: "heart muscle", selected: false},
-                    {name: "hippocampus", selected: false},
-                    {name: "kidney", selected: false},
-                    {name: "lateral ventricle", selected: false},
-                    {name: "liver", selected: false},
-                    {name: "lung", selected: false},
-                    {name: "lymph node", selected: false},
-                    {name: "nasopharynx", selected: false},
-                    {name: "oral mucosa", selected: false},
-                    {name: "ovary", selected: false},
-                    {name: "pancreas", selected: false},
-                    {name: "parathyroid gland", selected: false},
-                    {name: "placenta", selected: false},
-                    {name: "prostate", selected: false},
-                    {name: "rectum", selected: false},
-                    {name: "salivary gland", selected: false},
-                    {name: "seminal vesicle", selected: false},
-                    {name: "skeletal muscle", selected: false},
-                    {name: "skin 1", selected: false},
-                    {name: "skin 2", selected: false},
-                    {name: "small intestine", selected: false},
-                    {name: "smooth muscle", selected: false},
-                    {name: "soft tissue 1", selected: false},
-                    {name: "soft tissue 2", selected: false},
-                    {name: "spleen", selected: false},
-                    {name: "stomach 1", selected: false},
-                    {name: "stomach 2", selected: false},
-                    {name: "testis", selected: false},
-                    {name: "thyroid gland", selected: false},
-                    {name: "tonsil", selected: false},
-                    {name: "urinary bladder", selected: false},
-                    {name: "vagina", selected: false}
-                ];
-
-                this.expressionAtlasTissues = [
-                    {name: "adipose tissue normal", selected: false},
-                    {name: "adipose-derived adult stem cells", selected: false},
-                    {name: "amygdala", selected: false},
-                    {name: "B cell", selected: false},
-                    {name: "bladder", selected: false},
-                    {name: "bladder mucosa", selected: false},
-                    {name: "blood", selected: false},
-                    {name: "bone", selected: false},
-                    {name: "brain", selected: false},
-                    {name: "bronchial epithelia", selected: false},
-                    {name: "bronchoalveolar lavage cell", selected: false},
-                    {name: "caudate nucleus", selected: false},
-                    {name: "CD138+ plasma cell", selected: false},
-                    {name: "CD33+ cells", selected: false},
-                    {name: "CD34+ blood cell", selected: false},
-                    {name: "CD34+ blood cell thymus", selected: false},
-                    {name: "cerebellum", selected: false},
-                    {name: "conjunctiva", selected: false},
-                    {name: "connective tissue fibroblast", selected: false},
-                    {name: "dendritic cell", selected: false},
-                    {name: "embryonic lung fibroblast", selected: false},
-                    {name: "endothelial cell", selected: false},
-                    {name: "epidermis", selected: false},
-                    {name: "erythrocyte", selected: false},
-                    {name: "esophagus epithelium", selected: false},
-                    {name: "fetal lung", selected: false},
-                    {name: "frontal cortex", selected: false},
-                    {name: "granulocyte", selected: false},
-                    {name: "heart", selected: false},
-                    {name: "hematopoietic stem cell", selected: false},
-                    {name: "hippocampus CA1", selected: false},
-                    {name: "hypopharynx", selected: false},
-                    {name: "hypothalamus", selected: false},
-                    {name: "keratinocyte", selected: false},
-                    {name: "kidney", selected: false},
-                    {name: "kidney epithelium", selected: false},
-                    {name: "leukocyte", selected: false},
-                    {name: "liver", selected: false},
-                    {name: "lung", selected: false},
-                    {name: "lymph node", selected: false},
-                    {name: "lymphocyte", selected: false},
-                    {name: "macrophage", selected: false},
-                    {name: "mesangial cell", selected: false},
-                    {name: "mesenchymal stem cell", selected: false},
-                    {name: "monocyte", selected: false},
-                    {name: "mononuclear cell", selected: false},
-                    {name: "multipotent adult progenitor cell", selected: false},
-                    {name: "myometrium", selected: false},
-                    {name: "oropharynx", selected: false},
-                    {name: "ovary", selected: false},
-                    {name: "placenta basal plate", selected: false},
-                    {name: "prefrontal cortex", selected: false},
-                    {name: "prostate gland", selected: false},
-                    {name: "skeletal muscle", selected: false},
-                    {name: "skin", selected: false},
-                    {name: "small intestine", selected: false},
-                    {name: "smooth muscle", selected: false},
-                    {name: "T cell", selected: false},
-                    {name: "testis", selected: false},
-                    {name: "theca", selected: false},
-                    {name: "thymocyte", selected: false},
-                    {name: "thyrocyte", selected: false},
-                    {name: "thyroid gland", selected: false},
-                    {name: "tonsil", selected: false},
-                    {name: "trabecular meshwork cell", selected: false},
-                    {name: "umbilical vein endothelial cell", selected: false}
                 ];
             }
         });

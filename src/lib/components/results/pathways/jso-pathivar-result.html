@@ -20,10 +20,12 @@
             }
 
             .title {
-                text-align: center;
-                font-size: 20px;
-                margin-bottom: 5px;
-                color: #666;
+                font-size: 22px;
+                color: #435f7a;
+                border-bottom: thin solid #edebe3;
+                padding: 0px 0px 5px 0px;
+                margin-top: 0;
+                margin-bottom: 15px;
             }
 
             .icon {
@@ -66,13 +68,29 @@
                 font-size: 14px;
                 padding: 5px 0;
             }
+
+            .date {
+                font-size: 16px;
+                color: #666;
+                margin-left:15px;
+            }
         </style>
-        <div class="title">
-            PATHiVAR Result
-        </div>
+        <template if="{{loading}}">
+            <div class="loading">
+                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                Loading result...
+            </div>
+        </template>
+        <!--<div class="title">-->
+        <!--PATHiVAR Result-->
+        <!--</div>-->
 
 
         <br>
+
+        <div class="title">
+            <b>PATHiVAR</b> - {{jobItem.name}} <span class="date">{{computeDate()}}</span>
+        </div>
         <label>Tissue</label> {{tissueSelected}}
         <br>
         <label>Consequence types</label> {{ctypesSelected}}
@@ -90,8 +108,12 @@
         <div class="warning">
             {{warningMessage}}
         </div>
-        <jso-network-viewer id="networkViewer" hideBar="false" hideToolBar="false"
-                            hideEditionBar="false"></jso-network-viewer>
+        <jso-network-viewer id="networkViewer"
+                            lite="true"
+                            hideBar="false"
+                            hideToolBar="false"
+                            hideEditionBar="false">
+        </jso-network-viewer>
         <img class="legend" src="{{legendImageSrc}}">
     </template>
 
@@ -105,16 +127,23 @@
 
                 this.warningMessage = '';
             },
+            computeDate: function () {
+                return Utils.parseDate(this.jobItem.date);
+            },
             ready: function () {
                 this.networkViewer = this.$.networkViewer;
+                this.networkViewer.hideNodeSimpleRendering = true;
+                this.networkViewer.hideEdgeSimpleRendering = true;
             },
             jobItemChanged: function () {
+                this.loading = true;
+                this.networkViewer.startOver();
                 this.getPathwaysNames();
                 this.getTissue();
                 this.getCtypes();
                 this.getFileInfo(this.jobItem.output.toString(','));
                 this.warningMessage = "";
-
+                this.loading = false;
             },
             getPathwaysNames: function () {
                 var split1 = this.jobItem.commandLine.split('--pathways');

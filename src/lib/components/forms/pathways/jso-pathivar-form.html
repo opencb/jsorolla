@@ -2,7 +2,6 @@
 <polymer-element name="jso-pathivar-form" attributes="studies selectedOption">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
-        <link rel="stylesheet" href="../../jso-panel.css">
         <style>
             :host {
                 display: block;
@@ -361,6 +360,10 @@
             <div class="formbox">
                 <div class="formtitle">Job information</div>
                 <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <br>
                     <label>Job name</label>
                     <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
                     <label>Description</label>
@@ -427,7 +430,6 @@
             handleFileSelect: function (e) {
                 this.vcfFile = this.$.inputFile.selectedFile;
                 if (this.checkVcfFile()) {
-                    debugger
                     this.getSamplesFromVcf();
                 }
             },
@@ -516,29 +518,28 @@
                         }
                     }
                 });
-
-
             },
-            generateRandomFolder: function () {
+            _getStudyFolder: function (studyId) {
+                var me = this;
                 var folder;
-                OpencgaManager.files.createFolder({
+                OpencgaManager.files.search({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        folder: "pathivar-" + Utils.randomString(20),
-                        studyId: this.selectedStudy.id
+                        studyId: studyId,
+                        name: '.'
                     },
                     request: {
                         async: false,
                         success: function (response) {
-                            console.log(response)
+                            console.log(response);
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 folder = response.response[0].result[0];
                             } else {
-                                console.log(response.response[0].errorMsg);
+                                console.log(response.response[0].errorMsg)
                             }
                         },
                         error: function () {
-                            console.log('Server error, try again later');
+                            console.log('Server error, try again later.');
                         }
                     }
                 });
@@ -547,7 +548,9 @@
             runExample: function () {
                 var me = this;
                 this.selectedStudy = this.studies[0];
-                var outputFolder = this.generateRandomFolder();
+
+                var folder = this._getStudyFolder(this.selectedStudy.id);
+
                 OpencgaManager.jobs.create({
                     query: {
                         sid: Cookies("bioinfo_sid"),
@@ -556,7 +559,7 @@
                         toolId: this.toolName,
                         name: "Pathivar example",
                         description: this.description,
-                        outdir: outputFolder.id,
+                        outdir: folder.id,
 
                         annotvcf: "example_annotvcf1000g.vpa",
                         ctypes: "splice_acceptor_variant,splice_donor_variant,stop_gained,stop_lost,non_synonymous_codon,exon_variant",
@@ -699,6 +702,7 @@
 
                 console.log(this.$.form.checkValidity())
 
+
                 if (this.$.form.checkValidity() &&
                         this.checkVcfFile() &&
                         this.samplecol != null &&
@@ -710,7 +714,6 @@
 //                        this.treshold != '' &&
                         this.tissueSet != null
                 ) {
-                    var outputFolder = this.generateRandomFolder();
 
                     var comhom;
                     if (this.model == 'recessive') {
@@ -720,6 +723,10 @@
                         this.jobName = 'Pathivar job';
                     }
 
+                    if (this.$.outdir.selectedFile === undefined) {
+                        alert("Sorry. No output folder selected. Please select one. ");
+                        return;
+                    }
                     OpencgaManager.jobs.create({
                         query: {
                             sid: Cookies("bioinfo_sid"),
@@ -728,7 +735,7 @@
                             toolId: this.toolName,
                             name: this.jobName,
                             description: this.description,
-                            outdir: outputFolder.id,
+                            outdir: this.$.outdir.selectedFile.id,
 
                             //                        annotvcf: this.annotvcf,
                             vcfFile: this.vcfFile.id,
@@ -765,8 +772,8 @@
             _initVariables: function () {
                 this.pathwaysSet = [
                     {name: 'PPAR SIGNALING PATHWAY', selected: false, value: '03320'},
-                    {name: 'ERBB SIGNALING PATHWAY', selected: false, value: '04012'},
-                    {name: 'CALCIUM SIGNALING PATHWAY', selected: false, value: '04020'},
+                    {name: 'ERBB SIGNALING PATHWAY', selected: true, value: '04012'},
+                    {name: 'CALCIUM SIGNALING PATHWAY', selected: true, value: '04020'},
                     {
                         name: 'CYTOKINE-CYTOKINE RECEPTOR',
                         selected: false,
@@ -935,7 +942,7 @@
                     {name: "kidney epithelium", selected: false},
                     {name: "leukocyte", selected: false},
                     {name: "liver", selected: false},
-                    {name: "lung", selected: false},
+                    {name: "lung", selected: true},
                     {name: "lymph node", selected: false},
                     {name: "lymphocyte", selected: false},
                     {name: "macrophage", selected: false},
