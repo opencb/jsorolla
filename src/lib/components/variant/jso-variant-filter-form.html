@@ -44,23 +44,33 @@
             }
 
             input.segregation, .segregationValue {
-
                 width: 30px;
+            }
 
+            input#consequence_type {
+                width: 30px;
             }
 
             .segregationLine {
                 margin-bottom: 10px;
             }
 
-            #buttons_container{
-                margin-top:10px;
+            #buttons_container {
+                margin-top: 10px;
             }
-            #buttons_container > #clearButton{
+
+            #buttons_container > #clearButton {
                 margin-right: 10px;
             }
 
+            #consequenceTypes {
+                /*height: 300px;*/
+                /*overflow-y: auto;*/
+            }
 
+            .ctElem {
+                height: 20px;
+            }
         </style>
         <form id="filter_form" vertical layout>
             <div vertical layout>
@@ -118,6 +128,12 @@
                             </div>
                         </div>
                     </div>
+                    <div class="input_container" vertical layout>
+                        <label class="input_label">Bed File</label>
+
+                        <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+                        <input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">
+                    </div>
                 </div>
 
                 <div class="form_block">
@@ -125,54 +141,67 @@
                     <div id="consequenceTypes" class="input_container" vertical layout>
                     </div>
                 </div>
-
-
             </div>
-
         </form>
-
     </template>
     <script>
         Polymer({
-            regionValue: '1:1-100000000',
+            regionValue: '1:1-1000000',
             geneValue: null,
             snpValue: '',
             floatDecimals: 3,
             expanded: false,
             parseFunction: null,
             url: '',
+            fileName: 'Choose file...',
             created: function () {
                 this.consequenceTypes = [
-                    "splice_donor_variant",
-                    "splice_acceptor_variant",
-                    "stop_gained",
-                    "frameshift_variant",
-                    "stop_lost",
-                    "initiator_codon_variant",
-                    "inframe_insertion",
-                    "inframe_deletion",
-                    "missense_variant",
-                    "splice_region_variant",
-                    "incomplete_terminal_codon_variant",
-                    "stop_retained_variant",
-                    "synonymous_variant",
-                    "coding_sequence_variant",
-                    "mature_miRNA_variant",
-                    "5_prime_UTR_variant",
-                    "3_prime_UTR_variant",
-                    "non_coding_transcript_exon_variant",
-                    "intron_variant",
-                    "NMD_transcript_variant",
-                    "non_coding_transcript_variant",
-                    "upstream_gene_variant",
-                    "downstream_gene_variant",
-                    "TF_binding_site_variant",
-                    "regulatory_region_variant",
-                    "feature_elongation",
-                    "feature_truncation",
-                    "intergenic_variant",
-                    "2kb_upstream_gene_variant",
-                    "2kb_downstream_gene_variant"
+                    {name: "transcript_ablation", value: 1893},
+                    {name: "splice_donor_variant", value: 1575},
+                    {name: "splice_acceptor_variant", value: 1574},
+                    {name: "stop_gained", value: 1587},
+                    {name: "frameshift_variant", value: 1589},
+                    {name: "stop_lost", value: 1578},
+                    {name: "initiator_codon_variant", value: 1582},
+                    {name: "inframe_insertion", value: 1821},
+                    {name: "inframe_deletion", value: 1822},
+                    {name: "missense_variant", value: 1583},
+                    {name: "transcript_amplification", value: 1889},
+                    {name: "splice_region_variant", value: 1630},
+                    {name: "incomplete_terminal_codon_variant", value: 1626},
+                    {name: "synonymous_variant", value: 1819},
+                    {name: "stop_retained_variant", value: 1567},
+                    {name: "coding_sequence_variant", value: 1580},
+                    {name: "miRNA", value: 276},
+                    {name: "miRNA_target_site", value: 934},
+                    {name: "mature_miRNA_variant", value: 1620},
+                    {name: "5_prime_UTR_variant", value: 1623},
+                    {name: "3_prime_UTR_variant", value: 1624},
+                    {name: "exon_variant", value: 1791},
+                    {name: "non_coding_exon_variant", value: 1792},
+                    {name: "non_coding_transcript_variant", value: 1619},
+                    {name: "intron_variant", value: 1627},
+                    {name: "NMD_transcript_variant", value: 1621},
+                    {name: "upstream_gene_variant", value: 1631},
+                    {name: "downstream_gene_variant", value: 1632},
+                    {name: "TFBS_ablation", value: 1895},
+                    {name: "TFBS_amplification", value: 1892},
+                    {name: "TF_binding_site_variant", value: 1782},
+                    {name: "regulatory_region_variant", value: 1566},
+                    {name: "regulatory_region_ablation", value: 1894},
+                    {name: "regulatory_region_amplification", value: 1891},
+                    {name: "feature_elongation", value: 1907},
+                    {name: "feature_truncation", value: 1906},
+                    {name: "intergenic_variant", value: 1628},
+                    {name: "lincRNA", value: 1463},
+                    {name: "5KB_downstream_variant", value: 1633},
+                    {name: "5KB_upstream_variant", value: 1635},
+                    {name: "SNV", value: 1483},
+                    {name: "SNP", value: 694},
+                    {name: "RNA_polymerase_promoter", value: 1203},
+                    {name: "CpG_island", value: 307},
+                    {name: "DNAseI_hypersensitive_site", value: 685},
+                    {name: "polypeptide_variation_site", value: 336}
                 ];
             },
             ready: function () {
@@ -194,50 +223,40 @@
                             var values = me.$.gene.value.split(',').filter(function (el) {
                                 return el.length != 0
                             });
-
                             values.push(item.name);
                             values = values.filter(function (item, index, inputArray) {
                                 return inputArray.indexOf(item) == index;
                             });
-
                             me.$.gene.value = values.join(",");
-
-
                         } else {
                             this.classList.add('error');
                         }
                     }
                 });
 
-
                 for (var i = 0; i < this.consequenceTypes.length; i++) {
                     var ct = this.consequenceTypes[i];
 
-
                     var ctDiv = document.createElement("div");
+                    ctDiv.classList.add("ctElem");
 
-
-                    var ctName = Utils.formatText(ct, "_");
+                    var ctName = Utils.formatText(ct.name, "_");
                     var ctNameLabel = document.createElement("span");
                     ctNameLabel.innerHTML = ctName;
-
 
                     var checkbox = document.createElement('input');
                     checkbox.type = "checkbox";
                     checkbox.name = "consequence_type";
-                    checkbox.value = ct;
+                    checkbox.value = ct.value;
                     checkbox.id = "consequence_type";
 
                     ctDiv.appendChild(checkbox);
                     ctDiv.appendChild(ctNameLabel);
 
                     this.$.consequenceTypes.appendChild(ctDiv);
-
                 }
-
             },
             samplesChanged: function (oldValue, newValue) {
-
                 var sampleNames = Object.keys(newValue);
 
                 for (var i = 0; i < sampleNames.length; i++) {
@@ -258,7 +277,7 @@
                     var checkbox00 = document.createElement('input');
                     checkbox00.type = "checkbox";
                     checkbox00.name = checkboxName;
-                    checkbox00.value = "0/0;0|0";
+                    checkbox00.value = "0/0,0|0";
                     checkbox00.id = checkboxName;
                     checkbox00.classList.add("segregation");
 
@@ -266,21 +285,21 @@
                     var checkbox01 = document.createElement('input');
                     checkbox01.type = "checkbox";
                     checkbox01.name = checkboxName;
-                    checkbox01.value = "0/1;0|1;1/0;1|0";
+                    checkbox01.value = "0/1,0|1,1/0,1|0";
                     checkbox01.id = checkboxName;
                     checkbox01.classList.add("segregation");
 
                     var checkbox11 = document.createElement('input');
                     checkbox11.type = "checkbox";
                     checkbox11.name = checkboxName;
-                    checkbox11.value = "1/1;1|1";
+                    checkbox11.value = "1/1,1|1";
                     checkbox11.id = checkboxName;
                     checkbox11.classList.add("segregation");
 
                     var checkboxMiss = document.createElement('input');
                     checkboxMiss.type = "checkbox";
                     checkboxMiss.name = checkboxName;
-                    checkboxMiss.value = "-1/-1;-1|-1";
+                    checkboxMiss.value = "-1/-1,-1|-1";
                     checkboxMiss.id = checkboxName;
                     checkboxMiss.classList.add("segregation");
 
@@ -294,7 +313,6 @@
                 }
             },
             _setQuickSearchMenu: function (query) {
-
                 while (this.$.searchDataList.firstChild) {
                     this.$.searchDataList.removeChild(this.$.searchDataList.firstChild);
                 }
@@ -332,11 +350,29 @@
                 });
                 return results;
             },
+            clearForm: function () {
+                var me = this;
+
+                for (var sample in me.samples) {
+                    var checkboxName = "GT_" + sample;
+                    var selectedCheckboxes = this.shadowRoot.querySelectorAll("input[name='" + checkboxName + "']:checked");
+                    var gtValues = [];
+                    for (var i = 0; i < selectedCheckboxes.length; i++) {
+                        var obj = selectedCheckboxes[i];
+                        obj.checked = false;
+                    }
+                }
+                // Consequence Types
+
+                var selectedConsequenceTypes = this.shadowRoot.querySelectorAll("input[name='consequence_type']:checked");
+                for (var i = 0; i < selectedConsequenceTypes.length; i++) {
+                    var ctInput = selectedConsequenceTypes[i];
+                    ctInput.checked = false;
+                }
+
+            },
             submitForm: function () {
                 var me = this;
-                var auxStudies = [];
-                var auxDiseases = [];
-                var auxPhenotypes = [];
                 var query = {
                     sid: Cookies("bioinfo_sid")
                 };
@@ -350,7 +386,6 @@
 
                     if (this.regionValue) {
                         regions = this.regionValue.split(",");
-                        search |= true;
                     }
 
                     if (this.geneValue) {
@@ -371,7 +406,6 @@
                                     var region = new Region(queryResult.result[0]);
                                     regions.push(region.toString());
                                 }
-                                search |= true;
                             }
                         });
                     }
@@ -389,46 +423,85 @@
                             gtValues.push(obj.value);
                         }
                         if (gtValues.length > 0) {
-                            var aux = me.samples[sample] + ":" + gtValues.join(";");
+                            var aux = me.samples[sample] + ":" + gtValues.join(",");
                             genotypes.push(aux);
-
                         }
-
                     }
 
                     if (genotypes.length > 0) {
-
-                        query.genotype = genotypes.join(",").replace(new RegExp("\/", "gi"), "%2f");
+                        query.genotype = genotypes.join(";"); //.replace(new RegExp("\/", "gi"), "%2f");
                     }
 
-                    if (search) {
-                        var regionQuery = regions.join(",");
+                    // Consequence Types
+                    var cts = [];
 
-//                        var url = PVSManager.variants.fetch({
-//                            id: regionQuery,
-//                            query: query,
-//                            request: {
-//                                url: true
-//                            }
+                    var selectedConsequenceTypes = this.shadowRoot.querySelectorAll("input[name='consequence_type']:checked");
+                    for (var i = 0; i < selectedConsequenceTypes.length; i++) {
+                        var ctInput = selectedConsequenceTypes[i];
+                        cts.push(ctInput.value);
+                    }
+                    if (cts.length > 0) {
+                        query["annot-ct"] = cts.join(",");
+                    }
+
+                    var regionQuery = regions.join(",");
+
+                    query.region = regionQuery;
+                    query.fileId = "";
+
+                    console.log(query);
+
+
+//                    if (this.fileName != '') {
+//
+//                        var inputFile = this.$.fileInput.files[0];
+//
+//                        var file = new FileDataSource({
+//                            file: inputFile
 //                        });
-                        query.region = regionQuery;
-                        query.fileId = "";
+//
+//                        file.on("success", function (data) {
+//
+//
+//
+//                        });
+//                        file.fetch(true);
+//
+//
+//                    } else {
+                        this.search(query);
+//                    }
 
-                        var url = OpencgaManager.files.fetch({
-                            id: me.fileId,
-                            query: query,
-                            request: {
-                                url: true
-                            }
-                        });
 
-                        this.url = url;
-                    }
                 } else {
-                    alert("Please add a region/gene and check any study, disease or phenotype");
+                    alert("Please add a region/gene");
+                }
+            },
+
+            search: function (query) {
+                var me = this;
+
+                if (query.region != null && query.region.length > 0) {
+
+                    var url = OpencgaManager.files.fetch({
+                        id: me.fileId,
+                        query: query,
+                        request: {
+                            url: true
+                        }
+                    });
+
+                    this.url = url;
                 }
 
             },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name
+            }
         })
     </script>
 </polymer-element>
