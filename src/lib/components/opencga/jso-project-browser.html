@@ -615,14 +615,16 @@
                 top: 30px;
                 border-bottom: 1px solid #d3d3d3;
             }
-            .upload{
+
+            .upload {
                 color: #ab0000 !important;
             }
         </style>
         <div class="bar" horizontal layout>
             <template if="{{selectionMode != 'folder'}}">
-                <div class="button action upload"  on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
-                    <font-awesome icon="cloud-upload"></font-awesome>Upload
+                <div class="button action upload" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
+                    <font-awesome icon="cloud-upload"></font-awesome>
+                    Upload
                     <!--Upload-->
                 </div>
             </template>
