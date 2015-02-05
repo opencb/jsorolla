@@ -60,7 +60,7 @@
 <script src="../../bower_components/d3/d3.min.js"></script>
 
 <polymer-element name="jso-network-viewer"
-                 attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies  jsoHeader">
+                 attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies jsoHeader lite">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -106,6 +106,7 @@
         </style>
 
         <jso-nv-bar
+                lite="{{lite}}"
                 hidden?="{{hideBar == 'true'}}"
                 columns="{{vAttr.columns}}"
 
@@ -172,6 +173,7 @@
         </jso-nv-bar>
 
         <jso-nv-tool-bar
+                lite="{{lite}}"
                 hidden?="{{hideToolBar == 'true'}}"
                 backgroundColor="{{backgroundColor}}"
                 mode="{{mode}}"
@@ -410,6 +412,8 @@
     <script>
         Polymer({
             created: function () {
+                this.lite = "false";
+
                 this.serializeVersion = 2;
                 this.serializeKey = 'NETWORKVIEWER' + this.serializeVersion;
 

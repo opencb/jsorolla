@@ -1,4 +1,4 @@
-<polymer-element name="jso-nv-tool-bar" attributes="backgroundColor mode zoom">
+<polymer-element name="jso-nv-tool-bar" attributes="backgroundColor mode zoom lite">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -30,17 +30,19 @@
                  on-click="{{handleMode}}">
                 <font-awesome icon="image"></font-awesome>
             </div>
-            <div class="button" data-checked="{{mode == 'add'}}" data-mode="add" on-click="{{handleMode}}"
-                 style="margin-left: 3px;border-right: none">
-                <font-awesome icon="plus"></font-awesome>
-            </div>
-            <div class="button" data-checked="{{mode == 'join'}}" data-mode="join" on-click="{{handleMode}}"
-                 style="border-right: none">
-                <font-awesome icon="link"></font-awesome>
-            </div>
-            <div class="button" data-checked="{{mode == 'delete'}}" data-mode="delete" on-click="{{handleMode}}">
-                <font-awesome icon="times"></font-awesome>
-            </div>
+            <template if="{{lite != 'true'}}">
+                <div class="button" data-checked="{{mode == 'add'}}" data-mode="add" on-click="{{handleMode}}"
+                     style="margin-left: 3px;border-right: none">
+                    <font-awesome icon="plus"></font-awesome>
+                </div>
+                <div class="button" data-checked="{{mode == 'join'}}" data-mode="join" on-click="{{handleMode}}"
+                     style="border-right: none">
+                    <font-awesome icon="link"></font-awesome>
+                </div>
+                <div class="button" data-checked="{{mode == 'delete'}}" data-mode="delete" on-click="{{handleMode}}">
+                    <font-awesome icon="times"></font-awesome>
+                </div>
+            </template>
 
 
             <div style="margin-left: 10px" id="collapseButton" class="ocb-ctrl hidden">
@@ -125,7 +127,7 @@
             created: function () {
                 this.zoom;
                 this.mode;
-
+                this.lite = "false";
             },
             ready: function () {
 

@@ -1,4 +1,4 @@
-<polymer-element name="jso-nv-bar" attributes="columns">
+<polymer-element name="jso-nv-bar" attributes="columns lite">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -27,11 +27,11 @@
                     File
                 </div>
                 <ul id="fileMenu" on-click="{{handleClick}}">
-                    <li data-value="session-start">New session</li>
-                    <li data-value="session-open">Open session...</li>
-                    <li data-value="session-save">Save session</li>
-                    <li data-divider></li>
-                    <li data-sub>Import
+                    <li hidden?="{{lite == 'true'}}" data-value="session-start">New session</li>
+                    <li hidden?="{{lite == 'true'}}" data-value="session-open">Open session...</li>
+                    <li hidden?="{{lite == 'true'}}" data-value="session-save">Save session</li>
+                    <li hidden?="{{lite == 'true'}}" data-divider></li>
+                    <li hidden?="{{lite == 'true'}}" data-sub>Import
                         <ul>
                             <li data-value="import-sif">Network from SIF...</li>
                             <li data-value="import-xlsx">Network from XLSX...</li>
@@ -41,7 +41,7 @@
                             <li data-value="import-edge-attributes">Edge attributes ...</li>
                         </ul>
                     </li>
-                    <li data-divider></li>
+                    <li hidden?="{{lite == 'true'}}" data-divider></li>
                     <li data-sub>Export
                         <ul>
                             <li data-value="export-sif">Network as SIF</li>
@@ -60,7 +60,7 @@
                     Network
                 </div>
                 <ul id="networkMenu" on-click="{{handleClick}}">
-                    <li data-sub>Import network
+                    <li data-sub  hidden?="{{lite == 'true'}}">Import network
                         <ul>
                             <li data-value="reactome">Reactome...</li>
                             <li data-value="kegg">Kegg...</li>
@@ -83,7 +83,7 @@
                     <li data-sub>Layout
                         <ul>
                             <li data-value="layout-force-directed" data-sub>Force directed
-                            <!--<li data-value="layout-force-directed">Force directed-->
+                                <!--<li data-value="layout-force-directed">Force directed-->
                                 <ul>
                                     <li data-value="layout-force-directed">Default</li>
                                     <li data-value="layout-configure-force-directed">Configure...</li>
@@ -95,7 +95,9 @@
                                     <li data-value="layout-circle" data-subvalue="{{column.name}}">Unsorted</li>
                                     <li data-divider></li>
                                     <template repeat="{{column in columns}}">
-                                        <li data-value="layout-circle" data-subvalue="{{column.name}}">{{column.title}}</li>
+                                        <li data-value="layout-circle" data-subvalue="{{column.name}}">
+                                            {{column.title}}
+                                        </li>
                                     </template>
                                 </ul>
                             </li>
@@ -115,8 +117,8 @@
                     <li data-divider>
                     <li data-value="node-simple-rendering">Node visualization settings...</li>
                     <li data-value="edge-simple-rendering">Edge visualization settings...</li>
-                    <li data-divider>
-                    <li data-value="cellbase"> Import attributes from Cellbase...</li>
+                    <li hidden?="{{lite == 'true'}}" data-divider>
+                    <li data-value="cellbase" hidden?="{{lite == 'true'}}"> Import attributes from Cellbase...</li>
                 </ul>
             </div>
             <!--<div class="dropdown" style="margin-left: 10px">-->
@@ -128,7 +130,7 @@
             <!--&lt;!&ndash;<li data-divider>&ndash;&gt;-->
             <!--</ul>-->
             <!--</div>-->
-            <div class="dropdown" style="margin-left: 10px">
+            <div class="dropdown" style="margin-left: 10px" hidden?="{{lite == 'true'}}">
                 <div tabindex="-1" id="pluginsButton" class="button" style="border-width:0;">
                     Analysis
                 </div>
@@ -153,7 +155,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="dropdown" style="margin-left: 10px">
+            <div class="dropdown" style="margin-left: 10px" hidden?="{{lite == 'true'}}">
                 <div tabindex="-1" id="examplesButton" class="button" style="border-width:0;">
                     Examples
                 </div>
@@ -179,6 +181,7 @@
     <script>
         Polymer({
             created: function () {
+                this.lite = "false";
             },
             ready: function () {
             },
