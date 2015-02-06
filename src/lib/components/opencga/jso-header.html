@@ -9,7 +9,7 @@
 <link rel="import" href="jso-help-menu.html">
 
 <polymer-element name="jso-header"
-                 attributes="selectedOption options allowLogin allowJobs showJobs isLogged
+                 attributes="selectedOption options allowLogin allowJobs allowBrowse showJobs isLogged
                  userData jobItem selectedStudy allowedTools">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
@@ -129,12 +129,14 @@
             </div>
 
 
+            <template if="{{allowBrowse == true}}">
             <div id="projects" data-option="projects" on-click="{{handleMenu}}" hidden?="{{!isLogged}}">
                 <font-awesome icon="cloud-upload"></font-awesome>
                 <!--<font-awesome icon="pie-chart"></font-awesome>-->
                 <!--&nbsp;studies-->
                 &nbsp;Upload
             </div>
+            </template>
 
 
             <div id="profile" data-option="profile" on-click="{{handleMenu}}" hidden?="{{!isLogged || userText == 'anonymous'}}">
@@ -250,6 +252,7 @@
             created: function () {
                 this.allowLogin = true;
                 this.allowJobs = true;
+                this.allowBrowse = true;
 
                 this.checkTimeInterval = 5000;
                 this.version = '';

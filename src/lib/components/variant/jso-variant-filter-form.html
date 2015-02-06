@@ -11,8 +11,25 @@
                 width: 250px;
             }
 
-            label:after {
-                content: ':';
+            #filter_form {
+                overflow-y: auto;
+                height: 100%;
+                margin: 0px;
+            }
+
+            .title {
+                font-size: 22px;
+                color: #435f7a;
+                border-bottom: thin solid #edebe3;
+                margin: 7px 5px;
+            }
+
+            #bar {
+                padding: 0 3px 5px 3px;
+            }
+
+            #bar > .button {
+                margin: 0px 2px;
             }
 
             .input_container {
@@ -20,7 +37,7 @@
                 width: 175px;
                 right: auto;
                 top: 0px;
-                /*left: 5px;*/
+                left: 5px;
                 padding: 4px 6px 3px 20px;
             }
 
@@ -44,103 +61,170 @@
             }
 
             input.segregation, .segregationValue {
-                width: 30px;
+                margin-left:3px;
             }
 
             input#consequence_type {
                 width: 30px;
             }
 
-            .segregationLine {
-                margin-bottom: 10px;
-            }
-
-            #buttons_container {
-                margin-top: 10px;
-            }
-
-            #buttons_container > #clearButton {
-                margin-right: 10px;
-            }
-
             #consequenceTypes {
-                /*height: 300px;*/
-                /*overflow-y: auto;*/
+                height: 250px;
+                overflow-y: auto;
             }
 
-            .ctElem {
-                height: 20px;
-            }
+            /*.ctElem {*/
+            /*height: 20px;*/
+            /*}*/
         </style>
-        <form id="filter_form" vertical layout>
-            <div vertical layout>
-                <div id="buttons_container" horizontal layout center-justified>
-                    <div class="button" id="clearButton" on-click="{{ clearForm }}">Clear</div>
-                    <div class="button" id="searchButton" on-click="{{ submitForm }}">Search</div>
-                </div>
-                <div class="form_block">
-                    <div id="headerTitle">Segregation</div>
-                    <div class="input_container" vertical layout>
-                        <div id="segregationHeader" horizontal layout>
-                            <div class="segregation sampleName"></div>
-                            <div class="segregation segregationValue">0/0</div>
-                            <div class="segregation segregationValue">0/1</div>
-                            <div class="segregation segregationValue">1/1</div>
-                            <div class="segregation segregationValue">./.</div>
-                        </div>
-                        <div id="segregation" vertical layout></div>
-                    </div>
-                </div>
+        <form id="filter_form">
+            <div class="title">
+                Filters
+            </div>
+            <div id="bar" horizontal layout center-justified>
+                <div flex class="button action" on-click="{{ clearForm }}">Clear</div>
+                <div flex class="button action" on-click="{{ submitForm }}">Search</div>
+            </div>
 
-                <div class="form_block">
-                    <div id="headerTitle">MAF</div>
-                    <div class="input_container" vertical layout>
-                    </div>
+            <div class="formbox">
+                <div class="formtitle">
+                    Segregation
                 </div>
+                <div class="formcontent">
+                    <div id="segregationHeader" horizontal layout>
+                        <div class="segregation sampleName"></div>
+                        <div flex class="segregation segregationValue">0/0</div>
+                        <div flex class="segregation segregationValue">0/1</div>
+                        <div flex class="segregation segregationValue">1/1</div>
+                        <div flex class="segregation segregationValue">. / .</div>
+                    </div>
+                    <div id="segregation" vertical layout>
+                        <template repeat="{{sname in sampleNames}}">
+                            <div horizontal layout>
+                                <div class="segregation sampleName">{{sname}}</div>
+                                <label class="control" flex>
+                                    <input type="checkbox" name="GT_{{sname}}" value="0/0,0|0">
+                                    <span></span>
+                                </label>
+                                <label class="control" flex>
+                                    <input type="checkbox" name="GT_{{sname}}" value="0/1,0|1,1/0,1|0">
+                                    <span></span>
+                                </label>
+                                <label class="control" flex>
+                                    <input type="checkbox" name="GT_{{sname}}" value="1/1,1|1">
+                                    <span></span>
+                                </label>
+                                <label class="control" flex>
+                                    <input type="checkbox" name="GT_{{sname}}" value="-1/-1,-1|-1">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </template>
+                    </div>
 
-                <div class="form_block positionBlock">
-                    <div id="headerTitle">Position</div>
-                    <div class="input_container" vertical layout>
-                        <label class="input_label">Chromosomal Location</label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">
+                    MAF
+                </div>
+                <div class="formcontent">
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">
+                    Position
+                </div>
+                <div class="formcontent">
+                    <label class="input_label">Chromosomal Location</label>
                         <textarea id="region" name="region" placeholder="1:1-1000000,2:1-1000000"
                                   value="{{ regionValue }}" rows="3"
                                   required?="{{ (regionValue == '') }}">
                         </textarea>
-                    </div>
-                    <!--<div class="input_container" vertical layout>-->
-                    <!--<label class="input_label">SNP id</label>-->
-                    <!--<textarea id="region" name="region" value="{{ regionValue }}" rows="3"-->
-                    <!--required?="{{ (regionValue == '') }}">-->
-                    <!--</textarea>-->
-                    <!--</div>-->
-                    <div class="input_container" vertical layout>
-                        <label class="input_label">Gene</label>
+
+                    <label class="input_label">Gene</label>
                         <textarea id="gene" name="gene" placeholder="BRCA2,PPL"
                                   value="{{ geneValue }}" rows="3"
-                                  required?="{{ (geneValue == '') }}"></textarea>
+                                  required?="{{ (geneValue == '') }}">
+                        </textarea>
 
-                        <div horizontal layout class="searchGene" end-justified>
-                            <input id="searchField" list="searchDataList" placeholder="Search gene" type="text"
-                                   style="width: 90px;">
-                            <datalist id="searchDataList"></datalist>
-                            <div id="quickSearchButton" class="button" style="border-left: none;">
-                                <font-awesome icon="search"></font-awesome>
-                            </div>
+                    <div horizontal layout class="searchGene" style="margin-top: 2px;">
+                        <div flex>
+                            <input id="searchField" list="searchDataList" placeholder="Search gene"
+                                   type="text">
+                        </div>
+                        <datalist id="searchDataList"></datalist>
+                        <div id="quickSearchButton" class="button" style="border-left: none;">
+                            <font-awesome icon="search"></font-awesome>
                         </div>
                     </div>
-                    <div class="input_container" vertical layout>
-                        <label class="input_label">Bed File</label>
 
-                        <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
-                        <input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">
-                    </div>
+                    <label class="input_label">Bed File</label>
+
+                    <div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+                    <input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">
+
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">
+                    Consequence Type
+                </div>
+                <div class="formcontent" id="consequenceTypes">
+                    <template repeat="{{ct in consequenceTypes}}">
+                        <label class="control">
+                            <input value="{{ct.value}}" type="checkbox" name="consequence_type">
+                            <span>{{ct.name}}</span>
+                        </label><br>
+                    </template>
+                    <!--<div  class="input_container" vertical layout>-->
+                    <!--</div>-->
                 </div>
 
-                <div class="form_block">
-                    <div id="headerTitle">Consequence Type</div>
-                    <div id="consequenceTypes" class="input_container" vertical layout>
-                    </div>
-                </div>
+                <!--<div class="form_block positionBlock">-->
+                <!--<div id="headerTitle">Position</div>-->
+                <!--<div class="input_container" vertical layout>-->
+                <!--<label class="input_label">Chromosomal Location</label>-->
+                <!--<textarea id="region" name="region" placeholder="1:1-1000000,2:1-1000000"-->
+                <!--value="{{ regionValue }}" rows="3"-->
+                <!--required?="{{ (regionValue == '') }}">-->
+                <!--</textarea>-->
+                <!--</div>-->
+                <!--&lt;!&ndash;<div class="input_container" vertical layout>&ndash;&gt;-->
+                <!--&lt;!&ndash;<label class="input_label">SNP id</label>&ndash;&gt;-->
+                <!--&lt;!&ndash;<textarea id="region" name="region" value="{{ regionValue }}" rows="3"&ndash;&gt;-->
+                <!--&lt;!&ndash;required?="{{ (regionValue == '') }}">&ndash;&gt;-->
+                <!--&lt;!&ndash;</textarea>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--<div class="input_container" vertical layout>-->
+                <!--<label class="input_label">Gene</label>-->
+                <!--<textarea id="gene" name="gene" placeholder="BRCA2,PPL"-->
+                <!--value="{{ geneValue }}" rows="3"-->
+                <!--required?="{{ (geneValue == '') }}"></textarea>-->
+
+                <!--<div horizontal layout class="searchGene" end-justified>-->
+                <!--<input id="searchField" list="searchDataList" placeholder="Search gene" type="text"-->
+                <!--style="width: 90px;">-->
+                <!--<datalist id="searchDataList"></datalist>-->
+                <!--<div id="quickSearchButton" class="button" style="border-left: none;">-->
+                <!--<font-awesome icon="search"></font-awesome>-->
+                <!--</div>-->
+                <!--</div>-->
+                <!--</div>-->
+                <!--<div class="input_container" vertical layout>-->
+                <!--<label class="input_label">Bed File</label>-->
+
+                <!--<div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>-->
+                <!--<input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">-->
+                <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="form_block">-->
+                <!--<div id="headerTitle">Consequence Type</div>-->
+                <!--<div id="consequenceTypes" class="input_container" vertical layout>-->
+                <!--</div>-->
+                <!--</div>-->
             </div>
         </form>
     </template>
@@ -156,53 +240,54 @@
             fileName: 'Choose file...',
             created: function () {
                 this.consequenceTypes = [
-                    {name: "transcript_ablation", value: 1893},
-                    {name: "splice_donor_variant", value: 1575},
-                    {name: "splice_acceptor_variant", value: 1574},
-                    {name: "stop_gained", value: 1587},
-                    {name: "frameshift_variant", value: 1589},
-                    {name: "stop_lost", value: 1578},
-                    {name: "initiator_codon_variant", value: 1582},
-                    {name: "inframe_insertion", value: 1821},
-                    {name: "inframe_deletion", value: 1822},
-                    {name: "missense_variant", value: 1583},
-                    {name: "transcript_amplification", value: 1889},
-                    {name: "splice_region_variant", value: 1630},
-                    {name: "incomplete_terminal_codon_variant", value: 1626},
-                    {name: "synonymous_variant", value: 1819},
-                    {name: "stop_retained_variant", value: 1567},
-                    {name: "coding_sequence_variant", value: 1580},
-                    {name: "miRNA", value: 276},
-                    {name: "miRNA_target_site", value: 934},
-                    {name: "mature_miRNA_variant", value: 1620},
-                    {name: "5_prime_UTR_variant", value: 1623},
-                    {name: "3_prime_UTR_variant", value: 1624},
-                    {name: "exon_variant", value: 1791},
-                    {name: "non_coding_exon_variant", value: 1792},
-                    {name: "non_coding_transcript_variant", value: 1619},
-                    {name: "intron_variant", value: 1627},
-                    {name: "NMD_transcript_variant", value: 1621},
-                    {name: "upstream_gene_variant", value: 1631},
-                    {name: "downstream_gene_variant", value: 1632},
-                    {name: "TFBS_ablation", value: 1895},
-                    {name: "TFBS_amplification", value: 1892},
-                    {name: "TF_binding_site_variant", value: 1782},
-                    {name: "regulatory_region_variant", value: 1566},
-                    {name: "regulatory_region_ablation", value: 1894},
-                    {name: "regulatory_region_amplification", value: 1891},
-                    {name: "feature_elongation", value: 1907},
-                    {name: "feature_truncation", value: 1906},
-                    {name: "intergenic_variant", value: 1628},
-                    {name: "lincRNA", value: 1463},
-                    {name: "5KB_downstream_variant", value: 1633},
-                    {name: "5KB_upstream_variant", value: 1635},
-                    {name: "SNV", value: 1483},
-                    {name: "SNP", value: 694},
-                    {name: "RNA_polymerase_promoter", value: 1203},
-                    {name: "CpG_island", value: 307},
-                    {name: "DNAseI_hypersensitive_site", value: 685},
-                    {name: "polypeptide_variation_site", value: 336}
+                    {name: "transcript ablation", text: "Transcript ablation", value: 1893},
+                    {name: "splice donor variant", text: "Splice donor variant", value: 1575},
+                    {name: "splice acceptor variant", text: "Splice acceptor variant", value: 1574},
+                    {name: "stop gained", text: "Stop gained", value: 1587},
+                    {name: "frameshift variant", text: "Frameshift variant", value: 1589},
+                    {name: "stop lost", text: "Stop lost", value: 1578},
+                    {name: "initiator codon variant", text: "Initiator codon variant", value: 1582},
+                    {name: "inframe insertion", text: "Inframe insertion", value: 1821},
+                    {name: "inframe deletion", text: "Inframe deletion", value: 1822},
+                    {name: "missense variant", text: "Missense variant", value: 1583},
+                    {name: "transcript amplification", text: "Transcript amplification", value: 1889},
+                    {name: "splice region variant", text: "Splice region variant", value: 1630},
+                    {name: "incomplete terminal codon variant", text: "Incomplete terminal codon variant", value: 1626},
+                    {name: "synonymous variant", text: "Synonymous variant", value: 1819},
+                    {name: "stop retained variant", text: "Stop retained variant", value: 1567},
+                    {name: "coding sequence variant", text: "Coding sequence variant", value: 1580},
+                    {name: "miRNA", text: "MiRNA", value: 276},
+                    {name: "miRNA target site", text: "MiRNA target site", value: 934},
+                    {name: "mature miRNA variant", text: "Mature miRNA variant", value: 1620},
+                    {name: "5 prime UTR variant", text: "5 prime UTR variant", value: 1623},
+                    {name: "3 prime UTR variant", text: "3 prime UTR variant", value: 1624},
+                    {name: "exon variant", text: "Exon variant", value: 1791},
+                    {name: "non coding exon variant", text: "Non coding exon variant", value: 1792},
+                    {name: "non coding transcript variant", text: "Non coding transcript variant", value: 1619},
+                    {name: "intron variant", text: "Intron variant", value: 1627},
+                    {name: "NMD transcript variant", text: "NMD transcript variant", value: 1621},
+                    {name: "upstream gene variant", text: "Upstream gene variant", value: 1631},
+                    {name: "downstream gene variant", text: "Downstream gene variant", value: 1632},
+                    {name: "TFBS ablation", text: "TFBS ablation", value: 1895},
+                    {name: "TFBS amplification", text: "TFBS amplification", value: 1892},
+                    {name: "TF binding site variant", text: "TF binding site variant", value: 1782},
+                    {name: "regulatory region variant", text: "Regulatory region variant", value: 1566},
+                    {name: "regulatory region ablation", text: "Regulatory region ablation", value: 1894},
+                    {name: "regulatory region amplification", text: "Regulatory region amplification", value: 1891},
+                    {name: "feature elongation", text: "Feature elongation", value: 1907},
+                    {name: "feature truncation", text: "Feature truncation", value: 1906},
+                    {name: "intergenic variant", text: "Intergenic variant", value: 1628},
+                    {name: "lincRNA", text: "LincRNA", value: 1463},
+                    {name: "5KB downstream variant", text: "5KB downstream variant", value: 1633},
+                    {name: "5KB upstream variant", text: "5KB upstream variant", value: 1635},
+                    {name: "SNV", text: "SNV", value: 1483},
+                    {name: "SNP", text: "SNP", value: 694},
+                    {name: "RNA polymerase promoter", text: "RNA polymerase promoter", value: 1203},
+                    {name: "CpG island", text: "CpG island", value: 307},
+                    {name: "DNAseI hypersensitive site", text: "DNAseI hypersensitive site", value: 685},
+                    {name: "polypeptide variation site", text: "Polypeptide variation site", value: 336}
                 ];
+                this.sampleNames = [];
             },
             ready: function () {
                 var me = this;
@@ -234,83 +319,83 @@
                     }
                 });
 
-                for (var i = 0; i < this.consequenceTypes.length; i++) {
-                    var ct = this.consequenceTypes[i];
-
-                    var ctDiv = document.createElement("div");
-                    ctDiv.classList.add("ctElem");
-
-                    var ctName = Utils.formatText(ct.name, "_");
-                    var ctNameLabel = document.createElement("span");
-                    ctNameLabel.innerHTML = ctName;
-
-                    var checkbox = document.createElement('input');
-                    checkbox.type = "checkbox";
-                    checkbox.name = "consequence_type";
-                    checkbox.value = ct.value;
-                    checkbox.id = "consequence_type";
-
-                    ctDiv.appendChild(checkbox);
-                    ctDiv.appendChild(ctNameLabel);
-
-                    this.$.consequenceTypes.appendChild(ctDiv);
-                }
+//                for (var i = 0; i < this.consequenceTypes.length; i++) {
+//                    var ct = this.consequenceTypes[i];
+//
+//                    var ctDiv = document.createElement("div");
+//                    ctDiv.classList.add("ctElem");
+//
+//                    var ctName = Utils.formatText(ct.name, "_");
+//                    var ctNameLabel = document.createElement("span");
+//                    ctNameLabel.innerHTML = ctName;
+//
+//                    var checkbox = document.createElement('input');
+//                    checkbox.type = "checkbox";
+//                    checkbox.name = "consequence_type";
+//                    checkbox.value = ct.value;
+//                    checkbox.id = "consequence_type";
+//
+//                    ctDiv.appendChild(checkbox);
+//                    ctDiv.appendChild(ctNameLabel);
+//
+//                    this.$.consequenceTypes.appendChild(ctDiv);
+//                }
             },
             samplesChanged: function (oldValue, newValue) {
-                var sampleNames = Object.keys(newValue);
+                this.sampleNames = Object.keys(newValue);
 
-                for (var i = 0; i < sampleNames.length; i++) {
-                    var sample = sampleNames[i];
-
-                    var sampleDiv = document.createElement("div");
-                    sampleDiv.setAttribute("horizontal", "");
-                    sampleDiv.setAttribute("layout", "");
-                    sampleDiv.classList.add("segregationLine");
-
-                    var sampleNameDiv = document.createElement("div");
-                    sampleNameDiv.innerHTML = sample;
-                    sampleNameDiv.classList.add("segregation");
-                    sampleNameDiv.classList.add("sampleName");
-
-                    var checkboxName = "GT_" + sample;
-
-                    var checkbox00 = document.createElement('input');
-                    checkbox00.type = "checkbox";
-                    checkbox00.name = checkboxName;
-                    checkbox00.value = "0/0,0|0";
-                    checkbox00.id = checkboxName;
-                    checkbox00.classList.add("segregation");
-
-
-                    var checkbox01 = document.createElement('input');
-                    checkbox01.type = "checkbox";
-                    checkbox01.name = checkboxName;
-                    checkbox01.value = "0/1,0|1,1/0,1|0";
-                    checkbox01.id = checkboxName;
-                    checkbox01.classList.add("segregation");
-
-                    var checkbox11 = document.createElement('input');
-                    checkbox11.type = "checkbox";
-                    checkbox11.name = checkboxName;
-                    checkbox11.value = "1/1,1|1";
-                    checkbox11.id = checkboxName;
-                    checkbox11.classList.add("segregation");
-
-                    var checkboxMiss = document.createElement('input');
-                    checkboxMiss.type = "checkbox";
-                    checkboxMiss.name = checkboxName;
-                    checkboxMiss.value = "-1/-1,-1|-1";
-                    checkboxMiss.id = checkboxName;
-                    checkboxMiss.classList.add("segregation");
-
-                    sampleDiv.appendChild(sampleNameDiv);
-                    sampleDiv.appendChild(checkbox00);
-                    sampleDiv.appendChild(checkbox01);
-                    sampleDiv.appendChild(checkbox11);
-                    sampleDiv.appendChild(checkboxMiss);
-
-                    this.$.segregation.appendChild(sampleDiv);
-                }
+//                for (var i = 0; i < sampleNames.length; i++) {
+//                    var sample = sampleNames[i];
+//
+//                    var sampleDiv = document.createElement("div");
+//                    sampleDiv.setAttribute("horizontal", "");
+//                    sampleDiv.setAttribute("layout", "");
+//                    sampleDiv.classList.add("segregationLine");
+//
+//                    var sampleNameDiv = document.createElement("div");
+//                    sampleNameDiv.innerHTML = sample;
+//                    sampleNameDiv.classList.add("segregation");
+//                    sampleNameDiv.classList.add("sampleName");
+//
+//                    var checkboxName = "GT_" + sample;
+//
+//                    var checkbox00 = document.createElement('input');
+//                    checkbox00.type = "checkbox";
+//                    checkbox00.name = checkboxName;
+//                    checkbox00.value = "0/0,0|0";
+//                    checkbox00.id = checkboxName;
+//                    checkbox00.classList.add("segregation");
+//
+//
+//                    var checkbox01 = document.createElement('input');
+//                    checkbox01.type = "checkbox";
+//                    checkbox01.name = checkboxName;
+//                    checkbox01.value = "0/1,0|1,1/0,1|0";
+//                    checkbox01.id = checkboxName;
+//                    checkbox01.classList.add("segregation");
+//
+//                    var checkbox11 = document.createElement('input');
+//                    checkbox11.type = "checkbox";
+//                    checkbox11.name = checkboxName;
+//                    checkbox11.value = "1/1,1|1";
+//                    checkbox11.id = checkboxName;
+//                    checkbox11.classList.add("segregation");
+//
+//                    var checkboxMiss = document.createElement('input');
+//                    checkboxMiss.type = "checkbox";
+//                    checkboxMiss.name = checkboxName;
+//                    checkboxMiss.value = "-1/-1,-1|-1";
+//                    checkboxMiss.id = checkboxName;
+//                    checkboxMiss.classList.add("segregation");
+//
+//                    sampleDiv.appendChild(sampleNameDiv);
+//                    sampleDiv.appendChild(checkbox00);
+//                    sampleDiv.appendChild(checkbox01);
+//                    sampleDiv.appendChild(checkbox11);
+//                    sampleDiv.appendChild(checkboxMiss);
+//
+//                    this.$.segregation.appendChild(sampleDiv);
+//                }
             },
             _setQuickSearchMenu: function (query) {
                 while (this.$.searchDataList.firstChild) {
@@ -469,7 +554,7 @@
 //
 //
 //                    } else {
-                        this.search(query);
+                    this.search(query);
 //                    }
 
 

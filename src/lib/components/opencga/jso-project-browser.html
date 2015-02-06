@@ -30,7 +30,7 @@
             #bar {
                 box-sizing: border-box;
                 background-color: #FAFAFA;
-                height: 32px;
+                height: 30px;
                 line-height: 30px;
                 border: 0px solid #d3d3d3;
                 border-bottom-width: 1px;
@@ -414,7 +414,7 @@
 
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-                    if (file.status != "DELETED" && file.status != "DELETING") {
+                    if (file.status != "DELETED" && file.status != "DELETING" && file.name.charAt(0) !== ".") {
                         if (this.selectionMode == 'folder') {
                             if (file.type == "FOLDER") {
                                 filesFiltered.push(file);
@@ -699,7 +699,7 @@
                 var fileId = this.selectedFile.id;
                 var fileName = this.selectedFile.name;
                 var currentFolder = this.folder;
-                var folderName = fileName + "_" + Utils.randomString(3) + "_index";
+                var folderName = "." + fileName + "_" + Utils.randomString(3) + "_index";
                 var folderId;
 
                 OpencgaManager.files.createFolder({
@@ -854,7 +854,7 @@
 
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-                    if (file.status != "DELETED" && file.status != "DELETING") {
+                    if (file.status != "DELETED" && file.status != "DELETING" && file.name.charAt(0) !== ".") {
                         if (this.selectionMode == 'folder') {
                             if (file.type == "FOLDER") {
                                 filesFiltered.push(file);

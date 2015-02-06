@@ -106,7 +106,7 @@ NavigationBar.prototype = {
 
             '<div class="ocb-dropdown" style="margin-left: 5px">' +
             '   <div tabindex="-1" id="chromosomesButton" class="ocb-ctrl"><span id="chromosomesText"></span> <i class="fa fa-caret-down"></i></div>' +
-            '   <ul id="chromosomesMenu"></ul>' +
+            '   <ul id="chromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>' +
             '</div>' +
 
             '<label style="margin-left: 5px;" class="ocb-ctrl"><input type="checkbox" id="karyotypeButton"><span style="border-right: none"><span class="ocb-icon ocb-icon-karyotype"></span></span></label>' +
