@@ -1,0 +1,261 @@
+<polymer-element name="jso-variant-frequencies-grid" attributes="variant">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                background-color: white;
+            }
+
+            sortable-table {
+                max-width: 750px;
+            }
+
+            #mafChart {
+                min-width: 600px;
+            }
+
+            sortable-table::shadow .column-study {
+                width: 100px;
+            }
+
+            sortable-table::shadow .column-pop {
+                width: 100px;
+            }
+
+            sortable-table::shadow .column-superPop {
+                width: 100px;
+            }
+
+            sortable-table::shadow .column-refAllele {
+                width: 60px;
+            }
+
+            sortable-table::shadow .column-altAllele {
+                width: 60px;
+            }
+
+            sortable-table::shadow .column-refAlleleFreq {
+                width: 80px;
+            }
+
+            sortable-table::shadow .column-altAlleleFreq {
+                width: 90px;
+            }
+
+            sortable-table::shadow .column-maf {
+                width: 90px;
+            }
+
+            sortable-table::shadow .column-refHomGenotypeFreq {
+                width: 20px;
+            }
+
+            sortable-table::shadow .column-hetGenotypeFreq {
+                width: 20px;
+            }
+
+            sortable-table::shadow .column-altHomGenotypeFreq {
+                width: 20px;
+            }
+
+
+        </style>
+        <div vertical layout>
+            <sortable-table class="bootstrap"
+                            id="effectGrid"
+                            footerTemplate="defaultPager"
+                            pageSize="10"
+                            page="{{page}}"
+                            loading="true"
+                            columns="{{ columns }}"
+                            data="{{data}}">
+
+                <template id="alleleFreqCT">
+                    <td>
+                        {{value}}
+                    </td>
+                </template>
+
+            </sortable-table>
+            <div id="mafChart" horizontal layout end-justified></div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            variant: null,
+            columns: null,
+            data: null,
+            page: 0,
+            created: function () {
+            },
+            ready: function () {
+                this.columns = [
+                    {name: "study", title: "Study"},
+                    {name: "pop", title: "Population"},
+                    {name: "superPop", title: "SuperPopulation"},
+                    {name: "refAllele", title: "Ref. Allele"},
+                    {name: "altAllele", title: "Alt. Allele"},
+                    {
+                        name: "refAlleleFreq", title: "Ref. Allele Freq.",
+                        cellTemplate: 'alleleFreqCT',
+                        formula: function (row) {
+
+                            var val = ".";
+                            if (row != null) {
+
+                                val = row.toFixed(3);
+
+                            }
+                            return val;
+                        }
+                    },
+                    {
+                        name: "altAlleleFreq", title: "Alt. Allele Freq.",
+                        cellTemplate: 'alleleFreqCT',
+                        formula: function (row) {
+
+                            var val = ".";
+                            if (row != null) {
+
+                                val = row.toFixed(3);
+
+                            }
+                            return val;
+                        }
+                    },
+                    {
+                        name: "maf", title: "MAF",
+                        cellTemplate: 'alleleFreqCT',
+                        formula: function (row) {
+                            return Math.min(row.refAlleleFreq, row.altAlleleFreq).toFixed(3);
+                        }
+                    },
+                    {name: "refHomGenotypeFreq", title: "0/0"},
+                    {name: "hetGenotypeFreq", title: "0/1"},
+                    {name: "altHomGenotypeFreq", title: "1/1"}
+                ];
+            },
+            variantChanged: function (oldValue, newValue) {
+                var me = this;
+
+                this.page = 0;
+                this.data = [];
+
+                if (newValue != '') {
+                    CellBaseManager.get({
+                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                        version: 'v3',
+                        species: 'hsapiens',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'full_annotation',
+//                        query: "19:45411941:T:C",
+                        query: newValue,
+                        async: false,
+                        success: function (response) {
+                            try {
+
+                                me.data = response.response[0].result[0].populationFrequencies
+                            } catch (e) {
+                                me.data = [];
+                            }
+                        }
+                    });
+
+                    var data = [];
+                    var cat = [];
+
+                    if (me.data != null) {
+
+
+                        for (var i = 0; i < me.data.length; i++) {
+                            var elem = me.data[i];
+                            var maf = parseFloat(Math.min(elem.refAlleleFreq, elem.altAlleleFreq).toFixed(3));
+                            data.push(maf);
+                            cat.push(elem.study + "/" + elem.pop);
+
+
+                        }
+                        console.log(data);
+                        console.log(cat);
+
+                        var chart = new Highcharts.Chart({
+                            chart: {
+                                renderTo: this.$.mafChart,
+                                type: 'bar'
+                            },
+                            title: {
+                                text: 'minor allele frequency'
+                            },
+//                        subtitle: {
+//                            text: 'Source: Wikipedia.org'
+//                        },
+                            xAxis: {
+                                min: 0,
+//                            max: 1,
+                                categories: cat,
+//                            categories: ['Africa', 'America', 'Asia', 'Europe', 'Oceania'],
+                                title: {
+                                    text: null
+                                }
+                            },
+                            yAxis: {
+                                min: 0,
+                                max: 1,
+                                title: {
+                                    text: 'Population (millions)',
+                                    align: 'high'
+                                },
+                                labels: {
+                                    overflow: 'justify'
+                                }
+                            },
+//                        tooltip: {
+//                            valueSuffix: ' millions'
+//                        },
+                            plotOptions: {
+                                bar: {
+                                    dataLabels: {
+                                        enabled: true
+                                    }
+                                }
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'top',
+                                x: -40,
+                                y: 100,
+                                floating: true,
+                                borderWidth: 1,
+                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                                shadow: true
+                            },
+//                        credits: {
+//                            enabled: false
+//                        },
+                            series: [{
+                                name: 'MAF',
+                                data: data
+                            },
+//                            {
+//                            name: 'Year 1900',
+//                            data: [133, 156, 947, 408, 6]
+//                        }, {
+//                            name: 'Year 2008',
+//                            data: [973, 914, 4054, 732, 34]
+//                        }
+                            ]
+                        });
+                    }
+                }
+            }
+        });
+    </script>
+</polymer-element>
+
+
