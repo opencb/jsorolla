@@ -1,4 +1,5 @@
 <link rel="import" href="jso-variant-effect-grid.html">
+<link rel="import" href="jso-variant-frequencies-grid.html">
 <link rel="import" href="jso-variant-stats.html">
 <link rel="import" href="jso-variant-phenotype-grid.html">
 <link rel="import" href="../jso-genome-viewer-element.html">
@@ -321,6 +322,7 @@
         <core-menu class="title" selected="{{selectedTab}}" horizontal layout>
             <core-item icon="" label="Genomic Context"></core-item>
             <core-item icon="" label="Effect"></core-item>
+            <core-item icon="" label="Frequencies"></core-item>
             <core-item icon="" label="Phenotype"></core-item>
             <core-item icon="" label="Stats"></core-item>
         </core-menu>
@@ -330,9 +332,11 @@
             <jso-genome-viewer-element id="gvEl" hidden?="{{ selectedTab != 0}}"></jso-genome-viewer-element>
             <jso-variant-effect-grid hidden?="{{ selectedTab != 1}}"
                                      variant="{{ variantEffect }}"></jso-variant-effect-grid>
-            <jso-variant-phenotype-grid hidden?="{{ selectedTab != 2}}"
+            <jso-variant-frequencies-grid hidden?="{{ selectedTab != 2}}"
+                                          variant="{{ variantEffect }}"></jso-variant-frequencies-grid>
+            <jso-variant-phenotype-grid hidden?="{{ selectedTab != 3}}"
                                         variant="{{ variantEffect }}"></jso-variant-phenotype-grid>
-            <jso-variant-stats id="jsoVariantStats" hidden?="{{ selectedTab != 3}}"></jso-variant-stats>
+            <jso-variant-stats id="jsoVariantStats" hidden?="{{ selectedTab != 4}}"></jso-variant-stats>
         </div>
     </template>
     <script>
