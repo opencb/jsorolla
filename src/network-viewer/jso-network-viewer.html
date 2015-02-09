@@ -234,7 +234,8 @@
 
                 ></jso-nv-layout>
 
-        <jso-nv-status-bar networkViewer="{{}}"></jso-nv-status-bar>
+        <jso-nv-status-bar networkViewer="{{}}">
+        </jso-nv-status-bar>
 
         <div class="right-side">
             <jso-attribute-node-render
@@ -414,6 +415,8 @@
             created: function () {
                 this.lite = "false";
 
+                this.lastLoadedFileName = "";
+
                 this.serializeVersion = 2;
                 this.serializeKey = 'NETWORKVIEWER' + this.serializeVersion;
 
@@ -446,6 +449,8 @@
 
             },
             _init: function () {
+                this.lastLoadedFileName = "";
+
                 this.zoom = 25;
                 this.backgroundImages = [];
                 this.backgroundColor = '#FFF';
@@ -631,7 +636,7 @@
                     vertex.renderer.setLabelContent(row[attribute]);
                 }
             },
-            selectVertexDefaultLabelAttribute:function(attribute){
+            selectVertexDefaultLabelAttribute: function (attribute) {
                 this.vertexDefaults.labelAttribute = attribute;
                 this.setVertexDefaultLabelAttribute(attribute);
             },
@@ -643,7 +648,7 @@
                     edge.renderer.setLabelContent(row[attribute]);
                 }
             },
-            selectEdgeDefaultLabelAttribute:function(attribute){
+            selectEdgeDefaultLabelAttribute: function (attribute) {
                 this.vertexDefaults.labelAttribute = attribute;
                 this.setEdgeDefaultLabelAttribute(attribute);
             },
@@ -872,7 +877,6 @@
             },
 
 
-
             /* Bar Handlers*/
             handleNodesEditMenu: function (e) {
                 this.selectedMenu = 'nodes-edit';
@@ -1066,14 +1070,15 @@
             handleImportSif: function (e) {
 //                _this.configuration.cleanVisualSets();
                 this.setGraph(e.detail.graph);
+                this.lastLoadedFileName = e.detail.fileName;
 //                this.$.networkViewer.setLayout(e.detail.layout);
                 this.setLayout('Force directed');
                 this.saveLocalStorage();
-
             },
             handleImportText: function (e) {
 //                _this.configuration.cleanVisualSets();
                 this.setGraph(e.detail.graph);
+                this.lastLoadedFileName = e.detail.fileName;
 //                this.$.networkViewer.setLayout(e.detail.layout);
                 this.setLayout('Force directed');
                 this.saveLocalStorage();
@@ -1082,6 +1087,7 @@
             handleImportXlsx: function (e) {
 //                _this.configuration.cleanVisualSets();
                 this.setGraph(e.detail.graph);
+                this.lastLoadedFileName = e.detail.fileName;
 //                this.$.networkViewer.setLayout(e.detail.layout);
                 this.setLayout('Force directed');
                 this.saveLocalStorage();
@@ -1327,6 +1333,10 @@
                     } else {
                         this.eAttr.select(edge.id);
                     }
+                } else {
+                    if (addToSelection) {
+                        this.eAttr.removeFromSelection(edge.id);
+                    }
                 }
             },
             selectAllEdges: function () {
@@ -1550,10 +1560,10 @@
                 }
                 return vertex;
             },
-            createVertices: function(idList){
+            createVertices: function (idList) {
                 for (var i = 0; i < idList.length; i++) {
                     var id = idList[i];
-                    this.createVertex(0,0,id);
+                    this.createVertex(0, 0, id);
                 }
             },
             createEdge: function (vertexSource, vertexTarget, relation) {

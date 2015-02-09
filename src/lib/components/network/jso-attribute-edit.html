@@ -14,6 +14,10 @@
                 height: 420px;
             }
 
+            sortable-table {
+                border-width: 0px;
+            }
+
             #panel {
                 width: 100%;
                 height: 100%;
@@ -49,7 +53,7 @@
                 width: 220px;
                 border-right: 1px solid #d3d3d3;
                 box-sizing: border-box;
-                padding:5px;
+                padding: 5px;
             }
 
             #left [horizontal] > * {
@@ -193,7 +197,8 @@
                                 </template>
                             </template>
                         </select>
-                        <div class="button remove"  on-click="{{handleRemoveApply}}"></div>
+
+                        <div class="button remove" on-click="{{handleRemoveApply}}"></div>
                     </div>
                 </div>
                 <div flex vertical layout>
@@ -208,9 +213,21 @@
                                         pageSize="{{pageSize}}">
                             <template id="inputTemplate">
                                 <td class="edit">
-                                    <input type="text" value="{{row[column.name]}}">
+                                    <input type="text" value="{{row[column.name]}}" on-blur="{{cellEditFinished}}">
                                 </td>
                             </template>
+                            <!--<template id="editorInputTemplate">-->
+                            <!--<td>-->
+                            <!--{{record.row.id}}-->
+                            <!--</td>-->
+                            <!--<template repeat="{{field in record.fields | toKeyValueArray}}">-->
+                            <!--<template if="{{field != 'id'}}">-->
+                            <!--<td>-->
+                            <!--<input type="text" value="{{field}}" on-blur="{{closeEdit}}">-->
+                            <!--</td>-->
+                            <!--</template>-->
+                            <!--</template>-->
+                            <!--</template>-->
                         </sortable-table>
                         <div class="customPagerScroll"
                              style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
@@ -230,6 +247,9 @@
     </template>
     <script>
         Polymer({
+            toKeyValueArray: function (a, b, c, d, e, f, g) {
+                debugger
+            },
             created: function () {
                 this.selectedAux;
 
@@ -249,7 +269,12 @@
                 this.expanded = false;
             },
             ready: function () {
+                var me = this;
                 this.table = this.$.table;
+                this.table.cellEditFinished = function (e) {
+                    var row = e.target.templateInstance.model.row;
+                    me.attributeManager._updateRow(row);
+                }
             },
             /* Observers */
             observe: {
@@ -304,6 +329,7 @@
 //            },
             handleEditApply: function (e) {
                 this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.$.selectEdit.value, this.newValue);
+                this.attributeManager._update();
             },
             handleRemoveApply: function (e) {
                 if (confirm('Delete this attribute?')) {

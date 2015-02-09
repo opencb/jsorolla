@@ -19,13 +19,20 @@
 
         <div horizontal layout>
             <div horizontal layout class="text">
-                <div class="grey">Nodes:</div>
+                <div class="grey">Nodes: </div>
                 {{networkViewer.vAttr.data.length}}
             </div>
             <div horizontal layout class="text">
-                <div class="grey">Edges:</div>
+                <div class="grey">Edges: </div>
                 {{networkViewer.eAttr.data.length}}
             </div>
+            <div flex></div>
+            <template if="{{networkViewer.lastLoadedFileName !== ''}}">
+                <div class="text">
+                    <span class="grey">File: </span>{{networkViewer.lastLoadedFileName}}
+                </div>
+            </template>
+
         </div>
     </template>
     <script>

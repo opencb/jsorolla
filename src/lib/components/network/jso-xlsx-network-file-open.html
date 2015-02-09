@@ -204,7 +204,7 @@
             handleOk: function () {
                 if (this.graph) {
                     this.selectedMenu = '';
-                    this.fire('graph', {graph: this.graph});
+                    this.fire('graph', {graph: this.graph, fileName: this.fileName});
                 }
             },
             handleCancel: function () {
