@@ -19,7 +19,7 @@
                 margin-right: auto;
 
                 width: 50%;
-                min-width:900px;
+                min-width: 900px;
                 border: 1px solid #c6d0da;
                 transition: all 0.2s;
                 box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
@@ -135,7 +135,7 @@
             handleOk: function () {
                 if (this.graph) {
                     this.selectedMenu = '';
-                    this.fire('graph', {graph: this.graph});
+                    this.fire('graph', {graph: this.graph, fileName: this.fileName});
                 }
             },
             handleCancel: function () {

@@ -101,6 +101,21 @@ AttributeManagerMemory.prototype = {
         return this.data[this.dataIndex[id]]
     },
 
+    _update: function () {
+        if (this.data.length > 0) {
+            this._updateRow(this.data[0]);
+        }
+    },
+    _updateRow: function (row) {
+        var r = {};
+        for (var i in row) {
+            if (row.hasOwnProperty(i)) {
+                r[i] = row[i];
+            }
+        }
+        this.data[this.dataIndex[r.id]] = r;
+    },
+
     _rebuildData: function () {
         var newData = [];
         for (var i = 0, l = this.data.length; i < l; i++) {
@@ -173,7 +188,7 @@ AttributeManagerMemory.prototype = {
     addToSelection: function (id) {
         this.selected.push(this.getRow(id));
     },
-    removeFromSelection:function(id){
+    removeFromSelection: function (id) {
         var index = this.selected.indexOf(this.getRow(id));
         this.selected.splice(index, 1);
     },
