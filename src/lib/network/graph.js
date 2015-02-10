@@ -64,8 +64,8 @@ Graph.prototype = {
         }
 
         /* count edges between same vertices */
-        var stId = edge.source.id + edge.target.id;
-        var tsId = edge.target.id + edge.source.id;
+        var stId = edge.source.id + "-" + edge.target.id;
+        var tsId = edge.target.id + "-" + edge.source.id;
         if (typeof this.edgeDraw[stId] === 'undefined') {
             this.edgeDraw[stId] = -1;
         }
@@ -111,8 +111,8 @@ Graph.prototype = {
         edge.target.removeEdge(edge);
 
         /* count edges between same vertices */
-        var stId = edge.source.id + edge.target.id;
-        var tsId = edge.target.id + edge.source.id;
+        var stId = edge.source.id + "-" + edge.target.id;
+        var tsId = edge.target.id + "-" + edge.source.id;
         this.edgeDraw[stId]--;
         this.edgeDraw[tsId]--;
 
@@ -133,8 +133,8 @@ Graph.prototype = {
                 edge.target.removeEdge(edge);
 
                 /* count edges between same vertices */
-                var stId = edge.source.id + edge.target.id;
-                var tsId = edge.target.id + edge.source.id;
+                var stId = edge.source.id + "-" + edge.target.id;
+                var tsId = edge.target.id + "-" + edge.source.id;
                 this.edgeDraw[stId]--;
                 this.edgeDraw[tsId]--;
 
@@ -163,8 +163,8 @@ Graph.prototype = {
                 edge.target.removeEdge(edge);
             }
 
-            var stId = edge.source.id + edge.target.id;
-            var tsId = edge.target.id + edge.source.id;
+            var stId = edge.source.id + "-" + edge.target.id;
+            var tsId = edge.target.id + "-" + edge.source.id;
             this.edgeDraw[stId]--;
             this.edgeDraw[tsId]--;
 
@@ -197,8 +197,8 @@ Graph.prototype = {
                         edge.target.removeEdge(edge);
                     }
 
-                    var stId = edge.source.id + edge.target.id;
-                    var tsId = edge.target.id + edge.source.id;
+                    var stId = edge.source.id + "-" + edge.target.id;
+                    var tsId = edge.target.id + "-" + edge.source.id;
                     this.edgeDraw[stId]--;
                     this.edgeDraw[tsId]--;
 
@@ -330,7 +330,7 @@ Graph.prototype = {
         var dotText = "graph network {\n" + this.getAsSIF(' ') + "}";
         return dotText;
     },
-    fromJSON:function(json){
+    fromJSON: function (json) {
         for (var i = 0, l = json.vertices.length; i < l; i++) {
             var v = json.vertices[i];
             var vertex = new Vertex({

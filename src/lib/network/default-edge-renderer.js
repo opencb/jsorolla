@@ -408,7 +408,7 @@ DefaultEdgeRenderer.prototype = {
             "cursor": "pointer",
             fill: 'none',
             'network-type': 'edge'
-        }, 0);
+        },1);
 
         if (this.shape === 'undirected') {
             this.edgeEl.removeAttribute('marker-end');
@@ -432,7 +432,7 @@ DefaultEdgeRenderer.prototype = {
         });
         this.setLabelContent(this.edge.id);
 
-        SVG._insert(this.targetEl, this.el, 0);
+        SVG._insert(this.targetEl, this.el, 1);
 
         if (this.selected) {
             this._renderSelect();
