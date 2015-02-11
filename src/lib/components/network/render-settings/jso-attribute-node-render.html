@@ -399,7 +399,7 @@
         <!--</template>-->
         <!--<template if="{{displayProperty == 'area'}}">-->
         <jso-attribute-render-number-table
-                hidden="{{displayProperty != 'area'}}"
+                hidden?="{{displayProperty != 'area'}}"
                 id="area"
                 on-ok="{{handleOkSet}}"
                 displayProperty="{{displayProperty}}"
@@ -412,7 +412,7 @@
         <!--</template>-->
         <!--<template if="{{displayProperty == 'strokeArea'}}">-->
         <jso-attribute-render-number-table
-                hidden="{{displayProperty != 'strokeArea'}}"
+                hidden?="{{displayProperty != 'strokeArea'}}"
                 id="strokeArea"
                 on-ok="{{handleOkSet}}"
                 displayProperty="{{displayProperty}}"

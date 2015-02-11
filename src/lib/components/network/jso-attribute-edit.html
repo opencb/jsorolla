@@ -164,13 +164,15 @@
                     <label style="margin-top: 10px;">Edit attribute for selected {{type}}s</label>
 
                     <div vertical layout>
-                        <select id="selectEdit">
-                            <template repeat="{{column in attributeManager.columns}}">
-                                <template if="{{column.name != 'id'}}">
-                                    <option value="{{column.name}}">{{column.title}}</option>
+                        <div class="select">
+                            <select id="selectEdit">
+                                <template repeat="{{column in attributeManager.columns}}">
+                                    <template if="{{column.name != 'id'}}">
+                                        <option value="{{column.name}}">{{column.title}}</option>
+                                    </template>
                                 </template>
-                            </template>
-                        </select>
+                            </select>
+                        </div>
 
                         <div horizontal layout style="margin-top: 3px;">
                             <input flex type="text" value="{{newValue}}" placeholder="Attribute value">
@@ -190,14 +192,15 @@
                     <label style="margin-top:10px;">Delete attribute</label>
 
                     <div horizontal layout>
-                        <select id="selectDelete" flex>
-                            <template repeat="{{column in attributeManager.columns}}">
-                                <template if="{{column.name != 'id'}}">
-                                    <option value="{{column.name}}">{{column.title}}</option>
+                        <div class="select" flex>
+                            <select id="selectDelete">
+                                <template repeat="{{column in attributeManager.columns}}">
+                                    <template if="{{column.name != 'id'}}">
+                                        <option value="{{column.name}}">{{column.title}}</option>
+                                    </template>
                                 </template>
-                            </template>
-                        </select>
-
+                            </select>
+                        </div>
                         <div class="button remove" on-click="{{handleRemoveApply}}"></div>
                     </div>
                 </div>

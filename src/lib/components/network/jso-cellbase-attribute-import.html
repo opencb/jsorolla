@@ -246,33 +246,33 @@
 //        {"boxLabel": "Biotype", "name": "biotype", "inputValue": "biotype"},
 
                     {"boxLabel": "GO Term Accession", selected: false, "inputValue": {db: "go", field: "id"}},
-                    {"boxLabel": "GO Term Name", selected: false, "inputValue": {db: "go", field: "description"}},
+//                    {"boxLabel": "GO Term Name", selected: false, "inputValue": {db: "go", field: "description"}},
                     {
                         "boxLabel": "Propagated GO Accession",
                         selected: false,
                         "inputValue": {db: "projected_go", field: "id"}
                     },
-                    {
-                        "boxLabel": "Propagated GO Name",
-                        selected: false,
-                        "inputValue": {db: "projected_go", field: "description"}
-                    },
+//                    {
+//                        "boxLabel": "Propagated GO Name",
+//                        selected: false,
+//                        "inputValue": {db: "projected_go", field: "description"}
+//                    },
                     {
                         "boxLabel": "GOSlim GOA Accession",
                         selected: false,
                         "inputValue": {db: "goslim_goa", field: "id"}
                     },
-                    {
-                        "boxLabel": "GOSlim GOA Name",
-                        selected: false,
-                        "inputValue": {db: "goslim_goa", field: "description"}
-                    },
-                    {"boxLabel": "InterPro ID", selected: false, "inputValue": {db: "interpro", field: "id"}},
-                    {
-                        "boxLabel": "InterPro Short Description",
-                        selected: false,
-                        "inputValue": {db: "interpro", field: "description"}
-                    }
+//                    {
+//                        "boxLabel": "GOSlim GOA Name",
+//                        selected: false,
+//                        "inputValue": {db: "goslim_goa", field: "description"}
+//                    },
+                    {"boxLabel": "InterPro ID", selected: false, "inputValue": {db: "interpro", field: "id"}}
+//                    {
+//                        "boxLabel": "InterPro Short Description",
+//                        selected: false,
+//                        "inputValue": {db: "interpro", field: "description"}
+//                    }
                 ];
 
 
@@ -380,6 +380,7 @@
                         var columnId = item.inputValue.db + item.inputValue.field;
                         var column = {
                             defaultValue: "",
+                            cellTemplate: "inputTemplate",
                             name: columnId,
                             title: label,
                             type: "string"
