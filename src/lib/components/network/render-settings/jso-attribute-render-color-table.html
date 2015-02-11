@@ -132,7 +132,6 @@
                 </div>
                 <div vertical layout flex>
 
-
                     <label hidden?="{{attributeType != 'continuous'}}">Continous mapping</label>
 
                     <div hidden?="{{attributeType != 'continuous'}}">
@@ -197,6 +196,7 @@
     <script>
         Polymer({
             created: function () {
+                this.isReady = false;
                 this.attributeName = '';
                 this.attributeType = 'discrete';
                 this.attributeParse = 'string';
@@ -204,15 +204,25 @@
                 this.uniqueData = [];
 
                 /**/
+                ;
                 this.hideColorMenu = true;
                 this.lastUniqueModel;
             },
             ready: function () {
+                var me = this;
                 this.points = [
                     {value: 0, render: this.defaultValue},
                     {value: 0, render: this.defaultValue}
                 ];
                 this.handleApplyInterpolation();
+
+                var observer = new MutationObserver(function (mutations) {
+                    me.$.list.updateSize();
+                }.bind(this));
+                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
+            },
+            domReady: function () {
+                this.isReady = true;
             },
             /** Color **/
             handleChangeFocusInUniqueColor: function (e) {
@@ -259,15 +269,24 @@
             },
             handleAttributeManagerChange: function (oldValue, newValue) {
                 this._updateUniqueValues();
+                if (this.isReady && this.visualSet && this.visualSet.enabled) {
+                    this._updateVisualSet();
+                    this.fire('ok', {displayProperty: this.getAttribute("id")});
+                }
             },
             handleClose: function () {
                 this.displayProperty = null;
             },
             handleOk: function () {
+                this._updateVisualSet();
+                this.fire('ok', {displayProperty: this.getAttribute("id")});
+                this.handleClose();
+            },
+            _updateVisualSet: function () {
                 var matches = {};
                 for (var i = 0; i < this.uniqueData.length; i++) {
                     var data = this.uniqueData[i];
-                    matches[data.attribute] = data.render
+                    matches[data.attribute] = data.render;
                 }
                 this.visualSet = {
                     attribute: this.attributeName,
@@ -278,8 +297,6 @@
                     points: this.points,
                     enabled: true
                 }
-                this.fire('ok', {displayProperty: this.displayProperty});
-                this.handleClose();
             },
             handleAttributeNameSelect: function (e) {
                 this.attributeName = e.currentTarget.dataset.name;

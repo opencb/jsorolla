@@ -204,14 +204,14 @@ GraphLayout = {
                 force.linkDistance(function (e) {
                     var edge = graph.getEdgeById(e.id);
                     var value = vAttr.getRow(edge.id)[attributes.linkDistance];
-                    var ld = isNaN(value) ? (edge.source.renderer.size + edge.target.renderer.size) * 1.5 : value * linkDistance;
+                    var ld = isNaN(value) ? (edge.source.renderer.size + edge.target.renderer.size) * 1.7 : value * linkDistance;
                     return ld;
                 });
             }
         } else {
             force.linkDistance(function (e) {
                 var edge = graph.getEdgeById(e.id);
-                return edge.source.renderer.size + edge.target.renderer.size * 1.5;
+                return edge.source.renderer.size + edge.target.renderer.size * 1.7;
             })
         }
         //Link Strength
@@ -236,14 +236,14 @@ GraphLayout = {
                 force.charge(function (v) {
                     var vertex = graph.getVertexById(v.id);
                     var value = eAttr.getRow(vertex.id)[attributes.charge];
-                    var c = isNaN(value) ? vertex.renderer.getSize() * -10 : value * charge;
+                    var c = isNaN(value) ? vertex.renderer.getSize() * -13 : value * charge;
                     return c;
                 });
             }
         } else {
             force.charge(function (v) {
                 var vertex = graph.getVertexById(v.id);
-                return vertex.renderer.getSize() * -10;
+                return vertex.renderer.getSize() * -13;
             });
         }
         console.timeEnd('Force directed preload');

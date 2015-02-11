@@ -131,3 +131,9 @@ sortable-table::shadow button:hover {
 sortable-table {
     border: solid 1px #d3d3d3;
 }
+
+sortable-table::shadow input[type=checkbox] {
+    box-sizing: border-box;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}

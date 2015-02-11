@@ -340,7 +340,6 @@
                 this.selectedList = 'repo';
             },
             handleGo: function () {
-                this.retrieveData();
                 if (this.columnSelected != null && this.speciesSelected != null) {
                     this.retrieveData(this.columnSelected.name, this.speciesSelected.value);
                 } else {
@@ -399,11 +398,11 @@
 
                 if (databasesSelectedFlag) {
                     var queries = [];
+
                     for (var i = 0; i < this.attributeManager.data.length; i++) {
                         var row = this.attributeManager.data[i];
                         queries.push(row[attributeName]);
                     }
-
 
                     if (queries.length > 0) {
 
@@ -436,6 +435,9 @@
                                             var index2 = columnsMap[mapId2];
 
                                             if (index1 != null) {
+                                                if (i == 0) {
+                                                    row[mapId1] = '';
+                                                }
                                                 if (!row[mapId1]) {
                                                     row[mapId1] = '';
                                                 }
@@ -446,6 +448,9 @@
                                                 }
                                             }
                                             if (index2 != null) {
+                                                if (i == 0) {
+                                                    row[mapId2] = '';
+                                                }
                                                 if (!row[mapId2]) {
                                                     row[mapId2] = '';
                                                 }

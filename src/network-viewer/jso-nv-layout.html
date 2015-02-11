@@ -160,7 +160,6 @@
                 var br = this.getBoundingClientRect();
                 var downX = e.clientX - br.left;
                 var downY = e.clientY - br.top;
-                console.log(targetElNetworkType);
                 switch (this.mode) {
                     case "add":
                         /* event coordinates */
@@ -354,7 +353,7 @@
                     default:
                 }
             },
-            middleMouseUp: function (event) {
+            middleMouseUp: function (e) {
                 switch (this.mode) {
                     case "add":
                     case "move":

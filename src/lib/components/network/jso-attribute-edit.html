@@ -206,7 +206,7 @@
                         <sortable-table id="table" flex
                                         data="{{!showSelected ? attributeManager.data : attributeManager.selected }}"
                                         columns="{{attributeManager.columns}}"
-                                        rowselection="{{!showSelected}}"
+                                        checkbox="{{!showSelected}}"
                                         multiselect="{{multiSelect}}"
                                         selected="{{ !showSelected ? attributeManager.selected : [] }}"
                                         page="{{page}}"
