@@ -31,6 +31,7 @@
 <script src="../lib/data-source/string-data-source.js"></script>
 
 
+<link rel="import" href="../lib/components/network/jso-nv-search.html">
 <link rel="import" href="../lib/components/network/jso-sif-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-text-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-xlsx-network-file-open.html">
@@ -53,6 +54,8 @@
 <link rel="import" href="../lib/components/forms/jso-snow.html">
 <link rel="import" href="../lib/components/forms/jso-network-miner.html">
 <link rel="import" href="../lib/components/forms/jso-fatigo.html">
+
+<script src="../lib/cellbase-manager.js"></script>
 
 
 <script src="../../bower_components/d3/d3.min.js"></script>
@@ -124,6 +127,8 @@
 
                 on-export-node-attributes="{{handleExportNodeAttrMenu}}"
                 on-export-edge-attributes="{{handleExportEdgeAttrMenu}}"
+
+                on-search="{{handleSearch}}"
 
                 on-nodes-select-all="{{handleSelectMenu}}"
                 on-nodes-select-first-neighbourhood="{{handleSelectMenu}}"
@@ -331,6 +336,12 @@
                     networkViewer="{{}}"
                     >
             </jso-configure-force-directed>
+            <jso-nv-search
+                    hidden?="{{selectedMenu != 'search'}}"
+                    selectedMenu="{{selectedMenu}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-nv-search>
         </div>
 
         <!--Menu file-->
@@ -444,7 +455,6 @@
                 this.hideSnow = false;
                 this.hideNetworkMiner = false;
                 this.hideFatigo = false;
-
             },
             _init: function () {
                 this.lastLoadedFileName = "";
@@ -1099,6 +1109,9 @@
             },
 
             /** NETWORK **/
+            handleSearch:function(e){
+                this.selectedMenu = "search";
+            },
             /*SELECT*/
             handleSelectMenu: function (e) {
                 switch (e.detail.value) {

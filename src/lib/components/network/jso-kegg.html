@@ -47,16 +47,18 @@
                 content: '\f00c'
             }
 
-
             textarea {
                 resize: none;
                 margin: 3px;
             }
         </style>
-        <div id="panel" class="panel panel-shadow"  vertical layout>
+        <div id="panel" class="panel panel-shadow" vertical layout>
             <div class="header" id="header" horizontal layout>
                 <div class="text">Kegg import</div>
                 <div class="headeractions" horizontal end-justified layout flex>
+                    <!--<div class="text" on-click="{{handleRefresh}}">-->
+                    <!--<font-awesome icon="refresh"></font-awesome>-->
+                    <!--</div>-->
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
@@ -79,7 +81,7 @@
                     <template if="{{loading}}">
                         <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
                     </template>
-                    <div>{{message}}</div>
+                    <div>{{message}}&nbsp;</div>
                 </div>
                 <div horizontal end-justified layout>
                     <!--<div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>-->
@@ -92,7 +94,7 @@
         Polymer({
             created: function () {
                 this.pathwayList = [];
-
+                this.message = "";
                 this.shapeConvert = {
                     roundrectangle: 'rectangle',
                     rectangle: 'rectangle',
@@ -120,13 +122,14 @@
             },
             getPathwayList: function () {
 //                http://rest.kegg.jp/list/organism
+                var me = this;
+
                 this.loading = true;
                 this.message = "Querying KEGG WS Server...";
-
-                var me = this;
+                var url = 'http://rest.kegg.jp/list/pathway/hsa';
                 OpencgaManager.util.proxy({
                     query: {
-                        url: 'http://rest.kegg.jp/list/pathway/hsa'
+                        url: url
                     },
                     request: {
                         success: function (response) {
@@ -149,124 +152,25 @@
                         }
                     }
                 });
+
             },
             getPathway: function (pathway) {
-//                http://rest.kegg.jp/get/hsa03320/kgml
                 var me = this;
                 console.log(pathway)
+
                 this.loading = true;
                 this.message = "Querying KEGG WS Server...";
+                var url = 'http://rest.kegg.jp/get/' + pathway.name + '/kgml';
                 OpencgaManager.util.proxy({
                     query: {
-                        url: 'http://rest.kegg.jp/get/' + pathway.name + '/kgml'
+                        url: url
                     },
                     request: {
                         success: function (response) {
-
-                            var parser = new DOMParser();
-                            var doc = parser.parseFromString(response, "application/xml");
-                            console.log(doc);
-                            var entries = doc.querySelectorAll("entry");
-                            var relations = doc.querySelectorAll("relation");
-                            var reactions = doc.querySelectorAll("reaction");
-                            var graph = new Graph();
-                            var map = {};
-                            for (var i = 0; i < entries.length; i++) {
-                                var entry = entries[i];
-                                var graphics = entry.querySelector("graphics");
-                                var x = parseFloat(graphics.getAttribute("x"));
-                                var y = parseFloat(graphics.getAttribute("y"));
-                                var color = graphics.getAttribute("bgcolor");
-                                var shape = graphics.getAttribute("type");
-//                                var size = graphics.getAttribute("width");
-                                var size = graphics.getAttribute("height");
-                                var id = entry.getAttribute("id");
-                                var name = entry.getAttribute("name");
-                                var vertex = new Vertex({
-                                    id: id,
-                                    position: new Point(x, y),
-                                    renderer: new CircosVertexRenderer({
-                                        color: color,
-                                        shape: me.shapeConvert[shape],
-                                        size: size
-                                    })
-                                });
-                                graph.addVertex(vertex);
-                                map[id] = {
-                                    name: name,
-                                    x: x,
-                                    y: y
-                                };
-                            }
-                            for (var i = 0; i < relations.length; i++) {
-                                var relation = relations[i];
-                                var sourceId = relation.getAttribute("entry1");
-                                var targetId = relation.getAttribute("entry2");
-                                var type = relation.getAttribute("type");
-                                var edgeId = sourceId + "_" + type + "_" + targetId;
-
-                                /** create edge **/
-                                var edge = new Edge({
-                                    id: edgeId,
-                                    relation: type,
-                                    source: graph.getVertexById(sourceId),
-                                    target: graph.getVertexById(targetId),
-                                    weight: 1,
-                                    directed: true
-                                });
-                                graph.addEdge(edge);
-                            }
-                            for (var i = 0; i < reactions.length; i++) {
-                                var reaction = reactions[i];
-                                var sourceId = reaction.querySelector("substrate").getAttribute("id");
-                                var targetId = reaction.querySelector("product").getAttribute("id");
-                                var type = "reaction"
-                                var edgeId = sourceId + "_" + type+reaction.getAttribute("id") + "_" + targetId;
-
-                                /** create edge **/
-                                var edge = new Edge({
-                                    id: edgeId,
-                                    relation: type,
-                                    source: graph.getVertexById(sourceId),
-                                    target: graph.getVertexById(targetId),
-                                });
-                                graph.addEdge(edge);
-                            }
-                            me.networkViewer.setGraph(graph);
-
-
-                            var vAttr = me.networkViewer.vAttr;
-                            vAttr.addColumn({
-                                defaultValue: "",
-                                name: "x",
-                                title: "x",
-                                type: "string",
-                                cellTemplate: "inputTemplate"
-                            });
-                            vAttr.addColumn({
-                                defaultValue: "",
-                                name: "y",
-                                title: "y",
-                                type: "string",
-                                cellTemplate: "inputTemplate"
-                            });
-                            for (var i = 0; i < vAttr.data.length; i++) {
-                                var row = vAttr.data[i];
-                                row["name"] = map[row["id"]].name;
-                                row["x"] = map[row["id"]].x;
-                                row["y"] = map[row["id"]].y;
-                            }
-
-                            me.networkViewer.vertexDefaults.labelAttribute = "name";
-                            me.networkViewer.handleVertexDefaultLabelAttribute();
-
-                            me.networkViewer.handleVertexDefaultXAttribute();
-                            me.networkViewer.handleVertexDefaultYAttribute();
-
-//                            me.networkViewer.setLayout("Force directed");
-
+                            me._processPathwayResponse(response);
                             me.message = "Pathway loaded.";
                             me.loading = false;
+
                         },
                         error: function (response) {
 
@@ -274,8 +178,119 @@
                     }
                 });
             },
-            retrieveData: function () {
-                var me = this;
+            _processPathwayResponse: function (response) {
+
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(response, "application/xml");
+                console.log(doc);
+                var entries = doc.querySelectorAll("entry");
+                var relations = doc.querySelectorAll("relation");
+                var reactions = doc.querySelectorAll("reaction");
+                var graph = new Graph();
+                var map = {};
+                for (var i = 0; i < entries.length; i++) {
+                    var entry = entries[i];
+                    var graphics = entry.querySelector("graphics");
+                    var x = parseFloat(graphics.getAttribute("x"));
+                    var y = parseFloat(graphics.getAttribute("y"));
+                    var color = graphics.getAttribute("bgcolor");
+                    var shape = graphics.getAttribute("type");
+//                                var size = graphics.getAttribute("width");
+                    var size = graphics.getAttribute("height");
+                    var id = entry.getAttribute("id");
+                    var entryName = entry.getAttribute("name");
+                    var name = graphics.getAttribute("name");
+                    var vertex = new Vertex({
+                        id: id,
+                        position: new Point(x, y),
+                        renderer: new CircosVertexRenderer({
+                            color: color,
+                            shape: this.shapeConvert[shape],
+                            size: size
+                        })
+                    });
+                    graph.addVertex(vertex);
+                    map[id] = {
+                        name: name,
+                        entryName: entryName,
+                        x: x,
+                        y: y
+                    };
+                }
+                for (var i = 0; i < relations.length; i++) {
+                    var relation = relations[i];
+                    var sourceId = relation.getAttribute("entry1");
+                    var targetId = relation.getAttribute("entry2");
+                    var type = relation.getAttribute("type");
+                    var edgeId = sourceId + "_" + type + "_" + targetId;
+
+                    /** create edge **/
+                    var edge = new Edge({
+                        id: edgeId,
+                        relation: type,
+                        source: graph.getVertexById(sourceId),
+                        target: graph.getVertexById(targetId),
+                        weight: 1,
+                        directed: true
+                    });
+                    graph.addEdge(edge);
+                }
+                for (var i = 0; i < reactions.length; i++) {
+                    var reaction = reactions[i];
+                    var sourceId = reaction.querySelector("substrate").getAttribute("id");
+                    var targetId = reaction.querySelector("product").getAttribute("id");
+                    var type = "reaction"
+                    var edgeId = sourceId + "_" + type + reaction.getAttribute("id") + "_" + targetId;
+
+                    /** create edge **/
+                    var edge = new Edge({
+                        id: edgeId,
+                        relation: type,
+                        source: graph.getVertexById(sourceId),
+                        target: graph.getVertexById(targetId),
+                    });
+                    graph.addEdge(edge);
+                }
+                this.networkViewer.setGraph(graph);
+
+
+                var vAttr = this.networkViewer.vAttr;
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "x",
+                    title: "x",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "y",
+                    title: "y",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "entryName",
+                    title: "Entry name",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                for (var i = 0; i < vAttr.data.length; i++) {
+                    var row = vAttr.data[i];
+                    row["name"] = map[row["id"]].name;
+                    row["entryName"] = map[row["id"]].entryName;
+                    row["x"] = map[row["id"]].x;
+                    row["y"] = map[row["id"]].y;
+                }
+
+                this.networkViewer.vertexDefaults.labelAttribute = "name";
+                this.networkViewer.handleVertexDefaultLabelAttribute();
+
+                this.networkViewer.handleVertexDefaultXAttribute();
+                this.networkViewer.handleVertexDefaultYAttribute();
+
+//                            me.networkViewer.setLayout("Force directed");
             }
         });
     </script>

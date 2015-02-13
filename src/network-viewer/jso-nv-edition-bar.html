@@ -29,8 +29,8 @@
 
         <div id="bar" horizontal layout flex>
             <div class="button" data-checked="{{selectedBar == 'vertex'}}" data-bar="vertex"
-                 on-click="{{handleSelectedBar}}"
-                 style="border-right: none">Nodes
+                 on-click="{{handleSelectedBar}}" style="border-right: none">
+                Nodes
             </div>
             <div class="button" data-checked="{{selectedBar == 'edge'}}" data-bar="edge" on-click="{{handleSelectedBar}}">
                 Edges
@@ -137,11 +137,13 @@
                 <!--<font-awesome icon="search"></font-awesome></div>-->
                 <!--<ul id="vertexSearchMenu"></ul>-->
                 <!--</div>-->
-                <select id="nodeSearchSelect" style="width:70px;margin-left: 10px;border-right-width: 0;">
-                    <template repeat="{{column in vAttr.columns}}">
-                        <option value="{{column.name}}">{{column.title}}</option>
-                    </template>
-                </select>
+                <div class="select">
+                    <select id="nodeSearchSelect" style="width:70px;margin-left: 10px;border-right-width: 0;">
+                        <template repeat="{{column in vAttr.columns}}">
+                            <option value="{{column.name}}">{{column.title}}</option>
+                        </template>
+                    </select>
+                </div>
                 <input on-keypress="{{handleVertexSearch}}" id="vertexSearchField" class="button" type="text"
                        placeholder="Search" style="width: 80px;">
 

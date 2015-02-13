@@ -14,9 +14,9 @@
 
 .header {
     /*background-color: #E5E5E5;*/
-    background-color: #3F3F3F;
+    /*background-color: #3F3F3F;*/
     /*background-color: #435F7A;*/
-    /*background-color: #314559;*/
+    background-color: #314559;
     color: #FFFFFF;
     text-transform: capitalize;
 }
@@ -27,10 +27,10 @@
 
 .header > .headeractions > *:hover {
     /*background-color: #7493b3;*/
-    background-color: #737373;
+    /*background-color: #737373;*/
+    background-color: #435F7A;
+    /*background-color: #FFAD76;*/
 }
-
-
 
 .header > .headeractions > .headerclose:after {
     font-family: FontAwesome;
@@ -59,10 +59,17 @@
     box-sizing: border-box;
     border-bottom: 1px solid #d4d4d4;
 }
-.footer{
+
+.footer {
     border-top: 1px solid #d4d4d4;
     background-color: #EDEDED;
 }
+
+.footer > div, .footer > div > div {
+    margin-right: 2px;
+    margin-left: 2px;
+}
+
 .header[data-collapsible=true][data-collapsed=true]:after {
     font-family: FontAwesome;
     content: "\f107";

@@ -237,22 +237,17 @@
             },
             _getSpeciesPathways: function (species) {
                 var me = this;
+
                 this.loading = true;
                 this.message = "Querying Reactome WS Server...";
+                var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/pathwayHierarchy/' + species.value;
                 OpencgaManager.util.proxy({
                     query: {
-                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/pathwayHierarchy/' + species.value
+                        url: url
                     },
                     request: {
                         success: function (response) {
-
-                            var parser = new DOMParser();
-                            var doc = parser.parseFromString(response, "application/xml");
-
-                            var pathways = doc.querySelector("Pathways");
-                            me.root = me._processNode(pathways);
-                            me.items = me.root.items;
-
+                            me._processSpeciesPathways(response);
                             me.message = "Human pathways ready.";
                             me.loading = false;
                         }
@@ -260,10 +255,35 @@
 
                 });
             },
+            _processSpeciesPathways: function (response) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(response, "application/xml");
+
+                var pathways = doc.querySelector("Pathways");
+                this.root = this._processNode(pathways);
+                this.items = this.root.items;
+            },
             _getReactomeSbml: function (item) {
                 var me = this;
+
                 this.loading = true;
                 this.message = "Querying Reactome WS Server...";
+                var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/sbmlExporter/' + item.dbId;
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: url
+                    },
+                    request: {
+                        success: function (response) {
+                            me._processReactomeSbml(response);
+                            me.message = "Pathway loaded.";
+                            me.loading = false;
+                        }
+                    }
+
+                });
+            },
+            _processReactomeSbml: function (response) {
                 var renderMap = {
                     "macromolecule": {
                         color: "#CCFFCC",
@@ -325,143 +345,127 @@
                     "glyph.process"
                 ].join(",");
 
-                OpencgaManager.util.proxy({
-                    query: {
-                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/sbmlExporter/' + item.dbId
-                    },
-                    request: {
-                        success: function (response) {
-                            var parser = new DOMParser();
+                var parser = new DOMParser();
 
-                            var doc = parser.parseFromString(response, "application/xml");
-                            var map = doc.querySelector("map[language='process description']");
-                            var glyphs = doc.querySelectorAll(queryStr);
-                            var arcs = doc.querySelectorAll("arc");
+                var doc = parser.parseFromString(response, "application/xml");
+                var map = doc.querySelector("map[language='process description']");
+                var glyphs = doc.querySelectorAll(queryStr);
+                var arcs = doc.querySelectorAll("arc");
 
-                            var graph = new Graph();
-                            var map = {};
-                            for (var i = 0; i < glyphs.length; i++) {
-                                var glyph = glyphs[i];
-                                var id = glyph.getAttribute("id");
-                                var name = "";
-                                var label = glyph.querySelector("label");
-                                if (label) {
-                                    var name = label.getAttribute("text");
-                                }
-                                var bbox = glyph.querySelector("bbox");
-                                var x = parseFloat(bbox.getAttribute("x"));
-                                var y = -parseFloat(bbox.getAttribute("y"));
-                                var size = bbox.getAttribute("h");
-                                if (glyph.className == "process") {
-                                    size = 10;
-                                }
-                                var vertex = new Vertex({
-                                    id: id,
-                                    position: new Point(x, y),
-                                    renderer: new CircosVertexRenderer({
-                                        color: renderMap[glyph.className].color,
-                                        strokeColor: renderMap[glyph.className].strokeColor,
-                                        strokeSize: renderMap[glyph.className].strokeSize,
-                                        shape: renderMap[glyph.className].shape,
-                                        size: size
-                                    })
-                                });
-                                var ports = glyph.querySelectorAll("port");
-                                for (var j = 0; j < ports.length; j++) {
-                                    var port = ports[j];
-                                    var pId = port.getAttribute("id");
-                                    var px = parseFloat(port.getAttribute("x"));
-                                    var py = -parseFloat(port.getAttribute("y"));
-                                    var portVertex = new Vertex({
-                                        id: pId,
-                                        position: new Point(px, py),
-                                        renderer: new CircosVertexRenderer({
-                                            color: renderMap[glyph.className].color,
-                                            strokeColor: renderMap[glyph.className].strokeColor,
-                                            strokeSize: renderMap[glyph.className].strokeSize,
-                                            shape: renderMap[glyph.className].shape,
-                                            size: 10
-                                        })
-                                    });
-                                    graph.addVertex(portVertex);
-                                    map[pId] = {
-                                        name: name,
-                                        x: px,
-                                        y: py
-                                    };
-                                    var edge = new Edge({
-                                        id: vertex.id + "_" + "process" + "_" + portVertex.id,
-                                        source: vertex,
-                                        target: portVertex,
-                                        renderer: new DefaultEdgeRenderer({
-                                            color: '#111111',
-                                            head: 'directed'
-                                        })
-                                    });
-                                    graph.addEdge(edge);
-                                }
-
-                                graph.addVertex(vertex);
-                                map[id] = {
-                                    name: name,
-                                    x: x,
-                                    y: y
-                                };
-                            }
-                            for (var i = 0; i < arcs.length; i++) {
-                                var arc = arcs[i];
-                                var source = graph.getVertexById(arc.getAttribute("source"));
-                                var target = graph.getVertexById(arc.getAttribute("target"));
-                                var id = source.id + "_" + arc.getAttribute("id") + "_" + target.id
-                                var edge = new Edge({
-                                    id: id,
-                                    source: source,
-                                    target: target,
-                                    renderer: new DefaultEdgeRenderer({
-                                        color: '#111111',
-                                        shape: 'directed'
-                                    })
-                                });
-                                graph.addEdge(edge);
-                            }
-                            me.networkViewer.setGraph(graph);
-                            var vAttr = me.networkViewer.vAttr;
-                            vAttr.addColumn({
-                                defaultValue: "",
-                                name: "x",
-                                title: "x",
-                                type: "string",
-                                cellTemplate: "inputTemplate"
-                            });
-                            vAttr.addColumn({
-                                defaultValue: "",
-                                name: "y",
-                                title: "y",
-                                type: "string",
-                                cellTemplate: "inputTemplate"
-                            });
-                            for (var i = 0; i < vAttr.data.length; i++) {
-                                var row = vAttr.data[i];
-                                row["name"] = map[row["id"]].name;
-                                row["x"] = map[row["id"]].x;
-                                row["y"] = map[row["id"]].y;
-                            }
-                            me.networkViewer.vertexDefaults.labelAttribute = "name";
-                            me.networkViewer.handleVertexDefaultLabelAttribute();
-
-                            me.networkViewer.handleVertexDefaultXAttribute();
-                            me.networkViewer.handleVertexDefaultYAttribute();
-                            me.networkViewer.setLayout("Force directed");
-
-                            me.message = "Pathway loaded.";
-                            me.loading = false;
-                        }
+                var graph = new Graph();
+                var map = {};
+                for (var i = 0; i < glyphs.length; i++) {
+                    var glyph = glyphs[i];
+                    var id = glyph.getAttribute("id");
+                    var name = "";
+                    var label = glyph.querySelector("label");
+                    if (label) {
+                        var name = label.getAttribute("text");
+                    }
+                    var bbox = glyph.querySelector("bbox");
+                    var x = parseFloat(bbox.getAttribute("x"));
+                    var y = -parseFloat(bbox.getAttribute("y"));
+                    var size = bbox.getAttribute("h");
+                    if (glyph.className == "process") {
+                        size = 10;
+                    }
+                    var vertex = new Vertex({
+                        id: id,
+                        position: new Point(x, y),
+                        renderer: new CircosVertexRenderer({
+                            color: renderMap[glyph.className].color,
+                            strokeColor: renderMap[glyph.className].strokeColor,
+                            strokeSize: renderMap[glyph.className].strokeSize,
+                            shape: renderMap[glyph.className].shape,
+                            size: size
+                        })
+                    });
+                    var ports = glyph.querySelectorAll("port");
+                    for (var j = 0; j < ports.length; j++) {
+                        var port = ports[j];
+                        var pId = port.getAttribute("id");
+                        var px = parseFloat(port.getAttribute("x"));
+                        var py = -parseFloat(port.getAttribute("y"));
+                        var portVertex = new Vertex({
+                            id: pId,
+                            position: new Point(px, py),
+                            renderer: new CircosVertexRenderer({
+                                color: renderMap[glyph.className].color,
+                                strokeColor: renderMap[glyph.className].strokeColor,
+                                strokeSize: renderMap[glyph.className].strokeSize,
+                                shape: renderMap[glyph.className].shape,
+                                size: 10
+                            })
+                        });
+                        graph.addVertex(portVertex);
+                        map[pId] = {
+                            name: name,
+                            x: px,
+                            y: py
+                        };
+                        var edge = new Edge({
+                            id: vertex.id + "_" + "process" + "_" + portVertex.id,
+                            source: vertex,
+                            target: portVertex,
+                            renderer: new DefaultEdgeRenderer({
+                                color: '#111111',
+                                head: 'directed'
+                            })
+                        });
+                        graph.addEdge(edge);
                     }
 
+                    graph.addVertex(vertex);
+                    map[id] = {
+                        name: name,
+                        x: x,
+                        y: y
+                    };
+                }
+                for (var i = 0; i < arcs.length; i++) {
+                    var arc = arcs[i];
+                    var source = graph.getVertexById(arc.getAttribute("source"));
+                    var target = graph.getVertexById(arc.getAttribute("target"));
+                    var id = source.id + "_" + arc.getAttribute("id") + "_" + target.id
+                    var edge = new Edge({
+                        id: id,
+                        source: source,
+                        target: target,
+                        renderer: new DefaultEdgeRenderer({
+                            color: '#111111',
+                            shape: 'directed'
+                        })
+                    });
+                    graph.addEdge(edge);
+                }
+                this.networkViewer.setGraph(graph);
+                var vAttr = this.networkViewer.vAttr;
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "x",
+                    title: "x",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
                 });
-            },
-            _processMacromolecule: function () {
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "y",
+                    title: "y",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                for (var i = 0; i < vAttr.data.length; i++) {
+                    var row = vAttr.data[i];
+                    row["name"] = map[row["id"]].name;
+                    row["x"] = map[row["id"]].x;
+                    row["y"] = map[row["id"]].y;
+                }
+                this.networkViewer.vertexDefaults.labelAttribute = "name";
+                this.networkViewer.handleVertexDefaultLabelAttribute();
 
+                this.networkViewer.handleVertexDefaultXAttribute();
+                this.networkViewer.handleVertexDefaultYAttribute();
+                this.networkViewer.setLayout("Force directed");
             }
 
         });
