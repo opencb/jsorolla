@@ -303,7 +303,7 @@ GenomeViewer.prototype = {
                 resource: 'all',
                 async: false,
                 success: function (data) {
-                    chromosomes = saveChromosomes(data.response.result.chromosomes);
+                    chromosomes = saveChromosomes(data.response.result[0].chromosomes);
                 },
                 error: function (data) {
                     console.log('Could not get chromosome list');
