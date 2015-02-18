@@ -152,16 +152,24 @@
             created: function () {
                 this.fileFormat = 'PLAIN';
                 this.bioformat = 'NONE';
+                this.initWC();
+
+            },
+            initWC: function () {
                 this.description = '';
-
-
                 this.fileName = 'Choose file...';
                 this.message = '';
-
                 this.uploading = false;
-
                 this.percentProgress = 0;
+            },
+            ready: function (e) {
+                var me = this;
+                var observer = new MutationObserver(function (mutations) {
+                    if(me.hidden == true)
+                        me.initWC();
 
+                }.bind(this));
+                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
             },
             handleBrowseClick: function (e) {
                 this.$.fileInput.click();
@@ -172,7 +180,7 @@
             },
             handleForm: function () {
 
-                if(  !(/^([a-zA-Z0-9._-]+)$/.test(this.fileName))  ){
+                if (!(/^([a-zA-Z0-9._-]+)$/.test(this.fileName))) {
                     alert("Sorry, some characters in your input file are not allowed. We only permit letters, numbers, dash(- or _) and point(.).");
                     return;
                 }
