@@ -221,6 +221,64 @@ AttributeManagerMemory.prototype = {
         }
         this.selected = selected;
     },
+    selectByColumnContainsValue: function (column, value, notContains) {
+        var selected = [];
+        if (notContains == true) {
+            for (var i = 0; i < this.data.length; i++) {
+                var row = this.data[i];
+                if (row[column].indexOf(value) == -1) {
+                    selected.push(row);
+                }
+            }
+        } else {
+            for (var i = 0; i < this.data.length; i++) {
+                var row = this.data[i];
+                if (row[column].indexOf(value) != -1) {
+                    selected.push(row);
+                }
+            }
+        }
+        this.selected = selected;
+    },
+    selectByColumnComparationValue: function (column, value, comparation, includeValue) {
+        if (!isNaN(value)) {
+            var selected = [];
+            if (comparation == '>') {
+                if (includeValue) {
+                    for (var i = 0; i < this.data.length; i++) {
+                        var row = this.data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) >= parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < this.data.length; i++) {
+                        var row = this.data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) > parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                }
+            } else if (comparation == '<') {
+                if (includeValue) {
+                    for (var i = 0; i < this.data.length; i++) {
+                        var row = this.data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) <= parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                } else {column
+                    for (var i = 0; i < this.data.length; i++) {
+                        var row = this.data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) < parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                }
+            }
+            this.selected = selected;
+        }
+    },
     removeSelected: function () {
         this.removeRows(this.selected);
         this.deselectAll();

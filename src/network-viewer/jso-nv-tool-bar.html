@@ -18,40 +18,64 @@
 
         </style>
         <div id="bar" horizontal layout flex>
-            <div class="button" data-checked="{{mode == 'select'}}" data-mode="select" on-click="{{handleMode}}"
-                 style="border-right: none">
+            <div style="border-right: none"
+                 class="button"
+                 title="Select any element (node /edge)"
+                 data-checked="{{mode == 'select'}}"
+                 data-mode="select"
+                 on-click="{{handleMode}}">
                 <font-awesome icon="hand-o-up"></font-awesome>
             </div>
-            <div class="button" data-checked="{{mode == 'move'}}" data-mode="move" on-click="{{handleMode}}"
-                 style="border-right: none">
+            <div
+                    style="border-right: none"
+                    class="button"
+                    title="Allows to move the whole network along the canvas"
+                    data-checked="{{mode == 'move'}}"
+                    data-mode="move"
+                    on-click="{{handleMode}}">
                 <font-awesome icon="arrows"></font-awesome>
             </div>
-            <div class="button" data-checked="{{mode == 'selectbackground'}}" data-mode="selectbackground"
+            <div class="button"
+                 title="Select and move the background images"
+                 data-checked="{{mode == 'selectbackground'}}"
+                 data-mode="selectbackground"
                  on-click="{{handleMode}}">
                 <font-awesome icon="image"></font-awesome>
             </div>
             <template if="{{lite != 'true'}}">
-                <div class="button" data-checked="{{mode == 'add'}}" data-mode="add" on-click="{{handleMode}}"
-                     style="margin-left: 3px;border-right: none">
+                <div style="margin-left: 3px;border-right: none"
+                     class="button"
+                     title="Add Nodes"
+                     data-checked="{{mode == 'add'}}"
+                     data-mode="add" on-click="{{handleMode}}">
                     <font-awesome icon="plus"></font-awesome>
                 </div>
-                <div class="button" data-checked="{{mode == 'join'}}" data-mode="join" on-click="{{handleMode}}"
-                     style="border-right: none">
+                <div style="border-right: none"
+                     class="button"
+                     title="Join Nodes by an edge"
+                     data-checked="{{mode == 'join'}}"
+                     data-mode="join"
+                     on-click="{{handleMode}}">
                     <font-awesome icon="link"></font-awesome>
                 </div>
-                <div class="button" data-checked="{{mode == 'delete'}}" data-mode="delete" on-click="{{handleMode}}">
+                <div class="button"
+                     title="Delete the selected node / edge"
+                     data-checked="{{mode == 'delete'}}"
+                     data-mode="delete"
+                     on-click="{{handleMode}}">
                     <font-awesome icon="times"></font-awesome>
                 </div>
             </template>
 
 
-            <div style="margin-left: 10px" id="collapseButton" class="ocb-ctrl hidden">
+            <div hidden style="margin-left: 10px" id="collapseButton" class="ocb-ctrl">
                 <span class="ocb-icon icon-collapse"></span>
             </div>
 
 
             <div class="dropdown" style="margin-left: 10px">
-                <div tabindex="-1" id="layoutButton" class="button">
+                <div title="Render the whole graph using different algorithms."
+                     tabindex="-1" id="layoutButton" class="button">
                     <font-awesome icon="share-alt"></font-awesome>
                 </div>
                 <ul id="layoutMenu">
@@ -62,7 +86,7 @@
                 </ul>
             </div>
 
-            <div class="dropdown" title="Select" style="margin-left: 10px">
+            <div class="dropdown" title="Select all nodes, all vertices or both" style="margin-left: 10px">
                 <div tabindex="-1" id="autoSelectButton" class="button">
                     <font-awesome icon="dot-circle-o"></font-awesome>
                 </div>
@@ -78,15 +102,19 @@
                 </ul>
             </div>
 
-            <div style="margin-left: 10px" on-click={{handleBackgroundImage}} id="importBackgroundImageButton"
+
+            <div style="margin-left:5px;border-right-width: 0"
+                 title="Upload your own background image"
+                 on-click={{handleBackgroundImage}}
+                 id="importBackgroundImageButton"
                  class="button">
                 <font-awesome icon="file-image-o"></font-awesome>
             </div>
             <input on-change={{handleBackgroundImageField}} id="importBackgroundImageField" type="file" hidden>
 
-            <jso-color-picker id="backgroundColorPicker" color="{{backgroundColor}}"
-                              on-color-click="{{handleBackgroundColorPicker}}"
-                              style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>
+                <jso-color-picker ctitle="Change the color of the background" id="backgroundColorPicker" color="{{backgroundColor}}"
+                                  on-color-click="{{handleBackgroundColorPicker}}"
+                                  style="float:left;width:90px;"></jso-color-picker>
 
             <div class="dropdown" title="Rotate" style="margin-left: 10px">
                 <div tabindex="-1" id="rotateButton" class="button" style="border-right: none">
@@ -105,13 +133,13 @@
             <input on-keyup="{{handleRotateField}}" id="rotateField" class="button" type="text" style="width: 50px;"
                    placeholder="90&deg;" pattern="^-?\d+$">
 
-            <div id="zoomOutButton" on-click="{{handleZoomOutButton}}" class="button" style="margin-left: 10px">
+            <div title="Zoom out" id="zoomOutButton" on-click="{{handleZoomOutButton}}" class="button" style="margin-left: 10px">
                 <font-awesome icon="minus"></font-awesome>
             </div>
             <div on-click="{{handleZoomSlider}}" id="progressBarCont" class="zoom-bar">
                 <div id="progressBar" style="width:{{zoom}}%"></div>
             </div>
-            <div id="zoomInButton" on-click="{{handleZoomInButton}}" class="button">
+            <div title="Zoom in" id="zoomInButton" on-click="{{handleZoomInButton}}" class="button">
                 <font-awesome icon="plus"></font-awesome>
             </div>
             <div id="helpButton" on-click="{{handleHelpButton}}" class="button" style="margin-left: 10px">

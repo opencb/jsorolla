@@ -156,7 +156,7 @@
 
             </div>
             <div class="footer" horizontal layout end-justified>
-                <div class="button action" on-click="{{handleApplyDirect}}">Apply attribute value directly</div>
+                <div class="button action" on-click="{{handleApplyDirect}}">Use attribute value directly</div>
                 <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
             </div>
         </div>
@@ -233,16 +233,22 @@
 
             },
             _updateVisualSet: function () {
-                var matches = {};
-                for (var i = 0; i < this.uniqueData.length; i++) {
-                    var data = this.uniqueData[i];
-                    matches[data.attribute] = data.render;
+                this.visualSetChanged();
+                if (this.visualSet) {
+                    this.matches = this.visualSet.matches;
+                }else{
+                    this.matches = {};
+                    for (var i = 0; i < this.uniqueData.length; i++) {
+                        var data = this.uniqueData[i];
+                        this.matches[data.attribute] = data.render;
+                    }
                 }
+
                 this.visualSet = {
                     attribute: this.attributeName,
                     displayProperty: this.displayProperty,
                     type: this.attributeType,
-                    matches: matches,
+                    matches: this.matches,
                     parse: this.attributeParse,
                     points: this.points,
                     enabled: true

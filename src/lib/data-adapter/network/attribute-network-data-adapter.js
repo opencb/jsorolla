@@ -26,6 +26,9 @@ function AttributeNetworkDataAdapter(args) {
     this.dataSource;
     this.async = true;
     this.ignoreColumns = {};
+    this.renameColumns = {};
+
+    this.useFirstLineAsColumnNames = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
@@ -94,13 +97,29 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                     break;
                 }
             }
-        }
 
+        }
+        if (this.useFirstLineAsColumnNames) {
+            columnNames = firstLine.split(/\t/);
+            //first non header line
+            firstLine = lines[1];
+
+        }
 
         var finalColumnNames = [];
         var numColumns = firstLine.split(/\t/).length;
         for (var i = 0; i < numColumns; i++) {
-            finalColumnNames[i] = (columnNames[i]) ? columnNames[i] : "Column" + i;
+
+            if (this.renameColumns[i]) {
+                finalColumnNames[i] = this.renameColumns[i];
+            } else {
+                if (columnNames[i]) {
+                    finalColumnNames[i] = columnNames[i];
+                } else {
+                    finalColumnNames[i] = "Column" + i;
+                }
+            }
+
             if (i == 0) {
                 finalColumnNames[i] = "id";
             }
@@ -119,7 +138,12 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
         if (Object.keys(this.ignoreColumns).length > 0) {
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].trim();
-                if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+                if ((line != null) &&
+                    (line.length > 0) &&
+                    line.substr(0, 1) != "#"
+                ) {
+                    if (i == 0 && this.useFirstLineAsColumnNames == true) continue;
+
                     var fields = line.split("\t");
 
                     var row = {};
@@ -134,7 +158,12 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
         } else {
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].trim();
-                if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+                if ((line != null) &&
+                    (line.length > 0) &&
+                    line.substr(0, 1) != "#"
+                ) {
+                    if (i == 0 && this.useFirstLineAsColumnNames == true) continue;
+
                     var fields = line.split("\t");
 
                     var row = {};
@@ -146,7 +175,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
             }
         }
 
-        this.trigger('data:load', {attributeManager:this.attributeManager,  sender: this});
+        this.trigger('data:load', {attributeManager: this.attributeManager, sender: this});
     } catch (e) {
         console.log(e);
         console.log(e.stack);

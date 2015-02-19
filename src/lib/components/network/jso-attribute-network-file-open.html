@@ -31,8 +31,9 @@
                 width: 100%;
                 height: 100%;
             }
-            .container{
-                height:376px;
+
+            .container {
+                height: 376px;
                 box-sizing: border-box;
             }
 
@@ -62,7 +63,7 @@
             #tablewrap {
                 position: relative;
                 background-color: #FAFAFA;
-                height:346px;
+                height: 346px;
             }
 
             #table {
@@ -107,7 +108,15 @@
                     <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
                     <br>
 
+                    <label class="control">
+                        <input type="checkbox" checked="{{useFirstLineAsColumnNames}}"
+                               on-change="{{handleFirstLineColumns}}">
+                        <span>Use first line as columns</span>
+                    </label>
+
+                    <br>
                     <label>Select and rename attributes:</label>
+
                     <div class="columns" flex>
                         <template repeat="{{column, index in columns}}">
                             <div horizontal layout flex>
@@ -169,35 +178,42 @@
                 this.pageSize = this.defaultPageSize;
 
                 this.ignoreColumns = {};
+                this.renameColumns = {};
 
                 this.json;
 
+
+                this.attributeManager;
+
                 this.fileName = 'Choose file...';
                 this.message = ' ';
+
+
+                this.useFirstLineAsColumnNames = false;
             },
             ready: function () {
                 this.table = this.$.table;
             },
             handleOk: function () {
                 var me = this;
+
+                this.renameColumns = {};
+                for (var i = 0; i < me.columns.length; i++) {
+                    var col = me.columns[i];
+                    this.renameColumns[i] = col.title;
+                }
+
                 new AttributeNetworkDataAdapter({
                     ignoreColumns: this.ignoreColumns,
+                    renameColumns: this.renameColumns,
+                    useFirstLineAsColumnNames: this.useFirstLineAsColumnNames,
                     dataSource: new FileDataSource({file: this.$.fileInput.files[0]}),
                     handlers: {
                         'data:load': function (event) {
                             var attributeManager = event.attributeManager;
 
-                            //TODO TEST rename attributes
-                            var renameMap = {};
-                            for (var i = 0; i < me.columns.length; i++) {
-                                var col = me.columns[i];
-                                renameMap[col.name] = col;
-                            }
                             for (var i = 0; i < attributeManager.columns.length; i++) {
                                 var col = attributeManager.columns[i];
-                                if (renameMap[col.name].title != null && renameMap[col.name].title !== '') {
-                                    col.title = renameMap[col.name].title;
-                                }
                                 col.cellTemplate = "inputTemplate";
                             }
 
@@ -220,13 +236,14 @@
             handleBrowseClick: function (e) {
                 this.$.fileInput.click();
             },
-            handleInputChange: function (e) {
+            handleInputChange: function () {
                 var me = this;
                 this.fileName = this.$.fileInput.files[0].name;
                 this.message = '';
 
                 if (this.$.fileInput.files.length > 0) {
                     this.adapter = new AttributeNetworkDataAdapter({
+                        useFirstLineAsColumnNames: this.useFirstLineAsColumnNames,
                         dataSource: new FileDataSource({file: this.$.fileInput.files[0]}),
                         handlers: {
                             'data:load': function (event) {
@@ -248,6 +265,10 @@
                 }
                 this.columns = attributeManager.columns;
                 this.data = attributeManager.data;
+                this.attributeManager = attributeManager;
+            },
+            handleFirstLineColumns: function () {
+                this.handleInputChange();
             },
             /*Table handlers*/
             handleScroll: function (e) {

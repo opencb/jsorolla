@@ -1,5 +1,5 @@
 <polymer-element name="jso-color-picker"
-                 attributes="color preset">
+                 attributes="color preset ctitle">
     <template>
         <style>
             :host {
@@ -85,7 +85,7 @@
         </style>
 
 
-        <div tabindex="0" id="colorbox" on-focus="{{handleColorBoxClick}}" style="background-color:{{color}};"></div>
+        <div title="{{ctitle}}" tabindex="0" id="colorbox" on-focus="{{handleColorBoxClick}}" style="background-color:{{color}};"></div>
         <input id="colorinput" type="text" value="{{color}}" on-keypress="{{handleKeyPress}}">
         <ul id="colorlist">
             <template repeat="{{c in colors}}">

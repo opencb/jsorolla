@@ -300,8 +300,14 @@ CircosVertexRenderer.prototype = {
         this._render();
         console.log("update")
     },
-    select: function () {
+    select: function (color) {
+        if (color) {
+            this.selectEl.setAttribute('fill', color);
+        }
         this.groupEl.insertBefore(this.selectEl, this.groupEl.firstChild);
+        if (this.groupEl && this.groupEl.parentNode) {
+            this.groupEl.parentNode.appendChild(this.groupEl);
+        }
         this.selected = true;
     },
     deselect: function () {

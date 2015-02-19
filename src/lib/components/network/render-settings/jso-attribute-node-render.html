@@ -288,6 +288,7 @@
                     <div class="text">X:</div>
                     <div class="select" flex>
                         <select value="{{defaults.xAttribute}}" on-change="{{handleXAttribute}}">
+                            <option value="none">Select...</option>
                             <template repeat="{{column in attributeManager.columns}}">
                                 <option value="{{column.name}}">{{column.title}}</option>
                             </template>
@@ -298,6 +299,7 @@
                     <div class="text">Y:</div>
                     <div class="select " flex>
                         <select value="{{defaults.yAttribute}}" on-change="{{handleYAttribute}}">
+                            <option value="none">Select...</option>
                             <template repeat="{{column in attributeManager.columns}}">
                                 <option value="{{column.name}}">{{column.title}}</option>
                             </template>

@@ -31,11 +31,11 @@
 <script src="../lib/data-source/string-data-source.js"></script>
 
 
-<link rel="import" href="../lib/components/network/jso-nv-search.html">
 <link rel="import" href="../lib/components/network/jso-sif-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-text-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-xlsx-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-attribute-network-file-open.html">
+<link rel="import" href="../lib/components/network/jso-network-edit.html">
 <link rel="import" href="../lib/components/network/jso-attribute-edit.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-node-render.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-edge-render.html">
@@ -90,7 +90,7 @@
             }
 
             .context {
-                width: 200px;
+                min-width: 200px;
             }
 
             jso-snow, jso-network-miner, jso-fatigo {
@@ -104,6 +104,16 @@
                 padding: 20px 40px;
             }
 
+            .attr-context {
+                font-size: 13px;
+            }
+
+            .attrkey {
+                color: #888888;
+            }
+
+            .attrvalue {
+            }
         </style>
 
         <jso-nv-bar
@@ -128,8 +138,6 @@
                 on-export-node-attributes="{{handleExportNodeAttrMenu}}"
                 on-export-edge-attributes="{{handleExportEdgeAttrMenu}}"
 
-                on-search="{{handleSearch}}"
-
                 on-nodes-select-all="{{handleSelectMenu}}"
                 on-nodes-select-first-neighbourhood="{{handleSelectMenu}}"
                 on-nodes-select-invert="{{handleSelectMenu}}"
@@ -145,6 +153,7 @@
                 on-layout-random="{{handleLayoutMenu}}"
 
 
+                on-network-edit="{{handleNetworkEditMenu}}"
                 on-nodes-edit="{{handleNodesEditMenu}}"
                 on-edges-edit="{{handleEdgesEditMenu}}"
                 on-cellbase="{{handleCellbaseMenu}}"
@@ -190,6 +199,7 @@
 
         <jso-nv-edition-bar
                 hidden?="{{hideEditionBar == 'true'}}"
+                selectionColor="{{vertexDefaults.selectionColor}}"
                 id="editionBar"
 
                 vAttr="{{vAttr}}"
@@ -284,9 +294,16 @@
             </jso-attribute-edge-render>
         </div>
         <div class="left-side">
+            <jso-network-edit
+                    hidden?="{{selectedMenu != 'network-edit'}}"
+                    selectedMenu="{{selectedMenu}}"
+                    networkViewer="{{}}">
+            </jso-network-edit>
             <jso-attribute-edit
                     hidden?="{{selectedMenu != 'nodes-edit'}}"
-                    selectedMenu="{{selectedMenu}}" attributeManager="{{vAttr}}" type="node">
+                    selectedMenu="{{selectedMenu}}"
+                    attributeManager="{{vAttr}}"
+                    type="node">
             </jso-attribute-edit>
             <jso-attribute-edit
                     hidden?="{{selectedMenu != 'edges-edit'}}"
@@ -336,12 +353,6 @@
                     networkViewer="{{}}"
                     >
             </jso-configure-force-directed>
-            <jso-nv-search
-                    hidden?="{{selectedMenu != 'search'}}"
-                    selectedMenu="{{selectedMenu}}"
-                    networkViewer="{{}}"
-                    >
-            </jso-nv-search>
         </div>
 
         <!--Menu file-->
@@ -415,8 +426,16 @@
             <li data-divider></li>
             <li on-click="{{handleContextSelectVerticesNeighbour}}">Select first neighbour nodes</li>
             <li on-click="{{handleContextSelectEdgesNeighbour}}">Select Adjacent edges</li>
+            <li data-divider></li>
+            <li data-text><u>Attributes</u></li>
+            <li data-text>
+                <div class="attr-context" vertical layout>
+                    <template repeat="{{ attr in _lastContextVertexAttributes }}">
+                        <div data-text><span class="attrkey">{{ attr.key }}:</span> <span class="attrvalue">{{ attr.value }}</span></div>
+                    </template>
+                </div>
+            </li>
         </ul>
-
 
     </template>
     <script>
@@ -456,6 +475,15 @@
                 this.hideNetworkMiner = false;
                 this.hideFatigo = false;
             },
+            ready: function () {
+                var me = this;
+                document.body.addEventListener('click', function (e) {
+                    me.$.imagecontextmenu.style.opacity = "";
+                    me.$.imagecontextmenu.style.visibility = "";
+                    me.$.vertexcontextmenu.style.opacity = "";
+                    me.$.vertexcontextmenu.style.visibility = "";
+                });
+            },
             _init: function () {
                 this.lastLoadedFileName = "";
 
@@ -484,7 +512,8 @@
                     labelPositionY: 0,
                     labelAttribute: 'id',
                     xAttribute: 'x',
-                    yAttribute: 'y'
+                    yAttribute: 'y',
+                    selectionColor: '#da6d1f'
                 };
                 this.edgeDefaults = {
                     shape: 'directed',
@@ -559,15 +588,6 @@
                     cellTemplate: "inputTemplate"
                 });
             },
-            ready: function () {
-                var me = this;
-                document.body.addEventListener('click', function (e) {
-                    me.$.imagecontextmenu.style.opacity = "";
-                    me.$.imagecontextmenu.style.visibility = "";
-                    me.$.vertexcontextmenu.style.opacity = "";
-                    me.$.vertexcontextmenu.style.visibility = "";
-                });
-            },
             handleSave: function () {
                 this.saveLocalStorage();
             },
@@ -612,6 +632,8 @@
                 this.eAttr = new AttributeManagerMemory();
                 this.vAttr.fromJSON(o.vAttr);
                 this.eAttr.fromJSON(o.eAttr);
+
+
                 this.saveLocalStorage();
 
                 this.setVertexDefaultLabelAttribute(this.vertexDefaults.labelAttribute);
@@ -867,7 +889,7 @@
                 for (var i = 0; i < this.vAttr.selected.length; i++) {
                     var row = this.vAttr.selected[i];
                     var vertex = this.graph.getVertexById(row.id);
-                    vertex.renderer.select();
+                    vertex.renderer.select(this.vertexDefaults.selectionColor);
                 }
             },
             handleEdgeSelected: function (oldValue, newValue) {
@@ -886,6 +908,9 @@
 
 
             /* Bar Handlers*/
+            handleNetworkEditMenu: function (e) {
+                this.selectedMenu = 'network-edit';
+            },
             handleNodesEditMenu: function (e) {
                 this.selectedMenu = 'nodes-edit';
             },
@@ -1109,9 +1134,6 @@
             },
 
             /** NETWORK **/
-            handleSearch:function(e){
-                this.selectedMenu = "search";
-            },
             /*SELECT*/
             handleSelectMenu: function (e) {
                 switch (e.detail.value) {
@@ -1197,6 +1219,9 @@
             },
             handleVertexSearch: function (e) {
                 this.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
+                if (this.vAttr.selected.length == 0) {
+                    e.detail.inputEl.style.color = '#ff0000';
+                }
             },
             handleVertexNameField: function (e) {
                 this.setVertexLabel(e.detail.value);
@@ -1268,12 +1293,20 @@
 //                this.$.editionBar.selectedBar = 'edge';
             },
             handleRightClickVertex: function (e) {
+                this._lastContextVertexAttributes = [];
+
                 var bcrnl = this.$.networkLayout.getBoundingClientRect();
                 this.$.vertexcontextmenu.style.opacity = "1";
                 this.$.vertexcontextmenu.style.visibility = "visible";
                 this.$.vertexcontextmenu.style.top = (bcrnl.top + e.detail.y + 10) + "px";
                 this.$.vertexcontextmenu.style.left = (bcrnl.left + e.detail.x + 10) + "px";
                 this._lastContextVertex = this.graph.getVertexById(e.detail.vertexId);
+
+
+                var vertexAttributes = this.vAttr.getRow(e.detail.vertexId);
+                this._lastContextVertexAttributes = Object.keys(vertexAttributes).map(function (key) {
+                    return {key: key, value: vertexAttributes[key]};
+                });
             },
             handleContextRemoveVertex: function (e) {
                 this.$.vertexcontextmenu.style.opacity = "";
@@ -1284,17 +1317,16 @@
                 this.removeSelectedVertices();
             },
             handleContextSelectVerticesNeighbour: function (e) {
-//                this.selectVertex(this._lastContextVertex);
+                this.selectVertex(this._lastContextVertex);
                 this.selectVerticesNeighbour();
             },
             handleContextSelectEdgesNeighbour: function (e) {
-//                this.selectVertex(this._lastContextVertex);
+                this.selectVertex(this._lastContextVertex);
                 this.selectEdgesNeighbour();
             },
 
-
-            handleRightClickBackgroundImage: function (e) {
-//                var bcr = e.detail.targetEl.getBoundingClientRect()
+            _showImageContextMenu: function () {
+                //                var bcr = e.detail.targetEl.getBoundingClientRect()
                 var bcrnl = this.$.networkLayout.getBoundingClientRect();
 //                console.log(bcr)
 //                console.log(bcrnl.top)
@@ -1305,11 +1337,17 @@
                 this.$.imagecontextmenu.style.visibility = "visible";
                 this.$.imagecontextmenu.style.top = (bcrnl.top + e.detail.y) + "px";
                 this.$.imagecontextmenu.style.left = (bcrnl.left + e.detail.x) + "px";
+            },
+            _hideImageContextMenu: function () {
+                this.$.imagecontextmenu.style.opacity = "";
+                this.$.imagecontextmenu.style.visibility = "";
+            },
+            handleRightClickBackgroundImage: function (e) {
+                this._showImageContextMenu();
                 this._lastImageElClicked = e.detail.targetEl;
             },
             handleContextRemoveBackGroundImage: function (e) {
-                this.$.imagecontextmenu.style.opacity = "";
-                this.$.imagecontextmenu.style.visibility = "";
+                this._hideImageContextMenu();
                 this.removeBackGroundImage(this._lastImageElClicked);
             },
             /* Methods */
@@ -1464,6 +1502,24 @@
                 this.deselectAllVertices();
                 this.vAttr.selectByColumnValue(attributeName, attributeValue);
             },
+            centerVertex: function (vertex) {
+
+//                var clientRect = this.$.networkLayout.getBoundingClientRect();
+//                var centerX = clientRect.width / 2;
+//                var centerY = clientRect.height / 2;
+//                this.tx = this.x + (-centerX * (this.scale - 1));
+//                this.ty = this.y + (-centerY * (this.scale - 1));
+//
+//                var dx = centerX - vertex.position.x
+//                var dy = centerY - vertex.position.y;
+//                this.center.x = dx;
+//                this.center.y = dy;
+
+                vertex.position.x = this.center.x;
+                vertex.position.y = this.center.y;
+                vertex.renderer.move();
+
+            },
             selectEdgesByAttribute: function (attributeName, attributeValue) {
                 this.deselectAllEdges();
                 this.eAttr.selectByColumnValue(attributeName, attributeValue);
@@ -1487,11 +1543,14 @@
                 this.deselectAllVertices();
             },
             removeSelectedVertices: function () {
+                this._removeVertexRows(this.vAttr.selected);
+            },
+            _removeVertexRows: function (vertexRows) {
                 var edgeRowsToDelete = [];
                 var edgeRowsToDeleteMap = {};
                 var selectedVertices = [];
-                for (var i = 0; i < this.vAttr.selected.length; i++) {
-                    var row = this.vAttr.selected[i];
+                for (var i = 0; i < vertexRows.length; i++) {
+                    var row = vertexRows[i];
                     var vertex = this.graph.getVertexById(row.id);
                     selectedVertices.push(vertex);
                     for (var j = 0; j < vertex.edges.length; j++) {
@@ -1506,6 +1565,23 @@
                 }
                 this.graph.removeVertices(selectedVertices);
                 this.vAttr.removeSelected();
+                this.eAttr.removeRows(edgeRowsToDelete);
+            },
+            removeSelectedEdges: function () {
+                var edgeRowsToDelete = [];
+                var edgesToDelete = [];
+                var edgeMap = {};
+                for (var i = 0; i < this.eAttr.selected.length; i++) {
+                    var row = this.eAttr.selected[i];
+                    var edge = this.graph.getEdgeById(row.id);
+                    if (edgeMap[edge.id] != true) {
+                        edgeMap[edge.id] = true;
+                        edgeRowsToDelete.push(this.eAttr.getRow(edge.id));
+                        edgesToDelete.push(edge);
+                        edge.renderer.remove();
+                    }
+                }
+                this.graph.removeEdges(edgesToDelete);
                 this.eAttr.removeRows(edgeRowsToDelete);
             },
             setSelectedVerticesDisplayAttr: function (displayProperty, value, updateEdges) {
@@ -1542,10 +1618,19 @@
 //                }
             },
             createVertex: function (x, y, id) {
-                x -= this.center.x;
-                y -= this.center.y;
-                x /= this.scale;
-                y /= this.scale;
+                if (x == null) {
+                    x = this.center.x;
+                } else {
+                    x -= this.center.x;
+                    x /= this.scale;
+
+                }
+                if (y == null) {
+                    x = this.center.y;
+                } else {
+                    y -= this.center.y;
+                    y /= this.scale;
+                }
 
                 if (id == null) {
                     id = 'n' + Math.floor(Math.random() * (999999 - 100000 + 1));

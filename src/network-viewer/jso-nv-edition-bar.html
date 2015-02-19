@@ -1,5 +1,5 @@
 <link rel="import" href="../lib/components/jso-color-picker.html">
-<polymer-element name="jso-nv-edition-bar" attributes="vAttr eAttr">
+<polymer-element name="jso-nv-edition-bar" attributes="vAttr eAttr selectionColor">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
@@ -28,19 +28,19 @@
         </style>
 
         <div id="bar" horizontal layout flex>
-            <div class="button" data-checked="{{selectedBar == 'vertex'}}" data-bar="vertex"
+            <div title="Show node controls" class="button" data-checked="{{selectedBar == 'vertex'}}" data-bar="vertex"
                  on-click="{{handleSelectedBar}}" style="border-right: none">
                 Nodes
             </div>
-            <div class="button" data-checked="{{selectedBar == 'edge'}}" data-bar="edge" on-click="{{handleSelectedBar}}">
+            <div title="Show edge controls" class="button" data-checked="{{selectedBar == 'edge'}}" data-bar="edge" on-click="{{handleSelectedBar}}">
                 Edges
             </div>
             <div id="vertexToolbar" horizontal layout hide="{{selectedBar != 'vertex'}}">
-                <input value="{{vertexNameField}}" id="vertexNameField" class="button" type="text" placeholder="name"
+                <input hidden value="{{vertexNameField}}" id="vertexNameField" class="button" type="text" placeholder="name"
                        on-keypress="{{handleVertexNameField}}"
-                       style="width: 70px; margin-left: 10px;">
+                       style="width: 70px; margin-left: 5px;">
 
-                <div class="dropdown" style="margin-left: 10px">
+                <div title="Change the shape of the selected node(s)" class="dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="vertexShapeButton" class="button">
                         <font-awesome icon="star"></font-awesome>
                     </div>
@@ -52,7 +52,7 @@
                     </ul>
                 </div>
 
-                <div class="dropdown" style="margin-left: 10px">
+                <div title="Change the opacity of the selected node(s)" class="dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="vertexOpacityButton" class="button">
                         <font-awesome icon="adjust"></font-awesome>
                     </div>
@@ -65,7 +65,7 @@
                     </ul>
                 </div>
 
-                <div class="dropdown" style="margin-left: 20px">
+                <div title="Change the size of the selected node(s)" class="dropdown" style="margin-left: 10px">
                     <div tabindex="-1" id="vertexSizeButton" class="button" style="border-right: none">
                         <font-awesome icon="circle"></font-awesome>
                     </div>
@@ -85,13 +85,14 @@
                         <li on-click="{{handleVertexSize}}" data-value="160">160</li>
                     </ul>
                 </div>
-                <input value="{{vertexSizeField}}" id="vertexSizeField" class="button" type="text" style="width: 50px;">
+                <input value="{{vertexSizeField}}" id="vertexSizeField" class="button" type="text"
+                       style="width: 50px;border-right-width:0">
 
-                <jso-color-picker id="vertexColorPicker" color="{{vertexColor}}"
+                <jso-color-picker ctitle="Change the color of the selected node(s)" id="vertexColorPicker" color="{{vertexColor}}"
                                   on-color-click="{{handleVertexColor}}"
-                                  style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>
+                                  style="float:left;width:90px;"></jso-color-picker>
 
-                <div class="dropdown" style="margin-left: 20px">
+                <div title="Change the stroke size of the selected node(s)" class="dropdown" style="margin-left: 10px">
                     <div tabindex="-1" id="vertexStrokeSizeButton" class="button" style="border-right: none">
                         <font-awesome icon="circle-o"></font-awesome>
                     </div>
@@ -109,14 +110,14 @@
                     </ul>
                 </div>
                 <input value="{{vertexStrokeSizeField}}" id="vertexStrokeSizeField" class="button" type="text"
-                       style="width: 50px;">
+                       style="width: 50px;border-right-width:0">
 
-                <jso-color-picker id="vertexStrokeColorPicker" color="{{vertexStrokeColor}}"
+                <jso-color-picker ctitle="Change the stroke color of the selected node(s)" id="vertexStrokeColorPicker" color="{{vertexStrokeColor}}"
                                   on-color-click="{{handleVertexStrokeColor}}"
-                                  style="float:left;width:90px;margin-left: 2px;"></jso-color-picker>
+                                  style="float:left;width:90px;"></jso-color-picker>
 
 
-                <div class="dropdown" style="margin-left: 20px">
+                <div title="Change the label size of the selected node(s)" class="dropdown" style="margin-left: 10px">
                     <div tabindex="-1" id="vertexLabelSizeButton" class="button">
                         <font-awesome icon="text-height"></font-awesome>
                     </div>
@@ -137,26 +138,29 @@
                 <!--<font-awesome icon="search"></font-awesome></div>-->
                 <!--<ul id="vertexSearchMenu"></ul>-->
                 <!--</div>-->
-                <div class="select">
-                    <select id="nodeSearchSelect" style="width:70px;margin-left: 10px;border-right-width: 0;">
+                <div class="select" title="Select nodes by attribute">
+                    <select id="nodeSearchSelect" style="width:70px;margin-left: 5px;border-right-width: 0;">
                         <template repeat="{{column in vAttr.columns}}">
                             <option value="{{column.name}}">{{column.title}}</option>
                         </template>
                     </select>
                 </div>
                 <input on-keypress="{{handleVertexSearch}}" id="vertexSearchField" class="button" type="text"
-                       placeholder="Search" style="width: 80px;">
+                       placeholder="Search" style="width: 80px;border-right-width: 0;">
 
-
+                <div style="width:90px;" title="Selection color">
+                    <jso-color-picker ctitle="Select node selection color" color="{{selectionColor}}">
+                    </jso-color-picker>
+                </div>
             </div>
 
             <!--Edges -->
             <div id="edgeToolbar" flex horizontal layout hide="{{selectedBar != 'edge'}}">
-                <input id="edgeNameField" class="button" type="text" placeholder="name"
+                <input hidden id="edgeNameField" class="button" type="text" placeholder="name"
                        on-keypress="{{handleEdgeNameField}}"
-                       style="width: 70px;margin-left: 10px;">
+                       style="width: 70px;margin-left: 5px;">
 
-                <div class="dropdown" style="margin-left: 10px">
+                <div title="Change the shape of the selected edge(s)" class="dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="edgeShapeButton" class="button">
                         <font-awesome icon="location-arrow"></font-awesome>
                     </div>
@@ -169,7 +173,7 @@
                     </ul>
                 </div>
 
-                <div class="dropdown" style="margin-left: 10px">
+                <div title="Change the size of the selected edges(s)" class="dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="edgeSizeButton" class="button" style="border-right: none">
                         <font-awesome icon="minus"></font-awesome>
                     </div>
@@ -186,14 +190,14 @@
                         <li on-click="{{handleEdgeSize}}" data-value="10">10</li>
                     </ul>
                 </div>
-                <input id="edgeSizeField" class="button" type="text" style="width: 30px;">
+                <input id="edgeSizeField" class="button" type="text" style="width: 50px;border-right-width: 0">
 
-                <jso-color-picker id="edgeColorPicker" style="float:left;width:90px;margin-left: 2px;"
+                <jso-color-picker ctitle="Change the color of the selected edges(s)" id="edgeColorPicker" style="float:left;width:90px;"
                                   on-color-click="{{handleEdgeColor}}"
                                   color="#888888"></jso-color-picker>
 
 
-                <div class="dropdown" style="margin-left: 10px">
+                <div title="Change the label size of the selected edges(s)" class="dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="edgeLabelSizeButton" class="button">
                         <font-awesome icon="text-height"></font-awesome>
                     </div>
@@ -209,10 +213,10 @@
                 </div>
 
                 <!--<div class="dropdown" style="margin-left: 10px">-->
-                    <!--<div tabindex="-1" id="edgeSearchButton" class="button" style="border-right: none;">-->
-                        <!--<font-awesome icon="search"></font-awesome>-->
-                    <!--</div>-->
-                    <!--<ul id="edgeSearchMenu"></ul>-->
+                <!--<div tabindex="-1" id="edgeSearchButton" class="button" style="border-right: none;">-->
+                <!--<font-awesome icon="search"></font-awesome>-->
+                <!--</div>-->
+                <!--<ul id="edgeSearchMenu"></ul>-->
                 <!--</div>-->
                 <select hidden id="edgeSearchSelect" style="width:70px;margin-left: 10px;border-right-width: 0;">
                     <template repeat="{{column in eAttr.columns}}">
@@ -222,8 +226,6 @@
                 <input hidden on-keypress="{{handleEdgeSearch}}" id="edgeSearchField" class="button" type="text"
                        placeholder="Search"
                        style="width: 80px;">
-
-
             </div>
 
         </div>
@@ -271,8 +273,10 @@
                 this.fire('vertexlabelsize', {value: e.currentTarget.dataset.value});
             },
             handleVertexSearch: function (e) {
+                var input = e.currentTarget;
+                input.style.color = '';
                 if (e.which == 13) {
-                    this.fire('vertexsearch', {value: e.currentTarget.value, columnName: this.$.nodeSearchSelect.value});
+                    this.fire('vertexsearch', {value: e.currentTarget.value, columnName: this.$.nodeSearchSelect.value, inputEl: input});
                 }
             },
             handleVertexNameField: function (e) {
@@ -295,8 +299,10 @@
                 this.fire('edgelabelsize', {value: e.currentTarget.dataset.value});
             },
             handleEdgeSearch: function (e) {
+                var input = e.currentTarget;
+                input.style.color = '';
                 if (e.which == 13) {
-                    this.fire('edgesearch', {value: e.currentTarget.value, columnName: this.$.edgeSearchSelect.value});
+                    this.fire('edgesearch', {value: e.currentTarget.value, columnName: this.$.edgeSearchSelect.value, inputEl: input});
                 }
             },
             handleEdgeNameField: function (e) {
