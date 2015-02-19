@@ -23,6 +23,7 @@
             }
 
             .uploadbar {
+                margin-top: 5px;
                 position: relative;
                 height: 20px;
                 border: 1px solid #d3d3d3;
@@ -37,7 +38,7 @@
                 height: 100%;
                 width: 100%;
                 background-color: #eaeaea;
-                margin-top: 10px;
+                /*margin-top: 10px;*/
             }
 
             .uploadtext {
@@ -84,52 +85,8 @@
                 <jso-bioformat id="bioformat" bioformat="{{bioformat}}"></jso-bioformat>
             </div>
             <div hidden>
-                <!--<label>File format</label>-->
-                <!--&lt;!&ndash;<input type="text" id="fileFormat" value="{{fileFormat}}" required pattern="[a-zA-Z0-9]+">&ndash;&gt;-->
-                <!--<select value="{{fileFormat}}" required>-->
-                <!--<option value="PLAIN">PLAIN</option>-->
-                <!--<option value="GZIP">GZIP</option>-->
-                <!--<option value="BINARY">BINARY</option>-->
-                <!--<option value="BINARY">EXECUTABLE</option>-->
-                <!--<option value="EXECUTABLE">IMAGE</option>-->
-                <!--</select>-->
-
-
-                <!--<label>Bio format</label>-->
-                <!--&lt;!&ndash;<input class="button" type="text" id="bioFormat" value="{{bioFormat}}" required pattern="[a-zA-Z0-9]+">&ndash;&gt;-->
-                <!--<select value="{{bioFormat}}" required>-->
-                <!--<option value="VARIANT">VARIANT</option>-->
-                <!--<option value="ALIGNMENT">ALIGNMENT</option>-->
-                <!--<option value="SEQUENCE">SEQUENCE</option>-->
-                <!--<option value="MICROARRAY">MICROARRAY</option>-->
-                <!--<option value="ONECHANNEL">ONECHANNEL</option>-->
-                <!--<option value="TWOCHANNEL">TWOCHANNEL</option>-->
-                <!--<option value="AFFYMETRIX">AFFYMETRIX</option>-->
-                <!--<option value="AGILENT">AGILENT</option>-->
-                <!--<option value="GENEPIX">GENEPIX</option>-->
-                <!--<option value="DATAMATRIX">DATAMATRIX</option>-->
-                <!--<option value="SNP">SNP</option>-->
-                <!--<option value="IDLIST">IDLIST</option>-->
-                <!--<option value="GENE">GENE</option>-->
-                <!--<option value="TRANSCRIPT">TRANSCRIPT</option>-->
-                <!--<option value="PROTEIN">PROTEIN</option>-->
-                <!--<option value="FUNCTIONALTERM">FUNCTIONALTERM</option>-->
-                <!--<option value="RANKED">RANKED</option>-->
-                <!--<option value="ANNOTATION">ANNOTATION</option>-->
-                <!--<option value="GENEVSANNOTATION">GENEVSANNOTATION</option>-->
-                <!--<option value="EXTENDEDANNOTATION">EXTENDEDANNOTATION</option>-->
-                <!--<option value="OTHER">OTHER</option>-->
-                <!--<option value="NEWICK">NEWICK</option>-->
-                <!--<option value="BLAST">BLAST</option>-->
-                <!--<option value="INTERACTION">INTERACTION</option>-->
-                <!--<option value="GENOTYPE">GENOTYPE</option>-->
-                <!--<option value="PLINKASSOCIATION">PLINKASSOCIATION</option>-->
-                <!--<option value="VCF4">VCF4</option>-->
-                <!--<option value="NONE">NONE</option>-->
-                <!--</select>-->
                 <label>Description:</label>
                 <input type="text" id="description" value="{{description}}" pattern="[a-zA-Z0-9\s]+">
-
                 <br>
             </div>
             <div class="button action filetext" on-click="{{handleBrowseClick}}" pattern="[a-zA-Z0-9_-]+">{{fileName}}</div>
@@ -139,7 +96,8 @@
         </form>
         <template if="{{uploading}}">
             <div class="uploadbar">
-                <div style="width:{{percentProgress}}%;" class="uploadprogress"></div>
+                <div id="progressBarId" class="uploadprogress"></div>
+                <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
                 <div class="uploadtext">
                     <font-awesome icon="spinner" animation="spin"></font-awesome>
                     {{percentProgress}}% {{message}}
@@ -162,7 +120,7 @@
                 this.uploading = false;
                 this.percentProgress = 0;
             },
-            ready: function (e) {
+            ready: function () {
                 var me = this;
                 var observer = new MutationObserver(function (mutations) {
                     if(me.hidden == true)
@@ -179,7 +137,14 @@
                 this.fileName = inputFile.name
             },
             handleForm: function () {
-
+                if(this.fileName == "Choose file..."){
+                    alert("No file selected. Please select one.");
+                    return;
+                }
+                if(this.$.bioformat.getSelected() == ""){
+                    alert("No format selected. Please select a format");
+                    return;
+                }
                 if (!(/^([a-zA-Z0-9._-]+)$/.test(this.fileName))) {
                     alert("Sorry, some characters in your input file are not allowed. We only permit letters, numbers, dash(- or _) and point(.).");
                     return;
@@ -234,6 +199,7 @@
                             me.uploading = false;
                             me.fire('file-uploaded');
                         }
+                        me.shadowRoot.querySelector("#progressBarId").setAttribute("style","width:"+me.percentProgress+"%")
                     });
 
                 }
