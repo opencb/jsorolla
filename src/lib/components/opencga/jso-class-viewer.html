@@ -52,6 +52,7 @@
                 this.childrenSelectNumber = -1;
             },
             contentFileChanged: function (oldV, newV) {
+                debugger
                 var me = this;
                 if (this.childrenDisplay) {
                     this.$.selectClass.addEventListener("change", function () {
@@ -63,9 +64,6 @@
                 this.$.childrenSelect.innerHTML = "";
                 this.loadedMainSelect = false;
                 this.loadedChildrenSelect = false;
-
-
-
 
                 /** Load data from content **/
                 var parseMatrix = new ParseMatrix(newV);
@@ -117,6 +115,8 @@
 
                 }
                 this.loadedMainSelect = true;
+
+
             },
             selectChange: function (e) {
                 var me = this;
@@ -165,6 +165,7 @@
                     }
                 }
                 this.loadedChildrenSelect = true;
+                this.fire('annonymous');
             },
 //            changeChildrenSelect: function (e) {
 ////                debugger
