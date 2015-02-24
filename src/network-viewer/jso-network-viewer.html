@@ -455,7 +455,7 @@
 
                 /*MENUS*/
 //                this.selectedMenu = 'nodes-edit';
-                this.selectedMenu = '';
+                this.selectedMenu = 'nodes-edit';
                 this.hideNodeSimpleRendering = true;
                 this.hideEdgeSimpleRendering = true;
                 this.hideNodeListRendering = true;//TODO remove
@@ -615,6 +615,12 @@
             },
             loadJSON: function (o) {
                 this.startOver();
+
+                //Fix  selectionColor
+                if(o.vertexDefaults.selectionColor == null){
+                    o.vertexDefaults.selectionColor = this.vertexDefaults.selectionColor;
+                }
+
                 this.backgroundImages = o.backgroundImages;
                 this.backgroundColor = o.backgroundColor;
                 this.center.x = o.center.x;
@@ -1583,6 +1589,7 @@
                 }
                 this.graph.removeEdges(edgesToDelete);
                 this.eAttr.removeRows(edgeRowsToDelete);
+                this.eAttr.deselectAll();
             },
             setSelectedVerticesDisplayAttr: function (displayProperty, value, updateEdges) {
                 var vertex, row;

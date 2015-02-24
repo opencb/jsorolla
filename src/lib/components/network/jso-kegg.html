@@ -196,10 +196,13 @@
                     var color = graphics.getAttribute("bgcolor");
                     var shape = graphics.getAttribute("type");
 //                                var size = graphics.getAttribute("width");
-                    var size = graphics.getAttribute("height");
+                    var size = parseInt(graphics.getAttribute("height"));
+                    if (size > 100) {
+                        size = size / 2;
+                    }
                     var id = entry.getAttribute("id");
                     var entryName = entry.getAttribute("name");
-                    var name = graphics.getAttribute("name");
+                    var name = graphics.getAttribute("name").split(",")[0];
                     var vertex = new Vertex({
                         id: id,
                         position: new Point(x, y),
@@ -247,7 +250,7 @@
                         id: edgeId,
                         relation: type,
                         source: graph.getVertexById(sourceId),
-                        target: graph.getVertexById(targetId),
+                        target: graph.getVertexById(targetId)
                     });
                     graph.addEdge(edge);
                 }

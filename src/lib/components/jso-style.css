@@ -60,7 +60,7 @@ input, select {
     position: absolute;
     box-sizing: border-box;
     top: 6px;
-    right: 5px;
+    right: 8px;
     color: inherit;
     font-family: FontAwesome;
     content: '\f0d7';
@@ -89,14 +89,15 @@ label.button > input[type=checkbox] + span {
     color: inherit;
     height: 23px;
 }
+
 .select {
     position: relative;
     display: inline-block;
 }
-.select > select{
-    padding-right:15px;
-}
 
+.select > select {
+    padding-right: 15px;
+}
 
 input[type=number] {
     padding-right: 0px;
@@ -377,6 +378,19 @@ div.dropdown > div.button::after {
 
 .formtitle > * {
     margin-left: 5px;
+}
+
+.formtitle > .actions > * {
+    margin-left: 5px;
+    color: #888;
+}
+
+.formtitle > .actions > *[data-checked] {
+    color: #445D76;
+}
+
+.formtitle > .actions > *:hover {
+    color: #000;
 }
 
 .formcontent {

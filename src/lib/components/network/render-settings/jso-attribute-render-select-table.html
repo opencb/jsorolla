@@ -158,6 +158,7 @@
                 if (this.visualSet) {
                     this.attributeName = this.visualSet.attribute;
                     this.attributeParse = this.visualSet.parse;
+                    this.matches = this.visualSet.matches;
                 }
             },
             attributeNameChanged: function (oldValue, newValue) {
@@ -184,22 +185,19 @@
                 this.handleClose();
             },
             _updateVisualSet: function () {
-                this.visualSetChanged();
-                if (this.visualSet) {
-                    this.matches = this.visualSet.matches;
-                } else {
+                if (this.attributeName != '') {
                     this.matches = {};
                     for (var i = 0; i < this.uniqueData.length; i++) {
                         var data = this.uniqueData[i];
                         this.matches[data.attribute] = data.render;
                     }
-                }
-                this.visualSet = {
-                    attribute: this.attributeName,
-                    displayProperty: this.displayProperty,
-                    matches: this.matches,
-                    parse: this.attributeParse,
-                    enabled: true
+                    this.visualSet = {
+                        attribute: this.attributeName,
+                        displayProperty: this.displayProperty,
+                        matches: this.matches,
+                        parse: this.attributeParse,
+                        enabled: true
+                    }
                 }
             },
             handleAttributeNameSelect: function (e) {

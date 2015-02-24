@@ -267,7 +267,7 @@ AttributeManagerMemory.prototype = {
                             selected.push(row);
                         }
                     }
-                } else {column
+                } else {
                     for (var i = 0; i < this.data.length; i++) {
                         var row = this.data[i];
                         if (!isNaN(row[column]) && parseFloat(row[column]) < parseFloat(value)) {

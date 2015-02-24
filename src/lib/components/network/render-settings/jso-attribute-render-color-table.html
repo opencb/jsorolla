@@ -251,6 +251,7 @@
                     this.attributeType = this.visualSet.type;
                     this.attributeName = this.visualSet.attribute;
                     this.attributeParse = this.visualSet.parse;
+                    this.matches = this.visualSet.matches;
                     this.points = this.visualSet.points;
                 }
             },
@@ -282,25 +283,21 @@
                 this.handleClose();
             },
             _updateVisualSet: function () {
-                this.visualSetChanged();
-                if (this.visualSet) {
-                    this.matches = this.visualSet.matches;
-                }else{
+                if (this.attributeName != '') {
                     this.matches = {};
                     for (var i = 0; i < this.uniqueData.length; i++) {
                         var data = this.uniqueData[i];
                         this.matches[data.attribute] = data.render;
                     }
-                }
-
-                this.visualSet = {
-                    attribute: this.attributeName,
-                    displayProperty: this.getAttribute("id"),
-                    type: this.attributeType,
-                    matches: this.matches,
-                    parse: this.attributeParse,
-                    points: this.points,
-                    enabled: true
+                    this.visualSet = {
+                        attribute: this.attributeName,
+                        displayProperty: this.getAttribute("id"),
+                        type: this.attributeType,
+                        matches: this.matches,
+                        parse: this.attributeParse,
+                        points: this.points,
+                        enabled: true
+                    }
                 }
             },
             handleAttributeNameSelect: function (e) {
