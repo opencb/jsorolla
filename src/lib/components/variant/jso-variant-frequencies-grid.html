@@ -191,14 +191,9 @@
                             title: {
                                 text: 'minor allele frequency'
                             },
-//                        subtitle: {
-//                            text: 'Source: Wikipedia.org'
-//                        },
                             xAxis: {
                                 min: 0,
-//                            max: 1,
                                 categories: cat,
-//                            categories: ['Africa', 'America', 'Asia', 'Europe', 'Oceania'],
                                 title: {
                                     text: null
                                 }
@@ -214,9 +209,6 @@
                                     overflow: 'justify'
                                 }
                             },
-//                        tooltip: {
-//                            valueSuffix: ' millions'
-//                        },
                             plotOptions: {
                                 bar: {
                                     dataLabels: {
@@ -235,20 +227,10 @@
                                 backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
                                 shadow: true
                             },
-//                        credits: {
-//                            enabled: false
-//                        },
                             series: [{
                                 name: 'MAF',
                                 data: data
-                            },
-//                            {
-//                            name: 'Year 1900',
-//                            data: [133, 156, 947, 408, 6]
-//                        }, {
-//                            name: 'Year 2008',
-//                            data: [973, 914, 4054, 732, 34]
-//                        }
+                            }
                             ]
                         });
                     }

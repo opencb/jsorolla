@@ -250,28 +250,28 @@ var Utils = {
         link = link + id;
         return link;
     },
-    myRound: function(value, decimals){
+    myRound: function (value, decimals) {
         decimals = typeof decimals !== 'undefined' ? decimals : 2;
         value = parseFloat(value);
         /** rounding **/
-        if( Math.abs(value) >= 1)
+        if (Math.abs(value) >= 1)
             value = value.toFixed(decimals);
         else
             value = value.toPrecision(decimals);
         value = parseFloat(value);
         return value;
     },
-    formatNumber: function(value, decimals){
+    formatNumber: function (value, decimals) {
         value = Utils.myRound(value, decimals);
 
-        if(Math.abs(value) > 0 && Math.abs(value) < 0.001)
+        if (Math.abs(value) > 0 && Math.abs(value) < 0.001)
             value = value.toExponential();
         return value;
     },
-    getSpecies: function(specieValue, species){
+    getSpecies: function (specieValue, species) {
         for (var i = 0; i < species.length; i++) {
             var specie = species[i];
-            if(specie.value == specieValue){
+            if (specie.value == specieValue) {
                 return specie;
             }
         }
@@ -402,6 +402,9 @@ var Utils = {
         }
         return rpt;
 
+    },
+    clone: function (obj) {
+        return JSON.parse(JSON.stringify(obj));
     }
 
 };

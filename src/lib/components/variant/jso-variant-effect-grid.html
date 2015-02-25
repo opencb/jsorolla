@@ -7,6 +7,7 @@
                 display: block;
                 position: relative;
                 background-color: white;
+                width: 100%;
             }
 
             sortable-table {
@@ -65,8 +66,8 @@
             </template>
             <template id="seqOntologyTemplate">
                 <td>
-                    <a href="http://www.sequenceontology.org/browser/current_svn/term/SO:{{value.soaccession}}"
-                       target="_blank">{{value.soname}}</a>
+                    <a href="http://www.sequenceontology.org/browser/current_svn/term/{{value.soAccession}}"
+                       target="_blank">{{value.soName}}</a>
                 </td>
             </template>
             <template id="ensemblGeneIdTemplate">
@@ -107,10 +108,10 @@
                         cellTemplate: 'seqOntologyTemplate',
                         formula: function (row) {
                             var aux = {};
-                            if (row.soname && row.soaccession) {
+                            if (row.soName && row.soAccession) {
 
-                                aux.soname = row.soname;
-                                aux.soaccession = Utils.repeat("0", (7 - row.soaccession.toString().length)) + row.soaccession;
+                                aux.soName = row.soName;
+                                aux.soAccession = row.soAccession;
                             }
                             return aux;
                         }
@@ -164,6 +165,9 @@
 
                 this.page = 0;
                 this.data = [];
+                console.log("change data");
+                console.log(newValue);
+
 
                 if (newValue != '') {
                     CellBaseManager.get({
@@ -177,13 +181,35 @@
                         async: false,
                         success: function (response) {
                             try {
-                                me.data = response.response[0].result[0].consequenceTypes
+//                                me.data = response.response[0].result[0].consequenceTypes
+                                me.data = me.parseFunction(response.response[0].result[0].consequenceTypes);
                             } catch (e) {
                                 me.data = [];
                             }
                         }
                     });
                 }
+            },
+
+            parseFunction: function (data) {
+                var res = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    var elem = data[i];
+
+                    for (var j = 0; j < elem.soTerms.length; j++) {
+                        var soTerm = elem.soTerms[j];
+                        var aux = Utils.clone(elem);
+                        aux.soName = soTerm.soName;
+                        aux.soAccession = soTerm.soAccession;
+
+                        res.push(aux);
+
+                    }
+                }
+
+                return res;
+
             }
         });
     </script>
