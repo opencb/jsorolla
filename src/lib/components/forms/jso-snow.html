@@ -92,12 +92,9 @@
                                                 selectionMode="file"
                                                 allowTextArea="true"
                                                 on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
-                    <template if="{{networkViewer}}">
-                        <br>
-                        <label>You can also select nodes from the network:</label>
-                        <jso-network-list-select networkViewer="{{networkViewer}}" textAreaValue="{{$.inputFile.textAreaValue}}"></jso-network-list-select>
-                    </template>
+                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"
+                                                networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
                     <div id="list2Div" hidden>
                         <br>
                         List 2:
@@ -105,7 +102,9 @@
                                                     selectionMode="file"
                                                     allowTextArea="true"
                                                     on-file-select="{{handleFileSelect}}"
-                                                    bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
+                                                    bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"
+                                                    networkViewer="{{networkViewer}}"
+                                ></jso-project-browser-window>
                     </div>
                 </div>
             </div>

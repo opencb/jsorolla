@@ -1,0 +1,187 @@
+<polymer-element name="jso-nv-session-manager" attributes="selectedMenu networkViewer">
+    <template>
+        <link rel="stylesheet" href="../lib/components/jso-style.css">
+        <link rel="stylesheet" href="../lib/components/jso-panel.css">
+        <link rel="stylesheet" href="../lib/components/jso-form.css">
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                z-index: 50000;
+                top: 93px;
+
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                width: 500px;
+            }
+
+            .selbox {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+            }
+
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+            }
+
+            .container {
+                margin: 5px;
+            }
+
+            .container div {
+                margin: 2px;
+            }
+
+            .light {
+                color: #666;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Session manager</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleCancel}}"></div>
+                </div>
+            </div>
+            <div class="container" vertical layout>
+
+                <label>Save current session:</label>
+
+                <div horizontal layout>
+                    <div flex>
+                        <input type="text" value="{{sessionName}}" placeholder="Session name">
+                    </div>
+                    <div class="button action" on-click="{{handleAddSession}}">
+                        Add session
+                    </div>
+
+                </div>
+
+
+                <label>Saved sessions:</label>
+
+                <div class="selbox" style="height: 200px;">
+                    <template repeat="{{session in sessions}}">
+                        <div class="selitem" on-click="{{handleSelectSession}}" data-checked="{{selectedSessionKey == session.key}}">
+                            <div>{{session.name}}</div>
+                            <div class="light">{{session.dateString}}</div>
+                        </div>
+                    </template>
+                </div>
+
+                <div horizontal layout>
+                    <div horizontal layout flex>
+                        <div class="button action" on-click="{{handleLoadSession}}">
+                            Load session
+                        </div>
+                        <div class="button action" on-click="{{handleRemoveSession}}">
+                            Delete session
+                        </div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action" on-click="{{handleRemoveAllSessions}}">
+                            Delete all sessions
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <div class="button action" style="width:100px;" on-click="{{handleCancel}}">Cancel</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.sessions = [];
+                this.sessionMap = {};
+
+                this.selectedSessionKey = null;
+
+                this.sessionName = '';
+
+            },
+            ready: function () {
+                this.keyPrefix = 'NV_SESSION_MANAGER' + this.networkViewer.serializeVersion;
+                this._updateSessionsFromLocalStorage();
+            },
+            handleCancel: function () {
+                this.selectedMenu = '';
+            },
+            _updateSessionsFromLocalStorage: function () {
+                var sessions = [];
+                this.sessionMap = {};
+                for (var key in localStorage) {
+                    var keySplit = key.split('@');
+                    if (keySplit[0] == this.keyPrefix) {
+                        var timeStamp = parseInt(keySplit[1]);
+                        sessions.push({key: key, name: keySplit[2], timeStamp: timeStamp, dateString: new Date(timeStamp).toString()});
+                        this.sessionMap[key] = true;
+                    }
+                }
+                sessions.sort(function (a, b) {
+                    return b.timeStamp - a.timeStamp;
+                });
+
+                this.sessions = sessions;
+            },
+            handleAddSession: function (e) {
+                this.saveSession(this.networkViewer, this.sessionName);
+            },
+            saveSession: function (networkViewer, name) {
+                if (name != '') {
+                    name = name.replace(/@/gi, "");
+                    var sessionKey = this.keyPrefix + '@' + Date.now() + '@' + name;
+                    if (!this.sessionMap[sessionKey]) {
+                        localStorage.setItem(sessionKey, pako.gzip(JSON.stringify(networkViewer), {to: 'string'}));
+                        this._updateSessionsFromLocalStorage();
+                        return true;
+                    }
+                }
+                return false;
+            },
+            handleRemoveSession: function () {
+                localStorage.setItem(this.selectedSessionKey, null);
+                localStorage.removeItem(this.selectedSessionKey);
+                this.selectedSessionKey = null;
+                this._updateSessionsFromLocalStorage();
+            },
+            handleRemoveAllSessions: function () {
+                for (var i = 0; i < this.sessions.length; i++) {
+                    var session = this.sessions[i];
+                    localStorage.setItem(session.key, null);
+                    localStorage.removeItem(session.key);
+                }
+                this.sessions = [];
+                this.sessionMap = {};
+                this.selectedSessionKey = null;
+            },
+            handleLoadSession: function () {
+                if (this.selectedSessionKey) {
+                    this.networkViewer.loadJSON(JSON.parse(pako.ungzip(localStorage.getItem(this.selectedSessionKey), {to: 'string'})));
+                }
+            },
+            handleSelectSession: function (e) {
+                this.selectedSessionKey = e.target.templateInstance.model.session.key;
+            }
+        });
+    </script>
+</polymer-element>

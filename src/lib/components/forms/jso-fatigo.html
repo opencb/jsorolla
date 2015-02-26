@@ -131,13 +131,8 @@
                             allowTextArea="true"
                             on-file-select="{{handleFileSelect}}"
                             bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
+                            networkViewer="{{networkViewer}}"
                             ></jso-project-browser-window>
-                    <template if="{{networkViewer}}">
-                        <br>
-                        <label>You can also select nodes from the network:</label>
-                        <jso-network-list-select networkViewer="{{networkViewer}}"
-                                                 textAreaValue="{{$.inputFile.textAreaValue}}"></jso-network-list-select>
-                    </template>
                 </div>
             </div>
 
@@ -156,7 +151,9 @@
                                                     selectionMode="file"
                                                     on-file-select="{{handleFileSelect}}"
                                                     allowTextArea="true"
-                                                    bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"></jso-project-browser-window>
+                                                    bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
+                                                    networkViewer="{{networkViewer}}"
+                                ></jso-project-browser-window>
                     </div>
                     <div id="option2" hidden>
                         <span>Rest of the genome</span>
@@ -566,6 +563,7 @@
                 else if (this.$.inputFile.selectedFile !== undefined) {
                     query["list1"] = this.$.inputFile.selectedFile.id;
                 }
+
                 this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
                 if (this.comparison == "list2list") {
                     if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {

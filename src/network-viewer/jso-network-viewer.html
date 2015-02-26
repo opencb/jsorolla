@@ -3,6 +3,7 @@
 <link rel="import" href="jso-nv-tool-bar.html">
 <link rel="import" href="jso-nv-status-bar.html">
 <link rel="import" href="jso-nv-layout.html">
+<link rel="import" href="jso-nv-session-manager.html">
 <link rel="import" href="../lib/components/jso-color-picker.html">
 <link rel="import" href="../lib/components/jso-color-menu.html">
 
@@ -124,6 +125,7 @@
                 on-session-start="{{handleSessionStartMenu}}"
                 on-session-open="{{handleSessionOpenMenu}}"
                 on-session-save="{{handleSessionSaveMenu}}"
+                on-session-manage="{{handleSessionManageMenu}}"
 
                 on-import-sif="{{handleImportSifMenu}}"
                 on-import-text="{{handleImportTextMenu}}"
@@ -356,6 +358,12 @@
         </div>
 
         <!--Menu file-->
+        <jso-nv-session-manager
+                id="sessionManager"
+                hidden?="{{selectedMenu != 'session-manager'}}"
+                selectedMenu="{{selectedMenu}}" networkViewer="{{}}">
+        </jso-nv-session-manager>
+
         <template if="{{selectedMenu == 'import-sif'}}">
             <jso-sif-network-file-open selectedMenu="{{selectedMenu}}" on-graph="{{handleImportSif}}">
 
@@ -445,8 +453,8 @@
 
                 this.lastLoadedFileName = "";
 
-                this.serializeVersion = 2;
-                this.serializeKey = 'NETWORKVIEWER' + this.serializeVersion;
+                this.serializeVersion = 'v1';
+                this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
                 this._init();
 
@@ -455,7 +463,7 @@
 
                 /*MENUS*/
 //                this.selectedMenu = 'nodes-edit';
-                this.selectedMenu = 'nodes-edit';
+                this.selectedMenu = '';
                 this.hideNodeSimpleRendering = true;
                 this.hideEdgeSimpleRendering = true;
                 this.hideNodeListRendering = true;//TODO remove
@@ -598,18 +606,26 @@
                 this.saveLocalStorage();
             },
             loadLocalStorage: function () {
-                var item = window.localStorage.getItem(this.serializeKey);
+                var item = localStorage.getItem(this.serializeKey);
                 if (item !== null && item !== "null") {
-                    this.loadJSON(JSON.parse(window.localStorage.getItem(this.serializeKey)));
+                    try {
+                        this.loadJSON(JSON.parse(pako.ungzip(localStorage.getItem(this.serializeKey), {to: 'string'})));
+                    } catch (e) {
+                        this.deleteLocalStorage();
+                        return false;
+                    }
                     return true;
                 }
                 return false;
             },
             saveLocalStorage: function () {
-                window.localStorage.setItem(this.serializeKey, JSON.stringify(this));
+                localStorage.setItem(this.serializeKey, pako.gzip(JSON.stringify(this), {to: 'string'}));
                 console.log('saved');
             },
             deleteLocalStorage: function () {
+                //OLD keys
+                localStorage.removeItem("NETWORKVIEWER" + this.serializeVersion);
+
                 window.localStorage.setItem(this.serializeKey, null);
                 localStorage.removeItem(this.serializeKey);
             },
@@ -617,7 +633,7 @@
                 this.startOver();
 
                 //Fix  selectionColor
-                if(o.vertexDefaults.selectionColor == null){
+                if (o.vertexDefaults.selectionColor == null) {
                     o.vertexDefaults.selectionColor = this.vertexDefaults.selectionColor;
                 }
 
@@ -970,6 +986,9 @@
                     'cancelable': true
                 });
                 link.dispatchEvent(event);
+            },
+            handleSessionManageMenu: function (e) {
+                this.selectedMenu = 'session-manager';
             },
             handleImportSifMenu: function (e) {
                 this.selectedMenu = 'import-sif';
@@ -1331,7 +1350,11 @@
                 this.selectEdgesNeighbour();
             },
 
-            _showImageContextMenu: function () {
+            _hideImageContextMenu: function () {
+                this.$.imagecontextmenu.style.opacity = "";
+                this.$.imagecontextmenu.style.visibility = "";
+            },
+            handleRightClickBackgroundImage: function (e) {
                 //                var bcr = e.detail.targetEl.getBoundingClientRect()
                 var bcrnl = this.$.networkLayout.getBoundingClientRect();
 //                console.log(bcr)
@@ -1343,13 +1366,6 @@
                 this.$.imagecontextmenu.style.visibility = "visible";
                 this.$.imagecontextmenu.style.top = (bcrnl.top + e.detail.y) + "px";
                 this.$.imagecontextmenu.style.left = (bcrnl.left + e.detail.x) + "px";
-            },
-            _hideImageContextMenu: function () {
-                this.$.imagecontextmenu.style.opacity = "";
-                this.$.imagecontextmenu.style.visibility = "";
-            },
-            handleRightClickBackgroundImage: function (e) {
-                this._showImageContextMenu();
                 this._lastImageElClicked = e.detail.targetEl;
             },
             handleContextRemoveBackGroundImage: function (e) {

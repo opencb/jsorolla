@@ -1,4 +1,4 @@
-<polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy studies args">
+<polymer-element name="jso-network-miner" attributes="userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -76,17 +76,23 @@
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="false"
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                allowTextArea="true"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_RANKED"></jso-project-browser-window>
+                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_RANKED"
+                                                networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Select your seed list (optional)</div>
                 <div class="formcontent">
-                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}" allowTextArea="true"
+                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                allowTextArea="true"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"></jso-project-browser-window>
+                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"
+                                                networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
                 </div>
             </div>
 

@@ -1,4 +1,4 @@
-<polymer-element name="jso-go-viewer" attributes="content rootNode">
+<polymer-element name="jso-go-viewer" attributes="content rootNode jobResult">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
@@ -23,6 +23,27 @@
 
 
         </style>
+        <template if="{{jobResult.networkViewer}}">
+            <div horizontal layout>
+                <div>
+                    <input type="text" value="{{sessionName}}">
+                </div>
+                <div class="button action" style="margin-left:5px" on-click="{{handleSaveSessionToCellMaps}}">
+                    Save network as Cell Maps session
+                </div>
+            </div>
+            <div horizontal layout>
+                <label>
+                    {{saveMessage}}
+                </label>
+                <template if="{{saveMessageOk}}">
+                    <div class="button action" on-click="{{handleOpenCellMapsSessionManager}}">
+                        Open Cell Maps session Manager
+                    </div>
+                </template>
+            </div>
+            <br>
+        </template>
         <jso-network-viewer
                 id="networkViewer"
                 hideBar="true"
@@ -34,7 +55,9 @@
     <script>
         Polymer({
             created: function () {
-
+                this.sessionName = "";
+                this.saveMessage = "";
+                this.saveMessageOk = false;
             },
             ready: function () {
             },
@@ -110,6 +133,21 @@
                 nodeRender.applyDirect("color", "color");
 
                 this.$.networkViewer.hideNodeSimpleRendering = true;
+            },
+            handleSaveSessionToCellMaps: function (e) {
+                var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.viewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
+                if (saved) {
+                    this.saveMessage = "Saved as " + this.sessionName + ", you can go back to Cell Maps and load the network using the session manager inside File menu.";
+                    this.sessionName = '';
+                    this.saveMessageOk = true;
+                } else {
+                    this.saveMessage = this.sessionName + 'already exists.';
+                    this.saveMessageOk = false;
+                }
+            },
+            handleOpenCellMapsSessionManager: function () {
+                this.jobResult.selectedOption = "";
+                this.jobResult.networkViewer.selectedMenu = "session-manager";
             }
 
         })

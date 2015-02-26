@@ -1,4 +1,4 @@
-<polymer-element name="jso-job-result" attributes="jobItem selectedOption">
+<polymer-element name="jso-job-result" attributes="jobItem selectedOption networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
@@ -18,8 +18,8 @@
                 background-color: #FFFFFF;
             }
 
-            .level > .level{
-                margin-left:5;
+            .level > .level {
+                margin-left: 5px;
             }
 
             .output {
@@ -27,7 +27,7 @@
                 /*width: 1000px;*/
                 background-color: white;
                 border-radius: 5px;
-                padding: 20px;
+                padding: 0 20px 0 20px;
             }
 
             .data {
@@ -64,8 +64,6 @@
                 font-size: 12pt;
                 /*background-color: blue;*/
             }
-
-
 
             sortable-table {
                 max-width: 1000px;
@@ -108,7 +106,7 @@
             }
 
             .loading {
-                font-size: 20px;
+                font-size: 25px;
                 margin: 20px 50px;
             }
 
@@ -116,7 +114,22 @@
                 border: 1px solid #d3d3d3;
             }
 
+            .close {
+                margin: 5px 10px 0 0;
+                color: #aaa;
+                font-size: 20px;
+            }
+
+            .close:hover {
+                color: #ffad76;
+            }
+
         </style>
+        <div horizontal layout end-justified>
+            <div class="close" on-click="{{handleClose}}">
+                <font-awesome icon="times"></font-awesome>
+            </div>
+        </div>
         <template if="{{loading}}">
             <div class="loading">
                 <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
@@ -131,30 +144,30 @@
         </template>
 
         <!--<template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">-->
-            <!--<div id="fatigoOutput" class="output">-->
-                <!--<div class="level-0">-->
-                    <!--<div class="headerTitle">Other Actions</div>-->
-                    <!--<div class="children">-->
-                        <!--<div class="level-1">-->
-                            <!--<div class="headerTitle">Select p-value</div>-->
-                            <!--<div horizontal="" layout="">-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.1-->
-                                <!--</div>-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.05-->
-                                <!--</div>-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.01-->
-                                <!--</div>-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.005-->
-                                <!--</div>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+        <!--<div id="fatigoOutput" class="output">-->
+        <!--<div class="level-0">-->
+        <!--<div class="headerTitle">Other Actions</div>-->
+        <!--<div class="children">-->
+        <!--<div class="level-1">-->
+        <!--<div class="headerTitle">Select p-value</div>-->
+        <!--<div horizontal="" layout="">-->
+        <!--<div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">-->
+        <!--0.1-->
+        <!--</div>-->
+        <!--<div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">-->
+        <!--0.05-->
+        <!--</div>-->
+        <!--<div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">-->
+        <!--0.01-->
+        <!--</div>-->
+        <!--<div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">-->
+        <!--0.005-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
         <!--</template>-->
         <div id="output" class="output"></div>
 
@@ -183,7 +196,7 @@
                 while (this.$.output.firstChild) {
                     this.$.output.removeChild(this.$.output.firstChild);
                 }
-                if( typeof newV == "object")
+                if (typeof newV == "object")
                     this.pvalue = 0.05;
 
 
@@ -441,7 +454,7 @@
                                     || this.jobItem.toolName == "oncodriveclust") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                 me.getFileContent(function (content) {
-                                        var args = me._getRedirectionArgs(content);
+                                    var args = me._getRedirectionArgs(content);
 //                                    var lines = content.split("\n");
 //                                    var hash = {};
 //                                    for (var i = 0; i < lines.length; i++) {
@@ -619,7 +632,7 @@
                                             method: hash.method,
                                             distance: hash.distance
                                         };
-                                        var button = me._createRedirectButton("Send to "+args.tool, args.tool, args);
+                                        var button = me._createRedirectButton("Send to " + args.tool, args.tool, args);
 
                                         res.appendChild(button);
 
@@ -717,26 +730,28 @@
                             if (tags[4] != null)
                                 seedArray = tags[4];
 
-                            var networkViewer = document.createElement('jso-interactome-viewer');
+                            var interactomeViewer = document.createElement('jso-interactome-viewer');
                             this.getFileContent(function (content) {
-                                networkViewer.content = content;
-                                networkViewer.intermediates = intermediatesArray;
-                                networkViewer.seedList = seedArray;
+                                interactomeViewer.content = content;
+                                interactomeViewer.intermediates = intermediatesArray;
+                                interactomeViewer.seedList = seedArray;
+                                interactomeViewer.jobResult = me;
                             }, element.value);
 
-                            res.appendChild(networkViewer);
+                            res.appendChild(interactomeViewer);
                         }
                         if (element.tags.indexOf("PROTEIN_VIEWER") >= 0) {
                             var dataArray = new Array();
-                            var viewer = document.createElement('jso-protein-viewer');
+                            var proteinViewer = document.createElement('jso-protein-viewer');
 
                             this.getFileContent(function (content) {
-                                viewer.nodes = content.split("\n");
-                                viewer.speciesSelection = "hsapiens";
-                                viewer.nodeSelection = false;
+                                proteinViewer.nodes = content.split("\n");
+                                proteinViewer.speciesSelection = "hsapiens";
+                                proteinViewer.nodeSelection = false;
+                                proteinViewer.jobResult = me;
                             }, element.value);
 
-                            res.appendChild(viewer);
+                            res.appendChild(proteinViewer);
 
                         }
                         if (element.tags.indexOf("DIFF_EXPRESSION_VIEWER") >= 0) {
@@ -911,7 +926,7 @@
                                 var pvalueButton = document.createElement('jso-pvalue-button');
                                 pvalueButton.id = "pvalueButton";
                                 pvalueButton.pvalue = me.pvalue;
-                                pvalueButton.onclick= function(){
+                                pvalueButton.onclick = function () {
                                     me.pvalue = this.pvalue;
                                     me.jobItemChanged();
                                 };
@@ -1019,6 +1034,8 @@
                             if (element.value.indexOf(me.pvalue) >= 0) {
                                 var fileNames = element.value.split(",");
                                 var goViewer = document.createElement('jso-go-viewer');
+                                goViewer.jobResult = me;
+
                                 this.getFileContent(function (sifContent) {
                                     me.getFileContent(function (attrContent) {
                                         me.getFileContent(function (attr2Content) {
@@ -1035,7 +1052,7 @@
                 }
                 return res;
             },
-            _getRedirectionArgs: function(content){
+            _getRedirectionArgs: function (content) {
                 var lines = content.split("\n");
                 var hash = {};
                 for (var i = 0; i < lines.length; i++) {
@@ -1423,6 +1440,9 @@
                     }
 
                 }
+            },
+            handleClose: function () {
+                this.selectedOption = '';
             }
 
         })

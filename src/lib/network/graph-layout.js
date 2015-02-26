@@ -204,14 +204,14 @@ GraphLayout = {
                 force.linkDistance(function (e) {
                     var edge = graph.getEdgeById(e.id);
                     var value = vAttr.getRow(edge.id)[attributes.linkDistance];
-                    var ld = isNaN(value) ? (edge.source.renderer.size + edge.target.renderer.size) * 1.7 : value * linkDistance;
+                    var ld = isNaN(value) ? (edge.source.renderer.getSize() + edge.target.renderer.getSize()) * 1.7 : value * linkDistance;
                     return ld;
                 });
             }
         } else {
             force.linkDistance(function (e) {
                 var edge = graph.getEdgeById(e.id);
-                return edge.source.renderer.size + edge.target.renderer.size * 1.7;
+                return edge.source.renderer.getSize() + edge.target.renderer.getSize() * 1.7;
             })
         }
         //Link Strength
