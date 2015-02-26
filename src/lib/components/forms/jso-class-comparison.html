@@ -70,8 +70,9 @@
             <div class="formbox">
                 <div class="formtitle">Select the class to analyse</div>
                 <div class="formcontent">
-                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
-                                      loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}"></jso-class-viewer>
+                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}" on-annonymous="{{annonymousLogin}}"
+
+                                      loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" ></jso-class-viewer>
                 </div>
             </div>
             <div class="formbox">
@@ -178,6 +179,9 @@
                 this.species = "";
                 this.test = "";
 
+            },
+            annonymousLogin: function(){
+                this.loadedChildrenSelectChanged(false, true);
             },
             argsChanged: function () {
                 if (this.toolName == this.args.tool) {
@@ -317,7 +321,7 @@
                 })
             },
             loadExample1: function (e) {
-
+                debugger
                 this.jobName = "Differential expression - Class comparison demo (correlation.txt)";
                 this.description = "Just a differencial expression demo";
                 this.$.inputFile.selectedFile = {id: "example_class_comparison.txt", path: "class_comparison.txt", type: "FILE"};
@@ -345,6 +349,7 @@
 
             },
             createExampleFolder: function (exampleFolder) {
+
                 var me = this;
                 OpencgaManager.files.search({
                     query: {
@@ -388,6 +393,7 @@
                 });
             },
             loadedMainSelectChanged: function (oldV, newV) {
+                debugger
                 /** This is mainly for the examples **/
                 var me = this;
                 if (newV == true) {
@@ -406,6 +412,7 @@
                 }
             },
             loadedChildrenSelectChanged: function (oldV, newV) {
+               
                 var me = this;
                 if (newV == true) {
                     var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();

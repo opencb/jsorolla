@@ -59,14 +59,11 @@
         </div>
         <form id="form" vertical layout on-keypress="{{handleFormKey}}">
             <label>User ID</label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
-            <label>Name</label> <input type="text" id="name" value="{{name}}" required pattern=[a-zA-Z0-9\s]+>
+            <label>Name</label> <input type="text" id="name" value="{{name}}" required>
             <label>e-mail</label> <input type="email" id="email" value="{{email}}" required>
-            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required
-                                               pattern=[a-zA-Z0-9\s]+>
-            <label>Password</label> <input type="password" id="password" value="{{password}}" required
-                                           pattern="[a-zA-Z0-9]+">
-            <label>Check password</label> <input type="password" id="check" value="{{check}}" required
-                                                 pattern="[a-zA-Z0-9]+">
+            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required>
+            <label>Password</label> <input type="password" id="password" value="{{password}}" required>
+            <label>Check password</label> <input type="password" id="check" value="{{check}}" required>
 
             <div class="button action" on-click="{{handleForm}}">Sign up</div>
         </form>
@@ -101,7 +98,7 @@
                     }
                 }
                 else{
-                    alert("Please, you should fill all the fields. Email should be in standard format.");
+                    alert("Please, you should fill all the fields. If error persist, contact babelomics crew at "+CONTACT_MAIL+".");
                 }
             },
             _signup: function () {

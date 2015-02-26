@@ -54,22 +54,22 @@
                 margin: 3px;
             }
 
-            input[name=recon]:disabled + span,
-            input[name=recon]:disabled + span:before {
+            input:disabled + span,
+            input:disabled + span:before {
                 color: #d3d3d3 !important;
             }
 
-            input[name=go_slim]:disabled + span,
-            input[name=go_slim]:disabled + span:before {
+            input:disabled + span,
+            input:disabled + span:before {
                 color: #d3d3d3 !important;
             }
 
-            input[name=interpro]:disabled + span,
-            input[name=interpro]:disabled + span:before {
+            input:disabled + span,
+            input:disabled + span:before {
                 color: #d3d3d3 !important;
             }
 
-            select[name=fisher]:disabled {
+            select:disabled {
                 color: #d3d3d3 !important;
             }
 
@@ -112,10 +112,10 @@
                                 >
                         <span>Id List vs Rest of genome</span>
                     </label>
-                    <!--<label class="control">-->
-                    <!--<input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">-->
-                    <!--<span>Id List vs Rest of ids contained in your annotations (complementary list)</span>-->
-                    <!--</label>-->
+                    <label class="control">
+                        <input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">
+                        <span>Id List vs Rest of ids contained in your annotations (complementary list)</span>
+                    </label>
                 </div>
             </div>
 
@@ -411,21 +411,23 @@
                             <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
                             <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
                             <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
-                            <div horizontal layout>
-                                <label class="control">
-                                    <input name="your_annotations" id="your_annotations" type="checkbox" value="">
-                                    <span>Your annotations</span>
-
-                                </label>
-                            </div>
-                            <div style="margin-left: 30px">
-                                <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
-                                                            selectedStudy="{{selectedStudy}}"
-                                                            selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                            bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
-                            </div>
 
 
+                        </div>
+                    </div>
+                    <div id="your_annotations_div">
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
+                                <span>Your annotations</span>
+
+                            </label>
+                        </div>
+                        <div style="margin-left: 30px">
+                            <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                                                        selectedStudy="{{selectedStudy}}"
+                                                        selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                        bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
                         </div>
                     </div>
                 </div>
@@ -506,6 +508,11 @@
                     this.$.option2.hidden = true;
                     this.$.option3.hidden = true;
                     this.$.fisher.disabled = false;
+
+                    this.$.species.disabled = false;
+                    this.$.your_annotations.disabled = false;
+//                    this.$.annotationsFile.disabled = false;
+
                 }
                 if (this.comparison == "list2genome") {
                     this.genome = true;
@@ -513,12 +520,26 @@
                     this.$.option2.hidden = false;
                     this.$.option3.hidden = true;
                     this.$.fisher.disabled = true;
+
+                    this.$.species.disabled = false;
+
+                    this.$.your_annotations.disabled = true;
+//                    this.$.annotationsFile.disabled = true;
+
+
+
                 }
                 if (this.comparison == "list2rest") {
                     this.genome = true;
                     this.$.option1.hidden = true;
                     this.$.option2.hidden = true;
                     this.$.option3.hidden = false;
+
+                    this.$.species.disabled = true;
+
+
+                    this.$.your_annotations.disabled = false;
+//                    this.$.annotationsFile.disabled = false;
                 }
             },
             handleCancel: function () {
@@ -536,7 +557,8 @@
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
-                if(this.$.species.value == "none"){
+                this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
+                if (this.$.species.value == "none" && this.comparison != "list2rest") {
                     alert("Sorry. No species selected. Please select one. ");
                     return
                 }

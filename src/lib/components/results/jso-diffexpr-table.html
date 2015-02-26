@@ -106,6 +106,7 @@
             contentDatasetChanged: function () {
 
                 var data = this.content.split("\n");
+//                var data = this.contentDataset.split("\n");
                 var nodes = [];
                 for (var i = 0; i < data.length; i++) {
                     var line = data[i];
@@ -119,7 +120,6 @@
                     } else if (line.indexOf("#") < 0) {
                         if (data[i].length > 0) {
                             var localData = data[i].split("\t");
-                            var localArray = new Array();
                             var idx = 1;
                             if (this.test == "spearman" || this.test == "pearson")
                                 idx = 2;
@@ -129,7 +129,11 @@
                             else
                                 this.bottomNumber++;
                             nodes.push(localData[0]);
-                            for (var z = 0; z < localData.length; z++) {
+
+                            var localArray = new Array();
+
+                            localArray.push(localData[0].toString());
+                            for (var z = 1; z < localData.length; z++) {
                                 var value = localData[z];
                                 if (!isNaN(value)) {
 
@@ -146,7 +150,7 @@
                                 }
 //                                if (isFinite(value))
 //                                    value = parseFloat(value).toFixed(3);
-                                localArray.push(value);
+                                localArray.push(value.toString());
                             }
                             this.data.push(localArray);
                             this.rowNames.push(localArray[0]);
@@ -315,7 +319,7 @@
                     if (line == "")continue;
                     if (line.indexOf("#") < 0) {
                         line = line.split("\t");
-                        rawDataObj[line[0]] = line;
+                        rawDataObj[line[0].toString()] = line;
                         if (b) { // PrevLine == last line of the header
                             var splits = prevLine.split("\t");
                             for (var j = 1; j < splits.length; j++) {
@@ -334,6 +338,8 @@
 
                 var numberRows = this.rowNames.length;
                 for (var i = 0; i < orderedContent.length; i++) {
+//                    console.log(i)
+//                    console.log(orderedContent[i])
                     var lineData = orderedContent[i];
                     lineData = lineData.slice(1, lineData.length).map(Number);
                     var max = Math.max.apply(Math, lineData)
