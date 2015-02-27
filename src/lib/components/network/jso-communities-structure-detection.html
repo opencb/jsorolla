@@ -1,15 +1,14 @@
-<polymer-element name="jso-communities-structure-detection" attributes="networkViewer hideFlag">
+<polymer-element name="jso-communities-structure-detection" extends="jso-window" attributes="networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-panel.css">
         <style>
             :host {
                 display: block;
-                position: relative;
+                position: fixed;
                 box-sizing: border-box;
 
                 min-width: 350px;
-                /*height: 350px;*/
             }
 
             #panel {
@@ -57,7 +56,9 @@
             }
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
-            <div class="header" id="header" horizontal layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Network analysis: Communities structure detection</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
@@ -180,9 +181,6 @@
                 this.columnSelected = 'id';
 
                 this.results;
-            },
-            handleClose: function () {
-                this.hideFlag = true;
             },
             handleGo: function () {
                 this.retrieveData();

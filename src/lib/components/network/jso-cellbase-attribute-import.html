@@ -1,11 +1,11 @@
-<polymer-element name="jso-cellbase-attribute-import" attributes="attributeManager hideFlag">
+<polymer-element name="jso-cellbase-attribute-import" extends="jso-window" attributes="attributeManager">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-panel.css">
         <style>
             :host {
                 display: block;
-                position: relative;
+                position: fixed;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
 
@@ -53,7 +53,9 @@
 
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
-            <div class="header" id="header" horizontal layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Import Cellbase attributes</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
@@ -90,16 +92,16 @@
                     <div horizontal layout>
                         <div class="button action" style="padding:0 10px;margin-right:2px;"
                              data-checked="{{selectedList == 'ext'}}"
-                             on-click="{{handleSelectExtList}}">External references
+                             on-click="{{handleSelectExtList}}">External Ids
                         </div>
                         <div class="button action"
                              data-checked="{{selectedList == 'func'}}"
                              on-click="{{handleSelectFuncList}}">Functional information
                         </div>
-                        <div class="button action" style="padding:0 10px;margin-left:2px;"
-                             data-checked="{{selectedList == 'repo'}}"
-                             on-click="{{handleSelectRepoList}}">Repositories
-                        </div>
+                        <!--<div class="button action" style="padding:0 10px;margin-left:2px;"-->
+                        <!--data-checked="{{selectedList == 'repo'}}"-->
+                        <!--on-click="{{handleSelectRepoList}}">Repositories-->
+                        <!--</div>-->
                     </div>
                     <div class="selbox" flex style="margin-top:3px;">
                         <template if="{{selectedList == 'ext'}}">
@@ -248,7 +250,7 @@
                     {"boxLabel": "GO Term Accession", selected: false, "inputValue": {db: "go", field: "id"}},
 //                    {"boxLabel": "GO Term Name", selected: false, "inputValue": {db: "go", field: "description"}},
                     {
-                        "boxLabel": "Propagated GO Accession",
+                        "boxLabel": "Projected GO Accession",
                         selected: false,
                         "inputValue": {db: "projected_go", field: "id"}
                     },
@@ -303,23 +305,6 @@
                 this.selectedList = 'ext';
                 this.message = '';
             },
-            handleClose: function () {
-                this.hideFlag = true;
-            },
-//            handleExpand: function () {
-//                this.expanded = !this.expanded;
-//                if (this.expanded) {
-//                    this.style.width = '100%';
-//                    this.style.height = 'calc(100% - 60px)';
-//                    this.style.position = 'fixed';
-//                    this.style.top = '60px';
-//                } else {
-//                    this.style.width = '';
-//                    this.style.height = '';
-//                    this.style.position = '';
-//                    this.style.top = '';
-//                }
-//            },
             handleEditSelect: function (e) {
                 this.columnSelected = e.target.templateInstance.model.column;
             },

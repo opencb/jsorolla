@@ -1,4 +1,4 @@
-<polymer-element name="jso-sif-network-file-open" attributes="selectedMenu">
+<polymer-element name="jso-sif-network-file-open" extends="jso-window" attributes="selectedMenu">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <link rel="stylesheet" href="../jso-style.css">
@@ -7,20 +7,11 @@
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: fixed;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
 
-                z-index: 50000;
-                top: 93px;
-
-                left: 0;
-                right: 0;
-                margin-left: auto;
-                margin-right: auto;
-
-                width: 50%;
-                min-width: 900px;
+                width: 900px;
             }
 
             sortable-table {
@@ -93,10 +84,11 @@
         </style>
 
         <div class="panel panel-shadow" id="panel" vertical layout>
-            <div class="header" id="header" horizontal layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Import a network SIF file</div>
                 <div class="headeractions" horizontal end-justified layout flex>
-                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
                     <div class="text headerclose" on-click="{{handleCancel}}"></div>
                 </div>
             </div>

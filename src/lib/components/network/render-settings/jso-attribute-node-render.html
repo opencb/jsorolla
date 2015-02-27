@@ -1,4 +1,4 @@
-<polymer-element name="jso-attribute-node-render" attributes="attributeManager defaults visualSets hideFlag">
+<polymer-element name="jso-attribute-node-render" attributes="attributeManager defaults visualSets">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
         <link rel="stylesheet" href="../../jso-panel.css">
@@ -97,9 +97,7 @@
 
         </style>
         <div class="panel panel-shadow">
-            <div class="header" horizontal layout
-                 on-mousedown="{{handleHeaderMouseDown}}"
-                 on-mouseup="{{handleHeaderMouseUp}}">
+            <div id="header" class="header" horizontal layout>
                 <div class="text">Node visualization settings</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
@@ -430,17 +428,21 @@
         Polymer({
             created: function () {
                 this.displayProperty = '';
-                this.downX;
-                this.downY;
+                this.moved = false;
             },
             ready: function () {
             },
+//            domReady: function () {
+//                var bcr = this.$.header.getBoundingClientRect()
+//                this.headerOffsetX = bcr.width / 2;
+//                this.headerOffsetY = bcr.height / 2;
+//            },
 //            handleHeaderMouseDown: function (e) {
 //                var me = this;
 //                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-////                this.style.position = 'fixed';
-////                this.downX = this.offsetLeft + e.layerX;
-////                this.downY = this.offsetTop + e.layerY;
+//                this.moved = true;
+//                this.style.position = 'fixed';
+//                this.style["z-index"] = '1000';
 //                this.mouseMoveHandler = function (moveEvent) {
 //                    me.handleMouseMove(moveEvent);
 //                };
@@ -450,10 +452,17 @@
 //                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
 //            },
 //            handleMouseMove: function (e) {
-//                this.style.left = (e.x - this.downX) + "px";
-//                this.style.top = (e.y - this.downY) + "px";
+//                this.style.left = (e.offsetX - this.headerOffsetX) + 'px';
+//                this.style.top = (e.offsetY - this.headerOffsetY) + 'px';
 //            },
-
+//            handlePin: function () {
+//                this.style.position = '';
+//                this.style.left = '';
+//                this.style.top = '';
+//                this.style.top = '';
+//                this.style["z-index"] = '';
+//                this.moved = false;
+//            },
 
             handleLabelAttribute: function () {
                 this.fire('labelattribute');
@@ -499,7 +508,7 @@
 
 
             handleClose: function () {
-                this.hideFlag = true;
+                this.setAttribute('hidden', '');
             },
             handleSettingsClick: function (e) {
                 this.displayProperty = e.currentTarget.dataset.prop;

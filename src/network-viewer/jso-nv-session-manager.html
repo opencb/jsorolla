@@ -1,4 +1,4 @@
-<polymer-element name="jso-nv-session-manager" attributes="selectedMenu networkViewer">
+<polymer-element name="jso-nv-session-manager" extends="jso-window" attributes="networkViewer">
     <template>
         <link rel="stylesheet" href="../lib/components/jso-style.css">
         <link rel="stylesheet" href="../lib/components/jso-panel.css">
@@ -6,18 +6,9 @@
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: fixed;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
-
-                z-index: 50000;
-                top: 93px;
-
-                left: 0;
-                right: 0;
-                margin-left: auto;
-                margin-right: auto;
-
                 width: 500px;
             }
 
@@ -49,10 +40,15 @@
             }
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
-            <div class="header" id="header" horizontal layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Session manager</div>
                 <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerclose" on-click="{{handleCancel}}"></div>
+                    <!--<template if="{{moved}}">-->
+                        <!--<div class="text headerpin" on-click="{{handlePin}}"></div>-->
+                    <!--</template>-->
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
             <div class="container" vertical layout>
@@ -122,9 +118,6 @@
             ready: function () {
                 this.keyPrefix = 'NV_SESSION_MANAGER' + this.networkViewer.serializeVersion;
                 this._updateSessionsFromLocalStorage();
-            },
-            handleCancel: function () {
-                this.selectedMenu = '';
             },
             _updateSessionsFromLocalStorage: function () {
                 var sessions = [];

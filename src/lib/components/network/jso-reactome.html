@@ -1,11 +1,11 @@
-<polymer-element name="jso-reactome" attributes="networkViewer hideFlag">
+<polymer-element name="jso-reactome" extends="jso-window" attributes="networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-panel.css">
         <style>
             :host {
                 display: block;
-                position: relative;
+                position: fixed;
                 box-sizing: border-box;
 
                 width: 500px;
@@ -70,7 +70,9 @@
             }
         </style>
         <div id="panel" class="panel panel-shadow" vertical layout>
-            <div class="header" id="header" horizontal layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Reactome import</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
@@ -143,6 +145,7 @@
 
             },
             domReady: function () {
+                this.super();
 //                <label>Species</label>
 //
 //                <div class="attributelist" flex>
@@ -159,9 +162,6 @@
 
 
                 this._getSpeciesPathways({value: 'Homo+sapiens'});
-            },
-            handleClose: function () {
-                this.hideFlag = true;
             },
             handleSpeciesSelect: function (e) {
                 this.speciesSelected = e.target.templateInstance.model.spe;

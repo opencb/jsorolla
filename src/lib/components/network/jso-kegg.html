@@ -1,11 +1,11 @@
-<polymer-element name="jso-kegg" attributes="networkViewer hideFlag">
+<polymer-element name="jso-kegg" extends="jso-window" attributes="networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-panel.css">
         <style>
             :host {
                 display: block;
-                position: relative;
+                position: fixed;
                 box-sizing: border-box;
 
                 width: 500px;
@@ -53,7 +53,9 @@
             }
         </style>
         <div id="panel" class="panel panel-shadow" vertical layout>
-            <div class="header" id="header" horizontal layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Kegg import</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <!--<div class="text" on-click="{{handleRefresh}}">-->
@@ -103,6 +105,7 @@
                 };
             },
             domReady: function () {
+                this.super();
                 this.getPathwayList();
             },
             handleItemSelect: function (e) {
@@ -113,9 +116,6 @@
                 var item = e.target.templateInstance.model.item;
                 item.selected = !item.selected;
                 this.getPathway(item);
-            },
-            handleClose: function () {
-                this.hideFlag = true;
             },
             handleGo: function () {
                 this.retrieveData();

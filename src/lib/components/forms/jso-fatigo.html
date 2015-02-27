@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatigo" attributes="userData selectedOption selectedStudy studies args networkViewer">
+<polymer-element name="jso-fatigo" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -18,7 +18,6 @@
                 transition: all 0.2s;
                 box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
                 background-color: #FFFFFF;
-
             }
 
             .title {
@@ -81,7 +80,7 @@
                 width: 150px;
             }
         </style>
-        <div class="title" horizontal layout>
+        <div class="title" horizontal layout hidden?="{{hideTitle == 'true'}}">
             <div flex>
                 Single enrichment
             </div>
@@ -525,7 +524,6 @@
 
                     this.$.your_annotations.disabled = true;
 //                    this.$.annotationsFile.disabled = true;
-
 
 
                 }

@@ -19,6 +19,12 @@
     background-color: #314559;
     color: #FFFFFF;
     text-transform: capitalize;
+
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .header > .headeractions > *[data-checked] {
@@ -40,6 +46,11 @@
 .header > .headeractions > .headerexpand:after {
     font-family: FontAwesome;
     content: '\f065';
+}
+
+.header > .headeractions > .headerpin:after {
+    font-family: FontAwesome;
+    content: '\f08d';
 }
 
 .header > .headeractions > .headerexpand[expanded]:after {

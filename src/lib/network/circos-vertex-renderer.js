@@ -39,6 +39,7 @@ function CircosVertexRenderer(args) {
     this.xAttribute = 'x';
     this.yAttribute = 'y';
 
+
     this.pieSlices = [
 //        {size: this.size, area: this.sliceArea, color: this.color, labelSize: this.labelSize, labelOffset: 0}
     ];

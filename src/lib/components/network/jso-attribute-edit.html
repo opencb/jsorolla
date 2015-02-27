@@ -1,4 +1,4 @@
-<polymer-element name="jso-attribute-edit" attributes="selectedMenu attributeManager type">
+<polymer-element name="jso-attribute-edit" extends="jso-window" attributes="selectedMenu attributeManager type">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <link rel="stylesheet" href="../jso-style.css">
@@ -7,7 +7,7 @@
         <style>
             :host {
                 display: block;
-                position: relative;
+                position: fixed;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
 
@@ -153,7 +153,9 @@
             }
         </style>
         <div class="panel panel-shadow" id="panel" vertical layout>
-            <div class="header" id="header" horizontal layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
                 <div class="text">Edit {{type}} attributes</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
@@ -234,14 +236,16 @@
                                 <div class="selbox" style="height: 280px;">
                                     <template if="{{filters.length == 0}}">
                                         <div flex class="selitem">No filters to show.<br>
-                                            Click <font-awesome icon="plus"></font-awesome> to add a new filter.
+                                            Click
+                                            <font-awesome icon="plus"></font-awesome>
+                                            to add a new filter.
                                         </div>
                                     </template>
                                     <template repeat="{{filter, filterIndex in filters}}">
                                         <div flex class="selitem" on-click="{{handleStringMatchSelect}}" horizontal layout>
                                             <div flex vertical layout>
                                                 <div>Attribute: {{filter.attributeName}}</div>
-                                                <div style="text-transform: capitalize">rule: {{filter.match}} {{filter.attributeType}} </div>
+                                                <div style="text-transform: capitalize">rule: {{filter.match}} {{filter.attributeType}}</div>
                                                 <div>Value: {{filter.queryString}}</div>
                                             </div>
                                             <font-awesome icon="times" class="delete" on-click="{{handleDeleteFilter}}"></font-awesome>
@@ -394,7 +398,6 @@
 //                this.editSelected;
                 this.newColumnName = '';
                 this.newValue = '';
-                this.expanded = false;
 
                 /*Search*/
                 this.attributeType = 'string';
@@ -456,27 +459,9 @@
             moveToPreviousPage: function () {
                 this.$.table.moveToPreviousPage();
             },
-            handleClose: function () {
-                this.selectedMenu = '';
-            },
             handleExpand: function () {
+                this.super();
                 this.page = 1;
-                this.expanded = !this.expanded;
-                if (this.expanded) {
-                    this.style.width = '100%';
-                    this.style.height = 'calc(100% - 60px)';
-                    this.style.position = 'fixed';
-                    this.style.top = '60px';
-                    this.style.left = '0';
-                    this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
-                } else {
-                    this.style.width = '';
-                    this.style.height = '';
-                    this.style.position = '';
-                    this.style.top = '';
-                    this.style.left = '';
-                    this.pageSize = this.defaultPageSize;
-                }
             },
             handleShowSelected: function () {
                 this.showSelected = !this.showSelected;

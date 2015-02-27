@@ -52,9 +52,10 @@
 <link rel="import" href="../lib/components/network/jso-reactome.html">
 <link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
 
-<link rel="import" href="../lib/components/forms/jso-snow.html">
-<link rel="import" href="../lib/components/forms/jso-network-miner.html">
-<link rel="import" href="../lib/components/forms/jso-fatigo.html">
+<link rel="import" href="jso-nv-snow.html">
+<link rel="import" href="jso-nv-network-miner.html">
+<link rel="import" href="jso-nv-fatigo.html">
+
 
 <script src="../lib/cellbase-manager.js"></script>
 
@@ -83,7 +84,6 @@
                 top: 94px;
                 right: 0px;
                 position: absolute;
-
             }
 
             jso-nv-layout {
@@ -92,17 +92,6 @@
 
             .context {
                 min-width: 200px;
-            }
-
-            jso-snow, jso-network-miner, jso-fatigo {
-                min-width: 800px;
-                position: absolute;
-                top: 0px;
-                bottom: 30px;
-                overflow-y: scroll;
-                left: 0;
-                right: 0;
-                padding: 20px 40px;
             }
 
             .attr-context {
@@ -255,8 +244,6 @@
         <div class="right-side">
             <jso-attribute-node-render
                     id="nodeRender"
-                    hidden?="{{hideNodeSimpleRendering}}"
-                    hideFlag="{{hideNodeSimpleRendering}}"
                     attributeManager="{{vAttr}}"
                     defaults="{{vertexDefaults}}"
                     visualSets="{{vertexVisualSets}}"
@@ -279,8 +266,6 @@
 
             <jso-attribute-edge-render
                     id="edgeRender"
-                    hidden?="{{hideEdgeSimpleRendering}}"
-                    hideFlag="{{hideEdgeSimpleRendering}}"
                     attributeManager="{{eAttr}}"
                     defaults="{{edgeDefaults}}"
                     visualSets="{{edgeVisualSets}}"
@@ -297,127 +282,132 @@
         </div>
         <div class="left-side">
             <jso-network-edit
-                    hidden?="{{selectedMenu != 'network-edit'}}"
-                    selectedMenu="{{selectedMenu}}"
+                    hidden
+                    id="networkEdit"
                     networkViewer="{{}}">
             </jso-network-edit>
             <jso-attribute-edit
-                    hidden?="{{selectedMenu != 'nodes-edit'}}"
-                    selectedMenu="{{selectedMenu}}"
+                    hidden
+                    id="nodeAttributeEdit"
                     attributeManager="{{vAttr}}"
                     type="node">
             </jso-attribute-edit>
             <jso-attribute-edit
-                    hidden?="{{selectedMenu != 'edges-edit'}}"
-                    selectedMenu="{{selectedMenu}}" attributeManager="{{eAttr}}" type="edge">
+                    hidden
+                    id="edgeAttributeEdit"
+                    attributeManager="{{eAttr}}"
+                    type="edge">
             </jso-attribute-edit>
             <jso-cellbase-attribute-import
+                    hidden
                     id="cellbaseAttributeImport"
-                    hidden?="{{hideCellbase}}"
-                    hideFlag="{{hideCellbase}}"
                     attributeManager="{{vAttr}}"
                     >
             </jso-cellbase-attribute-import>
             <jso-intact-import
+                    hidden
                     id="intactImport"
-                    hidden?="{{hideIntact}}"
-                    hideFlag="{{hideIntact}}"
                     networkViewer="{{}}"
                     >
             </jso-intact-import>
             <jso-communities-structure-detection
-                    hidden?="{{hideCommunities}}"
-                    hideFlag="{{hideCommunities}}"
+                    hidden
+                    id="communitiesStructureDetection"
                     networkViewer="{{}}"
                     >
             </jso-communities-structure-detection>
             <jso-topological-study
-                    hidden?="{{hideTopological}}"
-                    hideFlag="{{hideTopological}}"
+                    hidden
+                    id="topologicalStudy"
                     networkViewer="{{}}"
                     >
             </jso-topological-study>
             <jso-reactome
-                    hidden?="{{hideReactome}}"
-                    hideFlag="{{hideReactome}}"
+                    hidden
+                    id="reactomeImport"
                     networkViewer="{{}}"
                     >
             </jso-reactome>
             <jso-kegg
-                    hidden?="{{hideKegg}}"
-                    hideFlag="{{hideKegg}}"
+                    hidden
+                    id="keggImport"
                     networkViewer="{{}}"
                     >
             </jso-kegg>
             <jso-configure-force-directed
-                    hidden?="{{selectedMenu != 'configure-force-directed'}}"
-                    selectedMenu="{{selectedMenu}}"
+                    hidden
+                    id="configureForceDirected"
                     networkViewer="{{}}"
                     >
             </jso-configure-force-directed>
+            <jso-nv-session-manager
+                    hidden
+                    id="sessionManager"
+                    selectedMenu="{{selectedMenu}}" networkViewer="{{}}">
+            </jso-nv-session-manager>
+
+
+            <!--Menu file-->
+            <template if="{{selectedMenu == 'import-sif'}}">
+                <jso-sif-network-file-open
+                        selectedMenu="{{selectedMenu}}"
+                        on-graph="{{handleImportSif}}">
+                </jso-sif-network-file-open>
+            </template>
+
+            <template if="{{selectedMenu == 'import-text'}}">
+                <jso-text-network-file-open
+                        selectedMenu="{{selectedMenu}}"
+                        on-graph="{{handleImportText}}">
+                </jso-text-network-file-open>
+            </template>
+            <template if="{{selectedMenu == 'import-xlsx'}}">
+                <jso-xlsx-network-file-open selectedMenu="{{selectedMenu}}" on-graph="{{handleImportXlsx}}">
+                </jso-xlsx-network-file-open>
+            </template>
+            <template if="{{selectedMenu == 'import-node-attributes'}}">
+                <jso-attribute-network-file-open selectedMenu="{{selectedMenu}}" on-open="{{handleImportNodeAttr}}"
+                                                 type="node">
+                </jso-attribute-network-file-open>
+            </template>
+            <template if="{{selectedMenu == 'import-edge-attributes'}}">
+                <jso-attribute-network-file-open selectedMenu="{{selectedMenu}}" on-open="{{handleImportEdgeAttr}}"
+                                                 type="edge">
+                </jso-attribute-network-file-open>
+            </template>
+
         </div>
-
-        <!--Menu file-->
-        <jso-nv-session-manager
-                id="sessionManager"
-                hidden?="{{selectedMenu != 'session-manager'}}"
-                selectedMenu="{{selectedMenu}}" networkViewer="{{}}">
-        </jso-nv-session-manager>
-
-        <template if="{{selectedMenu == 'import-sif'}}">
-            <jso-sif-network-file-open selectedMenu="{{selectedMenu}}" on-graph="{{handleImportSif}}">
-
-            </jso-sif-network-file-open>
-        </template>
-        <template if="{{selectedMenu == 'import-text'}}">
-            <jso-text-network-file-open selectedMenu="{{selectedMenu}}" on-graph="{{handleImportText}}">
-
-            </jso-text-network-file-open>
-        </template>
-        <template if="{{selectedMenu == 'import-xlsx'}}">
-            <jso-xlsx-network-file-open selectedMenu="{{selectedMenu}}" on-graph="{{handleImportXlsx}}">
-            </jso-xlsx-network-file-open>
-        </template>
-        <template if="{{selectedMenu == 'import-node-attributes'}}">
-            <jso-attribute-network-file-open selectedMenu="{{selectedMenu}}" on-open="{{handleImportNodeAttr}}"
-                                             type="node">
-            </jso-attribute-network-file-open>
-        </template>
-        <template if="{{selectedMenu == 'import-edge-attributes'}}">
-            <jso-attribute-network-file-open selectedMenu="{{selectedMenu}}" on-open="{{handleImportEdgeAttr}}"
-                                             type="edge">
-            </jso-attribute-network-file-open>
-        </template>
 
 
         <template if="{{selectedMenu == 'networkminer'}}">
-            <jso-network-miner
+            <jso-nv-network-miner
                     selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
                     networkViewer="{{}}"
-                    ></jso-network-miner>
+                    >
+                </jso-nv-network-miner>
         </template>
         <template if="{{selectedMenu == 'snow'}}">
-            <jso-snow
+            <jso-nv-snow
                     selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
                     networkViewer="{{}}"
                     >
-            </jso-snow>
+            </jso-nv-snow>
         </template>
         <template if="{{selectedMenu == 'fatigo'}}">
-            <jso-fatigo
+            <jso-nv-fatigo
                     selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
                     selectedStudy="{{selectedStudy}}"
                     studies="{{studies}}"
                     networkViewer="{{}}"
                     >
-            </jso-fatigo>
+            </jso-nv-fatigo>
         </template>
 
 
@@ -461,17 +451,12 @@
                 this.mode = "select";
                 this.scale;
 
-                /*MENUS*/
-//                this.selectedMenu = 'nodes-edit';
-                this.selectedMenu = '';
-                this.hideNodeSimpleRendering = true;
-                this.hideEdgeSimpleRendering = true;
-                this.hideNodeListRendering = true;//TODO remove
+                this.hideNodeRendering = true;
+                this.hideEdgeRendering = true;
+
 
                 this.hideCellbase = true;
 
-                this.hideNodeSimpleRendering = false;
-                this.hideEdgeSimpleRendering = false;
 
                 this.hideReactome = true;
                 this.hideKegg = true;
@@ -752,6 +737,14 @@
                                 }
                             }
                             finalValues = rowRenderValues;
+
+//                            //TODO rework, this is a temporal fix
+//                            if(displayProperty.indexOf("stroke") == -1){
+//                                vertex.renderer.pieLabelText = rowValues;
+//                            }else{
+//                            }
+//                            //TODO end
+
                             vertex.renderer.set(displayProperty, finalValues);
                             this._updateEdgeCoords(vertex);
                         }
@@ -931,16 +924,16 @@
 
             /* Bar Handlers*/
             handleNetworkEditMenu: function (e) {
-                this.selectedMenu = 'network-edit';
+                this.$.networkEdit.removeAttribute('hidden');
             },
             handleNodesEditMenu: function (e) {
-                this.selectedMenu = 'nodes-edit';
+                this.$.nodeAttributeEdit.removeAttribute('hidden')
             },
             handleEdgesEditMenu: function (e) {
-                this.selectedMenu = 'edges-edit';
+                this.$.edgeAttributeEdit.removeAttribute('hidden')
             },
             handleCellbaseMenu: function (e) {
-                this.hideCellbase = false;
+                this.$.cellbaseAttributeImport.removeAttribute('hidden')
             },
             handleSessionStartMenu: function (e) {
                 if (confirm('All changes will be lost. Are you sure?')) {
@@ -988,7 +981,7 @@
                 link.dispatchEvent(event);
             },
             handleSessionManageMenu: function (e) {
-                this.selectedMenu = 'session-manager';
+                this.$.sessionManager.removeAttribute('hidden')
             },
             handleImportSifMenu: function (e) {
                 this.selectedMenu = 'import-sif';
@@ -1068,34 +1061,27 @@
 
 
             handleNodeSimpleRenderingMenu: function (e) {
-                this.hideNodeSimpleRendering = false;
-            },
-            handleNodeListRenderingMenu: function (e) {
-                this.hideNodeListRendering = false;
+                this.$.nodeRender.removeAttribute('hidden')
             },
             handleEdgeSimpleRenderingMenu: function (e) {
-                this.hideEdgeSimpleRendering = false;
+                this.$.edgeRender.removeAttribute('hidden')
             },
 
             handleReactomeMenu: function (e) {
-                this.hideReactome = false;
+                this.$.reactomeImport.removeAttribute('hidden')
             },
             handleKeggMenu: function (e) {
-                this.hideKegg = false;
+                this.$.keggImport.removeAttribute('hidden')
             },
             handleIntactMenu: function (e) {
-                this.hideIntact = false;
+                this.$.intactImport.removeAttribute('hidden')
             },
 
             handleCommunitiesMenu: function (e) {
-                this.hideCommunities = false;
+                this.$.communitiesStructureDetection.removeAttribute('hidden')
             },
             handleTopologicalMenu: function (e) {
-                this.hideTopological = false;
-            },
-
-            handleReactomeFiMenu: function (e) {
-                this.hideReactomeFi = false;
+                this.$.topologicalStudy.removeAttribute('hidden')
             },
 
             handleSnowMenu: function (e) {
@@ -1191,7 +1177,7 @@
                         this.setLayout('Force directed');
                         break;
                     case 'layout-configure-force-directed' :
-                        this.selectedMenu = "configure-force-directed";
+                        this.$.configureForceDirected.removeAttribute('hidden')
                         break;
                     case 'layout-tree' :
                         this.setLayout('Tree');

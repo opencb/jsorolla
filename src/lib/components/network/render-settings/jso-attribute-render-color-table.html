@@ -284,11 +284,12 @@
             },
             _updateVisualSet: function () {
                 if (this.attributeName != '') {
-                    this.matches = {};
+                    var matches = {};
                     for (var i = 0; i < this.uniqueData.length; i++) {
                         var data = this.uniqueData[i];
-                        this.matches[data.attribute] = data.render;
+                        matches[data.attribute] = data.render;
                     }
+                    this.matches = matches;
                     this.visualSet = {
                         attribute: this.attributeName,
                         displayProperty: this.getAttribute("id"),
@@ -372,7 +373,7 @@
                     if (this.points.length == 0) {
                         this.points.push({value: min, render: this.defaultValue});
                         this.points.push({value: max, render: this.defaultValue});
-                    }else{
+                    } else {
                         this.points[0].value = min;
                         this.points[this.points.length - 1].value = max;
                     }
@@ -381,8 +382,9 @@
                         return parseFloat(a.attribute) - parseFloat(b.attribute);
                     });
                     this.uniqueData = uniqueData;
-                    this._updateUniqueInterpolatedValues();
-
+                    if (this.attributeType == 'continuous') {
+                        this._updateUniqueInterpolatedValues();
+                    }
                 }
             },
 

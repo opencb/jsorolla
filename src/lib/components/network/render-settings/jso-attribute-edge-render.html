@@ -1,4 +1,4 @@
-<polymer-element name="jso-attribute-edge-render" attributes="attributeManager hideFlag defaults visualSets">
+<polymer-element name="jso-attribute-edge-render" attributes="attributeManager defaults visualSets">
     <template>
         <link rel="stylesheet" href="../../jso-style.css">
         <link rel="stylesheet" href="../../jso-panel.css">
@@ -8,7 +8,7 @@
                 position: relative;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
-                width: 315px;
+                width: 320px;
             }
 
             .container {
@@ -97,9 +97,7 @@
 
         </style>
         <div class="panel panel-shadow">
-            <div class="header" horizontal layout
-                 on-mousedown="{{handleHeaderMouseDown}}"
-                 on-mouseup="{{handleHeaderMouseUp}}">
+            <div id="header" class="header" horizontal layout>
                 <div class="text">Edge visualization settings</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
@@ -391,7 +389,7 @@
 
 
             handleClose: function () {
-                this.hideFlag = true;
+                this.setAttribute('hidden', '');
             },
             handleSettingsClick: function (e) {
                 this.displayProperty = e.currentTarget.dataset.prop;

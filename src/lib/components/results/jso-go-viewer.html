@@ -135,7 +135,7 @@
                 this.$.networkViewer.hideNodeSimpleRendering = true;
             },
             handleSaveSessionToCellMaps: function (e) {
-                var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.viewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
+                var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.networkViewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
                 if (saved) {
                     this.saveMessage = "Saved as " + this.sessionName + ", you can go back to Cell Maps and load the network using the session manager inside File menu.";
                     this.sessionName = '';
