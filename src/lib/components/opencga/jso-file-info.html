@@ -110,7 +110,7 @@
                 }
             },
             fileChanged: function (oldV, newV) {
-                if (oldV !== undefined)
+                if (this.file !== undefined && this.file.bioformat !== undefined)
                     this.bioformatText = this.getPrettyBioformat(this.file.bioformat);
             },
             getPrettyBioformat: function (text) {
