@@ -1,4 +1,4 @@
-<polymer-element name="jso-snow" attributes="userData selectedOption selectedStudy studies args networkViewer">
+<polymer-element name="jso-snow" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -50,13 +50,17 @@
             }
 
         </style>
-        <div class="title" horizontal layout>
-            <div flex>
-                Network enrichment
-            </div>
-            <div class="close" on-click="{{handleCancel}}">
-                <font-awesome icon="times"></font-awesome>
-                <!--<font-awesome icon="magic"></font-awesome>-->
+
+
+        <div class="title" horizontal layout hidden?="{{hideTitle == 'true'}}">
+            <div class="title" horizontal layout>
+                <div flex>
+                    Network enrichment
+                </div>
+                <div class="close" on-click="{{handleCancel}}">
+                    <font-awesome icon="times"></font-awesome>
+                    <!--<font-awesome icon="magic"></font-awesome>-->
+                </div>
             </div>
         </div>
         <form id="form">
