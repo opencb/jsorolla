@@ -11,46 +11,55 @@
 
         </style>
 
-        <div>Cosmic</div>
-        <sortable-table id="cosmicGrid"
-                        class="bootstrap"
-                        footerTemplate="defaultPager"
-                        pageSize="10"
-                        page="{{page}}"
-                        loading="true"
-                        data="{{dataCosmic}}">
-        </sortable-table>
-        <div>Gwas</div>
-        <sortable-table id="gwasGrid"
-                        class="bootstrap"
-                        footerTemplate="defaultPager"
-                        pageSize="10"
-                        page="{{page}}"
-                        loading="true"
-                        data="{{dataGwas}}">
-        </sortable-table>
-        <div>Clinvar</div>
-        <sortable-table id="clinvarGrid"
-                        class="bootstrap"
-                        footerTemplate="defaultPager"
-                        pageSize="10"
-                        page="{{page}}"
-                        loading="true"
-                        data="{{dataClinvar}}">
-        </sortable-table>
+        <div hidden?="{{dataCosmic.length == 0}}">
+            <span>Cosmic</span>
+            <sortable-table id="cosmicGrid"
+                            class="bootstrap"
+                            footerTemplate="defaultPager"
+                            pageSize="10"
+                            page="{{page}}"
+                            loading="true"
+                            data="{{dataCosmic}}">
+            </sortable-table>
+        </div>
+        <div hidden?="{{dataGwas.length == 0}}">
+            <span>Gwas</span>
+            <sortable-table id="gwasGrid"
+                            class="bootstrap"
+                            footerTemplate="defaultPager"
+                            pageSize="10"
+                            page="{{page}}"
+                            loading="true"
+                            data="{{dataGwas}}">
+            </sortable-table>
+        </div>
+        <div hidden?="{{dataClinvar.length == 0}}">
+            <span>
+                Clinvar
+            </span>
+            <sortable-table id="clinvarGrid"
+                            class="bootstrap"
+                            footerTemplate="defaultPager"
+                            pageSize="10"
+                            page="{{page}}"
+                            loading="true"
+                            data="{{dataClinvar}}">
+            </sortable-table>
+        </div>
 
     </template>
     <script>
         Polymer({
             variant: null,
+            data: null,
+            page: 0,
             created: function () {
+                this.data = [];
             },
             ready: function () {
 
             },
             variantChanged: function (oldValue, newValue) {
-                var me = this;
-
                 var me = this;
 
                 this.page = 0;
@@ -66,7 +75,8 @@
                         category: 'genomic',
                         subCategory: 'variant',
                         resource: 'full_annotation',
-                        query: newValue,
+//                        query: newValue,
+                        query: '19:45411941:T:C',
                         async: false,
                         success: function (response) {
                             try {
@@ -92,6 +102,7 @@
                                     }
                                 }
 
+                                me.$.cosmicGrid.dataSize = me.dataCosmic.length;
                                 console.log(me.dataCosmic);
                                 console.log(me.dataGwas);
                                 console.log(me.dataClinvar);

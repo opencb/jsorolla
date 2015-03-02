@@ -181,7 +181,6 @@
                         async: false,
                         success: function (response) {
                             try {
-//                                me.data = response.response[0].result[0].consequenceTypes
                                 me.data = me.parseFunction(response.response[0].result[0].consequenceTypes);
                             } catch (e) {
                                 me.data = [];
