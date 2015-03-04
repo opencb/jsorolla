@@ -33,10 +33,6 @@
                 padding: 2px 5px 5px 5px;
             }
 
-            #top {
-                padding: 2px 5px 0px 5px;
-            }
-
             label {
                 margin-top: 3px;
             }
@@ -65,132 +61,127 @@
             <div id="header" class="header" horizontal layout
                  on-mousedown="{{handleHeaderMouseDown}}"
                  on-mouseup="{{handleHeaderMouseUp}}">
-                <div class="text">Filter {{type}} attributes</div>
+                <div class="text">Select {{type}}s by attributes</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
             </div>
-            <div class="container" vertical layout>
-                <div id="top">
+            <div class="container" horizontal layout>
+                <div id="left" vertical layout>
+
+                    <label>Filter attribute:</label>
+
+                    <div class="select">
+                        <select id="filterAttributeSelect">
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+
+
+                    <label>Filter data type:</label>
+
+                    <div class="selbox">
+                        <div flex class="selitem" data-checked="{{attributeType == 'string'}}"
+                             on-click="{{handleAttributeTypeSelect}}" data-name="string">String
+                        </div>
+                        <div flex class="selitem" data-checked="{{attributeType == 'number'}}"
+                             on-click="{{handleAttributeTypeSelect}}" data-name="number">Number
+                        </div>
+                    </div>
+
+                    <template if="{{attributeType == 'string'}}">
+                        <label>Filter string matching:</label>
+
+                        <div class="selbox" style="height: 122px;width:150px;">
+                            <div flex class="selitem" data-checked="{{stringMatch == 'exact'}}"
+                                 on-click="{{handleStringMatchSelect}}" data-name="exact">Exact
+                            </div>
+                            <div flex class="selitem" data-checked="{{stringMatch == 'contains'}}"
+                                 on-click="{{handleStringMatchSelect}}" data-name="contains">Contains
+                            </div>
+                            <div flex class="selitem" data-checked="{{stringMatch == 'notcontains'}}"
+                                 on-click="{{handleStringMatchSelect}}" data-name="notcontains">Not contains
+                            </div>
+                        </div>
+                    </template>
+
+                    <template if="{{attributeType == 'number'}}">
+                        <label>Number matching:</label>
+
+                        <div class="selbox" style="width:150px;">
+                            <div flex class="selitem" data-checked="{{numberMatch == 'equals'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="equals">Equals
+                            </div>
+                            <div flex class="selitem" data-checked="{{numberMatch == 'notequal'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="notequal">Not equal to
+                            </div>
+
+                            <div flex class="selitem" data-checked="{{numberMatch == 'greater'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="greater">Greater than
+                            </div>
+                            <div flex class="selitem" data-checked="{{numberMatch == 'greaterequal'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="greaterequal">Greater than or equal to
+                            </div>
+
+                            <div flex class="selitem" data-checked="{{numberMatch == 'less'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="less">Less than
+                            </div>
+                            <div flex class="selitem" data-checked="{{numberMatch == 'lessequal'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="lessequal">Less than or equal to
+                            </div>
+                        </div>
+                    </template>
+
                     <label>Create filter:</label>
 
-                    <div horizontal layout>
-                        <div flex>
+                    <div vertical layout>
+                        <div>
                             <input type="text" value="{{queryString}}" placeholder="Query string">
                         </div>
-                        <div style="margin-left:4px;" class="button action" on-click="{{handleCreateFilter}}">
+                        <div style="margin-top:4px;" class="button action" on-click="{{handleCreateFilter}}">
                             Add filter
                         </div>
                     </div>
 
                 </div>
+                <div id="right" vertical layout flex>
 
-                <div horizontal layout>
-                    <div id="left" vertical layout>
+                    <label>Current filters:</label>
 
-                        <label>Filter attribute:</label>
-
-                        <div class="select">
-                            <select id="filterAttributeSelect">
-                                <template repeat="{{column in attributeManager.columns}}">
-                                    <option value="{{column.name}}">{{column.title}}</option>
-                                </template>
-                            </select>
-                        </div>
-
-
-                        <label>Filter data type:</label>
-
-                        <div class="selbox">
-                            <div flex class="selitem" data-checked="{{attributeType == 'string'}}"
-                                 on-click="{{handleAttributeTypeSelect}}" data-name="string">String
-                            </div>
-                            <div flex class="selitem" data-checked="{{attributeType == 'number'}}"
-                                 on-click="{{handleAttributeTypeSelect}}" data-name="number">Number
-                            </div>
-                        </div>
-
-                        <template if="{{attributeType == 'string'}}">
-                            <label>Filter string matching:</label>
-
-                            <div class="selbox" style="height: 122px;width:150px;">
-                                <div flex class="selitem" data-checked="{{stringMatch == 'exact'}}"
-                                     on-click="{{handleStringMatchSelect}}" data-name="exact">Exact
+                    <div class="selbox" flex>
+                        <template if="{{filters.length == 0}}">
+                            <div flex class="selitem">No active filters to show.</div>
+                        </template>
+                        <template repeat="{{filter, filterIndex in filters}}">
+                            <div flex class="selitem" horizontal layout>
+                                <div flex vertical layout>
+                                    <div>
+                                        <span class="light">Attribute:</span>
+                                        {{filter.attributeName}}
+                                    </div>
+                                    <div>
+                                        <span class="light"> Rule:</span>
+                                        <span style="text-transform: capitalize">{{filter.match}} {{filter.attributeType}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="light">Value:</span>
+                                        {{filter.queryString}}
+                                    </div>
                                 </div>
-                                <div flex class="selitem" data-checked="{{stringMatch == 'contains'}}"
-                                     on-click="{{handleStringMatchSelect}}" data-name="contains">Contains
-                                </div>
-                                <div flex class="selitem" data-checked="{{stringMatch == 'notcontains'}}"
-                                     on-click="{{handleStringMatchSelect}}" data-name="notcontains">Not contains
+                                <div horizontal layout class="filteractions">
+                                    <font-awesome icon="{{filter.enabled ? 'toggle-on' : 'toggle-off'}}"
+                                                  class="{{filter.enabled ? 'on' : 'off'}}"
+                                                  on-click="{{handleToggleFilter}}"></font-awesome>
+                                    <font-awesome icon="times" class="delete" on-click="{{handleDeleteFilter}}"></font-awesome>
                                 </div>
                             </div>
                         </template>
-
-                        <template if="{{attributeType == 'number'}}">
-                            <label>Number matching:</label>
-
-                            <div class="selbox" style="width:150px;">
-                                <div flex class="selitem" data-checked="{{numberMatch == 'equals'}}"
-                                     on-click="{{handleNumberMatchSelect}}" data-name="equals">Equals
-                                </div>
-                                <div flex class="selitem" data-checked="{{numberMatch == 'notequal'}}"
-                                     on-click="{{handleNumberMatchSelect}}" data-name="notequal">Not equal to
-                                </div>
-
-                                <div flex class="selitem" data-checked="{{numberMatch == 'greater'}}"
-                                     on-click="{{handleNumberMatchSelect}}" data-name="greater">Greater than
-                                </div>
-                                <div flex class="selitem" data-checked="{{numberMatch == 'greaterequal'}}"
-                                     on-click="{{handleNumberMatchSelect}}" data-name="greaterequal">Greater than or equal to
-                                </div>
-
-                                <div flex class="selitem" data-checked="{{numberMatch == 'less'}}"
-                                     on-click="{{handleNumberMatchSelect}}" data-name="less">Less than
-                                </div>
-                                <div flex class="selitem" data-checked="{{numberMatch == 'lessequal'}}"
-                                     on-click="{{handleNumberMatchSelect}}" data-name="lessequal">Less than or equal to
-                                </div>
-                            </div>
-                        </template>
-
                     </div>
-                    <div id="right" vertical layout flex>
-
-                        <label>Current filters:</label>
-
-                        <div class="selbox" flex>
-                            <template if="{{filters.length == 0}}">
-                                <div flex class="selitem">No active filters to show.</div>
-                            </template>
-                            <template repeat="{{filter, filterIndex in filters}}">
-                                <div flex class="selitem" horizontal layout>
-                                    <div flex vertical layout>
-                                        <div>
-                                            <span class="light">Attribute:</span>
-                                            {{filter.attributeName}}
-                                        </div>
-                                        <div>
-                                            <span class="light"> Rule:</span>
-                                            <span style="text-transform: capitalize">{{filter.match}} {{filter.attributeType}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="light">Value:</span>
-                                            {{filter.queryString}}
-                                        </div>
-                                    </div>
-                                    <div horizontal layout class="filteractions">
-                                        <font-awesome icon="{{filter.enabled ? 'toggle-on' : 'toggle-off'}}"
-                                                      class="{{filter.enabled ? 'on' : 'off'}}"
-                                                      on-click="{{handleToggleFilter}}"></font-awesome>
-                                        <font-awesome icon="times" class="delete" on-click="{{handleDeleteFilter}}"></font-awesome>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                        <div style="margin-top: 2px;" class="button action" on-click="{{handleDeleteFilters}}">
-                            Clear all filters
-                        </div>
+                    <div style="margin-top: 2px;" class="button action" on-click="{{handleDeleteFilters}}">
+                        Clear all filters
                     </div>
                 </div>
 
