@@ -62,8 +62,8 @@
             }
 
             /*div.icon {*/
-                /*font-size: 30px;*/
-                /*margin-left: 2vw;*/
+            /*font-size: 30px;*/
+            /*margin-left: 2vw;*/
             /*}*/
 
             div.title {
@@ -73,13 +73,13 @@
             div.description {
                 color: #ffad76;
                 font-size: 20px;
-                padding-top:3px;
+                padding-top: 3px;
                 line-height: 60px;
             }
 
             div.description:hover {
                 color: #ffad76;
-                cursor:default;
+                cursor: default;
             }
 
             @media (max-width: 1250px) {
@@ -132,16 +132,17 @@
 
 
             <template if="{{allowBrowse == true}}">
-            <div id="projects" data-option="projects" on-click="{{handleMenu}}" hidden?="{{!isLogged}}">
-                <font-awesome icon="cloud-upload"></font-awesome>
-                <!--<font-awesome icon="pie-chart"></font-awesome>-->
-                <!--&nbsp;studies-->
-                &nbsp;Upload
-            </div>
+                <div id="projects" data-option="projects" on-click="{{handleMenu}}" hidden?="{{!isLogged}}">
+                    <font-awesome icon="cloud-upload"></font-awesome>
+                    <!--<font-awesome icon="pie-chart"></font-awesome>-->
+                    <!--&nbsp;studies-->
+                    &nbsp;Upload
+                </div>
             </template>
 
 
-            <div id="profile" data-option="profile" on-click="{{handleMenu}}" hidden?="{{!isLogged || userText == 'anonymous'}}">
+            <div id="profile" data-option="profile" on-click="{{handleMenu}}"
+                 hidden?="{{!isLogged || userText == 'anonymous'}}">
                 <font-awesome icon="user"></font-awesome>
                 &nbsp;profile
             </div>
