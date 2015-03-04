@@ -1,6 +1,5 @@
 <polymer-element name="jso-nv-bar" attributes="columns lite">
     <template>
-        <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
             :host {
                 display: block;
@@ -72,6 +71,9 @@
                     <!--<li data-value="network-edit">Edit network...</li>-->
                     <li data-sub>Select
                         <ul>
+                            <li data-value="nodes-filter">Nodes by attributes...</li>
+                            <li data-value="edges-filter">Edges by attributes...</li>
+                            <li data-divider>
                             <li data-value="nodes-select-all">All nodes</li>
                             <li data-value="nodes-select-first-neighbourhood">First neighbourhood nodes</li>
                             <li data-value="nodes-select-invert">Invert node selection</li>
@@ -114,8 +116,8 @@
                     Attributes
                 </div>
                 <ul id="attributesMenu" on-click="{{handleClick}}">
-                    <li data-value="nodes-edit">Edit and filter node attributes...</li>
-                    <li data-value="edges-edit">Edit and filter edge attributes...</li>
+                    <li data-value="nodes-edit">Edit node attributes...</li>
+                    <li data-value="edges-edit">Edit edge attributes...</li>
                     <li data-divider>
                     <li data-value="node-simple-rendering">Node visualization settings...</li>
                     <li data-value="edge-simple-rendering">Edge visualization settings...</li>
@@ -144,9 +146,9 @@
                         </ul>
                     </li>
                     <!--<li data-sub>Expression analysis-->
-                    <!--<ul>-->
-                    <!--<li data-value="reactome-fi-microarray">Reactome FI microarray</li>-->
-                    <!--</ul>-->
+                        <!--<ul>-->
+                            <!--<li data-value="reactome-fi-microarray">Reactome FI microarray</li>-->
+                        <!--</ul>-->
                     <!--</li>-->
                     <li data-sub>Functional analysis
                         <ul>

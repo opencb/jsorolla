@@ -1,5 +1,5 @@
-<link rel="import" href="../lib/components/forms/jso-network-miner.html">
-<polymer-element name="jso-nv-network-miner" extends="jso-window" attributes="userData selectedOption selectedStudy studies networkViewer">
+<link rel="import" href="jso-reactome-fi.html">
+<polymer-element name="jso-nv-reactome-fi" extends="jso-window" attributes="userData selectedOption selectedStudy studies networkViewer">
     <template>
         <style>
             :host {
@@ -13,7 +13,7 @@
                 height: 500px;
             }
 
-            jso-network-miner {
+            jso-reactome-fi {
                 padding: 5px;
                 border: 0px;
             }
@@ -23,13 +23,13 @@
             <div id="header" class="header" horizontal layout
                  on-mousedown="{{handleHeaderMouseDown}}"
                  on-mouseup="{{handleHeaderMouseUp}}">
-                <div class="text">Gene set network enrichment form</div>
+                <div class="text">Reactome FI form</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <div class="text headerclose" on-click="{{handleCancel}}"></div>
                 </div>
             </div>
             <div class="container">
-                <jso-network-miner
+                <jso-reactome-fi
                         selectedOption="{{selectedOption}}"
                         userData="{{userData}}"
                         selectedStudy="{{selectedStudy}}"
@@ -37,7 +37,7 @@
                         networkViewer="{{networkViewer}}"
                         hideTitle="true"
                         >
-                </jso-network-miner>
+                </jso-reactome-fi>
             </div>
         </div>
     </template>

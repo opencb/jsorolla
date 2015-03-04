@@ -1,8 +1,5 @@
 <polymer-element name="jso-nv-session-manager" extends="jso-window" attributes="networkViewer">
     <template>
-        <link rel="stylesheet" href="../lib/components/jso-style.css">
-        <link rel="stylesheet" href="../lib/components/jso-panel.css">
-        <link rel="stylesheet" href="../lib/components/jso-form.css">
         <style>
             :host {
                 display: block;
@@ -46,7 +43,7 @@
                 <div class="text">Session manager</div>
                 <div class="headeractions" horizontal end-justified layout flex>
                     <!--<template if="{{moved}}">-->
-                        <!--<div class="text headerpin" on-click="{{handlePin}}"></div>-->
+                    <!--<div class="text headerpin" on-click="{{handlePin}}"></div>-->
                     <!--</template>-->
                     <div class="text headerclose" on-click="{{handleClose}}"></div>
                 </div>
@@ -158,14 +155,17 @@
                 this._updateSessionsFromLocalStorage();
             },
             handleRemoveAllSessions: function () {
-                for (var i = 0; i < this.sessions.length; i++) {
-                    var session = this.sessions[i];
-                    localStorage.setItem(session.key, null);
-                    localStorage.removeItem(session.key);
+                if (this.sessions.length > 0 && confirm('All saved sessions will be deleted. Are you sure?')) {
+                    for (var i = 0; i < this.sessions.length; i++) {
+                        var session = this.sessions[i];
+                        localStorage.setItem(session.key, null);
+                        localStorage.removeItem(session.key);
+                    }
+                    this.sessions = [];
+                    this.sessionMap = {};
+                    this.selectedSessionKey = null;
                 }
-                this.sessions = [];
-                this.sessionMap = {};
-                this.selectedSessionKey = null;
+
             },
             handleLoadSession: function () {
                 if (this.selectedSessionKey) {

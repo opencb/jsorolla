@@ -116,7 +116,9 @@
                 <content select=".menu"></content>
             </template>
 
-            <div flex style="cursor:default;"></div>
+            <div flex style="cursor:default;">
+                <content select=".announce"></content>
+            </div>
 
             <div id="user" hidden?="{{!isLogged}}">
                 {{userText}}

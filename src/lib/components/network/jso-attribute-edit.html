@@ -1,9 +1,6 @@
 <polymer-element name="jso-attribute-edit" extends="jso-window" attributes="selectedMenu attributeManager type">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-panel.css">
-        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -30,24 +27,6 @@
 
             #header[horizontal] > *:last-child {
                 margin-right: 0px;
-            }
-
-            .formbox {
-                margin: 0;
-                background-color: #fafafa;
-                border-width: 0;
-                border-color: #b0b0b0;
-            }
-
-            .formtitle {
-                font-size: 14px;
-                background-color: #e5e5e5;
-                border-color: #b0b0b0;
-                /*background-color: #435f7a;*/
-                /*color: #FFFFFF;*/
-            }
-
-            .formcontent {
             }
 
             .remove::after {
@@ -165,7 +144,7 @@
             <div class="container" flex horizontal layout>
                 <div id="left" vertical layout>
 
-                    <div class="formbox">
+                    <div class="formbox fit">
                         <div class="formtitle">Edit</div>
                         <div class="formcontent" vertical layout>
                             <label>Edit attribute for selected {{type}}s</label>
@@ -213,7 +192,7 @@
                         </div>
                     </div>
 
-                    <div class="formbox" style="border-top-width:1px" flex>
+                    <div class="formbox fit" style="border-top-width:1px" flex>
                         <div class="formtitle" horizontal layout>
                             <div flex>Filters</div>
                             <div class="actions" horizontal layout>
@@ -242,7 +221,7 @@
                                         </div>
                                     </template>
                                     <template repeat="{{filter, filterIndex in filters}}">
-                                        <div flex class="selitem" on-click="{{handleStringMatchSelect}}" horizontal layout>
+                                        <div flex class="selitem" horizontal layout>
                                             <div flex vertical layout>
                                                 <div>Attribute: {{filter.attributeName}}</div>
                                                 <div style="text-transform: capitalize">rule: {{filter.match}} {{filter.attributeType}}</div>
@@ -326,7 +305,7 @@
                                         <input type="text" value="{{queryString}}" placeholder="Query string">
                                     </div>
                                     <div class="button action" on-click="{{handleCreateFilter}}">
-                                        AddFilter
+                                        Add filter
                                     </div>
                                 </div>
                             </template>

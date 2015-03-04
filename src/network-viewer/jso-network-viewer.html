@@ -38,6 +38,7 @@
 <link rel="import" href="../lib/components/network/jso-attribute-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-network-edit.html">
 <link rel="import" href="../lib/components/network/jso-attribute-edit.html">
+<link rel="import" href="../lib/components/network/jso-nv-select-filter.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-node-render.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-edge-render.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-number-table.html">
@@ -55,6 +56,7 @@
 <link rel="import" href="jso-nv-snow.html">
 <link rel="import" href="jso-nv-network-miner.html">
 <link rel="import" href="jso-nv-fatigo.html">
+<link rel="import" href="jso-nv-reactome-fi.html">
 
 
 <script src="../lib/cellbase-manager.js"></script>
@@ -65,7 +67,6 @@
 <polymer-element name="jso-network-viewer"
                  attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies jsoHeader lite">
     <template>
-        <link rel="stylesheet" href="../lib/components/jso-style.css">
         <style>
             :host {
                 display: block;
@@ -147,6 +148,8 @@
                 on-network-edit="{{handleNetworkEditMenu}}"
                 on-nodes-edit="{{handleNodesEditMenu}}"
                 on-edges-edit="{{handleEdgesEditMenu}}"
+                on-nodes-filter="{{handleNodesFilterMenu}}"
+                on-edges-filter="{{handleEdgesFilterMenu}}"
                 on-cellbase="{{handleCellbaseMenu}}"
 
 
@@ -281,6 +284,22 @@
             </jso-attribute-edge-render>
         </div>
         <div class="left-side">
+            <jso-nv-select-filter
+                    hidden
+                    id="nodeSelectFilter"
+                    filters="{{vertexDefaults.filters}}"
+                    attributeManager="{{vAttr}}"
+                    networkViewer="{{}}"
+                    type="node">
+            </jso-nv-select-filter>
+            <jso-nv-select-filter
+                    hidden
+                    id="edgeSelectFilter"
+                    filters="{{edgeDefaults.filters}}"
+                    attributeManager="{{eAttr}}"
+                    networkViewer="{{}}"
+                    type="edge">
+            </jso-nv-select-filter>
             <jso-network-edit
                     hidden
                     id="networkEdit"
@@ -387,7 +406,7 @@
                     studies="{{studies}}"
                     networkViewer="{{}}"
                     >
-                </jso-nv-network-miner>
+            </jso-nv-network-miner>
         </template>
         <template if="{{selectedMenu == 'snow'}}">
             <jso-nv-snow
@@ -408,6 +427,16 @@
                     networkViewer="{{}}"
                     >
             </jso-nv-fatigo>
+        </template>
+        <template if="{{selectedMenu == 'reactome-fi-microarray'}}">
+            <jso-nv-reactome-fi
+                    selectedOption="{{selectedMenu}}"
+                    userData="{{userData}}"
+                    selectedStudy="{{selectedStudy}}"
+                    studies="{{studies}}"
+                    networkViewer="{{}}"
+                    >
+            </jso-nv-reactome-fi>
         </template>
 
 
@@ -450,23 +479,6 @@
 
                 this.mode = "select";
                 this.scale;
-
-                this.hideNodeRendering = true;
-                this.hideEdgeRendering = true;
-
-
-                this.hideCellbase = true;
-
-
-                this.hideReactome = true;
-                this.hideKegg = true;
-                this.hideIntact = true;
-                this.hideCommunities = true;
-                this.hideTopological = true;
-                this.hideReactomeFi = false;
-                this.hideSnow = false;
-                this.hideNetworkMiner = false;
-                this.hideFatigo = false;
             },
             ready: function () {
                 var me = this;
@@ -476,6 +488,9 @@
                     me.$.vertexcontextmenu.style.opacity = "";
                     me.$.vertexcontextmenu.style.visibility = "";
                 });
+            },
+            domReady: function () {
+
             },
             _init: function () {
                 this.lastLoadedFileName = "";
@@ -506,7 +521,8 @@
                     labelAttribute: 'id',
                     xAttribute: 'x',
                     yAttribute: 'y',
-                    selectionColor: '#da6d1f'
+                    selectionColor: '#da6d1f',
+                    filters: []
                 };
                 this.edgeDefaults = {
                     shape: 'directed',
@@ -518,7 +534,8 @@
                     opacity: 1,
                     labelSize: 0,
                     labelColor: '#111111',
-                    labelAttribute: 'relation'
+                    labelAttribute: 'relation',
+                    filters: []
                 };
                 this.vertexVisualSets = {
                     labelSize: null,
@@ -617,9 +634,16 @@
             loadJSON: function (o) {
                 this.startOver();
 
-                //Fix  selectionColor
+                //Version fix  selectionColor
                 if (o.vertexDefaults.selectionColor == null) {
                     o.vertexDefaults.selectionColor = this.vertexDefaults.selectionColor;
+                }
+                //Version Fix filters
+                if (o.vertexDefaults.filters == null) {
+                    o.vertexDefaults.filters = this.vertexDefaults.filters;
+                }
+                if (o.edgeDefaults.filters == null) {
+                    o.edgeDefaults.filters = this.edgeDefaults.filters;
                 }
 
                 this.backgroundImages = o.backgroundImages;
@@ -932,6 +956,12 @@
             handleEdgesEditMenu: function (e) {
                 this.$.edgeAttributeEdit.removeAttribute('hidden')
             },
+            handleNodesFilterMenu: function (e) {
+                this.$.nodeSelectFilter.removeAttribute('hidden')
+            },
+            handleEdgesFilterMenu: function (e) {
+                this.$.edgeSelectFilter.removeAttribute('hidden')
+            },
             handleCellbaseMenu: function (e) {
                 this.$.cellbaseAttributeImport.removeAttribute('hidden')
             },
@@ -1106,6 +1136,14 @@
                         this.jsoHeader.anonymousSign();
                     }
                     this.selectedMenu = "fatigo";
+                }
+            },
+            handleReactomeFiMenu: function (e) {
+                if (this.jsoHeader) {
+                    if (this.jsoHeader.isLogged == false) {
+                        this.jsoHeader.anonymousSign();
+                    }
+                    this.selectedMenu = "reactome-fi-microarray";
                 }
             },
 
@@ -1447,6 +1485,16 @@
                     }
                 }
                 this.vAttr.selected = selected;
+            },
+            selectEdgesInvert: function () {
+                var selected = [];
+                for (var i = 0; i < this.graph.edges.length; i++) {
+                    var edge = this.graph.edges[i];
+                    if (!edge.renderer.selected) {
+                        selected.push(this.eAttr.getRow(edge.id));
+                    }
+                }
+                this.eAttr.selected = selected;
             },
             selectByArea: function (x, y, width, height) {
                 this.deselectAllVertices();

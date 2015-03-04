@@ -3,12 +3,12 @@
 CONTROLS
 */
 
-input {
+* /deep/ input {
     margin: 0px;
     font-family: inherit;
 }
 
-label {
+* /deep/ label {
     display: inline-block;
     color: #666;
     line-height: 21px;
@@ -19,11 +19,12 @@ label {
 /*content: ':'*/
 /*}*/
 
-label.button::after {
+* /deep/ label.button::after {
     content: none;
 }
 
-div.label, div.text {
+* /deep/ div.label,
+* /deep/ div.text {
     display: block;
     float: left;
     box-sizing: border-box;
@@ -34,17 +35,17 @@ div.label, div.text {
     /*font-size: inherit;*/
 }
 
-div.text {
+* /deep/ div.text {
     border-color: transparent;
     background-color: transparent;
 }
 
-label.button > input[type=radio],
-label.button > input[type=checkbox] {
+* /deep/ label.button > input[type=radio],
+* /deep/ label.button > input[type=checkbox] {
     display: none;
 }
 
-select {
+* /deep/ select {
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
@@ -52,30 +53,32 @@ select {
     background: transparent;
 }
 
-input, select {
+* /deep/ input,
+* /deep/ select {
     width: 100%;
 }
 
-.select:after {
+* /deep/ .select:after {
     position: absolute;
     box-sizing: border-box;
     top: 6px;
     right: 8px;
     color: inherit;
     font-family: FontAwesome;
-    content: '\f0d7';
+    /*content: '\f0d7';*/
+    content: '\f107';
 }
 
-div.button,
-select,
-input[type=text],
-input[type=email],
-input[type=password],
-input[type=file],
-input[type=number],
-input[type=color],
-label.button > input[type=radio] + span,
-label.button > input[type=checkbox] + span {
+* /deep/ div.button,
+* /deep/ select,
+* /deep/ input[type=text],
+* /deep/ input[type=email],
+* /deep/ input[type=password],
+* /deep/ input[type=file],
+* /deep/ input[type=number],
+* /deep/ input[type=color],
+* /deep/ label.button > input[type=radio] + span,
+* /deep/ label.button > input[type=checkbox] + span {
     display: block;
     position: relative;
     outline: transparent solid 0px;
@@ -90,30 +93,30 @@ label.button > input[type=checkbox] + span {
     height: 23px;
 }
 
-.select {
+* /deep/ .select {
     position: relative;
     display: inline-block;
 }
 
-.select > select {
+* /deep/ .select > select {
     padding-right: 15px;
 }
 
-input[type=number] {
+* /deep/ input[type=number] {
     padding-right: 0px;
 }
 
-input[type=color] {
+* /deep/ input[type=color] {
     padding: 0px;
 }
 
-div.button:hover {
+* /deep/ div.button:hover {
     cursor: pointer;
     background-color: #ebebeb;
     /*border-color: #66afe9;*/
 }
 
-div.action {
+* /deep/ div.action {
     border: 1px solid #ddd;
     background-color: #FFFFFF;
     text-align: center;
@@ -123,79 +126,79 @@ div.action {
     transition: background-color 0.15s;
 }
 
-div.action.big {
+* /deep/ div.action.big {
     height: 50px;
     line-height: 50px;
     padding: 0px 50px;
 }
 
-div.action:hover {
+* /deep/ div.action:hover {
     background-color: #f5f5f5;
     /*background-color: #ebeef3;*/
 }
 
-div.action:active {
+* /deep/ div.action:active {
     background-color: #ebebeb;
 }
 
-div.button[data-checked=true],
-label.button > input[type=radio]:checked + span,
-label.button > input[type=checkbox]:checked + span {
+* /deep/ div.button[data-checked=true],
+* /deep/ label.button > input[type=radio]:checked + span,
+* /deep/ label.button > input[type=checkbox]:checked + span {
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
     background-color: #ebebeb;
 }
 
-label.button > input[type=radio] + span:hover,
-label.button > input[type=checkbox]:hover + span:hover {
+* /deep/ label.button > input[type=radio] + span:hover,
+* /deep/ label.button > input[type=checkbox]:hover + span:hover {
     background-color: #ebebeb;
 }
 
-input[type=text],
-input[type=email],
-input[type=number],
-input[type=color],
-input[type=password] {
+* /deep/ input[type=text],
+* /deep/ input[type=email],
+* /deep/ input[type=number],
+* /deep/ input[type=color],
+* /deep/ input[type=password] {
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
-textarea,
-input[type=text]:-moz-ui-invalid,
-input[type=email]:-moz-ui-invalid,
-input[type=number]:-moz-ui-invalid,
-input[type=color]:-moz-ui-invalid,
-input[type=password]:-moz-ui-invalid {
+* /deep/ textarea,
+* /deep/ input[type=text]:-moz-ui-invalid,
+* /deep/ input[type=email]:-moz-ui-invalid,
+* /deep/ input[type=number]:-moz-ui-invalid,
+* /deep/ input[type=color]:-moz-ui-invalid,
+* /deep/ input[type=password]:-moz-ui-invalid {
     box-shadow: none;
 }
 
-textarea:focus,
-input[type=text]:focus,
-input[type=email]:focus,
-input[type=number]:focus,
-input[type=color]:focus,
-input[type=password]:focus {
+* /deep/ textarea:focus,
+* /deep/ input[type=text]:focus,
+* /deep/ input[type=email]:focus,
+* /deep/ input[type=number]:focus,
+* /deep/ input[type=color]:focus,
+* /deep/ input[type=password]:focus {
     border-color: #66afe9;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
 }
 
-input[type=text]:invalid:focus,
-input[type=email]:invalid:focus,
-input[type=number]:invalid:focus,
-input[type=color]:invalid:focus,
-input[type=password]:invalid:focus {
+* /deep/ input[type=text]:invalid:focus,
+* /deep/ input[type=email]:invalid:focus,
+* /deep/ input[type=number]:invalid:focus,
+* /deep/ input[type=color]:invalid:focus,
+* /deep/ input[type=password]:invalid:focus {
     border-color: #e32b2b;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
 }
 
-input[type=text].error,
-input[type=email].error,
-input[type=number].error,
-input[type=color].error,
-input[type=password].error {
+* /deep/ input[type=text].error,
+* /deep/ input[type=email].error,
+* /deep/ input[type=number].error,
+* /deep/ input[type=color].error,
+* /deep/ input[type=password].error {
     border-color: #e32b2b;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
 }
 
-textarea {
+* /deep/ textarea {
     display: block;
     position: relative;
     outline: 0;
@@ -205,138 +208,9 @@ textarea {
     font-size: inherit;
 }
 
-/******* Infinite drop down *****************/
-/*
-  data-divider: add li with boolean attribute data-divider to add a space between li
-  data-sub: add attribute data-sub to add the angle icon for sub ul
-*/
 
-div.dropdown {
-    position: relative;
-    display: block;
-    color: #333;
-    cursor: pointer;
-}
 
-div.dropdown ul {
-    box-sizing: border-box;
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    list-style: none;
-    text-decoration: none;
-    z-index: 100000;
-    border: 1px solid #afafaf;
-    background-color: #fff;
-    line-height: 22px;
-    min-width: 100%;
-    margin: 1px 0 0 0;
-    padding: 5px 0;
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
-    /*box-shadow: 0px 1px 6px 0px rgb(136, 136, 136);*/
-    transition: all 0.35s;
-}
-
-ul.context {
-    box-sizing: border-box;
-    visibility: hidden;
-    opacity: 0;
-    position: fixed;
-    list-style: none;
-    text-decoration: none;
-    z-index: 100000;
-    border: 1px solid #afafaf;
-    background-color: #fff;
-    line-height: 22px;
-    margin: 1px 0 0 0;
-    padding: 5px 0;
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
-    transition: all 0.1s;
-}
-
-div.dropdown ul, ul.context ul {
-    left: 0;
-    top: 100%;
-}
-
-div.dropdown ul[data-upward] {
-    top: inherit;
-    bottom: 100%;
-    margin-bottom: 2px;
-    left: 0;
-}
-
-div.dropdown ul ul {
-    top: 0px;
-    left: 100%;
-}
-
-div.dropdown ul li,
-ul.context li {
-    position: relative;
-    text-align: left;
-    padding: 2px 30px 2px 10px;
-    white-space: nowrap;
-    color: #333;
-}
-
-div.dropdown ul li[data-divider],
-ul.context li[data-divider] {
-    height: 1px;
-    margin: 3px 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #DEDEDE;
-}
-
-div.dropdown ul li[data-sub]:after,
-ul.context li[data-sub]:after {
-    font-family: 'FontAwesome';
-    content: '\f105'; /* > */
-    /*content:'\f0da';*/
-    position: absolute;
-    right: 10px;
-}
-
-div.dropdown ul li.active,
-div.dropdown ul li:active,
-ul.context li:active {
-    background-color: #DEDEDE;
-}
-
-div.dropdown ul li:hover,
-ul.context li:hover {
-    background-color: #445D76;
-    color: #fff;
-}
-
-div.dropdown ul li[data-text]:hover,
-ul.context li[data-text]:hover {
-    background-color: inherit;
-    color: inherit;
-}
-
-div.dropdown ul li[data-divider]:hover,
-ul.context li[data-divider]:hover {
-    background-color: #DEDEDE;
-}
-
-div.dropdown > div.button:focus + ul,
-div.dropdown > div.button:focus + ul li:hover > ul {
-    visibility: visible;
-    opacity: 1;
-}
-
-/* dropdown button combination */
-div.dropdown > div.button::after {
-    font-family: 'FontAwesome';
-    content: '\f107';
-    float: right;
-    line-height: 21px;
-    padding: 0 2px 0 4px;
-}
-
-.zoom-bar {
+* /deep/ .zoom-bar {
     position: relative;
     width: 120px;
     height: 23px;
@@ -346,7 +220,7 @@ div.dropdown > div.button::after {
     background-color: #FFFFFF;
 }
 
-.zoom-bar > div {
+* /deep/ .zoom-bar > div {
     background-color: #445D76;
     /*background-color: #DCDCDC;*/
     box-sizing: border-box;
@@ -354,61 +228,18 @@ div.dropdown > div.button::after {
     transition: all 0.2s;
 }
 
-.input-project-browser {
+* /deep/ .input-project-browser {
     height: 400px;
     border: 1px solid #d3d3d3;
     border-top-width: 0px;
     margin-top: 10px;
 }
 
-.formbox {
-    border: 1px solid #d3d3d3;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
-    margin: 0 5px 10px 5px;
-    background-color: #FFFFFF;
-}
 
-.formtitle {
-    border-bottom: 1px solid #dfdfdf;
-    padding: 6px 10px;
-    font-size: 16px;
-    color: #000;
-    background-color: #f5f5f5;
-}
-
-.formtitle > * {
-    margin-left: 5px;
-}
-
-.formtitle > .actions > * {
-    margin-left: 5px;
-    color: #888;
-}
-
-.formtitle > .actions > *[data-checked] {
-    color: #445D76;
-}
-
-.formtitle > .actions > *:hover {
-    color: #000;
-}
-
-.formcontent {
-    padding: 8px 10px;
-}
-
-.formcontent.fit {
-    padding: 0px;
-}
-
-.tooltitle {
+* /deep/ .tooltitle {
     text-align: center;
     font-size: 25px;
     color: #666;
     margin-bottom: 10px;
 
 }
-
-/*
-END CONTROLS
-*/

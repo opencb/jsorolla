@@ -33,16 +33,17 @@
                 }
             }
 
-            sortable-table::shadow .column-term_size,
-            sortable-table::shadow .column-term_size_genome,
-            sortable-table::shadow .column-term_size_genome,
-            sortable-table::shadow .column-term_annotations_list_perc,
-            sortable-table::shadow .column-odds_ratio,
-            sortable-table::shadow .column-pvalue,
-            sortable-table::shadow .column-adj_pvalue {
-                width: 80px;
+
+            /*sortable-table::shadow .column-term_size,*/
+            /*sortable-table::shadow .column-term_size_genome,*/
+            /*sortable-table::shadow .column-term_size_genome,*/
+            /*sortable-table::shadow .column-term_annotations_list_perc,*/
+            /*sortable-table::shadow .column-odds_ratio,*/
+            /*sortable-table::shadow .column-pvalue,*/
+            /*sortable-table::shadow .column-adj_pvalue {*/
+                /*width: 80px;*/
                 /*white-space: nowrap;*/
-            }
+            /*}*/
 
         </style>
         <sortable-table id="table"
@@ -57,9 +58,29 @@
             </template>
             <template id="listTemplate">
                 <td>
-                    <span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}</span>
-                    <br>
-                    <span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}</span>
+                    <div horizontal layout style="max-height: 100px;">
+                        <div>
+                            <span style="color:#666">List 1:</span>
+
+                            <div class="idlist" title="{{row[column.name]}}">
+                                <template repeat="{{ item in row[column.name].list1}}">
+                                    <div>{{item}}</div>
+                                </template>
+                            </div>
+                        </div>
+                        <div style="margin-left:20px">
+                            <span style="color:#666">List 2:</span>
+
+                            <div class="idlist" title="{{row[column.name]}}">
+                                <template repeat="{{ item in row[column.name].list2}}">
+                                    <div>{{item}}</div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}</span>-->
+                    <!--<br>-->
+                    <!--<span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}</span>-->
                 </td>
             </template>
             <template id="listTemplatePerc">
@@ -86,8 +107,8 @@
                 for (var i = 1; i < data.length; i++) {
                     if (data[i] == "") continue;
                     var localData = data[i].split("\t");
-                    var listObj = {list1: localData[9], list2: localData[10]};
-                    var listObjPerc = {list1: localData[5], list2: localData[8]};
+                    var listObj = {list1: localData[9].split(","), list2: localData[10].split(",")};
+                    var listObjPerc = {list1: localData[5].split(","), list2: localData[8].split(",")};
                     var link = Utils.getLink(localData[0]);
                     var obj = {
                         "term": localData[0],

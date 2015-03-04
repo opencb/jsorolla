@@ -1,0 +1,334 @@
+<polymer-element name="jso-reactome-fi" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #445D76;
+                margin-bottom: 10px;
+            }
+
+            .close {
+                color: #aaa;
+            }
+
+            .close:hover {
+                color: #ffad76;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            .botbar {
+                margin-top: 10px;
+            }
+
+            .db_options {
+                margin: 5px;
+                border: 1px solid #d3d3d3;
+                padding: 5px
+            }
+
+            textarea {
+                margin: 3px;
+            }
+
+            input:disabled + span,
+            input:disabled + span:before {
+                color: #d3d3d3 !important;
+            }
+
+            input:disabled + span,
+            input:disabled + span:before {
+                color: #d3d3d3 !important;
+            }
+
+            input:disabled + span,
+            input:disabled + span:before {
+                color: #d3d3d3 !important;
+            }
+
+            select:disabled {
+                color: #d3d3d3 !important;
+            }
+
+            label {
+                display: block;
+            }
+
+            input[type=text],
+            input[type=number] {
+                width: 150px;
+            }
+
+            .select {
+                width: 300px;
+            }
+
+
+        </style>
+        <div class="title" horizontal layout hidden?="{{hideTitle == 'true'}}">
+            <div flex>
+                Single enrichment
+            </div>
+            <div class="close" on-click="{{handleCancel}}">
+                <font-awesome icon="times"></font-awesome>
+            </div>
+        </div>
+
+
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"
+                         style="width:150px;">Example 1
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window
+                            id="inputFile"
+                            studies="{{studies}}"
+                            selectedStudy="{{selectedStudy}}"
+                            selectionMode="file"
+                            allowTextArea="true"
+                            on-file-select="{{handleFileSelect}}"
+                            bioformat="DATAMATRIX_EXPRESSION"
+                            networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Input parameters</div>
+                <div class="formcontent" vertical layout>
+
+                    <label>Distance:</label>
+
+                    <div class="select" id="correlationDistance">
+                        <select>
+                            <option value="c">Pearson correlation</option>
+                            <option value="e">Euclidean distance</option>
+                            <option value="b">City Block distance</option>
+                            <option value="a">Absolute value of the correlation</option>
+                            <option value="u">Uncentered correlation</option>
+                            <option value="x">Absolute uncentered correlation</option>
+                            <option value="s">Spearman's rank correlation</option>
+                            <option value="k">Kendall's tau</option>
+                        </select>
+                    </div>
+                    <label class="control">
+                        <input type="checkbox" id="absoluteCorrelation">
+                        <span>Absolute correlation value </span>
+                    </label>
+
+                    <label>Inflation:</label>
+
+                    <div>
+                        <input type="number" max="5" min="1.2" step="0.1" value="{{inflation}}">
+                    </div>
+
+                    <label>Minimum size:</label>
+
+                    <div>
+                        <input type="number" min="0" step="0.1" value="{{modSize}}">
+                    </div>
+
+                    <label>Min. average correlation:</label>
+
+                    <div>
+                        <input type="number" step="0.01" value="{{corrThreshold}}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <br>
+                    <label>Job name</label>
+                    <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "reactome-fi";
+                this.description = "Description";
+
+                this.inflation = 5;
+                this.modSize = 7;
+                this.corrThreshold = 0.25;
+            },
+            argsChanged: function () {
+                Utils.argsParser(this, this.args);
+            },
+
+            handleCancel: function () {
+                this.selectedOption = '';
+            },
+            handleForm: function () {
+                this.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+
+                if (this.$.outdir.selectedFile === undefined) {
+                    alert("Sorry. No output folder selected. Please select one. ");
+                    return;
+                }
+
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    name: this.jobName,
+                    description: this.description,
+                    outdir: this.$.outdir.selectedFile.id
+                };
+
+                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+                    return;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["eFile-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+                else if (this.$.inputFile.selectedFile !== undefined) {
+                    query["eFile"] = this.$.inputFile.selectedFile.id;
+                }
+
+                query['abs'] = (this.$.absoluteCorrelation.checked) ? 'on' : 'off';
+                query['corrDist'] = this.$.correlationDistance.value;
+                query['inflation'] = this.inflation;
+                query['modSize'] = this.modSize;
+                query['corrThreshold'] = this.corrThreshold;
+
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+
+            loadExample1: function (e) {
+                this.$.go_bp.disabled = false;
+                this.$.go_bp.checked = true;
+                this.message = '';
+                this.duplicates = "never";
+                this.go_bp_keyword_operator = "all";
+                this.$.species.value = "hsa";
+                this.go_bp_max_level = 9;
+                this.go_bp = "gobp";
+                this.go_bp_propagation = "propagate";
+                this.go_bp_min_num_genes = 5;
+                this.$.inputFile.selectedFile = {id: "example_example.motor", path: "example.motor", type: "FILE"};
+                this.$.inputFile2.selectedFile = {id: "example_example.apoptosis", path: "example.apoptosis"};
+                this.annotations = "none";
+                this.go_bp_nannot_domain = "genome";
+                this.fisher = "two-tailed";
+                this.go_bp_max_num_genes = 500;
+                this.go_bp_min_level = 3;
+
+                var exampleFolder = "fati_motor_apop";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>

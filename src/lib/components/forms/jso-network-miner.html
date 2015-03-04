@@ -1,7 +1,5 @@
 <polymer-element name="jso-network-miner" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -165,17 +163,15 @@
 
             <div class="formbox">
                 <div class="formtitle">Select interactome confidence</div>
-                <div class="formcontent">
-                    <div id="groupDiv">
-                        <label class="control">
-                            <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
-                            <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
-                        </label>
-                        <label class="control">
-                            <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated">
-                            <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
-                        </label>
-                    </div>
+                <div id="groupDiv" class="formcontent" vertical layout>
+                    <label class="control">
+                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
+                        <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
+                    </label>
+                    <label class="control">
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated">
+                        <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
+                    </label>
                 </div>
             </div>
 

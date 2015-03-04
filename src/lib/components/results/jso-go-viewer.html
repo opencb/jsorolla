@@ -62,8 +62,9 @@
             ready: function () {
             },
             domReady: function () {
-                this.$.networkViewer.hideNodeSimpleRendering = true;
-                this.$.networkViewer.hideEdgeSimpleRendering = true;
+                this.$.networkViewer.$.nodeRender.setAttribute('hidden', '');
+                this.$.networkViewer.$.edgeRender.setAttribute('hidden', '');
+
 //                this.$.networkViewer.selectVerticesByAttribute("id", "all");
                 this.$.networkViewer.setLayout("Force directed");
             },

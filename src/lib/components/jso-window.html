@@ -44,8 +44,9 @@
                 handleHeaderMouseDown: function (e) {
                     var me = this;
                     var bcr = this.$.header.getBoundingClientRect();
-                    this.headerOffsetX = bcr.width / 2;
-                    this.headerOffsetY = bcr.height / 2;
+
+                    this.headerOffsetX = e.clientX - bcr.left;
+                    this.headerOffsetY = e.clientY - bcr.top;
 
                     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
                     this.moved = true;

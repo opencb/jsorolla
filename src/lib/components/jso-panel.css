@@ -1,5 +1,25 @@
-/*Used only for panel like elements*/
-.panel {
+/*
+    Panel
+
+    Note 1: panel-shadow class is optional
+
+    <div class="panel panel-shadow" vertical layout>
+        <div class="header" horizontal layout>
+            <div>Header text</div>
+            <div class="headeractions" horizontal layout end-justified flex>
+                <div class="headerexpand"></div>
+                <div class="headerclose"></div>
+            </div>
+        </div>
+        <div class="container">
+        </div>
+        <div class="footer">
+        </div>
+    </div>
+
+*/
+
+* /deep/ .panel {
     /*border: 1px solid #d4d4d4;*/
     position: relative;
     box-sizing: border-box;
@@ -7,12 +27,12 @@
     background-color: #f5f5f5;
 }
 
-.panel-shadow {
+* /deep/ .panel-shadow {
     box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.2);
     /*box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.2);*/
 }
 
-.header {
+* /deep/ .header {
     /*background-color: #E5E5E5;*/
     /*background-color: #3F3F3F;*/
     /*background-color: #435F7A;*/
@@ -27,41 +47,42 @@
     user-select: none;
 }
 
-.header > .headeractions > *[data-checked] {
+* /deep/ .header > .headeractions > *[data-checked] {
     background-color: #636363;
 }
 
-.header > .headeractions > *:hover {
+* /deep/ .header > .headeractions > *:hover {
     /*background-color: #7493b3;*/
     /*background-color: #737373;*/
     background-color: #435F7A;
     /*background-color: #FFAD76;*/
 }
 
-.header > .headeractions > .headerclose:after {
+* /deep/ .header > .headeractions > .headerclose:after {
     font-family: FontAwesome;
     content: '\f00d';
 }
 
-.header > .headeractions > .headerexpand:after {
+* /deep/ .header > .headeractions > .headerexpand:after {
     font-family: FontAwesome;
     content: '\f065';
 }
 
-.header > .headeractions > .headerpin:after {
+* /deep/ .header > .headeractions > .headerpin:after {
     font-family: FontAwesome;
     content: '\f08d';
 }
 
-.header > .headeractions > .headerexpand[expanded]:after {
+* /deep/ .header > .headeractions > .headerexpand[expanded]:after {
     content: '\f066';
 }
 
-.header, .container {
+* /deep/ .header, .container {
     position: relative;
 }
 
-.header, .footer {
+* /deep/ .header,
+* /deep/ .footer {
     /*background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);*/
     /*background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);*/
     /*background-repeat: repeat-x;*/
@@ -71,17 +92,18 @@
     border-bottom: 1px solid #d4d4d4;
 }
 
-.footer {
+* /deep/ .footer {
     border-top: 1px solid #d4d4d4;
     background-color: #EDEDED;
 }
 
-.footer > div, .footer > div > div {
+* /deep/ .footer > div,
+* /deep/ .footer > div > div {
     margin-right: 2px;
     margin-left: 2px;
 }
 
-.header[data-collapsible=true][data-collapsed=true]:after {
+* /deep/ .header[data-collapsible=true][data-collapsed=true]:after {
     font-family: FontAwesome;
     content: "\f107";
     position: absolute;
@@ -91,7 +113,7 @@
     right: 10px;
 }
 
-.header[data-collapsible=true][data-collapsed=false]:after {
+* /deep/ .header[data-collapsible=true][data-collapsed=false]:after {
     font-family: FontAwesome;
     content: "\f106";
     position: absolute;
@@ -101,6 +123,6 @@
     right: 10px;
 }
 
-.header[data-collapsible=true][data-collapsed=true] + div {
+* /deep/ .header[data-collapsible=true][data-collapsed=true] + div {
     display: none;
 }

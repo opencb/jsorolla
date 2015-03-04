@@ -1,7 +1,5 @@
 <polymer-element name="jso-fatigo" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 display: block;
@@ -119,7 +117,6 @@
             </div>
 
             <div class="formbox">
-
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window
@@ -165,42 +162,40 @@
             </div>
             <div class="formbox">
                 <div class="formtitle">Options</div>
-                <div class="formcontent">
-                    <div id="options">
-                        <label>Fisher exact test</label>
+                <div id="options" class="formcontent" vertical layout>
+                    <label>Fisher exact test</label>
 
-                        <div class="select">
-                            <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
-                                <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two
-                                    tailed
-                                </option>
-                                <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
-                                    Over-represented terms in list 1 (genome
-                                    comparison)
-                                </option>
-                                <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented
-                                    terms in list 2
-                                </option>
-                            </select>
-                        </div>
-                        <label>Remove duplicates</label>
+                    <div class="select">
+                        <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
+                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two
+                                tailed
+                            </option>
+                            <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
+                                Over-represented terms in list 1 (genome
+                                comparison)
+                            </option>
+                            <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented
+                                terms in list 2
+                            </option>
+                        </select>
+                    </div>
+                    <label>Remove duplicates</label>
 
-                        <div class="select">
-                            <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
-                                <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never
-                                </option>
-                                <option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">Remove
-                                    on each list separately
-                                </option>
-                                <option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">Remove on
-                                    each list and common ids
-                                </option>
-                                <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">Remove
-                                    from list2 those appearing in list1
-                                    (complementary list)
-                                </option>
-                            </select>
-                        </div>
+                    <div class="select">
+                        <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
+                            <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never
+                            </option>
+                            <option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">Remove
+                                on each list separately
+                            </option>
+                            <option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">Remove on
+                                each list and common ids
+                            </option>
+                            <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">Remove
+                                from list2 those appearing in list1
+                                (complementary list)
+                            </option>
+                        </select>
                     </div>
                 </div>
             </div>

@@ -59,8 +59,8 @@
                 this.saveMessageOk = false;
             },
             domReady: function () {
-                this.$.viewer.hideNodeSimpleRendering = true;
-                this.$.viewer.hideEdgeSimpleRendering = true;
+                this.$.viewer.$.nodeRender.setAttribute('hidden', '');
+                this.$.viewer.$.edgeRender.setAttribute('hidden', '');
             },
             contentChanged: function () {
                 var me = this;
