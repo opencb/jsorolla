@@ -158,7 +158,7 @@
                 if (this.visualSet) {
                     this.attributeName = this.visualSet.attribute;
                     this.attributeParse = this.visualSet.parse;
-                    this.matches = this.visualSet.matches;
+                    this.uniqueMatches = this.visualSet.matches;
                 }
             },
             attributeNameChanged: function (oldValue, newValue) {
@@ -186,15 +186,15 @@
             },
             _updateVisualSet: function () {
                 if (this.attributeName != '') {
-                    this.matches = {};
+                    this.uniqueMatches = {};
                     for (var i = 0; i < this.uniqueData.length; i++) {
                         var data = this.uniqueData[i];
-                        this.matches[data.attribute] = data.render;
+                        this.uniqueMatches[data.attribute] = data.render;
                     }
                     this.visualSet = {
                         attribute: this.attributeName,
                         displayProperty: this.displayProperty,
-                        matches: this.matches,
+                        matches: this.uniqueMatches,
                         parse: this.attributeParse,
                         enabled: true
                     }
