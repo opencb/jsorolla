@@ -325,8 +325,8 @@
                 var result = {
                     input: [], output: []
                 };
-                var output = xmlDoc.getElementsByTagName("output")[0].children;
-                var input = xmlDoc.getElementsByTagName("input")[0].children;
+                var output = xmlDoc.getElementsByTagName("output")[0].childNodes;
+                var input = xmlDoc.getElementsByTagName("input")[0].childNodes;
 
                 var outputElementsJson = me.parseOutput(output);
                 var inputElementsJson = me.parseInput(input);
@@ -339,9 +339,11 @@
             },
             parseOutput: function (output) {
                 var elements = [];
-
                 for (var i = 0; i < output.length; i++) {
                     var elemXML = output[i];
+                    if(elemXML.nodeName=="#text"){
+                        continue
+                    }
                     this._parseElem(elemXML, elements);
                 }
                 return elements;
@@ -352,7 +354,14 @@
 
                 for (var i = 0; i < input.length; i++) {
                     var xmlElem = input[i];
+                    if(xmlElem.nodeName=="#text"){
+                        continue
+                    }
 
+                    var strValue = "";
+                    if(xmlElem.firstChild != null && xmlElem.firstChild.data != null){
+                        strValue = xmlElem.firstChild.data;
+                    }
                     var jsonElem = {
                         name: xmlElem.getAttribute("name"),
                         title: xmlElem.getAttribute("title"),
@@ -360,7 +369,7 @@
                         tags: xmlElem.getAttribute("tags"),
                         style: xmlElem.getAttribute("style"),
                         group: xmlElem.getAttribute("context"),
-                        value: xmlElem.innerHTML
+                        value: strValue
                     };
                     elements.push(jsonElem);
                 }
@@ -440,7 +449,6 @@
                 return fileId;
             },
             _renderValue: function (element) {
-
                 var me = this;
                 var res = document.createElement("div");
                 switch (element.type) {
@@ -1364,13 +1372,17 @@
                 if (groups.length == 1) { // Final Group
                     var group = groups[0];
 
+                    var strValue = "";
+                    if(elemXML.firstChild != null && elemXML.firstChild.data != null){
+                        strValue = elemXML.firstChild.data;
+                    }
+
                     var nameInput = elemXML.getAttribute("name");
                     var titleInput = elemXML.getAttribute("title");
                     var typeInput = elemXML.getAttribute("type");
                     var groupInput = elemXML.getAttribute("group").split(".");
                     var tagsInput = elemXML.getAttribute("tags");
-                    var valueInput = elemXML.innerHTML;
-
+                    var valueInput = strValue;
                     var value = {
                         name: nameInput,
                         title: titleInput,
