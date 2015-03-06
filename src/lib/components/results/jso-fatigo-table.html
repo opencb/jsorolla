@@ -45,7 +45,7 @@
             }
 
         </style>
-        <sortable-table id="table"
+        <sortable-table id="fatigo_table"
                         data="{{data}}"
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
@@ -77,7 +77,8 @@
     <script>
         Polymer({
             created: function () {
-
+                this.columns = [];
+                this.data = [];
             },
 
             contentChanged: function () {

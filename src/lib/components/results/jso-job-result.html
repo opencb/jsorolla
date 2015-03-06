@@ -688,26 +688,26 @@
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
-                            var sortableTable = document.createElement('jso-interactors-table');
+                            var interactorsTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
-                                sortableTable.typeTable = "NETWORKMINERRANKED_TABLE";
-                                sortableTable.content = content;
+                                interactorsTable.typeTable = "NETWORKMINERRANKED_TABLE";
+                                interactorsTable.content = content;
 
                             }, element.value);
 
-                            res.appendChild(sortableTable);
+                            res.appendChild(interactorsTable);
 
                         }
                         if (element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
-                            var sortableTable = document.createElement('jso-interactors-table');
+                            var interactorsTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
-                                sortableTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
-                                sortableTable.content = content;
+                                interactorsTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
+                                interactorsTable.content = content;
 
                             }, element.value);
 
-                            res.appendChild(sortableTable);
+                            res.appendChild(interactorsTable);
 
                         }
 
