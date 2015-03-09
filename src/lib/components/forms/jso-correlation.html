@@ -61,7 +61,7 @@
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                selectionMode="file" on-ok="{{handleFileSelect}}"
                                                 bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
                 </div>
             </div>
@@ -69,8 +69,7 @@
             <div class="formbox">
                 <div class="formtitle">Select the class to analyse</div>
                 <div class="formcontent">
-                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"
-                                      loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}" childrenDisplay="false"></jso-class-viewer>
+                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" on-main-select="{{loadedMainSelect}}" childrenDisplay="false"></jso-class-viewer>
                 </div>
             </div>
             <div class="formbox">
@@ -287,14 +286,11 @@
                     }
                 });
             },
-            loadedMainSelectChanged: function (oldV, newV) {
+            loadedMainSelect: function () {
                 /** This is mainly for the examples **/
-                var me = this;
-                if (newV == true) {
-                    var select = this.$.jsoClassViewer.getMainSelect();
-                    if (this.$.inputFile.selectedFile.id == "example_correlation.txt") {
-                        select.value = "indep";
-                    }
+                var select = this.$.jsoClassViewer.getMainSelect();
+                if (this.$.inputFile.selectedFile.id == "example_correlation.txt") {
+                    select.value = "indep";
                 }
             },
             loadExampleFile: function (exampleFileName) {

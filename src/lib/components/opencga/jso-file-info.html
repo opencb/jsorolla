@@ -110,7 +110,11 @@
                 }
             },
             fileChanged: function (oldV, newV) {
+<<<<<<< HEAD
                 if (oldV !== undefined && newV !== undefined && this.file.bioformat)
+=======
+                if (this.file !== undefined && this.file.bioformat !== undefined)
+>>>>>>> feature/babelomics
                     this.bioformatText = this.getPrettyBioformat(this.file.bioformat);
             },
             getPrettyBioformat: function (text) {
