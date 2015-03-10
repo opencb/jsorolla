@@ -90,20 +90,18 @@
                 <br>
             </div>
             <div class="button action filetext" on-click="{{handleBrowseClick}}" pattern="[a-zA-Z0-9_-]+">{{fileName}}</div>
-            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}" disabled?="{{uploading}}">
 
             <div class="button action" on-click="{{handleForm}}">Upload</div>
         </form>
-        <template if="{{uploading}}">
-            <div class="uploadbar">
-                <div id="progressBarId" class="uploadprogress"></div>
-                <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
-                <div class="uploadtext">
-                    <font-awesome icon="spinner" animation="spin"></font-awesome>
-                    {{percentProgress}}% {{message}}
-                </div>
+        <div class="uploadbar" hidden?="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
+            <div class="uploadtext">
+                <font-awesome icon="spinner" animation="spin"></font-awesome>
+                {{percentProgress}}% {{message}}
             </div>
-        </template>
+        </div>
     </template>
     <script>
         Polymer({
@@ -111,7 +109,6 @@
                 this.fileFormat = 'PLAIN';
                 this.bioformat = 'NONE';
                 this.initWC();
-
             },
             initWC: function () {
                 this.description = '';
@@ -123,8 +120,9 @@
             ready: function () {
                 var me = this;
                 var observer = new MutationObserver(function (mutations) {
-                    if(me.hidden == true)
+                    if (me.uploading == false && me.hidden == true) {
                         me.initWC();
+                    }
 
                 }.bind(this));
                 observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
@@ -133,52 +131,56 @@
                 this.$.fileInput.click();
             },
             handleInputChange: function (e) {
-                var inputFile = this.$.fileInput.files[0];
-                this.fileName = inputFile.name
+                if (this.uploading == false) {
+                    var inputFile = this.$.fileInput.files[0];
+                    this.fileName = inputFile.name
+                }
             },
             handleForm: function () {
-                if(this.fileName == "Choose file..."){
-                    alert("No file selected. Please select one.");
-                    return;
-                }
-                if(this.$.bioformat.getSelected() == ""){
-                    alert("No format selected. Please select a format");
-                    return;
-                }
-                if (!(/^([a-zA-Z0-9._-]+)$/.test(this.fileName))) {
-                    alert("Sorry, some characters in your input file are not allowed. We only permit letters, numbers, dash(- or _) and point(.).");
-                    return;
-                }
-
-                var me = this;
-                OpencgaManager.files.filesByFolder({
-                    id: me.folder.id,
-                    query: {
-                        sid: Cookies("bioinfo_sid")
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var filesList = response.response[0].result;
-                                me.fileName = me.$.fileInput.files[0].name;
-                                for (var i = 0; i < filesList.length; i++) {
-                                    var file = filesList[i];
-                                    if (file.name == me.fileName) {
-                                        me.fileName = me.fileName + Math.floor(Math.random() * (999 - 100 + 1));
-                                        alert("File already exists. It will be uploaded as " + me.fileName + ".");
-                                        break;
-                                    }
-                                }
-                                me.relativeFilePath = me.folder.path + me.fileName;
-                                me.uploadFile();
-
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
+                if (this.uploading == false) {
+                    if (this.fileName == "Choose file...") {
+                        alert("No file selected. Please select one.");
+                        return;
                     }
-                });
+                    if (this.$.bioformat.getSelected() == "") {
+                        alert("No format selected. Please select a format");
+                        return;
+                    }
+                    if (!(/^([a-zA-Z0-9._-]+)$/.test(this.fileName))) {
+                        alert("Sorry, some characters in your input file are not allowed. We only permit letters, numbers, dash(- or _) and point(.).");
+                        return;
+                    }
+
+                    var me = this;
+                    OpencgaManager.files.filesByFolder({
+                        id: me.folder.id,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var filesList = response.response[0].result;
+                                    me.fileName = me.$.fileInput.files[0].name;
+                                    for (var i = 0; i < filesList.length; i++) {
+                                        var file = filesList[i];
+                                        if (file.name == me.fileName) {
+                                            me.fileName = me.fileName + Math.floor(Math.random() * (999 - 100 + 1));
+                                            alert("File already exists. It will be uploaded as " + me.fileName + ".");
+                                            break;
+                                        }
+                                    }
+                                    me.relativeFilePath = me.folder.path + me.fileName;
+                                    me.uploadFile();
+
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                }
             },
             uploadFile: function () {
                 var me = this;
@@ -199,7 +201,7 @@
                             me.uploading = false;
                             me.fire('file-uploaded');
                         }
-                        me.shadowRoot.querySelector("#progressBarId").setAttribute("style","width:"+me.percentProgress+"%")
+                        me.$.progressBar.setAttribute("style", "width:" + me.percentProgress + "%")
                     });
 
                 }
@@ -292,7 +294,7 @@
                 var uploadChunk = function (formData, chunk, callback) {
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', url, true);
-                    xhr.upload.onprogress = function (e) {
+                    xhr.onprogress = function (e) {
                         if (e.lengthComputable) {
                             var value = parseFloat(Math.round((e.loaded / e.total) * 100));
                             console.log(parseFloat(value) + '%');
