@@ -84,20 +84,18 @@
                 <br>
             </div>
             <div class="button action filetext" on-click="{{handleBrowseClick}}" pattern="[a-zA-Z0-9_-]+">{{fileName}}</div>
-            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}" disabled?="{{uploading}}">
 
             <div class="button action" on-click="{{handleForm}}">Upload</div>
         </form>
-        <template if="{{uploading}}">
-            <div class="uploadbar">
-                <div id="progressBarId" class="uploadprogress"></div>
-                <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
-                <div class="uploadtext">
-                    <font-awesome icon="spinner" animation="spin"></font-awesome>
-                    {{percentProgress}}% {{message}}
-                </div>
+        <div class="uploadbar" hidden?="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
+            <div class="uploadtext">
+                <font-awesome icon="spinner" animation="spin"></font-awesome>
+                {{percentProgress}}% {{message}}
             </div>
-        </template>
+        </div>
     </template>
     <script>
         Polymer({
@@ -105,7 +103,6 @@
                 this.fileFormat = 'PLAIN';
                 this.bioformat = 'NONE';
                 this.initWC();
-
             },
             initWC: function () {
                 this.description = '';
@@ -117,9 +114,9 @@
             ready: function () {
                 var me = this;
                 var observer = new MutationObserver(function (mutations) {
-                    if (me.hidden == true)
+                    if (me.uploading == false && me.hidden == true) {
                         me.initWC();
-
+                    }
                 }.bind(this));
                 observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
             },
@@ -127,10 +124,13 @@
                 this.$.fileInput.click();
             },
             handleInputChange: function (e) {
-                var inputFile = this.$.fileInput.files[0];
-                this.fileName = inputFile.name
+                if (this.uploading == false) {
+                    var inputFile = this.$.fileInput.files[0];
+                    this.fileName = inputFile.name
+                }
             },
             handleForm: function () {
+
                 if (this.fileName == "Choose file...") {
                     alert("No file selected. Please select one.");
                     return;
@@ -154,6 +154,7 @@
                     var validatedBioformat = me.validateBioformat(this.result, fileType, bioformat);
                     if (!validatedBioformat)
                         return;
+
                     OpencgaManager.files.filesByFolder({
                         id: me.folder.id,
                         query: {
@@ -227,7 +228,8 @@
                             me.uploading = false;
                             me.fire('file-uploaded');
                         }
-                        me.shadowRoot.querySelector("#progressBarId").setAttribute("style", "width:" + me.percentProgress + "%")
+                        me.$.progressBar.setAttribute("style", "width:" + me.percentProgress + "%")
+
                     });
 
                 }

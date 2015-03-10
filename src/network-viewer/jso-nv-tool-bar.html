@@ -111,9 +111,9 @@
             </div>
             <input on-change={{handleBackgroundImageField}} id="importBackgroundImageField" type="file" hidden>
 
-                <jso-color-picker ctitle="Change the color of the background" id="backgroundColorPicker" color="{{backgroundColor}}"
-                                  on-color-click="{{handleBackgroundColorPicker}}"
-                                  style="float:left;width:90px;"></jso-color-picker>
+            <jso-color-picker ctitle="Change the color of the background" id="backgroundColorPicker" color="{{backgroundColor}}"
+                              on-color-click="{{handleBackgroundColorPicker}}"
+                              style="float:left;width:90px;"></jso-color-picker>
 
             <div class="dropdown" title="Rotate" style="margin-left: 10px">
                 <div tabindex="-1" id="rotateButton" class="button" style="border-right: none">
@@ -204,7 +204,8 @@
                 this.zoom = Math.max(0, this.zoom - 1)
             },
             handleZoomSlider: function (e) {
-                this.zoom = 100 / parseInt(getComputedStyle(e.currentTarget).width) * e.offsetX;
+                var bcr = e.currentTarget.getBoundingClientRect();
+                this.zoom = ((e.clientX - bcr.left) * 100) / bcr.width;
             },
             handleZoomInButton: function () {
                 this.zoom = Math.min(100, this.zoom + 1)
