@@ -453,7 +453,9 @@
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
                 this.loadingTable = false;
-                this.$.proteinViewer.nodes = this.nodes;
+                var proteinViewer = this.shadowRoot.querySelector("#proteinViewer");
+                proteinViewer.nodes = this.nodes;
+                //this.$.proteinViewer.nodes = this.nodes;
 
             },
             isInt: function (n) {

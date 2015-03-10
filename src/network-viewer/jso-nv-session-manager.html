@@ -130,9 +130,11 @@
 //                this.networkViewer.jsoHeader.addEventListener('login', function (e) {
 //                    me.handleLogin();
 //                });
-                this.networkViewer.jsoHeader.addEventListener('logout', function (e) {
-                    me.handleLogout();
-                });
+                if (this.networkViewer.jsoHeader) {
+                    this.networkViewer.jsoHeader.addEventListener('logout', function (e) {
+                        me.handleLogout();
+                    });
+                }
             },
             handleLogin: function () {
                 this.logged = true;
