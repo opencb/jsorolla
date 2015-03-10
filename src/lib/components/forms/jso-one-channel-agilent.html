@@ -57,7 +57,11 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">agilent one-channel normalization example</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="agilent_one_color_expression.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
+
             </div>
 
             <div class="formbox">
@@ -132,13 +136,8 @@
                 this.description = "Job info...";
                 this.compressed_file_tags = "microarray,expression,one-channel,agilent";
             },
-            list1Click: function (e) {
-                this.$.list1Html.hidden = false
-                //this.$.rankedListFileName.click();
-
-            },
-            list1Changed: function (oldV, newV) {
-                this.list1UploadMsg = this.list1.path
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
             handleForm: function () {
                 this.launchJob();

@@ -62,12 +62,19 @@
         <form id="form">
             <div class="formbox">
                 <div class="formtitle">Examples</div>
-                <div class="formcontent" vertical layout>
-                    <div class="button action" style="width:500px;" on-click="{{loadExample1}}">
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">
                         Downregulated in fibroblasts from old individuals, compared to young
                     </div>
-                    <div class="button action" style="width:500px;margin-top:5px;" on-click="{{loadExample2}}">
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="oldage_dn.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
+                    <div class="button action" style="display:inline-block;margin-top:5px;" on-click="{{loadExample2}}">
                         Upregulated by induction of exogenous BRCA1 in EcR-293 cells
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="brca1_overexp_up.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
                     </div>
                 </div>
             </div>
@@ -178,45 +185,6 @@
                     </div>
                 </div>
             </div>
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Number of simulations</div>-->
-            <!--<div class="formcontent">-->
-
-            <!--<div id="randomsDiv">-->
-            <!--<select name="randoms" id="randoms" class="fc-combobox" type="text" value="500">-->
-            <!--<option name="randoms_1" id="randoms_1" class="fc-combobox-item" value="500" selected="selected">500</option>-->
-            <!--<option name="randoms_2" id="randoms_2" class="fc-combobox-item" value="1000">1000</option>-->
-            <!--<option name="randoms_3" id="randoms_3" class="fc-combobox-item" value="2000">2000</option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
-            <!--<div class="formcontent">-->
-
-            <!--<div id="intermediateDiv">-->
-            <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="1">-->
-            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0">No</option>-->
-            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1" selected="selected">Yes</option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
-            <!--<div class="formcontent">-->
-            <!--<div id="intermediateDiv">-->
-            <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
-            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
-            <!--selected="selected">0-->
-            <!--</option>-->
-            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-
             <div class="formbox">
                 <div class="formtitle">Allow one external intermediate in the subnetwork</div>
                 <div class="formcontent">
@@ -280,25 +248,9 @@
                         this.modeChanged();
                     }
                 }
-//                this.message = '';
-//                this.jobName = "Job name";
-//                this.description = "description";
-//                this.$.inputFile.selectedFile = this.args.list1;
-//                this.$.interactome.value = this.args.interactome;
-//                this.$.intermediate.value = this.args.intermediate;
-//
-//                var radios = this.shadowRoot.querySelectorAll('input[name="group"]');
-//                for (var i = 0; i < radios.length; i++) {
-//                    var radio = radios[i];
-//                    if (radio.value == this.args.group)
-//                        radio.checked = true;
-//                }
-//                var radios = this.shadowRoot.querySelectorAll('input[name="type"]');
-//                for (var i = 0; i < radios.length; i++) {
-//                    var radio = radios[i];
-//                    if (radio.value == this.args.group)
-//                        radio.checked = true;
-//                }
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
             handleCancel: function () {
                 this.selectedOption = '';

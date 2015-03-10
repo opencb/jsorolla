@@ -21,8 +21,15 @@
         <!--<option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>-->
         <!--</select>-->
         <div id="jsoClassViewerId">
-            <label>Variables</label>
+            <div horizontal layout>
+                <label>Variables</label>
 
+                <div>
+                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit-your-data">
+                        <font-awesome icon="question-circle"></font-awesome>
+                    </a>
+                </div>
+            </div>
             <div id="mainSelect" class="select">
                 <!--<select id="selectClass" on-change="{{selectChange}}">-->
                 <select id="selectClass">
@@ -30,6 +37,7 @@
                 </select>
             </div>
             <br>
+
             <div id="childrenSelect">
             </div>
         </div>
@@ -117,7 +125,6 @@
                 this.fire('main-select');
 
 
-
             },
             selectChange: function (e) {
                 var me = this;
@@ -158,8 +165,8 @@
                             }
                             var div = document.createElement("div");
 
-                            div.setAttribute("class","select");
-                            div.setAttribute("style","margin-left:1px");
+                            div.setAttribute("class", "select");
+                            div.setAttribute("style", "margin-left:1px");
                             div.appendChild(select);
                             this.$.childrenSelect.appendChild(div);
                         }

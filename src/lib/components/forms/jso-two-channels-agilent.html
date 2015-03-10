@@ -59,6 +59,9 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">agilent two channels normalization example</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="agilent.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
 
@@ -143,6 +146,9 @@
                 this.list1UploadMsg = "Select file...";
                 this.description = "Job info...";
                 this.compressed_file_tags = "microarray,expression,two-channels,agilent";
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
 
             handleForm: function () {

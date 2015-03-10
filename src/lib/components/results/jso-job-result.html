@@ -61,8 +61,6 @@
                 /*background-color: blue;*/
             }
 
-
-
             sortable-table {
                 max-width: 1000px;
                 margin-top: 10px;
@@ -119,40 +117,15 @@
                 Loading result...
             </div>
         </template>
-        <template if="{{jobItem.toolName == 'rnaseq-norm'}}">
-            <jso-rnaseq-norm-result jobItem="{{jobItem}}"></jso-rnaseq-norm-result>
-        </template>
-        <template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">
-            <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
-        </template>
-
-        <!--<template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">-->
-            <!--<div id="fatigoOutput" class="output">-->
-                <!--<div class="level-0">-->
-                    <!--<div class="headerTitle">Other Actions</div>-->
-                    <!--<div class="children">-->
-                        <!--<div class="level-1">-->
-                            <!--<div class="headerTitle">Select p-value</div>-->
-                            <!--<div horizontal="" layout="">-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.1-->
-                                <!--</div>-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.05-->
-                                <!--</div>-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.01-->
-                                <!--</div>-->
-                                <!--<div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">-->
-                                    <!--0.005-->
-                                <!--</div>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+        <!--<template if="{{jobItem.toolName == 'rnaseq-norm'}}">-->
+            <!--<jso-rnaseq-norm-result id="rnaseqNormResult" jobItem="{{jobItem}}"></jso-rnaseq-norm-result>-->
         <!--</template>-->
-        <div id="output" class="output"></div>
+        <!--<template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">-->
+            <!--<jso-rnaseq-diffexpr-result id="rnaseqDiffexprResult" jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>-->
+        <!--</template>-->
+
+        <div id="output" class="output">
+        </div>
 
     </template>
     <script>
@@ -163,34 +136,30 @@
                 this.pvalue = 0.05;
 
             },
-            domReady: function () {
-
-            },
-//            handlePvalue: function (event, clicked, elem) {
-//                this.pvalue = parseFloat(elem.innerHTML);
-//            },
-//            pvalueChanged: function (oldValue, newValue) {
-//                this.jobItemChanged(oldValue, newValue);
-//            },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
-
                 this.loading = true;
                 while (this.$.output.firstChild) {
                     this.$.output.removeChild(this.$.output.firstChild);
                 }
-                if( typeof newV == "object")
+                if (typeof newV == "object")
                     this.pvalue = 0.05;
 
 
-                if (this.jobItem.toolName == "rnaseq-norm") {
+                if (this.jobItem.toolName == "rnaseq-norm" || this.jobItem.toolName == "rnaseq-diffexpr") {
+                    var result = document.createElement('jso-'+this.jobItem.toolName+'-result');
+                    result.jobItem = this.jobItem;
+                    this.$.output.appendChild(result);
                     this.loading = false;
                     return;
                 }
-                if (this.jobItem.toolName == "rnaseq-diffexpr") {
-                    this.loading = false;
-                    return;
-                }
+//                if (this.jobItem.toolName == "rnaseq-diffexpr") {
+//                    var result = document.createElement('jso-rnaseq-diffexpr-result');
+//                    result.jobItem = this.jobItem;
+//                    this.$.output.appendChild(result);
+//                    this.loading = false;
+//                    return;
+//                }
 
                 OpencgaManager.files.filesByFolder({
                     id: me.jobItem.outDirId,
@@ -324,7 +293,7 @@
                 var elements = [];
                 for (var i = 0; i < output.length; i++) {
                     var elemXML = output[i];
-                    if(elemXML.nodeName=="#text"){
+                    if (elemXML.nodeName == "#text") {
                         continue
                     }
                     this._parseElem(elemXML, elements);
@@ -337,12 +306,12 @@
 
                 for (var i = 0; i < input.length; i++) {
                     var xmlElem = input[i];
-                    if(xmlElem.nodeName=="#text"){
+                    if (xmlElem.nodeName == "#text") {
                         continue
                     }
 
                     var strValue = "";
-                    if(xmlElem.firstChild != null && xmlElem.firstChild.data != null){
+                    if (xmlElem.firstChild != null && xmlElem.firstChild.data != null) {
                         strValue = xmlElem.firstChild.data;
                     }
                     var jsonElem = {
@@ -445,7 +414,7 @@
                                     || this.jobItem.toolName == "oncodriveclust") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                 me.getFileContent(function (content) {
-                                        var args = me._getRedirectionArgs(content);
+                                    var args = me._getRedirectionArgs(content);
 //                                    var lines = content.split("\n");
 //                                    var hash = {};
 //                                    for (var i = 0; i < lines.length; i++) {
@@ -623,7 +592,7 @@
                                             method: hash.method,
                                             distance: hash.distance
                                         };
-                                        var button = me._createRedirectButton("Send to "+args.tool, args.tool, args);
+                                        var button = me._createRedirectButton("Send to " + args.tool, args.tool, args);
 
                                         res.appendChild(button);
 
@@ -915,7 +884,7 @@
                                 var pvalueButton = document.createElement('jso-pvalue-button');
                                 pvalueButton.id = "pvalueButton";
                                 pvalueButton.pvalue = me.pvalue;
-                                pvalueButton.onclick= function(){
+                                pvalueButton.onclick = function () {
                                     me.pvalue = this.pvalue;
                                     me.jobItemChanged();
                                 };
@@ -1039,7 +1008,7 @@
                 }
                 return res;
             },
-            _getRedirectionArgs: function(content){
+            _getRedirectionArgs: function (content) {
                 var lines = content.split("\n");
                 var hash = {};
                 for (var i = 0; i < lines.length; i++) {
@@ -1352,7 +1321,7 @@
                     var group = groups[0];
 
                     var strValue = "";
-                    if(elemXML.firstChild != null && elemXML.firstChild.data != null){
+                    if (elemXML.firstChild != null && elemXML.firstChild.data != null) {
                         strValue = elemXML.firstChild.data;
                     }
 

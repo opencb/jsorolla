@@ -96,6 +96,9 @@
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"
                          style="width:150px;">motor vs apoptosis
                     </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}"data-example="example.zip"  style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
 
@@ -468,6 +471,10 @@
                 this.description = "Description";
 
             },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             argsChanged: function () {
                 Utils.argsParser(this, this.args);
 
@@ -528,7 +535,6 @@
 
                     this.$.your_annotations.disabled = true;
 //                    this.$.annotationsFile.disabled = true;
-
 
 
                 }

@@ -54,7 +54,9 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Differential expression - Class comparison demo (class_comparison.txt)</div>
-                    <!--<div class="button action" style="display:inline-block" on-click="{{loadExample2}}" style="margin-top: 5px">Differential expression - Class comparison demo (twoclasses.txt)</div>-->
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="class_comparison.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
 
@@ -179,6 +181,10 @@
                 this.test = "";
 
             },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
 //            annonymousLogin: function () {
 //                debugger
 //                this.loadedChildrenSelectChanged(false, true);

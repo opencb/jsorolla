@@ -37,7 +37,6 @@
             }
 
 
-
         </style>
         <div class="tooltitle">
             <div>
@@ -51,7 +50,12 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Normalization example</div>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">
+                        Normalization example
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="example.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
             <div class="formbox">
@@ -81,8 +85,8 @@
                         <label class="control">
                             <input id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}"><span>Choose manually the normalization method</span></label>
                         <label class="control" style="margin-left: 20px">
-                            <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}" ><span>TMM</span></label>
-                        <label class="control"  style="margin-left: 20px">
+                            <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}"><span>TMM</span></label>
+                        <label class="control" style="margin-left: 20px">
                             <input id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}"><span>RPKM</span></label>
                     </div>
                 </div>
@@ -112,9 +116,17 @@
             created: function () {
                 this.jobName = 'JobName';
                 this.toolName = "rnaseq-norm";
-                this.list1UploadMsg
                 this.description = "Job info..."
             },
+//            handleDownloadFile: function (e) {
+//                var dataset = e.currentTarget.dataset;
+//                dataset.param1
+//                Utils.downloadExampleFile(this.toolName,"example.zip");
+//            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             handleForm: function () {
                 var me = this;
                 this.message = '';
