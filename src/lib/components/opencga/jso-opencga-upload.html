@@ -60,28 +60,22 @@
         </style>
 
         <form id="form" vertical layout>
-            <!--<label>Project</label>-->
-
-            <!--<div class="dropdown">-->
-            <!--<div tabindex="-1" class="button">-->
-            <!--<jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>-->
-            <!--</div>-->
-            <!--<ul>-->
-            <!--<template repeat="{{project in projectList}}">-->
-            <!--<li>-->
-            <!--<jso-opencga-project-item-->
-            <!--project="{{project}}"-->
-            <!--data-selected="{{selectedProject == project}}"-->
-            <!--on-mousedown="{{handleProjectClick}}">-->
-            <!--</jso-opencga-project-item>-->
-            <!--</li>-->
-            <!--</template>-->
-            <!--</ul>-->
-            <!--</div>-->
-
-            <!--<div hidden>-->
             <div>
-                <label>Select format:</label>
+
+                <div flex horizontal layout>
+                    <div flex>
+                        <label>Select format: </label>
+                    </div>
+                    <div>
+                        <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Data-types">
+                            <font-awesome icon="question-circle"></font-awesome>
+                        </a>
+                    </div>
+
+
+                </div>
+
+
                 <jso-bioformat id="bioformat" bioformat="{{bioformat}}"></jso-bioformat>
             </div>
             <div hidden>
@@ -90,20 +84,18 @@
                 <br>
             </div>
             <div class="button action filetext" on-click="{{handleBrowseClick}}" pattern="[a-zA-Z0-9_-]+">{{fileName}}</div>
-            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}" disabled?="{{uploading}}">
 
             <div class="button action" on-click="{{handleForm}}">Upload</div>
         </form>
-        <template if="{{uploading}}">
-            <div class="uploadbar">
-                <div id="progressBarId" class="uploadprogress"></div>
-                <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
-                <div class="uploadtext">
-                    <font-awesome icon="spinner" animation="spin"></font-awesome>
-                    {{percentProgress}}% {{message}}
-                </div>
+        <div class="uploadbar" hidden?="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
+            <div class="uploadtext">
+                <font-awesome icon="spinner" animation="spin"></font-awesome>
+                {{percentProgress}}% {{message}}
             </div>
-        </template>
+        </div>
     </template>
     <script>
         Polymer({
@@ -111,7 +103,6 @@
                 this.fileFormat = 'PLAIN';
                 this.bioformat = 'NONE';
                 this.initWC();
-
             },
             initWC: function () {
                 this.description = '';
@@ -123,9 +114,9 @@
             ready: function () {
                 var me = this;
                 var observer = new MutationObserver(function (mutations) {
-                    if(me.hidden == true)
+                    if (me.uploading == false && me.hidden == true) {
                         me.initWC();
-
+                    }
                 }.bind(this));
                 observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
             },
@@ -133,15 +124,18 @@
                 this.$.fileInput.click();
             },
             handleInputChange: function (e) {
-                var inputFile = this.$.fileInput.files[0];
-                this.fileName = inputFile.name
+                if (this.uploading == false) {
+                    var inputFile = this.$.fileInput.files[0];
+                    this.fileName = inputFile.name
+                }
             },
             handleForm: function () {
-                if(this.fileName == "Choose file..."){
+
+                if (this.fileName == "Choose file...") {
                     alert("No file selected. Please select one.");
                     return;
                 }
-                if(this.$.bioformat.getSelected() == ""){
+                if (this.$.bioformat.getSelected() == "") {
                     alert("No format selected. Please select a format");
                     return;
                 }
@@ -151,47 +145,82 @@
                 }
 
                 var me = this;
-                OpencgaManager.files.filesByFolder({
-                    id: me.folder.id,
-                    query: {
-                        sid: Cookies("bioinfo_sid")
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var filesList = response.response[0].result;
-                                me.fileName = me.$.fileInput.files[0].name;
-                                for (var i = 0; i < filesList.length; i++) {
-                                    var file = filesList[i];
-                                    if (file.name == me.fileName) {
-                                        me.fileName = me.fileName + Math.floor(Math.random() * (999 - 100 + 1));
-                                        alert("File already exists. It will be uploaded as " + me.fileName + ".");
-                                        break;
-                                    }
-                                }
-                                me.relativeFilePath = me.folder.path + me.fileName;
-                                me.uploadFile();
+                var bioformat = this.$.bioformat.getSelected();
+                var inputFile = this.$.fileInput.files[0];
+                var reader = new FileReader();
+                var fileType = inputFile.type;
+                reader.readAsBinaryString(inputFile.slice(0, 2048));
+                reader.addEventListener("loadend", function () {
+                    var validatedBioformat = me.validateBioformat(this.result, fileType, bioformat);
+                    if (!validatedBioformat)
+                        return;
 
-                            }
+                    OpencgaManager.files.filesByFolder({
+                        id: me.folder.id,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
                         },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var filesList = response.response[0].result;
+                                    me.fileName = me.$.fileInput.files[0].name;
+                                    for (var i = 0; i < filesList.length; i++) {
+                                        var file = filesList[i];
+                                        if (file.name == me.fileName) {
+                                            me.fileName = me.fileName + Math.floor(Math.random() * (999 - 100 + 1));
+                                            alert("File already exists. It will be uploaded as " + me.fileName + ".");
+                                            break;
+                                        }
+                                    }
+                                    me.relativeFilePath = me.folder.path + me.fileName;
+                                    me.uploadFile();
+
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                });
+            },
+            validateBioformat: function (content, fileType, bioformat) {
+                var lines = content.split("\n");
+                if (bioformat == "DATAMATRIX_EXPRESSION") {
+                    var msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
+                            "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+                    var header = lines[0];
+                    if (header.indexOf("#NAMES") != 0) {
+                        alert(msg);
+                        return false;
+                    }
+                    for (var i = 0; i < lines.length - 1; i++) {
+                        if (lines[i].indexOf("\t") < 0) {
+                            alert(msg);
+                            return false;
                         }
                     }
-                });
+                }
+                else if (bioformat == "IDLIST_RANKED") {
+                    var msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
+                            "https://github.com/babelomics/babelomics/wiki/Ranked";
+                    for (var i = 0; i < lines.length - 1; i++) {
+                        if (lines[i].indexOf("\t") < 0) {
+                            alert(msg);
+                            return false;
+                        }
+                    }
+                }
+                return true;
             },
             uploadFile: function () {
                 var me = this;
                 this.message = '';
-                var bioformat = this.$.bioformat.getSelected();
-                if (bioformat == "") {
-                    alert("Error: Please select a format");
-                    return;
-                }
-                if (this.uploading == false && this.$.form.checkValidity() && this.folder && this.study) {
+                if (me.uploading == false && me.$.form.checkValidity() && me.folder && me.study) {
 
-                    this.uploading = true;
-                    this._upload(function (chunk, total) {
+                    me.uploading = true;
+                    me._upload(function (chunk, total) {
                         me.percentProgress = Math.round((chunk.id / total) * 100);
                         if (chunk.last) {
                             me.percentProgress = 100;
@@ -199,10 +228,12 @@
                             me.uploading = false;
                             me.fire('file-uploaded');
                         }
-                        me.shadowRoot.querySelector("#progressBarId").setAttribute("style","width:"+me.percentProgress+"%")
+                        me.$.progressBar.setAttribute("style", "width:" + me.percentProgress + "%")
+
                     });
 
                 }
+                // reader.result contains the contents of blob as a typed array
             },
             _upload: function (callbackProgress) {
                 var me = this;
@@ -292,7 +323,7 @@
                 var uploadChunk = function (formData, chunk, callback) {
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', url, true);
-                    xhr.upload.onprogress = function (e) {
+                    xhr.onprogress = function (e) {
                         if (e.lengthComputable) {
                             var value = parseFloat(Math.round((e.loaded / e.total) * 100));
                             console.log(parseFloat(value) + '%');
@@ -340,6 +371,7 @@
                 processChunk(chunkMap[0]);
 
             }
-        });
+        })
+        ;
     </script>
 </polymer-element>

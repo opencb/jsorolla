@@ -62,15 +62,24 @@
         <form id="form">
             <div class="formbox">
                 <div class="formtitle">Examples</div>
-                <div class="formcontent" vertical layout>
+                <div class="formcontent">
                     <!--<div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>-->
-                    <div class="button action" on-click="{{loadExample1}}" style="width:300px;">Essential genes in cancer cell line K562
+                    <div class="button action" on-click="{{loadExample1}}" style="display:inline-block">Essential genes in cancer cell line K562
                     </div>
-                    <div class="button action" on-click="{{loadExample2}}" style="width:300px;margin-top:5px;">Essential genes in cancer cell line JURKAT
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="K562.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
                     </div>
-                    <!--<div class="button action" style="display:inline-block" on-click="{{loadExample3}}" style="width:300px;">Genes Up-regulated in Fanconi Anemia-->
-                    <!--</div>-->
-                    <div class="button action" on-click="{{loadExample4}}" style="width:300px;margin-top:5px;">Genes Down-regulated in Fanconi Anemia
+                    <br>
+                    <div class="button action" on-click="{{loadExample2}}" style="display:inline-block;margin-top:5px;">Essential genes in cancer cell line JURKAT
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="JURKAT.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
+                    <div class="button action" on-click="{{loadExample4}}" style="display:inline-block;margin-top:5px;">Genes Down-regulated in Fanconi Anemia
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="FA-differentialExpression-statistic.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
                     </div>
                 </div>
             </div>
@@ -283,6 +292,10 @@
 
 
             },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             handleCancel: function () {
                 this.selectedOption = '';
             },

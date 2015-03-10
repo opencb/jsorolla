@@ -161,6 +161,10 @@
                 this.toolName = "burden";
                 this.description = "Job info..."
             },
+                        handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             handleForm: function () {
                 var me = this;
                 this.message = '';

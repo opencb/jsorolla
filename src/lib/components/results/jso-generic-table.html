@@ -17,7 +17,7 @@
             }
 
         </style>
-        <sortable-table id="table"
+        <sortable-table id="generic_table"
                         data="{{data}}"
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
@@ -32,6 +32,8 @@
             multiselect: false,
             data: null,
             created: function () {
+                this.columns = [];
+                this.data = [];
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
 

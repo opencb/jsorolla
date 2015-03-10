@@ -136,40 +136,8 @@
                 Loading result...
             </div>
         </template>
-        <template if="{{jobItem.toolName == 'rnaseq-norm'}}">
-            <jso-rnaseq-norm-result jobItem="{{jobItem}}"></jso-rnaseq-norm-result>
-        </template>
-        <template if="{{jobItem.toolName == 'rnaseq-diffexpr'}}">
-            <jso-rnaseq-diffexpr-result jobItem="{{jobItem}}"></jso-rnaseq-diffexpr-result>
-        </template>
-
-        <!--<template if="{{ (jobItem.toolName == 'fatigo'  || jobItem.toolName == 'fatiscan') && !loading}}">-->
-        <!--<div id="fatigoOutput" class="output">-->
-        <!--<div class="level-0">-->
-        <!--<div class="headerTitle">Other Actions</div>-->
-        <!--<div class="children">-->
-        <!--<div class="level-1">-->
-        <!--<div class="headerTitle">Select p-value</div>-->
-        <!--<div horizontal="" layout="">-->
-        <!--<div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">-->
-        <!--0.1-->
-        <!--</div>-->
-        <!--<div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">-->
-        <!--0.05-->
-        <!--</div>-->
-        <!--<div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">-->
-        <!--0.01-->
-        <!--</div>-->
-        <!--<div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">-->
-        <!--0.005-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</template>-->
-        <div id="output" class="output"></div>
+        <div id="output" class="output">
+        </div>
 
     </template>
     <script>
@@ -180,18 +148,8 @@
                 this.pvalue = 0.05;
 
             },
-            domReady: function () {
-
-            },
-//            handlePvalue: function (event, clicked, elem) {
-//                this.pvalue = parseFloat(elem.innerHTML);
-//            },
-//            pvalueChanged: function (oldValue, newValue) {
-//                this.jobItemChanged(oldValue, newValue);
-//            },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
-
                 this.loading = true;
                 while (this.$.output.firstChild) {
                     this.$.output.removeChild(this.$.output.firstChild);
@@ -200,14 +158,20 @@
                     this.pvalue = 0.05;
 
 
-                if (this.jobItem.toolName == "rnaseq-norm") {
+                if (this.jobItem.toolName == "rnaseq-norm" || this.jobItem.toolName == "rnaseq-diffexpr") {
+                    var result = document.createElement('jso-'+this.jobItem.toolName+'-result');
+                    result.jobItem = this.jobItem;
+                    this.$.output.appendChild(result);
                     this.loading = false;
                     return;
                 }
-                if (this.jobItem.toolName == "rnaseq-diffexpr") {
-                    this.loading = false;
-                    return;
-                }
+//                if (this.jobItem.toolName == "rnaseq-diffexpr") {
+//                    var result = document.createElement('jso-rnaseq-diffexpr-result');
+//                    result.jobItem = this.jobItem;
+//                    this.$.output.appendChild(result);
+//                    this.loading = false;
+//                    return;
+//                }
 
                 OpencgaManager.files.filesByFolder({
                     id: me.jobItem.outDirId,
@@ -325,8 +289,8 @@
                 var result = {
                     input: [], output: []
                 };
-                var output = xmlDoc.getElementsByTagName("output")[0].children;
-                var input = xmlDoc.getElementsByTagName("input")[0].children;
+                var output = xmlDoc.getElementsByTagName("output")[0].childNodes;
+                var input = xmlDoc.getElementsByTagName("input")[0].childNodes;
 
                 var outputElementsJson = me.parseOutput(output);
                 var inputElementsJson = me.parseInput(input);
@@ -339,9 +303,11 @@
             },
             parseOutput: function (output) {
                 var elements = [];
-
                 for (var i = 0; i < output.length; i++) {
                     var elemXML = output[i];
+                    if (elemXML.nodeName == "#text") {
+                        continue
+                    }
                     this._parseElem(elemXML, elements);
                 }
                 return elements;
@@ -352,7 +318,14 @@
 
                 for (var i = 0; i < input.length; i++) {
                     var xmlElem = input[i];
+                    if (xmlElem.nodeName == "#text") {
+                        continue
+                    }
 
+                    var strValue = "";
+                    if (xmlElem.firstChild != null && xmlElem.firstChild.data != null) {
+                        strValue = xmlElem.firstChild.data;
+                    }
                     var jsonElem = {
                         name: xmlElem.getAttribute("name"),
                         title: xmlElem.getAttribute("title"),
@@ -360,7 +333,7 @@
                         tags: xmlElem.getAttribute("tags"),
                         style: xmlElem.getAttribute("style"),
                         group: xmlElem.getAttribute("context"),
-                        value: xmlElem.innerHTML
+                        value: strValue
                     };
                     elements.push(jsonElem);
                 }
@@ -440,7 +413,6 @@
                 return fileId;
             },
             _renderValue: function (element) {
-
                 var me = this;
                 var res = document.createElement("div");
                 switch (element.type) {
@@ -697,26 +669,26 @@
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
-                            var sortableTable = document.createElement('jso-interactors-table');
+                            var interactorsTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
-                                sortableTable.typeTable = "NETWORKMINERRANKED_TABLE";
-                                sortableTable.content = content;
+                                interactorsTable.typeTable = "NETWORKMINERRANKED_TABLE";
+                                interactorsTable.content = content;
 
                             }, element.value);
 
-                            res.appendChild(sortableTable);
+                            res.appendChild(interactorsTable);
 
                         }
                         if (element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
-                            var sortableTable = document.createElement('jso-interactors-table');
+                            var interactorsTable = document.createElement('jso-interactors-table');
                             this.getFileContent(function (content) {
-                                sortableTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
-                                sortableTable.content = content;
+                                interactorsTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
+                                interactorsTable.content = content;
 
                             }, element.value);
 
-                            res.appendChild(sortableTable);
+                            res.appendChild(interactorsTable);
 
                         }
 
@@ -1364,13 +1336,17 @@
                 if (groups.length == 1) { // Final Group
                     var group = groups[0];
 
+                    var strValue = "";
+                    if (elemXML.firstChild != null && elemXML.firstChild.data != null) {
+                        strValue = elemXML.firstChild.data;
+                    }
+
                     var nameInput = elemXML.getAttribute("name");
                     var titleInput = elemXML.getAttribute("title");
                     var typeInput = elemXML.getAttribute("type");
                     var groupInput = elemXML.getAttribute("group").split(".");
                     var tagsInput = elemXML.getAttribute("tags");
-                    var valueInput = elemXML.innerHTML;
-
+                    var valueInput = strValue;
                     var value = {
                         name: nameInput,
                         title: titleInput,

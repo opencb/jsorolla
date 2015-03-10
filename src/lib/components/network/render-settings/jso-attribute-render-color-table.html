@@ -202,7 +202,7 @@
                 this.attributeParse = 'string';
 
                 this.uniqueData = [];
-                this.matches = {};
+                this.uniqueMatches = {};
                 /**/
                 this.hideColorMenu = true;
                 this.lastUniqueModel;
@@ -251,7 +251,7 @@
                     this.attributeType = this.visualSet.type;
                     this.attributeName = this.visualSet.attribute;
                     this.attributeParse = this.visualSet.parse;
-                    this.matches = this.visualSet.matches;
+                    this.uniqueMatches = this.visualSet.matches;
                     this.points = this.visualSet.points;
                 }
             },
@@ -284,17 +284,17 @@
             },
             _updateVisualSet: function () {
                 if (this.attributeName != '') {
-                    var matches = {};
+                    var uniqueMatches = {};
                     for (var i = 0; i < this.uniqueData.length; i++) {
                         var data = this.uniqueData[i];
-                        matches[data.attribute] = data.render;
+                        uniqueMatches[data.attribute] = data.render;
                     }
-                    this.matches = matches;
+                    this.uniqueMatches = uniqueMatches;
                     this.visualSet = {
                         attribute: this.attributeName,
                         displayProperty: this.getAttribute("id"),
                         type: this.attributeType,
-                        matches: this.matches,
+                        matches: this.uniqueMatches,
                         parse: this.attributeParse,
                         points: this.points,
                         enabled: true

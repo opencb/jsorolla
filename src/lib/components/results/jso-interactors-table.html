@@ -47,7 +47,7 @@
             }
 
         </style>
-        <sortable-table id="table"
+        <sortable-table id="interactors_table"
                         data="{{data}}"
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
@@ -63,9 +63,11 @@
     <script>
         Polymer({
             created: function () {
-
+                this.columns = [];
+                this.data = [];
             },
             contentChanged: function () {
+                this.createColumns();
                 var data = this.content.split("\n");
                 for (var i = 1; i < data.length; i++) {
                     if (data[i] == "") continue;
@@ -90,6 +92,10 @@
 //                    debugger
                     this.data.push(obj)
                 }
+
+
+            },
+            createColumns: function(){
                 this.columns = new Array();
                 this.columns.push({
                     name: "input_id",
@@ -135,7 +141,6 @@
 
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
-
             }
         })
     </script>

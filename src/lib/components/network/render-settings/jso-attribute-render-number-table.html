@@ -201,7 +201,7 @@
                     this.attributeType = this.visualSet.type;
                     this.attributeName = this.visualSet.attribute;
                     this.attributeParse = this.visualSet.parse;
-                    this.matches = this.visualSet.matches;
+                    this.uniqueMatches = this.visualSet.matches;
                     this.points = this.visualSet.points;
                 }
             },
@@ -235,16 +235,16 @@
             },
             _updateVisualSet: function () {
                 if (this.attributeName != '') {
-                    this.matches = {};
+                    this.uniqueMatches = {};
                     for (var i = 0; i < this.uniqueData.length; i++) {
                         var data = this.uniqueData[i];
-                        this.matches[data.attribute] = data.render;
+                        this.uniqueMatches[data.attribute] = data.render;
                     }
                     this.visualSet = {
                         attribute: this.attributeName,
                         displayProperty: this.displayProperty,
                         type: this.attributeType,
-                        matches: this.matches,
+                        matches: this.uniqueMatches,
                         parse: this.attributeParse,
                         points: this.points,
                         enabled: true

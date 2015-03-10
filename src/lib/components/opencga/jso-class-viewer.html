@@ -1,4 +1,4 @@
-<polymer-element name="jso-class-viewer" attributes="contentFile loadedMainSelect loadedChildrenSelect childrenDisplay variableTypes childrenSelectNumber">
+<polymer-element name="jso-class-viewer" attributes="contentFile childrenDisplay variableTypes childrenSelectNumber">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../jso-form.css">
@@ -21,8 +21,15 @@
         <!--<option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>-->
         <!--</select>-->
         <div id="jsoClassViewerId">
-            <label>Variables</label>
+            <div horizontal layout>
+                <label>Variables</label>
 
+                <div>
+                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit-your-data">
+                        <font-awesome icon="question-circle"></font-awesome>
+                    </a>
+                </div>
+            </div>
             <div id="mainSelect" class="select">
                 <!--<select id="selectClass" on-change="{{selectChange}}">-->
                 <select id="selectClass">
@@ -30,6 +37,7 @@
                 </select>
             </div>
             <br>
+
             <div id="childrenSelect">
             </div>
         </div>
@@ -39,10 +47,10 @@
             created: function () {
                 this.dataClass;
                 /** loaded is a variable to know if this component has create all the necessary elements**/
-                this.loadedMainSelect = false;
-                this.loadedChildrenSelect = false;
+//                this.loadedMainSelect = false;
+//                this.loadedChildrenSelect = false;
 
-                /** childrenDisplay is an attributes that indicates if we want a the childrens (another selects)  of the main select **/
+                /** childrenDisplay is an attributes that indicates if we want a the children (another selects)  of the main select **/
                 this.childrenDisplay = true;
 
                 /** variableTypes is the type of variables that we want to display **/
@@ -52,7 +60,6 @@
                 this.childrenSelectNumber = -1;
             },
             contentFileChanged: function (oldV, newV) {
-                debugger
                 var me = this;
                 if (this.childrenDisplay) {
                     this.$.selectClass.addEventListener("change", function () {
@@ -62,8 +69,8 @@
                 /** reset elements **/
                 this.$.selectClass.innerHTML = "";
                 this.$.childrenSelect.innerHTML = "";
-                this.loadedMainSelect = false;
-                this.loadedChildrenSelect = false;
+//                this.loadedMainSelect = false;
+//                this.loadedChildrenSelect = false;
 
                 /** Load data from content **/
                 var parseMatrix = new ParseMatrix(newV);
@@ -114,7 +121,8 @@
 //                    select.options[select.options.length] = new Option('Text ' + i, 'Value' + i);
 
                 }
-                this.loadedMainSelect = true;
+//                this.loadedMainSelect = true;
+                this.fire('main-select');
 
 
             },
@@ -157,15 +165,15 @@
                             }
                             var div = document.createElement("div");
 
-                            div.setAttribute("class","select");
-                            div.setAttribute("style","margin-left:1px");
+                            div.setAttribute("class", "select");
+                            div.setAttribute("style", "margin-left:1px");
                             div.appendChild(select);
                             this.$.childrenSelect.appendChild(div);
                         }
                     }
                 }
-                this.loadedChildrenSelect = true;
-                this.fire('annonymous');
+//                this.loadedChildrenSelect = true;
+                this.fire('children-select');
             },
 //            changeChildrenSelect: function (e) {
 ////                debugger

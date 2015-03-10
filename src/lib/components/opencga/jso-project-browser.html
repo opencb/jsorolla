@@ -250,6 +250,9 @@
                 <div flex horizontal layout>
                     <div flex horizontal layout>
                         <template if="{{bioformat != ''}}">
+                            <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Data-types">
+                                <font-awesome icon="question-circle"></font-awesome>
+                            </a>
                             <div class="text">Accepted bioformats:{{bioformatText}}</div>
                         </template>
                     </div>
@@ -803,8 +806,6 @@
                         url: true
                     }
                 });
-
-
                 var link = document.createElement('a');
                 link.href = url;
                 link.download = this.selectedFile.name;

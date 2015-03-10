@@ -57,6 +57,9 @@
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA
                         example
                     </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="mini2.vcf" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
 
@@ -138,6 +141,10 @@
                 this.message = '';
                 me.launchJob();
             },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             launchJob: function () {
                 var me = this;
                 if (!Utils.basicValidationForm(this)) {
