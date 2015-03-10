@@ -60,6 +60,9 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Association analysis: chi-square test</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="association.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
 
@@ -130,6 +133,9 @@
                 this.list1UploadMsg = "Select file...";
                 this.description = "Job description..."
                 this.maf = 0.02;
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
 
             handleForm: function () {

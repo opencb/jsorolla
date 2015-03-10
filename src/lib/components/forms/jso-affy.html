@@ -55,7 +55,11 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Affy sample 1</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="affymetrix.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
+
             </div>
             <div class="formbox">
                 <div class="formtitle">Select your data</div>
@@ -105,6 +109,9 @@
                 this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
                 this.description = "Job info..."
                 this.compressed_file = '';
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
             reset: function () {
                 this.$.inputFile.selectedFile = undefined;

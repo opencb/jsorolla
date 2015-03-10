@@ -57,6 +57,9 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"> fibroblasts k-means clustering</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="fibroblasts.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
 
@@ -73,13 +76,13 @@
                 <div class="formtitle">Select type of clustering: samples and/or genes</div>
                 <div class="formcontent">
                     <label class="control">
-                    <input name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox"
-                           value="true" checked="checked" on-click="{{clusteringTypeClick}}">
-                    <span>Clustering of samples</span></label>
+                        <input name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox"
+                               value="true" checked="checked" on-click="{{clusteringTypeClick}}">
+                        <span>Clustering of samples</span></label>
                     <label class="control">
-                    <input name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true"
-                           on-click="{{clusteringTypeClick}}">
-                    <span>Clustering of genes</span></label>
+                        <input name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true"
+                               on-click="{{clusteringTypeClick}}">
+                        <span>Clustering of genes</span></label>
                 </div>
             </div>
 
@@ -155,8 +158,12 @@
                 this.sample_kvalue = 5;
                 this.gene_kvalue = 15;
             },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             argsChanged: function () {
-                if(this.toolName == this.args.tool) {
+                if (this.toolName == this.args.tool) {
                     this.message = '';
                     this.jobName = "Job name";
                     this.description = "description";

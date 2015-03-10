@@ -199,6 +199,26 @@ var Utils = {
             }
         })
     },
+    downloadExampleFile: function (toolName, fileName) {
+        var url = OpencgaManager.files.contentExample({
+            query: {
+                toolName: toolName,
+                fileName: fileName
+            },
+            request: {
+                url: true
+            }
+        });
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        var event = new MouseEvent('click', {
+            'view': window,
+            'bubbles': true,
+            'cancelable': true
+        });
+        link.dispatchEvent(event);
+    },
     argsParser: function (form, args) {
         if (form.toolName == args.tool) {
             for (var key in args) {

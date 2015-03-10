@@ -87,6 +87,9 @@
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
                     <div class="button action" style="display: inline-block" on-click="{{loadExample1}}">Fluorouridine dataset</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="fluorouridine.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
 
@@ -152,6 +155,7 @@
                         </div>
                         <br>
                         <br>
+
                         <div horizontal layout>
                             <label class="control">
                                 <input name="go_bp" id="go_bp" type="checkbox" value="gobp">
@@ -354,6 +358,10 @@
 
 
             },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             handleForm: function () {
                 var me = this;
                 this.message = '';
@@ -375,7 +383,7 @@
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
                 }
-                if(this.$.species.value == "none"){
+                if (this.$.species.value == "none") {
                     alert("Sorry. No species selected. Please select one. ");
                     return
                 }

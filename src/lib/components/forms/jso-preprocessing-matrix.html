@@ -56,7 +56,14 @@
                 <div class="formcontent">
                     <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Preprocessing a two classes matrix
                     </div>
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample2}}" style="margin-top:5px">Preprocessing a correlation matrix
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="twoclasses.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample2}}" data-example="twoclasses.txt" style="margin-top:5px">Preprocessing a correlation matrix
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
                     </div>
                 </div>
             </div>
@@ -221,6 +228,10 @@
                 this.jobName = 'JobName';
                 this.toolName = "preprocessing";
             },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
             handleForm: function () {
                 this.launchJob();
             },
