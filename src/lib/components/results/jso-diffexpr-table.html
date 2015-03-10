@@ -219,7 +219,7 @@
                     }
                     if (fileName.indexOf("_ranked_list.txt") >= 0) {
                         me.rankedListFile = this.files[i];
-                        me.rankedListFileUrl = Utils.getUrl(this.files[i]);
+                        me.rankedListFileUrl = Utils.getUrl(me.rankedListFile.id);
                         me.rankedListFileArgs = {
                             inputFile: this.files[i],
                             tool: "fatiscan"
