@@ -9,7 +9,7 @@
 <link rel="import" href="jso-help-menu.html">
 
 <polymer-element name="jso-header"
-                 attributes="selectedOption options allowLogin allowJobs allowBrowse showJobs isLogged
+                 attributes="selectedOption allowLogin allowJobs allowBrowse showJobs isLogged
                  userData jobItem selectedStudy allowedTools showMenu">
     <template>
         <link rel="stylesheet" href="../jso-style.css">
@@ -20,6 +20,7 @@
                 box-sizing: border-box;
                 cursor: default;
                 z-index: 70000;
+                height: 60px;
             }
 
             .main {
@@ -32,8 +33,9 @@
                 /*background-color: #435f7a;*/
                 background-color: #314559;
                 line-height: 60px;
-                font-size: 16px;
+                font-size: 18px;
                 color: #CCCCCC;
+                font-weight: 300;
                 margin: 0;
                 padding: 0;
                 text-transform: none;
@@ -50,14 +52,14 @@
                 min-height: calc(100vh - 160px);
             }
 
-            .main > div {
+            .main > div > div {
                 display: block;
                 text-align: center;
-                padding: 0 0.5vw;
+                padding: 0 5px;
                 cursor: pointer;
             }
 
-            .main > div:hover {
+            .main > div > div:hover {
                 color: #FFFFFF;
             }
 
@@ -68,13 +70,16 @@
 
             div.title {
                 font-size: 30px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
             }
 
             div.description {
                 color: #ffad76;
-                font-size: 20px;
-                padding-top: 3px;
-                line-height: 60px;
+                font-size: 18px;
+                padding-left: 10px;
+                padding-bottom: 10px;
             }
 
             div.description:hover {
@@ -83,7 +88,7 @@
             }
 
             @media (max-width: 1250px) {
-                div.title, div.description {
+                div.left {
                     display: none;
                 }
             }
@@ -101,115 +106,74 @@
         </style>
 
         <div class="main" horizontal layout>
-            <div class="icon" data-option="home" on-click="{{handleMenu}}">
-                <content select=".icon"></content>
-            </div>
-            <div class="title" data-option="home" on-click="{{handleMenu}}">
-                <content select=".title"></content>
-            </div>
-            <div id="description" class="description">
-                <content select=".description"></content>
-            </div>
-
-
-            <template if="{{isLogged || showMenu}}">
-                <content select=".menu"></content>
-            </template>
-
-            <div flex style="cursor:default;">
-                <content select=".announce"></content>
-            </div>
-
-            <div id="user" hidden?="{{!isLogged}}">
-                {{userText}}
-            </div>
-
-
-            <div id="logout" on-click="{{handleLogoutClick}}" hidden?="{{!isLogged}}">
-                <font-awesome icon="sign-out"></font-awesome>
-                &nbsp;logout
-            </div>
-
-
-            <template if="{{allowBrowse == true}}">
-                <div id="projects" data-option="projects" on-click="{{handleMenu}}" hidden?="{{!isLogged}}">
-                    <font-awesome icon="cloud-upload"></font-awesome>
-                    <!--<font-awesome icon="pie-chart"></font-awesome>-->
-                    <!--&nbsp;studies-->
-                    &nbsp;Upload
+            <div horizontal layout center-justified flex class="left">
+                <div class="icon" data-option="home" on-click="{{handleMenu}}">
+                    <content select=".icon"></content>
                 </div>
-            </template>
+                <div class="title" data-option="home" on-click="{{handleMenu}}">
+                    <content select=".title"></content>
+                </div>
+                <div id="description" class="description">
+                    <content select=".description"></content>
+                </div>
+                <div style="cursor:default;">
+                    <content select=".announce"></content>
+                </div>
+            </div>
+            <div horizontal layout center-justified flex>
+                <template if="{{isLogged || showMenu}}">
+                    <content select=".menu"></content>
+                </template>
+            </div>
+            <div horizontal layout end-justified flex>
+                <template if="{{allowLogin == true}}">
+
+                    <div id="user" hidden?="{{!isLogged}}">
+                        {{userText}}
+                    </div>
+                    <div id="logout" on-click="{{handleLogoutClick}}" hidden?="{{!isLogged}}">
+                        <font-awesome icon="sign-out"></font-awesome>
+                        &nbsp;logout
+                    </div>
 
 
-            <div id="profile" data-option="profile" on-click="{{handleMenu}}"
-                 hidden?="{{!isLogged || userText == 'anonymous'}}">
-                <font-awesome icon="user"></font-awesome>
-                &nbsp;profile
+                    <template if="{{allowBrowse == true}}">
+                        <div id="projects" data-option="projects" on-click="{{handleMenu}}" hidden?="{{!isLogged}}">
+                            <font-awesome icon="cloud-upload"></font-awesome>
+                            <!--<font-awesome icon="pie-chart"></font-awesome>-->
+                            <!--&nbsp;studies-->
+                            &nbsp;Upload
+                        </div>
+                    </template>
+
+
+                    <div id="profile" data-option="profile" on-click="{{handleMenu}}"
+                         hidden?="{{!isLogged || userText == 'anonymous'}}">
+                        <font-awesome icon="user"></font-awesome>
+                        &nbsp;profile
+                    </div>
+
+
+                    <template if="{{allowJobs == true}}">
+                        <div id="jobs" data-option="jobs" on-click="{{handleJobClick}}" hidden?="{{!isLogged}}">
+                            <font-awesome icon="pencil-square-o"></font-awesome>
+                            &nbsp;jobs
+                        </div>
+                    </template>
+                    <div id="login" data-option="login" on-click="{{handleMenu}}" hidden?="{{isLogged}}">
+                        <font-awesome icon="sign-in"></font-awesome>
+                        &nbsp;log in
+                    </div>
+                    <div id="signup" data-option="signup" on-click="{{handleMenu}}" hidden?="{{isLogged}}">
+                        <font-awesome icon="pencil-square-o"></font-awesome>
+                        &nbsp;sign up
+                    </div>
+
+                </template>
+                <content select=".helpmenu"></content>
             </div>
 
-            <template if="{{allowJobs == true}}">
-                <div id="jobs" data-option="jobs" on-click="{{handleJobClick}}" hidden?="{{!isLogged}}">
-                    <font-awesome icon="pencil-square-o"></font-awesome>
-                    &nbsp;jobs
-                </div>
-            </template>
 
-
-            <template if="{{allowLogin == true}}">
-                <div id="login" data-option="login" on-click="{{handleMenu}}" hidden?="{{isLogged}}">
-                    <font-awesome icon="sign-in"></font-awesome>
-                    &nbsp;log in
-                </div>
-                <div id="signup" data-option="signup" on-click="{{handleMenu}}" hidden?="{{isLogged}}">
-                    <font-awesome icon="pencil-square-o"></font-awesome>
-                    &nbsp;sign up
-                </div>
-            </template>
-
-
-            <!--<div id="support" on-click="{{handleSupportMenu}}">-->
-            <!--&nbsp;-->
-            <!--<font-awesome icon="support"></font-awesome>-->
-            <!--&nbsp;-->
-            <!--</div>-->
-
-            <content select=".helpmenu"></content>
-            <!--<li id="jobs" class="right" hide="{{!isLogged}}">-->
-            <!--<font-awesome icon="tasks"></font-awesome> &nbsp;jobs-->
-            <!--</li>-->
-
-
-            <!--<li id="upload" class="right" hide="{{!isLogged}}">-->
-            <!--<font-awesome icon="cloud-upload"></font-awesome> &nbsp;upload & manage-->
-            <!--</li>-->
-
-            <!--<div id="helpMenu" class="help-menu" on-mouseleave="{{handleHelpMenuMouseOut}}">-->
-
-            <!--<content select=".link"></content>-->
-
-            <!--<li id="homeHelp" on-click="{{ handleHomeHelp }}" hidden?="{{hideHomeLink != null}}">-->
-            <!--<font-awesome icon="home"></font-awesome>-->
-            <!--&nbsp;home-->
-            <!--</li>-->
-            <!--<li id="documentation" class="right" on-click="{{ handleDocumentation }}">-->
-            <!--<font-awesome icon="book"></font-awesome>-->
-            <!--&nbsp;documentation-->
-            <!--</li>-->
-            <!--<li id="tutorial" class="right" on-click="{{ handleTutorial }}">-->
-            <!--<font-awesome icon="list-alt"></font-awesome>-->
-            <!--&nbsp;tutorial-->
-            <!--</li>-->
-            <!--<li id="workedExamplesLink" class="right" on-click="{{ handleWorkedExamples }}" hidden?="{{hideWorkedExamplesLink}}">-->
-            <!--<font-awesome icon="magic"></font-awesome>-->
-            <!--&nbsp; worked examples-->
-            <!--</li>-->
-
-
-            <!--<li id="about" class="right" on-click="{{ handleAbout }}">-->
-            <!--<font-awesome icon="info"></font-awesome>-->
-            <!--&nbsp; about-->
-            <!--</li>-->
-            <!--</div>-->
         </div>
         <div class="content">
             <jso-login id="jsoLogin"
