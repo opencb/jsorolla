@@ -17,19 +17,21 @@
         <!--</select>-->
         <div id="jsoClassViewerId">
             <div horizontal layout>
-                <label>Variables</label>
-
                 <div>
                     <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit-your-data">
                         <font-awesome icon="question-circle"></font-awesome>
                     </a>
                 </div>
-            </div>
-            <div id="mainSelect" class="select">
-                <!--<select id="selectClass" on-change="{{selectChange}}">-->
-                <select id="selectClass">
-                    <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
-                </select>
+                <div>
+                Variables: &nbsp;
+                </div>
+                <div id="mainSelect" class="select">
+                    <!--<select id="selectClass" on-change="{{selectChange}}">-->
+                    <select id="selectClass">
+                        <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
+                    </select>
+                </div>
+
             </div>
             <br>
 
@@ -127,7 +129,7 @@
                 this.$.childrenSelect.innerHTML = "";
 
                 /** add title element **/
-                var text = document.createTextNode("Attributes");
+                var text = document.createTextNode("Attributes: ");
                 this.$.childrenSelect.appendChild(text);
 
                 var variables = this.dataClass["#VARIABLE"];
