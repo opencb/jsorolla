@@ -115,6 +115,7 @@
                 var observer = new MutationObserver(function (mutations) {
                     if (me.uploading == false && me.hidden == true) {
                         me.initWC();
+                        me.$.form.reset();
                     }
                 }.bind(this));
                 observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
