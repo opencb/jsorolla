@@ -19,13 +19,6 @@
 
             }
 
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #445D76;
-                margin-bottom: 10px;
-            }
-
             .close {
                 color: #aaa;
             }
@@ -50,16 +43,13 @@
         </style>
 
 
-        <div class="title" horizontal layout hidden?="{{hideTitle == 'true'}}">
-            <div class="title" horizontal layout>
+        <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
                 <div flex>
                     Network enrichment
                 </div>
-                <div class="close" on-click="{{handleCancel}}">
-                    <font-awesome icon="times"></font-awesome>
+                <div class="icon">
                     <!--<font-awesome icon="magic"></font-awesome>-->
                 </div>
-            </div>
         </div>
         <form id="form">
             <div class="formbox">

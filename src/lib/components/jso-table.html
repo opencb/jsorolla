@@ -1,0 +1,124 @@
+<polymer-element name="jso-table" attributes="data columns">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                height: 500px;
+                border: 1px solid #d3d3d3;
+            }
+
+            :host::after {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 25px;
+                height: 30px;
+                background-color: #e8e8e8;
+                content: ''
+            }
+
+            core-list {
+                height: calc(100% - 31px);
+            }
+
+            .header {
+                position: relative;
+                border-bottom: 1px solid #d3d3d3;
+                background-color: #e8e8e8;
+                font-weight: bold;
+                color: #666;
+                height: 30px;
+                overflow-y: scroll;
+            }
+
+            .header-field {
+                box-sizing: border-box;
+                padding: 7px 10px;
+                border-right: 1px solid #d3d3d3;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .header-field:last-child {
+                border-right-width: 0;
+            }
+
+            .row {
+                box-sizing: border-box;
+                height: 80px;
+                cursor: default;
+                background-color: white;
+                overflow: hidden;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .row:last-child {
+                border-bottom-width: 0;
+            }
+
+            .row:nth-child(2n+1) {
+                background-color: #f5f5f5;
+            }
+
+            .field {
+                box-sizing: border-box;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                border-right: 1px solid #d3d3d3;
+            }
+
+            .field:last-child {
+                border-right-width: 0;
+            }
+        </style>
+
+        <div id="header" class="header" horizontal layout>
+            <div>
+
+            </div>
+            <template repeat="{{c in columns}}">
+                <div class="header-field" flex?="{{!c.width}}" style="width:{{c.width ? c.width + 'px' : 'inherit' }};">
+                    {{c.text}}
+                </div>
+            </template>
+        </div>
+
+
+        <core-list id="list" data="{{data}}" height="80" flex>
+            <template>
+                <div class="row" horizontal layout>
+                    <template repeat="{{c in columns}}">
+                        <div class="field" flex?="{{!c.width}}" style="width:{{c.width ? c.width + 'px' : 'inherit' }};">
+                            {{model[c.name]}}
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </core-list>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+//                this.columns = [];
+//                this.data = [];
+//                this.itemHeight = 30;
+
+//                this.data = [
+//                    {name: 'Adam'},
+//                    {name: 'Alex'},
+//                    {name: 'Bob'},
+//                    {name: 'Chuck'},
+//                    {name: 'Cathy'}
+//                ];
+                this.w = 0;
+            },
+            domReady: function () {
+            }
+        })
+    </script>
+</polymer-element>
+

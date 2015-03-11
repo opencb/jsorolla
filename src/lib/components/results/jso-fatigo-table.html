@@ -32,7 +32,6 @@
                 }
             }
 
-
             /*sortable-table::shadow .column-term_size,*/
             /*sortable-table::shadow .column-term_size_genome,*/
             /*sortable-table::shadow .column-term_size_genome,*/
@@ -40,8 +39,8 @@
             /*sortable-table::shadow .column-odds_ratio,*/
             /*sortable-table::shadow .column-pvalue,*/
             /*sortable-table::shadow .column-adj_pvalue {*/
-                /*width: 80px;*/
-                /*white-space: nowrap;*/
+            /*width: 80px;*/
+            /*white-space: nowrap;*/
             /*}*/
 
         </style>
@@ -56,9 +55,9 @@
                 </td>
             </template>
             <template id="listTemplate">
-                <td>
-                    <div horizontal layout style="max-height: 100px;">
-                        <div>
+                <td style="padding:0px;border:1px solid #d3d3d3;">
+                    <div horizontal layout style="max-height: 100px; overflow-y: auto; overflow-x: hidden">
+                        <div flex style="text-align: center;border-right:1px solid #d3d3d3">
                             <span style="color:#666">List 1:</span>
 
                             <div class="idlist" title="{{row[column.name]}}">
@@ -67,7 +66,7 @@
                                 </template>
                             </div>
                         </div>
-                        <div style="margin-left:20px">
+                        <div flex style="text-align: center;">
                             <span style="color:#666">List 2:</span>
 
                             <div class="idlist" title="{{row[column.name]}}">
