@@ -134,14 +134,14 @@
                     <div class="formcontent">
 
                         <label>Adj. p-value (0.0-1.0)</label><input name="p_value" id="p_value" class="fc-decimal fc-text"
-                                                                    type="text" value="{{p_value}}">
+                                                                    type="text" value="{{p_value}}" style="width: 40px">
                     </div>
                 </div>
             </div>
             <div class="formbox">
                 <div class="formtitle">Job information</div>
                 <div class="formcontent">
-                    <label>Output folder</label>
+                    <label style="font-weight: bold">Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="folder" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>

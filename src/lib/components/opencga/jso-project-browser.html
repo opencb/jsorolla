@@ -423,10 +423,13 @@
                             }
                         } else if (this.selectionMode === 'file' || this.selectionMode === '') {
                             if (this.bioformat !== "") {
-                                if (file.bioformat === "NONE") {
-                                    filesFiltered.push(file);
-
-                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                if (file.bioformat === "NONE") {
+//                                    filesFiltered.push(file);
+//
+//                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                    filesFiltered.push(file);
+//                                }
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
                                     filesFiltered.push(file);
                                 }
                             } else {
@@ -860,10 +863,13 @@
                             }
                         } else if (this.selectionMode === 'file' || this.selectionMode === '') {
                             if (this.bioformat !== "") {
-                                if (file.bioformat === "NONE") {
-                                    filesFiltered.push(file);
-
-                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                if (file.bioformat === "NONE") {
+//                                    filesFiltered.push(file);
+//
+//                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                    filesFiltered.push(file);
+//                                }
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
                                     filesFiltered.push(file);
                                 }
                             } else {
