@@ -6,13 +6,14 @@
                 position: relative;
                 height: 500px;
                 border: 1px solid #d3d3d3;
+                font-size: 13px;
             }
 
             :host::after {
                 position: absolute;
                 top: 0;
                 right: 0;
-                width: 25px;
+                width: 30px;
                 height: 30px;
                 background-color: #e8e8e8;
                 content: ''
@@ -20,6 +21,7 @@
 
             core-list {
                 height: calc(100% - 31px);
+
             }
 
             .header {
@@ -30,6 +32,7 @@
                 color: #666;
                 height: 30px;
                 overflow-y: scroll;
+                overflow-x: hidden;
             }
 
             .header-field {
@@ -39,6 +42,9 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                float: left;
+                text-align: center;
+                cursor: pointer;
             }
 
             .header-field:last-child {
@@ -47,7 +53,6 @@
 
             .row {
                 box-sizing: border-box;
-                height: 80px;
                 cursor: default;
                 background-color: white;
                 overflow: hidden;
@@ -68,6 +73,8 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 border-right: 1px solid #d3d3d3;
+                float: left;
+                padding: 7px 10px;
             }
 
             .field:last-child {
@@ -75,29 +82,33 @@
             }
         </style>
 
-        <div id="header" class="header" horizontal layout>
-            <div>
-
+        <div style="overflow-x: auto;height: 100%">
+            <div id="header" class="header" style="width:{{calculatedWidth+'px'}}">
+                <template repeat="{{c in columns}}">
+                    <div class="header-field"
+                         on-click="{{handleHeaderClick}}"
+                         style="width:{{c.width ? c.width : columnWidth }}px;">
+                        {{c.text}}
+                    </div>
+                </template>
             </div>
-            <template repeat="{{c in columns}}">
-                <div class="header-field" flex?="{{!c.width}}" style="width:{{c.width ? c.width + 'px' : 'inherit' }};">
-                    {{c.text}}
-                </div>
-            </template>
+
+            <core-list id="list" data="{{data}}" height="{{itemHeight}}" style="width:{{calculatedWidth}}px">
+                <template>
+                    <div class="row" style="height: {{itemHeight}}px;">
+                        <template repeat="{{c in columns}}">
+                            <div class="field" title="{{model[c.name]}}"
+                                 style="
+                                 width:{{c.width ? c.width : columnWidth }}px;
+                                 height: {{itemHeight}}px;
+                                 ">
+                                {{model[c.name]}}
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </core-list>
         </div>
-
-
-        <core-list id="list" data="{{data}}" height="80" flex>
-            <template>
-                <div class="row" horizontal layout>
-                    <template repeat="{{c in columns}}">
-                        <div class="field" flex?="{{!c.width}}" style="width:{{c.width ? c.width + 'px' : 'inherit' }};">
-                            {{model[c.name]}}
-                        </div>
-                    </template>
-                </div>
-            </template>
-        </core-list>
 
     </template>
     <script>
@@ -105,16 +116,41 @@
             created: function () {
 //                this.columns = [];
 //                this.data = [];
-//                this.itemHeight = 30;
+                this.itemHeight = 30;
+                this.columnWidth = 100;
 
-//                this.data = [
-//                    {name: 'Adam'},
-//                    {name: 'Alex'},
-//                    {name: 'Bob'},
-//                    {name: 'Chuck'},
-//                    {name: 'Cathy'}
-//                ];
-                this.w = 0;
+                this.updateColumns();
+
+                this.currentColumnSort;
+            },
+            columnsChanged: function () {
+                this.updateColumns();
+            },
+            updateColumns: function () {
+                var calculatedWidth = 0;
+                for (var i = 0; i < this.columns.length; i++) {
+                    var column = this.columns[i];
+                    if (column.width) {
+                        calculatedWidth += column.width;
+                    } else {
+                        calculatedWidth += this.columnWidth;
+                    }
+                }
+                this.calculatedWidth = calculatedWidth + 30;
+                this.style.width = this.calculatedWidth + 'px'
+            },
+            handleHeaderClick: function (e) {
+                var columnName = e.currentTarget.templateInstance.model.c.name;
+                if (this.currentColumnSort != columnName) {
+                    this.data = this.data.slice(0).sort(function (a, b) {
+                        return a[columnName].localeCompare(b[columnName]);
+                    });
+                } else if (this.currentColumnSort == columnName) {
+                    this.data = this.data.slice(0).sort(function (a, b) {
+                        return b[columnName].localeCompare(a[columnName]);
+                    });
+                }
+                this.currentColumnSort = columnName;
             },
             domReady: function () {
             }

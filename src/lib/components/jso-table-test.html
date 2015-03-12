@@ -25,16 +25,16 @@
         columns.push({
             name: name,
             text: name,
-//            width: Utils.getRandomInt(20, 100)
+            width: 100
         });
     }
     var column;
     var data = [];
-    for (var i = 0; i < 500000; i++) {
+    for (var i = 0; i < 5000; i++) {
         var obj = {};
         for (var j = 0; j < columns.length; j++) {
             column = columns[j];
-            obj[column.name] = Utils.getRandomInt(10000000000000000000, 10000000000000000000000000);
+            obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
         }
         data.push(obj)
     }
