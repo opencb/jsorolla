@@ -58,9 +58,9 @@
                         <font-awesome icon="download"></font-awesome>
                     </div>
                     <br>
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample2}}" data-example="twoclasses.txt" style="margin-top:5px">Preprocessing a correlation matrix
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample2}}"  style="margin-top:5px">Preprocessing a correlation matrix
                     </div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" style="display:inline-block">
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="correlation.txt" style="display:inline-block">
                         <font-awesome icon="download"></font-awesome>
                     </div>
                 </div>
@@ -335,16 +335,16 @@
 
             },
             loadExample2: function (e) {
-                this.jobName = "Preprocessing a two classes matrix (twoclasses.txt)";
+                this.jobName = "Preprocessing a correlation matrix (correlation.txt)";
                 this.description = "just a preprocessing sample";
-                this.$.inputFile.selectedFile = {id: "example_twoclasses.txt", path: "twoclasses.txt", type: "FILE"};
+                this.$.inputFile.selectedFile = {id: "example_correlation.txt", path: "correlation.txt", type: "FILE"};
                 this.$.logarithm_base_2.checked = true;
                 this.$.exp_1.checked = true;
                 this.$.merge_replicates_2.checked = true;
                 this.$.impute_missing_5.checked = true;
 //                this.$.convert_ids_1.checked = true;
 
-                var exampleFolder = "two_classes_matrix";
+                var exampleFolder = "pre_correlation";
                 this.createExampleFolder(exampleFolder);
 
             },

@@ -10,13 +10,13 @@
 
             /*TODO temporal fix*/
             jso-network-viewer::shadow jso-nv-layout {
-                height: calc(100% - 96px);
+                /*height: calc(100% - 126px);*/
             }
         </style>
         <div id="networkWidget">
             <template if="{{speciesSelection == ''}}">
-                <div>
-                    <div class="select">
+                <div style="margin-bottom: 5px">
+                    <label>Species:</label> <div class="select">
                         <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
                             <template repeat="{{spe in species}}">
                                 <option value="{{spe.value}}">
@@ -66,7 +66,7 @@
             <br>
         </template>
 
-        <jso-network-viewer id="networkViewer" hideBar="true"></jso-network-viewer>
+        <jso-network-viewer id="networkViewer" lite="true"></jso-network-viewer>
         </div>
         <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
             <font-awesome icon="arrows"></font-awesome>
@@ -100,13 +100,14 @@
                     this.networkNodesTop = 0;
                 if (this.networkNodesBottom == "" || isNaN(this.networkNodesBottom))
                     this.networkNodesBottom = 0;
-                var nodes = this.nodes.slice(0, this.networkNodesTop);
-                nodes = nodes.concat(this.nodes.slice(this.nodes.length - this.networkNodesBottom, this.nodes.length));
-                if (nodes.length == 0)
+
+                this.nodesToRender = this.nodes.slice(0, this.networkNodesTop);
+                this.nodesToRender = this.nodesToRender.concat(this.nodes.slice(this.nodes.length - this.networkNodesBottom, this.nodes.length));
+                if (this.nodesToRender.length == 0)
                     return;
                 var nodesMap = {};
-                for (var i = 0; i < nodes.length; i++) {
-                    var node = nodes[i];
+                for (var i = 0; i < this.nodesToRender.length; i++) {
+                    var node = this.nodesToRender[i];
                     nodesMap[node] = true;
                 }
 
@@ -121,9 +122,17 @@
 
                 var xrefDatabase = species.dbname;
                 var xrefDatabaseId = xrefDatabase + "id";
-                console.log(nodes);
+                console.log(this.nodesToRender);
 //                var species = "hsapiens";
-                intactImport.getGraph(species.value, nodes, function (graph) {
+                intactImport.getGraph(species.value, this.nodesToRender, function (graph) {
+                    if (graph.vertices.length == 0) {
+                        for (var i = 0; i < me.nodesToRender.length; i++) {
+                            var node = me.nodesToRender[i];
+                            me.$.networkViewer.createVertex(0,0,node);
+                        }
+                        me.$.networkViewer.setLayout('Force directed');
+                        return;
+                    }
                     me.$.networkViewer.setGraph(graph);
                     me.$.networkViewer.setLayout('Force directed');
 
@@ -131,6 +140,7 @@
                     cellbaseAttributeImport.checkDatabase(xrefDatabase);
 
                     cellbaseAttributeImport.retrieveData('id', species.value, function () {
+                        debugger
                         me.$.networkViewer.selectVertexDefaultLabelAttribute(xrefDatabaseId);
                         cellbaseAttributeImport.uncheckAllDatabases();
 
@@ -153,27 +163,12 @@
                             }
                             if (nodesMap[row[xrefDatabaseId]] == true) {
                                 var vertex = me.$.networkViewer.graph.getVertexById(row['id']);
-                                vertex.renderer.set("color", '' +
-                                '#f99494');
+                                vertex.renderer.set("color", '#f99494');
                             }
                         }
-
-//                        for (var i = 0; i < nodes.length; i++) {
-//                            var node = nodes[i];
-//                            me.$.networkViewer.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
-//                        }
-
                     });
                 });
-//                debugger
-//                for (var i = 0; i < nodes.length; i++) {
-//                    var node = nodes[i];
-//                    this.$.networkViewer.createVertex(0, 0, node);
-//                    var vertex = this.$.networkViewer.graph.getVertexById(node);
-////                    vertex.renderer.set("size", 20);
-//                    vertex.renderer.set("color", "#eaeaea");
-//                }
-//                this.$.networkViewer.setLayout("Force directed");
+
 
             },
             handleSaveSessionToCellMaps: function (e) {
