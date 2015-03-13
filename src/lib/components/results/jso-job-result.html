@@ -502,11 +502,6 @@
                         a.innerHTML = element.value;
                         a.setAttribute("href", fileURL);
                         a.download = element.value;
-                        var event = new MouseEvent('click', {
-                            'view': window,
-                            'bubbles': true,
-                            'cancelable': true
-                        });
 
                         file.appendChild(a);
                         res.appendChild(file);
@@ -642,7 +637,7 @@
                             element.value = element.value.replace("${pvalue}", me.pvalue);
                             var fileId = this._getFileId(element.value);
 
-                            var fileURL = OpencgaManager.files.content({
+                            var fileURL = OpencgaManager.files.download({
                                 id: fileId,
                                 query: {
                                     sid: Cookies("bioinfo_sid")
@@ -657,13 +652,6 @@
                             var a = document.createElement("a");
                             a.innerHTML = element.value;
                             a.setAttribute("href", fileURL);
-                            a.download = element.value;
-                            var event = new MouseEvent('click', {
-                                'view': window,
-                                'bubbles': true,
-                                'cancelable': true
-                            });
-
                             file.appendChild(a);
                         }
                         if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "fatiscan") {

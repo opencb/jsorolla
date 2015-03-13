@@ -152,7 +152,7 @@ var Utils = {
         return validated;
     },
     getUrl: function (fileId) {
-        return OpencgaManager.files.content({
+        return OpencgaManager.files.download({
             id: fileId,
             query: {
                 sid: Cookies("bioinfo_sid")
@@ -200,7 +200,7 @@ var Utils = {
         })
     },
     downloadExampleFile: function (toolName, fileName) {
-        var url = OpencgaManager.files.contentExample({
+        var url = OpencgaManager.files.downloadExample({
             query: {
                 toolName: toolName,
                 fileName: fileName
@@ -211,7 +211,7 @@ var Utils = {
         });
         var link = document.createElement('a');
         link.href = url;
-        link.download = fileName;
+        //link.setAttribute("download", "download.zip");
         var event = new MouseEvent('click', {
             'view': window,
             'bubbles': true,

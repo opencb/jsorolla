@@ -230,8 +230,8 @@
                     return;
                 }
                 this.class_values = this.getClassValues();
-                if (this.class_values == "") {
-                    alert("Sorry: There is a problem in the selection of the attributes. Either they are the same or there are no attributes selected");
+                if (this.class_values == "" || this.class_values.split(",").length != 2) {
+                    alert("Sorry: There is a problem in the selection of the attributes. Either they are the same or there are some attributes missing");
                     return;
                 }
                 var query = {
