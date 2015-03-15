@@ -317,7 +317,7 @@
                 })
             },
             getContentFile: function (file) {
-
+                this.$.jsoClassViewer.loading = true;
                 var me = this;
                 if (String(file.id).indexOf("example_") >= 0) {
                     this.loadExampleFile(file.path);

@@ -31,7 +31,9 @@
                         <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
                     </select>
                 </div>
-
+                <template if="{{loading}}">
+                    <font-awesome icon="spinner" animation="spin" style="margin-left: 5px;"></font-awesome> loading variables...
+                </template>
             </div>
             <br>
 
@@ -55,8 +57,11 @@
 
                 /** number of childrensSelect **/
                 this.childrenSelectNumber = -1;
+
+                this.loading = false;
             },
             contentFileChanged: function (oldV, newV) {
+                this.loading = true;
                 var me = this;
                 if (this.childrenDisplay) {
                     this.$.selectClass.addEventListener("change", function () {
@@ -120,6 +125,8 @@
                 }
 //                this.loadedMainSelect = true;
                 this.fire('main-select');
+                this.loading = false;
+
 
 
             },

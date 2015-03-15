@@ -310,6 +310,8 @@
                 })
             },
             getContentFile: function (file) {
+                this.$.jsoClassViewerTime.loading = true;
+                this.$.jsoClassViewerCensored.loading = true;
 
                 var me = this;
                 if (String(file.id).indexOf("example_") >= 0) {
