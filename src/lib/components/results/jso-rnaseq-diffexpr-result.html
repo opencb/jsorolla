@@ -74,13 +74,13 @@
             }
 
         </style>
-        <template if="{{significativeResults == 'loading'}}">
+        <template if="{{loading}}">
             <div class="loading">
                 <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
                 Loading result...
             </div>
         </template>
-        <template if="{{significativeResults != 'loading'}}">
+        <template if="{{!loading}}">
             <div id="output" class="output">
                 <h1> RNASeq Differential expression</h1>
 
@@ -116,8 +116,8 @@
                     </div>
 
                     <div class="level-0">
-                        <template if="{{significativeResults == 'false'}}">
-                            <div class="headerTitle">No significative results</div>
+                        <template if="{{error}}">
+                            <div class="headerTitle">No results</div>
                             <div class="data">
                                 This is maybe due to incorrect input. For more info about proper inputs, refer to the
                                 <a href="https://github.com/babelomics/babelomics/wiki/data-matrix-expression" target="_blank">documentation</a>.
@@ -134,7 +134,7 @@
                             </div>
                         </template>
 
-                        <template if="{{significativeResults == 'true'}}">
+                        <template if="{{!error}}">
                             <div class="headerTitle">Significative results</div>
                             <div class="data">
 
@@ -142,101 +142,109 @@
                                 <img src="{{voom_MDS}}">
                                 <img src="{{voom_mean_var}}">
 
+                                <template if="{{significative}}">
+                                    <h3>Significative file</h3>
 
-                                <h3>Significative file</h3>
+                                    <div class="file"><label>File</label>
+                                        <a href="{{fileUrl}}" target="_blank">diffexp_Sig_results.txt</a>
+                                    </div>
 
-                                <div class="file"><label>File</label>
-                                    <a href="{{fileUrl}}" target="_blank">diffexp_Sig_results.txt</a>
-                                </div>
+                                    <template if="{{loadingTable}}">
+                                        <div>
+                                            <font-awesome icon="spinner" animation="spin"></font-awesome>
+                                            Loading table...
+                                        </div>
+                                    </template>
 
-                                <template if="{{loadingTable}}">
-                                    <div>
-                                        <font-awesome icon="spinner" animation="spin"></font-awesome>
-                                        Loading table...
+                                    <sortable-table id="diffexp_Sig_results"
+                                                    data="{{data}}"
+                                                    columns="{{columns}}"
+                                                    footerTemplate="{{footerTemplate}}"
+                                                    pageSize="{{pageSize}}"
+                                                    flex>
+                                    </sortable-table>
+
+                                    <h3>HeatMap</h3>
+                                    <img src="{{diffexp_heatmap}}">
+
+                                    <h3>Network viewer</h3>
+                                    <jso-protein-viewer id="proteinViewer"></jso-protein-viewer>
+
+                                    <h3>Continue processing</h3>
+
+                                    <div style="margin-left: 20px">
+                                        <h4>Single enrichment analysis</h4>
+                                        <jso-redirection titleRed="Top list vs Genome" fileName="diffexp_toplist_results.txt"
+                                                         fileUrl="{{diffexp_toplist_results_url}}"
+                                                         buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_toplist_results_sea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                                         fileUrl="{{diffexp_bottomlist_results_url}}"
+                                                         buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_bottomlist_results_sea_args}}" id="">
+
+                                        </jso-redirection>
+                                        <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                                         buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                                         args="{{toplist_vs_bottomlist_sea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Gene set enrichment analysis</h4>
+                                        <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                                         fileUrl="{{diffexp_t_results_url}}"
+                                                         buttonLabel="Send to Gene set enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_t_results_gsea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Network enrichment analysis</h4>
+                                        <jso-redirection titleRed="Top list vs Interactome" fileName="diffexp_toplist_results.txt"
+                                                         fileUrl="{{diffexp_toplist_results_url}}"
+                                                         buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_toplist_results_nea_args}}" id="">
+
+                                        </jso-redirection>
+                                        <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                                         fileUrl="{{diffexp_bottomlist_results_url}}"
+                                                         buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_bottomlist_results_nea_args}}" id="">
+
+                                        </jso-redirection>
+                                        <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                                         buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                                         args="{{toplist_vs_bottomlist_nea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Gene set network enrichment analysis</h4>
+                                        <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                                         fileUrl="{{diffexp_t_results_url}}"
+                                                         buttonLabel="Send to Gene set network enrichment" buttonWidth="300px"
+                                                         args="{{diffexp_t_results_gsnea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Clustering</h4>
+                                        <jso-redirection titleRed="Significative data results"
+                                                         fileName="diffexp_sigData_results.txt"
+                                                         fileUrl="{{diffexp_sigData_results_url}}"
+                                                         buttonLabel="Send to Clustering" buttonWidth="200px"
+                                                         args="{{diffexp_sigData_results_args}}" id="">
+
+                                        </jso-redirection>
                                     </div>
                                 </template>
-
-                                <sortable-table id="diffexp_Sig_results"
-                                                data="{{data}}"
-                                                columns="{{columns}}"
-                                                footerTemplate="{{footerTemplate}}"
-                                                pageSize="{{pageSize}}"
-                                                flex>
-                                </sortable-table>
-
-                                <h3>HeatMap</h3>
-                                <img src="{{diffexp_heatmap}}">
-
-                                <h3>Network viewer</h3>
-                                <jso-protein-viewer id="proteinViewer"></jso-protein-viewer>
-
-                                <h3>Continue processing</h3>
-
-                                <div style="margin-left: 20px">
-                                    <h4>Single enrichment analysis</h4>
-                                    <jso-redirection titleRed="Top list vs Genome" fileName="diffexp_toplist_results.txt"
-                                                     fileUrl="{{diffexp_toplist_results_url}}"
-                                                     buttonLabel="Send to Single enrichment" buttonWidth="200px"
-                                                     args="{{diffexp_toplist_results_sea_args}}" id="">
-
-                                    </jso-redirection>
-
-                                    <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
-                                                     fileUrl="{{diffexp_bottomlist_results_url}}"
-                                                     buttonLabel="Send to Single enrichment" buttonWidth="200px"
-                                                     args="{{diffexp_bottomlist_results_sea_args}}" id="">
-
-                                    </jso-redirection>
-                                    <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
-                                                     buttonLabel="Send to Single enrichment" buttonWidth="200px"
-                                                     args="{{toplist_vs_bottomlist_sea_args}}" id="">
-
-                                    </jso-redirection>
-
-                                    <h4>Gene set enrichment analysis</h4>
-                                    <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
-                                                     fileUrl="{{diffexp_t_results_url}}"
-                                                     buttonLabel="Send to Gene set enrichment" buttonWidth="200px"
-                                                     args="{{diffexp_t_results_gsea_args}}" id="">
-
-                                    </jso-redirection>
-
-                                    <h4>Network enrichment analysis</h4>
-                                    <jso-redirection titleRed="Top list vs Interactome" fileName="diffexp_toplist_results.txt"
-                                                     fileUrl="{{diffexp_toplist_results_url}}"
-                                                     buttonLabel="Send to Network enrichment" buttonWidth="200px"
-                                                     args="{{diffexp_toplist_results_nea_args}}" id="">
-
-                                    </jso-redirection>
-                                    <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
-                                                     fileUrl="{{diffexp_bottomlist_results_url}}"
-                                                     buttonLabel="Send to Network enrichment" buttonWidth="200px"
-                                                     args="{{diffexp_bottomlist_results_nea_args}}" id="">
-
-                                    </jso-redirection>
-                                    <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
-                                                     buttonLabel="Send to Network enrichment" buttonWidth="200px"
-                                                     args="{{toplist_vs_bottomlist_nea_args}}" id="">
-
-                                    </jso-redirection>
-
-                                    <h4>Gene set network enrichment analysis</h4>
-                                    <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
-                                                     fileUrl="{{diffexp_t_results_url}}"
-                                                     buttonLabel="Send to Gene set network enrichment" buttonWidth="200px"
-                                                     args="{{diffexp_t_results_gsnea_args}}" id="">
-
-                                    </jso-redirection>
-
-                                    <h4>Clustering</h4>
-                                    <jso-redirection titleRed="Significative data results"
-                                                     fileName="diffexp_sigData_results.txt"
-                                                     fileUrl="{{diffexp_sigData_results_url}}"
-                                                     buttonLabel="Send to Clustering" buttonWidth="200px"
-                                                     args="{{diffexp_sigData_results_args}}" id="">
-
-                                    </jso-redirection>
-                                </div>
+                                <template if="{{!significative}}">
+                                    <h3>No significative results</h3>
+                                    There is no significative results, but you can download all the results:
+                                    <div class="file"><label>File</label>
+                                        <a href="{{diffexp_results_url}}">diffexp_All_results.txt</a>
+                                    </div>
+                                </template>
                             </div>
                         </template>
                     </div>
@@ -248,7 +256,10 @@
     <script>
         Polymer({
             created: function () {
-                this.significativeResults = "loading";
+                this.loading = true;
+                this.error = true;
+                this.significative = true;
+
                 this.columns = [];
                 this.data = [];
                 this.dataFile = "none";
@@ -306,7 +317,7 @@
                                     var fileName = fileList[i].name;
                                     console.log(fileName)
                                     if (fileName == "diffexp_Sig_results.txt") {
-                                        me.significativeResults = 'true';
+                                        me.error = false;
                                         me.fileUrl = Utils.getUrl(fileList[i].id);
                                         Utils.getFileContent(function (content) {
                                             me.parseTable(content);
@@ -322,6 +333,10 @@
                                     if (fileName == "voom_mean-var.png") {
                                         me.voom_mean_var = Utils.getUrl(fileList[i].id);
                                     }
+                                    if (fileName == "diffexp_All_results.txt") {
+                                        me.diffexp_results_url = Utils.getUrl(fileList[i].id);
+                                    }
+
                                     if (fileName == "diffexp_toplist_results.txt") {
                                         me.diffexp_toplist_results_url = Utils.getUrl(fileList[i].id);
                                         me.diffexp_toplist_results_sea_args = {
@@ -386,8 +401,7 @@
                                         me.logErrorFile = Utils.getUrl(fileList[i].id);
                                     }
                                 }
-                                if (me.significativeResults != 'true')
-                                    me.significativeResults = 'false';
+                                me.loading = false;
                             }
                         },
                         error: function () {
@@ -448,6 +462,11 @@
 //                    }
                     this.data.push(obj);
                 }
+
+                if(this.data.length>0)
+                    this.significative = true;
+                else
+                    this.significative = false;
 
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";
