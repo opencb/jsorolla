@@ -52,7 +52,7 @@
         Polymer({
             variant: null,
             data: null,
-            page: 0,
+            page: 1,
             created: function () {
                 this.data = [];
             },
@@ -62,7 +62,7 @@
             variantChanged: function (oldValue, newValue) {
                 var me = this;
 
-                this.page = 0;
+                this.page = 1;
                 this.dataCosmic = [];
                 this.dataGwas = [];
                 this.dataClinvar = [];
@@ -103,9 +103,6 @@
                                 }
 
                                 me.$.cosmicGrid.dataSize = me.dataCosmic.length;
-                                console.log(me.dataCosmic);
-                                console.log(me.dataGwas);
-                                console.log(me.dataClinvar);
 
                             } catch (e) {
                                 console.log(e);
