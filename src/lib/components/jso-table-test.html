@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>&lt;table&gt;</title>
+
+    <!-- Importing Web Component's Polyfill -->
+    <script src="../../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <link rel="import" href="../../../bower_components/polymer/polymer.html">
+    <link rel="import" href="../../../bower_components/core-list/core-list.html">
+    <script src="../utils.js"></script>
+
+    <!-- Importing Custom Elements -->
+    <link rel="import" href="jso-table.html">
+</head>
+<body>
+
+<!-- Using Custom Elements -->
+<jso-table></jso-table>
+
+<script>
+    var columns = [];
+    for (var i = 0; i < 10; i++) {
+        var name = Utils.randomString(Utils.getRandomInt(10, 30));
+        columns.push({
+            name: name,
+            text: name,
+            width: 100
+        });
+    }
+    var column;
+    var data = [];
+    for (var i = 0; i < 5000; i++) {
+        var obj = {};
+        for (var j = 0; j < columns.length; j++) {
+            column = columns[j];
+            obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
+        }
+        data.push(obj)
+    }
+    console.log(columns.length);
+    console.log(data.length);
+    var el = document.querySelector('jso-table');
+    el.columns = columns;
+    el.data = data;
+</script>
+
+</body>
+</html>

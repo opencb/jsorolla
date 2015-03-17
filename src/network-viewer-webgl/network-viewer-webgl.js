@@ -69,7 +69,8 @@ NetworkViewerWebgl.prototype = {
 ////        this.groupElements.add(sprite);
 
 
-        var geometry = new THREE.BoxGeometry(10, 10, 10);
+        var size = vertex.renderer.size / 2;
+        var geometry = new THREE.BoxGeometry(size, size, size);
         var material = new THREE.MeshNormalMaterial();
         var cube = new THREE.Mesh(geometry, material);
         cube.position.set(vertex.position.x, vertex.position.y, vertex.position.z);
@@ -278,9 +279,9 @@ NetworkViewerWebgl.prototype = {
     },
     setZoom: function (disp) {
         this.cameraRadius -= disp;
-        this.cameraRadius = Math.min(this.cameraRadius, 2000);
+        this.cameraRadius = Math.min(this.cameraRadius, 4000);
         this.cameraRadius = Math.max(this.cameraRadius, 10);
-        if (this.cameraRadius > 10 && this.cameraRadius < 2000) {
+        if (this.cameraRadius > 10 && this.cameraRadius < 4000) {
             this.renderScene();
         }
     },

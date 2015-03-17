@@ -1,7 +1,6 @@
 <link rel="import" href="jso-bioformat.html">
 <polymer-element name="jso-opencga-upload" attributes="folder study bioformat">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
@@ -116,6 +115,7 @@
                 var observer = new MutationObserver(function (mutations) {
                     if (me.uploading == false && me.hidden == true) {
                         me.initWC();
+                        me.$.form.reset();
                     }
                 }.bind(this));
                 observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
@@ -149,7 +149,7 @@
                 var inputFile = this.$.fileInput.files[0];
                 var reader = new FileReader();
                 var fileType = inputFile.type;
-                reader.readAsBinaryString(inputFile.slice(0, 2048));
+                reader.readAsBinaryString(inputFile.slice(0, 22048));
                 reader.addEventListener("loadend", function () {
                     var validatedBioformat = me.validateBioformat(this.result, fileType, bioformat);
                     if (!validatedBioformat)
@@ -187,24 +187,74 @@
             },
             validateBioformat: function (content, fileType, bioformat) {
                 var lines = content.split("\n");
+
                 if (bioformat == "DATAMATRIX_EXPRESSION") {
                     var msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
                             "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
-                    var header = lines[0];
-                    if (header.indexOf("#NAMES") != 0) {
+                    var header = "";
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        if (line.indexOf("#") == 0) {
+                            header = lines[i];
+                        } else
+                            break;
+
+                    }
+                    if (header.indexOf("#NAMES") != 0 || lines.length <= 1) {
+                        msg = "Sorry, wrong file format. All lines beginning with # are treated as commentaries. " +
+                        "The first one with #NAMES is mandatory. It seem that yours is not starting with #NAMES.\n" +
+                        "Please refer to the documentation:\n " +
+                        "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
                         alert(msg);
                         return false;
                     }
+                    if (lines.length <= 1) {
+                        msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
+                        "It seems that your file is empty.\n" +
+                        "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+                        alert(msg);
+                        return false;
+                    }
+                    var rowNames = {};
                     for (var i = 0; i < lines.length - 1; i++) {
-                        if (lines[i].indexOf("\t") < 0) {
+                        var line = lines[i];
+                        if (line.indexOf("#") == 0) {
+                            continue;
+                        }
+                        /** tab validation **/
+                        var fields = lines[i].split("\t")
+                        if (fields.length == 0) {
                             alert(msg);
                             return false;
                         }
+
+                        /** Duplicates validation**/
+                        if (rowNames[fields[0]]) {
+                            var msg = "Sorry, wrong file format. You have duplicated rows. Please refer to the documentation:\n " +
+                                    "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+                            alert(msg);
+                            return false;
+                        }
+                        rowNames[fields[0]] = true;
+
+//                        /** format number validation **/
+//                        for (var j = 0; j < fields.length; i++) {
+//                            var field = fields[j];
+//                            if (field.split(".").length > 1) {
+//                                var msg = "Sorry, wrong file format. You have numbers with more that one stop(.).\n" +
+//                                        "A period/full stop (never a comma) is used as the decimal point (6.57, not 6,57)" +
+//                                        ". Please refer to the documentation:\n " +
+//                                        "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+//                                alert(msg);
+//                                return false;
+//                            }
+//                        }
                     }
                 }
                 else if (bioformat == "IDLIST_RANKED") {
                     var msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
                             "https://github.com/babelomics/babelomics/wiki/Ranked";
+
                     for (var i = 0; i < lines.length - 1; i++) {
                         if (lines[i].indexOf("\t") < 0) {
                             alert(msg);
@@ -218,7 +268,6 @@
                 var me = this;
                 this.message = '';
                 if (me.uploading == false && me.$.form.checkValidity() && me.folder && me.study) {
-
                     me.uploading = true;
                     me._upload(function (chunk, total) {
                         me.percentProgress = Math.round((chunk.id / total) * 100);

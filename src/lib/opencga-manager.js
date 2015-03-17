@@ -202,6 +202,9 @@ var OpencgaManager = {
         contentExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content-example');
         },
+        downloadExample: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'download-example');
+        },
         modify: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'modify');
         },

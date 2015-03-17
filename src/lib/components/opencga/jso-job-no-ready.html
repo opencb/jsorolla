@@ -1,6 +1,5 @@
 <polymer-element name="jso-job-no-ready" attributes="jobItem">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
@@ -31,7 +30,7 @@
         </style>
         <div class="title">
             <div>
-                Job {{jobItem.status}}
+                Job {{status}}
             </div>
             <div class="icon">
                 <font-awesome icon="{{iconMap[jobItem.status]}}" animation="{{spinMap[jobItem.status]}}"></font-awesome>
@@ -52,7 +51,15 @@
                 this.spinMap = {
                     RUNNING: 'spin'
                 }
+
+            },
+            ready: function(){
+                this.status = this.jobItem.status;
+                if(this.jobItem.status === "DONE"){
+                    this.status = "Finishing";
+                }
             }
+
         });
     </script>
 </polymer-element>

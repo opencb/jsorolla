@@ -1,6 +1,5 @@
 <polymer-element name="jso-diffexpr-table" attributes="content contentDataset files test">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
 
@@ -13,7 +12,8 @@
                 border: 1px solid #d3d3d3;
             }
         </style>
-        <template if="{{data.length>0}}">
+
+        <template if="{{!loading && data.length>0}}">
             <div class="file"><label>Significative table</label>
                 <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
                 <sortable-table id="diffexpr-table"
@@ -69,7 +69,7 @@
 
                     <h3>Network set enrichment analysis</h3>
                     <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
-                                     buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileNseaArgs}}" id=""></jso-redirection>
+                                     buttonLabel="Send to Network set enrichment" buttonWidth="300px" args="{{rankedListFileNseaArgs}}" id=""></jso-redirection>
 
                     <h3>Clustering</h3>
 
@@ -81,15 +81,22 @@
 
             </div>
         </template>
-        <template if="{{data.length == 0}}">
+        <template if="{{!loading && data.length == 0}}">
             <label>No significative results found</label>
         </template>
-
+        <template if="{{loading}}">
+            <div>
+                <font-awesome icon="spinner" animation="spin"></font-awesome>
+                Loading elements...
+            </div>
+        </template>
 
     </template>
     <script>
         Polymer({
             created: function () {
+                this.loading = true;
+
                 this.columns = [];
                 this.data = [];
                 this.pageSize = "10";
@@ -159,6 +166,7 @@
                 }
                 this.getFiles();
                 this.nodes = nodes;
+                this.loading = false;
 
             },
             dataChanged: function(){
@@ -220,7 +228,7 @@
                     }
                     if (fileName.indexOf("_ranked_list.txt") >= 0) {
                         me.rankedListFile = this.files[i];
-                        me.rankedListFileUrl = Utils.getUrl(this.files[i]);
+                        me.rankedListFileUrl = Utils.getUrl(me.rankedListFile.id);
                         me.rankedListFileArgs = {
                             inputFile: this.files[i],
                             tool: "fatiscan"

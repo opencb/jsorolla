@@ -12,7 +12,6 @@
                  attributes="selectedOption allowLogin allowJobs allowBrowse showJobs isLogged
                  userData jobItem selectedStudy allowedTools showMenu">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
@@ -20,7 +19,6 @@
                 box-sizing: border-box;
                 cursor: default;
                 z-index: 70000;
-                height: 60px;
             }
 
             .main {
@@ -63,10 +61,9 @@
                 color: #FFFFFF;
             }
 
-            /*div.icon {*/
-            /*font-size: 30px;*/
-            /*margin-left: 2vw;*/
-            /*}*/
+            div.icon {
+                margin-left: 10px;
+            }
 
             div.title {
                 font-size: 30px;
@@ -106,7 +103,7 @@
         </style>
 
         <div class="main" horizontal layout>
-            <div horizontal layout center-justified flex class="left">
+            <div horizontal layout start-justified>
                 <div class="icon" data-option="home" on-click="{{handleMenu}}">
                     <content select=".icon"></content>
                 </div>
@@ -125,7 +122,7 @@
                     <content select=".menu"></content>
                 </template>
             </div>
-            <div horizontal layout end-justified flex>
+            <div horizontal layout end-justified>
                 <template if="{{allowLogin == true}}">
 
                     <div id="user" hidden?="{{!isLogged}}">
@@ -209,7 +206,6 @@
                         allowedTools="{{allowedTools}}"
                         showJobs="{{showJobs}}"></jso-job-list>
             </template>
-
         </div>
     </template>
 

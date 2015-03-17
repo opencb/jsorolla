@@ -1,6 +1,5 @@
 <polymer-element name="jso-job-result" attributes="jobItem selectedOption networkViewer">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
             :host {
@@ -133,11 +132,34 @@
         <template if="{{loading}}">
             <div class="loading">
                 <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
-                Loading result...
+                Loading results...
             </div>
         </template>
+        <!--<template if="{{!loading}}">-->
         <div id="output" class="output">
+
         </div>
+
+        <template if="{{error}}">
+            <div class="level-0">
+                <div class="headerTitle">There was an unexpected error:</div>
+                <div class="data">
+                    This is maybe due to incorrect input. For more info about proper inputs, refer to the
+                    <a href="https://github.com/babelomics/babelomics/wiki" target="_blank">documentation</a>.
+                    You can also download the example file.
+                    <br>
+                    For detailed information you can download the log file:
+                    <div class="file"><label>Log output file:</label>
+                        <a href="{{logOutputFile}}" download="log_output.txt">log_output.txt</a>
+                    </div>
+                    <div class="file"><label>Log error file:</label>
+                        <a href="{{logErrorFile}}" download="log_error.txt" >log_error.txt</a>
+                    </div>
+                    If error persist, please contact babelomics crew at babelomics@cipf.es
+                </div>
+            </div>
+        </template>
+        <!--</template>-->
 
     </template>
     <script>
@@ -146,33 +168,30 @@
                 this.createdElements = {};
                 this.selectedOption = "";
                 this.pvalue = 0.05;
+                this.error = false;
+                this.logErrorFile = "";
 
             },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
+                this.resultXML = null;
+                this.error = false;
                 this.loading = true;
-                while (this.$.output.firstChild) {
-                    this.$.output.removeChild(this.$.output.firstChild);
+//                this.output = this.shadowRoot.querySelector("#output");
+                this.output = this.$.output;
+                while (this.output.firstChild) {
+                    this.output.removeChild(this.output.firstChild);
                 }
                 if (typeof newV == "object")
                     this.pvalue = 0.05;
 
-
                 if (this.jobItem.toolName == "rnaseq-norm" || this.jobItem.toolName == "rnaseq-diffexpr") {
-                    var result = document.createElement('jso-'+this.jobItem.toolName+'-result');
+                    var result = document.createElement('jso-' + this.jobItem.toolName + '-result');
                     result.jobItem = this.jobItem;
                     this.$.output.appendChild(result);
                     this.loading = false;
                     return;
                 }
-//                if (this.jobItem.toolName == "rnaseq-diffexpr") {
-//                    var result = document.createElement('jso-rnaseq-diffexpr-result');
-//                    result.jobItem = this.jobItem;
-//                    this.$.output.appendChild(result);
-//                    this.loading = false;
-//                    return;
-//                }
-
                 OpencgaManager.files.filesByFolder({
                     id: me.jobItem.outDirId,
                     query: {
@@ -184,10 +203,9 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.filesList = response.response[0].result;
                                 me.getFileContent(function (content) {
-                                    var root = me.$.output;
-                                    me.parseXML(content, root);
-
                                     me.loading = false;
+                                    var root = me.output;
+                                    me.parseXML(content, root);
                                 }, "result.xml");
                             }
                         },
@@ -206,27 +224,41 @@
                         break;
                     }
                 }
-                if (fileId == null) {
-                    debugger
-                    return;
-                }
-                OpencgaManager.files.content({
-                    id: fileId,
-                    query: {
-                        sid: Cookies("bioinfo_sid")
-                    },
-                    request: {
-                        async: false,
-                        success: function (response) {
-//                    var content = response.response[0]
-                            /** I pass localDiv as parameter because I loose the div to render in a loop **/
-                            callback(response)
+                if (fileId != null) {
+                    OpencgaManager.files.content({
+                        id: fileId,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
                         },
-                        error: function () {
-                            this.message = 'Server error, try again later.';
+                        request: {
+                            async: false,
+                            success: function (response) {
+//                    var content = response.response[0]
+                                /** I pass localDiv as parameter because I loose the div to render in a loop **/
+                                callback(response)
+                            },
+                            error: function () {
+                                this.message = 'Server error, try again later.';
+                            }
+                        }
+                    })
+                }
+                /** The job totally failed **/
+                if (fileName == "result.xml" && fileId == null) {
+                    this.loading = false;
+                    var divsJSON = me._renderJSON();
+                    this.output.appendChild(divsJSON);
+                    for (var i = 0; i < this.filesList.length; i++) {
+                        var f = this.filesList[i];
+                        if (f.name.indexOf("sge_out.job") >= 0) {
+                            this.logOutputFile = Utils.getUrl(f.id);
+                        }
+                        if (f.name.indexOf("sge_err.job") >= 0) {
+                            this.logErrorFile = Utils.getUrl(f.id);
                         }
                     }
-                })
+                    this.error = true;
+                }
             },
             prettyString: function (str) {
                 return str.replace(/\s/g, "_").replace(/\(/g, "_").replace(/\)/g, "_");
@@ -252,28 +284,9 @@
 
 
                 var divsJSON = me._renderJSON();
-                me.$.output.appendChild(divsJSON);
+                me.output.appendChild(divsJSON);
             },
             getJobInfoHtml: function () {
-//                var markup = '' +
-//                        '<div class="level-0">' +
-//                        '   <div class="headerTitle">Job information</div>' +
-//                        '   <div class="data">' +
-//                        '       <div class="message" horizontal="" layout="">' +
-//                        '           <label>Name </label>' +
-//                        '           <div class="messageValue">' + this.jobItem.name + '</div>' +
-//                        '       </div>' +
-//                        '       <div class="message" horizontal="" layout="">' +
-//                        '           <label>Description </label>' +
-//                        '           <div class="messageValue">' + this.jobItem.description + '</div>' +
-//                        '       </div>' +
-//                        '   </div>' +
-//                        '   <div class="children"></div>' +
-//                        '</div>';
-//                var parser = new DOMParser()
-//
-//                var el = parser.parseFromString(markup, "text/html");
-//                return el.querySelector("div");
                 var el = document.createElement("jso-job-info-widget");
                 el.jobItem = this.jobItem;
                 return el;
@@ -344,13 +357,14 @@
                 var mainDiv = document.createElement("div");
                 var div = this.getJobInfoHtml();
                 mainDiv.appendChild(div);
-                for (var i = 0; i < this.resultXML.output.length; i++) {
-                    var elem = this.resultXML.output[i];
-                    var divElem = this._renderJsonElement(elem, 0);
-                    mainDiv.appendChild(divElem);
+                if (this.resultXML != null) {
+                    for (var i = 0; i < this.resultXML.output.length; i++) {
+                        var elem = this.resultXML.output[i];
+                        var divElem = this._renderJsonElement(elem, 0);
+                        mainDiv.appendChild(divElem);
 
+                    }
                 }
-
                 return mainDiv;
             },
             _createButton: function (pvalue) {
@@ -474,7 +488,7 @@
                         element.value = element.value.replace("${pvalue}", me.pvalue);
                         var fileId = this._getFileId(element.value);
 
-                        var fileURL = OpencgaManager.files.content({
+                        var fileURL = OpencgaManager.files.download({
                             id: fileId,
                             query: {
                                 sid: Cookies("bioinfo_sid")
@@ -484,11 +498,10 @@
                                 url: true
                             }
                         })
-
                         var a = document.createElement("a");
                         a.innerHTML = element.value;
                         a.setAttribute("href", fileURL);
-                        a.setAttribute("target", "_blank");
+                        a.download = element.value;
 
                         file.appendChild(a);
                         res.appendChild(file);
@@ -624,7 +637,7 @@
                             element.value = element.value.replace("${pvalue}", me.pvalue);
                             var fileId = this._getFileId(element.value);
 
-                            var fileURL = OpencgaManager.files.content({
+                            var fileURL = OpencgaManager.files.download({
                                 id: fileId,
                                 query: {
                                     sid: Cookies("bioinfo_sid")
@@ -633,13 +646,12 @@
 
                                     url: true
                                 }
-                            })
+                            });
+
 
                             var a = document.createElement("a");
                             a.innerHTML = element.value;
                             a.setAttribute("href", fileURL);
-                            a.setAttribute("target", "_blank");
-
                             file.appendChild(a);
                         }
                         if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "fatiscan") {

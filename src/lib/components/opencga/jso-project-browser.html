@@ -13,7 +13,6 @@
 <polymer-element name="jso-project-browser"
                  attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 position: relative;
@@ -424,10 +423,13 @@
                             }
                         } else if (this.selectionMode === 'file' || this.selectionMode === '') {
                             if (this.bioformat !== "") {
-                                if (file.bioformat === "NONE") {
-                                    filesFiltered.push(file);
-
-                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                if (file.bioformat === "NONE") {
+//                                    filesFiltered.push(file);
+//
+//                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                    filesFiltered.push(file);
+//                                }
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
                                     filesFiltered.push(file);
                                 }
                             } else {
@@ -561,7 +563,6 @@
 
 <polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat selectionMode">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <style>
             :host {
                 display: block;
@@ -862,10 +863,13 @@
                             }
                         } else if (this.selectionMode === 'file' || this.selectionMode === '') {
                             if (this.bioformat !== "") {
-                                if (file.bioformat === "NONE") {
-                                    filesFiltered.push(file);
-
-                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                if (file.bioformat === "NONE") {
+//                                    filesFiltered.push(file);
+//
+//                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                    filesFiltered.push(file);
+//                                }
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
                                     filesFiltered.push(file);
                                 }
                             } else {

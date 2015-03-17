@@ -1,8 +1,6 @@
 <polymer-element name="jso-class-edit" attributes="contentFile">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-form.css">
         <style>
             :host {
                 position: relative;
@@ -372,18 +370,25 @@
                     if (type != "NUMERIC")
                         strHeader += "{";
 
-                    var dataBrackets = new Array();
+                    var dataBrackets = [];
                     var typeValues = {};
                     for (var j = 0; j < this.data.length; j++) {
                         var value = this.data[j][name];
 //                        console.log(j)
-//                        console.log(name)
+//                       console.log(name)
 //                        console.log(value)
-                        value = value.trim();
-                        if (value == "")
-                            error = true;
-                        typeValues[value] = "";
-                        dataBrackets.push(value);
+
+                        if (value === undefined){
+                            error = true
+                        }
+                        else{
+                            value = value.trim();
+                            if (value == "" )
+                                error = true;
+                            typeValues[value] = "";
+                            dataBrackets.push(value);
+                        }
+
                     }
                     typeValues = Object.keys(typeValues).join(",");
                     dataBrackets = dataBrackets.join(",");
@@ -391,10 +396,10 @@
                         strHeader += typeValues + "}";
                     strHeader += "\tVALUES{" + dataBrackets + "}\tDESCRIPTION{}\n";
                 }
-                dataBrackets = new Array();
-                for (var j = 0; j < this.data.length; j++) {
-                    var value = this.data[j]["#NAMES"];
-                    dataBrackets.push(value);
+                dataBrackets = [];
+                for (var z = 0; z < this.data.length; z++) {
+                    var val = this.data[z]["#NAMES"];
+                    dataBrackets.push(val);
                 }
                 strHeader += "#NAMES\t" + dataBrackets.join("\t");
                 if (error)

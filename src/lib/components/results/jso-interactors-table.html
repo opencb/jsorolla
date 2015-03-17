@@ -1,6 +1,5 @@
 <polymer-element name="jso-interactors-table" attributes="content typeTable">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
             /*  sortable-table {
@@ -13,30 +12,28 @@
             }
 
             /*sortable-table::shadow thead tr th {*/
-                /*width: 1000px;*/
-                /*white-space: inherit;*/
-                /*overflow: auto;*/
-                /*text-overflow: inherit;*/
+            /*width: 1000px;*/
+            /*white-space: inherit;*/
+            /*overflow: auto;*/
+            /*text-overflow: inherit;*/
 
             /*}*/
 
             /*sortable-table::shadow tbody tr td {*/
-                /*white-space: normal;*/
-                /*overflow:auto;*/
-                /*height: 30px;*/
-                /*text-overflow: inherit;*/
-                /*text-overflow: clip;*/
+            /*white-space: normal;*/
+            /*overflow:auto;*/
+            /*height: 30px;*/
+            /*text-overflow: inherit;*/
+            /*text-overflow: clip;*/
 
             /*}*/
-            sortable-table::shadow .column-go_names,
-            sortable-table::shadow .column-go_ids {
-
+            sortable-table::shadow .column-go {
+                width: 75px;
                 white-space: nowrap;
-                overflow: auto;
-                text-overflow: clip;
             }
+
             sortable-table::shadow .column-input_id,
-                sortable-table::shadow .column-id,
+            sortable-table::shadow .column-id,
             sortable-table::shadow .column-type,
             sortable-table::shadow .column-rank,
             sortable-table::shadow .column-bet,
@@ -52,9 +49,18 @@
                         columns="{{columns}}"
                         footerTemplate="{{footerTemplate}}"
                         pageSize="{{pageSize}}">
-                <template id="linkTemplate">
+            <template id="linkTemplate">
                 <td>
                     <a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>
+                </td>
+            </template>
+            <template id="listTemplate">
+                <td style="padding:0">
+                    <div style="height: 100px;padding:3px; overflow-y: auto;overflow-x: auto">
+                        <template repeat="{{ item in row[column.name]}}">
+                            <div>{{item.id}}: {{item.name}}</div>
+                        </template>
+                    </div>
                 </td>
             </template>
         </sortable-table>
@@ -80,14 +86,29 @@
                     };
                     var columnIdx = 2;
                     obj["rank"] = Utils.formatNumber(localData[++columnIdx]);
-                    if(isNaN(obj["rank"])){
+                    if (isNaN(obj["rank"])) {
                         obj["rank"] = "-";
                     }
                     obj["bet"] = Utils.formatNumber(localData[++columnIdx]);
                     obj["clust"] = Utils.formatNumber(localData[++columnIdx]);
                     obj["conn"] = localData[++columnIdx];
-                    obj["go_names"] = localData[++columnIdx];
-                    obj["go_ids"] = localData[++columnIdx];
+
+
+                    obj["go"] = [];
+                    var nameList = localData[++columnIdx].split("|");
+                    var idList = localData[++columnIdx].split("|");
+                    for (var j = 0; j < idList.length; j++) {
+                        var name = nameList[j];
+                        var id = idList[j];
+                        obj["go"].push({
+                            name: name,
+                            id: id
+                        })
+                    }
+
+
+//                    obj["go_names"] = localData[++columnIdx].split("|");
+//                    obj["go_ids"] = localData[++columnIdx].split("|");
 //                    var links = Utils.getLinks(obj["go_ids"].split(","));
 //                    debugger
                     this.data.push(obj)
@@ -95,7 +116,7 @@
 
 
             },
-            createColumns: function(){
+            createColumns: function () {
                 this.columns = new Array();
                 this.columns.push({
                     name: "input_id",
@@ -131,13 +152,15 @@
                     title: "Connections"
                 });
                 this.columns.push({
-                    name: "go_names",
-                    title: "Go names"
+                    name: "go",
+                    title: "Go",
+                    cellTemplate: "listTemplate"
                 });
-                this.columns.push({
-                    name: "go_ids",
-                    title: "GO ids"
-                });
+//                this.columns.push({
+//                    name: "go_ids",
+//                    title: "GO ids",
+//                    cellTemplate: "listTemplate"
+//                });
 
                 this.pageSize = "10";
                 this.footerTemplate = "simplePager";

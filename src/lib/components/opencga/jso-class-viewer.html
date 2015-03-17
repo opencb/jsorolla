@@ -1,10 +1,5 @@
 <polymer-element name="jso-class-viewer" attributes="contentFile childrenDisplay variableTypes childrenSelectNumber">
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-form.css">
-
-
-        <!--<link rel="stylesheet" href="../jso-panel.css">-->
         <style>
             :host {
             }
@@ -22,19 +17,23 @@
         <!--</select>-->
         <div id="jsoClassViewerId">
             <div horizontal layout>
-                <label>Variables</label>
-
                 <div>
                     <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit-your-data">
                         <font-awesome icon="question-circle"></font-awesome>
                     </a>
                 </div>
-            </div>
-            <div id="mainSelect" class="select">
-                <!--<select id="selectClass" on-change="{{selectChange}}">-->
-                <select id="selectClass">
-                    <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
-                </select>
+                <div>
+                Variables: &nbsp;
+                </div>
+                <div id="mainSelect" class="select">
+                    <!--<select id="selectClass" on-change="{{selectChange}}">-->
+                    <select id="selectClass">
+                        <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
+                    </select>
+                </div>
+                <template if="{{loading}}">
+                    <font-awesome icon="spinner" animation="spin" style="margin-left: 5px;"></font-awesome> loading variables...
+                </template>
             </div>
             <br>
 
@@ -58,8 +57,11 @@
 
                 /** number of childrensSelect **/
                 this.childrenSelectNumber = -1;
+
+                this.loading = false;
             },
             contentFileChanged: function (oldV, newV) {
+                this.loading = true;
                 var me = this;
                 if (this.childrenDisplay) {
                     this.$.selectClass.addEventListener("change", function () {
@@ -123,6 +125,8 @@
                 }
 //                this.loadedMainSelect = true;
                 this.fire('main-select');
+                this.loading = false;
+
 
 
             },
@@ -132,7 +136,7 @@
                 this.$.childrenSelect.innerHTML = "";
 
                 /** add title element **/
-                var text = document.createTextNode("Attributes");
+                var text = document.createTextNode("Attributes: ");
                 this.$.childrenSelect.appendChild(text);
 
                 var variables = this.dataClass["#VARIABLE"];
