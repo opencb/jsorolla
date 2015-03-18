@@ -153,7 +153,7 @@
                         <a href="{{logOutputFile}}" download="log_output.txt">log_output.txt</a>
                     </div>
                     <div class="file"><label>Log error file:</label>
-                        <a href="{{logErrorFile}}" download="log_error.txt" >log_error.txt</a>
+                        <a href="{{logErrorFile}}" download="log_error.txt">log_error.txt</a>
                     </div>
                     If error persist, please contact babelomics crew at babelomics@cipf.es
                 </div>
@@ -746,18 +746,32 @@
                             var sortableTable = document.createElement('jso-diffexpr-table');
                             sortableTable.setAttribute("id", "tableId");
                             res.appendChild(sortableTable);
+                            var table = false;
+                            var dataset = false;
 
-                            this.getFileContent(function (content) {
+                            for (var idxFile = 0; idxFile < this.filesList.length; idxFile++) {
+                                var file = this.filesList[idxFile];
+                                if (file.name == test + "_significative_table.txt")
+                                    table = true;
+                                if (file.name == test + "_significative_dataset.txt")
+                                    dataset = true;
+                            }
 
-                                me.getFileContent(function (contentDataset) {
-                                    sortableTable.content = content;
-                                    sortableTable.contentDataset = contentDataset;
-                                    sortableTable.files = me.filesList;
-                                    sortableTable.test = test;
-                                }, test + "_significative_dataset.txt");
+                            if (table && dataset) {
+                                this.getFileContent(function (content) {
+                                    me.getFileContent(function (contentDataset) {
+                                        sortableTable.content = content;
+                                        sortableTable.contentDataset = contentDataset;
+                                        sortableTable.files = me.filesList;
+                                        sortableTable.test = test;
+                                    }, test + "_significative_dataset.txt");
 
 
-                            }, test + "_significative_table.txt");
+                                }, test + "_significative_table.txt");
+                            }
+                            else{
+                                sortableTable.loading = false;
+                            }
 
                         }
                         if (element.tags.indexOf("PREDICTOR_FEATURE_SELECTION_TABLE") >= 0) {

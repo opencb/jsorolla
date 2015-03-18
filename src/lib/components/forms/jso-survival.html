@@ -42,6 +42,9 @@
         <div class="tooltitle">
             <div>
                 Differential expression: survival
+                <a target="_blank" href="">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -63,7 +66,7 @@
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-ok="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -116,7 +119,7 @@
                 <div class="formtitle">Select adjusted p-value</div>
                 <div class="formcontent">
                     <label>Adj. p-value (0.0-1.0)</label><input name="p_value" id="p_value" class="fc-decimal fc-text"
-                                                                type="text" value="{{p_value}}">
+                                                                type="text" value="{{p_value}}" style="width: 50px">
                 </div>
             </div>
             <div class="formbox">
@@ -186,7 +189,6 @@
                     alert("Sorry: Censored class and time class can't be the same.");
                     return;
                 }
-
                 this.correction = this.shadowRoot.querySelector('input[name="correction"]:checked').value;
                 var query = {
                     sid: Cookies("bioinfo_sid"),

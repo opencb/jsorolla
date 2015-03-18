@@ -45,7 +45,10 @@
 
         <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
                 <div flex>
-                    Network enrichment
+                    Snow
+                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/network-enrichment-(snow)">
+                        <font-awesome icon="question-circle"></font-awesome>
+                    </a>
                 </div>
                 <div class="icon">
                     <!--<font-awesome icon="magic"></font-awesome>-->
@@ -91,7 +94,7 @@
                                                 selectionMode="file"
                                                 allowTextArea="true"
                                                 on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"
+                                                bioformat="IDLIST"
                                                 networkViewer="{{networkViewer}}"
                             ></jso-project-browser-window>
                     <div id="list2Div" hidden>
@@ -101,7 +104,7 @@
                                                     selectionMode="file"
                                                     allowTextArea="true"
                                                     on-file-select="{{handleFileSelect}}"
-                                                    bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"
+                                                    bioformat="IDLIST"
                                                     networkViewer="{{networkViewer}}"
                                 ></jso-project-browser-window>
                     </div>

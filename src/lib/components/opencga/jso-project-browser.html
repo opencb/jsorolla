@@ -191,6 +191,7 @@
                 </template>
             </div>
             <div flex id="foldersMain">
+
                 <template id="firstLevel" if="{{ files.length > 0 }}">
                     <!--<jso-project-browser-folder-list-->
                     <!--files="{{files}}"-->
@@ -252,6 +253,7 @@
                             <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Data-types">
                                 <font-awesome icon="question-circle"></font-awesome>
                             </a>
+
                             <div class="text">Accepted bioformats:{{bioformatText}}</div>
                         </template>
                     </div>
@@ -624,35 +626,42 @@
                 color: #ab0000 !important;
             }
         </style>
-        <div class="bar" horizontal layout>
-            <template if="{{selectionMode != 'folder'}}">
-                <div class="button action upload" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
-                    <font-awesome icon="cloud-upload"></font-awesome>
-                    Upload
-                    <!--Upload-->
+        <div class="bar" horizontal layout flex>
+            <div horizontal layout flex>
+                <template if="{{selectionMode != 'folder'}}">
+                    <div class="button action upload" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
+                        <font-awesome icon="cloud-upload"></font-awesome>
+                        Upload
+                        <!--Upload-->
+                    </div>
+                </template>
+                <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
+                    <font-awesome icon="folder-o"></font-awesome>
+                    +
                 </div>
-            </template>
-            <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
-                <font-awesome icon="folder-o"></font-awesome>
-                +
+                <template if="{{ selectedFile != null && selectionMode != 'folder' }}">
+                    <div class="button action" on-click="{{handleDeleteFile}}">
+                        <font-awesome icon="trash"></font-awesome>
+                    </div>
+                </template>
+                <template if="{{ selectedFile != null && selectedFile.type == 'FILE' }}">
+                    <div class="button action" on-click="{{handleDownloadFile}}">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </template>
+                <template
+                        if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'VARIANT' }}">
+                    <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
+                        <font-awesome icon="cog"></font-awesome>
+                    </div>
+                </template>
             </div>
-            <template if="{{ selectedFile != null && selectionMode != 'folder' }}">
-                <div class="button action" on-click="{{handleDeleteFile}}">
-                    <font-awesome icon="trash"></font-awesome>
-                </div>
-            </template>
-            <template if="{{ selectedFile != null && selectedFile.type == 'FILE' }}">
-                <div class="button action" on-click="{{handleDownloadFile}}">
-                    <font-awesome icon="download"></font-awesome>
-                </div>
-            </template>
-            <template
-                    if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'VARIANT' }}">
-                <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
-                    <font-awesome icon="cog"></font-awesome>
-                </div>
-            </template>
             <!--<input type="text" flex placeholder="filter">-->
+            <div>
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Upload-your-data">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
         </div>
         <div class="list">
             <core-list data="{{files}}" height="27" style="height:100%;">

@@ -42,7 +42,10 @@
 
         <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
             <div flex>
-                Gene set network enrichment
+                Network Miner
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Functional%20Gene%20Set%20Network%20Enrichment">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -82,9 +85,9 @@
                 <div class="formtitle">Select your data</div>
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                allowTextArea="true"
+                                                allowTextArea="false"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_RANKED"
+                                                bioformat="IDLIST,IDLIST_RANKED"
                                                 networkViewer="{{networkViewer}}"
                             ></jso-project-browser-window>
                 </div>
@@ -95,7 +98,7 @@
                     <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 allowTextArea="true"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN"
+                                                bioformat="IDLIST"
                                                 networkViewer="{{networkViewer}}"
                             ></jso-project-browser-window>
                 </div>

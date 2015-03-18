@@ -143,20 +143,8 @@
                             for (var z = 1; z < localData.length; z++) {
                                 var value = localData[z];
                                 if (!isNaN(value)) {
-
                                     value = Utils.formatNumber(value);
-
-
-//                                    value = parseFloat(value);
-//                                    if(value < 0.001)
-//                                        value = value.toExponential(2);
-//                                    else
-//                                        value = value.toFixed(3);
-//                                    if(value < 0)
-//                                        value
                                 }
-//                                if (isFinite(value))
-//                                    value = parseFloat(value).toFixed(3);
                                 localArray.push(value.toString());
                             }
                             this.data.push(localArray);
@@ -169,7 +157,7 @@
                 this.loading = false;
 
             },
-            dataChanged: function(){
+            dataChanged: function () {
                 this.heatMapData();
 
             },
@@ -324,7 +312,7 @@
                 var rawDataObj = {};
                 for (var i = 0; i < rawData.length; i++) {
                     var line = rawData[i];
-                    if (line == "")continue;
+                    if (line == "") continue;
                     if (line.indexOf("#") < 0) {
                         line = line.split("\t");
                         rawDataObj[line[0].toString()] = line;
@@ -430,12 +418,19 @@
                             }
                         }
                     },
-
                     plotOptions: {
                         heatmap: {
                             turboThreshold: data.length + 1
                         }
                     },
+                    tooltip: {
+                        formatter: function () {
+                            return  '<b>Row:</b> ' + this.series.yAxis.categories[this.point.y] + '<br><b>' +
+                                    '<b>Column:</b> ' + this.series.xAxis.categories[this.point.x] + '<br><b>' +
+                                    '<b>Value:</b> ' + this.point.value + '<b>';
+                        }
+                    },
+
                     series: [{
                         name: 'DATA',
                         borderWidth: 1,
