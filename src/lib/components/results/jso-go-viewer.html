@@ -15,11 +15,6 @@
                 border-width: 1px;
             }
 
-            /*TODO temporal fix*/
-            jso-network-viewer::shadow jso-nv-layout {
-                height: calc(100% - 96px);
-            }
-
 
         </style>
         <template if="{{jobResult.networkViewer}}">
@@ -47,7 +42,9 @@
                 id="networkViewer"
                 lite="true"
                 ></jso-network-viewer>
-        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode <font-awesome icon="arrows"></font-awesome></label>
+        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+            <font-awesome icon="arrows"></font-awesome>
+        </label>
         <br>
     </template>
     networkViewer =
@@ -65,7 +62,9 @@
                 this.$.networkViewer.$.edgeRender.setAttribute('hidden', '');
 
 //                this.$.networkViewer.selectVerticesByAttribute("id", "all");
-                this.$.networkViewer.setLayout("Force directed");
+//                this.$.networkViewer.setLayout("Force directed");
+                this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute);
+                this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute);
             },
             setContent: function (sifContent, attrContent, attr2Content) {
                 var me = this;
@@ -88,26 +87,6 @@
                                         me.$.networkViewer.importVertexAttributeManager(attributeManager1);
 
                                         me._applyVertexAttributes();
-//                                        new AttributeNetworkDataAdapter({
-////                                            ignoreColumns: ?,
-//                                            dataSource: new StringDataSource(attr2Content),
-//                                            handlers: {
-//                                                'data:load': function (event) {
-//                                                    var attributeManager2 = event.attributeManager;
-//                                                    me.$.viewer.importVertexAttributeManager(attributeManager2);
-//
-//
-//
-//
-//
-//
-//                                                },
-//                                                'error:parse': function (event) {
-//                                                    me.message = event.errorMsg;
-//                                                }
-//                                            }
-//                                        });
-
                                     },
                                     'error:parse': function (event) {
                                         me.message = event.errorMsg;
@@ -126,13 +105,10 @@
                 this.$.networkViewer.vertexDefaults.labelAttribute = "name";
                 this.$.networkViewer.handleVertexDefaultLabelAttribute();
 
-                this.$.networkViewer.hideNodeSimpleRendering = false;
                 var nodeRender = this.$.networkViewer.shadowRoot.querySelector('jso-attribute-node-render');
 
                 //attributeName, displayProperty
                 nodeRender.applyDirect("color", "color");
-
-                this.$.networkViewer.hideNodeSimpleRendering = true;
             },
             handleSaveSessionToCellMaps: function (e) {
                 var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.networkViewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
@@ -149,7 +125,6 @@
                 this.jobResult.selectedOption = "";
                 this.jobResult.networkViewer.selectedMenu = "session-manager";
             }
-
         })
     </script>
 </polymer-element>

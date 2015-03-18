@@ -235,10 +235,12 @@
                 this.isLogged = false;
             },
             domReady: function () {
-                if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
-                    this.sessionInitiated();
-                } else {
-                    this.logout();
+                if(this.allowLogin){
+                    if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
+                        this.sessionInitiated();
+                    } else {
+                        this.logout();
+                    }
                 }
             },
             handleMenu: function (e) {
