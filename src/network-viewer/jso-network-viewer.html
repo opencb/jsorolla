@@ -798,47 +798,61 @@
                     edge.renderer.set(displayProperty, finalValue);
                 }
             },
-            setVertexDefaultPositionX: function (attribute) {
-                this._calculateVertexAttributeNormalization(attribute, "x", "width", false);
+            setVertexDefaultPositionX: function (attribute, adjust) {
+                this._calculateVertexAttributeNormalization(attribute, "x", "width", adjust, false);
             },
-            _calculateVertexAttributeNormalization: function (coordAttr, coord, measure, invertAxis) {
+            _calculateVertexAttributeNormalization: function (coordAttr, coord, measure, adjust, invertAxis) {
                 var margin = 100, midMargin = margin / 2;
                 var max, min, c;
                 var row, vertex;
-                for (var i = 0; i < this.graph.vertices.length; i++) {
-                    vertex = this.graph.vertices[i];
-                    row = this.vAttr.getRow(vertex.id);
-                    c = parseFloat(row[coordAttr]);
-                    if (!isNaN(c)) {
-                        if (!max) {
-                            max = c;
-                            min = c;
-                        }
-                        max = Math.max(c, max);
-                        min = Math.min(c, min);
-                    }
-                }
-                var range = (max === min) ? 1 : max - min;
-                var measure = this.$.networkLayout.getBoundingClientRect()[measure] - margin;
 
-                var row, vertex, c;
-                for (var i = 0; i < this.graph.vertices.length; i++) {
-                    vertex = this.graph.vertices[i];
-                    row = this.vAttr.getRow(vertex.id);
-                    c = parseFloat(row[coordAttr]);
-                    c = (c - min) * measure / range;
-                    if (invertAxis) {
-                        c = measure - c;
+                if (adjust == false) {
+                    for (var i = 0; i < this.graph.vertices.length; i++) {
+                        vertex = this.graph.vertices[i];
+                        row = this.vAttr.getRow(vertex.id);
+                        c = parseFloat(row[coordAttr]);
+                        if (!isNaN(c)) {
+                            vertex.position[coord] = c + midMargin;
+                            vertex.renderer.move();
+                            this._updateEdgeCoords(vertex);
+                        }
                     }
-                    if (!isNaN(c)) {
-                        vertex.position[coord] = c + midMargin;
-                        vertex.renderer.move();
-                        this._updateEdgeCoords(vertex);
+                } else {
+                    for (var i = 0; i < this.graph.vertices.length; i++) {
+                        vertex = this.graph.vertices[i];
+                        row = this.vAttr.getRow(vertex.id);
+                        c = parseFloat(row[coordAttr]);
+                        if (!isNaN(c)) {
+                            if (!max) {
+                                max = c;
+                                min = c;
+                            }
+                            max = Math.max(c, max);
+                            min = Math.min(c, min);
+                        }
+                    }
+                    var range = (max === min) ? 1 : max - min;
+                    var measure = this.$.networkLayout.getBoundingClientRect()[measure] - margin;
+
+                    var row, vertex, c;
+                    for (var i = 0; i < this.graph.vertices.length; i++) {
+                        vertex = this.graph.vertices[i];
+                        row = this.vAttr.getRow(vertex.id);
+                        c = parseFloat(row[coordAttr]);
+                        c = (c - min) * measure / range;
+                        if (invertAxis) {
+                            c = measure - c;
+                        }
+                        if (!isNaN(c)) {
+                            vertex.position[coord] = c + midMargin;
+                            vertex.renderer.move();
+                            this._updateEdgeCoords(vertex);
+                        }
                     }
                 }
             },
-            setVertexDefaultPositionY: function (attribute) {
-                this._calculateVertexAttributeNormalization(attribute, "y", "height", true);
+            setVertexDefaultPositionY: function (attribute, adjust) {
+                this._calculateVertexAttributeNormalization(attribute, "y", "height", adjust, true);
             },
             /** Handlers **/
             /* Vertex */
