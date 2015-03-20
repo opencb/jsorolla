@@ -1,23 +1,14 @@
-<polymer-element name="jso-xlsx-network-file-open" attributes="selectedMenu">
+<polymer-element name="jso-xlsx-network-file-open" extends="jso-window" attributes="selectedMenu">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
             :host {
                 display: block;
-                position: absolute;
+                position: fixed;
                 box-sizing: border-box;
                 background-color: #FFFFFF;
 
-                z-index: 50000;
-                top: 93px;
-
-                left: 0;
-                right: 0;
-                margin-left: auto;
-                margin-right: auto;
-
-                width: 50%;
-                min-width: 900px;
+                width: 900px;
             }
 
             sortable-table {
