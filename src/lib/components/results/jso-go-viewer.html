@@ -63,8 +63,8 @@
 
 //                this.$.networkViewer.selectVerticesByAttribute("id", "all");
 //                this.$.networkViewer.setLayout("Force directed");
-                this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute);
-                this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute);
+                this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute, false);
+                this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute, false);
             },
             setContent: function (sifContent, attrContent, attr2Content) {
                 var me = this;
