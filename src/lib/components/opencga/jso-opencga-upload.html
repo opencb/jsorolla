@@ -252,10 +252,13 @@
                     }
                 }
                 else if (bioformat == "IDLIST_RANKED") {
-                    var msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
+                    var msg = "Sorry, wrong file format. It seems you don't have two columns in your file." +
+                            "\n Please refer to the documentation for more information:\n " +
                             "https://github.com/babelomics/babelomics/wiki/Ranked";
 
                     for (var i = 0; i < lines.length - 1; i++) {
+                        if(lines[i].indexOf("#")==0 || lines[i] == "")
+                            continue;
                         if (lines[i].indexOf("\t") < 0) {
                             alert(msg);
                             return false;
