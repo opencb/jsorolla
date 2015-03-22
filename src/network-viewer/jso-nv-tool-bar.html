@@ -141,7 +141,7 @@
             <div title="Zoom in" id="zoomInButton" on-click="{{handleZoomInButton}}" class="button">
                 <font-awesome icon="plus"></font-awesome>
             </div>
-            <div hidden id="helpButton" on-click="{{handleHelpButton}}" class="button" style="margin-left: 10px">
+            <div id="helpButton" on-click="{{handleHelpButton}}" class="button" style="margin-left: 10px">
                 <font-awesome icon="question-circle"></font-awesome>
             </div>
         </div>
@@ -218,7 +218,7 @@
                 this.zoom = zoom;
             },
             handleHelpButton: function () {
-                window.open("https://github.com/opencb/cell-maps/wiki");
+                window.open("https://github.com/babelomics/babelomics/wiki/Visualization-tools#network-viewer");
             }
         });
     </script>

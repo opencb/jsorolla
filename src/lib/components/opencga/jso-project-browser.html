@@ -808,7 +808,8 @@
                                 me.files.sort(function (a, b) {
                                     return b.creationDate.localeCompare(a.creationDate);
                                 });
-//                                me.selectedFile = me.files[0];
+                                me.fire('file-click', {file: me.files[0]});
+                                me.selectedFile = me.files[0];
                             } else {
                                 console.log(response.response[0].errorMsg);
                             }
