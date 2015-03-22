@@ -42,6 +42,9 @@
         <div class="tooltitle">
             <div>
                 Differential expression: correlation
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Expression.%20Correlation">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -63,7 +66,7 @@
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-ok="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -161,13 +164,14 @@
                     this.$.inputFile.selectedFile = this.args.list1;
                 if (this.args.inputFile !== undefined)
                     this.$.inputFile.selectedFile = this.args.inputFile;
-                var radios = this.shadowRoot.querySelectorAll('input[name="correction"]');
+                var radios = this.shadowRoot.querySelectorAll("input[name='correction']");
                 for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
                     if (radio.value == this.args.method)
                         radio.checked = true;
                 }
-                var radios = this.shadowRoot.querySelectorAll('input[name="test"]');
+
+                var radios = this.shadowRoot.querySelectorAll("input[name='test']")
                 for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
                     if (radio.value == this.args.method)
@@ -202,7 +206,7 @@
                     return;
                 }
                 this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
-                this.correction = this.shadowRoot.querySelectorAll('input[name="correction"]').value;
+                this.correction = this.shadowRoot.querySelector('input[name="correction"]:checked').value
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.selectedStudy.id,

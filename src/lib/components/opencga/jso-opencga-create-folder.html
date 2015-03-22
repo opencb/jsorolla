@@ -99,7 +99,8 @@
                         //method: 'POST',
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var files = response.response[0].result
+                                var files = response.response[0].result;
+
                                 me.study.files = files
                             } else {
                                 me.message = response.response[0].errorMsg;

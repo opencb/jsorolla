@@ -90,7 +90,7 @@
             variant: null,
             columns: null,
             data: null,
-            page: 0,
+            page: 1,
             created: function () {
             },
             ready: function () {
@@ -163,11 +163,8 @@
             variantChanged: function (oldValue, newValue) {
                 var me = this;
 
-                this.page = 0;
+                this.page = 1;
                 this.data = [];
-                console.log("change data");
-                console.log(newValue);
-
 
                 if (newValue != '') {
                     CellBaseManager.get({
@@ -189,7 +186,6 @@
                     });
                 }
             },
-
             parseFunction: function (data) {
                 var res = [];
 
@@ -203,12 +199,9 @@
                         aux.soAccession = soTerm.soAccession;
 
                         res.push(aux);
-
                     }
                 }
-
                 return res;
-
             }
         });
     </script>

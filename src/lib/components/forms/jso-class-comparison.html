@@ -42,6 +42,9 @@
         <div class="tooltitle">
             <div>
                 Differential expression: class comparison
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Expression.%20Class%20comparison">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -63,7 +66,7 @@
                 <div class="formcontent">
                     <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-ok="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION,DATAMATRIX_SNP"></jso-project-browser-window>
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
                 </div>
             </div>
 
@@ -95,7 +98,7 @@
                         <div id="fold_change_div" hidden>
                             <h3>Select fold-change value</h3>
                             <label>Fold-change value</label>
-                            <input name="fold_change_value" id="fold_change_value" class="fc-decimal fc-text fc-disabled" type="text" value="2">
+                            <input name="fold_change_value" id="fold_change_value" class="fc-decimal fc-text fc-disabled" type="text" value="2" style="width: 30px">
                         </div>
                         <hr>
                         <label class="control">

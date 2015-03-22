@@ -74,7 +74,10 @@
         </style>
         <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
             <div flex>
-                Single enrichment
+                Fatigo
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Single%20Enrichment">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
             </div>
             <div class="icon">
                 <!--<font-awesome icon="magic"></font-awesome>-->
@@ -123,7 +126,7 @@
                             selectionMode="file"
                             allowTextArea="true"
                             on-file-select="{{handleFileSelect}}"
-                            bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
+                            bioformat="IDLIST,IDLIST_RANKED"
                             networkViewer="{{networkViewer}}"
                             ></jso-project-browser-window>
                 </div>
@@ -144,7 +147,7 @@
                                                     selectionMode="file"
                                                     on-file-select="{{handleFileSelect}}"
                                                     allowTextArea="true"
-                                                    bioformat="IDLIST_GENE,IDLIST_TRANSCRIPT,IDLIST_PROTEIN,IDLIST_SNP,IDLIST_FUNCTIONALTERMS,IDLIST_RANKED"
+                                                    bioformat="IDLIST,IDLIST_RANKED"
                                                     networkViewer="{{networkViewer}}"
                                 ></jso-project-browser-window>
                     </div>
@@ -162,9 +165,9 @@
                 <div id="options" class="formcontent" vertical layout>
                     <label>Fisher exact test</label>
 
-                    <div class="select">
-                        <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
-                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two
+                    <div class="select" style="width: 200px">
+                        <select name="fisher" id="fisher" class="fc-combobox" type="text" value="" >
+                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed" >Two
                                 tailed
                             </option>
                             <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
@@ -178,7 +181,7 @@
                     </div>
                     <label>Remove duplicates</label>
 
-                    <div class="select">
+                    <div class="select" style="width: 200px">
                         <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
                             <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never
                             </option>
@@ -518,7 +521,8 @@
 
                     this.$.species.disabled = false;
 
-                    this.$.your_annotations.disabled = true;
+//                    this.$.your_annotations.disabled = true;
+                    this.$.your_annotations.disabled = false;
 //                    this.$.annotationsFile.disabled = true;
 
 

@@ -53,10 +53,12 @@
                 }
 
             },
-            ready: function(){
-                this.status = this.jobItem.status;
-                if(this.jobItem.status === "DONE"){
-                    this.status = "Finishing";
+            jobItemChanged: function () {
+                if (this.jobItem) {
+                    this.status = this.jobItem.status;
+                    if (this.jobItem.status === "DONE") {
+                        this.status = "Finishing";
+                    }
                 }
             }
 
