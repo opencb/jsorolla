@@ -259,7 +259,8 @@
                     on-shape="{{handleVertexDefaultShape}}"
                     on-color="{{handleVertexDefaultColor}}"
                     on-strokecolor="{{handleVertexDefaultStrokeColor}}"
-                    on-size="{{handleVertexDefaultSize}}"
+                    on-width="{{handleVertexDefaultWidth}}"
+                    on-height="{{handleVertexDefaultHeight}}"
                     on-strokesize="{{handleVertexDefaultStrokeSize}}"
                     on-area="{{handleVertexDefaultArea}}"
                     on-strokeArea="{{handleVertexDefaultStrokeArea}}"
@@ -508,6 +509,8 @@
                 this.vertexDefaults = {
                     shape: 'circle',
                     size: 40,
+                    width: 40,
+                    height: 40,
 //            color: '#9fc6e7',
                     color: '#FFFFFF',
                     strokeSize: 2,
@@ -646,6 +649,13 @@
                 }
                 if (o.edgeDefaults.filters == null) {
                     o.edgeDefaults.filters = this.edgeDefaults.filters;
+                }
+                //version fix size is now width and height
+                if (o.vertexDefaults.width == null) {
+                    o.vertexDefaults.width = this.vertexDefaults.width;
+                }
+                if (o.vertexDefaults.height == null) {
+                    o.vertexDefaults.height = this.vertexDefaults.height;
                 }
 
                 this.backgroundImages = o.backgroundImages;
@@ -866,8 +876,11 @@
             handleVertexDefaultStrokeColor: function () {
                 this.setVertexDefaultDisplayProperty('strokeColor', this.vertexDefaults.strokeColor);
             },
-            handleVertexDefaultSize: function () {
-                this.setVertexDefaultDisplayProperty('size', this.vertexDefaults.size);
+            handleVertexDefaultWidth: function () {
+                this.setVertexDefaultDisplayProperty('width', this.vertexDefaults.width);
+            },
+            handleVertexDefaultHeight: function () {
+                this.setVertexDefaultDisplayProperty('height', this.vertexDefaults.height);
             },
             handleVertexDefaultStrokeSize: function () {
                 this.setVertexDefaultDisplayProperty('strokeSize', this.vertexDefaults.strokeSize);
@@ -1539,6 +1552,13 @@
                     }
                 }
             },
+            adjustShapeToText:function(){
+                var vertex;
+                for (var i = 0; i < this.graph.vertices.length; i++) {
+                    vertex = this.graph.vertices[i];
+                    vertex.renderer.adjustShapeToText();
+                }
+            },
             moveSelectedVertices: function (dispX, dispY) {
                 dispX /= this.scale;
                 dispY /= this.scale;
@@ -1551,7 +1571,6 @@
                     this._updateEdgeCoords(vertex);
                 }
             },
-
             selectVerticesByIds: function (vertexIds) {
                 this.deselectAllVertices();
                 this.vAttr.selectByIds(vertexIds);

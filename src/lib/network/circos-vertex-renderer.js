@@ -24,7 +24,8 @@ function CircosVertexRenderer(args) {
 
     //defaults
     this.shape = 'circle';
-    this.size = 30;
+    this.width = 30;
+    this.height = 30;
     this.color = '#FAFAFA';
     this.strokeSize = 2;
     this.strokeColor = '#888888';
@@ -57,8 +58,6 @@ function CircosVertexRenderer(args) {
 
 
     //draw parameters
-    this.mid;
-    this.figureSize;
     this.maxPieSize;
     this.maxDonutSize;
     this.labelX = 0;
@@ -73,7 +72,8 @@ function CircosVertexRenderer(args) {
         }
     }
 
-    this.size = parseFloat(this.size);
+    this.width = parseFloat(this.width);
+    this.height = parseFloat(this.height);
     this.strokeSize = parseFloat(this.strokeSize);
     this.opacity = parseFloat(this.opacity);
     this.labelSize = parseFloat(this.labelSize);
@@ -82,6 +82,8 @@ function CircosVertexRenderer(args) {
     this.area = parseFloat(this.area);
     this.strokeArea = parseFloat(this.strokeArea);
 
+
+    this.lastSelectColor = '#999999';
 }
 
 
@@ -116,12 +118,14 @@ CircosVertexRenderer.prototype = {
                 case "shape":
                 case 'color':
                 case 'strokeSize':
-                case 'size':
+                case 'width':
+                case 'height':
                 case 'strokeColor':
                 case 'area':
                 case 'strokeArea':
                 default:
-                    this.size = parseInt(this.size);
+                    this.width = parseFloat(this.width);
+                    this.height = parseFloat(this.height);
                     this.strokeSize = parseInt(this.strokeSize);
                     this.area = parseInt(this.area);
                     this.strokeArea = parseInt(this.strokeArea);
@@ -141,12 +145,20 @@ CircosVertexRenderer.prototype = {
                 minPieLength = this.color.length;
             }
         }
-        if (Array.isArray(this.size)) {
+        if (Array.isArray(this.width)) {
             if (minPieLength == 0 || minPieLength == 1) {
-                minPieLength = this.size.length;
+                minPieLength = this.width.length;
             }
-            if (this.size.length != 1 && this.size.length < minPieLength) {
-                minPieLength = this.size.length;
+            if (this.width.length != 1 && this.width.length < minPieLength) {
+                minPieLength = this.width.length;
+            }
+        }
+        if (Array.isArray(this.height)) {
+            if (minPieLength == 0 || minPieLength == 1) {
+                minPieLength = this.height.length;
+            }
+            if (this.height.length != 1 && this.height.length < minPieLength) {
+                minPieLength = this.height.length;
             }
         }
         if (Array.isArray(this.area)) {
@@ -192,14 +204,14 @@ CircosVertexRenderer.prototype = {
                 } else {
                     slice.color = this.color;
                 }
-                if (Array.isArray(this.size)) {
-                    if (this.size.length == 1) {
-                        slice.size = this.size[0];
+                if (Array.isArray(this.width)) {
+                    if (this.width.length == 1) {
+                        slice.size = this.width[0];
                     } else {
-                        slice.size = this.size[i];
+                        slice.size = this.width[i];
                     }
                 } else {
-                    slice.size = this.size;
+                    slice.size = this.width;
                 }
                 if (Array.isArray(this.area)) {
                     if (this.area.length == 1) {
@@ -255,7 +267,7 @@ CircosVertexRenderer.prototype = {
             if (this.pieSlices.length == 0) {
                 this.pieSlices.push({
                     color: this.color,
-                    size: this.size,
+                    size: this.width,
                     area: this.area,
                     labelSize: this.labelSize,
                     labelOffset: 0
@@ -303,8 +315,10 @@ CircosVertexRenderer.prototype = {
     },
     select: function (color) {
         if (color) {
-            this.selectEl.setAttribute('fill', color);
+            this.lastSelectColor = color;
         }
+        this.selectEl.setAttribute('fill', this.lastSelectColor);
+
         this.groupEl.insertBefore(this.selectEl, this.groupEl.firstChild);
         if (this.groupEl && this.groupEl.parentNode) {
             this.groupEl.parentNode.appendChild(this.groupEl);
@@ -316,7 +330,13 @@ CircosVertexRenderer.prototype = {
         this.selected = false;
     },
     move: function () {
-        this.groupEl.setAttribute('transform', "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")");
+        var translate;
+        if (this.shape == 'circle' || this.shape == 'square') {
+            translate = [this.coords.x - this.widthOffset, this.coords.y - this.widthOffset].join(',');
+        } else {
+            translate = [this.coords.x - this.widthOffset, this.coords.y - this.heightOffset].join(',');
+        }
+        this.groupEl.setAttribute('transform', "translate(" + translate + ")");
     },
     setLabelContent: function (text) {
         if (text == null) {
@@ -331,17 +351,45 @@ CircosVertexRenderer.prototype = {
         }
     },
     getSize: function () {
+        return Math.max(this.getWidth(), this.getHeight());
+    },
+    getWidth: function () {
         if (this.complex) {
-            this._updateComplexDrawParameters();
+            return this.maxPieSize + (this.maxDonutSize * 3);
         } else {
-            this._updateDrawParameters();
+            return this.width + (this.strokeSize * 3);
         }
-        return this.figureSize;
+    },
+    getHeight: function () {
+        if (this.complex) {
+            return this.maxPieSize + (this.maxDonutSize * 3);
+        } else {
+            return this.height + (this.strokeSize * 3);
+        }
+    },
+    adjustShapeToText: function () {
+        this._textWidthBySize(this.labelText, this.labelSize);
+        this.width = this._textWidthBySize(this.labelText, this.labelSize) * 1.3;
+        this.height = this.labelSize * 1.3;
+        this.update();
+        this.updateEdgeCoords();
+    },
+    updateEdgeCoords: function () {
+        for (var i = 0; i < this.vertex.edges.length; i++) {
+            var edge = this.vertex.edges[i];
+            if (this.vertex === edge.source) {
+                edge.renderer.move();
+            }
+            if (this.vertex === edge.target) {
+                edge.renderer.move();
+            }
+        }
     },
     toJSON: function () {
         return {
             shape: this.shape,
-            size: this.size,
+            width: this.width,
+            height: this.height,
             color: this.color,
             strokeSize: this.strokeSize,
             strokeColor: this.strokeColor,
@@ -360,9 +408,11 @@ CircosVertexRenderer.prototype = {
 
     /* Private methods */
     _updateDrawParameters: function () {
-        var midSize = (this.size + (this.strokeSize));
-        this.mid = midSize / 2;
-        this.figureSize = (this.size + (this.strokeSize * 2));
+        this.widthOffset = ((this.width / 2) + this.strokeSize);
+        this.heightOffset = ((this.height / 2) + this.strokeSize);
+
+        //this.mid = midSize / 2;
+        //this.figureSize = (this.size + (this.strokeSize * 2));
         this._updateLabelElPosition();
     },
     _updateComplexDrawParameters: function () {
@@ -370,14 +420,22 @@ CircosVertexRenderer.prototype = {
         //this.mid = midSize / 2;
         this.maxPieSize = this._slicesMax(this.pieSlices);
         this.maxDonutSize = this._slicesMax(this.donutSlices);
-        this.figureSize = (this.maxPieSize + (this.maxDonutSize * 2));
-        this.mid = this.figureSize / 2;
+
+        this.widthOffset = ((this.maxPieSize / 2) + this.maxDonutSize);
+        // the same as width, when complex(pie) rendering
+        this.heightOffset = this.widthOffset;
+
         this._updateLabelElPosition();
     },
     _updateLabelElPosition: function () {
         var labelSize = this._textWidthBySize(this.labelText, this.labelSize);
-        this.labelX = this.labelPositionX + this.mid - (labelSize / 2);
-        this.labelY = this.labelPositionY + this.mid + this.labelSize / 3;
+        this.labelX = this.labelPositionX + this.widthOffset - (labelSize / 2);
+
+        if (this.shape == 'circle' || this.shape == 'square') {
+            this.labelY = this.labelPositionY + this.widthOffset + this.labelSize / 3;
+        } else {
+            this.labelY = this.labelPositionY + this.heightOffset + this.labelSize / 3;
+        }
     },
     _textWidthBySize: function (text, pixelFontSize) {
         return ((text.length * pixelFontSize / 2) + 0.5) | 0;//round up
@@ -405,48 +463,48 @@ CircosVertexRenderer.prototype = {
     },
     _drawSelectCircleShape: function () {
         this.selectEl = SVG.create("circle", {
-            r: this.figureSize / 2 * 1.30,
-            cx: this.mid,
-            cy: this.mid,
+            r: this.widthOffset * 1.5,
+            cx: this.widthOffset,
+            cy: this.widthOffset,
             opacity: '0.5',
-            fill: '#999999',
+            fill: this.lastSelectColor,
             'network-type': 'select-vertex'
         });
     },
     _drawSelectEllipseShape: function () {
         this.selectEl = SVG.create("ellipse", {
-            cx: this.mid,
-            cy: this.mid,
-            rx: this.figureSize,
-            ry: this.figureSize * 0.65,
+            cx: this.widthOffset,
+            cy: this.heightOffset,
+            rx: this.widthOffset * 1.5,
+            ry: this.heightOffset * 1.5,
             opacity: '0.5',
-            fill: '#999999',
+            fill: this.lastSelectColor,
             'network-type': 'select-vertex'
         });
     },
     _drawSelectSquareShape: function () {
         this.selectEl = SVG.create("rect", {
-            x: -this.mid * 0.3,
-            y: -this.mid * 0.3,
-            width: this.mid * 2.6,
-            height: this.mid * 2.6,
-            stroke: '#999999',
-            'stroke-width': this.strokeSize,
+            x: -this.widthOffset * 0.5,
+            y: -this.widthOffset * 0.5,
+            width: this.widthOffset * 3,
+            height: this.widthOffset * 3,
+            //stroke: '#999999',
+            //'stroke-width': this.strokeSize,
             opacity: '0.5',
-            fill: '#999999',
+            fill: this.lastSelectColor,
             'network-type': 'select-vertex'
         });
     },
     _drawSelectRectangleShape: function () {
         this.selectEl = SVG.create("rect", {
-            x: -this.mid * 0.8,
-            y: -this.mid * 0.3,
-            width: this.mid * 3.60,
-            height: this.mid * 2.6,
-            stroke: '#999999',
-            'stroke-width': this.strokeSize,
+            x: -this.widthOffset * 0.5,
+            y: -this.heightOffset * 0.5,
+            width: this.widthOffset * 3,
+            height: this.heightOffset * 3,
+            //stroke: '#999999',
+            //'stroke-width': this.strokeSize,
             opacity: '0.5',
-            fill: '#999999',
+            fill: this.lastSelectColor,
             'network-type': 'select-vertex'
         });
     },
@@ -462,9 +520,16 @@ CircosVertexRenderer.prototype = {
         } else {
             this._updateDrawParameters();
             this._drawSelectShape();
+
+            var translate;
+            if (this.shape == 'circle' || this.shape == 'square') {
+                translate = [this.coords.x - this.widthOffset, this.coords.y - this.widthOffset].join(',');
+            } else {
+                translate = [this.coords.x - this.widthOffset, this.coords.y - this.heightOffset].join(',');
+            }
             this.groupEl = SVG.create('g', {
                 "id": this.vertex.id,
-                "transform": "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")",
+                "transform": "translate(" + translate + ")",
                 "cursor": "pointer",
                 opacity: this.opacity,
                 'network-type': 'vertex-svg'
@@ -472,9 +537,9 @@ CircosVertexRenderer.prototype = {
             switch (this.shape) {
                 case "circle":
                     var circle = SVG.addChild(this.groupEl, 'circle', {
-                        r: this.mid,
-                        cx: this.mid,
-                        cy: this.mid,
+                        r: this.widthOffset,
+                        cx: this.widthOffset,
+                        cy: this.widthOffset,
                         stroke: this.strokeColor,
                         'stroke-width': this.strokeSize,
                         fill: this.color,
@@ -483,10 +548,10 @@ CircosVertexRenderer.prototype = {
                     break;
                 case "ellipse":
                     var ellipse = SVG.addChild(this.groupEl, "ellipse", {
-                        cx: this.mid,
-                        cy: this.mid,
-                        rx: this.mid * 1.5,
-                        ry: this.mid,
+                        cx: this.widthOffset,
+                        cy: this.heightOffset,
+                        rx: this.widthOffset,
+                        ry: this.heightOffset,
                         stroke: this.strokeColor,
                         'stroke-width': this.strokeSize,
                         fill: this.color,
@@ -497,8 +562,8 @@ CircosVertexRenderer.prototype = {
                     var square = SVG.addChild(this.groupEl, "rect", {
                         x: 0,
                         y: 0,
-                        width: this.mid * 2,
-                        height: this.mid * 2,
+                        width: this.widthOffset * 2,
+                        height: this.widthOffset * 2,
                         stroke: this.strokeColor,
                         'stroke-width': this.strokeSize,
                         fill: this.color,
@@ -507,10 +572,10 @@ CircosVertexRenderer.prototype = {
                     break;
                 case "rectangle":
                     var rectangle = SVG.addChild(this.groupEl, "rect", {
-                        x: -this.mid * 0.5,
+                        x: 0,
                         y: 0,
-                        width: this.mid * 3,
-                        height: this.mid * 2,
+                        width: this.widthOffset * 2,
+                        height: this.heightOffset * 2,
                         stroke: this.strokeColor,
                         'stroke-width': this.strokeSize,
                         fill: this.color,
@@ -536,7 +601,7 @@ CircosVertexRenderer.prototype = {
         this._updateComplexDrawParameters();
         this.groupEl = SVG.create('g', {
             "id": this.vertex.id,
-            "transform": "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")",
+            "transform": "translate(" + [this.coords.x - this.widthOffset, this.coords.y - this.widthOffset].join(',') + ")",
             "cursor": "pointer",
             opacity: this.opacity,
             'network-type': 'vertex-svg'
@@ -552,16 +617,16 @@ CircosVertexRenderer.prototype = {
             var angleStart = angleOffset;
             var angleEnd = angleStart + angleSize;
             angleOffset += angleSize;
-            var slice_d = SVG.describeArc(this.mid, this.mid, slice.size / 2 + 0.2, angleStart, angleEnd);
+            var slice_d = SVG.describeArc(this.widthOffset, this.widthOffset, slice.size / 2 + 0.2, angleStart, angleEnd);
             var curve = SVG.addChild(this.groupEl, "path", {
-                "d": slice_d + ['L', this.mid, this.mid].join(' '),
+                "d": slice_d + ['L', this.widthOffset, this.widthOffset].join(' '),
                 "fill": slice.color,
                 'network-type': 'vertex'
             });
             if (typeof slice.text !== 'undefined') {
                 var angle = angleStart + angleSize / 2;
-                var l1 = SVG._polarToCartesian(this.mid, this.mid, this.maxPieSize / 2, angle);
-                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelOffset, angle);
+                var l1 = SVG._polarToCartesian(this.widthOffset, this.widthOffset, this.maxPieSize / 2, angle);
+                var l2 = SVG._polarToCartesian(this.widthOffset, this.widthOffset, this.widthOffset + slice.labelOffset, angle);
                 var labelWidth = this._textWidthBySize(slice.text, slice.labelSize);
                 var textX, textY;
                 if (l2.x > l1.x) {
@@ -617,7 +682,7 @@ CircosVertexRenderer.prototype = {
             var angleStart = angleOffset;
             var angleEnd = angleStart + angleSize;
             angleOffset += angleSize;
-            var slice_d = SVG.describeArc(this.mid, this.mid, (this.maxPieSize / 2) + (slice.size / 2), angleStart, angleEnd);
+            var slice_d = SVG.describeArc(this.widthOffset, this.widthOffset, (this.maxPieSize / 2) + (slice.size / 2), angleStart, angleEnd);
             var curve = SVG.addChild(this.groupEl, "path", {
                 "d": slice_d,
                 "stroke": slice.color,
@@ -627,8 +692,8 @@ CircosVertexRenderer.prototype = {
             }, 0);
             if (typeof slice.text !== 'undefined') {
                 var angle = angleStart + angleSize / 2;
-                var l1 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelOffset, angle);
-                var l2 = SVG._polarToCartesian(this.mid, this.mid, this.mid + slice.labelOffset, angle);
+                var l1 = SVG._polarToCartesian(this.widthOffset, this.widthOffset, this.widthOffset + slice.labelOffset, angle);
+                var l2 = SVG._polarToCartesian(this.widthOffset, this.widthOffset, this.widthOffset + slice.labelOffset, angle);
                 var labelWidth = this._textWidthBySize(slice.text, slice.labelSize);
                 var textX, textY;
                 if (l2.x > l1.x) {

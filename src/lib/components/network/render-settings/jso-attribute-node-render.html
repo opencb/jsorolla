@@ -216,20 +216,36 @@
                          on-click="{{handleRemoveSet}}" data-prop="strokeColor"></div>
                 </div>
                 <div horizontal layout>
-                    <div class="text">Size:</div>
+                    <div class="text">Width:</div>
                     <div flex>
-                        <input type="number" min="1" max="200" value={{defaults.size}} on-change="{{handleSize}}">
+                        <input type="number" min="1" max="200" value={{defaults.width}} on-change="{{handleWidth}}">
                     </div>
 
-                    <div class="button action configure" data-enabled="{{visualSets.size != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="size"
-                         title="{{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}">
-                        {{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}
+                    <div class="button action configure" data-enabled="{{visualSets.width != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="width"
+                         title="{{visualSets.width !=null ? visualSets.width.attribute : 'Select attribute'}}">
+                        {{visualSets.width !=null ? visualSets.width.attribute : 'Select attribute'}}
                     </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.size.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="size"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.size != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="size"></div>
+                    <div class="button action toggle" data-enabled="{{visualSets.width.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="width"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.width != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="width"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Height:</div>
+                    <div flex>
+                        <input type="number" min="1" max="200" value={{defaults.height}} on-change="{{handleHeight}}">
+                    </div>
+
+                    <div class="button action configure" data-enabled="{{visualSets.height != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="height"
+                         title="{{visualSets.height !=null ? visualSets.height.attribute : 'Select attribute'}}">
+                        {{visualSets.height !=null ? visualSets.height.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.height.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="height"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.height != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="height"></div>
                 </div>
                 <div horizontal layout>
                     <div class="text">Stroke size:</div>
@@ -371,19 +387,28 @@
                 >
         </jso-attribute-render-color-table>
         <!--</template>-->
-        <!--<template if="{{displayProperty == 'size'}}">-->
         <jso-attribute-render-number-table
-                hidden?="{{displayProperty != 'size'}}"
-                id="size"
+                hidden?="{{displayProperty != 'width'}}"
+                id="width"
                 on-ok="{{handleOkSet}}"
                 displayProperty="{{displayProperty}}"
                 attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.size}}"
-                visualSet="{{visualSets.size}}"
+                defaultValue="{{defaults.width}}"
+                visualSet="{{visualSets.width}}"
                 allowListParse="true"
                 >
         </jso-attribute-render-number-table>
-        <!--</template>-->
+        <jso-attribute-render-number-table
+                hidden?="{{displayProperty != 'height'}}"
+                id="height"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.height}}"
+                visualSet="{{visualSets.height}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
         <!--<template if="{{displayProperty == 'strokeSize'}}">-->
         <jso-attribute-render-number-table
                 hidden?="{{displayProperty != 'strokeSize'}}"
@@ -490,8 +515,11 @@
                 this.defaults.strokeColor = e.detail.color
                 this.fire('strokecolor');
             },
-            handleSize: function () {
-                this.fire('size');
+            handleWidth: function () {
+                this.fire('width');
+            },
+            handleHeight: function () {
+                this.fire('height');
             },
             handleStrokeSize: function () {
                 this.fire('strokesize');

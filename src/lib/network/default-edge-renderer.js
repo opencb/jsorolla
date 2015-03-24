@@ -245,19 +245,19 @@ DefaultEdgeRenderer.prototype = {
         var d, labelX, labelY;
         if (this.edge.source === this.edge.target) {
             //calculate self edge
-            var length1 = this.sourceRenderer.getSize() * 0.6;
-            var length2 = this.sourceRenderer.getSize() * 1.8;
-            labelX = this.sourceCoords.x - this.sourceRenderer.getSize();
-            labelY = this.sourceCoords.y - this.sourceRenderer.getSize();
+            labelX = this.sourceCoords.x - this.sourceRenderer.getWidth();
+            labelY = this.sourceCoords.y - this.sourceRenderer.getHeight();
 
+            var rWidth = this.sourceRenderer.getWidth() / 2;
+            var rHeight = this.sourceRenderer.getHeight() / 2;
 
-            var rSize = this.sourceRenderer.getSize() / 2;
+            d = ['M', this.sourceCoords.x, this.sourceCoords.y - rHeight,
+                'L', this.sourceCoords.x, this.sourceCoords.y - rHeight,
+                'C', this.sourceCoords.x, this.sourceCoords.y - rHeight * 2, this.sourceCoords.x - rWidth * 2, this.sourceCoords.y,
+                this.sourceCoords.x - rWidth, this.sourceCoords.y,
+                'L', this.targetCoords.x - rWidth, this.targetCoords.y
+            ].join(' ');
 
-            d = ['M', this.sourceCoords.x - rSize, this.sourceCoords.y,
-                'L', this.sourceCoords.x - length1, this.sourceCoords.y,
-                'C', this.sourceCoords.x - length2, this.sourceCoords.y, this.sourceCoords.x, this.sourceCoords.y - length2,
-                this.sourceCoords.x, this.sourceCoords.y - length1,
-                'L', this.targetCoords.x, this.targetCoords.y - rSize].join(' ');
         } else {
             //calculate bezier line
             var deltaX = this.targetCoords.x - this.sourceCoords.x;
@@ -294,8 +294,6 @@ DefaultEdgeRenderer.prototype = {
             var pp = this._getPerimeterPositions(angle);
 
 //            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
-
-
             d = ['M', pp.sx, pp.sy, controlPath, pp.tx, pp.ty].join(' ');
         }
         return {d: d, xl: labelX, yl: labelY};
@@ -303,14 +301,13 @@ DefaultEdgeRenderer.prototype = {
     _getPerimeterPositions: function (angle) {
         // Calculate source and target points of the perimeter
         var sign = this.targetCoords.x >= this.sourceCoords.x ? 1 : -1;
-        var srHalfSize = this.sourceRenderer.getSize() / 2;
+        //var srHalfSize = this.sourceRenderer.getSize() / 2;
+        var srHalfWidth = this.sourceRenderer.getWidth() / 2;
+        var srHalfHeight = this.sourceRenderer.getHeight() / 2;
 
-        //var offset = 0;
-        //if (this.shape !== 'undirected') {
-        //    offset = this.size * 2;
-        //}
-        //var trHalfSize = offset + (this.targetRenderer.getSize() / 2);
-        var trHalfSize = this.targetRenderer.getSize() / 2;
+        //var trHalfSize = this.targetRenderer.getSize() / 2;
+        var trHalfWidth = this.targetRenderer.getWidth() / 2;
+        var trHalfHeight = this.targetRenderer.getHeight() / 2;
 
         var cosAngle = Math.cos(angle);
         var sinAngle = Math.sin(angle);
@@ -327,62 +324,44 @@ DefaultEdgeRenderer.prototype = {
 
         //Source
         if (this.sourceRenderer.complex == true) {
-            sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
-            sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+            sx = this.sourceCoords.x + (sign * cosAngle * srHalfWidth);
+            sy = this.sourceCoords.y + (sign * sinAngle * srHalfHeight);
         } else {
             switch (this.sourceRenderer.shape) {
                 case 'square':
-                    magnitudeCos = srHalfSize / absCosAngle;
-                    magnitudeSin = srHalfSize / absSinAngle;
-                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                    sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
-                    sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
-                    break;
                 case 'rectangle':
-                    magnitudeCos = srHalfSize * 1.5 / absCosAngle;
-                    magnitudeSin = srHalfSize / absSinAngle;
+                    magnitudeCos = srHalfWidth / absCosAngle;
+                    magnitudeSin = srHalfHeight / absSinAngle;
                     magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
                     sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
                     sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
                     break;
                 case 'ellipse':
-                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.5);
-                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
-                    break;
                 case 'circle':
                 default:
-                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
-                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfWidth);
+                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfHeight);
             }
         }
         //Target
         if (this.targetRenderer.complex == true) {
-            tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
-            ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+            tx = this.targetCoords.x - (sign * cosAngle * trHalfWidth);
+            ty = this.targetCoords.y - (sign * sinAngle * trHalfHeight);
         } else {
             switch (this.targetRenderer.shape) {
                 case 'square':
-                    magnitudeCos = trHalfSize / absCosAngle;
-                    magnitudeSin = trHalfSize / absSinAngle;
-                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                    tx = this.targetCoords.x - (sign * cosAngle * magnitude);
-                    ty = this.targetCoords.y - (sign * sinAngle * magnitude);
-                    break;
                 case 'rectangle':
-                    magnitudeCos = trHalfSize * 1.5 / absCosAngle;
-                    magnitudeSin = trHalfSize / absSinAngle;
+                    magnitudeCos = trHalfWidth / absCosAngle;
+                    magnitudeSin = trHalfHeight / absSinAngle;
                     magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
                     tx = this.targetCoords.x - (sign * cosAngle * magnitude);
                     ty = this.targetCoords.y - (sign * sinAngle * magnitude);
                     break;
                 case 'ellipse':
-                    tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.5);
-                    ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
-                    break;
                 case 'circle':
                 default:
-                    tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
-                    ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+                    tx = this.targetCoords.x - (sign * cosAngle * trHalfWidth);
+                    ty = this.targetCoords.y - (sign * sinAngle * trHalfHeight);
             }
         }
         return {sx: sx, sy: sy, tx: tx, ty: ty};
@@ -408,7 +387,7 @@ DefaultEdgeRenderer.prototype = {
             "cursor": "pointer",
             fill: 'none',
             'network-type': 'edge'
-        },1);
+        }, 1);
 
         if (this.shape === 'undirected') {
             this.edgeEl.removeAttribute('marker-end');
