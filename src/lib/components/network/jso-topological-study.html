@@ -173,7 +173,7 @@
             handleEditSelect: function (e) {
                 this.columnSelected = e.target.templateInstance.model.column.name;
             },
-            retrieveData: function () {
+            retrieveData: function (callback) {
                 var me = this;
                 this.results = null;
                 var sif;
@@ -250,6 +250,7 @@
                         }
                         me.message = "Done";
                         me.loading = false;
+                        callback();
                     };
                     request.onerror = function () {
                         console.log("request error");

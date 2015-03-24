@@ -74,6 +74,7 @@
                         on-ok="{{selectHandler}}"
                         bioformat="{{bioformat}}"
                         on-cancel="{{handleCancel}}"
+
                         >
                 </jso-project-browser>
             </template>
@@ -109,6 +110,7 @@
                 this.allowTextArea = false;
 
                 this.dataOrigin = 'server';
+
             },
             ready: function () {
                 this.showBrowser = false;
@@ -120,6 +122,7 @@
                 this.showBrowser = !this.showBrowser;
             },
             selectHandler: function (e) {
+//                console.log(this.shadowRoot.querySelector("#jsoProjectBrowser"))
                 this.showBrowser = false;
                 this.selectedFile = e.detail.file;
             },

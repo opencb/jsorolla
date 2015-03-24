@@ -808,13 +808,16 @@
                     edge.renderer.set(displayProperty, finalValue);
                 }
             },
-            setVertexDefaultPositionX: function (attribute) {
-                this._calculateVertexAttributeNormalization(attribute, "x", "width", false);
+            setVertexDefaultPositionX: function (attribute, adjust, invertAxis) {
+                adjust = (adjust == null) ? true : adjust;
+                invertAxis = (invertAxis == null) ? false : invertAxis;
+                this._calculateVertexAttributeNormalization(attribute, "x", "width", adjust, invertAxis);
             },
-            _calculateVertexAttributeNormalization: function (coordAttr, coord, measure, invertAxis) {
+            _calculateVertexAttributeNormalization: function (coordAttr, coord, measure, adjust, invertAxis) {
                 var margin = 100, midMargin = margin / 2;
                 var max, min, c;
                 var row, vertex;
+
                 for (var i = 0; i < this.graph.vertices.length; i++) {
                     vertex = this.graph.vertices[i];
                     row = this.vAttr.getRow(vertex.id);
@@ -829,7 +832,12 @@
                     }
                 }
                 var range = (max === min) ? 1 : max - min;
-                var measure = this.$.networkLayout.getBoundingClientRect()[measure] - margin;
+
+                if (adjust == false) {
+                    measure = range;
+                } else {
+                    measure = this.$.networkLayout.getBoundingClientRect()[measure] - margin;
+                }
 
                 var row, vertex, c;
                 for (var i = 0; i < this.graph.vertices.length; i++) {
@@ -847,8 +855,10 @@
                     }
                 }
             },
-            setVertexDefaultPositionY: function (attribute) {
-                this._calculateVertexAttributeNormalization(attribute, "y", "height", true);
+            setVertexDefaultPositionY: function (attribute, adjust, invertAxis) {
+                adjust = (adjust == null) ? true : adjust;
+                invertAxis = (invertAxis == null) ? true : invertAxis;
+                this._calculateVertexAttributeNormalization(attribute, "y", "height", adjust, invertAxis);
             },
             /** Handlers **/
             /* Vertex */
@@ -892,10 +902,10 @@
                 this.setVertexDefaultDisplayProperty('strokeArea', this.vertexDefaults.strokeArea);
             },
             handleVertexDefaultXAttribute: function () {
-                this.setVertexDefaultPositionX(this.vertexDefaults.xAttribute);
+                this.setVertexDefaultPositionX(this.vertexDefaults.xAttribute, true, false);
             },
             handleVertexDefaultYAttribute: function () {
-                this.setVertexDefaultPositionY(this.vertexDefaults.yAttribute);
+                this.setVertexDefaultPositionY(this.vertexDefaults.yAttribute, true, true);
             },
             /* Edge */
             handleEdgeDefaultLabelAttribute: function () {

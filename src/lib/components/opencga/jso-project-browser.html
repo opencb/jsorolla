@@ -190,57 +190,12 @@
                 </template>
             </div>
             <div flex id="foldersMain">
-                <template id="firstLevel" if="{{ files.length > 0 }}">
-                    <!--<jso-project-browser-folder-list-->
-                    <!--files="{{files}}"-->
-                    <!--folder="{{firstFolder}}"-->
-                    <!--study="{{selectedStudy}}"-->
-                    <!--selectionMode="{{selectionMode}}"-->
-                    <!--on-file-click="{{getFilesInFolder}}"-->
-                    <!--bioformat="{{bioformat}}"></jso-project-browser-folder-list>-->
-                </template>
             </div>
             <template if="{{ showInfo == true }}">
                 <div id="fileinfo">
                     <jso-file-info file="{{selectedFile}}"></jso-file-info>
                 </div>
             </template>
-            <!--<template if="{{ selectedOption == 'createProject' }}">-->
-            <!--<jso-opencga-create-project></jso-opencga-create-project>-->
-            <!--</template>-->
-
-            <!--<template if="{{ selectedOption == 'selectStudy' }}">-->
-            <!--<jso-opencga-select-study studyList="{{studies}}"-->
-            <!--selectedStudy="{{selectedStudy}}"-->
-            <!--userData="{{userData}}"></jso-opencga-select-study>-->
-            <!--</template>-->
-            <!--<template if="{{ selectedOption == 'createStudy' }}">-->
-            <!--<jso-opencga-create-study projectList="{{userData.projects}}"></jso-opencga-create-study>-->
-            <!--</template>-->
-            <!--<template if="{{ selectedOption == 'createAnalysis' }}">-->
-            <!--<jso-opencga-create-analysis projectList="{{userData.projects}}"></jso-opencga-create-analysis>-->
-            <!--</template>-->
-
-            <!--<template if="{{ selectedOption == 'createFolder' }}">-->
-            <!--<jso-opencga-create-folder selectedStudy="{{selectedStudy}}"></jso-opencga-create-folder>-->
-            <!--</template>-->
-
-            <!--<template if="{{ selectedOption == 'createExperiment' }}">-->
-            <!--TODO-->
-            <!--</template>-->
-
-            <!--<template if="{{ selectedOption == 'runAnalysis' }}">-->
-            <!--TODO-->
-            <!--</template>-->
-
-            <!--<template if="{{ selectedOption == 'uploadFile' }}">-->
-            <!--<jso-opencga-upload selectedProject="{{selectedProject}}"-->
-            <!--selectedStudy="{{selectedStudy}}"></jso-opencga-upload>-->
-            <!--</template>-->
-
-            <!--<template if="{{ selectedOption == 'browseStudies' }}">-->
-
-            <!--</template>-->
 
         </div>
         <div id="bottombar" horizontal layout>
@@ -251,6 +206,7 @@
                             <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Data-types">
                                 <font-awesome icon="question-circle"></font-awesome>
                             </a>
+
                             <div class="text">Accepted bioformats:{{bioformatText}}</div>
                         </template>
                     </div>
@@ -402,6 +358,7 @@
                 el.study = this.selectedStudy;
                 el.bioformat = this.bioformat;
                 el.selectionMode = this.selectionMode;
+                el.selectedFile = this.selectedFile;
                 el.addEventListener('file-click', function (e) {
                     me.selectFileInFolder(e);
                 });
@@ -560,7 +517,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat selectionMode">
+<polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat selectionMode selectedFile">
     <template>
         <style>
             :host {
@@ -623,35 +580,42 @@
                 color: #ab0000 !important;
             }
         </style>
-        <div class="bar" horizontal layout>
-            <template if="{{selectionMode != 'folder'}}">
-                <div class="button action upload" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
-                    <font-awesome icon="cloud-upload"></font-awesome>
-                    Upload
-                    <!--Upload-->
+        <div class="bar" horizontal layout flex>
+            <div horizontal layout flex>
+                <template if="{{selectionMode != 'folder'}}">
+                    <div class="button action upload" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
+                        <font-awesome icon="cloud-upload"></font-awesome>
+                        Upload
+                        <!--Upload-->
+                    </div>
+                </template>
+                <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
+                    <font-awesome icon="folder-o"></font-awesome>
+                    +
                 </div>
-            </template>
-            <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
-                <font-awesome icon="folder-o"></font-awesome>
-                +
+                <!--<template if="{{ selectedFile != null }">-->
+                    <div class="button action" on-click="{{handleDeleteFile}}">
+                        <font-awesome icon="trash"></font-awesome>
+                    </div>
+                <!--</template>-->
+                <template if="{{ selectedFile != null && selectedFile.type == 'FILE' }}">
+                    <div class="button action" on-click="{{handleDownloadFile}}">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </template>
+                <template
+                        if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'VARIANT' }}">
+                    <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
+                        <font-awesome icon="cog"></font-awesome>
+                    </div>
+                </template>
             </div>
-            <template if="{{ selectedFile != null && selectionMode != 'folder' }}">
-                <div class="button action" on-click="{{handleDeleteFile}}">
-                    <font-awesome icon="trash"></font-awesome>
-                </div>
-            </template>
-            <template if="{{ selectedFile != null && selectedFile.type == 'FILE' }}">
-                <div class="button action" on-click="{{handleDownloadFile}}">
-                    <font-awesome icon="download"></font-awesome>
-                </div>
-            </template>
-            <template
-                    if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'VARIANT' }}">
-                <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
-                    <font-awesome icon="cog"></font-awesome>
-                </div>
-            </template>
             <!--<input type="text" flex placeholder="filter">-->
+            <div>
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Upload-your-data">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
         </div>
         <div class="list">
             <core-list data="{{files}}" height="27" style="height:100%;">
@@ -690,6 +654,7 @@
                 this.bioformat = "";
             },
             handleFileClick: function (e) {
+                
                 if (this.selectedFile == null || e.target.file.id != this.selectedFile.id) {
                     this.fire('file-click', {file: e.target.file});
                 }
@@ -761,7 +726,9 @@
             },
             handleFolderCreated: function (e) {
                 this.refreshFolder();
+
                 this.hideCreateFolder = true;
+
             },
             handleUploadFile: function (e) {
                 this.hideUploadFile = !this.hideUploadFile;
@@ -772,6 +739,10 @@
                 this.hideUploadFile = true;
             },
             handleDeleteFile: function () {
+                if(this.selectedFile.name == "."){
+                    alert("Sorry, you can't delete your workspace. ");
+                    return;
+                }
                 if (confirm('Delete file ' + this.selectedFile.name + '?')) {
                     var me = this;
                     OpencgaManager.files.delete({
@@ -837,6 +808,8 @@
                                 me.files.sort(function (a, b) {
                                     return b.creationDate.localeCompare(a.creationDate);
                                 });
+                                me.fire('file-click', {file: me.files[0]});
+                                me.selectedFile = me.files[0];
                             } else {
                                 console.log(response.response[0].errorMsg);
                             }
