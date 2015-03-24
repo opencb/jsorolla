@@ -200,7 +200,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label>
                     <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
                     <label>Description</label>
@@ -283,7 +283,6 @@
                     images: "",
                     json: 1
                 };
-
                 if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
                     alert("Sorry. No input selected. Please select a file or write something in the text area");
                     return;
@@ -321,6 +320,20 @@
                             }
                         },
                         error: function () {
+                            var lng1, lng2 = 0;
+                            if (query["list1-text"] !== undefined){
+                                lng1 = query["list1-text"].split(",").length;
+                            }
+                            if (query["list2-text"] !== undefined){
+                                lng2 = query["list2-text"].split(",").length;
+                            }
+                            var lng = lng1 + lng2;
+                            if(lng > 0){
+                                alert("Sorry, too many inputs ids, the size is limited due to browser restrictions. \n " +
+                                "Please upload a file with your ids in order to run the analysis. ");
+                                return;
+
+                            }
                             me.message = 'Server error, try again later.';
                         }
                     }
@@ -338,8 +351,8 @@
 //                this.$.randoms.value = 500;
 //                this.$.intermediate.value = 1;
                 this.$.intermediate_2.checked = true;
-                var exampleFolder = "snow_downregulated";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "snow_downregulated";
+//                this.createExampleFolder(exampleFolder);
 
             },
             loadExample2: function (e) {
@@ -354,8 +367,8 @@
 //                this.$.randoms.value = 500;
 //                this.$.intermediate.value = 1;
                 this.$.intermediate_1.checked = true;
-                var exampleFolder = "snow_Upregulated";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "snow_Upregulated";
+//                this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {

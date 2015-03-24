@@ -207,7 +207,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
@@ -333,8 +333,8 @@
                 this.$.impute_missing_4.checked = true;
 //                this.$.convert_ids_1.checked = true;
 
-                var exampleFolder = "two_classes_matrix";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "two_classes_matrix";
+//                this.createExampleFolder(exampleFolder);
 
             },
             loadExample2: function (e) {
@@ -347,8 +347,8 @@
                 this.$.impute_missing_5.checked = true;
 //                this.$.convert_ids_1.checked = true;
 
-                var exampleFolder = "pre_correlation";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "pre_correlation";
+//                this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {

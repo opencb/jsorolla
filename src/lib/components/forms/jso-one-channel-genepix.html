@@ -107,7 +107,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
@@ -188,8 +188,8 @@
                 this.$.ba_normalization.value = "quantiles";
                 this.$.inputFile.selectedFile = {id: "example_onecolor_genepix_expression.zip", path: "onecolor_genepix_expression.zip", type: "FILE"};
                 this.compressed_file_tags = "microarray,expression,one-channel,genepix";
-                var exampleFolder = "genepix_one_channel";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "genepix_one_channel";
+//                this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {

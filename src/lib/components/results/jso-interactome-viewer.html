@@ -8,16 +8,10 @@
 
             jso-network-viewer {
                 height: 800px;
+                border: 1px solid #d3d3d3;
 
-                border-color: rgb(217, 217, 217);
-                border-style: solid;
-                border-width: 1px;
             }
 
-            /*TODO temporal fix*/
-            jso-network-viewer::shadow jso-nv-layout {
-                height: calc(100% - 96px);
-            }
 
 
         </style>
@@ -46,9 +40,10 @@
                 id="viewer"
                 lite="true"
                 ></jso-network-viewer>
-        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
-            <font-awesome icon="arrows"></font-awesome>
-        </label>
+            <label>Legend: nodes from your list are rounded and coloured in dark grey, whereas the external nodes added as intermediate are squares with light grey color.</label>
+            <br>
+            <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode<font-awesome icon="arrows"></font-awesome></label>
+
     </template>
     <script>
         Polymer({

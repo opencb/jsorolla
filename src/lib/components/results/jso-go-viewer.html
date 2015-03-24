@@ -42,7 +42,8 @@
                 id="networkViewer"
                 lite="true"
                 ></jso-network-viewer>
-        <label>Colored nodes represent significant results: red for GOs overrepresented and blue for GOs underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs</label>
+        <label>Legend: Colored nodes represent significant results: red for GOs overrepresented and blue for GOs underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs</label>
+        <br>
         <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
             <font-awesome icon="arrows"></font-awesome>
         </label>
@@ -69,7 +70,7 @@
                 this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute, false, false);
                 this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute, false, true);
             },
-            setContent: function (sifContent, attrContent, attr2Content) {
+            setContent: function (sifContent, attrContent) {
                 var me = this;
                 new TextNetworkDataAdapter({
                     dataSource: new StringDataSource(sifContent),

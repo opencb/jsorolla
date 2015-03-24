@@ -11,7 +11,7 @@
 
 
 <polymer-element name="jso-project-browser"
-                 attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
+                 attributes="userData selectedProject selectedStudy selectedFolder studies selectionMode bioformat">
     <template>
         <style>
             :host {
@@ -237,11 +237,21 @@
                 this.bioformatText = ""
 
                 this.showInfo = true;
+
             },
             bioformatChanged: function (oldV, newV) {
                 this.bioformatText = this.bioformat.replace(/_/g, '>');
             },
             ready: function () {
+                var me = this;
+
+                var observer = new MutationObserver(function (mutations) {
+                    var arr = me.shadowRoot.querySelectorAll("jso-project-browser-folder-list");
+                    for (var i = 0; i < arr.length; i++) {
+                        arr[i].shadowRoot.querySelector("core-list").updateSize();
+                    }
+                }.bind(this));
+                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
             },
             attached: function (oldValue, newValue) {
                 if (this.studies) {
@@ -249,9 +259,9 @@
                 }
             },
             studiesChanged: function (oldValue, newValue) {
-                if (this.selectedStudy.id !== this.studies[0].id) {
+//                if (this.selectedStudy.id !== this.studies[0].id) {
                     this.selectStudy(this.studies[0]);
-                }
+//                }
             },
             handleStudyClick: function (e) {
                 this.selectStudy(e.target.study);
@@ -262,8 +272,9 @@
             },
             getFilesInStudyFolder: function (studyId) {
                 var studyFolder = this._getStudyFolder(studyId);
-                this.selectedFile = studyFolder;
-                this.fire('file-select', {file: this.selectedFile});
+
+//                this.selectedFile = studyFolder;
+//                this.fire('file-select', {file: this.selectedFile});
 
                 this.breadcrums = [this.selectedStudy.name];
                 this._cleanAllFolderLists();
@@ -274,6 +285,25 @@
 
                 this.$.foldersMain.appendChild(folderListElement);
                 this.$.foldersMain.scrollLeft = this.$.foldersMain.scrollWidth;
+
+                /** Select folder **/
+                
+                if(this.selectedFolder !== undefined){
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+                        if (file.name == this.selectedFolder) {
+                            this.selectedFile = file;
+                            break;
+                        }
+                    }
+                    var e = {
+                        detail: {
+                            file: this.selectedFile
+                        }
+                    };
+                    this.selectFileInFolder(e);
+                }
+
             },
             _getStudyFolder: function (studyId) {
                 var me = this;
@@ -618,7 +648,7 @@
             </div>
         </div>
         <div class="list">
-            <core-list data="{{files}}" height="27" style="height:100%;">
+            <core-list id="coreList" data="{{files}}" height="27" style="height:100%;">
                 <template>
                     <jso-opencga-file-card selected?="{{selectedFile.id == model.id }}"
                                            on-click="{{handleFileClick}}"
@@ -652,9 +682,11 @@
                 this.hideCreateFolder = true;
                 this.hideUploadFile = true;
                 this.bioformat = "";
+
+
+
             },
             handleFileClick: function (e) {
-                
                 if (this.selectedFile == null || e.target.file.id != this.selectedFile.id) {
                     this.fire('file-click', {file: e.target.file});
                 }
@@ -692,7 +724,6 @@
                 });
 
                 if (folderId != null) {
-
                     OpencgaManager.files.index({
                         id: fileId,
                         query: {
@@ -810,6 +841,7 @@
                                 });
                                 me.fire('file-click', {file: me.files[0]});
                                 me.selectedFile = me.files[0];
+
                             } else {
                                 console.log(response.response[0].errorMsg);
                             }
@@ -825,7 +857,6 @@
                     return b.creationDate.localeCompare(a.creationDate);
                 });
                 var filesFiltered = [];
-
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
                     if (file.status != "DELETED" && file.status != "DELETING" && file.name.charAt(0) !== ".") {

@@ -205,14 +205,22 @@
             },
             bioformatChanged: function () {
                 var radios = this.shadowRoot.querySelectorAll('input[name="bioformat"]');
+                var bioformatsArray = this.bioformat.split(",");
+
+                /** disable all **/
+                for (var i = 0; i < radios.length; i++) {
+                    radios[i].disabled = true;
+                }
+                /** enable corrects **/
                 for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
-                    if (this.bioformat.indexOf(radio.value) >= 0 || this.bioformat == "NONE") {
-                        console.log(radio.value)
-                        radio.disabled = false;
-                    }
-                    else {
-                        radio.disabled = true;
+                    for (var j = 0; j < bioformatsArray.length; j++) {
+                        var bioformat = bioformatsArray[j];
+                        if (bioformat == radio.value) {
+                            radio.disabled = false;
+                            if (bioformatsArray.length == 1)
+                                radio.checked = true;
+                        }
                     }
                 }
             },

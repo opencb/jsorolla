@@ -127,7 +127,6 @@
                 var me = this;
                 e.stopPropagation();
                 if (confirm('Delete this job?')) {
-
                     OpencgaManager.jobs.delete({
                         id: this.jobItem.id,
                         query: {

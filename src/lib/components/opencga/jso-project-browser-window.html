@@ -1,9 +1,9 @@
 <polymer-element name="jso-project-browser-window"
-                 attributes="userData selectedProject selectedStudy studies selectionMode bioformat allowTextArea networkViewer">
+                 attributes="userData selectedProject selectedStudy selectedFolder studies selectionMode bioformat allowTextArea networkViewer">
     <template>
         <style>
             :host {
-                position:relative;
+                position: relative;
             }
 
             .labelSelection {
@@ -64,19 +64,21 @@
                 <div id="selection" style="line-height: 25px;" class="labelSelection"> {{selectedStudy.name}}/{{selectedFile.path}}</div>
             </div>
             <template if="{{ showBrowser }}">
-                <br>
-                <jso-project-browser
-                        id="jsoProjectBrowser"
-                        studies="{{studies}}"
-                        selectedProject="{{selectedProject}}"
-                        selectedStudy="{{selectedStudy}}"
-                        selectionMode="{{selectionMode}}"
-                        on-ok="{{selectHandler}}"
-                        bioformat="{{bioformat}}"
-                        on-cancel="{{handleCancel}}"
+            <br>
+            <jso-project-browser hidden?="{{!showBrowser}}"
+                                 id="jsoProjectBrowser"
+                                 studies="{{studies}}"
+                                 selectedProject="{{selectedProject}}"
+                                 selectedStudy="{{selectedStudy}}"
+                                 selectedFolder="{{selectedFolder}}"
+                                 selectionMode="{{selectionMode}}"
+                                 on-ok="{{selectHandler}}"
+                                 bioformat="{{bioformat}}"
+                                 on-cancel="{{handleCancel}}"
+                                 on-file-select="{{handleFileSelect}}"
 
-                        >
-                </jso-project-browser>
+                    >
+            </jso-project-browser>
             </template>
         </template>
 
@@ -108,13 +110,19 @@
         Polymer({
             created: function () {
                 this.allowTextArea = false;
-
                 this.dataOrigin = 'server';
 
             },
             ready: function () {
                 this.showBrowser = false;
                 this.textAreaValue = "";
+                if(this.selectedFolder !== undefined) {
+//                    this.shadowRoot.querySelector("#jsoProjectBrowser").studiesChanged(null, null);
+                    this.selectedFile = {
+                        path: this.selectedFolder,
+                        id: this.selectedFolder
+                    };
+                }
                 //this.bioformat = "";
             },
             buttonHandler: function () {
@@ -134,6 +142,13 @@
                 this.dataOrigin = e.target.value;
                 this.textAreaValue = "";
             }
+//            handleFileSelect: function (e) {
+//                if (this.selectedFolder !== undefined && this.selectedFolder == e.detail.file.name) {
+//                    this.selectedFile = e.detail.file;
+//                }
+//
+//            }
+
         });
     </script>
 </polymer-element>
