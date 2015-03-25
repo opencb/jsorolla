@@ -43,7 +43,7 @@
         <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
             <div flex>
                 Network Miner
-                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Functional%20Gene%20Set%20Network%20Enrichment">
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Gene%20Set%20Network%20Enrichment%20(Network%20Miner)?">
                     <font-awesome icon="question-circle"></font-awesome>
                 </a>
             </div>
@@ -55,28 +55,42 @@
         <form id="form">
             <div class="formbox">
                 <div class="formtitle">Examples</div>
-                <div class="formcontent">
+                <div class="formcontent" horizontal layout>
                     <!--<div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>-->
-                    <div class="button action" on-click="{{loadExample1}}" style="display:inline-block">Essential genes in cancer cell line K562
+                    <div vertical layout>
+                        <div horizontal layout >
+                            <div class="button action" on-click="{{loadExample1}}" style="width: 340px">Essential genes in cancer cell line K562
+                            </div>
+                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="K562.txt">
+                                <font-awesome icon="download"></font-awesome>
+                            </div>
+                        </div>
+                        <div horizontal layout style="margin-top:5px">
+                            <div class="button action" on-click="{{loadExample2}}" style="width: 340px">Essential genes in cancer cell line
+                                JURKAT
+                            </div>
+                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="JURKAT.txt">
+                                <font-awesome icon="download"></font-awesome>
+                            </div>
+                        </div>
                     </div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="K562.txt" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
-                    </div>
-                    <br>
+                    <div vertical layout>
+                        <div style="margin-left:5px" horizontal layout>
 
-                    <div class="button action" on-click="{{loadExample2}}" style="display:inline-block;margin-top:5px;">Essential genes in cancer cell line
-                        JURKAT
-                    </div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="JURKAT.txt" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
-                    </div>
-                    <br>
+                            <div class="button action" on-click="{{loadExample4}}" style="width: 340px">Genes Down-regulated in Fanconi Anemia
+                            </div>
+                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="FA-differentialExpression-statistic.txt">
+                                <font-awesome icon="download"></font-awesome>
+                            </div>
+                        </div>
+                        <div style="margin-top:5px;margin-left:5px" horizontal layout>
 
-                    <div class="button action" on-click="{{loadExample4}}" style="display:inline-block;margin-top:5px;">Genes Down-regulated in Fanconi Anemia
-                    </div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="FA-differentialExpression-statistic.txt"
-                         style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+                            <div class="button action" on-click="{{loadExample5}}" style="width: 340px">Genome-Wide Association Study in Bipolar Disorder
+                            </div>
+                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="example.zip">
+                                <font-awesome icon="download"></font-awesome>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -155,17 +169,6 @@
                     </div>
                 </div>
             </div>
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Select interactome confidence</div>-->
-            <!--<div class="formcontent">-->
-            <!--<select name="group" id="group" class="fc-combobox" type="text" value="curated">-->
-            <!--<option name="group_1" id="group_1" class="fc-combobox-item" value="curated" selected="selected">Curated-->
-            <!--(detected by at least two methods)-->
-            <!--</option>-->
-            <!--<option name="group_2" id="group_2" class="fc-combobox-item" value="all">Non curated</option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
 
             <div class="formbox">
                 <div class="formtitle">Select interactome confidence</div>
@@ -181,18 +184,6 @@
                 </div>
             </div>
 
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Sort ranked list</div>-->
-            <!--<div class="formcontent">-->
-            <!--<select name="order" id="order" class="fc-combobox" type="text" value="ascending">-->
-            <!--<option name="order_1" id="order_1" class="fc-combobox-item" value="ascending" selected>-->
-            <!--Ascending-->
-            <!--(detected by at least two methods)-->
-            <!--</option>-->
-            <!--<option name="order_2" id="order_2" class="fc-combobox-item" value="descending">Descending</option>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
             <div class="formbox">
                 <div class="formtitle">Sort ranked list</div>
                 <div class="formcontent">
@@ -241,7 +232,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
@@ -372,6 +363,16 @@
                             }
                         },
                         error: function () {
+                            var lng = 0;
+                            if (query["seedlist-text"] !== undefined) {
+                                lng = query["seedlist-text"].split(",").length;
+                            }
+                            if (lng > 0) {
+                                alert("Sorry, too many inputs ids, the size is limited due to browser restrictions. \n " +
+                                "Please upload a file with your ids in order to run the analysis. ");
+                                return;
+
+                            }
                             me.message = 'Server error, try again later.';
                         }
                     }
@@ -388,8 +389,8 @@
                 this.$.group_2.checked = true;
                 this.$.intermediate_2.checked = true;
                 this.$.order_1.checked = true;
-                var exampleFolder = "nm_k562_symbol";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "nm_k562_symbol";
+//                this.createExampleFolder(exampleFolder);
 
             },
             loadExample2: function (e) {
@@ -403,8 +404,8 @@
                 this.$.group_2.checked = true;
                 this.$.intermediate_2.checked = true;
                 this.$.order_1.checked = true;
-                var exampleFolder = "nm_jurkat";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "nm_jurkat";
+//                this.createExampleFolder(exampleFolder);
 
             },
             loadExample3: function (e) {
@@ -421,8 +422,8 @@
                 this.$.group_1.checked = true;
                 this.$.intermediate_2.checked = true;
                 this.$.order_1.checked = true;
-                var exampleFolder = "nm_fanconi_up";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "nm_fanconi_up";
+//                this.createExampleFolder(exampleFolder);
 
             },
             loadExample4: function (e) {
@@ -439,8 +440,32 @@
                 this.$.group_1.checked = true;
                 this.$.intermediate_2.checked = true;
                 this.$.order_2.checked = true;
-                var exampleFolder = "nm_fanconi_down";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "nm_fanconi_down";
+//                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample5: function (e) {
+
+                this.jobName = "Genome-Wide Association Study in Bipolar Disorder";
+                this.description = "Genotypic data comes from the Wellcome Trust Case Control Consortium. GWAS was performed using the basic association test of Plink toolset. Here, genes were ranked acording the adjusted p-value (BD-GWASplink.txt). Moreover, genes previously associated with Bipolar Disorder obtained from Uniprot database are used as seed genes (BD-associatedgenesUniprot.txt).";
+                this.$.inputFile.selectedFile = {
+                    id: "example_BD-GWASplink_top.txt",
+                    path: "BD-GWASplink_top.txt",
+                    type: "FILE"
+                };
+                this.$.seedList.selectedFile = {
+                    id: "example_BD-associatedgenesUniprot.txt",
+                    path: "BD-associatedgenesUniprot.txt",
+                    type: "FILE"
+                };
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_2.checked = true;
+
+                this.$.intermediate_2.checked = true;
+                this.$.order_1.checked = true;
+//                var exampleFolder = "nm_gwas";
+//                this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {

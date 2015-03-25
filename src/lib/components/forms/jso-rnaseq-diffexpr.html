@@ -41,7 +41,7 @@
         </style>
         <div class="tooltitle">
             <div>
-                RNA differential expression
+                RNA-Seq differential expression
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Differential%20Expression%20for%20RNA-Seq">
                     <font-awesome icon="question-circle"></font-awesome>
                 </a>
@@ -135,7 +135,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
@@ -284,13 +284,13 @@
                 this.$.inputFile.selectedFile = {id: "example_expression.txt", path: "expression.txt", type: "FILE"};
 //                this.$.edFile.selectedFile = {id: "example_lalm_rnaseq_ed.txt", path: "lalm_rnaseq_ed.txt", type: "FILE"};
                 this.$.none.checked = true;
-                var exampleFolder = "rna_diffexp";
+//                var exampleFolder = "rna_diffexp";
 
                 Utils.loadExampleFile(function (response) {
                     me.contentFile = response;
                 }, this.toolName, this.$.inputFile.selectedFile.path)
 
-                this.createExampleFolder(exampleFolder);
+//                this.createExampleFolder(exampleFolder);
 
 
             },

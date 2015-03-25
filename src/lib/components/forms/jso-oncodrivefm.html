@@ -114,7 +114,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder"
+                                                selectionMode="folder" selectedFolder="analysis"
                                                 showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}"
                                                    required>
@@ -192,8 +192,8 @@
 //                this.$.gver.value = "hg19"
                 this.$.gt.value = "5"
                 this.$.estimator.value = "median"
-                var exampleFolder = "tcga_brca_example"
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "tcga_brca_example"
+//                this.createExampleFolder(exampleFolder);
             },
             createExampleFolder: function (exampleFolder) {
                 var me = this;

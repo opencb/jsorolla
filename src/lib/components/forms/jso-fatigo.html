@@ -432,7 +432,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <br>
                     <label>Job name</label>
                     <input type="text" id="jobName" value="{{jobName}}" required>
@@ -658,6 +658,20 @@
                             }
                         },
                         error: function () {
+                            var lng1, lng2 = 0;
+                            if (query["list1-text"] !== undefined){
+                                lng1 = query["list1-text"].split(",").length;
+                            }
+                            if (query["list2-text"] !== undefined){
+                                lng2 = query["list2-text"].split(",").length;
+                            }
+                            var lng = lng1 + lng2;
+                            if(lng > 0){
+                                alert("Sorry, too many inputs ids, the size is limited due to browser restrictions. \n " +
+                                "Please upload a file with your ids in order to run the analysis. ");
+                                return;
+
+                            }
                             me.message = 'Server error, try again later.';
                         }
                     }
@@ -683,8 +697,8 @@
                 this.go_bp_max_num_genes = 500;
                 this.go_bp_min_level = 3;
 
-                var exampleFolder = "fati_motor_apop";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "fati_motor_apop";
+//                this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {

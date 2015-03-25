@@ -103,7 +103,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
@@ -191,8 +191,8 @@
                 this.$.chooseMan.checked = true;
                 this.chooseClicked();
                 this.$.tmm.checked = true;
-                var exampleFolder = "rna_norm";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "rna_norm";
+//                this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {

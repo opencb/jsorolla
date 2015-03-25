@@ -114,7 +114,7 @@
                 <div class="formcontent">
                     <label>Output folder</label>
                     <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
                     <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label>Description</label>
                     <textarea value="{{description}}" required></textarea>
@@ -193,8 +193,8 @@
                 this.$.ba_normalization.value = "quantiles";
                 this.$.inputFile.selectedFile = {id: "example_agilent_one_color_expression.zip", path: "agilent_one_color_expression.zip", type: "FILE"};
                 this.compressed_file_tags = "microarray,expression,one-channel,agilent";
-                var exampleFolder = "agilent_one_channel";
-                this.createExampleFolder(exampleFolder);
+//                var exampleFolder = "agilent_one_channel";
+//                this.createExampleFolder(exampleFolder);
 
             },
             createExampleFolder: function (exampleFolder) {

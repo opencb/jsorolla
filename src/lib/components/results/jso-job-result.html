@@ -429,6 +429,7 @@
             _renderValue: function (element) {
                 var me = this;
                 var res = document.createElement("div");
+                console.log(element.type)
                 switch (element.type) {
                     case "TEXT":
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
@@ -1036,9 +1037,7 @@
 
                                 this.getFileContent(function (sifContent) {
                                     me.getFileContent(function (attrContent) {
-                                        me.getFileContent(function (attr2Content) {
-                                            goViewer.setContent(sifContent, attrContent, attr2Content);
-                                        }, fileNames[0]);
+                                        goViewer.setContent(sifContent, attrContent);
                                     }, fileNames[1]);
                                 }, fileNames[0]);
 
