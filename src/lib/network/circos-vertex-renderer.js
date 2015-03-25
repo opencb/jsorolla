@@ -368,9 +368,9 @@ CircosVertexRenderer.prototype = {
         }
     },
     adjustShapeToText: function () {
-        this._textWidthBySize(this.labelText, this.labelSize);
-        this.width = this._textWidthBySize(this.labelText, this.labelSize) * 1.3;
-        this.height = this.labelSize * 1.3;
+        
+        this.width = this._textWidthBySize(this.labelText, this.labelSize) + this.labelSize * 2;
+        this.height = this.labelSize * 1.1;
         this.update();
         this.updateEdgeCoords();
     },

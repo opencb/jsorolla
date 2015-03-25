@@ -59,9 +59,16 @@
             ready: function () {
             },
             domReady: function () {
+
                 this.$.networkViewer.$.nodeRender.setAttribute('hidden', '');
                 this.$.networkViewer.$.edgeRender.setAttribute('hidden', '');
 
+                this.$.networkViewer.setVertexDefaultDisplayProperty("labelSize", 16);
+                this.$.networkViewer.setVertexDefaultDisplayProperty("shape", "rectangle");
+                this.$.networkViewer.adjustShapeToText();
+//                var parentGo = this.$.networkViewer.graph.getVertexById("GO:0008150");
+//                this.$.networkViewer.center.x = this.position;
+//                NETWORK_VIEWER = this.$.networkViewer
 //                this.$.networkViewer.selectVerticesByAttribute("id", "all");
 //                this.$.networkViewer.setLayout("Force directed");
 
@@ -112,6 +119,8 @@
 
                 //attributeName, displayProperty
                 nodeRender.applyDirect("color", "color");
+
+                this.$.networkViewer.adjustShapeToText();
             },
             handleSaveSessionToCellMaps: function (e) {
                 var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.networkViewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
