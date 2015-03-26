@@ -134,16 +134,16 @@ var Utils = {
     basicValidationForm: function (scope) {
         var validated = true;
         var msg = "";
-        if (scope.$.outdir.selectedFile === undefined || scope.$.outdir.selectedFile.type != "FOLDER") {
-            msg += "Error: Please select an output folder.\n";
+        if (scope.$.outdir.selectedFile === undefined) {
+            msg += "Please select an output folder.\n";
             validated = false;
         }
         if (scope.$.inputFile.selectedFile === undefined || scope.$.inputFile.selectedFile.type != "FILE") {
-            msg += "Error: Please select an input file.\n";
+            msg += "Please select an input file.\n";
             validated = false;
         }
         if (scope.$.jobName.value == "") {
-            msg += "Error: Please add a job name.\n";
+            msg += "Please add a job name.\n";
             validated = false;
         }
         if (!validated) {

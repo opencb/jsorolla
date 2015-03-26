@@ -88,7 +88,10 @@
             },
             handleForm: function (e) {
                 this.message = '';
-
+                if(!this.$.user.checkValidity()){
+                    alert("Sorry, your User Id contains characters not permitted. Only letters and numbers are valid.");
+                    return;
+                }
                 if (this.$.form.checkValidity()) {
                     if (this.password === this.check) {
                         this._signup();
@@ -120,7 +123,6 @@
                                 me.login()
 
                             } else {
-                                debugger
                                 me.message = response.response[0].errorMsg;
                                 //Delete cookies
                                 Cookies.expire('bioinfo_sid');

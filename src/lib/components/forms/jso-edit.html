@@ -81,7 +81,13 @@
             </div>
         </div>
 
-        <template if="{{onOk}}">
+        <div hidden?="{{!loading}}">
+            <div class="loading">
+                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                Loading dataset...
+            </div>
+        </div>
+        <div hidden?="{{!onOk}}">
             <div class="formbox">
                 <div class="formtitle">Edit attributes</div>
                 <div class="formcontent fit">
@@ -93,7 +99,7 @@
                 <div class="button action" on-click="{{handleSave}}">Save attributes</div>
                 <div class="button action" on-click="{{resetChanges}}">Reset changes</div>
             </div>
-        </template>
+        </div>
     </template>
     <script>
         Polymer({
@@ -101,6 +107,7 @@
                 this.messageSave = "";
                 this.onOk = false;
                 this.toolName = "edit";
+                this.loading = false;
 
             },
             argsChanged: function () {
@@ -120,6 +127,8 @@
                         //method: 'POST',
                         success: function (response) {
                             me.contentFile = response;
+                            me.loading = false;
+                            me.onOk = true;
                         },
                         error: function () {
                             var message = 'Server error, try again later.';
@@ -133,7 +142,8 @@
 //            },
             handleBrowseSelect: function (e) {
                 if (this.$.inputFile.selectedFile.type == "FILE") {
-                    this.onOk = true;
+                    this.onOk = false;
+                    this.loading = true;
                     this.getContentFile();
                 }
             },

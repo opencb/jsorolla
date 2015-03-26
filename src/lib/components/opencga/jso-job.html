@@ -103,7 +103,7 @@
                 return Utils.parseDate(this.jobItem.date);
             },
             computeStatus: function () {
-                if(this.jobItem.status === "DONE"){
+                if(this.jobItem.status === "PROCESSING_OUTPUT"){
                     return "Finishing";
                 }
                 return this.jobItem.status.toLowerCase();

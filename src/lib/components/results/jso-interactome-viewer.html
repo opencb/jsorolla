@@ -13,7 +13,6 @@
             }
 
 
-
         </style>
         <template if="{{jobResult.networkViewer}}">
             <div horizontal layout>
@@ -40,9 +39,15 @@
                 id="viewer"
                 lite="true"
                 ></jso-network-viewer>
-            <label>Legend: nodes from your list are rounded and coloured in dark grey, whereas the external nodes added as intermediate are squares with light grey color.</label>
-            <br>
-            <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode<font-awesome icon="arrows"></font-awesome></label>
+        <label>Legend: nodes from your list are rounded and coloured in dark grey, whereas the external nodes added as intermediate are squares with light grey color.
+            <template if="{{seedListExists}}">
+            Nodes in ellipse shape are from the seed list.
+            </template>
+        </label>
+        <br>
+        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+            <font-awesome icon="arrows"></font-awesome>
+        </label>
 
     </template>
     <script>
@@ -51,6 +56,7 @@
                 this.sessionName = "";
                 this.saveMessage = "";
                 this.saveMessageOk = false;
+                this.seedListExists = false;
             },
             domReady: function () {
                 this.$.viewer.$.nodeRender.setAttribute('hidden', '');
@@ -59,6 +65,7 @@
             contentChanged: function () {
                 var me = this;
                 this.intermediates = this.intermediates.split("|");
+                this.seedList = this.seedList.split("|");
                 var adapter = new SIFNetworkDataAdapter({
                     dataSource: new StringDataSource(this.content),
                     handlers: {
@@ -73,13 +80,53 @@
                             for (var i = 0; i < me.intermediates.length; i++) {
                                 var intermediate = me.intermediates[i];
                                 var vertex = me.$.viewer.graph.getVertexById(intermediate);
-
+                                if(vertex == null)
+                                    continue;
                                 vertex.renderer.set("shape", "square");
-                                vertex.renderer.set("size", 20);
+                                vertex.renderer.set("width", 20);
                                 vertex.renderer.set("color", "#eaeaea");
 
                             }
+                            for (var i = 0; i < me.seedList.length; i++) {
+                                var seed = me.seedList[i];
+                                var vertex = me.$.viewer.graph.getVertexById(seed);
+                                if(vertex == null)
+                                    continue;
+                                me.seedListExists = true;
+                                vertex.renderer.set("shape", "ellipse");
+                                vertex.renderer.set("width", 30);
+                                vertex.renderer.set("height", 20);
+                                vertex.renderer.set("color", "#c0c0c0");
+
+                            }
+                            var file = "";
+                            for (var i = 0; i < me.filesList.length; i++) {
+                                file = me.filesList[i];
+                                if (file.name.indexOf("interactors") > 0)
+                                    break;
+                            }
+                            if(file != ""){
+                                Utils.getFileContent(function (attrContent) {
+                                    new AttributeNetworkDataAdapter({
+//                                ignoreColumns: ?,
+                                        dataSource: new StringDataSource(attrContent),
+                                        handlers: {
+                                            'data:load': function (event) {
+                                                var attributeManager1 = event.attributeManager;
+                                                me.$.viewer.importVertexAttributeManager(attributeManager1);
+
+                                            },
+                                            'error:parse': function (event) {
+                                                me.message = event.errorMsg;
+                                            }
+                                        }
+                                    });
+                                }, file.id);
+
+                            }
+
 //                            me.$.output.querySelector("#" + divId).appendChild(networkViewer);
+
                         },
                         'error:parse': function (event) {
                             console.log("ERRORRRR");

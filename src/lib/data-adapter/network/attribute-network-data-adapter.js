@@ -123,6 +123,9 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
             if (i == 0) {
                 finalColumnNames[i] = "id";
             }
+            else if (finalColumnNames[i] == "id") {
+                finalColumnNames[i] = "Column" + i + "_id";
+            }
             if (this.ignoreColumns[i] !== true) {
                 this.attributeManager.addColumn({
                     "name": finalColumnNames[i],
