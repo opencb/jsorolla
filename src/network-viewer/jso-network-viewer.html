@@ -639,24 +639,30 @@
             loadJSON: function (o) {
                 this.startOver();
 
-                //Version fix  selectionColor
+                /** Version fixes **/
+                //Added selectionColor
                 if (o.vertexDefaults.selectionColor == null) {
                     o.vertexDefaults.selectionColor = this.vertexDefaults.selectionColor;
                 }
-                //Version Fix filters
+                //Added filters
                 if (o.vertexDefaults.filters == null) {
                     o.vertexDefaults.filters = this.vertexDefaults.filters;
                 }
                 if (o.edgeDefaults.filters == null) {
                     o.edgeDefaults.filters = this.edgeDefaults.filters;
                 }
-                //version fix size is now width and height
+                //Removed size, now is width and height
                 if (o.vertexDefaults.width == null) {
                     o.vertexDefaults.width = this.vertexDefaults.width;
                 }
                 if (o.vertexDefaults.height == null) {
                     o.vertexDefaults.height = this.vertexDefaults.height;
                 }
+                if (o.vertexVisualSets.size != null) {
+                    o.vertexVisualSets.width = o.vertexVisualSets.size;
+                    delete o.vertexVisualSets.size;
+                }
+                /** END Version fixes **/
 
                 this.backgroundImages = o.backgroundImages;
                 this.backgroundColor = o.backgroundColor;

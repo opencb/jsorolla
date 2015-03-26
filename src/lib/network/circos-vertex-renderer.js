@@ -93,7 +93,6 @@ CircosVertexRenderer.prototype = {
     },
     set: function (attr, value, update) {
         this[attr] = value;
-
         if (this._checkListProperties()) {
             this.complex = true;
             this.update();
@@ -175,19 +174,19 @@ CircosVertexRenderer.prototype = {
             }
         }
         if (Array.isArray(this.strokeSize)) {
-            if (minPieLength == 0 || minPieLength == 1) {
-                minPieLength = this.strokeSize.length;
+            if (minDonutLength == 0 || minDonutLength == 1) {
+                minDonutLength = this.strokeSize.length;
             }
-            if (this.strokeSize.length != 1 && this.strokeSize.length < minPieLength) {
-                minPieLength = this.strokeSize.length;
+            if (this.strokeSize.length != 1 && this.strokeSize.length < minDonutLength) {
+                minDonutLength = this.strokeSize.length;
             }
         }
         if (Array.isArray(this.strokeArea)) {
-            if (minPieLength == 0 || minPieLength == 1) {
-                minPieLength = this.strokeArea.length;
+            if (minDonutLength == 0 || minDonutLength == 1) {
+                minDonutLength = this.strokeArea.length;
             }
-            if (this.strokeArea.length != 1 && this.strokeArea.length < minPieLength) {
-                minPieLength = this.strokeArea.length;
+            if (this.strokeArea.length != 1 && this.strokeArea.length < minDonutLength) {
+                minDonutLength = this.strokeArea.length;
             }
         }
         this.pieSlices = [];
@@ -355,16 +354,20 @@ CircosVertexRenderer.prototype = {
     },
     getWidth: function () {
         if (this.complex) {
-            return this.maxPieSize + (this.maxDonutSize * 3);
+            return this.maxPieSize + (this.maxDonutSize * 2);
         } else {
             return this.width + (this.strokeSize * 3);
         }
     },
     getHeight: function () {
         if (this.complex) {
-            return this.maxPieSize + (this.maxDonutSize * 3);
+            return this.maxPieSize + (this.maxDonutSize * 2);
         } else {
-            return this.height + (this.strokeSize * 3);
+            if (this.shape == 'circle' || this.shape == 'square') {
+                return this.width + (this.strokeSize * 3);
+            } else {
+                return this.height + (this.strokeSize * 3);
+            }
         }
     },
     adjustShapeToText: function () {
