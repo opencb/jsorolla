@@ -13,30 +13,33 @@
                 user-select: none;
             }
         </style>
-        <svg id="svg"
-             _on-wheel="{{handleWheel}}"
-             _on-mousedown="{{mouseDownHandler}}"
-             _on-mouseup="{{mouseUpHandler}}"
-             _on-contextmenu="{{mouseContextMenuHandler}}"
-             width="100%" height="100%">
-            <rect id="backgroundColor" width="100%" height="100%" _fill="{{backgroundColor}}" x="0" y="0"></rect>
-            <svg id="drawArea">
-                <svg id="backSvg" x="0" y="0">
-                    <g id="scaleBackGroup" _transform="translate({{tx}},{{ty}}) scale({{scale}})"></g>
-                </svg>
-                <svg id="frontSvg" x="0" y="0">
-                    <line id="linkHelp" x1="0" y1="0" x2="0" y2="0" stroke="slategray" opacity="1" stroke-width="2"
-                          cursor="pointer"></line>
-                    <rect id="selectHelp" x="0" y="0" width="0" height="0" stroke-width="2" stroke="#ff6500"
-                          opacity="0.5"
-                          fill="#fff0e7"></rect>
+        <div id="svgDiv" style="height:100%;width:100%;">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 id="svg"
+                 _on-wheel="{{handleWheel}}"
+                 _on-mousedown="{{mouseDownHandler}}"
+                 _on-mouseup="{{mouseUpHandler}}"
+                 _on-contextmenu="{{mouseContextMenuHandler}}"
+                 width="100%" height="100%">
+                <rect id="backgroundColor" width="100%" height="100%" _fill="{{backgroundColor}}" x="0" y="0"></rect>
+                <svg id="drawArea">
+                    <svg id="backSvg" x="0" y="0">
+                        <g id="scaleBackGroup" _transform="translate({{tx}},{{ty}}) scale({{scale}})"></g>
+                    </svg>
+                    <svg id="frontSvg" x="0" y="0">
+                        <line id="linkHelp" x1="0" y1="0" x2="0" y2="0" stroke="slategray" opacity="1" stroke-width="2"
+                              cursor="pointer"></line>
+                        <rect id="selectHelp" x="0" y="0" width="0" height="0" stroke-width="2" stroke="#ff6500"
+                              opacity="0.5"
+                              fill="#fff0e7"></rect>
 
-                    <g id="scaleFrontGroup" font-family="Ubuntu Mono"
-                       _transform="translate({{tx}},{{ty}}) scale({{scale}})">
-                    </g>
+                        <g id="scaleFrontGroup" font-family="Ubuntu Mono"
+                           _transform="translate({{tx}},{{ty}}) scale({{scale}})">
+                        </g>
+                    </svg>
                 </svg>
             </svg>
-        </svg>
+        </div>
     </template>
     <script>
         Polymer({

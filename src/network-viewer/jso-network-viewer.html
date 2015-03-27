@@ -1083,7 +1083,8 @@
                 link.dispatchEvent(event);
             },
             handleExportSvgMenu: function (e) {
-                var svg = new XMLSerializer().serializeToString(this.$.networkLayout.$.svg);
+//                var svg = new XMLSerializer().serializeToString(this.$.networkLayout.$.svg);
+                var svg = this.$.networkLayout.$.svgDiv.innerHTML.trim();
                 var blob = new Blob([svg], {type: "image/svg+xml"});
                 var url = URL.createObjectURL(blob);
 
