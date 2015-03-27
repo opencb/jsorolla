@@ -24,7 +24,9 @@
 
                 </sortable-table>
 
-                <div id="heatMap" style="height: 600px; overflow-y: auto"></div>
+                <h3 hidden?="{{!largeDataset}}">HeatMap</h3>
+                <div hidden?="{{!largeDataset}}"> Dataset too large to be displayed</div>
+                <div hidden?="{{largeDataset}}" id="heatMap" style="height: 600px; overflow-y: auto"></div>
 
                 <h3>Network viewer</h3>
 
@@ -109,9 +111,14 @@
                 this.sendTopVsBottomSeaArgs = [];
                 this.sendTopVsBottomNeaArgs = [];
 
+                /** variable that contemplates the vizutalitation for the dataset**/
+                this.largeDataset = false;
+
             },
             contentDatasetChanged: function () {
                 var data = this.content.split("\n");
+
+
 //                var data = this.contentDataset.split("\n");
                 var nodes = [];
                 for (var i = 0; i < data.length; i++) {
@@ -136,7 +143,7 @@
                                 this.bottomNumber++;
                             nodes.push(localData[0]);
 
-                            var localArray = new Array();
+                            var localArray = [];
 
                             localArray.push(localData[0].toString());
                             for (var z = 1; z < localData.length; z++) {
@@ -157,7 +164,11 @@
 
             },
             dataChanged: function () {
-                this.heatMapData();
+                if(this.data.length > 4000){
+                    this.largeDataset = true;
+                }
+                else
+                    this.heatMapData();
 
             },
             getFiles: function () {
@@ -243,59 +254,7 @@
                 }
 
             },
-//            sendTop: function () {
-//
-//                var args = {
-//                    inputFile: this.topListFile,
-//                    comparisonRadio: "list2genome",
-//                    duplicates: "never",
-//                    fisher: "greater"
-//                };
-//                this.fire("redirection", {
-//                    tool: "fatigo",
-//                    args: args
-//                });
-//            },
-//            sendBottom: function () {
-//
-//                var args = {
-//                    inputFile: this.bottomListFile,
-//                    comparisonRadio: "list2genome",
-//                    duplicates: "never",
-//                    fisher: "greater"
-//                };
-//                this.fire("redirection", {
-//                    tool: "fatigo",
-//                    args: args
-//                });
-//            },
-//            sendTopVsBottom: function () {
-//
-//                var args = {
-//                    inputFile: this.topListFile,
-//                    inputFile2: this.bottomListFile,
-//                    comparisonRadio: "list2list",
-//                    duplicates: "never",
-//                    fisher: "two-tailed"
-//                };
-//                this.fire("redirection", {
-//                    tool: "fatigo",
-//                    args: args
-//                });
-//            },
-//            sendClustering: function () {
-//
-//                var args = {
-//                    inputFile: this.significativeFile,
-//                    distance: "square",
-//                    method: "upgma",
-//                    gene_clustering: ""
-//                };
-//                this.fire("redirection", {
-//                    tool: "clustering",
-//                    args: args
-//                });
-//            },
+
             heatMapData: function () {
                 var cols = [];
                 var data = [];
@@ -366,6 +325,7 @@
                 if (width < 500) {
                     width = 500;
                 }
+
                 var heatMap = new Highcharts.Chart({
                     chart: {
                         renderTo: this.shadowRoot.querySelector("#heatMap"),
@@ -378,7 +338,7 @@
                         width: width
                     },
                     title: {
-                        text: 'Heat Map'
+                        text: 'HeatMap '
                     },
 
                     xAxis: {
@@ -424,7 +384,7 @@
                     },
                     tooltip: {
                         formatter: function () {
-                            return  '<b>Row:</b> ' + this.series.yAxis.categories[this.point.y] + '<br><b>' +
+                            return '<b>Row:</b> ' + this.series.yAxis.categories[this.point.y] + '<br><b>' +
                                     '<b>Column:</b> ' + this.series.xAxis.categories[this.point.x] + '<br><b>' +
                                     '<b>Value:</b> ' + this.point.value + '<b>';
                         }

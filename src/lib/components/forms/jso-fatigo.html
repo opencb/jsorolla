@@ -508,7 +508,9 @@
                     this.$.fisher.disabled = false;
 
                     this.$.species.disabled = false;
-                    this.$.your_annotations.disabled = false;
+                    this.$.your_annotations_div.hidden = false;
+
+//                    this.$.your_annotations.disabled = false;
 //                    this.$.annotationsFile.disabled = false;
 
                 }
@@ -521,9 +523,10 @@
 
                     this.$.species.disabled = false;
 
+                    this.$.your_annotations_div.hidden = true;
 //                    this.$.your_annotations.disabled = true;
-                    this.$.your_annotations.disabled = false;
-//                    this.$.annotationsFile.disabled = true;
+////                    this.$.your_annotations.disabled = false;
+//                    this.$.annotationsFile.hidden = true;
 
 
                 }
@@ -534,9 +537,10 @@
                     this.$.option3.hidden = false;
 
                     this.$.species.disabled = true;
+                    this.$.your_annotations_div.hidden = false;
 
 
-                    this.$.your_annotations.disabled = false;
+//                    this.$.your_annotations.disabled = false;
 //                    this.$.annotationsFile.disabled = false;
                 }
             },

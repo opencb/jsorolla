@@ -60,7 +60,7 @@
                 </div>
             </template>
             <div horizontal layout>
-                <div class="button action" style="width:150px;" on-click="{{buttonHandler}}">File browser</div>
+                <div id="fileBrowserButton" class="button action" style="width:150px;" on-click="{{buttonHandler}}">File browser</div>
                 <div id="selection" style="line-height: 25px;" class="labelSelection"> {{selectedStudy.name}}/{{selectedFile.path}}</div>
             </div>
             <template if="{{ showBrowser }}">

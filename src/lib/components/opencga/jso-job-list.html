@@ -1,5 +1,5 @@
 <link rel="import" href="jso-job.html">
-<polymer-element name="jso-job-list" attributes="showJobs selectedOption jobItem selectedStudy allowedTools">
+<polymer-element name="jso-job-list" on-deleting="{{handlerDeleting}}" attributes="showJobs selectedOption jobItem selectedStudy allowedTools">
     <template>
         <style>
             :host {
@@ -86,7 +86,7 @@
                                     columns="{{columns}}"
                                     pageSize="{{pageSize}}">
                         <template id="jobTemplate">
-                            <jso-job jobItem="{{row}}"></jso-job>
+                            <jso-job on-deleting="{{handlerDeleting}}" jobItem="{{row}}"></jso-job>
                         </template>
                     </sortable-table>
                     <div class="customPagerScroll"
@@ -118,6 +118,7 @@
                     cellTemplate: 'jobTemplate'
                 }];
 
+
             },
             ready: function () {
                 var me = this;
@@ -130,6 +131,33 @@
                 this.table = this.$.table;
 //                this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
             },
+            handlerDeleting: function (e) {
+                var me = this;
+                var jobItem = e.detail.jobItem;
+                OpencgaManager.jobs.delete({
+                    id: jobItem.id,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                //Deleted succesfully
+                                me.getJobs();
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+//
+//
+//            },
             detached: function () {
                 clearInterval(this.interval);
                 this.interval = null;
