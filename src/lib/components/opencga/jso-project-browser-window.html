@@ -16,7 +16,7 @@
                 font-size: 13px;
             }
             .close {
-                color: red;
+                color: grey;
             }
 
             .close:hover {
@@ -72,7 +72,7 @@
                 <div id="selection" class="labelSelection text">
                     {{selectedStudy.name}}/{{selectedFile.path}}
                     <template if="{{selectedFile != null}}">
-                        <font-awesome class="close" style="margin-left: 8px" on-click="{{handleClose}}" icon="times"></font-awesome>
+                        <font-awesome class="close" style="margin-left: 8px" on-click="{{handleClose}}" icon="times" ></font-awesome>
                     </template>
                     </div>
                 </div>
