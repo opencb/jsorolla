@@ -19,14 +19,6 @@
 
             }
 
-            .close {
-                color: #aaa;
-            }
-
-            .close:hover {
-                color: #ffad76;
-            }
-
             .message {
                 margin-top: 20px;
             }
@@ -174,11 +166,11 @@
                 <div class="formtitle">Select interactome confidence</div>
                 <div id="groupDiv" class="formcontent" vertical layout>
                     <label class="control">
-                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
+                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all">
                         <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
                     </label>
                     <label class="control">
-                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated">
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
                         <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
                     </label>
                 </div>
