@@ -15,6 +15,14 @@
                 height: 500px;
                 font-size: 13px;
             }
+            .close {
+                color: red;
+            }
+
+            .close:hover {
+                color: indianred;
+                cursor: pointer;
+            }
 
         </style>
         <link rel="stylesheet" href="../jso-style.css">
@@ -61,7 +69,14 @@
             </template>
             <div horizontal layout>
                 <div id="fileBrowserButton" class="button action" style="width:150px;" on-click="{{buttonHandler}}">File browser</div>
-                <div id="selection" style="line-height: 25px;" class="labelSelection"> {{selectedStudy.name}}/{{selectedFile.path}}</div>
+                <div id="selection" class="labelSelection text">
+                    {{selectedStudy.name}}/{{selectedFile.path}}
+                    <template if="{{selectedFile != null}}">
+                        <font-awesome class="close" style="margin-left: 8px" on-click="{{handleClose}}" icon="times"></font-awesome>
+                    </template>
+                    </div>
+                </div>
+
             </div>
             <template if="{{ showBrowser }}">
             <br>
@@ -134,8 +149,13 @@
                 this.showBrowser = false;
                 this.selectedFile = e.detail.file;
             },
-            handleCancel: function (e) {
+            handleClose: function (e) {
+                this.fire("close");
                 this.selectedFile = undefined;
+                this.showBrowser = false;
+            },
+            handleCancel: function (e) {
+//                this.selectedFile = undefined;
                 this.showBrowser = false;
             },
             handleOriginChange: function (e) {

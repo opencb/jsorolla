@@ -76,7 +76,9 @@
                         selectedStudy="{{selectedStudy}}"
                         selectionMode="file" ,
                         bioformat="DATAMATRIX_EXPRESSION"
-                        on-ok="{{handleBrowseSelect}}">
+                        on-ok="{{handleBrowseSelect}}"
+                        on-close="{{handleClose}}">
+
                 </jso-project-browser-window>
             </div>
         </div>
@@ -116,6 +118,10 @@
                     this.handleBrowseSelect()
                 }
             },
+            handleClose: function () {
+                this.onOk = false;
+                this.loading = false;
+            },
             getContentFile: function () {
                 var me = this;
                 OpencgaManager.files.content({
@@ -148,10 +154,10 @@
                 }
             },
             handleSave: function () {
-                this.messageSave = "Saving..."
+                this.messageSave = "Saving...";
                 var strHeader = this.shadowRoot.querySelector('#classEdit').parseTable();
                 if (strHeader == "error") {
-                    this.messageSave = ""
+                    this.messageSave = "";
                     alert("Sorry, you have empty fields. Please fill them.")
                     return;
                 }

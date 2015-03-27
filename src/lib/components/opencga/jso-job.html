@@ -128,7 +128,7 @@
             handleDeleteJob: function (e) {
                 var me = this;
                 e.stopPropagation();
-                if (confirm('Delete this job? (It takes a few seconds...)')) {
+                if (confirm('Delete this job? (It takes some seconds...)')) {
                     me.fire("deleting",{jobItem:this.jobItem})
                 }
 
