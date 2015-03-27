@@ -10,7 +10,7 @@
                 margin-left: 10px;
             }
 
-            jso-project-browser {
+            .project-browser-class {
                 border: 1px solid #d3d3d3;
                 height: 500px;
                 font-size: 13px;
@@ -80,7 +80,7 @@
             </div>
             <template if="{{ showBrowser }}">
             <br>
-            <jso-project-browser hidden?="{{!showBrowser}}"
+            <jso-project-browser class="project-browser-class" hidden?="{{!showBrowser}}"
                                  id="jsoProjectBrowser"
                                  studies="{{studies}}"
                                  selectedProject="{{selectedProject}}"

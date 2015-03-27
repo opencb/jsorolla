@@ -3,20 +3,17 @@
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
 
-            jso-network-viewer {
-                height: 800px;
-                border: 1px solid #d3d3d3;
-            }
 
-            sortable-table {
+            .sortable-table-class {
                 border: 1px solid #d3d3d3;
+                width: 1000px;
             }
         </style>
 
         <template if="{{!loading && data.length>0}}">
             <div class="file"><label>Significative table</label>
                 <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
-                <sortable-table id="diffexpr-table"
+                <sortable-table class="sortable-table-class" id="diffexpr-table"
                                 data="{{data}}"
                                 columns="{{columns}}"
                                 footerTemplate="{{footerTemplate}}"
@@ -26,7 +23,7 @@
 
                 <h3 hidden?="{{!largeDataset}}">HeatMap</h3>
                 <div hidden?="{{!largeDataset}}"> Dataset too large to be displayed</div>
-                <div hidden?="{{largeDataset}}" id="heatMap" style="height: 600px; overflow-y: auto"></div>
+                <div hidden?="{{largeDataset}}" id="heatMap" style="height: 600px;width: 1000px; overflow-y: auto;margin-top: 10px; border: 1px solid #d3d3d3;"></div>
 
                 <h3>Network viewer</h3>
 
