@@ -472,5 +472,5 @@ IndexedDBTest = function () {
     idb.put("os-b", "key-b", "value-b");
 };
 
-IndexedDBTest();
+//IndexedDBTest();
 //debugger

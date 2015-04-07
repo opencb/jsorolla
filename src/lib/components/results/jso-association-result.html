@@ -57,14 +57,29 @@
 
 
         <div>
+
             <h3>Manhattan plot</h3>
-            <img src="{{manhattanPlot}}">
 
             <div class="file"><label>File</label>
-                <a href="{{topHitsUrl}}" target="_blank">top_hits.txt</a>
+                <a href="{{manhattanPlot}}" download="manhattan_plot.png">manhattan_plot.png</a>
             </div>
-            <jso-generic-table selected="{{selected}}" id="topHitsTable"></jso-generic-table>
+            <img src="{{manhattanPlot}}">
+
+            <div id="topHitsDiv" hidden?="{{!topHitsResult}}">
+                <h3>Top Hits</h3>
+
+                <div class="file"><label>File</label>
+                    <a href="{{topHitsUrl}}" target="_blank">top_hits.txt</a>
+                </div>
+                <jso-generic-table selected="{{selected}}" id="topHitsTable"></jso-generic-table>
+            </div>
+            <h3 hidden?="{{topHitsResult}}">Top Hits</h3>
+
+            <div hidden?="{{topHitsResult}}">
+                <label>There is no <strong>top hit</strong> results.</label>
+            </div>
             <jso-genome-viewer-element id="genomeViewer"></jso-genome-viewer-element>
+            <h3>Files</h3>
 
         </div>
     </template>
@@ -72,9 +87,10 @@
         Polymer({
 //            selected: null,
             created: function () {
+
                 this.dataFile = "none";
                 this.glFile = "none";
-
+                this.topHitsResult = false;
 
             },
             ready: function () {
@@ -84,7 +100,7 @@
 
             },
             selectedChanged: function (oldValue, newValue) {
-                console.log(newValue);
+//                console.log(newValue);
                 var reg = newValue["CHR"] + ":" + parseInt(newValue["BP"]) + "-" + (parseInt(newValue["BP"]) + 1);
                 var region = new Region(reg);
                 this.$.genomeViewer.genomeViewer.setRegion(region);
@@ -95,27 +111,13 @@
             },
             parseCommandLine: function () {
                 this.clearFields();
-//                var fields = this.jobItem.commandLine.split(" ");
-//                for (var i = 0; i < fields.length; i++) {
-//                    if (fields[i] == "--glfile") {
-//                        var fileName = fields[i + 1].split("/");
-//                        this.glFile = fileName[fileName.length - 1];
-//                    }
-//                    if (fields[i] == "--datafile") {
-//                        var fileName = fields[i + 1].split("/");
-//                        this.dataFile = fileName[fileName.length - 1];
-//                    }
-////                    if (fields[i] == "--method") {
-////                        this.method = fields[i + 1];
-////                    }
-//                }
-
             },
             clearFields: function () {
                 this.manhattanPlot = "";
                 this.method = "";
                 this.glFile = "";
             },
+
             filesChanged: function (oldV, newV) {
                 this.parseCommandLine();
                 /** get url **/
@@ -131,24 +133,14 @@
                     if (file.name == "top_hits.df") {
                         me.topHitsUrl = Utils.getUrl(file.id);
                         Utils.getFileContent(function (content) {
-                            var splits = content.split("\n");
-
-                            var columns = splits[0].split("\t");
-                            var data = [];
-                            for (var j = 1; j < splits.length; j++) {
-                                var row = splits[j];
-                                data.push(row.split("\t"))
-                            }
-//                            me.$.topHitsTable.columns = columns;
-//                            me.$.topHitsTable.data = data;
-
-                            me.$.topHitsTable.content = content;
-                            me.$.topHitsTable.multiSelect = false;
+                            me.topHitsTableContent = content;
+                            me.topHitsResult = true;
+                            var topHitsTable = me.$.topHitsTable;
+                            topHitsTable.content = content;
+                            topHitsTable.multiSelect = false;
 
                         }, file.id);
                     }
-
-
                 }
             }
         })

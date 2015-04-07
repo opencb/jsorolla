@@ -1004,7 +1004,7 @@
                             res.appendChild(button);
 
                         }
-                        if (element.name.indexOf("plink.assoc") >= 0) {
+                        if (element.name.indexOf("plink.assoc") >= 0 || element.name.indexOf("plink.tdt") >= 0) {
                             /** Plink file is too big, we should bring a header or something like this **/
                             var association = document.createElement('jso-association-result');
                             association.files = this.filesList;
