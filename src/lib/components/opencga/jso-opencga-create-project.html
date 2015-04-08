@@ -1,0 +1,82 @@
+<polymer-element name="jso-opencga-create-project">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding-left: 30px;
+                padding-top: 10px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                margin-top: 30px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+        </style>
+
+        <form id="form" vertical layout>
+            <label>Name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
+            <label>Alias</label> <input type="text" id="alias" value="{{alias}}" required pattern="[a-zA-Z0-9]+">
+            <label>Description</label> <input type="text" id="description" value="{{description}}" required
+                                              pattern="[a-zA-Z0-9\s]+">
+            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required
+                                               pattern="[a-zA-Z0-9\s]+">
+
+            <div class="button action" on-click="{{handleForm}}">Create</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.name = '';
+                this.alias = '';
+                this.description = '';
+                this.organization = '';
+
+                this.message = '';
+            },
+            handleForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.$.form.checkValidity()) {
+                    OpencgaManager.projects.create({
+                        query: {
+                            userId: Cookies('bioinfo_user'),
+                            sid: Cookies('bioinfo_sid'),
+                            name: this.name,
+                            alias: this.alias,
+                            description: this.description,
+                            organization: this.organization
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.message = 'Project created sucessfully.';
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                alert('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</polymer-element>

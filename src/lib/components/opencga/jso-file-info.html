@@ -1,0 +1,156 @@
+<polymer-element name="jso-file-info" attributes="file">
+    <template>
+        <style>
+            :host {
+                display: block;
+                box-sizing: border-box;
+                font-size: 13px;
+                /*border: 1px solid #d3d3d3;*/
+                /*background-color: #FFF;*/
+                /*height: 170px;*/
+            }
+
+            /*}*/
+            /*:host{*/
+            /*margin: 10px;*/
+            /*}*/
+            jso-biotype {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+                height: 170px;
+            }
+
+            .item_info > label {
+                margin-left: 5px;
+                width: 80px;
+                font-weight: bold;
+            }
+
+            .item_info > span {
+                margin-left: 5px;
+                /*width: 180px;*/
+
+            }
+
+            .edit {
+                margin-left: 5px;
+                cursor: pointer;
+            }
+
+            .edit:hover {
+                color: #8b0000;
+            }
+
+            jso-bioformat {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+                height: 170px;
+                margin-left: 5px;
+                margin-right: 10px;
+                /*margin-top: 5px;*/
+            }
+        </style>
+
+        <template if="{{file != null && file.name != '.'}}">
+            <div style="margin-left: 5px;margin-top: 5px; font-weight: bold;">
+                <font-awesome icon="{{iconMap[file.type]}}"></font-awesome>
+                File info
+            </div>
+            <div class="item_info" flex vertical layout>
+                <label>Name:</label><span>{{file.name}}</span>
+            </div>
+            <!--<div class="item_info" flex vertical layout>-->
+                <!--<label>Format:</label><span>{{file.format}}</span>-->
+            <!--</div>-->
+
+            <!--<div class="item_info" flex vertical layout>-->
+                <!--<label>Type:</label><span>{{file.type}}</span>-->
+            <!--</div>-->
+            <div class="item_info" vertical layout>
+                <label>Bioformat:
+                    <template if="{{file.type=='FILE'}}">
+                        <font-awesome class="edit" icon="pencil" on-click="{{handleShowBioformat}}"></font-awesome>
+                    </template>
+                </label>
+                <span style="width: 180px">{{bioformatText}}</span>
+            </div>
+            <template if="{{showBioformat}}">
+                <div id="showBioformat">
+
+                    <jso-bioformat id="uploadBioformat"></jso-bioformat>
+                    <!--<div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleModifyBioformat}}">Modify-->
+                    <!--</div>-->
+                </div>
+                <div horizontal layout end-justified>
+                    <div class="button action" style="width: 100px;margin-left: 10px;margin-right: 10px" on-click="{{handleModifyBioformat}}">Modify
+                    </div>
+                </div>
+                <!--<div id="message">{{message}}</div>-->
+            </template>
+        </template>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.message = "";
+                this.showBioformat = false;
+                this.iconMap = {
+                    FILE: 'file-o',
+                    FOLDER: 'folder',
+                    INDEX: 'file'
+                }
+            },
+            fileChanged: function (oldV, newV) {
+                if (this.file !== undefined && this.file.bioformat !== undefined)
+                    this.bioformatText = this.getPrettyBioformat(this.file.bioformat);
+            },
+            getPrettyBioformat: function (text) {
+                return text.replace(/_/g, '>');
+            },
+            handleShowBioformat: function () {
+                this.showBioformat = !this.showBioformat;
+            },
+            handleModifyBioformat: function (e) {
+                var bioformat = this.shadowRoot.querySelector("#uploadBioformat").getSelected();
+                if (bioformat == "") {
+                    alert("No bioformat selected. Please select a bioformat");
+                    return;
+                }
+                var me = this;
+                OpencgaManager.files.modify({
+                    id: this.file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        bioformat: bioformat
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.message = "Bioformat changed";
+                                me.file.bioformat = bioformat;
+                                me.bioformatText = me.getPrettyBioformat(me.file.bioformat);
+                                me.showBioformat = !me
+                                        .showBioformat;
+
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            }
+
+
+        });
+    </script>
+</polymer-element>

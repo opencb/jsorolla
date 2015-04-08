@@ -6,6 +6,11 @@
  * To change this template use File | Settings | File Templates.
  */
 
+/**
+ * MemoryStore is a cache with items ordered with "least recently used" criterion (LRU). This allows to remove old data with the "shift" method.
+ * The parameter "category" should be a string, and it is used as another level of classification.
+ * "get", "getAll" and "foreach" methods can be used with callbacks or with return values.
+ */
 function MemoryStore(args) {
 
     // Using Underscore 'extend' function to extend and add Backbone Events
@@ -17,31 +22,29 @@ function MemoryStore(args) {
     // Now we set the args parameters
     _.extend(this, args);
 
-    // internal parameters
-    this.size = 0;
-    this.store = {};
+    this.init();
 };
 
 MemoryStore.prototype = {
-    put: function (key, value) {
-        if (typeof this.store === 'undefined') {
-            this.store = {};
+    put: function (category, key, value) {
+        if (typeof this.stores[category] === 'undefined') {
+            this.init(category);
         }
         var item = {key: key, value: value};
 
         // a item can be overwritten
-        this.store[key] = item;
+        this.stores[category][key] = item;
 
-        if (this.tail) {
-            this.tail.newer = item;
-            item.older = this.tail;
+        if (this.tails[category]) {
+            this.tails[category].newer = item;
+            item.older = this.tails[category];
         } else {
             // the item is the first one
-            this.head = item;
+            this.heads[category] = item;
         }
 
         // add new item to the end of the linked list, it's now the freshest item.
-        this.tail = item;
+        this.tails[category] = item;
 
 //        if (this.size === this.limit) {
 //            // we hit the limit, remove the head
@@ -50,39 +53,53 @@ MemoryStore.prototype = {
 //            // increase the size counter
 //            this.size++;
 //        }
-        this.size++;
+        this.sizes[category]++;
 
     },
-    putAll: function (keyArray, valueArray) {
+    putAll: function (category, keyArray, valueArray) {
         for (var i = 0; i < keyArray.length; i++) {
-            this.put(keyArray[i], valueArray[i]);
+            this.put(category, keyArray[i], valueArray[i]);
         }
     },
 
-    shift: function () {
+    shift: function (category) {
+        if (typeof this.stores[category] === 'undefined') {
+            this.init(category);
+        }
         // todo: handle special case when limit == 1
-        var item = this.head;
+        var item = this.heads[category];
         if (item) {
-            if (this.head.newer) {
-                this.head = this.head.newer;
-                this.head.older = undefined;
+            if (this.heads[category].newer) {
+                this.heads[category] = this.heads[category].newer;
+                this.heads[category].older = undefined;
             } else {
-                this.head = undefined;
+                this.heads[category] = undefined;
             }
             // Remove last strong reference to <item> and remove links from the purged
             // item being returned:
             item.newer = item.older = undefined;
             // delete is slow, but we need to do this to avoid uncontrollable growth:
-            delete this.store[item.key];
+            delete this.stores[category][item.key];
         }
     },
-    get : function(key, callback) {
+    get : function(category, key, callback) {
+        if (typeof this.stores[category] === 'undefined') {
+            this.init(category);
+        }
         // First, find our cache item
-        var item = this.store[key];
-        if (item === undefined) return; // Not cached. Sorry.
+        var item = this.stores[category][key];
+        if (item === undefined) {
+            if (callback) {
+                callback();
+            }
+            return; // Not cached. Sorry.
+        }
         // As <key> was found in the cache, register it as being requested recently
-        if (item === this.tail) {
+        if (item === this.tails[category]) {
             // Already the most recenlty used item, so no need to update the list
+            if (callback) {
+                callback(item.value);
+            }
             return item.value;
         }
         // HEAD--------------TAIL
@@ -90,8 +107,8 @@ MemoryStore.prototype = {
         //  <--- add direction --
         //   A  B  C  <D>  E
         if (item.newer) {
-            if (item === this.head){
-                this.head = item.newer;
+            if (item === this.heads[category]){
+                this.heads[category] = item.newer;
             }
             item.newer.older = item.older; // C <-- E.
         }
@@ -99,38 +116,45 @@ MemoryStore.prototype = {
             item.older.newer = item.newer; // C. --> E
         }
         item.newer = undefined; // D --x
-        item.older = this.tail; // D. --> E
-        if (this.tail)
-            this.tail.newer = item; // E. <-- D
-        this.tail = item;
+        item.older = this.tails[category]; // D. --> E
+        if (this.tails[category])
+            this.tails[category].newer = item; // E. <-- D
+        this.tails[category] = item;
         if (callback) {
             callback(item.value);
         }
         return item.value;
     },
 
-    getAll: function (keyArray, callback) {
+    getAll: function (category, keyArray, callback) {
         var valueArray = [];
         for (var i = 0; i < keyArray.length; i++) {
-            valueArray[i] = this.get(keyArray[i]);
+            valueArray[i] = this.get(category, keyArray[i]);
         }
         callback(valueArray);
     },
 
-    foreach: function (keyArray, callback) {
+    foreach: function (category, keyArray, callback) {
         for (var i = 0; i < keyArray.length; i++) {
-            callback(this.get(keyArray[i]), keyArray[i]);
+            callback(this.get(category, keyArray[i]), keyArray[i]);
         }
     },
 
-    init: function () {
-        this.size = 0;
-        this.store = {};
-        this.head = undefined;
-        this.tail = undefined;
+    init: function (category) {
+        if (category != undefined) {
+            this.sizes[category] = 0;
+            this.stores[category] = {};
+            this.heads[category] = undefined;
+            this.tails[category] = undefined;
+        } else {
+            this.sizes = {};
+            this.stores = {};
+            this.heads = {};
+            this.tails = {};
+        }
     },
     clear: function () {
-        this.store = null;
+        this.stores = null; // TODO delete?
         this.init();
     }
 

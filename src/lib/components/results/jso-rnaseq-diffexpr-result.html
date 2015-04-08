@@ -1,0 +1,503 @@
+<polymer-element name="jso-rnaseq-diffexpr-result" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                /*position: relative;*/
+                background-color: white;
+            }
+
+            .data {
+                margin-left: 20px;
+            }
+
+            .level-0 {
+                /*border: 1px solid grey;*/
+                padding: 20px;
+
+            }
+
+            .level-0 > .headerTitle {
+                font-size: 15pt;
+                font-weight: bold;
+                padding: 5px;
+            }
+
+            .message > label {
+                margin-right: 10px;
+            }
+
+            .message > label:after {
+                content: ':';
+            }
+
+            .message > .messageValue {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+                line-height: 21px;
+
+            }
+
+            .file > label {
+                margin-right: 10px;
+            }
+
+            .file > a {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            sortable-table::shadow thead tr th {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            .output {
+                margin: 10px;
+                /*width: 1000px;*/
+                background-color: white;
+                border-radius: 5px;
+                padding: 20px;
+            }
+
+            .loading {
+                font-size: 20px;
+                margin: 20px 50px;
+            }
+
+        </style>
+        <template if="{{loading}}">
+            <div class="loading">
+                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                Loading result...
+            </div>
+        </template>
+        <template if="{{!loading}}">
+            <div id="output" class="output">
+                <h1> RNASeq Differential expression</h1>
+
+                <div>
+                    <jso-job-info-widget jobItem="{{jobItem}}"></jso-job-info-widget>
+
+                    <div class="level-0">
+                        <div class="headerTitle">Input parameters</div>
+                        <div class="data">
+                            <div class="message" horizontal="" layout="">
+                                <label>Data file</label>
+
+                                <div class="messageValue">{{dataFile}}</div>
+                            </div>
+                            <template if="{{method != ''}}">
+                                <div class="message" horizontal="" layout="">
+                                    <label>Method</label>
+
+                                    <div class="messageValue">{{method}}</div>
+                                </div>
+                            </template>
+                            <div class="message" horizontal="" layout="">
+                                <label>Multiple-test correction</label>
+
+                                <div class="messageValue">{{pvmet}}</div>
+                            </div>
+                            <div class="message" horizontal="" layout="">
+                                <label>P value</label>
+
+                                <div class="messageValue">{{pval}}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="level-0">
+                        <template if="{{error}}">
+                            <div class="headerTitle">No results</div>
+                            <div class="data">
+                                This is maybe due to incorrect input. For more info about proper inputs, refer to the
+                                <a href="https://github.com/babelomics/babelomics/wiki/data-matrix-expression" target="_blank">documentation</a>.
+                                You can also download the example file.
+                                <br>
+                                For detailed information you can download the log file:
+                                <div class="file"><label>Log output file:</label>
+                                    <a href="{{logOutputFile}}" target="_blank">log_output.txt</a>
+                                </div>
+                                <div class="file"><label>Log error file:</label>
+                                    <a href="{{logErrorFile}}" target="_blank">log_error.txt</a>
+                                </div>
+                                If error persist, please contact babelomics crew at babelomics@cipf.es
+                            </div>
+                        </template>
+
+                        <template if="{{!error}}">
+                            <div class="headerTitle">Significative results</div>
+                            <div class="data">
+
+                                <h3>Voom graphics</h3>
+                                <img src="{{voom_MDS}}">
+                                <img src="{{voom_mean_var}}">
+
+                                <template if="{{significative}}">
+                                    <h3>Significative file</h3>
+
+                                    <div class="file"><label>File</label>
+                                        <a href="{{fileUrl}}" target="_blank">diffexp_Sig_results.txt</a>
+                                    </div>
+
+                                    <template if="{{loadingTable}}">
+                                        <div>
+                                            <font-awesome icon="spinner" animation="spin"></font-awesome>
+                                            Loading table...
+                                        </div>
+                                    </template>
+
+                                    <sortable-table id="diffexp_Sig_results"
+                                                    data="{{data}}"
+                                                    columns="{{columns}}"
+                                                    footerTemplate="{{footerTemplate}}"
+                                                    pageSize="{{pageSize}}"
+                                                    flex>
+                                    </sortable-table>
+
+                                    <h3>HeatMap</h3>
+                                    <img src="{{diffexp_heatmap}}">
+
+                                    <h3>Network viewer</h3>
+                                    <jso-protein-viewer id="proteinViewer"></jso-protein-viewer>
+
+                                    <h3>Continue processing</h3>
+
+                                    <div style="margin-left: 20px">
+                                        <h4>Single enrichment analysis</h4>
+                                        <jso-redirection titleRed="Top list vs Genome" fileName="diffexp_toplist_results.txt"
+                                                         fileUrl="{{diffexp_toplist_results_url}}"
+                                                         buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_toplist_results_sea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                                         fileUrl="{{diffexp_bottomlist_results_url}}"
+                                                         buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_bottomlist_results_sea_args}}" id="">
+
+                                        </jso-redirection>
+                                        <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                                         buttonLabel="Send to Single enrichment" buttonWidth="200px"
+                                                         args="{{toplist_vs_bottomlist_sea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Gene set enrichment analysis</h4>
+                                        <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                                         fileUrl="{{diffexp_t_results_url}}"
+                                                         buttonLabel="Send to Gene set enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_t_results_gsea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Network enrichment analysis</h4>
+                                        <jso-redirection titleRed="Top list vs Interactome" fileName="diffexp_toplist_results.txt"
+                                                         fileUrl="{{diffexp_toplist_results_url}}"
+                                                         buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_toplist_results_nea_args}}" id="">
+
+                                        </jso-redirection>
+                                        <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                                         fileUrl="{{diffexp_bottomlist_results_url}}"
+                                                         buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                                         args="{{diffexp_bottomlist_results_nea_args}}" id="">
+
+                                        </jso-redirection>
+                                        <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                                         buttonLabel="Send to Network enrichment" buttonWidth="200px"
+                                                         args="{{toplist_vs_bottomlist_nea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Gene set network enrichment analysis</h4>
+                                        <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                                         fileUrl="{{diffexp_t_results_url}}"
+                                                         buttonLabel="Send to Gene set network enrichment" buttonWidth="300px"
+                                                         args="{{diffexp_t_results_gsnea_args}}" id="">
+
+                                        </jso-redirection>
+
+                                        <h4>Clustering</h4>
+                                        <jso-redirection titleRed="Significative data results"
+                                                         fileName="diffexp_sigData_results.txt"
+                                                         fileUrl="{{diffexp_sigData_results_url}}"
+                                                         buttonLabel="Send to Clustering" buttonWidth="200px"
+                                                         args="{{diffexp_sigData_results_args}}" id="">
+
+                                        </jso-redirection>
+                                    </div>
+                                </template>
+                                <template if="{{!significative}}">
+                                    <h3>No significative results</h3>
+                                    There is no significative results, but you can download all the results:
+                                    <div class="file"><label>File</label>
+                                        <a href="{{diffexp_results_url}}">diffexp_All_results.txt</a>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.loading = true;
+                this.error = true;
+                this.significative = true;
+
+                this.columns = [];
+                this.data = [];
+                this.dataFile = "none";
+                this.glFile = "none";
+                this.method = "";
+                this.toplist_vs_bottomlist_sea_args = {};
+                this.toplist_vs_bottomlist_nea_args = {};
+
+                this.nodes = [];
+                this.loadingTable = true;
+            },
+            parseCommandLine: function () {
+                this.clearFields();
+                var fields = this.jobItem.commandLine.split(" ");
+                for (var i = 0; i < fields.length; i++) {
+
+                    if (fields[i] == "--datafile") {
+                        var fileName = fields[i + 1].split("/");
+                        this.dataFile = fileName[fileName.length - 1];
+                    }
+                    if (fields[i] == "--norm") {
+                        this.method = fields[i + 1];
+                    }
+                    if (fields[i] == "--pvmet") {
+                        this.pvmet = fields[i + 1];
+                    }
+                    if (fields[i] == "--pval") {
+                        this.pval = fields[i + 1];
+                    }
+                }
+
+            },
+            clearFields: function () {
+                this.dataFile = "";
+                this.method = "";
+                this.pvmet = "";
+                this.pval = "";
+            },
+            jobItemChanged: function (oldV, newV) {
+                this.parseCommandLine();
+                /** get url **/
+                var me = this;
+
+                OpencgaManager.files.filesByFolder({
+                    id: me.jobItem.outDirId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var fileList = response.response[0].result;
+                                for (var i = 0; i < fileList.length; i++) {
+                                    var fileName = fileList[i].name;
+                                    console.log(fileName)
+                                    if (fileName == "diffexp_Sig_results.txt") {
+                                        me.error = false;
+                                        me.fileUrl = Utils.getUrl(fileList[i].id);
+                                        Utils.getFileContent(function (content) {
+                                            me.parseTable(content);
+                                        }, fileList[i].id);
+                                    }
+
+                                    if (fileName == "diffexp_heatmap.png") {
+                                        me.diffexp_heatmap = Utils.getUrl(fileList[i].id);
+                                    }
+                                    if (fileName == "voom_MDS.png") {
+                                        me.voom_MDS = Utils.getUrl(fileList[i].id);
+                                    }
+                                    if (fileName == "voom_mean-var.png") {
+                                        me.voom_mean_var = Utils.getUrl(fileList[i].id);
+                                    }
+                                    if (fileName == "diffexp_All_results.txt") {
+                                        me.diffexp_results_url = Utils.getUrl(fileList[i].id);
+                                    }
+
+                                    if (fileName == "diffexp_toplist_results.txt") {
+                                        me.diffexp_toplist_results_url = Utils.getUrl(fileList[i].id);
+                                        me.diffexp_toplist_results_sea_args = {
+                                            tool: "fatigo",
+                                            comparisonRadio: "list2genome",
+                                            inputFile: fileList[i]
+                                        };
+                                        me.toplist_vs_bottomlist_sea_args["tool"] = "fatigo";
+                                        me.toplist_vs_bottomlist_sea_args["comparisonRadio"] = "list2list";
+                                        me.toplist_vs_bottomlist_sea_args["inputFile"] = fileList[i];
+
+                                        me.diffexp_toplist_results_nea_args = {
+                                            tool: "snow",
+                                            inputFile: fileList[i],
+                                            type: "genes"
+                                        };
+                                        me.toplist_vs_bottomlist_nea_args["tool"] = "snow";
+                                        me.toplist_vs_bottomlist_nea_args["inputFile"] = fileList[i];
+                                        me.toplist_vs_bottomlist_nea_args["mode"] = "two_list";
+                                        me.toplist_vs_bottomlist_nea_args["type"] = "genes";
+
+
+                                    }
+                                    if (fileName == "diffexp_bottomlist_results.txt") {
+                                        me.diffexp_bottomlist_results_url = Utils.getUrl(fileList[i].id);
+                                        me.diffexp_bottomlist_results_sea_args = {
+                                            tool: "fatigo",
+                                            comparisonRadio: "list2genome",
+                                            inputFile: fileList[i]
+                                        };
+                                        me.toplist_vs_bottomlist_sea_args["inputFile2"] = fileList[i];
+
+                                        me.diffexp_bottomlist_results_nea_args = {
+                                            tool: "snow",
+                                            inputFile: fileList[i],
+                                            type: "genes"
+                                        };
+                                        me.toplist_vs_bottomlist_nea_args["inputFile2"] = fileList[i];
+                                    }
+                                    if (fileName == "diffexp_sigData_results.txt") {
+                                        me.diffexp_sigData_results_url = Utils.getUrl(fileList[i].id);
+                                        me.diffexp_sigData_results_args = {
+                                            tool: "clustering",
+                                            inputFile: fileList[i]
+                                        };
+                                    }
+                                    if (fileName == "diffexp_t_results.txt") {
+                                        me.diffexp_t_results_url = Utils.getUrl(fileList[i].id);
+                                        me.diffexp_t_results_gsea_args = {
+                                            tool: "fatiscan",
+                                            inputFile: fileList[i]
+                                        };
+                                        me.diffexp_t_results_gsnea_args = {
+                                            tool: "network-miner",
+                                            inputFile: fileList[i]
+                                        };
+                                    }
+                                    if (fileName.indexOf("sge_out.job") >= 0) {
+                                        me.logOutputFile = Utils.getUrl(fileList[i].id);
+                                    }
+                                    if (fileName.indexOf("sge_err.job") >= 0) {
+                                        me.logErrorFile = Utils.getUrl(fileList[i].id);
+                                    }
+                                }
+                                me.loading = false;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            },
+//            getUrl: function (fileId) {
+//                return OpencgaManager.files.content({
+//                    id: fileId,
+//                    query: {
+//                        sid: Cookies("bioinfo_sid")
+//                    },
+//                    request: {
+//                        url: true
+//                    }
+//                });
+//            },
+            parseTable: function (content) {
+                this.data = [];
+                this.columns = [];
+                var data = content.split("\n");
+                /** get header **/
+                var processColumns = true;
+                var idxHeader = 0;
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    if (data[i].indexOf("#") == 0) {
+                        idxHeader = i;
+                        continue;
+                    }
+                    /** process columns **/
+                    if (processColumns) {
+                        processColumns = false;
+                        var aux = data[idxHeader].split("\t");
+                        for (var j = 0; j < aux.length; j++) {
+                            this.columns.push({name: aux[j]})
+                        }
+                    }
+                    var localData = data[i].split("\t");
+                    this.nodes.push(localData[0]);
+                    var obj = new Object();
+                    obj[this.columns[0]["name"]] = localData[0];
+                    obj[this.columns[1]["name"]] = Utils.formatNumber(localData[1]);//parseFloat(localData[1]).toFixed(3);
+                    obj[this.columns[2]["name"]] = Utils.formatNumber(localData[2]);//parseFloat(localData[2]).toExponential(2);
+                    obj[this.columns[3]["name"]] = Utils.formatNumber(localData[3]);//parseFloat(localData[3]).toExponential(2);
+//                    for (var j = 0; j < localData.length; j++) {
+//                        var value = localData[j];
+//                        if (isNaN(value))
+//                            obj[this.columns[j]["name"]] = value;
+//                        else {
+//                            if (!this.isInt(value))
+//                                obj[this.columns[j]["name"]] = parseFloat(value).toExponential(2)//parseFloat(value).toFixed(3);
+//                            else
+//                                obj[this.columns[j]["name"]] = parseInt(value);
+//                        }
+//                    }
+                    this.data.push(obj);
+                }
+
+                if(this.data.length>0)
+                    this.significative = true;
+                else
+                    this.significative = false;
+
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+                this.loadingTable = false;
+                var proteinViewer = this.shadowRoot.querySelector("#proteinViewer");
+                proteinViewer.nodes = this.nodes;
+                //this.$.proteinViewer.nodes = this.nodes;
+
+            },
+            isInt: function (n) {
+                return n % 1 === 0;
+            }
+
+//            getFileContent: function (callback, fileId) {
+//                OpencgaManager.files.content({
+//                    id: fileId,
+//                    query: {
+//                        sid: Cookies("bioinfo_sid")
+//                    },
+//                    request: {
+//                        success: function (response) {
+//                            callback(response)
+//                        },
+//                        error: function () {
+//                            this.message = 'Server error, try again later.';
+//                        }
+//                    }
+//                })
+//            }
+        })
+    </script>
+</polymer-element>
+
+

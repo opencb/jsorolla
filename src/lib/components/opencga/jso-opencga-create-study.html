@@ -1,0 +1,145 @@
+<polymer-element name="jso-opencga-create-study" attributes="projectList userData">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding-left: 30px;
+                padding-top: 10px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                margin-top: 30px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+        </style>
+
+
+        <form id="form" vertical layout>
+
+            <!--<label>Project</label>-->
+
+            <!--<div class="dropdown">-->
+                <!--<div tabindex="-1" class="button">-->
+                    <!--<jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>-->
+                <!--</div>-->
+                <!--<ul>-->
+                    <!--<template repeat="{{project in projectList}}">-->
+                        <!--<li>-->
+                            <!--<jso-opencga-project-item-->
+                                    <!--project="{{project}}"-->
+                                    <!--data-selected="{{selectedProject == project}}"-->
+                                    <!--on-mousedown="{{handleProjectClick}}">-->
+                            <!--</jso-opencga-project-item>-->
+                        <!--</li>-->
+                    <!--</template>-->
+                <!--</ul>-->
+            <!--</div>-->
+
+            <label>Name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
+            <label>Alias</label> <input type="text" id="alias" value="{{alias}}" required pattern="[a-zA-Z0-9]+">
+            <label>Type</label> <input type="text" id="type" value="{{type}}" required pattern="[a-zA-Z0-9]+">
+            <label>Description</label> <input type="text" id="description" value="{{description}}" required
+                                              pattern="[a-zA-Z0-9\s]+">
+            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required
+                                               pattern="[a-zA-Z0-9\s]+">
+
+            <div class="button action" on-click="{{handleForm}}">Create</div>
+
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.name = '';
+                this.alias = '';
+                this.description = '';
+                this.organization = '';
+                this.type = '';
+
+                this.selectedProject;
+
+
+                this.message = '';
+            },
+            ready: function(){
+                this.selectedProject = this.projectList[0]
+            },
+            handleProjectClick: function (e) {
+                this.selectedProject = e.target.project;
+            },
+            handleForm: function (e) {
+                var me = this;
+                this.message = '';
+                if (this.$.form.checkValidity()) {
+                    OpencgaManager.studies.create({
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            name: this.name,
+                            alias: this.alias,
+                            description: this.description,
+                            organization: this.organization,
+                            type: this.type,
+                            projectId: this.selectedProject.id
+
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.message = 'Study created sucessfully.';
+                                    var studyId = response.response[0].result[0].id;
+                                    me.createAnalysis(studyId);
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                alert('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+            },
+            createAnalysis: function (studyId) {
+                var me = this;
+                this.message = '';
+                OpencgaManager.analysis.create({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        name: "default",
+                        alias: "default",
+                        description: "default",
+                        studyId: studyId
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.message = 'Analysis created sucessfully.';
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>

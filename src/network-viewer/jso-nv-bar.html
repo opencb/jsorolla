@@ -1,0 +1,228 @@
+<polymer-element name="jso-nv-bar" attributes="columns lite">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                border-bottom: 1px solid #D9D9D9;
+
+                height: 30px;
+                padding: 4px 0;
+            }
+
+            #bar {
+                width: 860px;
+            }
+
+            div.dropdown > div.button::after {
+                content: '\f0d7';
+            }
+        </style>
+        <div id="bar" horizontal layout flex>
+            <div class="dropdown" style="margin-left: 10px">
+                <div tabindex="-1" id="fileButton" class="button" style="border-width:0;">
+                    File
+                </div>
+                <ul id="fileMenu" on-click="{{handleClick}}">
+                    <li hidden?="{{lite == 'true'}}" data-value="session-start">New session...</li>
+                    <li hidden?="{{lite == 'true'}}" data-value="session-save">Save session...</li>
+                    <li hidden?="{{lite == 'true'}}" data-value="session-open">Open session...</li>
+                    <li hidden?="{{lite == 'true'}}" data-value="session-manage">Manage sessions...</li>
+                    <li hidden?="{{lite == 'true'}}" data-divider></li>
+                    <li hidden?="{{lite == 'true'}}" data-sub>Import
+                        <ul>
+                            <li data-value="import-sif">Network from SIF...</li>
+                            <li data-value="import-xlsx">Network from XLSX...</li>
+                            <li data-value="import-text">Network from Text...</li>
+                            <li data-divider></li>
+                            <li data-value="import-node-attributes">Node attributes ...</li>
+                            <li data-value="import-edge-attributes">Edge attributes ...</li>
+                        </ul>
+                    </li>
+                    <li hidden?="{{lite == 'true'}}" data-divider></li>
+                    <li data-sub>Export
+                        <ul>
+                            <li data-value="export-sif">Network as SIF</li>
+                            <li data-divider></li>
+                            <li data-value="export-svg">Network as SVG</li>
+                            <!--<li data-value="export-png">Network as PNG</li>-->
+                            <li data-divider></li>
+                            <li data-value="export-node-attributes">Node attributes as file</li>
+                            <li data-value="export-edge-attributes">Edge attributes as file</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown" style="margin-left: 10px">
+                <div tabindex="-1" id="networkButton" class="button" style="border-width:0;">
+                    Network
+                </div>
+                <ul id="networkMenu" on-click="{{handleClick}}">
+                    <li data-value="network-edit">Edit network...</li>
+                    <li data-sub hidden?="{{lite == 'true'}}">Import network
+                        <ul>
+                            <li data-value="reactome">Reactome...</li>
+                            <li data-value="kegg">Kegg...</li>
+                            <li data-value="intact">Intact...</li>
+                        </ul>
+                    </li>
+                    <!--<li data-value="network-edit">Edit network...</li>-->
+                    <li data-sub>Select
+                        <ul>
+                            <li data-value="nodes-filter">Nodes by attributes...</li>
+                            <li data-value="edges-filter">Edges by attributes...</li>
+                            <li data-divider>
+                            <li data-value="nodes-select-all">All nodes</li>
+                            <li data-value="nodes-select-first-neighbourhood">First neighbourhood nodes</li>
+                            <li data-value="nodes-select-invert">Invert node selection</li>
+                            <li data-divider></li>
+                            <li data-value="edges-select-all">All edges</li>
+                            <li data-value="edges-select-adjacent">Adjacent edges</li>
+                            <li data-divider></li>
+                            <li data-value="network-select-all">Everything</li>
+                        </ul>
+                    </li>
+                    <li data-sub>Layout
+                        <ul>
+                            <li data-value="layout-force-directed" data-sub>Force directed
+                                <!--<li data-value="layout-force-directed">Force directed-->
+                                <ul>
+                                    <li data-value="layout-force-directed">Default</li>
+                                    <li data-value="layout-configure-force-directed">Configure...</li>
+                                </ul>
+                            </li>
+                            <li hidden data-value="layout-tree">Tree</li>
+                            <li data-value="layout-circle" data-sub>Circle
+                                <ul id="circleAttributesMenu">
+                                    <li data-value="layout-circle" data-subvalue="{{column.name}}">Unsorted</li>
+                                    <li data-divider></li>
+                                    <template repeat="{{column in columns}}">
+                                        <li data-value="layout-circle" data-subvalue="{{column.name}}">
+                                            {{column.title}}
+                                        </li>
+                                    </template>
+                                </ul>
+                            </li>
+                            <li data-value="layout-random">Random</li>
+                            <!--<li data-value="layout-attribute">Attribute layout...</li>-->
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown" style="margin-left: 10px">
+                <div tabindex="-1" id="attributesButton" class="button" style="border-width:0;">
+                    Attributes
+                </div>
+                <ul id="attributesMenu" on-click="{{handleClick}}">
+                    <li data-value="nodes-edit">Edit node attributes...</li>
+                    <li data-value="edges-edit">Edit edge attributes...</li>
+                    <li data-divider>
+                    <li data-value="node-simple-rendering">Node visualization settings...</li>
+                    <li data-value="edge-simple-rendering">Edge visualization settings...</li>
+                    <li hidden?="{{lite == 'true'}}" data-divider>
+                    <li data-value="cellbase" hidden?="{{lite == 'true'}}"> Import attributes from Cellbase...</li>
+                </ul>
+            </div>
+            <!--<div class="dropdown" style="margin-left: 10px">-->
+            <!--<div tabindex="-1" id="renderingButton" class="button" style="border-width:0;">-->
+            <!--Rendering-->
+            <!--</div>-->
+            <!--<ul id="renderingMenu" on-click="{{handleClick}}">-->
+            <!--&lt;!&ndash;<li data-value="node-list-rendering">Complex node attribute rendering</li>&ndash;&gt;-->
+            <!--&lt;!&ndash;<li data-divider>&ndash;&gt;-->
+            <!--</ul>-->
+            <!--</div>-->
+            <div class="dropdown" style="margin-left: 10px" hidden?="{{lite == 'true'}}">
+                <div tabindex="-1" id="pluginsButton" class="button" style="border-width:0;">
+                    Analysis
+                </div>
+                <ul id="pluginsMenu" on-click="{{handleClick}}">
+                    <li data-sub>Network analysis
+                        <ul>
+                            <li data-value="communities-structure-detection">Communities structure detection</li>
+                            <li data-value="topological-study">Topological study</li>
+                        </ul>
+                    </li>
+                    <!--<li data-sub>Expression analysis-->
+                        <!--<ul>-->
+                            <!--<li data-value="reactome-fi-microarray">Reactome FI microarray</li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <li data-sub>Functional analysis
+                        <ul>
+                            <li data-value="snow">Network enrichment</li>
+                            <li data-value="network-miner">Gene set network enrichment</li>
+                            <li data-value="fatigo">Single enrichment</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown" style="margin-left: 10px" hidden?="{{lite == 'true'}}">
+                <div tabindex="-1" id="examplesButton" class="button" style="border-width:0;">
+                    Examples
+                </div>
+                <ul id="examplesMenu" on-click="{{handleClick}}">
+                    <li data-value="example" data-subvalue="1">PPIs related to histone exchange and removal during
+                        nucleosome assembly and disassembly
+                    </li>
+                    <li data-value="example" data-subvalue="2">Reactome pathway of Insulin Synthesis and Processing</li>
+                    <li data-value="example" data-subvalue="3">PPI network with attributes</li>
+                </ul>
+            </div>
+            <div hidden class="button" data-value="save"
+                 on-click="{{handleClick}}">
+                Save
+            </div>
+            <div hidden id="configureButton" class="button" style="margin-right:10px;float:right;border-width:0;"
+                 on-click="{{handleConfigureClick}}"
+                    >
+                Configure
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.lite = "false";
+            },
+            ready: function () {
+            },
+            handleClick: function (e) {
+                if ('value' in e.target.dataset) {
+                    this.fire(e.target.dataset.value, e.target.dataset);
+                }
+            },
+            handleConfigureClick: function (e) {
+                this.fire('configure');
+            },
+            columnsChange: function (attributes) {
+//
+//                        while (this.els.circleAttributesMenu.firstChild) {
+//                            this.els.circleAttributesMenu.removeChild(this.els.circleAttributesMenu.firstChild);
+//                        }
+//
+//                        var entry = document.createElement('li');
+//                        entry.setAttribute('data-value', 'layout-circle');
+//                        entry.textContent = 'Unsorted';
+//                        this.els.circleAttributesMenu.appendChild(entry);
+//
+//                        entry = document.createElement('li');
+//                        entry.setAttribute('data-divider', true);
+//                        this.els.circleAttributesMenu.appendChild(entry);
+//
+//
+//                        for (var a in attributes) {
+//                            var name = attributes[a].name;
+//                            entry = document.createElement('li');
+//                            entry.setAttribute('data-value', 'layout-circle');
+//                            entry.setAttribute('data-subvalue', name);
+//                            entry.textContent = name;
+//                            this.els.circleAttributesMenu.appendChild(entry);
+//                        }
+//                    }
+            }
+        });
+    </script>
+</polymer-element>

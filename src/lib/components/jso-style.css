@@ -1,0 +1,245 @@
+/* only import this inside a polymer component */
+/*
+CONTROLS
+*/
+
+* /deep/ input {
+    margin: 0px;
+    font-family: inherit;
+}
+
+* /deep/ label {
+    display: inline-block;
+    color: #666;
+    line-height: 21px;
+    margin-right: 5px;
+}
+
+/*label::after {*/
+/*content: ':'*/
+/*}*/
+
+* /deep/ label.button::after {
+    content: none;
+}
+
+* /deep/ div.label,
+* /deep/ div.text {
+    display: block;
+    float: left;
+    box-sizing: border-box;
+    line-height: 21px;
+    border: 1px solid #ccc;
+    padding: 0px 5px;
+    background-color: #f2f2f2;
+    /*font-size: inherit;*/
+}
+
+* /deep/ div.text {
+    border-color: transparent;
+    background-color: transparent;
+}
+
+* /deep/ label.button > input[type=radio],
+* /deep/ label.button > input[type=checkbox] {
+    display: none;
+}
+
+* /deep/ select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: transparent;
+}
+
+* /deep/ input,
+* /deep/ select {
+    width: 100%;
+}
+
+* /deep/ .select:after {
+    position: absolute;
+    box-sizing: border-box;
+    top: 6px;
+    right: 8px;
+    color: inherit;
+    font-family: FontAwesome;
+    /*content: '\f0d7';*/
+    content: '\f107';
+}
+
+* /deep/ div.button,
+* /deep/ select,
+* /deep/ input[type=text],
+* /deep/ input[type=email],
+* /deep/ input[type=password],
+* /deep/ input[type=file],
+* /deep/ input[type=number],
+* /deep/ input[type=color],
+* /deep/ label.button > input[type=radio] + span,
+* /deep/ label.button > input[type=checkbox] + span {
+    display: block;
+    position: relative;
+    outline: transparent solid 0px;
+    box-sizing: border-box;
+    line-height: 21px;
+    border: 1px solid #ccc;
+    padding: 0px 5px;
+    background-color: #fff;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+    height: 23px;
+}
+
+* /deep/ .select {
+    position: relative;
+    display: inline-block;
+}
+
+* /deep/ .select > select {
+    padding-right: 15px;
+}
+
+* /deep/ input[type=number] {
+    padding-right: 0px;
+}
+
+* /deep/ input[type=color] {
+    padding: 0px;
+}
+
+* /deep/ div.button:hover {
+    cursor: pointer;
+    background-color: #ebebeb;
+    /*border-color: #66afe9;*/
+}
+
+* /deep/ div.action {
+    border: 1px solid #ddd;
+    background-color: #FFFFFF;
+    text-align: center;
+    color: #445D76;
+    /*font-weight: bold;*/
+    box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.15s;
+}
+
+* /deep/ div.action.big {
+    height: 50px;
+    line-height: 50px;
+    padding: 0px 50px;
+}
+
+* /deep/ div.action:hover {
+    background-color: #f5f5f5;
+    /*background-color: #ebeef3;*/
+}
+
+* /deep/ div.action:active {
+    background-color: #ebebeb;
+}
+
+* /deep/ div.button[data-checked=true],
+* /deep/ label.button > input[type=radio]:checked + span,
+* /deep/ label.button > input[type=checkbox]:checked + span {
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    background-color: #ebebeb;
+}
+
+* /deep/ label.button > input[type=radio] + span:hover,
+* /deep/ label.button > input[type=checkbox]:hover + span:hover {
+    background-color: #ebebeb;
+}
+
+* /deep/ input[type=text],
+* /deep/ input[type=email],
+* /deep/ input[type=number],
+* /deep/ input[type=color],
+* /deep/ input[type=password] {
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+* /deep/ textarea,
+* /deep/ input[type=text]:-moz-ui-invalid,
+* /deep/ input[type=email]:-moz-ui-invalid,
+* /deep/ input[type=number]:-moz-ui-invalid,
+* /deep/ input[type=color]:-moz-ui-invalid,
+* /deep/ input[type=password]:-moz-ui-invalid {
+    box-shadow: none;
+}
+
+* /deep/ textarea:focus,
+* /deep/ input[type=text]:focus,
+* /deep/ input[type=email]:focus,
+* /deep/ input[type=number]:focus,
+* /deep/ input[type=color]:focus,
+* /deep/ input[type=password]:focus {
+    border-color: #66afe9;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+}
+
+* /deep/ input[type=text]:invalid:focus,
+* /deep/ input[type=email]:invalid:focus,
+* /deep/ input[type=number]:invalid:focus,
+* /deep/ input[type=color]:invalid:focus,
+* /deep/ input[type=password]:invalid:focus {
+    border-color: #e32b2b;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
+}
+
+* /deep/ input[type=text].error,
+* /deep/ input[type=email].error,
+* /deep/ input[type=number].error,
+* /deep/ input[type=color].error,
+* /deep/ input[type=password].error {
+    border-color: #e32b2b;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
+}
+
+* /deep/ textarea {
+    display: block;
+    position: relative;
+    outline: 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    font-size: inherit;
+}
+
+
+
+* /deep/ .zoom-bar {
+    position: relative;
+    width: 120px;
+    height: 23px;
+    box-sizing: border-box;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background-color: #FFFFFF;
+}
+
+* /deep/ .zoom-bar > div {
+    background-color: #445D76;
+    /*background-color: #DCDCDC;*/
+    box-sizing: border-box;
+    height: 100%;
+    transition: all 0.2s;
+}
+
+* /deep/ .input-project-browser {
+    height: 400px;
+    border: 1px solid #d3d3d3;
+    border-top-width: 0px;
+    margin-top: 10px;
+}
+
+
+* /deep/ .tooltitle {
+    text-align: center;
+    font-size: 25px;
+    color: #666;
+    margin-bottom: 10px;
+
+}

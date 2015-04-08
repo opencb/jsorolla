@@ -1,0 +1,193 @@
+<polymer-element name="jso-class-viewer" attributes="contentFile childrenDisplay variableTypes childrenSelectNumber">
+    <template>
+        <style>
+            :host {
+            }
+
+            select {
+                margin: 2px;
+            }
+
+            #childrenSelect {
+                /*border: solid 1px #ccc;*/
+            }
+        </style>
+        <!--<select name="class_name" id="class_name" class="fc-combobox" type="text" value="none">-->
+        <!--<option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>-->
+        <!--</select>-->
+        <div id="jsoClassViewerId">
+            <div horizontal layout>
+                <div>
+                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit-your-data">
+                        <font-awesome icon="question-circle"></font-awesome>
+                    </a>
+                </div>
+                <div>
+                Variables: &nbsp;
+                </div>
+                <div id="mainSelect" class="select">
+                    <!--<select id="selectClass" on-change="{{selectChange}}">-->
+                    <select id="selectClass">
+                        <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
+                    </select>
+                </div>
+                <template if="{{loading}}">
+                    <font-awesome icon="spinner" animation="spin" style="margin-left: 5px;"></font-awesome> loading variables...
+                </template>
+            </div>
+            <br>
+
+            <div id="childrenSelect">
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.dataClass;
+                /** loaded is a variable to know if this component has create all the necessary elements**/
+//                this.loadedMainSelect = false;
+//                this.loadedChildrenSelect = false;
+
+                /** childrenDisplay is an attributes that indicates if we want a the children (another selects)  of the main select **/
+                this.childrenDisplay = true;
+
+                /** variableTypes is the type of variables that we want to display **/
+                this.variableTypes = "CATEGORICAL,NUMERIC,STRING";
+
+                /** number of childrensSelect **/
+                this.childrenSelectNumber = -1;
+
+                this.loading = false;
+            },
+            contentFileChanged: function (oldV, newV) {
+                this.loading = true;
+                var me = this;
+                if (this.childrenDisplay) {
+                    this.$.selectClass.addEventListener("change", function () {
+                        me.selectChange()
+                    });
+                }
+                /** reset elements **/
+                this.$.selectClass.innerHTML = "";
+                this.$.childrenSelect.innerHTML = "";
+//                this.loadedMainSelect = false;
+//                this.loadedChildrenSelect = false;
+
+                /** Load data from content **/
+                var parseMatrix = new ParseMatrix(newV);
+                this.dataClass = parseMatrix.getDataset();
+
+                /** Create default option for main select **/
+                var mainSelect = this.$.selectClass;
+                var option = document.createElement("option");
+                option.value = "none";
+                option.selected = true;
+                var text = document.createTextNode("Select option");
+                option.appendChild(text);
+                mainSelect.appendChild(option);
+
+                var variables = this.dataClass["#VARIABLE"];
+                for (var i = 0; i < variables.length; i++) {
+                    var variable = variables[i];
+                    var name = variable[1];
+                    var type = variable[2].split("{")[0];
+                    if (this.variableTypes.indexOf(type) >= 0) {
+//                    if (type == "CATEGORICAL") {
+                        var option = document.createElement("option");
+                        option.value = name;
+                        var text = document.createTextNode(name);
+                        option.appendChild(text);
+                        this.$.selectClass.appendChild(option);
+
+//                        var typeValues = variable[2].split("{")[1].split("}")[0].split(",");
+//                        debugger
+//                        var select = document.createElement("select");
+//                        var option = document.createElement("option");
+//                        option.value = "none";
+//                        var text = document.createTextNode();
+//                        option.appendChild(text);
+//                        select.appendChild(option);
+//                        for (i = 0; i < typeValues.length; i = i + 1) {
+//                            var option = document.createElement("option");
+//                            option.value = typeValues[i];
+//                            var text = document.createTextNode(typeValues[i]);
+//                            option.appendChild(text);
+//                            select.appendChild(option);
+//                        }
+//                        this.$.jsoClassViewerId.appendChild(select);
+                    }
+
+
+//                    var select = this.$.class_name;
+//                    select.options[select.options.length] = new Option('Text ' + i, 'Value' + i);
+
+                }
+//                this.loadedMainSelect = true;
+                this.fire('main-select');
+                this.loading = false;
+
+
+
+            },
+            selectChange: function (e) {
+                var me = this;
+//                this.loadedChildrenSelect = false;
+                this.$.childrenSelect.innerHTML = "";
+
+                /** add title element **/
+                var text = document.createTextNode("Attributes: ");
+                this.$.childrenSelect.appendChild(text);
+
+                var variables = this.dataClass["#VARIABLE"];
+                for (var i = 0; i < variables.length; i++) {
+                    var variable = variables[i];
+                    var name = variable[1];
+                    if (name == this.$.selectClass.value) {
+                        var typeValues = variable[2].split("{")[1].split("}")[0].split(",");
+//                        for (var j = 0; j < typeValues.length; j++) {
+                        var selectNumber = typeValues.length;
+                        if (this.childrenSelectNumber != -1) {
+                            selectNumber = this.childrenSelectNumber;
+                        }
+                        for (var j = 0; j < selectNumber; j++) {
+                            var select = document.createElement("select");
+//                            select.addEventListener("change", function () {
+//                                me.changeChildrenSelect()
+//                            });
+                            var option = document.createElement("option");
+                            option.value = "none";
+                            var text = document.createTextNode("none");
+                            option.appendChild(text);
+                            select.appendChild(option);
+                            for (var z = 0; z < typeValues.length; z++) {
+                                var option = document.createElement("option");
+                                option.value = typeValues[z];
+                                var text = document.createTextNode(typeValues[z]);
+                                option.appendChild(text);
+                                select.appendChild(option);
+                            }
+                            var div = document.createElement("div");
+
+                            div.setAttribute("class", "select");
+                            div.setAttribute("style", "margin-left:1px");
+                            div.appendChild(select);
+                            this.$.childrenSelect.appendChild(div);
+                        }
+                    }
+                }
+//                this.loadedChildrenSelect = true;
+                this.fire('children-select');
+            },
+//            changeChildrenSelect: function (e) {
+////                debugger
+//            },
+            getMainSelect: function () {
+                return this.$.selectClass;
+            },
+            getChildrenSelect: function () {
+                return this.$.childrenSelect.querySelectorAll("select");
+            }
+        });
+    </script>
+</polymer-element>

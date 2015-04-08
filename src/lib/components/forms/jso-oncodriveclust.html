@@ -1,0 +1,224 @@
+<polymer-element name="jso-oncodriveclust" attributes="userData selectedOption selectedStudy studies">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../jso-form.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+        </style>
+        <div class="tooltitle">
+            <div>
+                OncodriveClust
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20OncodriveClust">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA example</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="mini2.vcf" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="VARIANT"></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Prioritization parameters</div>
+                <div class="formcontent">
+                    <div id="methodDiv">
+                        <!--Human genome version:-->
+                        <!--<div class="select">-->
+                            <!--<select name="gver" id="gver" type="text" value="none">-->
+                                <!--<option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>-->
+                                <!--<option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>-->
+                            <!--</select>-->
+                        <!--</div>-->
+                        <!--<br/>-->
+                        Minimum number of mutations per gene:
+                        <div class="select">
+                            <select name="gt" id="gt" type="text" value="none">
+                                <option name="gt1" id="gt1" value="1">1</option>
+                                <option name="gt3" id="gt3" value="3" selected="selected">3</option>
+                                <option name="gt5" id="gt5" value="5">5</option>
+                                <option name="gt10" id="gt10" value="10">10</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "oncodriveclust";
+                this.list1UploadMsg
+                this.description = "Job info..."
+            },
+            handleForm: function () {
+                var me = this;
+                this.message = '';
+                me.launchJob();
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            launchJob: function () {
+                var me = this;
+                if (!Utils.basicValidationForm(this)) {
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    vcf: this.$.inputFile.selectedFile.id,
+//                    gver: this.$.gver.value,
+                    description: this.description
+                };
+
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "TCGA BRCA";
+                this.description = "BRCA cancer set from TCGA";
+                this.$.inputFile.selectedFile = {id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"};
+//                this.$.gver.value = "hg19"
+                var exampleFolder = "tcga_brca_example_oncodriveclust2"
+                this.createExampleFolder(exampleFolder);
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+        });
+    </script>
+</polymer-element>

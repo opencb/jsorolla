@@ -1,0 +1,107 @@
+<polymer-element name="jso-remember">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 500px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            div.button {
+                margin-top: 30px;
+                height:50px;
+                line-height: 50px;
+                font-size: 16px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Remember password
+            </div>
+            <div class="icon">
+                <font-awesome icon="life-ring"></font-awesome>
+            </div>
+        </div>
+        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+            <label>User ID</label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
+            <label>e-mail</label> <input type="email" id="email" value="{{email}}" required>
+
+            <div class="button action" on-click="{{handleForm}}">Send email with new password</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.user;
+                this.email;
+            },
+            handleFormKey: function (e) {
+                if (e.which == 13) {
+                    this.handleForm();
+                }
+            },
+            handleForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.$.form.checkValidity() && (this.password === this.check)) {
+                    OpencgaManager.users.resetPassword({
+                        id: this.user,
+                        query: {
+                            email: this.email
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var userId = response.response[0].result[0].id;
+                                    me.message = 'An email was sent with a new password';
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</polymer-element>

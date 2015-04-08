@@ -1,0 +1,160 @@
+<polymer-element name="jso-table" attributes="data columns">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                height: 500px;
+                border: 1px solid #d3d3d3;
+                font-size: 13px;
+            }
+
+            :host::after {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 30px;
+                height: 30px;
+                background-color: #e8e8e8;
+                content: ''
+            }
+
+            core-list {
+                height: calc(100% - 31px);
+                overflow-y: auto;
+            }
+
+            .table-header {
+                position: relative;
+                border-bottom: 1px solid #d3d3d3;
+                background-color: #e8e8e8;
+                font-weight: bold;
+                color: #666;
+                height: 30px;
+                overflow-y: scroll;
+                overflow-x: hidden;
+            }
+
+            .table-header-field {
+                box-sizing: border-box;
+                padding: 7px 10px;
+                border-right: 1px solid #d3d3d3;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                float: left;
+                text-align: center;
+                cursor: pointer;
+            }
+
+            .table-header-field:last-child {
+                border-right-width: 0;
+            }
+
+            .table-row {
+                box-sizing: border-box;
+                cursor: default;
+                background-color: white;
+                overflow: hidden;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .table-row:last-child {
+                border-bottom-width: 0;
+            }
+
+            .table-row:nth-child(2n+1) {
+                background-color: #f5f5f5;
+            }
+
+            .table-field {
+                box-sizing: border-box;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                border-right: 1px solid #d3d3d3;
+                float: left;
+                padding: 7px 10px;
+            }
+
+            .table-field:last-child {
+                border-right-width: 0;
+            }
+        </style>
+
+        <div style="overflow-x: auto;height: 100%;">
+            <div id="header" class="table-header" style="width:{{calculatedWidth+'px'}}">
+                <template repeat="{{c in columns}}">
+                    <div class="table-header-field"
+                         on-click="{{handleHeaderClick}}"
+                         style="width:{{c.width ? c.width : columnWidth }}px;">
+                        {{c.text}}
+                    </div>
+                </template>
+            </div>
+
+            <core-list id="list" data="{{data}}" height="{{itemHeight}}" style="width:{{calculatedWidth}}px;">
+                <template>
+                    <div class="table-row" style="height: {{itemHeight}}px;">
+                        <template repeat="{{c in columns}}">
+                            <div class="table-field" title="{{model[c.name]}}"
+                                 style="
+                                 width:{{c.width ? c.width : columnWidth }}px;
+                                 height: {{itemHeight}}px;
+                                 ">
+                                {{model[c.name]}}
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </core-list>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.columns = [];
+                this.data = [];
+                this.itemHeight = 30;
+                this.columnWidth = 100;
+
+                this.updateColumns();
+
+                this.currentColumnSort;
+            },
+            columnsChanged: function () {
+                this.updateColumns();
+            },
+            updateColumns: function () {
+                var calculatedWidth = 0;
+                for (var i = 0; i < this.columns.length; i++) {
+                    var column = this.columns[i];
+                    if (column.width) {
+                        calculatedWidth += column.width;
+                    } else {
+                        calculatedWidth += this.columnWidth;
+                    }
+                }
+                this.calculatedWidth = calculatedWidth + 30;
+                this.style.width = this.calculatedWidth + 'px'
+            },
+            handleHeaderClick: function (e) {
+                var columnName = e.currentTarget.templateInstance.model.c.name;
+                if (this.currentColumnSort != columnName) {
+                    this.data = this.data.slice(0).sort(function (a, b) {
+                        return a[columnName].localeCompare(b[columnName]);
+                    });
+                } else if (this.currentColumnSort == columnName) {
+                    this.data = this.data.slice(0).sort(function (a, b) {
+                        return b[columnName].localeCompare(a[columnName]);
+                    });
+                }
+                this.currentColumnSort = columnName;
+            },
+            domReady: function () {
+            }
+        })
+    </script>
+</polymer-element>
+

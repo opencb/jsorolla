@@ -69,7 +69,8 @@ NetworkViewerWebgl.prototype = {
 ////        this.groupElements.add(sprite);
 
 
-        var geometry = new THREE.BoxGeometry(10, 10, 10);
+        var size = vertex.renderer.size / 2;
+        var geometry = new THREE.BoxGeometry(size, size, size);
         var material = new THREE.MeshNormalMaterial();
         var cube = new THREE.Mesh(geometry, material);
         cube.position.set(vertex.position.x, vertex.position.y, vertex.position.z);
@@ -142,9 +143,7 @@ NetworkViewerWebgl.prototype = {
         var vertices = graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
             var vertex = vertices[i];
-            if (typeof vertex !== 'undefined') {
-                this.renderVertex(vertex, nodesGeometry, false);
-            }
+            this.renderVertex(vertex, nodesGeometry, false);
         }
 
         nodesGeometry.computeFaceNormals();
@@ -158,14 +157,12 @@ NetworkViewerWebgl.prototype = {
         var edges = graph.edges;
         for (var i = 0, l = edges.length; i < l; i++) {
             var edge = edges[i];
-            if (typeof edge !== 'undefined') {
 //                this.renderEdge(edge, edgesGeometry, false);
 //                this.renderEdge(edge, edgesGeometry, false);
-                edgesGeometry.vertices.push(new THREE.Vector3(edge.source.position.x, edge.source.position.y, edge.source.position.z));
-                edgesGeometry.vertices.push(new THREE.Vector3(edge.target.position.x, edge.target.position.y, edge.target.position.z));
-            }
+            edgesGeometry.vertices.push(new THREE.Vector3(edge.source.position.x, edge.source.position.y, edge.source.position.z));
+            edgesGeometry.vertices.push(new THREE.Vector3(edge.target.position.x, edge.target.position.y, edge.target.position.z));
         }
-        var line = new THREE.Line(edgesGeometry, new THREE.LineBasicMaterial({color: 0x222222}), THREE.LinePieces);
+        var line = new THREE.Line(edgesGeometry, new THREE.LineBasicMaterial({color: 0xCCCCCC}), THREE.LinePieces);
 //
 //        edgesGeometry.computeFaceNormals();
 //        var edgesGroup = new THREE.Mesh(edgesGeometry);
@@ -245,6 +242,7 @@ NetworkViewerWebgl.prototype = {
 //        debugaxis(500, this.scene);
 
         var grid = new THREE.GridHelper(500, 25);
+        grid.position.z = -500;
         grid.rotation.x += Math.PI / 2;
         grid.setColors('#000000', '#AAAAAA')
         this.scene.add(grid);
@@ -281,9 +279,9 @@ NetworkViewerWebgl.prototype = {
     },
     setZoom: function (disp) {
         this.cameraRadius -= disp;
-        this.cameraRadius = Math.min(this.cameraRadius, 2000);
+        this.cameraRadius = Math.min(this.cameraRadius, 4000);
         this.cameraRadius = Math.max(this.cameraRadius, 10);
-        if (this.cameraRadius > 10 && this.cameraRadius < 2000) {
+        if (this.cameraRadius > 10 && this.cameraRadius < 4000) {
             this.renderScene();
         }
     },

@@ -45,7 +45,7 @@ function Track(args) {
     this.svgCanvasWidth = 500000;//mesa
     this.pixelPosition = this.svgCanvasWidth / 2;
     this.svgCanvasOffset;
-    this.svgCanvasFeatures;
+//    this.svgCanvasFeatures;
     this.status;
     this.histogram;
     this.histogramLogarithm;
@@ -90,9 +90,17 @@ Track.prototype = {
         this.visible = true;
         this.div.classList.remove('hidden');
     },
+    toggle: function () {
+        if (this.visible) {
+            this.hide();
+        } else {
+            this.show();
+
+        }
+    },
     hideContent: function () {
         this.contentVisible = false;
-        this.svgdiv.classList.add('hidden');
+        this.contentDiv.classList.add('hidden');
         this.resizeDiv.classList.add('hidden');
 
         this.iToggleEl.classList.remove('fa-minus');
@@ -100,7 +108,7 @@ Track.prototype = {
     },
     showContent: function () {
         this.contentVisible = true;
-        this.svgdiv.classList.remove('hidden');
+        this.contentDiv.classList.remove('hidden');
         this.resizeDiv.classList.remove('hidden');
 
         this.iToggleEl.classList.remove('fa-plus');
@@ -130,69 +138,39 @@ Track.prototype = {
 
     setWidth: function (width) {
         this.width = width;
-        this.main.setAttribute("width", width);
+//        this.main.setAttribute("width", width);
     },
-    _updateDIVHeight: function () {
-//        $(this.rrr).remove();
-//        delete this.rrr;
-//        this.rrr = SVG.addChild(this.svgCanvasFeatures, "rect", {
-//            'x': 0,
-//            'y': 0,
-//            'width': 0,
-//            'height': 18,
-//            'stroke': '#3B0B0B',
-//            'stroke-width': 1,
-//            'stroke-opacity': 1,
-//            'fill': 'black',
-//            'cursor': 'pointer'
-//        });
-        if (this.resizable) {
-            if (!this.histogram) {
-                var x = this.pixelPosition;
-                var width = this.width;
-                var lastContains = 0;
-                for (var i in this.renderedArea) {
-                    if (this.renderedArea[i].contains({start: x, end: x + width })) {
-                        lastContains = i;
-                    }
-                }
-                var divHeight = parseInt(lastContains) + 20;
-                $(this.svgdiv).css({'height': divHeight + 25});
-//                this.rrr.setAttribute('x', x);
-//                this.rrr.setAttribute('y', divHeight);
-//                this.rrr.setAttribute('width', width);
-
-            }
-        }
-        if (this.histogram) {
-            $(this.svgdiv).css({'height': this.height + 10});
-        }
+    updateHeight: function () {
+        this._updateHeight();
     },
-    _updateSVGHeight: function () {
-        if (this.resizable && !this.histogram) {
-            var renderedHeight = Object.keys(this.renderedArea).length * 21;//this must be passed by config, 20 for test
-            this.main.setAttribute('height', renderedHeight);
-            this.svgCanvasFeatures.setAttribute('height', renderedHeight);
-            this.hoverRect.setAttribute('height', renderedHeight);
-        }
-        if (this.histogram) {
-            this.main.setAttribute('height', this.height);
-            this.svgCanvasFeatures.setAttribute('height', this.height);
-            this.hoverRect.setAttribute('height', this.height);
-        }
-    },
-    updateHeight: function (ignoreAutoHeight) {
-        this._updateSVGHeight();
-        if (this.autoHeight || ignoreAutoHeight) {
-            this._updateDIVHeight();
-        }
-//        if (this.histogram) {
-//
-//        }
+    _updateHeight: function () {
+        $(this.contentDiv).css({'height': this.height});
     },
     enableAutoHeight: function () {
+        console.log('enable autoHeigth');
         this.autoHeight = true;
         this.updateHeight();
+    },
+    disableAutoHeight: function () {
+        console.log('disable autoHeigth');
+        this.autoHeight = false;
+        this.updateHeight();
+    },
+    toggleAutoHeight: function (bool) {
+        if (bool == true) {
+            this.enableAutoHeight();
+            return;
+        } else if (bool == false) {
+            this.disableAutoHeight();
+            return;
+        }
+        if (this.autoHeight == true) {
+            this.disableAutoHeight();
+            return;
+        } else if (this.autoHeight == false) {
+            this.enableAutoHeight();
+            return;
+        }
     },
     setTitle: function (title) {
         $(this.titleText).html(title);
@@ -231,18 +209,18 @@ Track.prototype = {
 //            }
 //        }
     },
-
-    cleanSvg: function (filters) {//clean
-//        console.time("-----------------------------------------empty");
-        while (this.svgCanvasFeatures.firstChild) {
-            this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
-        }
-//        console.timeEnd("-----------------------------------------empty");
+    clean: function () {
+        this._clean();
+    },
+    _clean: function () {
+        //Must be called on child clean method
         this.chunksDisplayed = {};
         this.renderedArea = {};
     },
-
     initializeDom: function (targetId) {
+        this._initializeDom(targetId);
+    },
+    _initializeDom: function (targetId) {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
@@ -290,13 +268,22 @@ Track.prototype = {
         this.downEl = titleBardiv.querySelector('.ocb-gv-track-title-down');
         this.externalLinkEl = titleBardiv.querySelector('.ocb-gv-track-title-external-link');
 
-        var svgdiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
+        var contentDiv = $('<div id="' + this.id + '-svgdiv"></div>')[0];
+        $(contentDiv).css({
+            'position': 'relative',
+            'box-sizing': 'boder-box',
+            'z-index': 3,
+            'height': this.height,
+            'overflow-y': (this.resizable) ? 'auto' : 'hidden',
+            'overflow-x': 'hidden'
+        });
+
         var resizediv = $('<div id="' + this.id + '-resizediv" class="ocb-track-resize"></div>')[0];
 
         $(targetId).addClass("unselectable");
         $(targetId).append(div);
         $(div).append(titleBardiv);
-        $(div).append(svgdiv);
+        $(div).append(contentDiv);
         $(div).append(resizediv);
 
 
@@ -324,25 +311,6 @@ Track.prototype = {
             window.open(_this.externalLink);
         });
 
-
-        /** svg div **/
-        $(svgdiv).css({
-            'z-index': 3,
-            'height': this.height,
-            'overflow-y': (this.resizable) ? 'auto' : 'hidden',
-            'overflow-x': 'hidden'
-        });
-
-        var main = SVG.addChild(svgdiv, 'svg', {
-            'id': this.id,
-            'class': 'trackSvg',
-            'x': 0,
-            'y': 0,
-            'width': this.width,
-            'height': this.height
-        });
-
-
         if (this.resizable) {
             $(resizediv).mousedown(function (event) {
                 $('html').addClass('unselectable');
@@ -350,75 +318,65 @@ Track.prototype = {
                 var downY = event.clientY;
                 $('html').bind('mousemove.genomeViewer', function (event) {
                     var despY = (event.clientY - downY);
-                    var actualHeight = $(svgdiv).outerHeight();
-                    $(svgdiv).css({height: actualHeight + despY});
+                    var actualHeight = $(contentDiv).outerHeight();
+                    _this.height = actualHeight + despY;
+                    $(contentDiv).css({height: _this.height});
                     downY = event.clientY;
-                    _this.autoHeight = false;
+//                    _this.autoHeight = false;
                 });
             });
             $('html').bind('mouseup.genomeViewer', function (event) {
                 $('html').removeClass('unselectable');
                 $('html').off('mousemove.genomeViewer');
             });
-            $(svgdiv).closest(".trackListPanels").mouseup(function (event) {
+            $(contentDiv).closest(".trackListPanels").mouseup(function (event) {
                 _this.updateHeight();
             });
         }
 
-        this.svgGroup = SVG.addChild(main, "g", {
-        });
 
-        var text = this.title;
-        var hoverRect = SVG.addChild(this.svgGroup, 'rect', {
-            'x': 0,
-            'y': 0,
-            'width': this.width,
-            'height': this.height,
-            'opacity': '0.6',
-            'fill': 'transparent'
-        });
+//        var hoverRect = SVG.addChild(this.svgGroup, 'rect', {
+//            'x': 0,
+//            'y': 0,
+//            'width': this.width,
+//            'height': this.height,
+//            'opacity': '0.6',
+//            'fill': 'transparent'
+//        });
 
-        this.svgCanvasFeatures = SVG.addChild(this.svgGroup, 'svg', {
-            'class': 'features',
-            'x': -this.pixelPosition,
-            'width': this.svgCanvasWidth,
-            'height': this.height
-        });
+//        this.fnTitleMouseEnter = function () {
+//            hoverRect.setAttribute('opacity', '0.1');
+//            hoverRect.setAttribute('fill', 'lightblue');
+//        };
+//        this.fnTitleMouseLeave = function () {
+//            hoverRect.setAttribute('opacity', '0.6');
+//            hoverRect.setAttribute('fill', 'transparent');
+//        };
 
-
-        this.fnTitleMouseEnter = function () {
-            hoverRect.setAttribute('opacity', '0.1');
-            hoverRect.setAttribute('fill', 'lightblue');
-        };
-        this.fnTitleMouseLeave = function () {
-            hoverRect.setAttribute('opacity', '0.6');
-            hoverRect.setAttribute('fill', 'transparent');
-        };
-
-        $(this.svgGroup).off('mouseenter');
-        $(this.svgGroup).off('mouseleave');
-        $(this.svgGroup).mouseenter(this.fnTitleMouseEnter);
-        $(this.svgGroup).mouseleave(this.fnTitleMouseLeave);
+//        $(this.svgGroup).off('mouseenter');
+//        $(this.svgGroup).off('mouseleave');
+//        $(this.svgGroup).mouseenter(this.fnTitleMouseEnter);
+//        $(this.svgGroup).mouseleave(this.fnTitleMouseLeave);
 
 
-        this.invalidZoomText = SVG.addChild(this.svgGroup, 'text', {
-            'x': 154,
-            'y': 18,
-            'opacity': '0.6',
-            'fill': 'black',
-            'visibility': 'hidden',
-            'class': this.fontClass
-        });
-        this.invalidZoomText.textContent = "No information available at this zoom";
+//        this.invalidZoomText = SVG.addChild(this.svgGroup, 'text', {
+//            'x': 154,
+//            'y': 18,
+//            'opacity': '0.6',
+//            'fill': 'black',
+//            'visibility': 'hidden',
+//            'class': this.fontClass
+//        });
+//        this.invalidZoomText.textContent = "No information available at this zoom";
 
         this.div = div;
-        this.svgdiv = svgdiv;
+        this.contentDiv = contentDiv;
         this.titlediv = titlediv;
         this.resizeDiv = resizediv;
 //        this.configBtn = configBtn;
 
-        this.main = main;
-        this.hoverRect = hoverRect;
+//        this.main = main;
+//        this.hoverRect = hoverRect;
 //        this.titleText = titleText;
 
 
@@ -519,7 +477,7 @@ Track.prototype = {
             return Math.floor(position / response.chunkSize);
         };
         var getChunkKey = function (chromosome, chunkId) {
-            return chromosome + ":" + chunkId;
+            return chromosome + ":" + chunkId + "_" + response.dataType + "_" + response.chunkSize;
         };
 
         var chunks = response.items;

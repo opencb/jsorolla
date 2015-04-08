@@ -1,0 +1,90 @@
+<polymer-element name="jso-oncodrive-pathways-table" attributes="content">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            sortable-table {
+                border: 1px solid #d3d3d3;
+
+            }
+
+            sortable-table::shadow thead tr th {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            sortable-table::shadow tbody tr td {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            sortable-table::shadow .column-ident,
+            sortable-table::shadow .column-pvalue,
+            sortable-table::shadow .column-zscore,
+            sortable-table::shadow .column-qvalue {
+                width: 70px;
+            }
+
+
+        </style>
+        <sortable-table id="table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            contentChanged: function () {
+
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    if (data[i].indexOf("##") >= 0) continue;
+                    if (data[i].indexOf("ID") == 0) continue;
+                    var localData = data[i].split("\t");
+                    var obj = {
+                        "ident": localData[0],
+                        "zscore": parseFloat(localData[1]).toFixed(3),
+                        "pvalue": parseFloat(localData[2]).toFixed(3),
+                        "qvalue": parseFloat(localData[3]).toFixed(3)
+                    };
+                    this.data.push(obj)
+                }
+
+                this.columns = [
+                    {
+                        name: "ident",
+                        title: "ID"
+                    },
+                    {
+                        name: "zscore",
+                        title: "Z-Score"
+                    },
+                    {
+                        name: "pvalue",
+                        title: "p-value"
+                    },
+                    {
+                        name: "qvalue",
+                        title: "q-value"
+                    }
+                ];
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+
+            }
+        })
+    </script>
+</polymer-element>
+

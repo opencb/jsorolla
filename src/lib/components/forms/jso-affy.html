@@ -1,0 +1,225 @@
+<polymer-element name="jso-affy" attributes="userData selectedOption selectedStudy studies">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+            }
+
+            /*.title {*/
+            /*text-align: center;*/
+            /*font-size: 25px;*/
+            /*color: #666;*/
+            /*margin-bottom: 10px;*/
+
+            /*}*/
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+        </style>
+        <div class="tooltitle">
+            <div>
+                Affy normalization
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Affymetrix%20Expression%20Microarray%20Normalization">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <!--<div class="icon">-->
+            <!--&lt;!&ndash;<font-awesome icon="magic"></font-awesome>&ndash;&gt;-->
+            <!--</div>-->
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Affy sample 1</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="affymetrix.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX"></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Analysis</div>
+                <div class="formcontent" vertical layout>
+                    <label class="control">
+                        <input name="rma" id="rma" type="checkbox" checked><span>RMA</span></label>
+                    <label class="control">
+                        <input name="plier" id="plier" type="checkbox"><span>Plier</span></label>
+                    <label class="control">
+                        <input name="calls" id="calls" type="checkbox"><span>Present-absent calls</span></label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "affy-expression-normalization";
+                this.list1UploadMsg
+                this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+                this.description = "Job info..."
+                this.compressed_file = '';
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+            reset: function () {
+                this.$.inputFile.selectedFile = undefined;
+            },
+            handleForm: function () {
+                var me = this;
+                this.message = '';
+                me.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+                if (!Utils.basicValidationForm(this)) {
+                    return;
+                }
+                if (!this.$.rma.checked && !this.$.plier.checked && !this.$.calls.checked) {
+                    alert("Error: Please choose an analysis. ");
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    "compressed-file": this.$.inputFile.selectedFile.id,
+                    "compressed-file-tags": this.compressed_file_tags,
+                    description: this.description
+                };
+
+                if (this.$.rma.checked) query["rma"] = "";
+                if (this.$.plier.checked) query["plier"] = "";
+                if (this.$.calls.checked) query["calls"] = "";
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "affy_sample_1";
+                this.description = "just_an_affy_example";
+                this.$.rma.checked = true;
+                this.$.plier.checked = false;
+                this.$.calls.checked = false;
+                this.$.inputFile.selectedFile = {id: "example_affymetrix.zip", path: "affymetrix.zip", type: "FILE"};
+                this.compressed_file_tags = "microarray,expression,one-channel,affymetrix";
+                var exampleFolder = "affy_sample_1vv";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>

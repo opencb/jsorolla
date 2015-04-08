@@ -25,7 +25,7 @@ function TextNetworkDataAdapter(args) {
     this.dataSource;
     this.async = true;
 
-    this.separator = "\t";
+    this.separator = /\t/;
     this.graph = new Graph();
 
 
@@ -60,18 +60,17 @@ TextNetworkDataAdapter.prototype.getGraph = function () {
 };
 
 TextNetworkDataAdapter.prototype.parse = function (data) {
-
     try {
         if (typeof data === 'undefined') {
             data = this.rawData;
         }
-
-        var lines = data.split("\n");
+        data = data.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        var lines = data.split(/\n/);
         this.lines = [];
         this.columnLength = 0;
         var firstLineColumnLength = 0;
         for (var i = 0; i < lines.length; i++) {
-            var line = lines[i].replace(/^\s+|\s+$/g, "");
+            var line = lines[i];
             if ((line != null) && (line.length > 0)) {
                 var fields = line.split(this.separator);
                 if (fields[0].substr(0, 1) != "#") {
@@ -102,6 +101,10 @@ TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetInd
 
     for (var i = 0; i < this.lines.length; i++) {
         var fields = this.lines[i];
+        for (var j = 0; j < fields.length; j++) {
+            fields[j] = fields[j].trim();
+        }
+
 
         var sourceName = fields[sourceIndex];
         var targetName = fields[targetIndex];

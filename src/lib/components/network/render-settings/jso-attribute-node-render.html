@@ -1,0 +1,548 @@
+<polymer-element name="jso-attribute-node-render" attributes="attributeManager defaults visualSets">
+    <template>
+        <link rel="stylesheet" href="../../jso-style.css">
+        <link rel="stylesheet" href="../../jso-panel.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                width: 320px;
+            }
+
+            .container {
+                box-sizing: border-box;
+                padding: 1px 5px 3px 0px;
+            }
+
+            .container .text {
+                width: 90px;
+                text-align: right;
+            }
+
+            [vertical] > * {
+                margin-top: 3px;
+            }
+
+            [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .showlabels:after {
+                font-family: FontAwesome;
+                content: '\f06e';
+            }
+
+            .remove:after {
+                font-family: FontAwesome;
+                content: '\f014';
+                color: #888888;
+            }
+
+            .remove[data-enabled=true]:after {
+                color: #c70804;
+            }
+
+            .toggle:after {
+                font-family: FontAwesome;
+                /*content: '\f204';*/
+                content: '\f070';
+                color: #888888;
+            }
+
+            .toggle[data-enabled=false]:after {
+                font-family: FontAwesome;
+                content: '\f06e';
+                color: #333333;
+            }
+
+            .toggle[data-enabled=true]:after {
+                font-family: FontAwesome;
+                content: '\f06e';
+                color: #00AA33;
+            }
+
+            /*.configure:after {*/
+            /*font-family: FontAwesome;*/
+            /*content: '\f141';*/
+            /*content: '\f0ad';*/
+            /*color: #333333;*/
+            /*}*/
+
+            /*.configure[data-enabled=true]:after {*/
+            /*color: #0081c2;*/
+            /*}*/
+
+            .configure {
+                color: #666;
+                width: 90px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 11px !important;
+            }
+
+            .configure[data-enabled=true] {
+                color: #0081c2;
+            }
+
+            jso-color-picker {
+                font-size: 10px;
+            }
+
+        </style>
+        <div class="panel panel-shadow">
+            <div id="header" class="header" horizontal layout>
+                <div class="text">Node visualization settings</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" vertical layout>
+                <div horizontal layout>
+                    <div class="text">Label attr:</div>
+                    <div class="select" flex>
+                        <select value="{{defaults.labelAttribute}}" on-change="{{handleLabelAttribute}}">
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+                    <!--<div class="button action showlabels" data-checked="{{showLabels}}"-->
+                    <!--on-click="{{handleShowLabels}}"></div>-->
+                </div>
+
+                <div horizontal layout>
+                    <div class="text">Label offset:</div>
+                    <div flex>
+                        <input type="number" value={{defaults.labelPositionX}} placeholder="x label"
+                               on-change="{{handleLabelPositionX}}">
+                    </div>
+                    <div flex>
+                        <input type="number" value={{defaults.labelPositionY}} placeholder="y label"
+                               on-change="{{handleLabelPositionY}}">
+                    </div>
+                </div>
+
+                <div horizontal layout>
+                    <div class="text">Label size:</div>
+                    <div flex>
+                        <input type="number" min="0" max="50" value={{defaults.labelSize}}
+                               on-change="{{handleLabelSize}}">
+                    </div>
+
+                    <div class="button action configure" data-enabled="{{visualSets.labelSize != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="labelSize"
+                         title="{{visualSets.labelSize !=null ? visualSets.labelSize.attribute : 'Select attribute'}}">
+                        {{visualSets.labelSize !=null ? visualSets.labelSize.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.labelSize.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="labelSize"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.labelSize != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="labelSize"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Opacity:</div>
+                    <div flex>
+                        <input type="number" min="0" max="1" step="0.1" value={{defaults.opacity}}
+                               on-change="{{handleOpacity}}">
+                    </div>
+                    <div class="button action configure" data-enabled="{{visualSets.opacity != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="opacity"
+                         title="{{visualSets.opacity !=null ? visualSets.opacity.attribute : 'Select attribute'}}">
+                        {{visualSets.opacity !=null ? visualSets.opacity.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.opacity.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="opacity"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.opacity != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="opacity"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Shape:</div>
+                    <div class="select" flex>
+                        <select value="{{defaults.shape}}" on-change="{{handleShape}}">
+                            <option value="circle">circle</option>
+                            <option value="ellipse">ellipse</option>
+                            <option value="square">square</option>
+                            <option value="rectangle">rectangle</option>
+                        </select>
+                    </div>
+                    <div class="button action configure" data-enabled="{{visualSets.shape != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="shape"
+                         title="{{visualSets.shape !=null ? visualSets.shape.attribute : 'Select attribute'}}">
+                        {{visualSets.shape !=null ? visualSets.shape.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.shape.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="shape"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.shape != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="shape"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Color:</div>
+                    <!--<input flex type="color" value="{{defaults.color}}" list="colors" on-change="{{handleColor}}">-->
+                    <jso-color-picker flex color="{{defaults.color}}"
+                                      on-color-click="{{handleColor}}"></jso-color-picker>
+
+                    <div class="button action configure" data-enabled="{{visualSets.color != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="color"
+                         title="{{visualSets.color !=null ? visualSets.color.attribute : 'Select attribute'}}">
+                        {{visualSets.color !=null ? visualSets.color.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.color.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="color"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.color != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="color"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Stroke color:</div>
+
+                    <!--<input flex type="color" value="{{defaults.strokeColor}}" on-change="{{handleStrokeColor}}">-->
+                    <jso-color-picker flex color="{{defaults.strokeColor}}"
+                                      on-color-click="{{handleStrokeColor}}"></jso-color-picker>
+
+                    <div class="button action configure" data-enabled="{{visualSets.strokeColor != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="strokeColor"
+                         title="{{visualSets.strokeColor !=null ? visualSets.strokeColor.attribute : 'Select attribute'}}">
+                        {{visualSets.strokeColor !=null ? visualSets.strokeColor.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.strokeColor.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="strokeColor"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.strokeColor != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="strokeColor"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Size:</div>
+                    <div flex>
+                        <input type="number" min="1" max="200" value={{defaults.size}} on-change="{{handleSize}}">
+                    </div>
+
+                    <div class="button action configure" data-enabled="{{visualSets.size != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="size"
+                         title="{{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}">
+                        {{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.size.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="size"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.size != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="size"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Stroke size:</div>
+                    <div flex>
+                        <input type="number" min="1" max="20" value={{defaults.strokeSize}}
+                               on-change="{{handleStrokeSize}}">
+                    </div>
+
+                    <div class="button action configure" data-enabled="{{visualSets.strokeSize != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="strokeSize"
+                         title="{{visualSets.strokeSize !=null ? visualSets.strokeSize.attribute : 'Select attribute'}}">
+                        {{visualSets.strokeSize !=null ? visualSets.strokeSize.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.strokeSize.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="strokeSize"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.strokeSize != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="strokeSize"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Area:</div>
+                    <div flex>
+                        <input type="number" max="1" min="0" step="0.01" value={{defaults.area}}
+                               on-change="{{handleArea}}">
+                    </div>
+
+                    <div class="button action configure" data-enabled="{{visualSets.area != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="area"
+                         title="{{visualSets.area !=null ? visualSets.area.attribute : 'Select attribute'}}">
+                        {{visualSets.area !=null ? visualSets.area.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.area.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="area"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.area != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="area"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Stroke area:</div>
+                    <div flex>
+                        <input type="number" max="1" min="0" step="0.01" value={{defaults.strokeArea}}
+                               on-change="{{handleStrokeArea}}">
+                    </div>
+
+                    <div class="button action configure" data-enabled="{{visualSets.strokeArea != null}}"
+                         on-click="{{handleSettingsClick}}" data-prop="strokeArea"
+                         title="{{visualSets.strokeArea !=null ? visualSets.strokeArea.attribute : 'Select attribute'}}">
+                        {{visualSets.strokeArea !=null ? visualSets.strokeArea.attribute : 'Select attribute'}}
+                    </div>
+                    <div class="button action toggle" data-enabled="{{visualSets.strokeArea.enabled}}"
+                         on-click="{{handleToggleSet}}" data-prop="strokeArea"></div>
+                    <div class="button action remove" data-enabled="{{visualSets.strokeArea != null}}"
+                         on-click="{{handleRemoveSet}}" data-prop="strokeArea"></div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">X:</div>
+                    <div class="select" flex>
+                        <select value="{{defaults.xAttribute}}" on-change="{{handleXAttribute}}">
+                            <option value="none">Select...</option>
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div horizontal layout>
+                    <div class="text">Y:</div>
+                    <div class="select " flex>
+                        <select value="{{defaults.yAttribute}}" on-change="{{handleYAttribute}}">
+                            <option value="none">Select...</option>
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!--<template if="{{displayProperty == 'labelSize'}}">-->
+        <jso-attribute-render-number-table
+                hidden?="{{displayProperty != 'labelSize'}}"
+                id="labelSize"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.labelSize}}"
+                visualSet="{{visualSets.labelSize}}"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'opacity'}}">-->
+        <jso-attribute-render-number-table
+                hidden?="{{displayProperty != 'opacity'}}"
+                id="opacity"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.opacity}}"
+                visualSet="{{visualSets.opacity}}"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'shape'}}">-->
+        <jso-attribute-render-select-table
+                hidden?="{{displayProperty != 'shape'}}"
+                id="shape"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.shape}}"
+                visualSet="{{visualSets.shape}}"
+                options="circle,ellipse,square,rectangle"
+                >
+        </jso-attribute-render-select-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'color'}}">-->
+        <jso-attribute-render-color-table
+                hidden?="{{displayProperty != 'color'}}"
+                id="color"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.color}}"
+                visualSet="{{visualSets.color}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-color-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeColor'}}">-->
+        <jso-attribute-render-color-table
+                hidden?="{{displayProperty != 'strokeColor'}}"
+                id="strokeColor"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.strokeColor}}"
+                visualSet="{{visualSets.strokeColor}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-color-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'size'}}">-->
+        <jso-attribute-render-number-table
+                hidden?="{{displayProperty != 'size'}}"
+                id="size"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.size}}"
+                visualSet="{{visualSets.size}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeSize'}}">-->
+        <jso-attribute-render-number-table
+                hidden?="{{displayProperty != 'strokeSize'}}"
+                id="strokeSize"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.strokeSize}}"
+                visualSet="{{visualSets.strokeSize}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'area'}}">-->
+        <jso-attribute-render-number-table
+                hidden?="{{displayProperty != 'area'}}"
+                id="area"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.area}}"
+                visualSet="{{visualSets.area}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+        <!--<template if="{{displayProperty == 'strokeArea'}}">-->
+        <jso-attribute-render-number-table
+                hidden?="{{displayProperty != 'strokeArea'}}"
+                id="strokeArea"
+                on-ok="{{handleOkSet}}"
+                displayProperty="{{displayProperty}}"
+                attributeManager="{{attributeManager}}"
+                defaultValue="{{defaults.strokeArea}}"
+                visualSet="{{visualSets.strokeArea}}"
+                allowListParse="true"
+                >
+        </jso-attribute-render-number-table>
+        <!--</template>-->
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.displayProperty = '';
+                this.moved = false;
+            },
+            ready: function () {
+            },
+//            domReady: function () {
+//                var bcr = this.$.header.getBoundingClientRect()
+//                this.headerOffsetX = bcr.width / 2;
+//                this.headerOffsetY = bcr.height / 2;
+//            },
+//            handleHeaderMouseDown: function (e) {
+//                var me = this;
+//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+//                this.moved = true;
+//                this.style.position = 'fixed';
+//                this.style["z-index"] = '1000';
+//                this.mouseMoveHandler = function (moveEvent) {
+//                    me.handleMouseMove(moveEvent);
+//                };
+//                window.addEventListener('mousemove', this.mouseMoveHandler, true);
+//            },
+//            handleHeaderMouseUp: function () {
+//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+//            },
+//            handleMouseMove: function (e) {
+//                this.style.left = (e.offsetX - this.headerOffsetX) + 'px';
+//                this.style.top = (e.offsetY - this.headerOffsetY) + 'px';
+//            },
+//            handlePin: function () {
+//                this.style.position = '';
+//                this.style.left = '';
+//                this.style.top = '';
+//                this.style.top = '';
+//                this.style["z-index"] = '';
+//                this.moved = false;
+//            },
+
+            handleLabelAttribute: function () {
+                this.fire('labelattribute');
+            },
+            handleLabelPositionX: function (e) {
+                this.fire('labelpositionx');
+            },
+            handleLabelPositionY: function (e) {
+                this.fire('labelpositiony');
+            },
+            handleLabelSize: function () {
+                this.fire('labelsize');
+            },
+            handleOpacity: function () {
+                this.fire('opacity');
+            },
+            handleShape: function () {
+                this.fire('shape');
+            },
+            handleColor: function (e) {
+                this.defaults.color = e.detail.color
+                this.fire('color');
+            },
+            handleStrokeColor: function (e) {
+                this.defaults.strokeColor = e.detail.color
+                this.fire('strokecolor');
+            },
+            handleSize: function () {
+                this.fire('size');
+            },
+            handleStrokeSize: function () {
+                this.fire('strokesize');
+            },
+            handleArea: function () {
+                this.fire('area');
+            },
+            handleXAttribute: function (e) {
+                this.fire('xattribute');
+            },
+            handleYAttribute: function (e) {
+                this.fire('yattribute');
+            },
+
+
+            handleClose: function () {
+                this.setAttribute('hidden', '');
+            },
+            handleSettingsClick: function (e) {
+                this.displayProperty = e.currentTarget.dataset.prop;
+            },
+            /*Visual sets*/
+            handleToggleSet: function (e) {
+                var displayProperty = e.currentTarget.dataset.prop;
+                if (this.visualSets[displayProperty]) {
+                    this.visualSets[displayProperty].enabled = !this.visualSets[displayProperty].enabled;
+                    this.fire(displayProperty.toLowerCase());
+                }
+            },
+            handleOkSet: function (e) {
+                this.fire(e.detail.displayProperty.toLowerCase());
+            },
+            handleRemoveSet: function (e) {
+                var displayProperty = e.currentTarget.dataset.prop;
+                if (this.visualSets[displayProperty]) {
+                    delete this.visualSets[displayProperty];
+                    this.fire(displayProperty.toLowerCase());
+                }
+            },
+            applyDirect: function (attributeName, displayProperty) {
+                this.displayProperty = displayProperty;
+
+                var table = this.$[displayProperty];
+                table.attributeName = attributeName;
+                table._updateUniqueValues();
+                table.handleApplyDirect();
+                table.handleOk();
+
+                this.displayProperty = null;
+            }
+        });
+    </script>
+</polymer-element>
+

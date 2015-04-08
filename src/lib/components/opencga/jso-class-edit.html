@@ -1,0 +1,411 @@
+<polymer-element name="jso-class-edit" attributes="contentFile">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                position: relative;
+                display: block;
+                color: #444;
+                background-color: #ffffff;
+                cursor: default;
+                /*box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);*/
+                /*box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.30);*/
+
+                height: 400px;
+            }
+
+            #bar {
+                box-sizing: border-box;
+                background-color: #FAFAFA;
+                height: 32px;
+                line-height: 30px;
+                border: 0px solid #d3d3d3;
+                border-top-width: 1px;
+                border-bottom-width: 1px;
+            }
+
+            #main {
+                position: relative;
+                /*height: calc(100% - 32px);*/
+                height: 100%;
+                width: 100%;
+            }
+
+            #left {
+                width: 220px;
+                border-right: 1px solid #d3d3d3;
+                box-sizing: border-box;
+                padding: 5px;
+                background-color: #FAFAFA;
+            }
+
+            #left [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #left [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .newattr::after {
+                font-family: FontAwesome;
+                content: '\f067';
+                color: #00AA33;
+            }
+
+            .remove::after {
+                font-family: FontAwesome;
+                content: '\f00d';
+                color: #c70804;
+            }
+
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
+            }
+
+            #table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 5px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                border-top: 1px solid #cccccc;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 5px;
+                background-color: #c5c5c5;
+                /*background-color: #3F3F3F;*/
+            }
+        </style>
+        <!--<div id="bar" horizontal layout>-->
+        <!--Edit attributes-->
+        <!--</div>-->
+
+        <div id="main" horizontal layout>
+            <div id="left" vertical layout>
+
+                <label style="margin-top: 0px;">Add new attribute</label>
+
+                <div class="select" horizontal layout style="margin-bottom: 10px;">
+                    <select flex id="typeVar" type="text" on-change="{{changeCategoricalValue}}">
+                        <option id="item-0-CATEGORICAL" value="CATEGORICAL" selected="true">Categorical</option>
+                        <option id="item-0-NUMERIC" value="NUMERIC">Numeric</option>
+                        <option id="item-0-STRING" value="STRING">String</option>
+                    </select>
+                </div>
+                <div horizontal layout>
+                    <input flex type="text" value="{{newColumnName}}" placeholder="Attribute name">
+
+                    <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                </div>
+
+                <label style="margin-top:10px;">Delete attribute</label>
+                <div horizontal layout>
+                <div class="select">
+                    <select id="selectDelete">
+                        <template repeat="{{column in columns}}">
+                            <option value="{{column.name}}">{{column.title}}</option>
+                        </template>
+                    </select>
+                </div>
+                <div class="button remove" on-click="{{handleRemoveApply}}"></div>
+                </div>
+            </div>
+
+            <div flex vertical layout>
+                <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                    <sortable-table id="table" flex
+                                    data="{{data}}"
+                                    columns="{{columns}}"
+                                    page="{{page}}"
+                                    pageSize="{{pageSize}}">
+                        <template id="inputTemplate">
+                            <td class="edit">
+                                <input type="text" value="{{row[column.name]}}" required>
+                            </td>
+                        </template>
+
+                    </sortable-table>
+                    <div class="customPagerScroll"
+                         style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%">
+
+                    </div>
+                </div>
+                <div class="customPager" horizontal layout>
+                    <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}
+                    </div>
+                    <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                        &lt;</div>
+                    <div class="text"> {{table.page}} of {{table.lastPage}}
+                    </div>
+                    <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                         on-click="{{moveToNextPage}}">&gt;
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<div id="bottombar" horizontal layout>-->
+
+        <!--</div>-->
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.selectedAux;
+
+                this.columns = [];
+                this.data = [];
+
+                /** variables to reset data **/
+                this.oriColumns = [];
+                this.oirData = [];
+
+                /** dataset header of the file **/
+                this.datasetHeader = {
+                    "#NUMBER_FEATURES": "",
+                    "#NUMBER_SAMPLES": "",
+                    "#VARIABLE": [],
+                    "#NAMES": []
+                };
+
+                this.page = 1;
+                this.defaultPageSize = 12;
+                this.pageSize = this.defaultPageSize;
+
+                this.newColumnName = '';
+                this.newValue = '';
+                this.expanded = false;
+
+            },
+            ready: function () {
+                this.table = this.$.table;
+            },
+            handleScroll: function (e) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
+            },
+            handleClose: function () {
+                this.selectedMenu = '';
+            },
+            handleExpand: function () {
+                this.page = 1;
+                this.expanded = !this.expanded;
+                if (this.expanded) {
+                    this.style.width = '100vw';
+                    this.style.height = '100vh';
+                    this.style.position = 'fixed';
+                    this.style.top = '0';
+                    this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
+                } else {
+                    this.style.width = '';
+                    this.style.height = '';
+                    this.style.position = '';
+                    this.style.top = '';
+                    this.pageSize = this.defaultPageSize;
+                }
+            },
+            handleRemoveApply: function (e) {
+                if (confirm('Delete this attribute?')) {
+                    var removeIdx = -1;
+                    for (var idx = 0; idx < this.columns.length; idx++) {
+                        console.log(this.columns[idx])
+                        if (this.columns[idx].name == this.$.selectDelete.value) {
+                            var removeIdx = idx;
+                            break;
+                        }
+                    }
+                    this.columns.splice(idx, 1);
+                    this.$.selectDelete.value = "";
+                }
+            },
+            handleAddApply: function (e) {
+                var cellTemplate = "inputTemplate";
+//            var type = this.$.typeVar.value;
+
+                if (this.newColumnName != '') {
+                    var column = {
+                        defaultValue: "",
+                        name: this.newColumnName.toLowerCase(),
+                        title: this.newColumnName,
+                        type: this.$.typeVar.value,
+                        cellTemplate: cellTemplate
+                    };
+                    this.columns.push(column);
+                    this.newColumnName = '';
+                }
+//            if (type == "CATEGORICAL") {
+//                this.$.tablewrap.removeChild(this.$.table);
+//                this.categoricalValues = this.categoricalValues.split(",");
+//                cellTemplate = "newCellTemplate";
+//                var el = document.createElement("template");
+//                el.id = cellTemplate;
+//                var td = document.createElement("td");
+//                el.appendChild(td);
+////                var input = document.createElement("input");
+////                input.type = "text";
+////                input.value="hola";
+////                 td.appendChild(input);
+//
+//                var select = document.createElement("select");
+//                select.setAttribute("type", "text");
+//                td.appendChild(select);
+//                for (var i = 0; i < this.categoricalValues.length; i++) {
+//                    var option = document.createElement("option");
+//                    option.value = this.categoricalValues[i];
+//                    if(i == 0)
+//                        option.setAttribute("selected","true");
+//                    var text = document.createTextNode(this.categoricalValues[i]);
+//                    option.appendChild(text);
+//                    select.appendChild(option);
+//                }
+//
+////                var select
+//                debugger
+//                this.$.table.shadowRoot.appendChild(el);
+//
+//                column.cellTemplate = cellTemplate;
+//                this.$.tablewrap.appendChild(this.$.table)
+//
+//            }
+            },
+            changeCategoricalValue: function () {
+//        if (this.$.typeVar.value == "CATEGORICAL")
+//            this.$.categoricalValuesId.hidden = false;
+//        else
+//            this.$.categoricalValuesId.hidden = true
+            },
+            contentFileChanged: function (oldV, newV) {
+                /** Clear dataset **/
+                this.columns = [];
+                this.data = [];
+
+                var parseMatrix = new ParseMatrix(this.contentFile);
+                this.datasetHeader = parseMatrix.getDataset();
+                /** Add columns **/
+                var column = {
+                    defaultValue: "",
+                    name: "#NAMES",
+                    title: "#NAMES",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                };
+                this.columns.push(column);
+                for (var j = 0; j < this.datasetHeader["#VARIABLE"].length; j++) {
+                    var variable = this.datasetHeader["#VARIABLE"][j];
+                    var columnName = variable[1];
+                    var type = variable[2].split("{")[0];
+                    column = {
+                        defaultValue: "",
+                        name: columnName,
+                        title: columnName,
+                        type: type,
+                        cellTemplate: "inputTemplate"
+                    };
+                    this.columns.push(column);
+                }
+                /** Fill sortable table data **/
+                for (var i = 0; i < this.datasetHeader["#NAMES"].length; i++) {
+                    var dataItem = new Object();
+                    dataItem["#NAMES"] = this.datasetHeader["#NAMES"][i];
+                    for (var j = 0; j < this.datasetHeader["#VARIABLE"].length; j++) {
+                        var variable = this.datasetHeader["#VARIABLE"][j];
+                        var value = variable[3].replace("VALUES{", "").replace("}", "").split(",")[i];
+                        dataItem[variable[1]] = value;
+                    }
+                    this.data.push(dataItem);
+                }
+
+                this.oriData = JSON.parse(JSON.stringify(this.data));
+                this.oriColumns = JSON.parse(JSON.stringify(this.columns));
+            },
+            resetChanges: function () {
+                this.data = [];
+                this.columns = [];
+
+                /** Hack for the sortable **/
+                for (var i = 0; i < this.oriColumns.length; i++) {
+                    var cl = JSON.parse(JSON.stringify(this.oriColumns[i]));
+                    this.columns.push(cl);
+                }
+                for (var i = 0; i < this.oriData.length; i++) {
+                    var dt = JSON.parse(JSON.stringify(this.oriData[i]));
+                    this.data.push(dt);
+                }
+            },
+            parseTable: function () {
+                var strHeader = "";
+                strHeader = "#NUMBER_FEATURES\t" + this.datasetHeader["#NUMBER_FEATURES"] + "\n";
+                strHeader += "#NUMBER_SAMPLES\t" + this.datasetHeader["#NUMBER_SAMPLES"] + "\n";
+                var error = false;
+                for (var i = 0; i < this.columns.length; i++) {
+                    var name = this.columns[i].name;
+                    var type = this.columns[i].type;
+                    if (name == "#NAMES")
+                        continue;
+                    strHeader += "#VARIABLE\t" + name + "\t" + type;
+                    if (type != "NUMERIC")
+                        strHeader += "{";
+
+                    var dataBrackets = [];
+                    var typeValues = {};
+                    for (var j = 0; j < this.data.length; j++) {
+                        var value = this.data[j][name];
+//                        console.log(j)
+//                       console.log(name)
+//                        console.log(value)
+
+                        if (value === undefined){
+                            error = true
+                        }
+                        else{
+                            value = value.trim();
+                            if (value == "" )
+                                error = true;
+                            typeValues[value] = "";
+                            dataBrackets.push(value);
+                        }
+
+                    }
+                    typeValues = Object.keys(typeValues).join(",");
+                    dataBrackets = dataBrackets.join(",");
+                    if (type != "NUMERIC")
+                        strHeader += typeValues + "}";
+                    strHeader += "\tVALUES{" + dataBrackets + "}\tDESCRIPTION{}\n";
+                }
+                dataBrackets = [];
+                for (var z = 0; z < this.data.length; z++) {
+                    var val = this.data[z]["#NAMES"];
+                    dataBrackets.push(val);
+                }
+                strHeader += "#NAMES\t" + dataBrackets.join("\t");
+                if (error)
+                    return "error";
+                return strHeader;
+            }
+        });
+    </script>
+</polymer-element>

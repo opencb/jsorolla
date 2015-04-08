@@ -1,0 +1,137 @@
+<link rel="import" href="jso-opencga-project.html">
+<link rel="import" href="jso-opencga-study.html">
+<link rel="import" href="jso-opencga-create-project.html">
+<link rel="import" href="jso-opencga-create-study.html">
+<link rel="import" href="jso-opencga-upload.html">
+
+
+<polymer-element name="jso-file-browser" attributes="fileList selectedFile">
+    <template>
+        <style>
+            :host {
+            }
+            .panel{
+                display: block;
+                position: absolute;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                border: 1px solid #ccc;
+                z-index: 50000;
+                top: 200px;
+
+            }
+            .container {
+                height: 400px;
+                overflow: auto;
+            }
+
+            .fileClass {
+                position: relative;
+            }
+
+            .fileClass:hover {
+                background-color: #D1D9E3;
+            }
+
+            .fileClass {
+                box-sizing: border-box;
+                padding: 5px 5px;
+                margin: 2px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            .fileClass[data-selected=true] {
+                background-color: #D1D9E3;
+            }
+
+            .footer {
+
+            }
+
+        </style>
+        <div class="button action" on-click="{{handleClick}}" style="width: 400px">{{selectedFile.path}}</div>
+        <div id="panelFiles" class="panel" hidden="true">
+            <div class="header">
+                Select file...
+            </div>
+
+            <div class="container" horizontal layout flex>
+                <div id="fileListDiv" flex>
+                    <template repeat="{{fileItem in fileList}}">
+                        <template bind if="{{fileItem.type=='file'}}">
+                            <!--<div>{{fileItem.path}}</div>-->
+                            <jso-opencga-file-item class="fileClass"
+                                                   file="{{fileItem}}"
+                                                   on-click="{{handleFileClick}}"
+                                                   data-selected="{{selectedTmpFile == fileItem}}"
+                                    </jso-opencga-file-item>
+                        </template>
+                    </template>
+                </div>
+            </div>
+            <div class="footer">
+                <input type="button" value="OK" on-click="{{handleOkClick}}">
+                <input type="button" value="Cancel" on-click="{{handleCancelClick}}">
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+//            this.selectedFile;
+                this.selectedTmpFile;
+                this.selectedFile = {path: "browse server"};
+                this.filesListAux = new Array();
+            },
+            handleFileClick: function (e) {
+//            this.selectedFile = e.currentTarget.file;
+                this.selectedTmpFile = e.currentTarget.file;
+            },
+            handleOkClick: function (e) {
+                this.selectedFile = this.selectedTmpFile;
+                this.$.panelFiles.hidden = true;
+            },
+            handleCancelClick: function (e) {
+                this.$.panelFiles.hidden = true;
+            },
+            handleClick: function (e) {
+                this.$.panelFiles.hidden = false;
+//                this.selectedFile = this.selectedTmpFile
+//                this.clickMessage = this.selectedFile.name;
+//                this.hidden = true
+            }
+//            fileListChanged: function (oldV, newV) {
+//                debugger
+//                for (var i = 0; i < newV.length; i++) {
+//                    if (newV[i].type == "file") {
+//                        this.filesListAux.push(newV[i])
+//                    }
+//                }
+//            }
+
+        });
+    </script>
+</polymer-element>
+<polymer-element name="jso-opencga-file-item" attributes="file">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+            .id {
+                color: #888;
+            }
+        </style>
+        {{file.path}}
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.file;
+            }
+        });
+    </script>
+</polymer-element>

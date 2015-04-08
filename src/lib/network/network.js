@@ -24,43 +24,50 @@ function Network(args) {
     _.extend(this, Backbone.Events);
     this.id = Utils.genId('Network');
 
+
+    this.vAttr = new AttributeManagerMemory();
+    this.eAttr = new AttributeManagerMemory();
+
     //set instantiation args, must be last
     _.extend(this, args);
 
+    this.vAttr.addColumn({
+        defaultValue: "",
+        name: "id",
+        title: "Id",
+        type: "string"
+    });
+    this.vAttr.addColumn({
+        defaultValue: "",
+        name: "name",
+        title: "Name",
+        type: "string",
+        cellTemplate: "inputTemplate"
+    });
+
+    this.eAttr.addColumn({
+        defaultValue: "",
+        name: "id",
+        title: "Id",
+        type: "string"
+    });
+    this.eAttr.addColumn({
+        defaultValue: "",
+        name: "name",
+        title: "Name",
+        type: "string",
+        cellTemplate: "inputTemplate"
+    });
+    this.eAttr.addColumn({
+        defaultValue: "",
+        name: "relation",
+        title: "Relation",
+        type: "string",
+        cellTemplate: "inputTemplate"
+    });
+
     this.graph = new Graph();
     this.config = new NetworkConfig();
-
-    // Default attributes for vertices and edges.
-    // They cannot be deleted.
-    var vertexAttributes = [
-        {name: "id", type: "string", defaultValue: "none", locked: true},
-        {name: "Name", type: "string", defaultValue: "none"}
-    ];
-    var edgeAttributes = [
-        {name: "id", type: "string", defaultValue: "none", locked: true},
-        {name: "Name", type: "string", defaultValue: "none"},
-        {name: "Relation", type: "string", defaultValue: "none"}
-    ];
-
-    this.vertexAttributeManager = new AttributeManagerStore({
-        attributes: vertexAttributes,
-        handlers: {
-            'change:attributes': function (e) {
-                _this.trigger('change:vertexAttributes', e);
-            }
-        }
-    });
-    this.edgeAttributeManager = new AttributeManagerStore({
-        attributes: edgeAttributes,
-        handlers: {
-            'change:attributes': function (e) {
-                _this.trigger('change:edgeAttributes', e);
-            }
-        }
-    });
-
-
-    this.batchFlag = false;
 
     this.on(this.handlers);
 }
@@ -68,7 +75,6 @@ function Network(args) {
 Network.prototype = {
     setGraph: function (graph) {
         console.time('Network.setGraph');
-        this.batchStart();
         this.clean();
         var edges = graph.edges;
         var vertices = graph.vertices;
@@ -94,7 +100,6 @@ Network.prototype = {
                 });
             }
         }
-        this.batchEnd();
         console.timeEnd('Network.setGraph');
     },
     getGraph: function () {
@@ -104,7 +109,6 @@ Network.prototype = {
         console.time('Network.draw');
         var parent = target.parentNode;
         parent.removeChild(target);
-        this.batchStart();
         var edges = this.graph.edges;
         var vertices = this.graph.vertices;
         for (var i = 0, l = vertices.length; i < l; i++) {
@@ -119,10 +123,8 @@ Network.prototype = {
                 this.renderEdge(edge, target);
             }
         }
-        this.batchEnd();
-        console.timeEnd('Network.draw');
         parent.appendChild(target);
-        this.trigger('draw');
+        console.timeEnd('Network.draw');
     },
     addVertex: function (args) {
         var vertex = args.vertex;
@@ -132,7 +134,6 @@ Network.prototype = {
 
         var added = this.graph.addVertex(vertex);
         if (added) {
-
             /* vertex config */
             if (typeof vertexConfig === 'undefined') {
                 vertexConfig = new VertexConfig({
@@ -152,15 +153,10 @@ Network.prototype = {
                 n = name;
             }
 
-            this.vertexAttributeManager.addRecord({
+            this.vAttr.addRow({
                 'id': vertex.id,
-                'Name': n
+                'name': n
             });
-
-            if (this.batchFlag == false) {
-                this.vertexAttributeManager.trigger('change:data', {sender: this});
-                this.trigger('add:vertex');
-            }
         }
         return added;
     },
@@ -187,17 +183,11 @@ Network.prototype = {
                 this.renderEdge(edge, target);
             }
 
-            //attributes
-            this.edgeAttributeManager.addRecord({
+            this.eAttr.addRow({
                 'id': edge.id,
-                'Name': edge.id,
-                'Relation': edge.relation
+                'name': edge.id,
+                'relation': edge.relation
             });
-
-            if (this.batchFlag == false) {
-                this.edgeAttributeManager.trigger('change:data', {sender: this});
-                this.trigger('add:edge');
-            }
         }
         return added;
     },
@@ -232,11 +222,6 @@ Network.prototype = {
         this.graph.removeVertex(vertex);
         this.config.removeVertex(vertex);
         this.vertexAttributeManager.removeRecordById(vertex.id);
-
-        if (this.batchFlag == false) {
-            this.trigger('remove:vertex');
-        }
-
     },
     removeEdge: function (edge) {
         var edgeConfig = this.config.getEdgeConfig(edge);
@@ -249,15 +234,12 @@ Network.prototype = {
         }
     },
     removeVertices: function (vertices) {
-        this.batchStart();
         for (var i = 0, li = vertices.length; i < li; i++) {
             var vertex = vertices[i];
             if (typeof vertex !== 'undefined') {
                 this.removeVertex(vertex);
             }
         }
-        this.batchEnd();
-        this.trigger('remove:vertices');
     },
     renderVertex: function (vertex, target) {
         var vertexConfig = this.config.getVertexConfig(vertex);
@@ -281,6 +263,10 @@ Network.prototype = {
         });
     },
     setVertexLabel: function (vertex, label) {
+        if (typeof vertex !== 'undefined') {
+            var vertexConfig = this.getVertexConfig(vertex);
+            vertexConfig.renderer.setLabelContent(label);
+        }
         this.vertexAttributeManager.setRecordAttributeById(vertex.id, 'Name', label);
     },
     setVertexLabelByAttribute: function (attributeName) {
@@ -298,6 +284,10 @@ Network.prototype = {
         }
     },
     setEdgeLabel: function (edge, label) {
+        if (typeof edge !== 'undefined') {
+            var edgeConfig = this.getEdgeConfig(edge);
+            edgeConfig.renderer.setLabelContent(label);
+        }
         this.edgeAttributeManager.setRecordAttributeById(edge.id, 'Name', label);
     },
     setEdgeLabelByAttribute: function (attributeName) {
@@ -844,23 +834,6 @@ Network.prototype = {
         this.graph.clean();
         this.config.clean();
 
-        //Attributes
-        this.vertexAttributeManager.clean();
-        this.edgeAttributeManager.clean();
-
-        var vertexAttributes = [
-            {name: "id", type: "string", defaultValue: "none", locked: true},
-            {name: "Name", type: "string", defaultValue: "none"}
-        ];
-        var edgeAttributes = [
-            {name: "id", type: "string", defaultValue: "none", locked: true},
-            {name: "Name", type: "string", defaultValue: "none"},
-            {name: "Relation", type: "string", defaultValue: "none"}
-        ];
-        this.vertexAttributeManager.addAttributes(vertexAttributes);
-        this.edgeAttributeManager.addAttributes(edgeAttributes);
-
-        this.trigger('clean');
         console.timeEnd('Network.clean')
     },
 
@@ -991,6 +964,48 @@ Network.prototype = {
         this.trigger('load:json');
         console.timeEnd('Network.loadJSON');
     },
+
+    importVertexAttributeManager: function (attributeManager) {
+        var columns = attributeManager.columns;
+        var data = attributeManager.data;
+        for (var i = 0; i < columns.length; i++) {
+            var column = columns[i];
+            this.vAttr.addColumn(column);
+        }
+        for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            if(this.graph.containsVertex({id:row.id})){
+                var added = this.vAttr.addRow(row);
+                if(added == false){
+                    var currentRow = this.vAttr.getRow(row.id);
+                    for(key in row){
+                        currentRow[key] = row[key];
+                    }
+                }
+            }
+        }
+    },
+    importEdgeAttributeManager: function (attributeManager) {
+        var columns = attributeManager.columns;
+        var data = attributeManager.data;
+        for (var i = 0; i < columns.length; i++) {
+            var column = columns[i];
+            this.eAttr.addColumn(column);
+        }
+        for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            if(this.graph.containsEdge({id:row.id})){
+                var added = this.eAttr.addRow(row);
+                if(added == false){
+                    var currentRow = this.eAttr.getRow(row.id);
+                    for(key in row){
+                        currentRow[key] = row[key];
+                    }
+                }
+            }
+        }
+    },
+
     importVertexWithAttributes: function (data) {
         console.time('Network.importVertexWithAttributes');
         this.batchStart();
@@ -1043,20 +1058,5 @@ Network.prototype = {
         this.batchEnd();
         this.trigger('import:attributes');
         console.timeEnd('Network.importEdgesWithAttributes');
-    },
-    batchStart: function () {
-        this.batchFlag = true;
-        this.vertexAttributeManager.store.suspendEvents();
-        this.edgeAttributeManager.store.suspendEvents();
-    },
-    batchEnd: function () {
-        this.vertexAttributeManager.store.resumeEvents();
-        this.edgeAttributeManager.store.resumeEvents();
-        this.vertexAttributeManager.store.fireEvent('refresh');
-        this.edgeAttributeManager.store.fireEvent('refresh');
-        this.vertexAttributeManager.trigger('change:data', {sender: this});
-        this.edgeAttributeManager.trigger('change:data', {sender: this});
-        this.batchFlag = false;
-        this.trigger('batch:end');
     }
 }

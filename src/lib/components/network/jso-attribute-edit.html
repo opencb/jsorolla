@@ -1,0 +1,655 @@
+<polymer-element name="jso-attribute-edit" extends="jso-window" attributes="selectedMenu attributeManager type">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 630px;
+                height: 585px;
+            }
+
+            sortable-table {
+                border-width: 0;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+            }
+
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .remove::after {
+                font-family: FontAwesome;
+                content: '\f00d';
+                color: #c70804;
+            }
+
+            .delete:hover {
+                color: #c70804;
+            }
+
+            .newattr::after {
+                font-family: FontAwesome;
+                content: '\f067';
+                color: #00AA33;
+            }
+
+            .newvalue::after {
+                font-family: FontAwesome;
+                content: '\f061';
+                color: #0081c2;
+            }
+
+            #left {
+                width: 220px;
+                border-right: 1px solid #d3d3d3;
+                box-sizing: border-box;
+            }
+
+            #left [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #left [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            #edit {
+                box-sizing: border-box;
+                padding: 0 5px;
+            }
+
+            #edit > * {
+                margin-top: 3px;
+            }
+
+            .selbox {
+                /*height: 130px;*/
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+            }
+
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+            }
+
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
+            }
+
+            #table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 10px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager, .bar {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPager {
+                border-top: 1px solid #cccccc;
+            }
+
+            .bar {
+                border-bottom: 1px solid #cccccc;
+            }
+
+            .bar > div {
+                margin: 0 2px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 10px;
+                /*background-color: #c5c5c5;*/
+                background-color: #A9A9A9;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Edit and filter {{type}} attributes</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" flex horizontal layout>
+                <div id="left" vertical layout>
+
+                    <div class="formbox fit">
+                        <div class="formtitle">Edit</div>
+                        <div class="formcontent" vertical layout>
+                            <label>Edit attribute for selected {{type}}s</label>
+
+                            <div vertical layout>
+                                <div class="select">
+                                    <select id="selectEdit">
+                                        <template repeat="{{column in attributeManager.columns}}">
+                                            <template if="{{column.name != 'id'}}">
+                                                <option value="{{column.name}}">{{column.title}}</option>
+                                            </template>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <div horizontal layout style="margin-top: 3px;">
+                                    <input flex type="text" value="{{newValue}}" placeholder="Attribute value">
+
+                                    <div class="button action newvalue" on-click="{{handleEditApply}}"></div>
+                                </div>
+                            </div>
+
+                            <label style="margin-top: 10px;">Add new attribute</label>
+
+                            <div horizontal layout>
+                                <input flex type="text" value="{{newColumnName}}" placeholder="Attribute name">
+
+                                <div class="button action newattr" on-click="{{handleAddApply}}"></div>
+                            </div>
+
+                            <label style="margin-top:10px;">Delete attribute</label>
+
+                            <div horizontal layout>
+                                <div class="select" flex>
+                                    <select id="selectDelete">
+                                        <template repeat="{{column in attributeManager.columns}}">
+                                            <template if="{{column.name != 'id'}}">
+                                                <option value="{{column.name}}">{{column.title}}</option>
+                                            </template>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="button remove" on-click="{{handleRemoveApply}}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="formbox fit" style="border-top-width:1px" flex>
+                        <div class="formtitle" horizontal layout>
+                            <div flex>Filters</div>
+                            <div class="actions" horizontal layout>
+                                <div data-checked?="{{filterSelectedOption == 'add'}}">
+                                    <font-awesome icon="plus" on-click="{{handleAddNewFilter}}"></font-awesome>
+                                </div>
+                                <div data-checked?="{{filterSelectedOption == 'view'}}">
+                                    <font-awesome icon="eye" class="" on-click="{{handleViewFilters}}"></font-awesome>
+                                </div>
+                                <template if="{{filters.length > 0}}">
+                                    <!--<div on-click="{{handleDeleteFilters}}">Remove all</div>-->
+                                    <font-awesome icon="times" on-click="{{handleDeleteFilters}}"></font-awesome>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="formcontent" vertical layout>
+
+                            <template if="{{filterSelectedOption == 'view'}}">
+                                <div class="selbox" style="height: 280px;">
+                                    <template if="{{filters.length == 0}}">
+                                        <div flex class="selitem">No filters to show.<br>
+                                            Click
+                                            <font-awesome icon="plus"></font-awesome>
+                                            to add a new filter.
+                                        </div>
+                                    </template>
+                                    <template repeat="{{filter, filterIndex in filters}}">
+                                        <div flex class="selitem" horizontal layout>
+                                            <div flex vertical layout>
+                                                <div>Attribute: {{filter.attributeName}}</div>
+                                                <div style="text-transform: capitalize">rule: {{filter.match}} {{filter.attributeType}}</div>
+                                                <div>Value: {{filter.queryString}}</div>
+                                            </div>
+                                            <font-awesome icon="times" class="delete" on-click="{{handleDeleteFilter}}"></font-awesome>
+                                        </div>
+                                    </template>
+                                </div>
+
+                            </template>
+
+                            <template if="{{filterSelectedOption == 'add'}}">
+                                <label>Attribute:</label>
+
+                                <div class="select">
+                                    <select id="filterAttributeSelect">
+                                        <template repeat="{{column in attributeManager.columns}}">
+                                            <option value="{{column.name}}">{{column.title}}</option>
+                                        </template>
+                                    </select>
+                                </div>
+
+
+                                <label>Data type:</label>
+
+                                <div class="selbox">
+                                    <div flex class="selitem" data-checked="{{attributeType == 'string'}}"
+                                         on-click="{{handleAttributeTypeSelect}}" data-name="string">String
+                                    </div>
+                                    <div flex class="selitem" data-checked="{{attributeType == 'number'}}"
+                                         on-click="{{handleAttributeTypeSelect}}" data-name="number">Number
+                                    </div>
+                                </div>
+
+                                <template if="{{attributeType == 'string'}}">
+                                    <label>String matching:</label>
+
+                                    <div class="selbox" style="height: 122px;">
+                                        <div flex class="selitem" data-checked="{{stringMatch == 'exact'}}"
+                                             on-click="{{handleStringMatchSelect}}" data-name="exact">Exact
+                                        </div>
+                                        <div flex class="selitem" data-checked="{{stringMatch == 'contains'}}"
+                                             on-click="{{handleStringMatchSelect}}" data-name="contains">Contains
+                                        </div>
+                                        <div flex class="selitem" data-checked="{{stringMatch == 'notcontains'}}"
+                                             on-click="{{handleStringMatchSelect}}" data-name="notcontains">Not contains
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template if="{{attributeType == 'number'}}">
+                                    <label>Number matching:</label>
+
+                                    <div class="selbox">
+                                        <div flex class="selitem" data-checked="{{numberMatch == 'equals'}}"
+                                             on-click="{{handleNumberMatchSelect}}" data-name="equals">Equals
+                                        </div>
+                                        <div flex class="selitem" data-checked="{{numberMatch == 'notequal'}}"
+                                             on-click="{{handleNumberMatchSelect}}" data-name="notequal">Not equal to
+                                        </div>
+
+                                        <div flex class="selitem" data-checked="{{numberMatch == 'greater'}}"
+                                             on-click="{{handleNumberMatchSelect}}" data-name="greater">Greater than
+                                        </div>
+                                        <div flex class="selitem" data-checked="{{numberMatch == 'greaterequal'}}"
+                                             on-click="{{handleNumberMatchSelect}}" data-name="greaterequal">Greater than or equal to
+                                        </div>
+
+                                        <div flex class="selitem" data-checked="{{numberMatch == 'less'}}"
+                                             on-click="{{handleNumberMatchSelect}}" data-name="less">Less than
+                                        </div>
+                                        <div flex class="selitem" data-checked="{{numberMatch == 'lessequal'}}"
+                                             on-click="{{handleNumberMatchSelect}}" data-name="lessequal">Less than or equal to
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <div style="margin-top:5px;" horizontal layout>
+                                    <div flex>
+                                        <input type="text" value="{{queryString}}" placeholder="Query string">
+                                    </div>
+                                    <div class="button action" on-click="{{handleCreateFilter}}">
+                                        Add filter
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div flex vertical layout>
+                    <div class="bar" horizontal layout>
+                        <div class="button action" on-click="{{handleSelectAll}}">Select all</div>
+                        <div class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
+
+                        <div flex>
+                            <label class="control">
+                                <input type="checkbox" checked?="{{ showSelected }}" on-change="{{handleShowSelected}}">
+                                <span title="Switch view beetwen all nodes or selected nodes">Show only selected</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                        <sortable-table id="table" flex
+                                        data="{{currentData}}"
+                                        columns="{{attributeManager.columns}}"
+                                        rowSelection="{{!showSelected}}"
+                                        multiselect="{{multiSelect}}"
+                                        selected="{{ !showSelected ? attributeManager.selected : [] }}"
+                                        page="{{page}}"
+                                        pageSize="{{pageSize}}">
+                            <template id="inputTemplate">
+                                <td class="edit">
+                                    <input type="text" value="{{row[column.name]}}" on-blur="{{cellEditFinished}}">
+                                </td>
+                            </template>
+                        </sortable-table>
+                        <div class="customPagerScroll"
+                             style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                    </div>
+                    <div class="customPager" horizontal layout>
+                        <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>
+                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                            &lt;</div>
+                        <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                        <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                             on-click="{{moveToNextPage}}">&gt;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.page = 1;
+                this.defaultPageSize = 18;
+                this.pageSize = this.defaultPageSize;
+
+                this.attributeManager;
+
+                this.multiSelect = true;
+
+                this.showSelected = false;
+                this.currentData = [];
+                this.filters = [];
+
+//                this.editSelected;
+                this.newColumnName = '';
+                this.newValue = '';
+
+                /*Search*/
+                this.attributeType = 'string';
+                this.stringMatch = 'exact';
+                this.numberMatch = 'equal';
+                this.queryString = '';
+
+                this.filterSelectedOption = 'add'
+            },
+            ready: function () {
+                var me = this;
+                this.table = this.$.table;
+                this.table.cellEditFinished = function (e) {
+                    var row = e.target.templateInstance.model.row;
+                    me.attributeManager._updateRow(row);
+                }
+            },
+            observe: {
+                "attributeManager.data": "handleDataChanged",
+                "attributeManager.selected": "handleSelectedChanged"
+            },
+            showSelectedChanged: function () {
+                this._checkCurrentData();
+            },
+            handleDataChanged: function () {
+                this._checkCurrentData();
+            },
+            handleSelectedChanged: function () {
+                this._checkCurrentData();
+            },
+            _checkCurrentData: function () {
+                if (this.showSelected) {
+                    this.currentData = this.attributeManager.selected;
+                } else {
+                    this.currentData = this.attributeManager.data;
+                }
+
+                var filteredData = [];
+                if (this.filters.length > 0) {
+                    for (var i = 0; i < this.filters.length; i++) {
+                        var filter = this.filters[i];
+                        filteredData = this._applyFilter(filter, this.currentData, filteredData, i);
+                    }
+                    this.currentData = filteredData;
+                }
+            },
+            handleScroll: function (e) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
+            },
+            handleExpand: function () {
+                this.super();
+                this.page = 1;
+            },
+            handleShowSelected: function () {
+                this.showSelected = !this.showSelected;
+                if (this.showSelected) {
+                    this.page = 1;
+                }
+            },
+//            handleEditSelect: function (e) {
+//                if (this.editSelected == e.currentTarget.dataset.name) {
+//                    this.editSelected = null;
+//                } else {
+//                    this.editSelected = e.currentTarget.dataset.name;
+//                }
+//            },
+            handleEditApply: function (e) {
+                this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.$.selectEdit.value, this.newValue);
+                this.attributeManager._update();
+            },
+            handleRemoveApply: function (e) {
+                if (confirm('Delete this attribute?')) {
+//                    if (this.editSelected == e.currentTarget.dataset.name) {
+//                        this.editSelected = null;
+//                    }
+
+                    this.attributeManager.removeColumnByName(this.$.selectDelete.value);
+                }
+            },
+            handleAddApply: function (e) {
+                if (this.newColumnName != '') {
+                    var added = this.attributeManager.addColumn({
+                        defaultValue: "",
+                        name: this.newColumnName.toLowerCase(),
+                        title: this.newColumnName,
+                        type: "string",
+                        cellTemplate: "inputTemplate"
+                    });
+                    if (added) {
+                        this.newColumnName = '';
+                    }
+                }
+            },
+            handleSelectAll: function () {
+                this.attributeManager.selectAll();
+            },
+            handleDeselectAll: function () {
+                this.attributeManager.deselectAll();
+            },
+            /* Search */
+            handleAttributeNameSelect: function (e) {
+                this.attributeName = e.currentTarget.dataset.name;
+            },
+            handleAttributeTypeSelect: function (e) {
+                this.attributeType = e.currentTarget.dataset.name;
+            },
+            handleStringMatchSelect: function (e) {
+                this.stringMatch = e.currentTarget.dataset.name;
+            },
+            handleNumberMatchSelect: function (e) {
+                this.numberMatch = e.currentTarget.dataset.name;
+            },
+            handleCreateFilter: function () {
+                var attributeName = this.shadowRoot.querySelector('#filterAttributeSelect').value;
+
+                var match;
+                if (this.attributeType == 'string') {
+                    match = this.stringMatch;
+                } else if (this.attributeType == 'number') {
+                    match = this.numberMatch;
+                }
+
+                var filter = {
+                    attributeName: attributeName,
+                    queryString: this.queryString,
+                    attributeType: this.attributeType,
+                    match: match
+                };
+                this.filters.push(filter);
+                this._checkCurrentData();
+                this.handleViewFilters();
+            },
+            _applyFilter: function (filter, fullData, filteredData, filterIndex) {
+                var dataToIterate;
+                if (filterIndex == 0) {
+                    dataToIterate = fullData;
+                } else {
+                    dataToIterate = filteredData;
+                }
+
+                if (filter.attributeType == 'string') {
+                    switch (filter.match) {
+                        case 'exact':
+                            dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
+                            break;
+                        case 'contains':
+                            dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString);
+                            break;
+                        case 'notcontains':
+                            dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
+                            break;
+                    }
+                } else if (filter.attributeType == 'number') {
+                    switch (filter.match) {
+                        case 'equals':
+                            dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
+                            break;
+                        case 'notequal':
+                            dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
+                            break;
+                        case 'greater':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>');
+                            break;
+                        case 'greaterequal':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>', true);
+                            break;
+                        case 'less':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<');
+                            break;
+                        case 'lessequal':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<', true);
+                            break;
+                    }
+                }
+                return dataToIterate;
+            },
+            selectByColumnValue: function (data, column, value) {
+                var selected = [];
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    if (row[column] === value) {
+                        selected.push(row);
+                    }
+                }
+                return selected;
+            },
+            selectByColumnContainsValue: function (data, column, value, notContains) {
+                var selected = [];
+                if (notContains == true) {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (row[column].indexOf(value) == -1) {
+                            selected.push(row);
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (row[column].indexOf(value) != -1) {
+                            selected.push(row);
+                        }
+                    }
+                }
+                return selected;
+            },
+            selectByColumnComparationValue: function (data, column, value, comparation, includeValue) {
+                if (!isNaN(value)) {
+                    var selected = [];
+                    if (comparation == '>') {
+                        if (includeValue) {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) >= parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        } else {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) > parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        }
+                    } else if (comparation == '<') {
+                        if (includeValue) {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) <= parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        } else {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) < parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        }
+                    }
+                    return selected;
+                } else {
+                    return data;
+                }
+            },
+            handleDeleteFilter: function (e) {
+                var index = e.target.templateInstance.model.filterIndex;
+                this.filters.splice(index, 1);
+                this._checkCurrentData();
+            },
+            handleDeleteFilters: function (e) {
+                this.filters = [];
+                this._checkCurrentData();
+            },
+            handleViewFilters: function (e) {
+                this.filterSelectedOption = 'view';
+            },
+            handleAddNewFilter: function (e) {
+                this.filterSelectedOption = 'add';
+            }
+        });
+    </script>
+</polymer-element>

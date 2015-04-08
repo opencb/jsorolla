@@ -1,0 +1,298 @@
+<polymer-element name="jso-kegg" extends="jso-window" attributes="networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+
+                width: 500px;
+                height: 350px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+            }
+
+            #container {
+                overflow-y: auto;
+            }
+
+            .attributelist {
+                box-sizing: border-box;
+                padding: 0 5px 5px 5px;
+            }
+
+            .attributelist > * {
+                margin-top: 3px;
+            }
+
+            .checkbox, .radiobox {
+                width: 25px;
+            }
+
+            .checkbox::after, .radiobox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .radiobox[data-checked]::after {
+                content: '\f10c'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            textarea {
+                resize: none;
+                margin: 3px;
+            }
+        </style>
+        <div id="panel" class="panel panel-shadow" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Kegg import</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <!--<div class="text" on-click="{{handleRefresh}}">-->
+                    <!--<font-awesome icon="refresh"></font-awesome>-->
+                    <!--</div>-->
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div id="container" class="container" horizontal layout flex>
+
+                <div class="attributelist" flex>
+                    <template repeat="{{item in pathwayList}}">
+                        <div horizontal layout>
+                            <div class="button action radiobox" data-checked?="{{ item.selected }}"
+                                 on-click="{{handleItemSelect}}"></div>
+                            <div class="text">{{item.text}}</div>
+                        </div>
+                    </template>
+                </div>
+
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <template if="{{loading}}">
+                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                    </template>
+                    <div>{{message}}&nbsp;</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <!--<div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>-->
+                </div>
+            </div>
+            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.pathwayList = [];
+                this.message = "";
+                this.shapeConvert = {
+                    roundrectangle: 'rectangle',
+                    rectangle: 'rectangle',
+                    circle: 'circle',
+                    square: 'square'
+                };
+            },
+            domReady: function () {
+                this.super();
+                this.getPathwayList();
+            },
+            handleItemSelect: function (e) {
+                for (var i = 0; i < this.pathwayList.length; i++) {
+                    var pw = this.pathwayList[i];
+                    pw.selected = false;
+                }
+                var item = e.target.templateInstance.model.item;
+                item.selected = !item.selected;
+                this.getPathway(item);
+            },
+            handleGo: function () {
+                this.retrieveData();
+            },
+            getPathwayList: function () {
+//                http://rest.kegg.jp/list/organism
+                var me = this;
+
+                this.loading = true;
+                this.message = "Querying KEGG WS Server...";
+                var url = 'http://rest.kegg.jp/list/pathway/hsa';
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: url
+                    },
+                    request: {
+                        success: function (response) {
+                            var lines = response.split("\n");
+                            var line;
+                            for (var i = 0; i < lines.length; i++) {
+                                line = lines[i];
+                                if (line !== "") {
+                                    var split0 = line.split("\t");
+                                    var split1 = split0[0].split(":");
+                                    var split2 = split0[1].split(" - ");
+                                    me.pathwayList.push({name: split1[1], text: split2[0], selected: false});
+                                }
+                            }
+                            me.message = "Human pathways ready.";
+                            me.loading = false;
+                        },
+                        error: function (response) {
+
+                        }
+                    }
+                });
+
+            },
+            getPathway: function (pathway) {
+                var me = this;
+                console.log(pathway)
+
+                this.loading = true;
+                this.message = "Querying KEGG WS Server...";
+                var url = 'http://rest.kegg.jp/get/' + pathway.name + '/kgml';
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: url
+                    },
+                    request: {
+                        success: function (response) {
+                            me._processPathwayResponse(response);
+                            me.message = "Pathway loaded.";
+                            me.loading = false;
+
+                        },
+                        error: function (response) {
+
+                        }
+                    }
+                });
+            },
+            _processPathwayResponse: function (response) {
+
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(response, "application/xml");
+                console.log(doc);
+                var entries = doc.querySelectorAll("entry");
+                var relations = doc.querySelectorAll("relation");
+                var reactions = doc.querySelectorAll("reaction");
+                var graph = new Graph();
+                var map = {};
+                for (var i = 0; i < entries.length; i++) {
+                    var entry = entries[i];
+                    var graphics = entry.querySelector("graphics");
+                    var x = parseFloat(graphics.getAttribute("x"));
+                    var y = parseFloat(graphics.getAttribute("y"));
+                    var color = graphics.getAttribute("bgcolor");
+                    var shape = graphics.getAttribute("type");
+//                                var size = graphics.getAttribute("width");
+                    var size = parseInt(graphics.getAttribute("height"));
+                    if (size > 100) {
+                        size = size / 2;
+                    }
+                    var id = entry.getAttribute("id");
+                    var entryName = entry.getAttribute("name");
+                    var name = graphics.getAttribute("name").split(",")[0];
+                    var vertex = new Vertex({
+                        id: id,
+                        position: new Point(x, y),
+                        renderer: new CircosVertexRenderer({
+                            color: color,
+                            shape: this.shapeConvert[shape],
+                            size: size
+                        })
+                    });
+                    graph.addVertex(vertex);
+                    map[id] = {
+                        name: name,
+                        entryName: entryName,
+                        x: x,
+                        y: y
+                    };
+                }
+                for (var i = 0; i < relations.length; i++) {
+                    var relation = relations[i];
+                    var sourceId = relation.getAttribute("entry1");
+                    var targetId = relation.getAttribute("entry2");
+                    var type = relation.getAttribute("type");
+                    var edgeId = sourceId + "_" + type + "_" + targetId;
+
+                    /** create edge **/
+                    var edge = new Edge({
+                        id: edgeId,
+                        relation: type,
+                        source: graph.getVertexById(sourceId),
+                        target: graph.getVertexById(targetId),
+                        weight: 1,
+                        directed: true
+                    });
+                    graph.addEdge(edge);
+                }
+                for (var i = 0; i < reactions.length; i++) {
+                    var reaction = reactions[i];
+                    var sourceId = reaction.querySelector("substrate").getAttribute("id");
+                    var targetId = reaction.querySelector("product").getAttribute("id");
+                    var type = "reaction"
+                    var edgeId = sourceId + "_" + type + reaction.getAttribute("id") + "_" + targetId;
+
+                    /** create edge **/
+                    var edge = new Edge({
+                        id: edgeId,
+                        relation: type,
+                        source: graph.getVertexById(sourceId),
+                        target: graph.getVertexById(targetId)
+                    });
+                    graph.addEdge(edge);
+                }
+                this.networkViewer.setGraph(graph);
+
+
+                var vAttr = this.networkViewer.vAttr;
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "x",
+                    title: "x",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "y",
+                    title: "y",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "entryName",
+                    title: "Entry name",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                for (var i = 0; i < vAttr.data.length; i++) {
+                    var row = vAttr.data[i];
+                    row["name"] = map[row["id"]].name;
+                    row["entryName"] = map[row["id"]].entryName;
+                    row["x"] = map[row["id"]].x;
+                    row["y"] = map[row["id"]].y;
+                }
+
+                this.networkViewer.vertexDefaults.labelAttribute = "name";
+                this.networkViewer.handleVertexDefaultLabelAttribute();
+
+                this.networkViewer.handleVertexDefaultXAttribute();
+                this.networkViewer.handleVertexDefaultYAttribute();
+
+//                            me.networkViewer.setLayout("Force directed");
+            }
+        });
+    </script>
+</polymer-element>

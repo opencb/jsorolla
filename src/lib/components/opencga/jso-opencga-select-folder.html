@@ -1,0 +1,99 @@
+<link rel="import" href="jso-opencga-analysis.html">
+<link rel="import" href="jso-opencga-folder.html">
+<polymer-element name="jso-opencga-select-folder" attributes="folderList">
+    <template>
+        <style>
+            :host {
+                display: block;
+                /*padding-left: 30px;*/
+                /*padding-top: 10px;*/
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                margin-top: 30px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            core-list {
+                /*width: 200px;*/
+                height: 300px;
+                padding: 2px;
+                border: 1px solid #ccc;
+            }
+
+            .selected {
+                background: silver;
+            }
+        </style>
+
+        <core-list id="list" data="{{folderListAux}}" selectionEnabled="true" selection="{{selection}}" height="10">
+            <template>
+                <div class="item {{ {selected: selected} | tokenList }}">
+                    <div> {{model.path}}</div>
+                </div>
+            </template>
+        </core-list>
+
+        <!--<form id="form" vertical layout>-->
+        <!--<div class="dropdown">-->
+        <!--<div tabindex="-1" class="button">-->
+        <!--<jso-opencga-folder-item folder="{{selectedFolder}}"></jso-opencga-folder-item>-->
+        <!--</div>-->
+        <!--<ul>-->
+        <!--<template repeat="{{folder in folderList}}">-->
+        <!--<template bind if="{{folder.type=='folder'}}">-->
+        <!--<li>-->
+        <!--<jso-opencga-folder-item-->
+        <!--folder="{{folder}}"-->
+        <!--data-selected="{{selectedFolder == folder}}"-->
+        <!--on-mousedown="{{handleFolderClick}}">-->
+        <!--</jso-opencga-folder-item>-->
+        <!--</li>-->
+        <!--</template>-->
+        <!--</template>-->
+        <!--</ul>-->
+        <!--</div>-->
+        <!--</form>-->
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.fileFormat = '';
+                this.bioFormat = '';
+                this.description = '';
+
+                this.selectedAnalysis;
+
+                this.fileName = 'Choose file...';
+                this.message = '';
+                this.folderListAux = new Array();
+            },
+//            handleFolderClick: function (e) {
+//                this.selectedFolder = e.target.folder;
+//            },
+            folderListChanged: function (oldV, newV) {
+                for (var i = 0; i < newV.length; i++) {
+                    if (newV[i].type == "folder") {
+                        this.folderListAux.push(newV[i])
+                    }
+                }
+            },
+            selectionChanged:function (oldV, newV) {
+                this.selectedFolder = newV;
+            }
+        });
+    </script>
+</polymer-element>

@@ -21,25 +21,24 @@
 
 function CircosVertexRenderer(args) {
     var _this = this;
-    _.extend(this, Backbone.Events);
-
-
-    this.complex = false;
 
     //defaults
     this.shape = 'circle';
     this.size = 30;
-    this.color = '#9fc6e7';
-    this.strokeSize = 1;
-    this.strokeColor = '#9fc6e7';
+    this.color = '#FAFAFA';
+    this.strokeSize = 2;
+    this.strokeColor = '#888888';
     this.opacity = 0.8;
     this.labelSize = 12;
     this.labelColor = '#111111';
     this.labelPositionX = 0;
     this.labelPositionY = 0;
     this.labelText = '';
+    this.area = 1;
+    this.strokeArea = 1;
+    this.xAttribute = 'x';
+    this.yAttribute = 'y';
 
-    this.sliceArea = 1;
 
     this.pieSlices = [
 //        {size: this.size, area: this.sliceArea, color: this.color, labelSize: this.labelSize, labelOffset: 0}
@@ -66,8 +65,22 @@ function CircosVertexRenderer(args) {
     this.labelY = 0;
 
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            if (args[prop] != null) {
+                this[prop] = args[prop];
+            }
+        }
+    }
 
+    this.size = parseFloat(this.size);
+    this.strokeSize = parseFloat(this.strokeSize);
+    this.opacity = parseFloat(this.opacity);
+    this.labelSize = parseFloat(this.labelSize);
+    this.labelPositionX = parseFloat(this.labelPositionX);
+    this.labelPositionY = parseFloat(this.labelPositionY);
+    this.area = parseFloat(this.area);
+    this.strokeArea = parseFloat(this.strokeArea);
 
 }
 
@@ -77,88 +90,238 @@ CircosVertexRenderer.prototype = {
         return this[attr];
     },
     set: function (attr, value, update) {
-        this.complex = false;
         this[attr] = value;
-        switch (attr) {
-            case 'opacity':
-                this.groupEl.setAttribute('opacity', this.opacity);
-                break;
-            case "labelSize":
-            case "labelPositionY":
-            case "labelPositionX":
-                this.labelEl.setAttribute('font-size', this.labelSize);
-                this._updateLabelElPosition();
-                this.labelEl.setAttribute('x', this.labelX);
-                this.labelEl.setAttribute('y', this.labelY);
-                break;
-            case "shape":
-            case 'size':
-            case 'color':
-            case 'strokeSize':
-            case 'strokeColor':
-            default:
-                if (update !== false) {
-                    this.update();
-                }
+
+        if (this._checkListProperties()) {
+            this.complex = true;
+            this.update();
+        } else {
+            this.complex = false;
+            switch (attr) {
+                case 'opacity':
+                    this.opacity = parseFloat(this.opacity);
+                    this.groupEl.setAttribute('opacity', this.opacity);
+                    break;
+                case "labelSize":
+                case "labelPositionY":
+                case "labelPositionX":
+                    this.labelPositionX = parseInt(this.labelPositionX);
+                    this.labelPositionY = parseInt(this.labelPositionY);
+                    this.labelSize = parseInt(this.labelSize);
+                    this.labelEl.setAttribute('font-size', this.labelSize);
+                    this._updateLabelElPosition();
+                    this.labelEl.setAttribute('x', this.labelX);
+                    this.labelEl.setAttribute('y', this.labelY);
+                    break;
+                case "shape":
+                case 'color':
+                case 'strokeSize':
+                case 'size':
+                case 'strokeColor':
+                case 'area':
+                case 'strokeArea':
+                default:
+                    this.size = parseInt(this.size);
+                    this.strokeSize = parseInt(this.strokeSize);
+                    this.area = parseInt(this.area);
+                    this.strokeArea = parseInt(this.strokeArea);
+                    if (update !== false) {
+                        this.update();
+                    }
+            }
         }
+
     },
-    setConfig: function (args) {
-        _.extend(this, args);
+    _checkListProperties: function () {
+        /** Detect array values **/
+        var minPieLength = 0;
+        var minDonutLength = 0;
+        if (Array.isArray(this.color)) {
+            if (minPieLength == 0) {
+                minPieLength = this.color.length;
+            }
+        }
+        if (Array.isArray(this.size)) {
+            if (minPieLength == 0 || minPieLength == 1) {
+                minPieLength = this.size.length;
+            }
+            if (this.size.length != 1 && this.size.length < minPieLength) {
+                minPieLength = this.size.length;
+            }
+        }
+        if (Array.isArray(this.area)) {
+            if (minPieLength == 0 || minPieLength == 1) {
+                minPieLength = this.area.length;
+            }
+            if (this.area.length != 1 && this.area.length < minPieLength) {
+                minPieLength = this.area.length;
+            }
+        }
+        if (Array.isArray(this.strokeColor)) {
+            if (minDonutLength == 0) {
+                minDonutLength = this.strokeColor.length;
+            }
+        }
+        if (Array.isArray(this.strokeSize)) {
+            if (minPieLength == 0 || minPieLength == 1) {
+                minPieLength = this.strokeSize.length;
+            }
+            if (this.strokeSize.length != 1 && this.strokeSize.length < minPieLength) {
+                minPieLength = this.strokeSize.length;
+            }
+        }
+        if (Array.isArray(this.strokeArea)) {
+            if (minPieLength == 0 || minPieLength == 1) {
+                minPieLength = this.strokeArea.length;
+            }
+            if (this.strokeArea.length != 1 && this.strokeArea.length < minPieLength) {
+                minPieLength = this.strokeArea.length;
+            }
+        }
+        this.pieSlices = [];
+        var slice;
+        if (minPieLength > 0) {
+            for (var i = 0; i < minPieLength; i++) {
+                slice = {};
+                if (Array.isArray(this.color)) {
+                    if (this.color.length == 1) {
+                        slice.color = this.color[0];
+                    } else {
+                        slice.color = this.color[i];
+                    }
+                } else {
+                    slice.color = this.color;
+                }
+                if (Array.isArray(this.size)) {
+                    if (this.size.length == 1) {
+                        slice.size = this.size[0];
+                    } else {
+                        slice.size = this.size[i];
+                    }
+                } else {
+                    slice.size = this.size;
+                }
+                if (Array.isArray(this.area)) {
+                    if (this.area.length == 1) {
+                        slice.area = this.area[0];
+                    } else {
+                        slice.area = this.area[i];
+                    }
+                } else {
+                    slice.area = this.area;
+                }
+                slice.labelSize = this.labelSize;
+                slice.labelOffset = 0;
+                this.pieSlices.push(slice);
+            }
+        }
+        this.donutSlices = [];
+        if (minDonutLength > 0) {
+            for (var i = 0; i < minDonutLength; i++) {
+                slice = {};
+                if (Array.isArray(this.strokeColor)) {
+                    if (this.strokeColor.length == 1) {
+                        slice.color = this.strokeColor[0];
+                    } else {
+                        slice.color = this.strokeColor[i];
+                    }
+                } else {
+                    slice.color = this.strokeColor;
+                }
+                if (Array.isArray(this.strokeSize)) {
+                    if (this.strokeSize.length == 1) {
+                        slice.size = this.strokeSize[0];
+                    } else {
+                        slice.size = this.strokeSize[i];
+                    }
+                } else {
+                    slice.size = this.strokeSize;
+                }
+                if (Array.isArray(this.strokeArea)) {
+                    if (this.strokeArea.length == 1) {
+                        slice.size = this.strokeArea[0];
+                    } else {
+                        slice.area = this.strokeArea[i];
+                    }
+                } else {
+                    slice.area = this.strokeArea;
+                }
+                slice.labelSize = this.labelSize;
+                slice.labelOffset = 0;
+                this.donutSlices.push(slice);
+            }
+        }
+        if (this.pieSlices.length != 0 || this.donutSlices.length != 0) {
+            if (this.pieSlices.length == 0) {
+                this.pieSlices.push({
+                    color: this.color,
+                    size: this.size,
+                    area: this.area,
+                    labelSize: this.labelSize,
+                    labelOffset: 0
+                });
+            }
+            if (this.donutSlices.length == 0) {
+                this.donutSlices.push({
+                    color: this.strokeColor,
+                    size: this.strokeSize,
+                    area: this.strokeArea,
+                    labelSize: this.labelSize,
+                    labelOffset: 0
+                });
+            }
+            return true;
+        } else {
+            return false;
+        }
+        /** **/
     },
     render: function (args) {
+
         this.targetEl = args.target;
-        this.vertex = args.vertex;
-        this.coords = args.coords;
+        //this.vertex = args.vertex;
+        //this.coords = args.coords;
         this.labelText = this.vertex.id;
-        this._render();
+
+        if (this._checkListProperties()) {
+            this.complex = true;
+            this._render();
+        } else {
+            this._render();
+        }
+
     },
     remove: function () {
-        $(this.groupEl).remove();
+        if (this.groupEl && this.groupEl.parentNode) {
+            this.groupEl.parentNode.removeChild(this.groupEl);
+        }
     },
     update: function () {
         this.remove();
         this._render();
         console.log("update")
     },
-    updateComplex: function (slicesMap, defaults) {
-        this.complex = true;
-        this.shape = 'circle';
-        this.color = defaults['pieSlices'].color;
-        this.size = defaults['pieSlices'].size;
-        this.strokeColor = defaults['donutSlices'].color;
-        this.strokeSize = defaults['donutSlices'].size;
-
-        this.pieSlices = slicesMap['pieSlices'];
-        this.donutSlices = slicesMap['donutSlices'];
-        if (typeof this.pieSlices === 'undefined') {
-            this.pieSlices = [
-                {size: defaults['pieSlices'].size, area: defaults['pieSlices'].area, color: defaults['pieSlices'].color, labelSize: this.labelSize, labelOffset: 0}
-            ];
+    select: function (color) {
+        if (color) {
+            this.selectEl.setAttribute('fill', color);
         }
-        if (typeof this.donutSlices === 'undefined') {
-            this.donutSlices = [
-                {size: defaults['donutSlices'].size, area: defaults['donutSlices'].area, color: defaults['donutSlices'].color, labelSize: this.labelSize, labelOffset: 0}
-            ];
+        this.groupEl.insertBefore(this.selectEl, this.groupEl.firstChild);
+        if (this.groupEl && this.groupEl.parentNode) {
+            this.groupEl.parentNode.appendChild(this.groupEl);
         }
-        if (typeof slicesMap['pieSlices'] === 'undefined' && typeof slicesMap['donutSlices'] === 'undefined') {
-            this.complex = false;
-            this.update();
-        } else {
-            this.update();
-        }
-    },
-    select: function () {
-        $(this.groupEl).prepend(this.selectEl);
         this.selected = true;
     },
     deselect: function () {
         this._removeSelect();
         this.selected = false;
     },
-    move: function (dispX, dispY) {
+    move: function () {
         this.groupEl.setAttribute('transform', "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")");
     },
     setLabelContent: function (text) {
+        if (text == null) {
+            text = '';
+        }
         this.labelText = text;
         if (this.labelEl) {
             this._updateLabelElPosition();
@@ -188,8 +351,9 @@ CircosVertexRenderer.prototype = {
             labelPositionX: this.labelPositionX,
             labelPositionY: this.labelPositionY,
             labelText: this.labelText,
+            area: this.area,
+            strokeArea: this.strokeArea,
             pieSlices: this.pieSlices,
-            donutSlices: this.donutSlices,
             donutSlices: this.donutSlices
         };
     },
@@ -202,11 +366,12 @@ CircosVertexRenderer.prototype = {
         this._updateLabelElPosition();
     },
     _updateComplexDrawParameters: function () {
-        var midSize = (this.size + (this.strokeSize));
-        this.mid = midSize / 2;
+        //var midSize = (this.size + (this.strokeSize));
+        //this.mid = midSize / 2;
         this.maxPieSize = this._slicesMax(this.pieSlices);
         this.maxDonutSize = this._slicesMax(this.donutSlices);
         this.figureSize = (this.maxPieSize + (this.maxDonutSize * 2));
+        this.mid = this.figureSize / 2;
         this._updateLabelElPosition();
     },
     _updateLabelElPosition: function () {
@@ -286,7 +451,9 @@ CircosVertexRenderer.prototype = {
         });
     },
     _removeSelect: function () {
-        $(this.groupEl).find('[network-type="select-vertex"]').remove();
+        if (this.selectEl && this.selectEl.parentNode) {
+            this.selectEl.parentNode.removeChild(this.selectEl);
+        }
     },
     _render: function () {
         if (this.complex === true) {
@@ -511,14 +678,14 @@ CircosVertexRenderer.prototype = {
         var total = 0;
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            total += item.area;
+            total += parseFloat(item.area);
         }
         return total;
     },
     _slicesMax: function (items) {
         var max = 0;
         for (var i = 0; i < items.length; i++) {
-            max = Math.max(max, items[i].size);
+            max = Math.max(max, parseFloat(items[i].size));
         }
         return max;
     },
@@ -554,7 +721,7 @@ CircosVertexRenderer.prototype = {
         d += SVG.describeArc(coords.x, coords.y, r, angleStart1, angleEnd1) + ' ';
         d += ['Q', coords.x, coords.y, coordsEnd2.x, coordsEnd2.y, ' '].join(' ');
         d += SVG.describeArc(coords.x, coords.y, r, angleStart2, angleEnd2) + ' ';
-        d += [ 'Q', coords.x, coords.y, coordsEnd1.x, coordsEnd1.y, ' '].join(' ');
+        d += ['Q', coords.x, coords.y, coordsEnd1.x, coordsEnd1.y, ' '].join(' ');
 
         var curve = SVG.addChild(targetSvg, 'path', {
             d: d,

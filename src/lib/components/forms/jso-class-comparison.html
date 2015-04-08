@@ -1,0 +1,539 @@
+<polymer-element name="jso-class-comparison" attributes="userData selectedOption selectedStudy studies args">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+        </style>
+        <div class="tooltitle">
+            <div>
+                Differential expression: class comparison
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Expression.%20Class%20comparison">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Differential expression - Class comparison demo (class_comparison.txt)</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="class_comparison.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-ok="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select the class to analyse</div>
+                <div class="formcontent">
+                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" on-main-select="{{loadedMainSelect}}"
+                                      on-children-select="{{loadedChildrenSelect}}"></jso-class-viewer>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select test</div>
+                <div class="formcontent">
+                    <div id="testDiv">
+                        <label class="control">
+                            <input id="one_rg_1" name="one_rg" class="fc-radioitem fc-disabled" type="radio" value="limma" checked="checked" disabled
+                                   on-click="{{radioTestClicked}}"><span>Limma</span>
+                        </label>
+                        <hr>
+                        <label class="control">
+                            <input id="two_rg_1" name="two_rg" class="fc-radioitem" type="radio" value="t" checked="checked" disabled
+                                   on-click="{{radioTestClicked}}"><span>T-test</span></label>
+                        <label class="control">
+                            <input id="two_rg_2" name="two_rg" class="fc-radioitem" type="radio" value="limma" disabled on-click="{{radioTestClicked}}"><span>Limma</span></label>
+                        <label class="control">
+                            <input id="two_rg_3" name="two_rg" class="fc-radioitem" type="radio" value="fold_change" disabled
+                                   on-click="{{radioTestClicked}}"><span>Fold-change</span></label>
+
+                        <div id="fold_change_div" hidden>
+                            <h3>Select fold-change value</h3>
+                            <label>Fold-change value</label>
+                            <input name="fold_change_value" id="fold_change_value" class="fc-decimal fc-text fc-disabled" type="text" value="2" style="width: 30px">
+                        </div>
+                        <hr>
+                        <label class="control">
+                            <input id="multi_rg_1" name="multi_rg" class="fc-radioitem fc-disabled" type="radio" value="anova" checked="checked" disabled
+                                   on-click="{{radioTestClicked}}"><span>Anova</span></label>
+                        <label class="control">
+                            <input id="multi_rg_2" name="multi_rg" class="fc-radioitem fc-disabled" type="radio" value="limma" disabled
+                                   on-click="{{radioTestClicked}}"><span>Limma</span></label>
+                    </div>
+                </div>
+            </div>
+            <div id="multiple_test_correction_div">
+                <div class="formbox">
+                    <div class="formtitle">Select multiple-test correction</div>
+                    <div class="formcontent" vertical layout>
+
+                        <label class="control">
+                            <input id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked"><span>Benjamini
+                            and Hochberg (BH), FDR </span></label>
+                        <label class="control">
+                            <input id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"><span> Benjamini and
+                                Yekutieli (BY) </span></label>
+                        <label class="control">
+                            <input id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg"><span>Hochberg </span></label>
+                        <label class="control">
+                            <input id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm"><span>Holm </span></label>
+                        <label class="control">
+                            <input id="correction_5" name="correction" class="fc-radioitem" type="radio"
+                                   value="bonferroni"><span>Bonferroni</span></label>
+                    </div>
+                </div>
+            </div>
+            <div id="adjusted_p_value_div">
+                <div class="formbox">
+                    <div class="formtitle">Select adjusted p-value</div>
+                    <div class="formcontent">
+
+                        <label>Adj. p-value (0.0-1.0)</label><input name="p_value" id="p_value" class="fc-decimal fc-text"
+                                                                    type="text" value="{{p_value}}" style="width: 40px">
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label style="font-weight: bold">Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "class-comparison";
+                this.description = "Job description.";
+
+                /** Tool input parameters **/
+                this.class_name = "";
+                this.class_values = "";
+                this.correction = "";
+                this.dataset = "";
+                this.fold_change_value = "";
+                this.outdir = "";
+                this.p_value = 0.05;
+                this.species = "";
+                this.test = "";
+
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+//            annonymousLogin: function () {
+//                debugger
+//                this.loadedChildrenSelectChanged(false, true);
+//            },
+            argsChanged: function () {
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = "Job name";
+                    this.description = "description";
+                    if (this.args.list1 !== undefined)
+                        this.$.inputFile.selectedFile = this.args.list1;
+                    if (this.args.inputFile !== undefined)
+                        this.$.inputFile.selectedFile = this.args.inputFile;
+                    var radios = this.shadowRoot.querySelectorAll('input[name="correction"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.method)
+                            radio.checked = true;
+                    }
+                    this.getContentFile(this.$.inputFile.selectedFile);
+                }
+            },
+            handleFileSelect: function (e) {
+                var file = e.detail.file;
+                if (file.type == "FILE")
+                    this.getContentFile(file);
+            },
+            loadExampleFile: function (exampleFileName) {
+
+                var me = this;
+                OpencgaManager.files.contentExample({
+                    query: {
+                        toolName: this.toolName,
+                        fileName: exampleFileName
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+//                            debugger
+                            me.contentFile = response;
+//                            me.loadedMainSelectChanged(false,true);
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            getContentFile: function (file) {
+                this.$.jsoClassViewer.loading = true;
+
+                var me = this;
+                if (String(file.id).indexOf("example_") >= 0) {
+                    this.loadExampleFile(file.path);
+                } else {
+                    OpencgaManager.files.content({
+                        id: file.id,
+                        query: {
+                            sid: Cookies('bioinfo_sid')
+                        },
+                        request: {
+                            //method: 'POST',
+                            success: function (response) {
+                                me.contentFile = response;
+                            },
+                            error: function () {
+                                var message = 'Server error, try again later.';
+                            }
+                        }
+                    })
+                }
+            },
+            handleForm: function () {
+                this.launchJob();
+
+            },
+            launchJob: function () {
+                var me = this;
+
+                this.test = this.getSelectedTest();
+                this.class_name = this.$.jsoClassViewer.getMainSelect().value;
+                if (this.class_name == "none") {
+                    alert("Sorry: Please select a class name.");
+                    return;
+                }
+                this.class_values = this.getClassValues();
+                if (this.class_values == "") {
+                    alert("Sorry: Please select values for your class.");
+                    return;
+                }
+
+                var utils = new FormUtils(this);
+                if (!utils.basicValidationForm()) {
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    "class-name": this.class_name,
+                    "class-values": this.class_values,
+                    dataset: this.$.inputFile.selectedFile.id,
+                    test: this.test
+                };
+                if (this.$.two_rg_3.disabled == false && this.$.two_rg_3.checked)
+                    query["fold-change-value"] = this.$.fold_change_value.value;
+                else {
+                    query["correction"] = this.$.multiple_test_correction_div.querySelector('input[name="correction"]:checked').value;
+                    if (this.$.p_value.value == "" || isNaN(this.$.p_value.value)) {
+                        alert("Sorry. P is value not a number. ");
+                        return;
+                    }
+                    query["p-value"] = this.$.p_value.value;
+                }
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "Differential expression - Class comparison demo (correlation.txt)";
+                this.description = "Just a differencial expression demo";
+                this.$.inputFile.selectedFile = {id: "example_class_comparison.txt", path: "class_comparison.txt", type: "FILE"};
+                this.p_value = 0.05;
+                this.$.multi_rg_1.checked = true;
+                this.$.correction_1.checked = true;
+
+                this.getContentFile(this.$.inputFile.selectedFile);
+                var exampleFolder = "classComparison";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample2: function (e) {
+
+                this.jobName = "Differential expression - Two-classes demo (t-test)";
+                this.description = "Just a differencial expression demo";
+                this.$.inputFile.selectedFile = {id: "example_twoclasses.txt", path: "twoclasses.txt", type: "FILE"};
+                this.p_value = 0.05;
+                this.$.two_rg_1.checked = true;
+                this.$.correction_1.checked = true;
+
+                this.getContentFile(this.$.inputFile.selectedFile);
+                var exampleFolder = "cc_twoclasses";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            loadedMainSelect: function () {
+                /** This is mainly for the examples **/
+                var me = this;
+                var select = this.$.jsoClassViewer.getMainSelect();
+                select.addEventListener("change", function () {
+                    me.manageClass()
+                });
+                if (this.$.inputFile.selectedFile !== undefined && this.$.inputFile.selectedFile.id == "example_class_comparison.txt") {
+                    select.value = "indep";
+                    this.$.jsoClassViewer.selectChange();
+                }
+                if (this.$.inputFile.selectedFile !== undefined && this.$.inputFile.selectedFile.id == "example_twoclasses.txt") {
+                    select.value = "class";
+                    this.$.jsoClassViewer.selectChange();
+                }
+            },
+            loadedChildrenSelect: function (oldV, newV) {
+
+                var me = this;
+                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
+                for (var i = 0; i < childrenSelect.length; i++) {
+                    var select = childrenSelect[i];
+                    select.addEventListener("change", function () {
+                        me.manageTest()
+                    });
+                }
+                /** This is mainly for the examples **/
+                if (this.$.inputFile.selectedFile.id == "example_class_comparison.txt") {
+
+                    childrenSelect[0].value = 1;
+                    childrenSelect[1].value = 3;
+                    childrenSelect[2].value = 5;
+                    childrenSelect[3].value = 7;
+                    childrenSelect[4].value = 9;
+
+                    this.$.one_rg_1.disabled = true;
+                    this.$.two_rg_1.disabled = true;
+                    this.$.two_rg_2.disabled = true;
+                    this.$.two_rg_3.disabled = true;
+                    this.$.multi_rg_1.disabled = false;
+                    this.$.multi_rg_2.disabled = false;
+                }
+                /** This is mainly for the examples **/
+                if (this.$.inputFile.selectedFile.id == "example_twoclasses.txt") {
+
+                    childrenSelect[0].value = "basal";
+                    childrenSelect[1].value = "luminal";
+
+                    this.$.one_rg_1.disabled = true;
+                    this.$.two_rg_1.disabled = false;
+                    this.$.two_rg_2.disabled = false;
+                    this.$.two_rg_3.disabled = false;
+                    this.$.multi_rg_1.disabled = true;
+                    this.$.multi_rg_2.disabled = true;
+                }
+            },
+            manageClass: function () {
+                var select = this.$.jsoClassViewer.getMainSelect();
+                if (select.value == "none") {
+                    this.$.one_rg_1.disabled = true;
+                    this.$.two_rg_1.disabled = true;
+                    this.$.two_rg_2.disabled = true;
+                    this.$.two_rg_3.disabled = true;
+                    this.$.multi_rg_1.disabled = true;
+                    this.$.multi_rg_2.disabled = true;
+                }
+                this.manageTest();
+            },
+            manageTest: function () {
+                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
+                var count = 0;
+                for (var i = 0; i < childrenSelect.length; i++) {
+                    var select = childrenSelect[i];
+                    if (select.value != "none")
+                        count++;
+                }
+                if (count == 0) {
+                    this.$.one_rg_1.disabled = true;
+                    this.$.two_rg_1.disabled = true;
+                    this.$.two_rg_2.disabled = true;
+                    this.$.two_rg_3.disabled = true;
+                    this.$.multi_rg_1.disabled = true;
+                    this.$.multi_rg_2.disabled = true;
+                }
+                if (count == 1) {
+                    this.$.one_rg_1.disabled = false;
+                    this.$.two_rg_1.disabled = true;
+                    this.$.two_rg_2.disabled = true;
+                    this.$.two_rg_3.disabled = true;
+                    this.$.multi_rg_1.disabled = true;
+                    this.$.multi_rg_2.disabled = true;
+                }
+                if (count == 2) {
+                    this.$.one_rg_1.disabled = true;
+                    this.$.two_rg_1.disabled = false;
+                    this.$.two_rg_2.disabled = false;
+                    this.$.two_rg_3.disabled = false;
+                    this.$.multi_rg_1.disabled = true;
+                    this.$.multi_rg_2.disabled = true;
+                }
+                if (count > 2) {
+                    this.$.one_rg_1.disabled = true;
+                    this.$.two_rg_1.disabled = true;
+                    this.$.two_rg_2.disabled = true;
+                    this.$.two_rg_3.disabled = true;
+                    this.$.multi_rg_1.disabled = false;
+                    this.$.multi_rg_2.disabled = false;
+                }
+            },
+            radioTestClicked: function () {
+                if (this.$.two_rg_3.checked) {
+                    this.$.fold_change_div.hidden = false;
+                    this.$.adjusted_p_value_div.hidden = true;
+                    this.$.multiple_test_correction_div.hidden = true;
+                }
+                else {
+                    this.$.fold_change_div.hidden = true;
+                    this.$.adjusted_p_value_div.hidden = false;
+                    this.$.multiple_test_correction_div.hidden = false;
+                }
+
+            },
+            getSelectedTest: function () {
+                var inputs = this.$.testDiv.getElementsByTagName("input");
+                for (var i = 0; i < inputs.length; i++) {
+                    var input = inputs[i];
+                    if (input.disabled == false && input.checked)
+                        return input.value;
+                }
+            },
+            getClassValues: function () {
+                var childrenSelect = this.$.jsoClassViewer.getChildrenSelect();
+                var classValues = new Array();
+                for (var i = 0; i < childrenSelect.length; i++) {
+                    var children = childrenSelect[i];
+                    if (children.value != "none")
+                        classValues.push(children.value)
+                }
+                return classValues.join(",");
+            }
+
+        });
+    </script>
+</polymer-element>

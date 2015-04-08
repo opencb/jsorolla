@@ -1,0 +1,241 @@
+<polymer-element name="jso-one-channel-genepix" attributes="userData selectedOption selectedStudy studies">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+        </style>
+        <div class="tooltitle">
+            <div>
+                GenePix one-channel normalization
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Genepix%20One%20Color%20Microarray%20Normalization">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">genepix one-color normalization</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="onecolor_genepix_expression.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX"></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Analysis</div>
+                <div class="formcontent">
+                    Background correction:
+
+                    <div class="select">
+                        <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
+                            <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp" selected="selected">normexp</option>
+                            <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="rma">rma</option>
+                            <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="half">half</option>
+                            <option name="bg_correction_4" id="bg_correction_4" class="fc-combobox-item" value="subtract">subtract</option>
+                            <option name="bg_correction_5" id="bg_correction_5" class="fc-combobox-item" value="none">none</option>
+                        </select>
+                    </div>
+                    <br/>
+                    Between arrays normalization:
+                    <div class="select">
+                        <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
+                            <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item" value="quantiles" selected="selected">quantiles</option>
+                            <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item" value="scale">scale</option>
+                            <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="none">none</option>
+                        </select>
+                    </div>
+                    <br>
+                    <label class="control">
+                        <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true" checked="checked">
+                        <span>Check if flagged spots not be used in the fitting of the parameters of the normalization steps</span></label>
+                    <br>
+                    <label class="control">
+                        <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox" value="true">
+                        <span>Check if true flagged spots will have a missing (NA) normalized value and A-value as well</span></label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "genepix-expression-one-color-normalization";
+
+                this.compressed_file_tags = "microarray,expression,one-channel,genepix";
+
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            handleForm: function () {
+                var me = this;
+                me.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+                if (!Utils.basicValidationForm(this)) {
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    "compressed-file": this.$.inputFile.selectedFile.id,
+                    "compressed-file-tags": this.compressed_file_tags,
+                    "bg-correction": this.$.bg_correction.value,
+                    "ba-normalization": this.$.ba_normalization.value
+                };
+
+                if (this.$.flags_no_fitted.checked) query["flags-no-fitted"] = "";
+                if (this.$.flags_as_missing.checked) query["flags-as-missing"] = "";
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "genepix one-color normalization";
+                this.description = "GenePix one-color normalization demo";
+                this.$.bg_correction.value = "normexp";
+                this.$.flags_no_fitted.checked = true;
+                this.$.flags_as_missing.checked = false;
+                this.$.ba_normalization.value = "quantiles";
+                this.$.inputFile.selectedFile = {id: "example_onecolor_genepix_expression.zip", path: "onecolor_genepix_expression.zip", type: "FILE"};
+                this.compressed_file_tags = "microarray,expression,one-channel,genepix";
+                var exampleFolder = "genepix_one_channel";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        })
+        ;
+    </script>
+</polymer-element>

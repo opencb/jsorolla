@@ -1,0 +1,110 @@
+<polymer-element name="jso-window"
+                 attributes="">
+    <template>
+    </template>
+    <script>
+        (function () {
+            var lastWindow_;
+
+            Polymer({
+                get lastWindow() {
+                    return lastWindow_;
+                },
+                set lastWindow(el) {
+                    if (lastWindow_) {
+                        lastWindow_.style["z-index"] = '1';
+                    }
+                    lastWindow_ = el;
+                    if (lastWindow_) {
+                        lastWindow_.style["z-index"] = '2';
+                    }
+                },
+                created: function () {
+                },
+                ready: function () {
+                },
+                domReady: function () {
+                    var me = this;
+                    this.moved = false;
+                    this.expanded = false;
+                    this.firstLoad = true;
+
+                    me._center();
+                    me.lastWindow = me;
+
+                    var observer = new MutationObserver(function (mutations) {
+                        me.lastWindow = me;
+                        if (me.firstLoad) {
+                            me._center();
+                            me.firstLoad = false;
+                        }
+                    }.bind(this));
+                    observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
+                },
+                handleHeaderMouseDown: function (e) {
+                    var me = this;
+                    var bcr = this.$.header.getBoundingClientRect();
+
+                    this.headerOffsetX = e.clientX - bcr.left;
+                    this.headerOffsetY = e.clientY - bcr.top;
+
+                    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+                    this.moved = true;
+                    this.style.position = 'fixed';
+
+                    this.lastWindow = this;
+
+                    this.mouseMoveHandler = function (moveEvent) {
+                        me.handleMouseMove(moveEvent);
+                    };
+                    window.addEventListener('mousemove', this.mouseMoveHandler, true);
+                },
+                handleHeaderMouseUp: function () {
+                    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+                },
+                handleMouseMove: function (e) {
+                    this.style.left = (e.clientX - this.headerOffsetX) + 'px';
+                    this.style.top = (e.clientY - this.headerOffsetY) + 'px';
+                },
+                handlePin: function () {
+                    this.style.position = '';
+                    this.style.left = '';
+                    this.style.top = '';
+                    this.style.top = '';
+                    this.style["z-index"] = '';
+
+                    this.moved = false;
+                },
+                handleExpand: function () {
+                    this.expanded = !this.expanded;
+                    if (this.expanded) {
+                        this.style.width = '100%';
+                        this.style.height = 'calc(100% - 60px)';
+                        this.style.position = 'fixed';
+                        this.style.top = '60px';
+                        this.style.left = '0';
+                        this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
+                    } else {
+                        this.style.width = '';
+                        this.style.height = '';
+                        this.style.position = '';
+                        this.style.top = '';
+                        this.style.left = '';
+                        this.pageSize = this.defaultPageSize;
+                        this._center();
+                    }
+                },
+                _center: function () {
+                    var bcr = this.getBoundingClientRect();
+                    this.style.left = (window.innerWidth / 2 - bcr.width / 2 ) + 'px';
+                    this.style.top = (window.innerHeight / 2 - bcr.height / 2) + 'px';
+                },
+                handleClose: function () {
+                    this.setAttribute('hidden', '');
+                }
+
+            });
+        })();
+    </script>
+</polymer-element>
+

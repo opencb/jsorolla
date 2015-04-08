@@ -1,0 +1,48 @@
+<polymer-element name="jso-pvalue-button" attributes="pvalue">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                /*position: relative;*/
+                background-color: white;
+            }
+
+        </style>
+        <div id="fatigoOutput" class="output">
+            <div class="level-0">
+                <div class="children">
+                    <div class="level-1" horizontal layout>
+                        <label>Select p-value: </label>
+                        <div horizontal="" layout="">
+                            <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">
+                                0.1
+                            </div>
+                            <div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">
+                                0.05
+                            </div>
+                            <div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">
+                                0.01
+                            </div>
+                            <div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">
+                                0.005
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function(){
+//                this.pvalue = 0.05;
+            },
+            handlePvalue: function (event, clicked, elem) {
+                this.pvalue = parseFloat(elem.innerHTML);
+            }
+        })
+    </script>
+</polymer-element>
+
+

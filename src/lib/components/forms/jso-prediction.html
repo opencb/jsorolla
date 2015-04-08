@@ -1,0 +1,418 @@
+<polymer-element name="jso-prediction" attributes="userData selectedOption selectedStudy studies args">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+        </style>
+        <div class="tooltitle">
+            <div>
+                Class prediction
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Class%20prediction">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">A leukemia data example</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="data_train_leukemia.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="formbox">
+                <div class="formtitle">Select train data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-ok="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" on-main-select="{{loadedMainSelect}}" childrenDisplay="false"></jso-class-viewer>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select test data (Optional)</div>
+                <div class="formcontent">
+                    Test data (expression matrix)
+                    <jso-project-browser-window id="testInputFile" studies="{{studies}}"
+                                                selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Algorithms</div>
+                <div class="formcontent">
+                    <div id="algorithmsDiv" vertical layout>
+                        <label class="control">
+                            <input name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked">
+                            <span>SVM</span></label>
+                        <label class="control">
+                            <input name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> <span>KNN </span></label>
+                        <label class="control">
+
+                            <input name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true">
+                            <span>Random forest</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Error estimation</div>
+                <div class="formcontent" vertical layout>
+                    <label>Validations</label>
+                    <label class="control">
+                        <input id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo"
+                               on-click="{{errorStimationClick}}"><span>Leave-one-out</span></label>
+                    <label class="control">
+                        <input id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold"
+                               on-click="{{errorStimationClick}}" checked="checked"><span>KFold</span></label>
+
+                    <div id="kfoldProp">
+                        <label>repeats</label>
+
+                        <div class="select">
+                            <select name="repeats" id="repeats" class="fc-combobox" type="text" value="10">
+                                <option name="repeats_1" id="repeats_1" class="fc-combobox-item" value="5">5</option>
+                                <option name="repeats_2" id="repeats_2" class="fc-combobox-item" value="10"
+                                        selected="selected">10
+                                </option>
+                                <option name="repeats_3" id="repeats_3" class="fc-combobox-item" value="15">15</option>
+                                <option name="repeats_4" id="repeats_4" class="fc-combobox-item" value="20">20</option>
+                                <option name="repeats_5" id="repeats_5" class="fc-combobox-item" value="30">30</option>
+                            </select>
+                        </div>
+                        <br>
+                        <label>folds</label>
+
+                        <div class="select">
+                            <select name="folds" id="folds" class="fc-combobox" type="text" value="5">
+                                <option name="folds_1" id="folds_1" class="fc-combobox-item" value="5" selected="selected">
+                                    5
+                                </option>
+                                <option name="folds_2" id="folds_2" class="fc-combobox-item" value="10">10</option>
+                                <option name="folds_3" id="folds_3" class="fc-combobox-item" value="15">15</option>
+                                <option name="folds_4" id="folds_4" class="fc-combobox-item" value="20">20</option>
+                                <option name="folds_5" id="folds_5" class="fc-combobox-item" value="30">30</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Gene subset selection</div>
+                <div class="formcontent">
+                    <label>Subset selection method</label><br>
+
+                    <div id="featureSelectionDiv" vertical layout>
+                        <label class="control">
+                            <input id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio"
+                                   value="cfs"><span>Correlation-based
+                        Feature Selection (CFS)</span></label>
+                        <label class="control">
+                            <input id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio"
+                                   value="pca"><span>Principal
+                        Component Analysis (PCA)</span></label>
+                        <label class="control">
+                            <input id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio"
+                                   value="none" checked="checked"><span> None</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "class-prediction";
+                this.description = "Job description";
+            },
+            argsChanged: function () {
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = "Job name";
+                    this.description = "description";
+                    if (this.args.list1 !== undefined)
+                        this.$.inputFile.selectedFile = this.args.list1;
+                    if (this.args.inputFile !== undefined)
+                        this.$.inputFile.selectedFile = this.args.inputFile;
+                    var radios = this.shadowRoot.querySelectorAll('input[name="svm"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.method)
+                            radio.checked = true;
+                    }
+                    this.getContentFile(this.$.inputFile.selectedFile);
+                }
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            list1Changed: function (oldV, newV) {
+                if (typeof oldV != 'undefined') {
+                    this.getContentFile(newV);
+                }
+            },
+            handleFileSelect: function (e) {
+                var file = e.detail.file;
+                if (file.type == "FILE")
+                    this.getContentFile(file);
+            },
+            getContentFile: function (file) {
+                this.$.jsoClassViewer.loading = true;
+                var me = this;
+                if (String(file.id).indexOf("example_") >= 0) {
+                    this.loadExampleFile(file.path);
+                } else {
+                    OpencgaManager.files.content({
+                        id: file.id,
+                        query: {
+                            sid: Cookies('bioinfo_sid')
+                        },
+                        request: {
+                            //method: 'POST',
+                            success: function (response) {
+                                me.contentFile = response;
+                            },
+                            error: function () {
+                                var message = 'Server error, try again later.';
+                            }
+                        }
+                    })
+                }
+            },
+            handleForm: function () {
+
+                this.launchJob();
+
+            },
+            launchJob: function () {
+                var me = this;
+                if (this.$.knn.checked == false && this.$.svm.checked == false && this.$.random_forest.checked == false) {
+                    alert("Sorry. One algorithm should be chosen. Please choose one.");
+                    return;
+                }
+                if (!Utils.basicValidationForm(this)) {
+                    return;
+                }
+                if (this.$.jsoClassViewer.getMainSelect().value == "none") {
+                    alert("Sorry: Please select a class name.");
+                    return;
+                }
+                this.knn = this.$.knn.checked;
+                this.svm = this.$.svm.checked;
+                this.random_forest = this.$.random_forest.checked;
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    dataset: this.$.inputFile.selectedFile.id,
+                    "class": this.$.jsoClassViewer.getMainSelect().value,
+                    "feature-selection": this.$.featureSelectionDiv.querySelector('input[name="feature_selection"]:checked').value
+                };
+                if (this.$.random_forest.checked) {
+                    query["random-forest"] = this.$.random_forest.checked;
+                }
+                if (this.$.knn.checked) {
+                    query["knn"] = this.$.knn.checked;
+                }
+                if (this.$.svm.checked) {
+                    query["svm"] = this.$.svm.checked;
+                }
+                if (this.$.testInputFile.selectedFile !== undefined)
+                    if (this.$.testInputFile.selectedFile.type == "FILE") {
+                        query["test"] = this.$.testInputFile.selectedFile.id
+                    }
+                if (this.$.validation_1.checked) {
+                    query["loo"] = "";
+                }
+                if (this.$.validation_2.checked) {
+                    query["kfold"] = "";
+                    query["repeats"] = this.$.repeats.value;
+                    query["folds"] = this.$.folds.value;
+                }
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "A leukemia data example";
+                this.description = "A leukemia train dataset";
+                this.newFolderName = "pred_" + Math.floor((Math.random() * 100) + 1);
+                this.$.inputFile.selectedFile = {
+                    id: "example_data_train_leukemia.txt",
+                    path: "data_train_leukemia.txt",
+                    type: "FILE"
+                };
+                this.$.knn.checked = true;
+                this.$.svm.checked = false;
+                this.$.random_forest.checked = false;
+                this.$.validation_2.checked = true;
+                this.$.repeats.value = 10;
+                this.$.folds.value = 5;
+                this.$.feature_selection_1.checked = true;
+
+                this.getContentFile(this.$.inputFile.selectedFile);
+                var exampleFolder = "leukemia_example";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            loadedMainSelect: function () {
+                /** This is mainly for the examples **/
+                var select = this.$.jsoClassViewer.getMainSelect();
+                if (this.$.inputFile.selectedFile !== undefined && this.$.inputFile.selectedFile.id == "example_data_train_leukemia.txt") {
+                    select.value = "TUMOR";
+                }
+            },
+            errorStimationClick: function (e) {
+                if (this.$.validation_1.checked) {
+                    this.$.kfoldProp.hidden = true;
+                }
+                else {
+                    this.$.kfoldProp.hidden = false;
+                }
+            },
+            loadExampleFile: function (exampleFileName) {
+                var me = this;
+                OpencgaManager.files.contentExample({
+                    query: {
+                        toolName: this.toolName,
+                        fileName: exampleFileName
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            me.contentFile = response;
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
+        });
+    </script>
+</polymer-element>

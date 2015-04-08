@@ -1,0 +1,124 @@
+<polymer-element name="jso-network-list-select" attributes="networkViewer textAreaValue">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+            }
+
+            .selbox {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+            }
+
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+            }
+
+            textarea {
+                resize: none;
+            }
+        </style>
+        <div vertical layout>
+
+            <form horizontal layout>
+                <label class="control">
+                    <input type="radio" name="mode" value="nodes" on-change="{{handleRadio}}" checked>
+                    <span>Network nodes</span>
+                </label>
+                <label class="control">
+                    <input type="radio" name="mode" value="selection" on-change="{{handleRadio}}">
+                    <span>Network selection</span>
+                </label>
+            </form>
+
+            <div horizontal layout center>
+                <div>
+                    <label style="margin-top: 5px;">Select attribute:</label>
+
+                    <div class="selbox" style="height: 150px; width:200px;">
+                        <template repeat="{{column in networkViewer.vAttr.columns}}">
+                            <div class="selitem"
+                                 data-checked="{{ columnSelected == column.name }}"
+                                 on-click="{{handleBoxSelect}}">{{column.title}}
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="button action" style="margin:5px;" on-click="{{handleApply}}">
+                        <font-awesome icon="arrow-right"></font-awesome>
+                </div>
+                <div style="margin-left: 3px;">
+                    <label style="margin-top: 5px;">List:</label>
+                    <textarea style="height:150px;width:200px;" value="{{textAreaValue}}"></textarea>
+                </div>
+            </div>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.columnSelected = "id";
+                this.selectNodes = "nodes";
+            },
+            attached: function () {
+            },
+//            observe: {
+//                'networkViewer.vAttr.selected': 'handleSelectionChange',
+//                'networkViewer.vAttr.data': 'handleNodesChange'
+//            },
+            handleRadio: function (e) {
+                this.selectNodes = e.target.getAttribute("value");
+            },
+            handleBoxSelect: function (e) {
+                this.columnSelected = e.target.templateInstance.model.column.name;
+            },
+//            handleNodesChange: function () {
+//                this.handleApply();
+//            },
+//            handleSelectionChange: function () {
+//                this.handleApply();
+//            },
+            handleNodesList: function () {
+                this.selectNodes = 'nodes';
+                var value = '';
+                for (var i = 0; i < this.networkViewer.vAttr.data.length; i++) {
+                    var row = this.networkViewer.vAttr.data[i];
+                    if (row[this.columnSelected]) {
+                        value += row[this.columnSelected] + '\n';
+                    }
+                }
+                this.textAreaValue = value.trim();
+            },
+            handleSelectionList: function () {
+                this.selectNodes = 'selection';
+                var value = '';
+                for (var i = 0; i < this.networkViewer.vAttr.selected.length; i++) {
+                    var row = this.networkViewer.vAttr.selected[i];
+                    if (row[this.columnSelected]) {
+                        value += row[this.columnSelected] + '\n';
+                    }
+                }
+                this.textAreaValue = value.trim();
+            },
+            handleApply: function (e) {
+                if (this.columnSelected !== "") {
+                    if (this.selectNodes == "nodes") {
+                        this.handleNodesList();
+                    } else if (this.selectNodes == "selection") {
+                        this.handleSelectionList();
+                    }
+                }
+            }
+        });
+    </script>
+</polymer-element>

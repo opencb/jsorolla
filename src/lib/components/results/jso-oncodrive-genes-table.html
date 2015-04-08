@@ -1,0 +1,92 @@
+<polymer-element name="jso-oncodrive-genes-table" attributes="content">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            /*sortable-table {*/
+                /*border: 1px solid #d3d3d3;*/
+
+            /*}*/
+
+            /*sortable-table::shadow thead tr th {*/
+                /*width: 1000px;*/
+                /*white-space: inherit;*/
+                /*overflow: auto;*/
+                /*text-overflow: inherit;*/
+
+            /*}*/
+
+            /*sortable-table::shadow tbody tr td {*/
+                /*width: 1000px;*/
+                /*white-space: inherit;*/
+                /*overflow: auto;*/
+                /*text-overflow: inherit;*/
+
+            /*}*/
+
+            /*sortable-table::shadow .column-ident {*/
+                /*width: 200px;*/
+            /*}*/
+
+            /*sortable-table::shadow .column-pvalue,*/
+            /*sortable-table::shadow .column-qvalue {*/
+                /*width: 70px;*/
+            /*}*/
+
+        </style>
+        <sortable-table id="odgenes_table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.columns = [];
+                this.data = [];
+            },
+            contentChanged: function () {
+
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    if (data[i].indexOf("##") >= 0) continue;
+                    if (data[i].indexOf("ID") == 0) continue;
+                    var localData = data[i].split("\t");
+                    console.log(localData)
+                    var obj = {
+                        "hgnc": localData[0],
+                        "ensembl": localData[1],
+                        "pvalue": Utils.formatNumber(localData[2]),//Number(localData[1]).toExponential(),//parseFloat(localData[1]).toFixed(3),
+                        "qvalue": Utils.formatNumber(localData[3])//Number(localData[2]).toExponential()//parseFloat(localData[2]).toFixed(3)
+                    };
+                    this.data.push(obj)
+                }
+
+                this.columns = [
+                    {
+                        name: "hgnc",
+                        title: "hgnc"
+                    },
+                    {
+                        name: "ensembl",
+                        title: "ensembl"
+                    },
+                    {
+                        name: "pvalue",
+                        title: "p-value"
+                    },
+                    {
+                        name: "qvalue",
+                        title: "q-value"
+                    }
+                ];
+                this.pageSize = "20";
+                this.footerTemplate = "simplePager";
+
+            }
+        })
+    </script>
+</polymer-element>

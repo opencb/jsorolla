@@ -1,0 +1,158 @@
+<polymer-element name="jso-job" attributes="jobItem">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 3px;
+                margin: 2px 2px 0 2px;
+                border: 1px solid transparent;
+            }
+
+            :host(:hover) {
+                border-color: #d3d3d3;
+                background-color: #f5f5f5;
+            }
+
+            .job {
+
+            }
+
+            .capitalize {
+                text-transform: capitalize;
+            }
+
+            .PREPARED {
+                color: #ff8c00;
+            }
+
+            .ERROR {
+                color: #b30000;
+            }
+
+            .QUEUED {
+                color: #ff8c00;
+            }
+
+            .RUNNING {
+                color: #298c63;
+            }
+
+            .DONE {
+                color: #0068cc;
+            }
+
+            .READY {
+                color: #0068cc;
+
+            }
+
+            .date {
+                color: #696969;
+                font-size: 0.9em;
+            }
+
+            .bar {
+                width: 15px;
+            }
+
+            .bar > * {
+                margin: 1px;
+                color: #d3d3d3;
+            }
+
+            .bar > *:hover {
+                color: #000;
+                cursor: pointer;
+            }
+        </style>
+
+        <div horizontal layout>
+            <div flex id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">
+                <div>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.visits > 0}}"
+                                  icon="exclamation"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'READY'}}"
+                                  icon="check"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'ERROR'}}"
+                                  icon="times"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'QUEUED'}}"
+                                  icon="clock-o"></font-awesome>
+                    <font-awesome class="{{jobItem.status}}" hidden?="{{jobItem.status != 'RUNNING'}}" icon="circle-o-notch"
+                                  animation="spin"></font-awesome>
+                    <span style="white-space: nowrap">{{jobItem.name}}</span>
+                </div>
+                <div>{{computeToolName()}}</div>
+
+                <div>
+                    <span class="capitalize {{jobItem.status}}">{{computeStatus()}}</span>
+                    <span class="date">{{computeDate()}}</span>
+                </div>
+            </div>
+            <div vertical layout class="bar" on-click="{{handleBarClick}}">
+                <template if="{{jobItem.status != 'RUNNING' }}">
+                    <font-awesome icon="times" on-click="{{handleDeleteJob}}"></font-awesome>
+                </template>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            computeDate: function () {
+                return Utils.parseDate(this.jobItem.date);
+            },
+            computeStatus: function () {
+                if(this.jobItem.status === "DONE"){
+                    return "Finishing";
+                }
+                return this.jobItem.status.toLowerCase();
+            },
+            computeToolName: function () {
+                if (this.jobItem.toolName.toLowerCase() == "pathiways") {
+                    return "PATHiVAR";
+                }
+                return this.jobItem.toolName;
+            },
+            created: function () {
+                this.jobItem;
+            },
+            handleMouseEnter: function () {
+//                console.log(this.jobItem)
+            },
+            handleBarClick: function (e) {
+                e.stopPropagation();
+            },
+            handleDeleteJob: function (e) {
+                var me = this;
+                e.stopPropagation();
+                if (confirm('Delete this job?')) {
+
+                    OpencgaManager.jobs.delete({
+                        id: this.jobItem.id,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
+                        },
+                        request: {
+                            //method: 'POST',
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    //Deleted succesfully
+                                } else {
+                                    console.log(response.response[0].errorMsg);
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    });
+
+                }
+
+            }
+        });
+    </script>
+</polymer-element>
+
+

@@ -1,0 +1,22 @@
+<polymer-element name="jso-opencga-analysis-item" attributes="analysis">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            .id {
+                color: #888;
+            }
+        </style>
+        <font-awesome icon="pie-chart"></font-awesome> &nbsp; {{analysis.name}} &nbsp; <span class="id"> {{analysis.alias}} </span>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.analysis;
+            }
+        });
+    </script>
+</polymer-element>

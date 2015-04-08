@@ -1,0 +1,1451 @@
+<polymer-element name="jso-job-result" attributes="jobItem selectedOption networkViewer">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                /*padding: 20px 40px;*/
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+            }
+
+            .level > .level {
+                margin-left: 5px;
+            }
+
+            .output {
+                margin: 10px;
+                /*width: 1000px;*/
+                background-color: white;
+                border-radius: 5px;
+                padding: 0 20px 0 20px;
+            }
+
+            .data {
+                margin-left: 20px;
+            }
+
+            .level-0 {
+                /*border: 1px solid grey;*/
+                padding: 20px;
+
+            }
+
+            .level-0 > .headerTitle {
+                font-size: 15pt;
+                font-weight: bold;
+                padding: 5px;
+            }
+
+            .level-1 {
+                margin: 20px 20px 20px 40px;
+            }
+
+            .level-1 > .headerTitle {
+                font-size: 13pt;
+                font-weight: bold;
+                /*background-color: blue;*/
+            }
+
+            .level-2 {
+                margin: 20px 20px 20px 40px;
+            }
+
+            .level-2 > .headerTitle {
+                font-size: 12pt;
+                /*background-color: blue;*/
+            }
+
+            sortable-table {
+                max-width: 1000px;
+                margin-top: 10px;
+            }
+
+            .message > label {
+                margin-right: 10px;
+            }
+
+            .message > label:after {
+                content: ':';
+            }
+
+            .message > .messageValue {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+                line-height: 21px;
+            }
+
+            .file > label {
+                margin-right: 10px;
+            }
+
+            .file > a {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+            }
+
+            .image {
+                margin-top: 20px;
+            }
+
+            .error {
+                color: red !important;
+            }
+
+            .loading {
+                font-size: 25px;
+                margin: 20px 50px;
+            }
+
+            sortable-table {
+                border: 1px solid #d3d3d3;
+            }
+
+            .close {
+                margin: 5px 10px 0 0;
+                color: #aaa;
+                font-size: 20px;
+            }
+
+            .close:hover {
+                color: #ffad76;
+            }
+
+        </style>
+        <div horizontal layout end-justified>
+            <div class="close" on-click="{{handleClose}}">
+                <font-awesome icon="times"></font-awesome>
+            </div>
+        </div>
+        <template if="{{loading}}">
+            <div class="loading">
+                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                Loading results...
+            </div>
+        </template>
+        <!--<template if="{{!loading}}">-->
+        <div id="output" class="output">
+
+        </div>
+
+        <template if="{{error}}">
+            <div class="level-0">
+                <div class="headerTitle">There was an unexpected error:</div>
+                <div class="data">
+                    This is maybe due to incorrect input. For more info about proper inputs, refer to the
+                    <a href="https://github.com/babelomics/babelomics/wiki" target="_blank">documentation</a>.
+                    You can also download the example file.
+                    <br>
+                    For detailed information you can download the log file:
+                    <div class="file"><label>Log output file:</label>
+                        <a href="{{logOutputFile}}" download="log_output.txt">log_output.txt</a>
+                    </div>
+                    <div class="file"><label>Log error file:</label>
+                        <a href="{{logErrorFile}}" download="log_error.txt">log_error.txt</a>
+                    </div>
+                    If error persist, please contact babelomics crew at babelomics@cipf.es
+                </div>
+            </div>
+        </template>
+        <!--</template>-->
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.createdElements = {};
+                this.selectedOption = "";
+                this.pvalue = 0.05;
+                this.error = false;
+                this.logErrorFile = "";
+
+            },
+            jobItemChanged: function (oldV, newV) {
+                var me = this;
+                this.resultXML = null;
+                this.error = false;
+                this.loading = true;
+//                this.output = this.shadowRoot.querySelector("#output");
+                this.output = this.$.output;
+                while (this.output.firstChild) {
+                    this.output.removeChild(this.output.firstChild);
+                }
+                if (typeof newV == "object")
+                    this.pvalue = 0.05;
+
+                if (this.jobItem.toolName == "rnaseq-norm" || this.jobItem.toolName == "rnaseq-diffexpr") {
+                    var result = document.createElement('jso-' + this.jobItem.toolName + '-result');
+                    result.jobItem = this.jobItem;
+                    this.$.output.appendChild(result);
+                    this.loading = false;
+                    return;
+                }
+                OpencgaManager.files.filesByFolder({
+                    id: me.jobItem.outDirId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.filesList = response.response[0].result;
+                                me.getFileContent(function (content) {
+                                    me.loading = false;
+                                    var root = me.output;
+                                    me.parseXML(content, root);
+                                }, "result.xml");
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            getFileContent: function (callback, fileName) {
+                var me = this;
+                var fileId = null;
+                for (var result in this.filesList) {
+                    if (this.filesList[result].name == fileName) {
+                        fileId = this.filesList[result].id
+                        break;
+                    }
+                }
+                if (fileId != null) {
+                    OpencgaManager.files.content({
+                        id: fileId,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
+                        },
+                        request: {
+                            async: false,
+                            success: function (response) {
+//                    var content = response.response[0]
+                                /** I pass localDiv as parameter because I loose the div to render in a loop **/
+                                callback(response)
+                            },
+                            error: function () {
+                                this.message = 'Server error, try again later.';
+                            }
+                        }
+                    })
+                }
+                /** The job totally failed **/
+                if (fileName == "result.xml" && fileId == null) {
+                    this.loading = false;
+                    var divsJSON = me._renderJSON();
+                    this.output.appendChild(divsJSON);
+                    for (var i = 0; i < this.filesList.length; i++) {
+                        var f = this.filesList[i];
+                        if (f.name.indexOf("sge_out.job") >= 0) {
+                            this.logOutputFile = Utils.getUrl(f.id);
+                        }
+                        if (f.name.indexOf("sge_err.job") >= 0) {
+                            this.logErrorFile = Utils.getUrl(f.id);
+                        }
+                    }
+                    this.error = true;
+                }
+            },
+            prettyString: function (str) {
+                return str.replace(/\s/g, "_").replace(/\(/g, "_").replace(/\)/g, "_");
+            },
+            createElement: function (parent, htmlType, htmlContent) {
+                var el = document.createElement(htmlType);
+                var node = document.createTextNode(htmlContent);
+                el.appendChild(node);
+                parent.appendChild(el);
+            },
+            parseXML: function (xml) {
+                var me = this;
+                if (window.DOMParser) {
+                    var parser = new DOMParser();
+                    var xmlDoc = parser.parseFromString(xml, "text/xml");
+                }
+                else {
+                    var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                    xmlDoc.async = false;
+                    xmlDoc.loadXML(xml);
+                }
+                this.resultXML = me.parseResultXML(xmlDoc);
+
+
+                var divsJSON = me._renderJSON();
+                me.output.appendChild(divsJSON);
+            },
+            getJobInfoHtml: function () {
+                var el = document.createElement("jso-job-info-widget");
+                el.jobItem = this.jobItem;
+                return el;
+//
+// this.$.output.appendChild(el.querySelector("div"));
+
+
+            },
+            parseResultXML: function (xmlDoc) {
+
+                var me = this;
+
+                var result = {
+                    input: [], output: []
+                };
+                var output = xmlDoc.getElementsByTagName("output")[0].childNodes;
+                var input = xmlDoc.getElementsByTagName("input")[0].childNodes;
+
+                var outputElementsJson = me.parseOutput(output);
+                var inputElementsJson = me.parseInput(input);
+
+                result.output = outputElementsJson;
+                result.input = inputElementsJson;
+                return result;
+
+
+            },
+            parseOutput: function (output) {
+                var elements = [];
+                for (var i = 0; i < output.length; i++) {
+                    var elemXML = output[i];
+                    if (elemXML.nodeName == "#text") {
+                        continue
+                    }
+                    this._parseElem(elemXML, elements);
+                }
+                return elements;
+            },
+            parseInput: function (input) {
+                var elements = [];
+
+
+                for (var i = 0; i < input.length; i++) {
+                    var xmlElem = input[i];
+                    if (xmlElem.nodeName == "#text") {
+                        continue
+                    }
+
+                    var strValue = "";
+                    if (xmlElem.firstChild != null && xmlElem.firstChild.data != null) {
+                        strValue = xmlElem.firstChild.data;
+                    }
+                    var jsonElem = {
+                        name: xmlElem.getAttribute("name"),
+                        title: xmlElem.getAttribute("title"),
+                        type: xmlElem.getAttribute("type"),
+                        tags: xmlElem.getAttribute("tags"),
+                        style: xmlElem.getAttribute("style"),
+                        group: xmlElem.getAttribute("context"),
+                        value: strValue
+                    };
+                    elements.push(jsonElem);
+                }
+
+                return elements;
+            },
+            _renderJSON: function () {
+                var mainDiv = document.createElement("div");
+                var div = this.getJobInfoHtml();
+                mainDiv.appendChild(div);
+                if (this.resultXML != null) {
+                    for (var i = 0; i < this.resultXML.output.length; i++) {
+                        var elem = this.resultXML.output[i];
+                        var divElem = this._renderJsonElement(elem, 0);
+                        mainDiv.appendChild(divElem);
+
+                    }
+                }
+                return mainDiv;
+            },
+            _createButton: function (pvalue) {
+                var me = this;
+                var button = document.createElement("div");
+                button.classList.add("button");
+                button.setAttribute("data-checked", "{{pvalue == " + pvalue + "}}");
+                button.innerHTML = pvalue;
+
+                button.addEventListener("click", function () {
+                    me.pvalue = pvalue;
+                });
+
+                return button;
+            },
+            _renderJsonElement: function (element, level) {
+
+                var mainDiv = document.createElement("div");
+                var titleDiv = document.createElement("div");
+                var dataDiv = document.createElement("div");
+                var childDiv = document.createElement("div");
+
+
+                mainDiv.classList.add("level-" + level);
+                titleDiv.classList.add("headerTitle");
+                titleDiv.innerHTML = element.group;
+
+                for (var i = 0; i < element.data.length; i++) {
+                    var dataElement = element.data[i];
+                    var dataElementDiv = document.createElement("div");
+                    dataElementDiv = this._renderValue(dataElement);
+                    dataDiv.appendChild(dataElementDiv);
+                }
+
+                dataDiv.classList.add("data");
+
+                for (var i = 0; i < element.children.length; i++) {
+                    var childElement = element.children[i];
+                    var childElementDiv = this._renderJsonElement(childElement, level + 1);
+
+                    childDiv.appendChild(childElementDiv);
+                }
+
+                childDiv.classList.add("children");
+
+                mainDiv.appendChild(titleDiv);
+                mainDiv.appendChild(dataDiv);
+                mainDiv.appendChild(childDiv);
+
+                return mainDiv;
+            },
+            _getFileId: function (fileName) {
+                var fileId = -1;
+                for (var result in this.filesList) {
+                    if (this.filesList[result].name == fileName) {
+                        fileId = this.filesList[result].id
+                        break;
+                    }
+                }
+                return fileId;
+            },
+            _renderValue: function (element) {
+                var me = this;
+                var res = document.createElement("div");
+                switch (element.type) {
+                    case "TEXT":
+                        if (element.tags.indexOf("REDIRECTION") >= 0) {
+                            if (this.jobItem.toolName == "class-comparison"
+                                    || this.jobItem.toolName == "survival"
+                                    || this.jobItem.toolName == "correlation"
+                                    || this.jobItem.toolName == "burden"
+                                    || this.jobItem.toolName == "oncodrivefm"
+                                    || this.jobItem.toolName == "oncodriveclust") {
+                                var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                me.getFileContent(function (content) {
+                                    var args = me._getRedirectionArgs(content);
+//                                    var lines = content.split("\n");
+//                                    var hash = {};
+//                                    for (var i = 0; i < lines.length; i++) {
+//                                        var line = lines[i];
+//                                        if (line == "") continue;
+//
+//                                        var splits = line.split("=");
+//                                        hash[splits[0]] = splits[1];
+//
+//                                    }
+//
+//                                    var args = {};
+//                                    var value, aux, valueAsFile;
+//                                    for (var key in hash) {
+//
+//                                        value = hash[key];
+//                                        aux = value.split("/");
+//                                        valueAsFile = aux[aux.length - 1];
+//                                        for (var i = 0; i < me.filesList.length; i++) {
+//                                            if (me.filesList[i].name == valueAsFile) {
+//                                                value = me.filesList[i];
+//                                            }
+//                                        }
+//                                        args[key] = value;
+//                                    }
+
+
+                                    //var button = me._createRedirectButton("Send to " + toolMenuName, hash.tool, args);
+
+                                    var button = me._createRedirectButton(element.title, args.tool, args);
+                                    res.appendChild(button);
+
+                                }, fileRedirection);
+                            }
+                        }
+                        break;
+                    case "DATA":
+                        var file = document.createElement("div");
+
+                        file.classList.add("file");
+
+                        var label = document.createElement("label");
+                        label.innerHTML = element.title;
+                        file.appendChild(label);
+                        element.value = element.value.replace("${pvalue}", me.pvalue);
+                        var fileId = this._getFileId(element.value);
+
+                        var fileURL = OpencgaManager.files.download({
+                            id: fileId,
+                            query: {
+                                sid: Cookies("bioinfo_sid")
+                            },
+                            request: {
+
+                                url: true
+                            }
+                        })
+                        var a = document.createElement("a");
+                        a.innerHTML = element.value;
+                        a.setAttribute("href", fileURL);
+                        a.download = element.value;
+
+                        file.appendChild(a);
+                        res.appendChild(file);
+
+                        break;
+                    case "IMAGE":
+
+                        if (element.tags.indexOf("NETWORKMINER_JSON") >= 0) {
+                            res.setAttribute("id", "nm-json-highChart");
+                            res.classList.add("networkminer");
+
+                            this.getFileContent(function (content) {
+                                me.parseHighCharts(content, res);
+
+                            }, element.value);
+                        } else {
+                            var fileId = this._getFileId(element.value);
+                            res = document.createElement("img");
+                            res.classList.add("image");
+
+                            var imageUrl = OpencgaManager.files.content({
+                                id: fileId,
+                                query: {
+                                    sid: Cookies("bioinfo_sid")
+                                },
+                                request: {
+
+                                    url: true
+                                }
+                            });
+                            res.setAttribute("src", imageUrl);
+                        }
+
+                        break;
+                    case "MESSAGE":
+                        var notRenderElement = false;
+                        if (element.value == "Graph not found") {
+                            notRenderElement = true;
+                        }
+
+                        if (this.jobItem.toolName == "snow") {
+                            if (element.name == "randoms_param" || element.name == "type_param") {
+                                notRenderElement = true;
+                            }
+                        }
+
+                        if (notRenderElement) {
+                            break;
+                        }
+                        res.classList.add("message");
+
+                        var label = document.createElement("label");
+                        label.innerHTML = element.title;
+
+                        var div = document.createElement("div");
+                        div.innerHTML = element.value;
+                        div.classList.add("messageValue");
+
+                        res.setAttribute("horizontal", "");
+                        res.setAttribute("layout", "");
+
+                        if (element.tags.indexOf("ERROR") >= 0) {
+                            res.classList.add("error");
+                        }
+
+                        res.appendChild(label);
+                        res.appendChild(div);
+
+
+                        break;
+                    case "FILE":
+
+                        if (element.tags.indexOf("REDIRECTION") >= 0) {
+                            if (this.jobItem.toolName == "affy-expression-normalization"
+                                    || this.jobItem.toolName == "agilent-expression-one-color-normalization"
+                                    || this.jobItem.toolName == "genepix-expression-one-color-normalization"
+                                    || this.jobItem.toolName == "agilent-expression-two-colors-normalization"
+                                    || this.jobItem.toolName == "genepix-expression-two-colors-normalization"
+                                    || this.jobItem.toolName == "preprocessing") {
+                                var filesRedirection = element.tags.split(",");
+                                for (var i = 0; i < filesRedirection.length; i++) {
+                                    var raw = filesRedirection[i];
+
+//                                    var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                    var fileRedirection = raw.split("(")[1].split(":")[0];
+                                    me.getFileContent(function (content) {
+
+                                        var lines = content.split("\n");
+                                        var hash = {};
+
+                                        for (var i = 0; i < lines.length; i++) {
+                                            var line = lines[i];
+                                            var splits = line.split("=");
+                                            hash[splits[0]] = splits[1];
+                                        }
+
+                                        var aux = hash.dataset.split("/");
+                                        var filename = aux[aux.length - 1];
+
+                                        var file = {};
+                                        for (var i = 0; i < me.filesList.length; i++) {
+                                            file = me.filesList[i];
+                                            if (file.name == filename)
+                                                break;
+                                        }
+                                        var args = {
+                                            inputFile: file,
+                                            tool: hash.tool,
+                                            jobName: hash.jobname,
+                                            description: "Redirect from " + me.jobItem.name,
+                                            merge_replicates: hash.merge_replicates,
+                                            impute_missing: hash.impute_missing,
+                                            method: hash.method,
+                                            distance: hash.distance
+                                        };
+                                        var button = me._createRedirectButton("Send to " + args.tool, args.tool, args);
+
+                                        res.appendChild(button);
+
+                                    }, fileRedirection);
+                                }
+                            }
+                            break;
+                        }
+                        var file = document.createElement("div");
+                        if (element.value.indexOf("testfilename") < 0) {
+
+                            file.classList.add("file");
+
+                            var label = document.createElement("label");
+                            label.innerHTML = element.title;
+                            file.appendChild(label);
+                            element.value = element.value.replace("${pvalue}", me.pvalue);
+                            var fileId = this._getFileId(element.value);
+
+                            var fileURL = OpencgaManager.files.download({
+                                id: fileId,
+                                query: {
+                                    sid: Cookies("bioinfo_sid")
+                                },
+                                request: {
+
+                                    url: true
+                                }
+                            });
+
+
+                            var a = document.createElement("a");
+                            a.innerHTML = element.value;
+                            a.setAttribute("href", fileURL);
+                            file.appendChild(a);
+                        }
+                        if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "fatiscan") {
+//                            console.log(element.tags)
+//                            debugger
+
+                            if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0 || element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                                console.log(file)
+                                if (element.value.indexOf(me.pvalue) >= 0) {
+                                    res.appendChild(file);
+                                }
+                            } else {
+                                res.appendChild(file);
+                            }
+//                        } else if (this.jobItem.toolName == "fatiscan") {
+//                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+//                                if (element.value.indexOf(me.pvalue) >= 0) {
+//                                    res.appendChild(file);
+//                                }
+//                            } else {
+//                                res.appendChild(file);
+//                            }
+                        }
+                        else {
+                            res.appendChild(file);
+                        }
+
+                        if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
+                            var dataArray = new Array();
+                            var interactorsTable = document.createElement('jso-interactors-table');
+                            this.getFileContent(function (content) {
+                                interactorsTable.typeTable = "NETWORKMINERRANKED_TABLE";
+                                interactorsTable.content = content;
+
+                            }, element.value);
+
+                            res.appendChild(interactorsTable);
+
+                        }
+                        if (element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
+                            var dataArray = new Array();
+                            var interactorsTable = document.createElement('jso-interactors-table');
+                            this.getFileContent(function (content) {
+                                interactorsTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
+                                interactorsTable.content = content;
+
+                            }, element.value);
+
+                            res.appendChild(interactorsTable);
+
+                        }
+
+                        if (element.tags.indexOf("INTERACTOME_VIEWER") >= 0) {
+
+                            var intermediatesArray = new Array();
+                            var seedArray = new Array();
+                            var tags = element.tags.split(",");
+                            if (tags[3] != null)
+                                intermediatesArray = tags[3];
+                            if (tags[4] != null)
+                                seedArray = tags[4];
+
+                            var interactomeViewer = document.createElement('jso-interactome-viewer');
+                            this.getFileContent(function (content) {
+                                interactomeViewer.content = content;
+                                interactomeViewer.intermediates = intermediatesArray;
+                                interactomeViewer.seedList = seedArray;
+                                interactomeViewer.jobResult = me;
+                            }, element.value);
+
+                            res.appendChild(interactomeViewer);
+                        }
+                        if (element.tags.indexOf("PROTEIN_VIEWER") >= 0) {
+                            var dataArray = new Array();
+                            var proteinViewer = document.createElement('jso-protein-viewer');
+
+                            this.getFileContent(function (content) {
+                                proteinViewer.nodes = content.split("\n");
+                                proteinViewer.speciesSelection = "hsapiens";
+                                proteinViewer.nodeSelection = false;
+                                proteinViewer.jobResult = me;
+                            }, element.value);
+
+                            res.appendChild(proteinViewer);
+
+                        }
+                        if (element.tags.indexOf("DIFF_EXPRESSION_VIEWER") >= 0) {
+                            console.log("DIFF_EXPRESSION_VIEWER");
+                            var json = JSON.parse(element.value.replace(/\\/g, ''))
+                            var test = json.testfilename.replace(".txt", "")
+
+                            var sortableTable = document.createElement('jso-diffexpr-table');
+                            sortableTable.setAttribute("id", "tableId");
+                            res.appendChild(sortableTable);
+                            var table = false;
+                            var dataset = false;
+
+                            for (var idxFile = 0; idxFile < this.filesList.length; idxFile++) {
+                                var file = this.filesList[idxFile];
+                                if (file.name == test + "_significative_table.txt")
+                                    table = true;
+                                if (file.name == test + "_significative_dataset.txt")
+                                    dataset = true;
+                            }
+
+                            if (table && dataset) {
+                                this.getFileContent(function (content) {
+                                    me.getFileContent(function (contentDataset) {
+                                        sortableTable.content = content;
+                                        sortableTable.contentDataset = contentDataset;
+                                        sortableTable.files = me.filesList;
+                                        sortableTable.test = test;
+                                    }, test + "_significative_dataset.txt");
+
+
+                                }, test + "_significative_table.txt");
+                            }
+                            else{
+                                sortableTable.loading = false;
+                            }
+
+                        }
+                        if (element.tags.indexOf("PREDICTOR_FEATURE_SELECTION_TABLE") >= 0) {
+
+                            var sortableTable = document.createElement('jso-predictors-selection-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+
+                        }
+                        if (element.tags.indexOf("TABLE,NO_LINK") >= 0) {
+                            var dataArray = new Array();
+                            var columns = new Array();
+                            this.getFileContent(function (content) {
+                                var data = content.split("\n");
+                                for (var i = 0; i < data.length; i++) {
+                                    if (i == 0) {
+                                        columns = data[i].split("\t");
+                                        continue;
+                                    }
+                                    if (data[i] == "") continue;
+                                    var localData = data[i].split("\t");
+                                    var localArray = new Array();
+                                    for (var j = 0; j < localData.length; j++) {
+                                        var aux = localData[j].split(">");
+                                        if (aux.length > 1)
+                                            aux = aux[1].split("<")[0];
+                                        localArray.push(aux);
+                                    }
+                                    dataArray.push(localArray)
+                                }
+
+                            }, element.value);
+
+                            var sortableTable = document.createElement('sortable-table');
+                            sortableTable.setAttribute("id", "tableId");
+//                            sortableTable.setAttribute("cellTemplate", "html");
+
+                            sortableTable.columns = columns;
+                            sortableTable.data = dataArray;
+                            sortableTable.pageSize = "10";
+                            sortableTable.footerTemplate = "simplePager";
+
+                            res.appendChild(sortableTable);
+                        }
+                        if (element.tags.indexOf("ONCODRIVEFM-GENES") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+//                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
+                        if (element.tags.indexOf("ONCODRIVEFM-PATHWAYS") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+                            var sortableTable = document.createElement('jso-oncodrive-pathways-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
+                        if (element.tags.indexOf("ONCODRIVECLUST") >= 0) {
+
+                            var sortableTable = document.createElement('jso-oncodriveclust-genes-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
+                        if (element.tags.indexOf("TABLE,BURDEN") >= 0) {
+
+//                            if (element.value.indexOf("0.05") >= 0) {
+
+//                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            var sortableTable = document.createElement('jso-generic-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+//                            }
+                        }
+
+                        if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
+
+                            if (element.value.indexOf(me.pvalue) >= 0) {
+                                var sortableTable = document.createElement('jso-fatigo-table');
+                                this.getFileContent(function (content) {
+                                    sortableTable.content = content;
+
+                                }, element.value);
+                                res.appendChild(sortableTable);
+                            }
+                        }
+
+                        if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+
+                            if (element.value.indexOf(me.pvalue) >= 0) {
+                                var sortableTable = document.createElement('jso-logistic-table');
+                                this.getFileContent(function (content) {
+                                    sortableTable.content = content;
+
+                                }, element.value);
+                                res.appendChild(sortableTable);
+                            }
+                        }
+
+
+                        if (element.tags.indexOf("SUMMARY_TABLE") >= 0) {
+                            if (element.tags.indexOf("SIGNIFICANT_COUNT_TABLE") >= 0) {
+                                var dataArray = [];
+                                var columns = [];
+
+                                element.value = element.value.replace("${pvalue}", me.pvalue);
+                                this.getFileContent(function (content) {
+                                    var data = content.split("\n");
+
+                                    for (var i = 0; i < data.length; i++) {
+                                        if (i == 0) {
+                                            columns = data[i].split("\t");
+                                            continue;
+                                        }
+                                        if (data[i] == "") continue;
+                                        dataArray.push(data[i].split("\t"))
+                                    }
+
+                                }, element.value);
+
+                                var sortableTable = document.createElement('sortable-table');
+                                sortableTable.setAttribute("id", "tableId");
+//                            sortableTable.setAttribute("cellTemplate", "html");
+
+                                sortableTable.columns = columns;
+                                sortableTable.data = dataArray;
+                                sortableTable.pageSize = "10";
+                                sortableTable.footerTemplate = "simplePager";
+                                var pvalueButton = document.createElement('jso-pvalue-button');
+                                pvalueButton.id = "pvalueButton";
+                                pvalueButton.pvalue = me.pvalue;
+                                pvalueButton.onclick = function () {
+                                    me.pvalue = this.pvalue;
+                                    me.jobItemChanged();
+                                };
+                                res.appendChild(pvalueButton);
+
+                                res.appendChild(sortableTable);
+                            }
+                            else {
+                                var dataArray = new Array();
+                                var columns = new Array();
+                                this.getFileContent(function (content) {
+                                    var data = content.split("\n");
+
+                                    for (var i = 0; i < data.length; i++) {
+                                        if (i == 0) {
+                                            columns = data[i].split("\t");
+                                            continue;
+                                        }
+                                        if (data[i] == "") continue;
+                                        dataArray.push(data[i].split("\t"))
+                                    }
+
+                                }, element.value);
+
+                                var sortableTable = document.createElement('sortable-table');
+                                sortableTable.setAttribute("id", "tableId");
+//                            sortableTable.setAttribute("cellTemplate", "html");
+
+                                sortableTable.columns = columns;
+                                sortableTable.data = dataArray;
+                                sortableTable.pageSize = "10";
+                                sortableTable.footerTemplate = "simplePager";
+
+                                res.appendChild(sortableTable);
+                            }
+                        }
+                        if (element.tags.indexOf("REDIRECT_TOOL_SNOW") >= 0) {
+                            //var fields = tags.split(",");
+                            var me = this;
+                            var tagsFields = element.tags.split(",");
+                            var file = "";
+                            for (var i = 0; i < this.filesList.length; i++) {
+                                var file = this.filesList[i];
+                                if (file.name == element.value)
+                                    break;
+                            }
+                            var args = {
+                                interactome: tagsFields[1],
+                                type: tagsFields[2],
+                                group: tagsFields[3],
+                                intermediate: tagsFields[5],
+                                inputFile: file
+                            };
+
+                            var button = this._createRedirectButton("Send to network enrichment", "snow", args);
+                            res.appendChild(button);
+
+                        }
+                        if (element.tags.indexOf("REDIRECT_TOOL_FATIGO") >= 0) {
+                            //var fields = tags.split(",");
+                            var me = this;
+                            var tagsFields = element.tags.split(",");
+                            var file1 = "";
+                            for (var i = 0; i < this.filesList.length; i++) {
+                                if (this.filesList[i].name == element.value)
+                                    var file1 = this.filesList[i];
+                                if (this.filesList[i].name == tagsFields[4])
+                                    var file2 = this.filesList[i];
+                            }
+                            var args = {
+                                species: tagsFields[1],
+                                inputFile: file1,
+                                inputFile2: file2
+                            };
+
+                            var button = this._createRedirectButton("Send to single enrichment", "fatigo", args);
+                            res.appendChild(button);
+
+                        }
+                        if (element.name.indexOf("plink.assoc") >= 0) {
+                            /** Plink file is too big, we should bring a header or something like this **/
+                            var association = document.createElement('jso-association-result');
+                            association.files = this.filesList;
+//                            var sortableTable = document.createElement('jso-generic-table');
+//                            this.getFileContent(function (content) {
+//                                sortableTable.content = content;
+//
+//                            }, element.value);
+                            res.appendChild(association);
+
+                        }
+                        if (element.tags == "TABLE") {
+                            var sortableTable = document.createElement('jso-generic-table');
+                            this.getFileContent(function (content) {
+                                sortableTable.content = content;
+
+                            }, element.value);
+                            res.appendChild(sortableTable);
+                        }
+
+
+                        break;
+                    default:
+                        if (element.tags.indexOf("GO_NETWORKVIEWER") >= 0) {
+                            if (element.value.indexOf(me.pvalue) >= 0) {
+                                var fileNames = element.value.split(",");
+                                var goViewer = document.createElement('jso-go-viewer');
+                                goViewer.jobResult = me;
+
+                                this.getFileContent(function (sifContent) {
+                                    me.getFileContent(function (attrContent) {
+                                        me.getFileContent(function (attr2Content) {
+                                            goViewer.setContent(sifContent, attrContent, attr2Content);
+                                        }, fileNames[0]);
+                                    }, fileNames[1]);
+                                }, fileNames[0]);
+
+                                res.appendChild(goViewer);
+                            }
+                        }
+
+                }
+                return res;
+            },
+            _getRedirectionArgs: function (content) {
+                var lines = content.split("\n");
+                var hash = {};
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i];
+                    if (line == "") continue;
+
+                    var splits = line.split("=");
+                    hash[splits[0]] = splits[1];
+
+                }
+
+                var args = {};
+                var value, aux, valueAsFile;
+                for (var key in hash) {
+
+                    value = hash[key];
+                    aux = value.split("/");
+                    valueAsFile = aux[aux.length - 1];
+                    for (var i = 0; i < this.filesList.length; i++) {
+                        if (this.filesList[i].name == valueAsFile) {
+                            value = this.filesList[i];
+                        }
+                    }
+                    args[key] = value;
+                }
+                return args;
+            },
+            _createRedirectButton: function (buttonText, tool, args) {
+                var me = this;
+                var button = document.createElement('jso-redirection');
+                //args titleRed fileName fileUrl buttonLabel buttonWidth
+                args["tool"] = tool;
+                button.args = args;
+                button.buttonLabel = buttonText;
+
+
+//                var me = this;
+//                var button = document.createElement('div');
+//                button.setAttribute("class", "button action");
+//                button.setAttribute("style", "width: 200px; margin: 2px");
+//
+//                var elem = document.createTextNode(buttonText);
+//
+//                button.appendChild(elem);
+//                button.onclick = function () {
+//                    me.fire("redirection", {
+//                        tool: tool,
+//                        args: args
+//                    });
+//                }
+////                button.value = "click me!";
+                return button;
+
+
+            },
+            buttonClick: function () {
+                this.selectedOption = 'snow';
+                //debugger
+            },
+            prepareHMData: function (data) {
+                var res = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    for (var j = 0; j < row.length - 1; j++) {
+                        var elem = data[i][j];
+                        res.push([j, i, elem]);
+                    }
+                }
+                return res;
+            },
+
+            createHeatMap: function (data, cols, rows, div) {
+//                console.log(cols);
+//                console.log(rows);
+//original height / original width x new width = new height
+                //               var z = rows.length / cols.length * 1000;
+                var heatMap = new Highcharts.Chart({
+                    chart: {
+                        renderTo: div,
+                        type: 'heatmap',
+                        //  marginTop: 100,
+                        //marginBottom: 40,
+                        height: rows.length * 15,
+                        width: cols.length * 15
+                    },
+                    title: {
+                        text: 'Heat Map'
+                    },
+
+                    xAxis: {
+                        categories: cols,
+                        opposite: true,
+                        labels: {
+                            rotation: -90,
+                            style: {
+                                fontSize: '10px'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        categories: rows,
+                        title: null
+                    },
+                    plotOptions: {
+                        heatmap: {
+                            turboThreshold: data.length + 1
+                        }
+                    },
+                    colorAxis: {
+//                        stops: [
+//                            [min, '#0000ff'],
+//                            [mean, '#ffffff'],
+//                            [max, '#ff0000']
+//                        ]
+                        minColor: '#0000ff',
+                        maxColor: '#ff0000',
+                        stops: [
+                            [0, '#0000ff'],
+                            [0.5, '#ffffff'],
+                            [1, '#ff0000']
+                        ]
+                    },
+                    series: [{
+                        name: 'DATA',
+                        borderWidth: 1,
+                        data: 'Sales per employee',
+                        borderWidth: 1,
+                        data: data
+                    }]
+
+                });
+
+            },
+            parseHighCharts: function (content, div) {
+                var json = JSON.parse(content);
+                var chartWidth = 600;
+
+                /** Create HTML elements **/
+                var elSizeAvg = document.createElement("div");
+                elSizeAvg.id = div.id + "_avg";
+//                this.$.output.querySelector("#" + divId).appendChild(elSizeAvg);
+                div.appendChild(elSizeAvg);
+                var elSizeScore = document.createElement("div");
+                elSizeScore.id = div.id + "_score";
+//                this.$.output.querySelector("#" + divId).appendChild(elSizeScore);
+                div.appendChild(elSizeScore);
+                /** Create data for charts **/
+                var sizeAvgList = new Array();
+                var sizeAvgListSig = new Array();
+
+                var sizeScoreList = new Array();
+                var sizeScoreListSig = new Array();
+
+                for (var idx = 0; idx < json.length; idx++) {
+                    var j = json[idx];
+                    var nodesLength = j.nodes.length;
+                    var rawValue = j.rawValue;
+                    var score = j.score;
+                    var itemsSizeAvg = new Array();
+                    var itemsSizeScore = new Array();
+
+                    itemsSizeAvg.push(nodesLength);
+                    itemsSizeAvg.push(rawValue);
+
+                    itemsSizeScore.push(nodesLength);
+                    itemsSizeScore.push(score);
+
+                    if (!j.significant) {
+                        sizeAvgList.push(itemsSizeAvg);
+                        sizeScoreList.push(itemsSizeScore);
+                    }
+                    else {
+                        sizeAvgListSig.push(itemsSizeAvg);
+                        sizeScoreListSig.push(itemsSizeScore);
+                    }
+                }
+                new Highcharts.Chart({
+                    chart: {
+//                        renderTo: this.$.output.querySelector("#" + elSizeAvg.id),
+                        renderTo: elSizeAvg,
+                        type: 'scatter',
+                        zoomType: 'xy',
+                        width: chartWidth
+                    },
+                    title: {
+                        text: 'Size vs. Avg. node per component'
+                    },
+                    xAxis: {
+                        title: {
+                            enabled: true,
+                            text: 'Size'
+                        },
+                        startOnTick: true,
+                        endOnTick: true,
+                        showLastLabel: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Avg. node per component'
+                        }
+                    },
+                    plotOptions: {
+                        scatter: {
+                            marker: {
+                                radius: 5,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        lineColor: 'rgb(100,100,100)'
+                                    }
+                                }
+                            },
+                            states: {
+                                hover: {
+                                    marker: {
+                                        enabled: false
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                headerFormat: '<b>{series.name}</b><br>',
+                                pointFormat: '{point.x} , {point.y} '
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Size / Avg. node per component',
+                            color: 'rgba(119, 152, 191, .5)',
+                            data: sizeAvgList
+                        },
+                        {
+                            name: 'Selected',
+                            color: 'rgba(223, 83, 83, .5)',
+                            data: sizeAvgListSig
+
+                        }
+                    ]
+                });
+                new Highcharts.Chart({
+                    chart: {
+                        renderTo: elSizeScore,
+                        type: 'scatter',
+                        zoomType: 'xy',
+                        width: chartWidth
+                    },
+                    title: {
+                        text: 'Size vs. Score'
+                    },
+                    xAxis: {
+                        title: {
+                            enabled: true,
+                            text: 'Size'
+                        },
+                        startOnTick: true,
+                        endOnTick: true,
+                        showLastLabel: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Score'
+                        }
+                    },
+                    plotOptions: {
+                        scatter: {
+                            marker: {
+                                radius: 5,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        lineColor: 'rgb(100,100,100)'
+                                    }
+                                }
+                            },
+                            states: {
+                                hover: {
+                                    marker: {
+                                        enabled: false
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                headerFormat: '<b>{series.name}</b><br>',
+                                pointFormat: '{point.x} , {point.y} '
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Size / Score',
+                            color: 'rgba(119, 152, 191, .5)',
+                            data: sizeScoreList
+                        },
+                        {
+                            name: 'Selected',
+                            color: 'rgba(223, 83, 83, .5)',
+                            data: sizeScoreListSig
+
+                        }
+                    ]
+                });
+
+
+            }
+            ,
+            _parseElem: function (elemXML, elements) {
+                var groups = elemXML.getAttribute("group").split(".");
+                if (groups.length == 1) { // Final Group
+                    var group = groups[0];
+
+                    var strValue = "";
+                    if (elemXML.firstChild != null && elemXML.firstChild.data != null) {
+                        strValue = elemXML.firstChild.data;
+                    }
+
+                    var nameInput = elemXML.getAttribute("name");
+                    var titleInput = elemXML.getAttribute("title");
+                    var typeInput = elemXML.getAttribute("type");
+                    var groupInput = elemXML.getAttribute("group").split(".");
+                    var tagsInput = elemXML.getAttribute("tags");
+                    var valueInput = strValue;
+                    var value = {
+                        name: nameInput,
+                        title: titleInput,
+                        type: typeInput,
+                        tags: tagsInput,
+                        value: valueInput
+                    }
+
+                    if (this._containsGroup(elements, group)) {
+                        this._addValueToGroup(elements, group, value);
+
+                    } else {
+                        elements.push({
+                            group: group,
+                            data: [value],
+                            children: []
+                        });
+                    }
+                } else { // nested Group
+                    var mainGroup = groups[0];
+                    var newGroups = groups.slice(0);
+                    newGroups.shift();
+
+                    var newElem = {};
+                    if (this._containsGroup(elements, mainGroup)) {
+                        newElem = this._getGroup(elements, mainGroup);
+                    }
+                    else {
+                        newElem.group = mainGroup;
+                        newElem.data = [];
+                        newElem.children = [];
+                        elements.push(newElem);
+                    }
+                    var newGroupJoin = newGroups.join(".");
+                    var newNode = elemXML.cloneNode(true);
+
+                    newNode.setAttribute("group", newGroupJoin);
+                    this._parseElem(newNode, newElem.children);
+
+                }
+            }
+            ,
+            _getGroup: function (elements, group) {
+                for (var i = 0; i < elements.length; i++) {
+                    var elem = elements[i];
+                    if (elem.group == group) {
+                        return elem;
+                    }
+
+                }
+                return {};
+            }
+            ,
+            _containsGroup: function (elements, group) {
+
+                var passed = elements.some(function (elem, index, array) {
+                    return elem.group == group;
+                })
+                return passed;
+            }
+            ,
+            _addValueToGroup: function (elements, group, value) {
+                for (var i = 0; i < elements.length; i++) {
+                    var elem = elements[i];
+                    if (elem.group == group) {
+                        elem.data.push(value);
+                    }
+
+                }
+            },
+            handleClose: function () {
+                this.selectedOption = '';
+            }
+
+        })
+    </script>
+</polymer-element>

@@ -29,18 +29,29 @@ function CellBaseAdapter(args) {
     _.extend(this, args);
 
     this.on(this.handlers);
+    this.cacheConfig = {
+        cacheId: (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, ''),
+//        subCacheId: this.resource + this.params.exclude,
+        chunkSize: 3000
+    };
+    _.extend(this.cacheConfig, args.cacheConfig);
 
-    this.cache = {};
+    this.cache = new FeatureChunkCache(this.cacheConfig);
+    this.debug = false;
 }
 
 CellBaseAdapter.prototype = {
 
     getData: function (args) {
         var _this = this;
-
         args.webServiceCallCount = 0;
 
-        /** Check region and parameters **/
+        var params = {};
+//                    histogram: (dataType == 'histogram')
+        _.extend(params, this.params);
+        _.extend(params, args.params);
+
+        /** 1 region check **/
         var region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
@@ -48,185 +59,127 @@ CellBaseAdapter.prototype = {
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
+        /** 2 category check **/
+        //TODO define category
+        var categories = [this.resource + this.params.exclude];
 
-        var params = {};
-        _.extend(params, this.params);
-        _.extend(params, args.params);
-
+        /** 3 dataType check **/
         var dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
-        var chunkSize;
 
-        // two levels of cache. In this adapter, default are: species and type of track.
-        this.cacheConfig.cacheId = (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, '');
-        this.cacheConfig.subCacheId = this.resource + this.params.exclude;
-        var combinedCacheId = _this.cacheConfig.cacheId + "_" + _this.cacheConfig.subCacheId;
-
-        /** Check dataType histogram  **/
-        if (dataType == 'histogram') {
-            // Histogram chunks will be saved in different caches by interval size
-            // The chunkSize will be the histogram interval
-            var histogramId = dataType + params.interval;
-
-            if (_.isUndefined(this.cache[combinedCacheId])) {
-                this.cache[combinedCacheId] = new FeatureChunkCache(_.extend({chunkSize: params.interval}, _this.cacheConfig));
-            }
-            chunkSize = this.cache[combinedCacheId].chunkSize;
-
-            // Extend region to be adjusted with the chunks
-            //        --------------------             -> Region needed
-            // |----|----|----|----|----|----|----|    -> Logical chunk division
-            //      |----|----|----|----|----|         -> Chunks covered by needed region
-            //      |------------------------|         -> Adjusted region
-            this.cache[combinedCacheId].getAdjustedRegions(region, function (adjustedRegions) {
-
-                if (adjustedRegions.length > 0) {
-                    args.webServiceCallCount++;
-                    // Get CellBase data
-                    CellBaseManager.get({
-                        host: _this.host,
-                        version: _this.version,
-                        species: _this.species,
-                        category: _this.category,
-                        subCategory: _this.subCategory,
-                        query: adjustedRegions,
-                        resource: _this.resource,
-                        params: params,
-                        success: function (data) {
-                            _this._cellbaseHistogramSuccess(data, dataType, combinedCacheId, histogramId, args);
-                        }
-                    });
-                }
-
-                // Get chunks from cache
-                _this.cache[combinedCacheId].getByRegion(region, function (cachedChunks) {
-                    _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-                    if (args.webServiceCallCount === 0) {
-                        args.done();
-                    }
-                }, histogramId);
-            }, histogramId);
-
-            /** Features: genes, snps ... **/
-        } else {
-            // Features will be saved using the dataType features
-            if (_.isUndefined(this.cache[combinedCacheId])) {
-                this.cache[combinedCacheId] = new FeatureChunkCache(this.cacheConfig);
-            }
-            chunkSize = this.cache[combinedCacheId].chunkSize;
-
-            // Get cached chunks and not cached chunk regions
-            //        --------------------             -> Region needed
-            // |----|----|----|----|----|----|----|    -> Logical chunk division
-            //      |----|----|----|----|----|         -> Chunks covered by needed region
-            //      |----|++++|++++|----|----|         -> + means the chunk is cached so its region will not be retrieved
-            this.cache[combinedCacheId].getCachedByRegion(region, function (chunksByRegion) {
-                if (chunksByRegion.notCached.length > 0) {
-                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                        return new Region(region).toString();
-                    });
-
-                    // Multiple CellBase calls will be performed, each one will
-                    // query 50 or less chunk regions
-                    var n = 50;
-                    var lists = _.groupBy(queryRegionStrings, function (a, b) {
-                        return Math.floor(b / n);
-                    });
-                    // Each element on queriesList contains and array of 50 or less regions
-                    var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
-
-                    for (var i = 0; i < queriesList.length; i++) {
-                        args.webServiceCallCount++;
-                        CellBaseManager.get({
-                            host: _this.host,
-                            version: _this.version,
-                            species: _this.species,
-                            category: _this.category,
-                            subCategory: _this.subCategory,
-                            query: queriesList[i],
-                            resource: _this.resource,
-                            params: params,
-                            success: function (data) {
-                                _this._cellbaseSuccess(data, dataType, combinedCacheId, args);
-                            }
-                        });
-                    }
-                }
-
-                // Get chunks from cache
-                if (chunksByRegion.cached.length > 0) {
-                    _this.cache[combinedCacheId].getByRegions(chunksByRegion.cached, function (cachedChunks) {
-                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-                        if (args.webServiceCallCount === 0) {
-                            args.done();
-                        }
-                    });
-                }
-            });
+        /** 4 chunkSize check **/
+        var chunkSize = args.params.interval? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
+        if (this.debug) {
+            console.log(chunkSize);
         }
+
+        /**
+         * Get the uncached regions (uncachedRegions) and cached chunks (cachedChunks).
+         * Uncached regions will be used to query cellbase. The response data will be converted in chunks
+         * by the Cache TODO????
+         * Cached chunks will be returned by the args.dataReady Callback.
+         */
+        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
+
+            var category = categories[0];
+            var categoriesName = "";
+            for (var j = 0; j < categories.length; j++) {
+                categoriesName += "," + categories[j];
+            }
+            categoriesName = categoriesName.slice(1);   // to remove first ','
+            /**
+             * Process uncached regions
+             */
+            // TODO check if OpenCGA allows multiple regions
+            var queriesList = _this._groupQueries(uncachedRegions[category]);
+
+            // TODO check how to manage multiple regions and multiple files ids
+            for (var i = 0; i < queriesList.length; i++) {
+                args.webServiceCallCount++;
+                var queryRegion = queriesList[i];
+
+                // Get CellBase data
+                CellBaseManager.get({
+                    host: _this.host,
+                    version: _this.version,
+                    species: _this.species,
+                    category: _this.category,
+                    subCategory: _this.subCategory,
+                    query: queryRegion.toString(),
+                    resource: _this.resource,
+                    params: params,
+                    success: function (response) {
+                        _this._cellbaseSuccess(response, categories, dataType, chunkSize, args);
+                    },
+                    error: function () {
+                        console.log('Server error');
+                    }
+                });
+            }
+
+            /**
+             * Process Cached chunks
+             */
+            if (cachedChunks[category].length > 0) {
+                if (args.webServiceCallCount === 0) {
+                    args.done();
+                }
+                _this.trigger('data:ready', {items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
+//                args.dataReady({items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
+            }
+        });
     },
 
-    _cellbaseSuccess: function (data, dataType, combinedCacheId, args) {
+    _cellbaseSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-        var timeId = this.resource + " save " + Utils.randomString(4);
+        var timeId = Utils.randomString(4) + this.resource + " save";
         console.time(timeId);
         /** time log **/
 
-        var chunkSize = this.cache[combinedCacheId].chunkSize;
-
         var regions = [];
         var chunks = [];
-        for (var i = 0; i < data.response.length; i++) {
+        for (var i = 0; i < data.response.length; i++) {    // TODO test what do several responses mean
             var queryResult = data.response[i];
-
-            regions.push(new Region(queryResult.id));
-            chunks.push(queryResult.result);
+            if (dataType == "histogram") {
+                for (var j = 0; j < queryResult.result.length; j++) {
+                    var interval = queryResult.result[j];
+                    var region = new Region(interval);
+                    regions.push(region);
+                    chunks.push(interval);
+                }
+            } else {
+                regions.push(new Region(queryResult.id));
+                chunks.push(queryResult.result);
+            }
         }
-        chunks = this.cache[combinedCacheId].putByRegions(regions, chunks);
+        var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
         /** time log **/
         console.timeEnd(timeId);
 
-
-        if (chunks.length > 0) {
-            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
-        }
         if (args.webServiceCallCount === 0) {
             args.done();
         }
 
-
+        if (items.length > 0) {
+            this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
+        }
     },
-    _cellbaseHistogramSuccess: function (data, dataType, combinedCacheId, histogramId, args) {
-        args.webServiceCallCount--;
-        var timeId = Utils.randomString(4);
-        console.time(this.resource + " save " + timeId);
-        /** time log **/
 
-        var chunkSize = this.cache[combinedCacheId].chunkSize;
-
-        var regions = [];
-        var chunks = [];
-        for (var i = 0; i < data.response.length; i++) {
-            var queryResult = data.response[i];
-            for (var j = 0; j < queryResult.result.length; j++) {
-                var interval = queryResult.result[j];
-                var region = new Region(interval);
-                regions.push(region);
-                chunks.push(interval);
-            }
+    /**
+     * Transform the list on a list of lists, to limit the queries
+     * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
+     * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
+     */
+    _groupQueries: function (uncachedRegions) {
+        var groupSize = 50;
+        var queriesLists = [];
+        while (uncachedRegions.length > 0) {
+            queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
         }
-        var items = this.cache[combinedCacheId].putByRegions(regions, chunks, false, histogramId); // TODO remove "histogram" from "_histogram_<interval>"
-
-        this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
-        if (args.webServiceCallCount === 0) {
-            args.done();
-        }
-
-        /** time log **/
-        console.timeEnd(this.resource + " get and save " + timeId);
+        return queriesLists;
     }
 };
 

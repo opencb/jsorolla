@@ -1,0 +1,437 @@
+<polymer-element name="jso-nv-select-filter" extends="jso-window" attributes="selectedMenu filters attributeManager networkViewer type">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                width: 400px;
+            }
+
+            .selbox {
+                /*height: 130px;*/
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+            }
+
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+            }
+
+            #left {
+                padding: 2px 0 5px 5px;
+            }
+
+            #right {
+                padding: 2px 5px 5px 5px;
+            }
+
+            label {
+                margin-top: 3px;
+            }
+
+            .delete:hover {
+                color: #c70804;
+            }
+
+            .filteractions > * {
+                margin-left: 4px;
+            }
+
+            .on {
+                color: #1f9cda;
+            }
+
+            .off {
+                color: #ea4242;
+            }
+
+            .light {
+                color: #666;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Select {{type}}s by attributes</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" horizontal layout>
+                <div id="left" vertical layout>
+
+                    <label>Filter attribute:</label>
+
+                    <div class="select">
+                        <select id="filterAttributeSelect">
+                            <template repeat="{{column in attributeManager.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+
+
+                    <label>Filter data type:</label>
+
+                    <div class="selbox">
+                        <div flex class="selitem" data-checked="{{attributeType == 'string'}}"
+                             on-click="{{handleAttributeTypeSelect}}" data-name="string">String
+                        </div>
+                        <div flex class="selitem" data-checked="{{attributeType == 'number'}}"
+                             on-click="{{handleAttributeTypeSelect}}" data-name="number">Number
+                        </div>
+                    </div>
+
+                    <template if="{{attributeType == 'string'}}">
+                        <label>Filter string matching:</label>
+
+                        <div class="selbox" style="height: 122px;width:150px;">
+                            <div flex class="selitem" data-checked="{{stringMatch == 'exact'}}"
+                                 on-click="{{handleStringMatchSelect}}" data-name="exact">Exact
+                            </div>
+                            <div flex class="selitem" data-checked="{{stringMatch == 'contains'}}"
+                                 on-click="{{handleStringMatchSelect}}" data-name="contains">Contains
+                            </div>
+                            <div flex class="selitem" data-checked="{{stringMatch == 'notcontains'}}"
+                                 on-click="{{handleStringMatchSelect}}" data-name="notcontains">Not contains
+                            </div>
+                        </div>
+                    </template>
+
+                    <template if="{{attributeType == 'number'}}">
+                        <label>Number matching:</label>
+
+                        <div class="selbox" style="width:150px;">
+                            <div flex class="selitem" data-checked="{{numberMatch == 'equals'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="equals">Equals
+                            </div>
+                            <div flex class="selitem" data-checked="{{numberMatch == 'notequal'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="notequal">Not equal to
+                            </div>
+
+                            <div flex class="selitem" data-checked="{{numberMatch == 'greater'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="greater">Greater than
+                            </div>
+                            <div flex class="selitem" data-checked="{{numberMatch == 'greaterequal'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="greaterequal">Greater than or equal to
+                            </div>
+
+                            <div flex class="selitem" data-checked="{{numberMatch == 'less'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="less">Less than
+                            </div>
+                            <div flex class="selitem" data-checked="{{numberMatch == 'lessequal'}}"
+                                 on-click="{{handleNumberMatchSelect}}" data-name="lessequal">Less than or equal to
+                            </div>
+                        </div>
+                    </template>
+
+                    <label>Create filter:</label>
+
+                    <div vertical layout>
+                        <div>
+                            <input type="text" value="{{queryString}}" placeholder="Insert value">
+                        </div>
+                        <div style="margin-top:4px;" class="button action" on-click="{{handleCreateFilter}}">
+                            Add filter
+                        </div>
+                    </div>
+
+                </div>
+                <div id="right" vertical layout flex>
+
+                    <label>Current filters:</label>
+
+                    <div class="selbox" flex>
+                        <template if="{{filters.length == 0}}">
+                            <div flex class="selitem">No active filters to show.</div>
+                        </template>
+                        <template repeat="{{filter, filterIndex in filters}}">
+                            <div flex class="selitem" horizontal layout>
+                                <div flex vertical layout>
+                                    <div>
+                                        <span class="light">Attribute:</span>
+                                        {{filter.attributeName}}
+                                    </div>
+                                    <div>
+                                        <span class="light"> Rule:</span>
+                                        <span style="text-transform: capitalize">{{filter.match}} {{filter.attributeType}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="light">Value:</span>
+                                        {{filter.queryString}}
+                                    </div>
+                                </div>
+                                <div horizontal layout class="filteractions">
+                                    <font-awesome icon="{{filter.enabled ? 'toggle-on' : 'toggle-off'}}"
+                                                  class="{{filter.enabled ? 'on' : 'off'}}"
+                                                  on-click="{{handleToggleFilter}}"></font-awesome>
+                                    <font-awesome icon="times" class="delete" on-click="{{handleDeleteFilter}}"></font-awesome>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div style="margin-top: 2px;" class="button action" on-click="{{handleDeleteFilters}}">
+                        Clear all filters
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="footer" horizontal layout>
+
+                <div horizontal layout flex>
+                    <div class="button action" on-click="{{handleRemoveItems}}">
+                        Remove selected {{type}}s
+                    </div>
+
+                </div>
+                <div horizontal layout>
+                    <div class="button action" on-click="{{handleApplyFiltersInvert}}">
+                        Invert select
+                    </div>
+                    <div class="button action" on-click="{{handleApplyFilters}}">
+                        Select
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.attributeManager;
+
+                this.filters = [];
+                this.currentData = [];
+
+                this.attributeType = 'string';
+                this.stringMatch = 'contains';
+                this.numberMatch = 'equal';
+                this.queryString = '';
+            },
+            ready: function () {
+            },
+            observe: {
+                "attributeManager.data": "handleDataChanged",
+//                "attributeManager.selected": "handleSelectedChanged"
+            },
+            handleDataChanged: function (e) {
+                this._checkCurrentData();
+            },
+            handleSelectedChanged: function (o, n) {
+                this._checkCurrentData();
+            },
+            _checkCurrentData: function () {
+                this.currentData = this.attributeManager.data;
+                var filteredData = [];
+                if (this.filters.length > 0) {
+                    for (var i = 0; i < this.filters.length; i++) {
+                        var filter = this.filters[i];
+                        if (filter.enabled) {
+                            if (i == 0) {
+                                filteredData = this._applyFilter(filter, this.currentData, i);
+                            } else {
+                                filteredData = this._applyFilter(filter, filteredData, i);
+                            }
+                        }
+                    }
+                    this.currentData = filteredData;
+                }
+            },
+            handleApplyFilters: function () {
+                this.attributeManager.deselectAll();
+                if (this.currentData !== this.attributeManager.data && this.currentData.length > 0) {
+                    this.attributeManager.selected = this.currentData;
+                }
+            },
+            handleApplyFiltersInvert: function () {
+                this.handleApplyFilters();
+                if (this.type == 'node') {
+                    this.networkViewer.selectVerticesInvert();
+                } else if (this.type == 'edge') {
+                    this.networkViewer.selectEdgesInvert();
+                }
+            },
+            handleRemoveItems: function () {
+                if (confirm('Selected ' + this.type + 's will be deleted. Are you sure?')) {
+                    if (this.type == 'node') {
+                        this.networkViewer.removeSelectedVertices();
+                    } else if (this.type == 'edge') {
+                        this.networkViewer.removeSelectedEdges();
+                    }
+                }
+            },
+            handleExpand: function () {
+                this.super();
+            },
+            /* Filter */
+            handleAttributeNameSelect: function (e) {
+                this.attributeName = e.currentTarget.dataset.name;
+            },
+            handleAttributeTypeSelect: function (e) {
+                this.attributeType = e.currentTarget.dataset.name;
+            },
+            handleStringMatchSelect: function (e) {
+                this.stringMatch = e.currentTarget.dataset.name;
+            },
+            handleNumberMatchSelect: function (e) {
+                this.numberMatch = e.currentTarget.dataset.name;
+            },
+            handleCreateFilter: function () {
+                var attributeName = this.shadowRoot.querySelector('#filterAttributeSelect').value;
+
+                var match;
+                if (this.attributeType == 'string') {
+                    match = this.stringMatch;
+                } else if (this.attributeType == 'number') {
+                    match = this.numberMatch;
+                }
+
+                var filter = {
+                    attributeName: attributeName,
+                    queryString: this.queryString,
+                    attributeType: this.attributeType,
+                    enabled: true,
+                    match: match
+                };
+                this.filters.push(filter);
+                this._checkCurrentData();
+            },
+            _applyFilter: function (filter, dataToIterate, filterIndex) {
+                if (filter.attributeType == 'string') {
+                    switch (filter.match) {
+                        case 'exact':
+                            dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
+                            break;
+                        case 'contains':
+                            dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString);
+                            break;
+                        case 'notcontains':
+                            dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
+                            break;
+                    }
+                } else if (filter.attributeType == 'number') {
+                    switch (filter.match) {
+                        case 'equals':
+                            dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
+                            break;
+                        case 'notequal':
+                            dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
+                            break;
+                        case 'greater':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>');
+                            break;
+                        case 'greaterequal':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>', true);
+                            break;
+                        case 'less':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<');
+                            break;
+                        case 'lessequal':
+                            dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<', true);
+                            break;
+                    }
+                }
+                return dataToIterate;
+            },
+            selectByColumnValue: function (data, column, value) {
+                var selected = [];
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    if (row[column] === value) {
+                        selected.push(row);
+                    }
+                }
+                return selected;
+            },
+            selectByColumnContainsValue: function (data, column, value, notContains) {
+                var selected = [];
+                if (notContains == true) {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (row[column].indexOf(value) == -1) {
+                            selected.push(row);
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (row[column].indexOf(value) != -1) {
+                            selected.push(row);
+                        }
+                    }
+                }
+                return selected;
+            },
+            selectByColumnComparationValue: function (data, column, value, comparation, includeValue) {
+                if (!isNaN(value)) {
+                    var selected = [];
+                    if (comparation == '>') {
+                        if (includeValue) {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) >= parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        } else {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) > parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        }
+                    } else if (comparation == '<') {
+                        if (includeValue) {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) <= parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        } else {
+                            for (var i = 0; i < data.length; i++) {
+                                var row = data[i];
+                                if (!isNaN(row[column]) && parseFloat(row[column]) < parseFloat(value)) {
+                                    selected.push(row);
+                                }
+                            }
+                        }
+                    }
+                    return selected;
+                } else {
+                    return data;
+                }
+            },
+            handleDeleteFilter: function (e) {
+                var index = e.target.templateInstance.model.filterIndex;
+                this.filters.splice(index, 1);
+                this._checkCurrentData();
+            },
+            handleDeleteFilters: function (e) {
+                if (confirm('All filters will be deleted. Are you sure?')) {
+                    this.filters = [];
+                    this._checkCurrentData();
+                }
+            },
+            handleToggleFilter: function (e) {
+                var index = e.target.templateInstance.model.filterIndex;
+                this.filters[index].enabled = !this.filters[index].enabled;
+                this._checkCurrentData();
+            }
+
+        });
+    </script>
+</polymer-element>

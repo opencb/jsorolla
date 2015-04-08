@@ -26,9 +26,19 @@ function Vertex(args) {
     this.edgesIndex = {};
 
     this.position = new Point();
+    this.renderer = new CircosVertexRenderer();
 
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            this[prop] = args[prop];
+        }
+    }
+
+    if (this.renderer) {
+        this.renderer.coords = this.position;
+        this.renderer.vertex = this;
+    }
 }
 
 Vertex.prototype = {
@@ -58,9 +68,21 @@ Vertex.prototype = {
             return false;
         }
     },
+    render: function (args) {
+        this.renderer.render(args)
+    },
+    setRenderer: function (renderer) {
+        if (renderer) {
+            this.renderer = renderer;
+            this.renderer.coords = this.position;
+            this.renderer.vertex = this;
+        }
+    },
     toJSON: function () {
         return {
-            id: this.id
+            id: this.id,
+            position: this.position,
+            renderer: this.renderer
         }
     }
 }

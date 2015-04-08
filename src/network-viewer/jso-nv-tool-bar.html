@@ -1,0 +1,225 @@
+<polymer-element name="jso-nv-tool-bar" attributes="backgroundColor mode zoom lite">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                height: 32px;
+                padding: 4px 8px;
+                background-color: #FAFAFA;
+                border-bottom: 1px solid #D9D9D9;
+            }
+
+            #bar {
+                width: 860px;
+            }
+
+        </style>
+        <div id="bar" horizontal layout flex>
+            <div style="border-right: none"
+                 class="button"
+                 title="Select any element (node /edge)"
+                 data-checked="{{mode == 'select'}}"
+                 data-mode="select"
+                 on-click="{{handleMode}}">
+                <font-awesome icon="hand-o-up"></font-awesome>
+            </div>
+            <div
+                    style="border-right: none"
+                    class="button"
+                    title="Allows to move the whole network along the canvas"
+                    data-checked="{{mode == 'move'}}"
+                    data-mode="move"
+                    on-click="{{handleMode}}">
+                <font-awesome icon="arrows"></font-awesome>
+            </div>
+            <div class="button"
+                 title="Select and move the background images"
+                 data-checked="{{mode == 'selectbackground'}}"
+                 data-mode="selectbackground"
+                 on-click="{{handleMode}}">
+                <font-awesome icon="image"></font-awesome>
+            </div>
+            <template if="{{lite != 'true'}}">
+                <div style="margin-left: 3px;border-right: none"
+                     class="button"
+                     title="Add Nodes"
+                     data-checked="{{mode == 'add'}}"
+                     data-mode="add" on-click="{{handleMode}}">
+                    <font-awesome icon="plus"></font-awesome>
+                </div>
+                <div style="border-right: none"
+                     class="button"
+                     title="Join Nodes by an edge"
+                     data-checked="{{mode == 'join'}}"
+                     data-mode="join"
+                     on-click="{{handleMode}}">
+                    <font-awesome icon="link"></font-awesome>
+                </div>
+                <div class="button"
+                     title="Delete the selected node / edge"
+                     data-checked="{{mode == 'delete'}}"
+                     data-mode="delete"
+                     on-click="{{handleMode}}">
+                    <font-awesome icon="times"></font-awesome>
+                </div>
+            </template>
+
+
+            <div hidden style="margin-left: 10px" id="collapseButton" class="ocb-ctrl">
+                <span class="ocb-icon icon-collapse"></span>
+            </div>
+
+
+            <div class="dropdown" style="margin-left: 10px">
+                <div title="Render the whole graph using different algorithms."
+                     tabindex="-1" id="layoutButton" class="button">
+                    <font-awesome icon="share-alt"></font-awesome>
+                </div>
+                <ul id="layoutMenu">
+                    <li on-click="{{handleLayoutMenu}}" data-value="Force directed">Force directed</li>
+                    <!--<li on-click="{{handleLayoutMenu}}" data-value="Tree">Tree</li>-->
+                    <li on-click="{{handleLayoutMenu}}" data-value="Circle">Circle</li>
+                    <li on-click="{{handleLayoutMenu}}" data-value="Random">Random</li>
+                </ul>
+            </div>
+
+            <div class="dropdown" title="Select all nodes, all vertices or both" style="margin-left: 10px">
+                <div tabindex="-1" id="autoSelectButton" class="button">
+                    <font-awesome icon="dot-circle-o"></font-awesome>
+                </div>
+                <ul id="autoSelectMenu">
+                    <li on-click="{{handleSelectMenu}}" data-value="All nodes">All nodes</li>
+                    <li on-click="{{handleSelectMenu}}" data-value="First neighbour nodes">First neighbour nodes</li>
+                    <li on-click="{{handleSelectMenu}}" data-value="Invert node selection">Invert node selection</li>
+                    <li data-divider="true"></li>
+                    <li on-click="{{handleSelectMenu}}" data-value="All edges">All edges</li>
+                    <li on-click="{{handleSelectMenu}}" data-value="Adjacent edges">Adjacent edges</li>
+                    <li data-divider="true"></li>
+                    <li on-click="{{handleSelectMenu}}" data-value="Everything">Everything</li>
+                </ul>
+            </div>
+
+
+            <div style="margin-left:5px;border-right-width: 0"
+                 title="Upload your own background image"
+                 on-click={{handleBackgroundImage}}
+                 id="importBackgroundImageButton"
+                 class="button">
+                <font-awesome icon="file-image-o"></font-awesome>
+            </div>
+            <input on-change={{handleBackgroundImageField}} id="importBackgroundImageField" type="file" hidden>
+
+            <jso-color-picker ctitle="Change the color of the background" id="backgroundColorPicker" color="{{backgroundColor}}"
+                              on-color-click="{{handleBackgroundColorPicker}}"
+                              style="float:left;width:90px;"></jso-color-picker>
+
+            <div class="dropdown" title="Rotate" style="margin-left: 10px">
+                <div tabindex="-1" id="rotateButton" class="button" style="border-right: none">
+                    <font-awesome icon="rotate-right"></font-awesome>
+                </div>
+                <ul id="rotateMenu">
+                    <li on-click="{{handleRotateMenu}}" data-value="45">45</li>
+                    <li on-click="{{handleRotateMenu}}" data-value="90">90</li>
+                    <li on-click="{{handleRotateMenu}}" data-value="180">180</li>
+                    <li data-divider="true"></li>
+                    <li on-click="{{handleRotateMenu}}" data-value="-45">-45</li>
+                    <li on-click="{{handleRotateMenu}}" data-value="-90">-90</li>
+                    <li on-click="{{handleRotateMenu}}" data-value="-180">-180</li>
+                </ul>
+            </div>
+            <input on-keyup="{{handleRotateField}}" id="rotateField" class="button" type="text" style="width: 50px;"
+                   placeholder="90&deg;" pattern="^-?\d+$">
+
+            <div title="Zoom out" id="zoomOutButton" on-click="{{handleZoomOutButton}}" class="button" style="margin-left: 10px">
+                <font-awesome icon="minus"></font-awesome>
+            </div>
+            <div on-click="{{handleZoomSlider}}" id="progressBarCont" class="zoom-bar">
+                <div id="progressBar" style="width:{{zoom}}%"></div>
+            </div>
+            <div title="Zoom in" id="zoomInButton" on-click="{{handleZoomInButton}}" class="button">
+                <font-awesome icon="plus"></font-awesome>
+            </div>
+            <div id="helpButton" on-click="{{handleHelpButton}}" class="button" style="margin-left: 10px">
+                <font-awesome icon="question-circle"></font-awesome>
+            </div>
+        </div>
+
+    </template>
+
+
+    <script>
+        Polymer({
+            created: function () {
+                this.zoom;
+                this.mode;
+                this.lite = "false";
+            },
+            ready: function () {
+
+            },
+            handleLayoutMenu: function (e) {
+                this.fire('layoutchange', {layout: e.currentTarget.dataset.value});
+            },
+            handleSelectMenu: function (e) {
+                this.fire('selectchange', {select: e.currentTarget.dataset.value});
+            },
+            handleRotateMenu: function (e) {
+                this.fire('rotatechange', {angle: parseFloat(e.currentTarget.dataset.value)});
+            },
+            handleRotateField: function (e) {
+                var query = e.target.value;
+                var intPattern = /^-?\d+$/;
+                if (intPattern.test(query)) {
+                    if (event.which === 13) {
+                        this.fire('rotatechange', {angle: parseFloat(query)});
+                    }
+                }
+            },
+            handleBackgroundImage: function () {
+                this.$.importBackgroundImageField.click();
+            },
+            handleBackgroundImageField: function (e) {
+                var me = this;
+                var file = e.currentTarget.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function (evt) {
+                        var image = new Image;
+                        image.onload = function () {
+                            me.fire('importbackgroundimage', {image: image});
+                        };
+                        var content = evt.target.result;
+                        image.src = content;
+                    };
+                    reader.readAsDataURL(file);
+                    e.currentTarget.value = null;
+                }
+            },
+            handleBackgroundColorPicker: function (e) {
+                this.backgroundColor = e.detail.color;
+            },
+            handleZoomOutButton: function () {
+                this.zoom = Math.max(0, this.zoom - 1)
+            },
+            handleZoomSlider: function (e) {
+                var bcr = e.currentTarget.getBoundingClientRect();
+                this.zoom = ((e.clientX - bcr.left) * 100) / bcr.width;
+            },
+            handleZoomInButton: function () {
+                this.zoom = Math.min(100, this.zoom + 1)
+            },
+            handleMode: function (e) {
+                this.mode = e.currentTarget.dataset.mode;
+                console.log(this.mode)
+            },
+            setZoom: function (zoom) {
+                this.zoom = zoom;
+            },
+            handleHelpButton: function () {
+                window.open("https://github.com/babelomics/babelomics/wiki/Visualization-tools#network-viewer");
+            }
+        });
+    </script>
+</polymer-element>

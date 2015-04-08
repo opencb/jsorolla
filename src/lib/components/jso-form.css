@@ -1,0 +1,124 @@
+/*
+
+    Form box
+
+    <div class="formbox">
+        <div class="formtitle">
+        </div>
+        <div class="formcontent">
+        </div>
+    </div>
+
+*/
+* /deep/ .formbox {
+    border: 1px solid #d3d3d3;
+    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
+    margin: 0 5px 10px 5px;
+    background-color: #FFFFFF;
+}
+
+* /deep/ .formtitle {
+    border-bottom: 1px solid #dfdfdf;
+    padding: 6px 10px;
+    font-size: 16px;
+    color: #000;
+    background-color: #f5f5f5;
+}
+
+* /deep/ .formtitle > * {
+    margin-left: 5px;
+}
+
+* /deep/ .formtitle > .actions > * {
+    margin-left: 5px;
+    color: #888;
+}
+
+* /deep/ .formtitle > .actions > *[data-checked] {
+    color: #445D76;
+}
+
+* /deep/ .formtitle > .actions > *:hover {
+    color: #000;
+}
+
+* /deep/ .formcontent {
+    padding: 8px 10px;
+}
+
+* /deep/ .formbox.fit {
+    margin: 0px;
+    border-width: 0;
+}
+
+* /deep/ .formcontent.fit {
+    padding: 0px;
+}
+
+/*
+
+    radio and checkbox
+
+    <label class="control">
+        <input type="checkbox">
+        <span>text</span>
+    </label>
+
+*/
+* /deep/ label.control {
+    color: inherit;
+}
+
+* /deep/ label.control > input[type=radio],
+* /deep/ label.control > input[type=checkbox] {
+    display: none;
+}
+
+* /deep/ label.control > input[type=radio] + span,
+* /deep/ label.control > input[type=checkbox] + span {
+    display: block;
+    position: relative;
+    outline: 0;
+    box-sizing: border-box;
+    line-height: 21px;
+    padding: 0px 5px;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+}
+
+* /deep/ label.control > input[type=radio] + span:before,
+* /deep/ label.control > input[type=checkbox] + span:before {
+    font-family: 'FontAwesome';
+    display: inline-block;
+    width: 20px;
+    position: relative;
+    top: 2px;
+    font-size: 18px;
+    color: #666;
+}
+
+* /deep/ label.control > input[type=radio] + span:before {
+    content: '\f10c';
+}
+
+* /deep/ label.control > input[type=radio]:checked + span:before {
+    content: '\f192';
+}
+
+* /deep/ label.control > input[type=checkbox] + span:before {
+    content: '\f096';
+}
+
+* /deep/ label.control > input[type=checkbox]:checked + span:before {
+    content: '\f046';
+}
+
+* /deep/ label.control > input[type=radio]:disabled + span,
+* /deep/ label.control > input[type=radio]:disabled + span:before {
+    color: #d3d3d3 !important;
+}
+
+* /deep/ input[type=text]:disabled {
+    color: #d3d3d3 !important;
+}

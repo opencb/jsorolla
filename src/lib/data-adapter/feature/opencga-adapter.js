@@ -23,18 +23,23 @@ function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
+//    this.sid = "RNk4P0ttFGHyqLA3YGS8";
+
     _.extend(this, args);
 
     this.on(this.handlers);
 
-    this.cache = {};
+    this.cache = new FeatureChunkCache(this.cacheConfig);
+    this.minChunkSize = 200;
 }
 
 OpencgaAdapter.prototype = {
     getData: function (args) {
         var _this = this;
-        /********/
 
+        args.webServiceCallCount = 0;
+
+        /** 1 region check **/
         var region = args.region;
         if (region.start > 300000000 || region.end < 1) {
             return;
@@ -42,238 +47,209 @@ OpencgaAdapter.prototype = {
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
-        var params = {species: Utils.getSpeciesCode(this.species.text)};
-        _.extend(params, this.params);
-        _.extend(params, args.params);
+        /** 2 category check **/
+        var categories = args.categories;   // in this adapter each category is each file
 
+        /** 3 dataType check **/
         var dataType = args.dataType;
         if (_.isUndefined(dataType)) {
             console.log("dataType must be provided!!!");
         }
-        var chunkSize;
-        /********/
 
-        if (dataType == 'histogram') {
+        /** 4 chunkSize check **/
+        var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.defaultChunkSize;
+        if (chunkSize % this.minChunkSize != 0) {
+            chunkSize = Math.round(chunkSize / this.minChunkSize) * this.minChunkSize;  // round to this.minChunkSize multiple.
+        }
+        if (chunkSize <= 0) {
+            chunkSize = this.minChunkSize;
+        }
 
-        } else {
-            //Create one FeatureChunkCache by datatype
-            if (_.isUndefined(this.cache[dataType])) {
-                this.cache[dataType] = new FeatureChunkCache(this.cacheConfig);
+        /* TODO remove??????
+         var params = {
+         species: Utils.getSpeciesCode(this.species.text)
+         };
+         _.extend(params, this.params);
+         _.extend(params, args.params);
+
+         two levels of cache. In this adapter, default are: resource and subResource
+         this.cacheConfig.cacheId = this.resource;
+         this.cacheConfig.subCacheId = this.subResource;
+         var combinedCacheId = _this.cacheConfig.cacheId + "_" + _this.cacheConfig.subCacheId;
+         */
+
+        /**
+         * Get the uncached regions (uncachedRegions) and cached chunks (cachedChunks).
+         * Uncached regions will be used to query OpenCGA. The response data will be converted in chunks
+         * by the Cache TODO????
+         * Cached chunks will be returned by the args.dataReady Callback.
+         */
+        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
+
+            var category = categories[0];
+            var categoriesName = "";
+            for (var j = 0; j < categories.length; j++) {
+                categoriesName += "," + categories[j];
             }
-            chunkSize = this.cache[dataType].chunkSize;
+            categoriesName = categoriesName.slice(1);   // to remove first ','
+            /**
+             * Process uncached regions
+             */
+            // assumption: every sample has the same uncached regions.
+            var queriesList;
+            if (dataType == "histogram") {
+                queriesList = [region];
+            } else {
+                queriesList = _this._groupQueries(uncachedRegions[category]);
+            }
+//            var queriesList = uncachedRegions[category];
 
-            this.cache[dataType].getCachedByRegion(region, function (chunksByRegion) {
-                if (chunksByRegion.notCached.length > 0) {
-                    var queryRegionStrings = _.map(chunksByRegion.notCached, function (region) {
-                        return new Region(region).toString();
-                    });
+            for (var i = 0; i < queriesList.length; i++) {
+                args.webServiceCallCount++;
+                var queryRegion = queriesList[i];
 
-                    //limit queries
-                    var n = 50;
-                    var lists = _.groupBy(queryRegionStrings, function (a, b) {
-                        return Math.floor(b / n);
-                    });
-                    var queriesList = _.toArray(lists); //Added this to convert the returned object to an array.
-
-                    for (var i = 0; i < queriesList.length; i++) {
-                        var cookie = $.cookie("bioinfo_sid");
-                        cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
-                        OpencgaManager.region({
-                            accountId: _this.resource.account,
-                            sessionId: cookie,
-                            bucketId: _this.resource.bucketId,
-                            objectId: _this.resource.oid,
-                            region: queriesList[i],
-                            queryParams: params,
-                            success: function (data) {
-                                _this._opencgaSuccess(data, dataType);
-                            }
-                        });
-//                    CellBaseManager.get({
-//                        host: _this.host,
-//                        species: _this.species,
-//                        category: _this.category,
-//                        subCategory: _this.subCategory,
-//                        query: queriesList[i],
-//                        resource: _this.resource,
-//                        params: params,
-//                        success: function (data) {
-//                            _this._cellbaseSuccess(data, dataType);
-//                        }
-//                    });
+                OpencgaManager.files.fetch({
+                    id: categoriesName,
+                    query: {
+                        sid: _this.sid, //TODO add sid to queryParams; resolved isn't it?
+                        region: queryRegion.toString(),
+                        interval: chunkSize,
+                        histogram: (dataType == 'histogram'),
+                        process_differences: false
+                    },
+                    request: {
+                        success: function (response) {
+                            _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                        },
+                        error: function () {
+                            args.done();
+                            console.log('Server error');
+                        }
                     }
+                });
+            }
+
+            /**
+             * Process Cached chunks
+             */
+            for (var k = 0; k < categories.length; k++) {
+                if (cachedChunks[categories[k]].length > 0) {
+                    var decryptedChunks = _this._decryptChunks(cachedChunks[categories[k]], "mypassword");
+                    if (args.webServiceCallCount === 0) {   // in case no webserviceCalls were made
+                        args.done();
+                    }
+                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this, category: categories[k]});
                 }
-                if (chunksByRegion.cached.length > 0) {
-                    _this.cache[dataType].getByRegions(chunksByRegion.cached, function (cachedChunks) {
-                        _this.trigger('data:ready', {items: cachedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this});
-                    });
-                }
-            });
+            }
+        });
+    },
+
+    _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
+        args.webServiceCallCount--;
+//        var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
+//        console.time(timeId);
+//        /** time log **/
+
+        if (categories.length != data.response.length) {
+            console.log("ERROR: requested " + categories.length + "samples, but response has " + data.response.length);
+            console.log(data);
+//            debugger;
+        }
+
+        if (data.response[0] && data.response[0].result[0]) {
+            var inferredChunkSize = data.response[0].result[0].end - data.response[0].result[0].start +1;
+            if (inferredChunkSize != chunkSize) {
+                console.log("code smell: chunkSize requested: " + chunkSize + ", but obtained: " + inferredChunkSize);
+//                chunkSize = inferredChunkSize;
+            }
+        }
+//        debugger
+
+        for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample? in variant too?
+            var queryResult = data.response[i];
+            var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
+            if (items.length > 0) {
+                // if (data.encoded) {decrypt }
+                args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this, category: categories[i]});
+            }
+        }
+
+//        var decryptedChunks = this._decryptChunks(items, "mypassword");
+
+//        /** time log **/
+//        console.timeEnd(timeId);
+
+        if (args.webServiceCallCount === 0) {
+            args.done();
         }
     },
 
-    _opencgaSuccess: function (data, dataType) {
-        var timeId = this.resource + " save " + Utils.randomString(4);
-        console.time(timeId);
-        /** time log **/
-
-        var chunkSize = this.cache[dataType].chunkSize;
-
-        var regions = [];
-        var chunks = [];
-        for (var i = 0; i < data.response.length; i++) {
-            var queryResult = data.response[i];
-
-            regions.push(new Region(queryResult.id));
-            chunks.push(queryResult.result);
+    /**
+     * Transform the list on a list of lists, to limit the queries
+     * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
+     * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
+     */
+    _groupQueries: function (uncachedRegions) {
+        var groupSize = 50;
+        var queriesLists = [];
+        while (uncachedRegions.length > 0) {
+            queriesLists.push(uncachedRegions.splice(0, groupSize).toString());
         }
-        this.cache[dataType].putByRegions(regions, chunks);
+        return queriesLists;
+    },
 
-        /** time log **/
-        console.timeEnd(timeId);
-
-        if (chunks.length > 0) {
-            this.trigger('data:ready', {items: chunks, dataType: dataType, chunkSize: chunkSize, sender: this});
-        }
-    }
-}
-
-
-OpencgaAdapter.prototype.getDataOld = function (args) {
-    debugger
-    var _this = this;
-    //region check
-
-    this.params["histogram"] = args.histogram;
-    this.params["histogramLogarithm"] = args.histogramLogarithm;
-    this.params["histogramMax"] = args.histogramMax;
-    this.params["interval"] = args.interval;
-    this.params["transcript"] = args.transcript;
-
-
-    if (args.start < 1) {
-        args.start = 1;
-    }
-    if (args.end > 300000000) {
-        args.end = 300000000;
-    }
-
-    var type = "data";
-    if (args.histogram) {
-        type = "histogram" + args.interval;
-    }
-
-    var firstChunk = this.featureCache._getChunk(args.start);
-    var lastChunk = this.featureCache._getChunk(args.end);
-
-    var chunks = [];
-    var itemList = [];
-    for (var i = firstChunk; i <= lastChunk; i++) {
-        var key = args.chromosome + ":" + i;
-        if (this.featureCache.cache[key] == null || this.featureCache.cache[key][type] == null) {
-            chunks.push(i);
-        } else {
-            var items = this.featureCache.getFeatureChunk(key, type);
-            itemList = itemList.concat(items);
-        }
-    }
-////	//notify all chunks
-//	if(itemList.length>0){
-//		this.onGetData.notify({data:itemList, params:this.params, cached:true});
-//	}
-
-
-    //CellBase data process
-    //TODO check host
-    var calls = 0;
-    var querys = [];
-    regionSuccess = function (data) {
-        console.timeEnd("dqs");
-        console.time("dqs-cache");
-        var type = "data";
-        if (data.params.histogram) {
-            type = "histogram" + data.params.interval;
-        }
-        _this.params["dataType"] = type;
-
-        var splitDots = data.query.split(":");
-        var splitDash = splitDots[1].split("-");
-        var query = {chromosome: splitDots[0], start: splitDash[0], end: splitDash[1]};
-
-        //check if features contains positon or start-end
-        if (data.result[0] != null && data.result[0]['position'] != null) {
-            for (var i = 0; i < data.result.length; i++) {
-                data.result[i]['start'] = data.result[i].position;
-                data.result[i]['end'] = data.result[i].position;
-            }
-        }
-
-        _this.featureCache.putFeaturesByRegion(data.result, query, _this.category, type);
-        var items = _this.featureCache.getFeatureChunksByRegion(query, type);
-        console.timeEnd("dqs-cache");
-        if (items != null) {
-            itemList = itemList.concat(items);
-        }
-        if (calls == querys.length) {
-//			_this.onGetData.notify({items:itemList, params:_this.params, cached:false});
-            _this.trigger('data:ready', {items: itemList, params: _this.params, cached: false, sender: _this});
-        }
-    };
-
-    var updateStart = true;
-    var updateEnd = true;
-    if (chunks.length > 0) {
-//		console.log(chunks);
-
+    _decryptChunks: function (chunks, password) {
+        var decryptedChunks = [];
         for (var i = 0; i < chunks.length; i++) {
-
-            if (updateStart) {
-                var chunkStart = parseInt(chunks[i] * this.featureCache.chunkSize);
-                updateStart = false;
-            }
-            if (updateEnd) {
-                var chunkEnd = parseInt((chunks[i] * this.featureCache.chunkSize) + this.featureCache.chunkSize - 1);
-                updateEnd = false;
-            }
-
-            if (chunks[i + 1] != null) {
-                if (chunks[i] + 1 == chunks[i + 1]) {
-                    updateEnd = true;
-                } else {
-                    var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
-                    querys.push(query);
-                    updateStart = true;
-                    updateEnd = true;
-                }
+            if (chunks[i].enc == true) {
+                decryptedChunks.push(CryptoJS.AES.decrypt(chunks[i], password));
             } else {
-                var query = args.chromosome + ":" + chunkStart + "-" + chunkEnd;
-
-                querys.push(query);
-                updateStart = true;
-                updateEnd = true;
+                decryptedChunks.push(chunks[i]);
             }
         }
-//		console.log(querys)
-        for (var i = 0, li = querys.length; i < li; i++) {
-            console.time("dqs");
-            calls++;
-//			opencgaManager.region(this.category, this.resource, querys[i], this.params);
-            var cookie = $.cookie("bioinfo_sid");
-            cookie = ( cookie != '' && cookie != null ) ? cookie : 'dummycookie';
-            OpencgaManager.region({
-                accountId: this.resource.account,
-                sessionId: cookie,
-                bucketId: this.resource.bucketId,
-                objectId: this.resource.oid,
-                region: querys[i],
-                queryParams: this.params,
-                success: regionSuccess
-            });
+        return decryptedChunks;
+    },
+
+    _adaptChunks: function (queryResult, category, dataType, chunkSize) {
+        var chunks;
+        var regions;
+        var items = [];
+//        debugger
+        if (queryResult.resultType == "org.opencb.biodata.models.variant.Variant") {
+            chunks = [];
+            regions = [];
+            var keyToPair = {};
+            for (var i = 0; i < queryResult.result.length; i++) {
+                var variation = queryResult.result[i];
+                var chunkId = this.cache.getChunkId(variation.start, chunkSize);
+                var key = this.cache.getChunkKey(variation.chromosome,
+                    chunkId,
+                    dataType,
+                    chunkSize);
+
+                if (keyToPair[key] == undefined) {
+                    keyToPair[key] = chunks.length;
+                    regions.push(new Region({chromosome:variation.chromosome, start: chunkId*chunkSize, end: (chunkId+1)*chunkSize-1}));
+                    chunks.push([]);
+                }
+                chunks[keyToPair[key]].push(variation);
+            }
+
+//            debugger
+            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
+        } else { //if(queryResult.resultType == "org.opencb.biodata.models.alignment.AlignmentRegion") {
+            regions = [];
+            for (var j = 0; j < queryResult.result.length; j++) {
+                regions.push(new Region(queryResult.result[j]));
+            }
+            chunks = queryResult.result;
+
+//            if (data.response[i].result.length == 1) {
+//            } else {
+//                console.log("unexpected data structure");
+//            }
+            items = this.cache.putByRegions(regions, chunks, category, dataType, chunkSize);
         }
-    } else {
-        if (itemList.length > 0) {
-            this.trigger('data:ready', {items: itemList, params: this.params, cached: false, sender: this});
-//			this.onGetData.notify({items:itemList, params:this.params});
-        }
+        return items;
     }
 };

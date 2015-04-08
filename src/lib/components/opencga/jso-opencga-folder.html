@@ -1,0 +1,22 @@
+<polymer-element name="jso-opencga-folder-item" attributes="folder">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            .id {
+                color: #888;
+            }
+        </style>
+        <font-awesome icon="pie-chart"></font-awesome> &nbsp; {{folder.name}} &nbsp;
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.folder;
+            }
+        });
+    </script>
+</polymer-element>

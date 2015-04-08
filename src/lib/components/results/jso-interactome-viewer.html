@@ -1,0 +1,115 @@
+<polymer-element name="jso-interactome-viewer" attributes="content intermediates seedList jobResult">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+            }
+
+            jso-network-viewer {
+                height: 800px;
+
+                border-color: rgb(217, 217, 217);
+                border-style: solid;
+                border-width: 1px;
+            }
+
+            /*TODO temporal fix*/
+            jso-network-viewer::shadow jso-nv-layout {
+                height: calc(100% - 96px);
+            }
+
+
+        </style>
+        <template if="{{jobResult.networkViewer}}">
+            <div horizontal layout>
+                <div>
+                    <input type="text" value="{{sessionName}}">
+                </div>
+                <div class="button action" style="margin-left:5px" on-click="{{handleSaveSessionToCellMaps}}">
+                    Save network as Cell Maps session
+                </div>
+            </div>
+            <div horizontal layout>
+                <label>
+                    {{saveMessage}}
+                </label>
+                <template if="{{saveMessageOk}}">
+                    <div class="button action" on-click="{{handleOpenCellMapsSessionManager}}">
+                        Open Cell Maps session Manager
+                    </div>
+                </template>
+            </div>
+            <br>
+        </template>
+        <jso-network-viewer
+                id="viewer"
+                lite="true"
+                ></jso-network-viewer>
+        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+            <font-awesome icon="arrows"></font-awesome>
+        </label>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.sessionName = "";
+                this.saveMessage = "";
+                this.saveMessageOk = false;
+            },
+            domReady: function () {
+                this.$.viewer.$.nodeRender.setAttribute('hidden', '');
+                this.$.viewer.$.edgeRender.setAttribute('hidden', '');
+            },
+            contentChanged: function () {
+                var me = this;
+                this.intermediates = this.intermediates.split("|");
+                var adapter = new SIFNetworkDataAdapter({
+                    dataSource: new StringDataSource(this.content),
+                    handlers: {
+                        'data:load': function (event) {
+                            //me.processData(event.graph);
+                            me.$.viewer.setGraph(event.graph);
+                            me.$.viewer.setLayout("Force directed");
+
+                            me.$.viewer.setGraph(event.graph);
+                            me.$.viewer.setVertexDefaultDisplayProperty("color", "#c0c0c0")
+                            me.$.viewer.setEdgeDefaultDisplayProperty("shape", "undirected")
+                            for (var i = 0; i < me.intermediates.length; i++) {
+                                var intermediate = me.intermediates[i];
+                                var vertex = me.$.viewer.graph.getVertexById(intermediate);
+
+                                vertex.renderer.set("shape", "square");
+                                vertex.renderer.set("size", 20);
+                                vertex.renderer.set("color", "#eaeaea");
+
+                            }
+//                            me.$.output.querySelector("#" + divId).appendChild(networkViewer);
+                        },
+                        'error:parse': function (event) {
+                            console.log("ERRORRRR");
+                        }
+                    }
+                });
+
+            },
+            handleSaveSessionToCellMaps: function (e) {
+                var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.viewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
+                if (saved) {
+                    this.saveMessage = "Saved as " + this.sessionName + ", you can go back to Cell Maps and load the network using the session manager inside File menu.";
+                    this.sessionName = '';
+                    this.saveMessageOk = true;
+                } else {
+                    this.saveMessage = this.sessionName + 'already exists.';
+                    this.saveMessageOk = false;
+                }
+            },
+            handleOpenCellMapsSessionManager: function () {
+                this.jobResult.selectedOption = "";
+                this.jobResult.networkViewer.selectedMenu = "session-manager";
+            }
+
+        })
+    </script>
+</polymer-element>
+

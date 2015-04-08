@@ -1,0 +1,514 @@
+<polymer-element name="jso-network-miner" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .close {
+                color: #aaa;
+            }
+
+            .close:hover {
+                color: #ffad76;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            .botbar {
+                margin-top: 10px;
+            }
+
+            label {
+                display: block;
+            }
+        </style>
+
+        <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
+            <div flex>
+                Network Miner
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Functional%20Gene%20Set%20Network%20Enrichment">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <!--<div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>-->
+                    <div class="button action" on-click="{{loadExample1}}" style="display:inline-block">Essential genes in cancer cell line K562
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="K562.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
+
+                    <div class="button action" on-click="{{loadExample2}}" style="display:inline-block;margin-top:5px;">Essential genes in cancer cell line
+                        JURKAT
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="JURKAT.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
+
+                    <div class="button action" on-click="{{loadExample4}}" style="display:inline-block;margin-top:5px;">Genes Down-regulated in Fanconi Anemia
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="FA-differentialExpression-statistic.txt"
+                         style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                allowTextArea="false"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="IDLIST,IDLIST_RANKED"
+                                                networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your seed list (optional)</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                allowTextArea="true"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="IDLIST"
+                                                networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
+                </div>
+            </div>
+
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">List nature</div>-->
+            <!--<div class="formcontent">-->
+
+            <!--<select name="listTags" id="listTags" class="fc-combobox" type="text" value="gene">-->
+            <!--<option name="listTags_1" id="listTags_1" class="fc-combobox-item" value="gene" selected="selected">Gene</option>-->
+            <!--<option name="listTags_2" id="listTags_5" class="fc-combobox-item" value="protein">Protein</option>-->
+            <!--<option name="listTags_3" id="listTags_6" class="fc-combobox-item" value="transcript">Transcript-->
+            <!--</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
+
+
+            <div class="formbox">
+                <div class="formtitle">List nature</div>
+                <div class="formcontent">
+                    <div id="typeDiv">
+                        <label class="control">
+                            <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcript">
+                            <span>Transcripts</span>
+                        </label>
+                        <label class="control">
+                            <input id="type_2" name="type" class="fc-radioitem" type="radio" value="protein" checked>
+                            <span>Proteins</span>
+                        </label>
+                        <label class="control">
+                            <input id="type_3" name="type" class="fc-radioitem" type="radio" value="gene">
+                            <span>Genes</span>
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="formbox">
+                <div class="formtitle">Species</div>
+                <div class="formcontent">
+                    <div class="select" style="width:200px;">
+                        <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                            <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                            <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
+                            <!--<option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>-->
+                            <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
+                            <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="mmu">Mus musculus</option>
+                            <option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Select interactome confidence</div>-->
+            <!--<div class="formcontent">-->
+            <!--<select name="group" id="group" class="fc-combobox" type="text" value="curated">-->
+            <!--<option name="group_1" id="group_1" class="fc-combobox-item" value="curated" selected="selected">Curated-->
+            <!--(detected by at least two methods)-->
+            <!--</option>-->
+            <!--<option name="group_2" id="group_2" class="fc-combobox-item" value="all">Non curated</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
+
+            <div class="formbox">
+                <div class="formtitle">Select interactome confidence</div>
+                <div id="groupDiv" class="formcontent" vertical layout>
+                    <label class="control">
+                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
+                        <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
+                    </label>
+                    <label class="control">
+                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated">
+                        <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Sort ranked list</div>-->
+            <!--<div class="formcontent">-->
+            <!--<select name="order" id="order" class="fc-combobox" type="text" value="ascending">-->
+            <!--<option name="order_1" id="order_1" class="fc-combobox-item" value="ascending" selected>-->
+            <!--Ascending-->
+            <!--(detected by at least two methods)-->
+            <!--</option>-->
+            <!--<option name="order_2" id="order_2" class="fc-combobox-item" value="descending">Descending</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
+            <div class="formbox">
+                <div class="formtitle">Sort ranked list</div>
+                <div class="formcontent">
+                    <div id="orderDiv">
+                        <label class="control">
+                            <input id="order_1" name="order" class="fc-radioitem" type="radio" value="ascending" checked="checked">
+                            <span> Ascending </span>
+                        </label>
+                        <label class="control">
+                            <input id="order_2" name="order" class="fc-radioitem" type="radio" value="descending">
+                            <span>Descending</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Allow one external intermediate in the subnetwork</div>
+                <div class="formcontent">
+                    <div id="intermediateDiv">
+                        <label class="control">
+                            <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
+                            <span> Yes </span>
+                        </label>
+                        <label class="control">
+                            <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
+                            <span> No </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
+            <!--<div class="formcontent">-->
+            <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
+            <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
+            <!--selected="selected">0-->
+            <!--</option>-->
+            <!--<option name="intermediate_2" id="intermediate_2" class="fc-combobox-item" value="1">1</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+
+
+            created: function () {
+                this.jobName = 'JobName'
+                this.toolName = "network-miner"
+                this.message = '';
+                this.description = "JobDescription"
+
+                this.inputFile = ""
+                this.seedList = ""
+
+                this.example = false
+
+
+                this.interactome = "hsa"
+                this.interactomeText = "Homo sapiens"
+
+                this.significant_value = 0.05
+
+                this.group = "all"
+                this.groupText = "Non curated"
+
+                this.order = "ascending"
+                this.orderText = "Ascending"
+
+                this.intermediate = 1
+                this.intermediateText = "Yes"
+
+
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            handleCancel: function () {
+                this.selectedOption = '';
+            },
+            argsChanged: function () {
+                Utils.argsParser(this, this.args);
+            },
+            handleForm: function () {
+                var me = this;
+                me.launchJob();
+            },
+
+            launchJob: function (selectedFolderId) {
+                var me = this;
+//                if (!Utils.basicValidationForm(this)) {
+//                    return;
+//                }
+                if (this.$.outdir.selectedFile === undefined) {
+                    alert("Sorry. No output folder selected. Please select one. ");
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    name: this.jobName,
+                    description: this.description,
+//                    list: this.$.inputFile.selectedFile.id,
+                    outdir: this.$.outdir.selectedFile.id,
+                    "o-name": "result",
+                    interactome: this.$.interactome.value,
+                    intermediate: this.$.intermediateDiv.querySelector('input[name="intermediate"]:checked').value,
+                    group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
+                    components: true,
+                    randoms: 1000,
+                    order: this.$.orderDiv.querySelector('input[name="order"]:checked').value,
+                    "significant-value": 0.05,
+//                        components: false,
+                    "list-tags": this.$.typeDiv.querySelector('input[name="type"]:checked').value
+                    //ranked-list:
+                };
+
+//                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+//                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+//                    return;
+//                }
+                if (this.$.inputFile.selectedFile === undefined) {
+                    alert("Sorry. No input selected. Please select a file.");
+                    return;
+                }
+                if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list"] = this.$.inputFile.selectedFile.id;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["list-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+
+
+                if (this.$.seedList.selectedFile !== undefined) {
+                    query["seedlist"] = this.$.seedList.selectedFile.id;
+                }
+                if (this.$.seedList.textAreaValue != "") {
+                    query["seedlist-text"] = this.$.seedList.textAreaValue.replace(/\n/g, ',');
+                }
+
+                OpencgaManager.jobs.create({
+                    query: query,
+
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+
+                this.jobName = "Essential genes in cancer cell line K562";
+                this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (K562.txt).";
+//                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
+                this.$.inputFile.selectedFile = {id: "example_K562.txt", path: "K562.txt", type: "FILE"};
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_2.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_1.checked = true;
+                var exampleFolder = "nm_k562_symbol";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample2: function (e) {
+
+                this.jobName = "Essential genes in cancer cell line JURKAT";
+                this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (JURKAT.txt).";
+//                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
+                this.$.inputFile.selectedFile = {id: "example_JURKAT.txt", path: "JURKAT.txt", type: "FILE"};
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_2.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_1.checked = true;
+                var exampleFolder = "nm_jurkat";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample3: function (e) {
+
+                this.jobName = "Genes Up-regulated in Fanconi Anemia";
+                this.description = "Expression data comes form a recent study of the gene expression in Fanconi Anemia (Vanderwerf et al. 2009; GEO:GSE16334).  Differential gene expression of control versus case samples was carried out using the Limma option in Differential expression analysis. Here, genes are ranked according the statistic (FA-differentialExpression-statistic.txt).";
+                this.$.inputFile.selectedFile = {
+                    id: "example_FA-differentialExpression-statistic.txt",
+                    path: "FA-differentialExpression-statistic.txt",
+                    type: "FILE"
+                };
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_1.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_1.checked = true;
+                var exampleFolder = "nm_fanconi_up";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample4: function (e) {
+
+                this.jobName = "Genes Down-regulated in Fanconi Anemia";
+                this.description = "Expression data comes form a recent study of the gene expression in Fanconi Anemia (Vanderwerf et al. 2009; GEO:GSE16334).  Differential gene expression of control versus case samples was carried out using the Limma option in Differential expression analysis. Here, genes are ranked according the statistic (FA-differentialExpression-statistic.txt).";
+                this.$.inputFile.selectedFile = {
+                    id: "example_FA-differentialExpression-statistic.txt",
+                    path: "FA-differentialExpression-statistic.txt",
+                    type: "FILE"
+                };
+                this.$.type_3.checked = true;
+                this.$.interactome.value = "hsa";
+                this.$.group_1.checked = true;
+                this.$.intermediate_2.checked = true;
+                this.$.order_2.checked = true;
+                var exampleFolder = "nm_fanconi_down";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+        });
+    </script>
+</polymer-element>
+<!--<polymer-element name="jso-opencga-list-item" attributes="item">-->
+<!--<template>-->
+<!--<link rel="stylesheet" href="../jso-style.css">-->
+<!--<style>-->
+<!--:host {-->
+<!--display: block;-->
+<!--position: relative;-->
+<!--}-->
+
+<!--.id {-->
+<!--color: #888;-->
+<!--}-->
+<!--</style>-->
+<!--&lt;!&ndash;<font-awesome icon="folder-o"></font-awesome>&ndash;&gt;-->
+<!--&nbsp; {{item.name}} &nbsp; <span class="id"> {{item.name}} </span>-->
+<!--</template>-->
+<!--<script>-->
+<!--Polymer({-->
+<!--created: function () {-->
+<!--}-->
+<!--});-->
+<!--</script>-->
+<!--</polymer-element>-->

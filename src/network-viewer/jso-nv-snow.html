@@ -1,0 +1,54 @@
+<link rel="import" href="../lib/components/forms/jso-snow.html">
+<polymer-element name="jso-nv-snow" extends="jso-window" attributes="userData selectedOption selectedStudy studies networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+            }
+
+            .container {
+                overflow-y: scroll;
+                height: 500px;
+            }
+
+            jso-snow {
+                padding: 5px;
+                border: 0px;
+                width:800px;
+            }
+        </style>
+
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Network enrichment form</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleCancel}}"></div>
+                </div>
+            </div>
+            <div class="container">
+                <jso-snow
+                        selectedOption="{{selectedOption}}"
+                        userData="{{userData}}"
+                        selectedStudy="{{selectedStudy}}"
+                        studies="{{studies}}"
+                        networkViewer="{{networkViewer}}"
+                        hideTitle="true"
+                        >
+                </jso-snow>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            },
+            handleCancel: function () {
+                this.selectedOption = '';
+            }
+        });
+    </script>
+</polymer-element>

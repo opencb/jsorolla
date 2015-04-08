@@ -1,0 +1,95 @@
+<link rel="import" href="jso-variant-filter-form.html">
+<link rel="import" href="jso-variant-browser.html">
+<polymer-element name="jso-variant-component" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                position: relative;
+                box-sizing: border-box;
+                display: block;
+                color: #444;
+                background-color: #ffffff;
+                cursor: default;
+                box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
+            }
+
+            sortable-table {
+            }
+
+            jso-variant-filter-form {
+                width: 250px;
+                height: 100%;
+                margin-right: 10px;
+                margin-left: 5px;
+                /*border: solid #314559;*/
+            }
+
+            jso-variant-browser {
+                margin-right: 5px;
+                /*border: solid #314559;*/
+            }
+
+        </style>
+
+        <div horizontal layout style="height: 100%">
+            <jso-variant-filter-form
+                    samples="{{samples}}"
+                    fileId="{{fileId}}"
+                    url={{url}}>
+            </jso-variant-filter-form>
+            <jso-variant-browser
+                    flex
+                    samples="{{samples}}"
+                    fileId="{{fileId}}"
+                    url="{{url}}"
+                    studyId="{{studyId}}">
+            </jso-variant-browser>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            samples: null,
+            fileId: null,
+            studyId: null,
+            url: '',
+            created: function () {
+            },
+            ready: function () {
+            },
+            jobItemChanged: function (oldValue, newValue) {
+                var me = this;
+                this.samples = [];
+
+                if (newValue.output.length > 0) {
+
+                    me.fileId = newValue.output[newValue.output.length - 1];
+
+                    OpencgaManager.files.fetch({
+                        id: me.fileId,
+                        query: {
+                            sid: Cookies("bioinfo_sid"),
+                            variantSource: "true"
+                        },
+                        request: {
+                            success: function (response) {
+                                try {
+                                    var result = response.response[0].result[0];
+                                    me.samples = result.samplesPosition;
+                                    me.studyId = result.studyId;
+
+                                } catch (e) {
+
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    })
+                }
+            }
+        });
+    </script>
+</polymer-element>

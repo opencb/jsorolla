@@ -1,0 +1,171 @@
+<polymer-element name="jso-interactors-table" attributes="content typeTable">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            /*  sortable-table {
+              max-width: 1000px;
+              margin-top: 10px;
+              }*/
+            sortable-table {
+                border: 1px solid #d3d3d3;
+                /*width: 1000px;*/
+            }
+
+            /*sortable-table::shadow thead tr th {*/
+            /*width: 1000px;*/
+            /*white-space: inherit;*/
+            /*overflow: auto;*/
+            /*text-overflow: inherit;*/
+
+            /*}*/
+
+            /*sortable-table::shadow tbody tr td {*/
+            /*white-space: normal;*/
+            /*overflow:auto;*/
+            /*height: 30px;*/
+            /*text-overflow: inherit;*/
+            /*text-overflow: clip;*/
+
+            /*}*/
+            sortable-table::shadow .column-go {
+                width: 75px;
+                white-space: nowrap;
+            }
+
+            sortable-table::shadow .column-input_id,
+            sortable-table::shadow .column-id,
+            sortable-table::shadow .column-type,
+            sortable-table::shadow .column-rank,
+            sortable-table::shadow .column-bet,
+            sortable-table::shadow .column-clust,
+            sortable-table::shadow .column-conn {
+                width: 75px;
+                white-space: nowrap;
+            }
+
+        </style>
+        <sortable-table id="interactors_table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+            <template id="linkTemplate">
+                <td>
+                    <a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>
+                </td>
+            </template>
+            <template id="listTemplate">
+                <td style="padding:0">
+                    <div style="height: 100px;padding:3px; overflow-y: auto;overflow-x: auto">
+                        <template repeat="{{ item in row[column.name]}}">
+                            <div>{{item.id}}: {{item.name}}</div>
+                        </template>
+                    </div>
+                </td>
+            </template>
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.columns = [];
+                this.data = [];
+            },
+            contentChanged: function () {
+                this.createColumns();
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    var localData = data[i].split("\t");
+
+                    var obj = {
+                        "input_id": localData[0],
+                        "id": localData[1],
+                        "type": localData[2]
+                    };
+                    var columnIdx = 2;
+                    obj["rank"] = Utils.formatNumber(localData[++columnIdx]);
+                    if (isNaN(obj["rank"])) {
+                        obj["rank"] = "-";
+                    }
+                    obj["bet"] = Utils.formatNumber(localData[++columnIdx]);
+                    obj["clust"] = Utils.formatNumber(localData[++columnIdx]);
+                    obj["conn"] = localData[++columnIdx];
+
+
+                    obj["go"] = [];
+                    var nameList = localData[++columnIdx].split("|");
+                    var idList = localData[++columnIdx].split("|");
+                    for (var j = 0; j < idList.length; j++) {
+                        var name = nameList[j];
+                        var id = idList[j];
+                        obj["go"].push({
+                            name: name,
+                            id: id
+                        })
+                    }
+
+
+//                    obj["go_names"] = localData[++columnIdx].split("|");
+//                    obj["go_ids"] = localData[++columnIdx].split("|");
+//                    var links = Utils.getLinks(obj["go_ids"].split(","));
+//                    debugger
+                    this.data.push(obj)
+                }
+
+
+            },
+            createColumns: function () {
+                this.columns = new Array();
+                this.columns.push({
+                    name: "input_id",
+                    title: "Input id"
+
+                });
+                this.columns.push({
+                    name: "id",
+                    title: "id"
+
+                });
+                this.columns.push({
+                    name: "type",
+                    title: "Type"
+
+                });
+                if (this.typeTable == "NETWORKMINERRANKED_TABLE") {
+                    this.columns.push({
+                        name: "rank",
+                        title: "Rank"
+                    });
+                }
+                this.columns.push({
+                    name: "bet",
+                    title: "Betweenness"
+                });
+                this.columns.push({
+                    name: "clust",
+                    title: "Clustering"
+                });
+                this.columns.push({
+                    name: "conn",
+                    title: "Connections"
+                });
+                this.columns.push({
+                    name: "go",
+                    title: "Go",
+                    cellTemplate: "listTemplate"
+                });
+//                this.columns.push({
+//                    name: "go_ids",
+//                    title: "GO ids",
+//                    cellTemplate: "listTemplate"
+//                });
+
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+            }
+        })
+    </script>
+</polymer-element>
+

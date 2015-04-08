@@ -59,15 +59,20 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
 
     try {
         console.time("SIFParse");
+        data = data.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        var lines = data.split(/\n/);
         this.addedVertex = {};
         this.addedEdges = {};
-        var lines = data.split("\n");
 //        console.log('SIFParse number lines: ' + lines.length);
 //        console.log(lines);
         for (var i = 0; i < lines.length; i++) {
-            var line = lines[i].replace(/^\s+|\s+$/g, "");
+            var line = lines[i];
             if ((line != null) && (line.length > 0)) {
                 var fields = line.split(this.separator);
+                for (var j = 0; j < fields.length; j++) {
+                    fields[j] = fields[j].trim();
+                }
+
                 if (fields[0].substr(0, 1) != "#") {
 
                     var sourceName = fields[0];

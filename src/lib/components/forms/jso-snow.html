@@ -1,0 +1,433 @@
+<polymer-element name="jso-snow" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .close {
+                color: #aaa;
+            }
+
+            .close:hover {
+                color: #ffad76;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            .inputListTextArea {
+                width: 300px;
+                height: 50px;
+            }
+
+            label {
+                display: block;
+            }
+
+        </style>
+
+
+        <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
+                <div flex>
+                    Snow
+                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/network-enrichment-(snow)">
+                        <font-awesome icon="question-circle"></font-awesome>
+                    </a>
+                </div>
+                <div class="icon">
+                    <!--<font-awesome icon="magic"></font-awesome>-->
+                </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">
+                        Downregulated in fibroblasts from old individuals, compared to young
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="oldage_dn.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
+                    <div class="button action" style="display:inline-block;margin-top:5px;" on-click="{{loadExample2}}">
+                        Upregulated by induction of exogenous BRCA1 in EcR-293 cells
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="brca1_overexp_up.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Define your input data</div>
+                <div class="formcontent">
+                    <label class="control">
+                        <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">
+                        <span>One list</span>
+                    </label>
+                    <label class="control">
+                        <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="{{modeChanged}}">
+                        <span>Comparing two lists</span>
+                    </label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your input files</div>
+                <div class="formcontent">
+                    List 1:
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file"
+                                                allowTextArea="true"
+                                                on-file-select="{{handleFileSelect}}"
+                                                bioformat="IDLIST"
+                                                networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
+                    <div id="list2Div" hidden>
+                        <br>
+                        List 2:
+                        <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file"
+                                                    allowTextArea="true"
+                                                    on-file-select="{{handleFileSelect}}"
+                                                    bioformat="IDLIST"
+                                                    networkViewer="{{networkViewer}}"
+                                ></jso-project-browser-window>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">List nature</div>
+                <div class="formcontent">
+                    <div id="typeDiv">
+                        <label class="control">
+                            <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">
+                            <span>Transcripts</span>
+                        </label>
+                        <label class="control">
+                            <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>
+                            <span>Proteins</span>
+                        </label>
+                        <label class="control">
+                            <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes">
+                            <span>Genes</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Species</div>
+                <div class="formcontent">
+                    <div id="interactomeDiv">
+                        <div class="select" style="width:200px;">
+                            <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                                <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens</option>
+                                <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus musculus</option>
+                                <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
+                                <option name="interactome_4" id="interactome_4" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>
+                                <option name="interactome_5" id="interactome_5" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
+                                <!--<option name="interactome_6" id="interactome_6" class="fc-combobox-item" value="eco">Escherichia coli (K12)</option>-->
+                                <!--<option name="interactome_7" id="interactome_7" class="fc-combobox-item" value="own">Own</option>-->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select interactome confidence</div>
+                <div class="formcontent">
+                    <div id="groupDiv" vertical layout>
+                        <label class="control">
+                            <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
+                            <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
+                        </label>
+                        <label class="control">
+                            <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
+                            <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Side for statistical tests</div>
+                <div class="formcontent">
+                    <div id="sideDiv">
+                        <label class="control">
+                            <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">
+                            <span>Greater</span>
+                        </label>
+                        <label class="control">
+                            <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less">
+                            <span>Less</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Allow one external intermediate in the subnetwork</div>
+                <div class="formcontent">
+                    <div id="intermediateDiv">
+                        <label class="control">
+                            <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
+                            <span>Yes</span>
+                        </label>
+                        <label class="control">
+                            <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
+                            <span>No</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label>
+                    <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "snow";
+                this.message = '';
+                this.description = "";
+
+                /** Default values **/
+                this.type = "genes";
+                this.randoms = 500;
+            },
+            argsChanged: function () {
+                if (this.toolName == this.args.tool) {
+                    Utils.argsParser(this, this.args);
+                    if (this.args.mode !== undefined) {
+                        var radios = this.shadowRoot.querySelectorAll('input[name="mode"]');
+                        for (var i = 0; i < radios.length; i++) {
+                            var radio = radios[i];
+                            if (radio.value == this.args.mode)
+                                radio.checked = true;
+                        }
+                        this.modeChanged();
+                    }
+                }
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+            handleCancel: function () {
+                this.selectedOption = '';
+            },
+            handleForm: function () {
+                var me = this;
+                this.message = '';
+                me.launchJob();
+
+            },
+            launchJob: function () {
+                var me = this;
+//                if (!Utils.basicValidationForm(this)) {
+//                    return;
+//                }
+                if (this.$.outdir.selectedFile === undefined) {
+                    alert("Sorry. No output folder selected. Please select one. ");
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    name: this.jobName,
+                    description: this.description,
+//                    list1: this.$.inputFile.selectedFile.id,
+                    outdir: this.$.outdir.selectedFile.id,
+                    "o-name": "result",
+                    interactome: this.$.interactome.value,
+                    intermediate: this.$.intermediateDiv.querySelector('input[name="intermediate"]:checked').value,
+                    type: this.$.typeDiv.querySelector('input[name="type"]:checked').value,
+                    group: this.$.groupDiv.querySelector('input[name="group"]:checked').value,
+                    components: true,
+                    randoms: this.randoms,
+                    side: this.$.sideDiv.querySelector('input[name="side"]:checked').value,
+                    images: "",
+                    json: 1
+                };
+
+                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+                    return;
+                }
+                if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list1"] = this.$.inputFile.selectedFile.id;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+
+                if (this.$.mode_2.checked) {
+                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
+                        alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
+                        return;
+                    }
+                    if (this.$.inputFile2.selectedFile !== undefined) {
+                        query["list2"] = this.$.inputFile2.selectedFile.id;
+                    }
+                    if (this.$.inputFile2.textAreaValue != "") {
+                        query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
+                    }
+                }
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.message = '';
+                this.jobName = "Downregulated";
+                this.description = "Downregulated in fibroblasts from old individuals, compared to young";
+                this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
+                this.$.interactome.value = "hsa";
+                this.$.type_3.checked = true;
+                this.$.side_1.checked = true;
+                this.$.group_2.checked = true;
+//                this.$.randoms.value = 500;
+//                this.$.intermediate.value = 1;
+                this.$.intermediate_2.checked = true;
+                var exampleFolder = "snow_downregulated";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample2: function (e) {
+                this.message = '';
+                this.jobName = "Upregulated by induction of exogenous BRCA1 in EcR-293 cells";
+                this.description = "";
+                this.$.inputFile.selectedFile = {id: "example_brca1_overexp_up.txt", path: "brca1_overexp_up.txt", type: "FILE"};
+                this.$.interactome.value = "hsa";
+                this.$.type_3.checked = true;
+                this.$.side_1.checked = true;
+                this.$.group_2.checked = true;
+//                this.$.randoms.value = 500;
+//                this.$.intermediate.value = 1;
+                this.$.intermediate_1.checked = true;
+                var exampleFolder = "snow_Upregulated";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            handleType: function (e) {
+                this.type = e.target.dataset.value;
+                this.typeText = e.target.innerText;
+            },
+            handleInteractome: function (e) {
+                this.interactome = e.target.dataset.value;
+                this.interactomeText = e.target.innerText;
+            },
+            handleGroup: function (e) {
+                this.group = e.target.dataset.value;
+                this.groupText = e.target.innerText;
+            },
+            handleIntermediate: function (e) {
+                this.intermediate = e.target.dataset.value;
+                this.intermediateText = e.target.innerText;
+            },
+            handleRandoms: function (e) {
+                this.randoms = e.target.dataset.value;
+            },
+            modeChanged: function (e) {
+                if (this.$.mode_1.checked)
+                    this.$.list2Div.hidden = true;
+                else
+                    this.$.list2Div.hidden = false;
+
+            }
+
+        });
+    </script>
+</polymer-element>

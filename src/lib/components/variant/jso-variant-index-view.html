@@ -1,0 +1,74 @@
+<link rel="import" href="../opencga/jso-project-browser.html">
+<link rel="import" href="../opencga/jso-job-list.html">
+<polymer-element name="jso-variant-index-view"
+                 attributes="userData selectedOption jobItem selectedStudy studies selectedProject allowedTools">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                position: relative;
+                box-sizing: border-box;
+                display: block;
+                color: #444;
+                background-color: #ffffff;
+                /*font-size: 16px;*/
+                cursor: default;
+                box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
+            }
+
+            .title1 {
+                font-size: 22px;
+                color: #435f7a;
+                border-bottom: thin solid #edebe3;
+                padding: 0px 0px 5px 0px;
+                margin-top: 0;
+                margin-bottom: 15px;
+            }
+
+            jso-project-browser {
+                height: 100%;
+                width: calc(100% - 350px);
+            }
+
+            jso-job-list {
+                box-shadow: none;
+                position: relative;
+                height: 100%;
+                width: 350px;
+                border-left: 1px solid #d3d3d3;
+            }
+        </style>
+
+        <div horizontal layout style="height: 100%">
+            <jso-project-browser
+                    userData="{{userData}}"
+                    selectedStudy="{{selectedStudy}}"
+                    studies="{{studies}}"
+                    selectedProject="{{selectedProject}}"
+                    bioformat="VARIANT"></jso-project-browser>
+
+            <jso-job-list
+                    jobItem="{{jobItem}}"
+                    userData="{{userData}}"
+                    selectedOption="{{selectedOption}}"
+                    selectedStudy="{{selectedStudy}}"
+                    allowedTools="{{allowedTools}}"
+                    showJobs="true"></jso-job-list>
+
+        </div>
+        <!--<div class="title1">-->
+        <!--Indexed files-->
+        <!--</div>-->
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            },
+            ready: function () {
+            }
+
+        });
+    </script>
+</polymer-element>
+

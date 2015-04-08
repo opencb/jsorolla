@@ -1,0 +1,157 @@
+<polymer-element name="jso-nv-search" attributes="networkViewer selectedMenu">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+
+                width: 500px;
+                height: 450px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+            }
+
+            .container {
+                box-sizing: border-box;
+                padding: 2px 5px 5px 5px;
+            }
+
+            .selbox {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+            }
+
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+            }
+
+        </style>
+        <div id="panel" class="panel panel-shadow" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Network search</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div id="container" class="container" layout flex>
+
+                <label>Attribute name:</label>
+
+                <div class="selbox" style="height: 100px;">
+                    <template repeat="{{column in networkViewer.vAttr.columns}}">
+                        <div horizontal layout>
+                            <div class="selitem" flex
+                                 data-checked="{{ attributeName == column.name}}"
+                                 data-name="{{column.name}}"
+                                 on-click="{{handleAttributeNameSelect}}">
+                                {{column.title}}
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <label>Data type:</label>
+
+                <div class="selbox">
+                    <div flex class="selitem" data-checked="{{attributeType == 'string'}}"
+                         on-click="{{handleAttributeTypeSelect}}" data-name="string">String
+                    </div>
+                    <div flex class="selitem" data-checked="{{attributeType == 'number'}}"
+                         on-click="{{handleAttributeTypeSelect}}" data-name="number">Number
+                    </div>
+                </div>
+
+                <template if="{{attributeType == 'string'}}">
+                    <label>String matching:</label>
+
+                    <div class="selbox">
+                        <div flex class="selitem" data-checked="{{stringMatch == 'exact'}}"
+                             on-click="{{handleStringMatchSelect}}" data-name="exact">Exact
+                        </div>
+                        <div flex class="selitem" data-checked="{{stringMatch == 'contains'}}"
+                             on-click="{{handleStringMatchSelect}}" data-name="contains">Contains
+                        </div>
+                        <div flex class="selitem" data-checked="{{stringMatch == 'notcontains'}}"
+                             on-click="{{handleStringMatchSelect}}" data-name="notcontains">Not contains
+                        </div>
+                    </div>
+                </template>
+
+                <template if="{{attributeType == 'number'}}">
+                    <label>Number matching:</label>
+
+                    <div class="selbox">
+                        <div flex class="selitem" data-checked="{{numberMatch == 'equal'}}"
+                             on-click="{{handleNumberMatchSelect}}" data-name="equal">Equal
+                        </div>
+                        <div flex class="selitem" data-checked="{{numberMatch == 'notEqual'}}"
+                             on-click="{{handleNumberMatchSelect}}" data-name="notEqual">Not equal
+                        </div>
+
+                        <div flex class="selitem" data-checked="{{numberMatch == 'greater'}}"
+                             on-click="{{handleNumberMatchSelect}}" data-name="greater">Greater
+                        </div>
+                        <div flex class="selitem" data-checked="{{numberMatch == 'greaterequal'}}"
+                             on-click="{{handleNumberMatchSelect}}" data-name="greaterequal">Greater equal
+                        </div>
+
+                        <div flex class="selitem" data-checked="{{numberMatch == 'lesser'}}"
+                             on-click="{{handleNumberMatchSelect}}" data-name="lesser">Lesser
+                        </div>
+                        <div flex class="selitem" data-checked="{{numberMatch == 'lesserEqual'}}"
+                             on-click="{{handleNumberMatchSelect}}" data-name="lesserEqual">Lesser equal
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <div>{{message}}&nbsp;</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.message = '';
+                this.attributeName = '';
+                this.attributeType = 'string';
+                this.stringMatch = 'exact';
+                this.numberMatch = 'equal';
+            },
+            domReady: function () {
+            },
+            handleAttributeNameSelect: function (e) {
+                this.attributeName = e.currentTarget.dataset.name;
+            },
+            handleAttributeTypeSelect: function (e) {
+                this.attributeType = e.currentTarget.dataset.name;
+            },
+            handleStringMatchSelect: function (e) {
+                this.stringMatch = e.currentTarget.dataset.name;
+            },
+            handleNumberMatchSelect: function (e) {
+                this.numberMatch = e.currentTarget.dataset.name;
+            },
+            handleClose: function () {
+                this.selectedMenu = '';
+            },
+            handleGo: function () {
+            }
+        });
+    </script>
+</polymer-element>

@@ -173,7 +173,7 @@ TrackListPanel.prototype = {
 
 
         this.tlTracksDiv = $('<div id="tl-tracks"></div>')[0];
-        $(this.tlTracksDiv).css({ position: 'relative', 'z-index': 3});
+        $(this.tlTracksDiv).css({position: 'relative', 'z-index': 3});
 
 
         $(this.div).append(tlHeaderDiv);
@@ -300,7 +300,8 @@ TrackListPanel.prototype = {
             var centerPosition = _this.region.center();
             var mid = _this.width / 2;
             var mouseLineOffset = _this.pixelBase / 2;
-            var offsetX = (event.clientX - $(_this.tlTracksDiv).offset().left);
+            var offsetX = (event.clientX - _this.tlTracksDiv.getBoundingClientRect().left);
+            //debugger
             var cX = offsetX - mouseLineOffset;
             var rcX = (cX / _this.pixelBase) | 0;
             var pos = (rcX * _this.pixelBase) + (mid % _this.pixelBase) - 1;
@@ -308,7 +309,10 @@ TrackListPanel.prototype = {
 //
             var posOffset = (mid / _this.pixelBase) | 0;
             _this.mousePosition = centerPosition + rcX - posOffset;
-            _this.trigger('mousePosition:change', {mousePos: _this.mousePosition, baseHtml: _this.getMousePosition(_this.mousePosition)});
+            _this.trigger('mousePosition:change', {
+                mousePos: _this.mousePosition,
+                baseHtml: _this.getMousePosition(_this.mousePosition)
+            });
         });
 
         $(this.tlTracksDiv).dblclick(function (event) {
@@ -318,7 +322,11 @@ TrackListPanel.prototype = {
                 /**/
                 /**/
                 var halfLength = _this.region.length() / 2;
-                var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition - halfLength, end: _this.mousePosition + halfLength})
+                var mouseRegion = new Region({
+                    chromosome: _this.region.chromosome,
+                    start: _this.mousePosition - halfLength,
+                    end: _this.mousePosition + halfLength
+                })
                 _this.trigger('region:change', {region: mouseRegion, sender: _this});
                 /**/
                 /**/
@@ -416,7 +424,11 @@ TrackListPanel.prototype = {
                         _this.trigger('region:change', {region: _this.region, sender: _this});
                         moveX = null;
                     } else if (downX != null && moveX == null) {
-                        var mouseRegion = new Region({chromosome: _this.region.chromosome, start: _this.mousePosition, end: _this.mousePosition})
+                        var mouseRegion = new Region({
+                            chromosome: _this.region.chromosome,
+                            start: _this.mousePosition,
+                            end: _this.mousePosition
+                        })
                         _this.trigger('region:change', {region: mouseRegion, sender: _this});
                     }
                     break;
@@ -595,8 +607,9 @@ TrackListPanel.prototype = {
         this.trigger('track:draw', {sender: this});
     },
     _checkAllTrackStatus: function (status) {
-        for (var i in this.tracks) {
-            if (this.tracks[i].status != status) return false;
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            if (track.status != status) return false;
         }
         return true;
     },
@@ -752,10 +765,10 @@ TrackListPanel.prototype = {
 //            _this.checkTracksReady();
 //        });
     },
-    enableAutoHeight: function () {
+    toggleAutoHeight: function (bool) {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
-            track.enableAutoHeight();
+            track.toggleAutoHeight(bool);
         }
     },
     updateHeight: function () {
@@ -786,9 +799,7 @@ TrackListPanel.prototype = {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
             $(track.div).detach();
-            if (track.visible) {
-                $(this.tlTracksDiv).append(track.div);
-            }
+            $(this.tlTracksDiv).append(track.div);
         }
     },
     removeTrack: function (track) {
@@ -848,11 +859,6 @@ TrackListPanel.prototype = {
             var aboveTrack = this.tracks[i - 1];
             var underTrack = this.tracks[i];
 
-            var y = parseInt(aboveTrack.main.getAttribute("y"));
-            var h = parseInt(underTrack.main.getAttribute("height"));
-            aboveTrack.main.setAttribute("y", y + h);
-            underTrack.main.setAttribute("y", y);
-
             this.tracks[i] = aboveTrack;
             this.tracks[i - 1] = underTrack;
             this.tracksIndex[aboveTrack.id] = i;
@@ -874,11 +880,6 @@ TrackListPanel.prototype = {
         if (i + 1 < this.tracks.length) {
             var aboveTrack = this.tracks[i];
             var underTrack = this.tracks[i + 1];
-
-            var y = parseInt(aboveTrack.main.getAttribute("y"));
-            var h = parseInt(underTrack.main.getAttribute("height"));
-            aboveTrack.main.setAttribute("y", y + h);
-            underTrack.main.setAttribute("y", y);
 
             this.tracks[i] = underTrack;
             this.tracks[i + 1] = aboveTrack;
@@ -906,6 +907,22 @@ TrackListPanel.prototype = {
         this._updateTracksIndex();
 
         //update track div positions
+        this.refreshTracksDom();
+    },
+    swapTracks: function (t1, t2) {
+        if (!this.containsTrack((t1))) {
+            return false;
+        }
+        if (!this.containsTrack((t2))) {
+            return false;
+        }
+        var oldIndex1 = this.getTrackIndex(t1);
+        var oldIndex2 = this.getTrackIndex(t2);
+
+        this.tracks[oldIndex1] = t2;
+        this.tracks[oldIndex2] = t1;
+        this.tracksIndex[t1.id] = oldIndex2;
+        this.tracksIndex[t2.id] = oldIndex1;
         this.refreshTracksDom();
     },
 
@@ -988,7 +1005,11 @@ TrackListPanel.prototype = {
     getSequenceNucleotid: function (position) {
         var seqTrack = this.getSequenceTrack();
         if (seqTrack != null && this.visualRegion.length() <= seqTrack.visibleRegionSize) {
-            var nt = seqTrack.dataAdapter.getNucleotidByPosition({start: position, end: position, chromosome: this.region.chromosome})
+            var nt = seqTrack.dataAdapter.getNucleotidByPosition({
+                start: position,
+                end: position,
+                chromosome: this.region.chromosome
+            })
             return nt;
         }
         return '';

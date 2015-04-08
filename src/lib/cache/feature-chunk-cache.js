@@ -12,157 +12,166 @@ function FeatureChunkCache(args) {
     // Default values
     this.id = Utils.genId("FeatureChunkCache");
 
-    this.chunkSize = 50000;
+    this.defaultChunkSize = 50000;
+    this.defaultCategory = "defaultCategory";
     this.limit;
 
     _.extend(this, args);
 
-//    this.store = new MemoryStore({});
-
-    this.store = new IndexedDBStore({cacheId: this.cacheId, objectStore: this.subCacheId});
+    if (this.storeType == "MemoryStore") {
+        this.store = new MemoryStore({});
+    } else {
+        this.store = new IndexedDBStore({cacheId: this.cacheId});
+    }
 
     this.verbose = false;
 }
 
 
 FeatureChunkCache.prototype = {
-
-/*
-    getChunk: function (chunkId) {
-        return this.store.get(chunkId);
-    },*/
-
-    getChunk: function (chunkKey, callback) {
-        if (!callback) {
-            console.log("bad FeatureChunkCache usage: undefined callback");
-        }
-
-        this.store.get(chunkKey, callback);
-    },
-
-    getChunks: function (chunkKeysArray, callback) {
-        if (!callback) {
-            console.log("bad FeatureChunkCache usage: undefined callback");
-        }
-        this.store.getAll(chunkKeysArray, callback);
-    },
-
-    getAdjustedRegion: function (region) {
-        var start = this.getChunkId(region.start) * this.chunkSize;
-        var end = (this.getChunkId(region.end) * this.chunkSize) + this.chunkSize - 1;
-
-        return new Region({chromosome: region.chromosome, start: start, end: end});
-    },
-
-
     /**
-     * Calls the callback with an Array of regions (chromosome, start, end) that are missing in the cache.
-     * If two or more chunks are adjacent, they are returned as a single region.
+     *
+     * @param region an object Region
+     * @param categories approximately the table in the DB. May be an array
+     * @param dataType another level of classification
+     * @param chunkSize
+     * @param callback receives two arguments: (cachedChunks, uncachedRegions) with this structure:
+     * cachedChunks: {
+     *     categories[0]: [chunk, chunk, chunk],
+     *     categories[1]: [chunk, chunk, chunk],
+     *     ...
+     * }
+     * uncachedRegions: {
+     *     categories[0]: [region, region],
+     *     categories[1]: [region, region],
+     *     ...
+     * }
      */
-    getAdjustedRegions: function (region, callback, keySuffix) {
+    get: function (region, categories, dataType, chunkSize, callback) {
         var _this = this;
-        var firstChunkId = this.getChunkId(region.start);
-        var lastChunkId = this.getChunkId(region.end);
+        var temporalChunkSize = chunkSize? chunkSize : this.defaultChunkSize;
+
+        var firstChunkId = this.getChunkId(region.start, temporalChunkSize);
+        var lastChunkId = this.getChunkId(region.end, temporalChunkSize);
         var keys = [];
+        var chunksAndRegions = {cachedChunks: {}, uncachedRegions: {}};
 
         for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
-            keys.push(this.getChunkKey(region.chromosome, chunkId, keySuffix));
+            keys.push(this.getChunkKey(region.chromosome, chunkId, dataType, temporalChunkSize));
         }
 
-        this.getChunks(keys, function(chunks){
-            var regions = [];
-            var chunkStart = parseInt(firstChunkId * _this.chunkSize);
+        if (!_.isArray(categories)) {
+            categories = [categories];
+        }
+        var callbackCount = 0;
+        for (var cat = 0; cat < categories.length; cat++) {
+            callbackCount++;
+            chunksAndRegions.cachedChunks[categories[cat]] = [];
+            chunksAndRegions.uncachedRegions[categories[cat]] = [];
+            this.getChunks(categories[cat], keys, function (iterCat) {
+                return function(chunks) {
+                    for (var i = 0; i < chunks.length; i++) {
+                        var chunkRegionEnd = parseInt(((firstChunkId + i) * temporalChunkSize) + temporalChunkSize - 1);
+                        var chunkRegionStart = parseInt((firstChunkId + i) * temporalChunkSize);
+                        var chunkRegion = new Region({chromosome: region.chromosome, start: chunkRegionStart, end: chunkRegionEnd});
 
-            for (var i = 0; i < chunks.length - 1; i++) {
-                if (!chunks[i]) {
-                    if (chunks[i+1]) {  // missing chunks region ends here. build it.
-                        var chunkEnd = parseInt(((firstChunkId + i) * _this.chunkSize) + _this.chunkSize - 1);
-                        var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd});
-                        regions.push(r);
+                        if (_.isUndefined(chunks[i])) {
+                            chunksAndRegions.uncachedRegions[categories[iterCat]].push(chunkRegion);
+                        } else {
+                            chunksAndRegions.cachedChunks[categories[iterCat]].push(chunks[i]);
+                        }
                     }
-                } else {
-                    chunkStart = parseInt((firstChunkId + i + 1) * _this.chunkSize);  // prepare start for next chunk
+                    if (this.verbose) {
+                        console.log(chunksAndRegions);
+                    }
+                    callbackCount--;
+                    if  (callbackCount == 0 && callback) {
+                        callback(chunksAndRegions.cachedChunks, chunksAndRegions.uncachedRegions);
+                    }
                 }
-            }
-
-            if (!chunks[chunks.length - 1]) {
-                var chunkEnd = parseInt(((lastChunkId) * _this.chunkSize) + _this.chunkSize - 1);
-                var r = new Region({chromosome: region.chromosome, start: chunkStart, end: chunkEnd});
-                regions.push(r);
-            }
-            callback(regions);
-        });
+            } (cat));     // to force the closure to have each value of cat, and not just the last one
+        }
     },
 
+    /*
+     getChunk: function (chunkId) {
+     return this.store.get(chunkId);
+     },*/
 
-    /**
-     * get the chunks that contain the starts of the regions.
-     * // FIXME? change name?
-     */
-    getByRegions: function (regions, callback) {
-        var chunkKeys = [];
-        for (var i in regions) {
-            var chunkId = this.getChunkId(regions[i].start);
-            chunkKeys.push(this.getChunkKey(regions[i].chromosome, chunkId));
+    getChunk: function (category, chunkKey, callback) {
+        if (!callback) {
+            console.log("bad FeatureChunkCache usage: undefined callback");
         }
-        this.getChunks(chunkKeys, callback);
+        if (!category) {
+            category = this.defaultCategory;
+        }
+        this.store.get(category, chunkKey, callback);
+    },
+
+    getChunks: function (category, chunkKeysArray, callback) {
+        if (!callback) {
+            console.log("bad FeatureChunkCache usage: undefined callback");
+        }
+        if (!category) {
+            category = this.defaultCategory;
+        }
+        this.store.getAll(category, chunkKeysArray, callback);
+    },
+
+    joinRegions: function(regions) {
+        if (regions.length <= 1) {
+            return regions;
+        }
+        // assert(regions.length >= 2)
+
+        var joinedRegions = [];
+        var regionStart = regions[0].start;
+        var regionEnd = region[0].end;
+        var regionChromosome = regions[0].chromosome;
+
+        for (var i = 1; i < regions.length; i++) {
+            if (regions[i].chromosome == regionChromosome && regions[i].start - 1 <= regionEnd) { // CAUTION: assuming inclusive intervals
+                if (regions[i].end > regionEnd) {
+                    regionEnd = regions[i].end;
+                }
+            } else {
+                joinedRegions.push(new Region({chromosome: regionChromosome, start: regionStart, end: regionEnd}));
+                regionChromosome = regions[i].chromosome;
+                regionStart = regions[i].start;
+                regionEnd = regions[i].end;
+            }
+        }
+
+        joinedRegions.push(new Region({chromosome: regionChromosome, start: regionStart, end: regionEnd}));
+
+        return joinedRegions;
     },
 
     /**
-     * get cached chunks in a region. The region can cover several chunks.
+     * TODO: the regions must be equally long to the chunksize
      */
-    getByRegion: function (region, callback, keySuffix) {
-        var _this = this;
-        var firstChunkId = this.getChunkId(region.start);
-        var lastChunkId = this.getChunkId(region.end);
-        var keys = [];
-        var chunks = [];
-
-        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
-            keys.push(this.getChunkKey(region.chromosome, chunkId, keySuffix));
+    putByRegions: function (regionArray, valueArray, category, dataType, chunkSize) { // encoded
+        var temporalChunkSize = chunkSize? chunkSize : this.defaultChunkSize;
+        var chunkKeyArray = [];
+        for (var i = 0; i < regionArray.length; i++) {
+            var chunkId = this.getChunkId(regionArray[i].start, temporalChunkSize);
+            var chunkKey = this.getChunkKey(regionArray[i].chromosome, chunkId,  dataType, chunkSize);
+            chunkKeyArray.push(chunkKey);
         }
-
-        this.getChunks(keys, function(allChunks){
-            for (var i = 0; i < allChunks.length; i++) {
-                if (allChunks[i]) {
-                    chunks.push(allChunks[i]);
-                }
-            }
-            callback(chunks);
-        });
+        return this.putChunks(chunkKeyArray, valueArray, category, false);
     },
 
-    /**
-     * get the regions of the chunks, classified by cached or not cached.
-     */
-    getCachedByRegion: function (region, callback) {
-        var _this = this;
-        var firstChunkId = this.getChunkId(region.start);
-        var lastChunkId = this.getChunkId(region.end);
-        var keys = [];
-        var chunkRegions = {cached: [], notCached: []};
-
-        for (var chunkId = firstChunkId; chunkId <= lastChunkId; chunkId++) {
-            keys.push(this.getChunkKey(region.chromosome, chunkId));
+    /** several chunks in one transaction. this is a fast put */
+    putChunks: function (chunkKeyArray, valueArray, category, encoded) {
+        var valueStoredArray = [];
+        for (var i = 0; i < valueArray.length; i++) {
+            valueStoredArray.push(this.createEntryValue(chunkKeyArray[i], valueArray[i], encoded));   // TODO add timestamp, last usage time, size, etc.
         }
-
-        this.getChunks(keys, function(chunks){
-            for (var i = 0; i < chunks.length; i++) {
-                var chunkRegionEnd = parseInt(((firstChunkId + i) * _this.chunkSize) + _this.chunkSize - 1);
-                var chunkRegionStart = parseInt((firstChunkId + i) * _this.chunkSize);
-                var chunkRegion = new Region({chromosome: region.chromosome, start: chunkRegionStart, end: chunkRegionEnd});
-
-                if (_.isUndefined(chunks[i])) {
-                    chunkRegions.notCached.push(chunkRegion);
-                } else {
-                    chunkRegions.cached.push(chunkRegion);
-                }
-            }
-            if (this.verbose) {
-                console.log(chunkRegions);
-            }
-            callback(chunkRegions);
-        });
+        if (!category) {
+            category = this.defaultCategory;
+        }
+        this.store.putAll(category, chunkKeyArray, valueStoredArray);
+        return valueStoredArray;
     },
 
     createEntryValue: function (chunkKey, value, encoded) {
@@ -175,62 +184,29 @@ FeatureChunkCache.prototype = {
         return valueStored;
     },
 
-    /** single chunk in one transaction. this is a slow put */
-    putChunk: function (chunkKey, value, encoded) {
-        var valueStored = this.createEntryValue(chunkKey, value, encoded);
-        this.store.put(chunkKey, valueStored);
-        return valueStored;
-    },
-    putByRegion: function (region, value, encoded) {
-        var chunkId = this.getChunkId(region.start);
-        var chunkKey = this.getChunkKey(region.chromosome, chunkId);
-        return this.putChunk(chunkKey, value);
+    getChunkKey: function (chromosome, chunkId, dataType, chunkSize) {
+        var keySuffix = dataType? "_" + dataType : "";
+        keySuffix += "_" + chunkSize;       // e.g. "_hist_1000"
+        return chromosome + ":" + chunkId + keySuffix;
     },
 
-    /** several chunks in one transaction. this is a fast put */
-    putChunks: function (chunkKeyArray, valueArray, encoded) {
-        var valueStoredArray = [];
-        for (var i = 0; i < valueArray.length; i++) {
-            valueStoredArray.push(this.createEntryValue(chunkKeyArray[i], valueArray[i], encoded));   // TODO add timestamp, last usage time, size, etc.
-        }
-        this.store.putAll(chunkKeyArray, valueStoredArray);
-        return valueStoredArray;
-    },
-    putByRegions: function (regionArray, valueArray, encoded, keySuffix) {
-        var chunkKeyArray = [];
-        for (var i = 0; i < regionArray.length; i++) {
-            var chunkId = this.getChunkId(regionArray[i].start);
-            var chunkKey = this.getChunkKey(regionArray[i].chromosome, chunkId, keySuffix);
-            chunkKeyArray.push(chunkKey);
-        }
-        return this.putChunks(chunkKeyArray, valueArray, encoded);
-    },
-
-    getChunkKey: function (chromosome, chunkId, keySuffix) {
-        if (keySuffix) {
-            return chromosome + ":" + chunkId + "_" + keySuffix;
-        } else {
-            return chromosome + ":" + chunkId;
-        }
-    },
-
-    getChunkId: function (position) {
-        return Math.floor(position / this.chunkSize);
+    getChunkId: function (position, chunkSize) {
+        return Math.floor(position / chunkSize);
     },
 
 
-    getChunkSize: function () {
-        return this.chunkSize;
+    getDefaultChunkSize: function () {
+        return this.defaultChunkSize;
     }
 
     /* TODO:
-    visit: function (chunkKey) {
-        var _this = this;
-        this.getChunk(chunkKey, function(value){
-//            value.lastUsed = ...
-            _this.putChunk(chunkKey, value);
-        });
-    },*/
+     visit: function (chunkKey) {
+     var _this = this;
+     this.getChunk(chunkKey, function(value){
+     //            value.lastUsed = ...
+     _this.putChunk(chunkKey, value);
+     });
+     },*/
 };
 
 

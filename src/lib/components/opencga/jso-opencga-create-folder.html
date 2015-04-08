@@ -1,0 +1,117 @@
+<polymer-element name="jso-opencga-create-folder" attributes="folder study">
+    <template>
+        <style>
+            :host {
+                display: block;
+                background-color: #f0f0f0;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                margin-top: 5px;
+            }
+
+            .message {
+                margin-top: 5px;
+            }
+
+        </style>
+
+
+        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+            <!--<label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
+            <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9_-]+">
+
+            <div class="button action" on-click="{{handleForm}}">Create</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.name = '';
+                this.alias = '';
+                this.description = '';
+                this.type = '';
+
+                this.selectedProject;
+
+                this.message = '';
+            },
+            handleFormKey: function (e) {
+
+                if (e.which == 13) {
+                    e.preventDefault();
+                    this.handleForm();
+                }
+            },
+            handleForm: function (e) {
+                var me = this;
+                this.message = '';
+
+                if (this.$.form.checkValidity()) {
+                    OpencgaManager.files.createFolder({
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            folder: this.folder.path + this.name,
+                            studyId: this.study.id
+
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.message = '';
+                                    me.name = '';
+                                    me.fire('folder-created');
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                alert('Server error, try again later.');
+                            }
+                        }
+                    });
+                }else{
+                    this.message = 'Only letters, numbers or slash(-,_) admitted';
+                }
+            },
+            getFiles: function (e) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        //userId: 1,
+                        //projectId: 1,
+                        //studyId: 1,
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: this.study.id
+//                        type: "file"
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var files = response.response[0].result;
+
+                                me.study.files = files
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
+        });
+    </script>
+</polymer-element>

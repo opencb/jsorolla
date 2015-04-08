@@ -1,0 +1,279 @@
+<polymer-element name="jso-attribute-network-file-open" extends="jso-window" attributes="selectedMenu type">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 900px;
+            }
+
+            sortable-table {
+                border-width: 0px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+            }
+
+            .container {
+                height: 376px;
+                box-sizing: border-box;
+            }
+
+            #left {
+                width: 220px;
+                border-right: 1px solid #d3d3d3;
+                box-sizing: border-box;
+                padding: 5px;
+            }
+
+            #left [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #left [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .columns {
+                overflow-y: auto;
+            }
+
+            .columns > div {
+                margin: 2px;
+            }
+
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
+                height: 346px;
+            }
+
+            #table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 10px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                border-top: 1px solid #cccccc;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 10px;
+                /*background-color: #c5c5c5;*/
+                background-color: #A9A9A9;
+            }
+        </style>
+
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Import {{type}} attributes file</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
+                    <div class="text headerclose" on-click="{{handleCancel}}"></div>
+                </div>
+            </div>
+            <div class="container" horizontal layout>
+                <div id="left" vertical layout>
+                    <label>Select attributes file:</label>
+
+                    <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+                    <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+                    <br>
+
+                    <label class="control">
+                        <input type="checkbox" checked="{{useFirstLineAsColumnNames}}"
+                               on-change="{{handleFirstLineColumns}}">
+                        <span>Use first line as column name</span>
+                    </label>
+
+                    <br>
+                    <label>Select and rename attributes:</label>
+
+                    <div class="columns" flex>
+                        <template repeat="{{column, index in columns}}">
+                            <div horizontal layout flex>
+                                <template if="{{column.name != 'id'}}">
+                                    <label class="control">
+                                        <input type="checkbox" checked="true" data-index="{{index}}"
+                                               on-change="{{handleIgnoreColumn}}">
+                                        <span></span>
+                                    </label>
+
+                                    <div flex>
+                                        <input type="text" value="{{columns[index].title}}">
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div flex hidden?="{{columns.length < 1}}">
+                    <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                        <sortable-table id="table" flex
+                                        data="{{data}}"
+                                        columns="{{columns}}"
+                                        page="{{page}}"
+                                        pageSize="{{pageSize}}">
+                        </sortable-table>
+                        <div class="customPagerScroll"
+                             style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                    </div>
+                    <div class="customPager" horizontal layout>
+                        <div class="text">{{table.dataSize}} {{type}} attribute{{table.dataSize != 1 ? 's' : ''}}</div>
+                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                            &lt;</div>
+                        <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                        <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                             on-click="{{moveToNextPage}}">&gt;</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <div class="button action" style="width:100px;" on-click="{{handleOk}}">OK</div>
+                    <div class="button action" style="width:100px;" on-click="{{handleCancel}}">Cancel</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+                this.data = [];
+                this.columns = [];
+                this.page = 1;
+                this.defaultPageSize = 12;
+                this.pageSize = this.defaultPageSize;
+
+                this.ignoreColumns = {};
+                this.renameColumns = {};
+
+                this.json;
+
+
+                this.attributeManager;
+
+                this.fileName = 'Choose file...';
+                this.message = ' ';
+
+
+                this.useFirstLineAsColumnNames = false;
+            },
+            ready: function () {
+                this.table = this.$.table;
+            },
+            handleOk: function () {
+                var me = this;
+
+                this.renameColumns = {};
+                for (var i = 0; i < me.columns.length; i++) {
+                    var col = me.columns[i];
+                    this.renameColumns[i] = col.title;
+                }
+
+                new AttributeNetworkDataAdapter({
+                    ignoreColumns: this.ignoreColumns,
+                    renameColumns: this.renameColumns,
+                    useFirstLineAsColumnNames: this.useFirstLineAsColumnNames,
+                    dataSource: new FileDataSource({file: this.$.fileInput.files[0]}),
+                    handlers: {
+                        'data:load': function (event) {
+                            var attributeManager = event.attributeManager;
+
+                            for (var i = 0; i < attributeManager.columns.length; i++) {
+                                var col = attributeManager.columns[i];
+                                col.cellTemplate = "inputTemplate";
+                            }
+
+                            me.selectedMenu = '';
+                            me.fire('open', {attributeManager: attributeManager});
+                        },
+                        'error:parse': function (event) {
+                            me.message = event.errorMsg;
+                        }
+                    }
+                });
+
+            },
+            handleIgnoreColumn: function (e) {
+                this.ignoreColumns[e.currentTarget.dataset.index] = !e.currentTarget.checked;
+            },
+            handleCancel: function () {
+                this.selectedMenu = '';
+            },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function () {
+                var me = this;
+                this.fileName = this.$.fileInput.files[0].name;
+                this.message = '';
+
+                if (this.$.fileInput.files.length > 0) {
+                    this.adapter = new AttributeNetworkDataAdapter({
+                        useFirstLineAsColumnNames: this.useFirstLineAsColumnNames,
+                        dataSource: new FileDataSource({file: this.$.fileInput.files[0]}),
+                        handlers: {
+                            'data:load': function (event) {
+                                me.processData(event.attributeManager);
+                            },
+                            'error:parse': function (event) {
+                                me.message = event.errorMsg;
+                            }
+                        }
+                    });
+                }
+            },
+            processData: function (attributeManager) {
+                this.ignoreColumns = {};
+                for (var i = 0; i < attributeManager.columns.length; i++) {
+                    var column = attributeManager.columns[i];
+                    column.title = column.name;
+                    this.ignoreColumns[i] = false;
+                }
+                this.columns = attributeManager.columns;
+                this.data = attributeManager.data;
+                this.attributeManager = attributeManager;
+            },
+            handleFirstLineColumns: function () {
+                this.handleInputChange();
+            },
+            /*Table handlers*/
+            handleScroll: function (e) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
+            }
+        });
+    </script>
+</polymer-element>

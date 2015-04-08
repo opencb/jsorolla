@@ -1,0 +1,142 @@
+sortable-table::shadow table {
+    /*table-layout: fixed;*/
+    background-color: #f2f2f2;
+}
+
+sortable-table::shadow thead {
+    border-bottom: 1px solid #d3d3d3;
+}
+
+sortable-table::shadow tbody {
+}
+
+sortable-table::shadow tfoot {
+    background-color: #fafafa;
+    color: #445D76;
+    border-top: 1px solid #d3d3d3;
+}
+
+sortable-table::shadow thead tr th {
+    padding: 7px 10px 7px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    color: #666;
+    border-right: 1px solid #d3d3d3;
+    min-width: 60px;
+}
+sortable-table::shadow thead tr th.checkbox-column {
+    max-width: 25px;
+}
+
+sortable-table::shadow thead tr th:last-child {
+    border-right-width: 0px;
+}
+
+sortable-table::shadow thead tr th.sorted-column-asc:after {
+    font-family: 'FontAwesome';
+    content: ' \f107';
+>
+
+}
+
+sortable-table::shadow thead tr th.sorted-column-desc:after {
+    font-family: 'FontAwesome';
+    content: ' \f106';
+>
+}
+
+sortable-table::shadow tbody tr td {
+    padding: 5px 10px 4px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+sortable-table::shadow tbody tr td.edit {
+    padding: 0;
+}
+
+sortable-table::shadow tbody tr:nth-child(2n) {
+    background-color: #ffffff;
+}
+
+sortable-table::shadow tbody tr:nth-child(2n+1) {
+    background-color: #f5f5f5;
+}
+
+sortable-table::shadow tbody tr.selected-row {
+    background-color: #bbb;
+    /*background-color: #445D76;*/
+    /*color: #fff;*/
+}
+
+sortable-table::shadow tbody tr:hover {
+    box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, .075);
+}
+
+sortable-table::shadow input {
+    width: 100%;
+    display: block;
+    position: relative;
+    outline: 0;
+    box-sizing: border-box;
+    line-height: 21px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    padding: 0px 5px;
+    color: inherit;
+    font-size: inherit;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+sortable-table::shadow input[type=number] {
+    border: 1px solid #d3d3d3;
+    width: 100px !important;
+    padding: 0 0 0 5px !important;
+    text-align: left !important;
+    background-color: #fff;
+}
+
+sortable-table::shadow input:hover {
+    border-color: darkgray;
+}
+
+sortable-table::shadow input:focus {
+    border-color: #66afe9;
+    box-shadow: inset 0 0 3px 1px rgba(102, 175, 233, .5);
+    color: #333;
+    background-color: #ffffff;
+}
+
+sortable-table::shadow input.error {
+    border-color: #e32b2b;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
+}
+
+sortable-table::shadow input:invalid:focus {
+    border-color: #e32b2b;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(227, 43, 43, .6);
+}
+
+sortable-table::shadow button {
+    outline: 0;
+    border: 1px solid #d3d3d3;
+    background-color: #f5f5f5;
+    margin: 2px 5px;
+}
+
+sortable-table::shadow button:hover {
+    background-color: #eaeaea;
+}
+
+sortable-table {
+    border: solid 1px #d3d3d3;
+}
+
+sortable-table::shadow input[type=checkbox] {
+    box-sizing: border-box;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}

@@ -1,0 +1,254 @@
+<polymer-element name="jso-rnaseq-norm" attributes="userData selectedOption selectedStudy studies">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+
+        </style>
+        <div class="tooltitle">
+            <div>
+                RNA Seq Normalize
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/RNA-Seq-Normalization">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">
+                        Normalization example
+                    </div>
+                    <!--<a href="http://test.babelomics.org/opencga/rest/files/download-example?toolName=rnaseq-norm&fileName=example.zip" >-->
+                        <!--&lt;!&ndash;<font-awesome icon="download"></font-awesome>&ndash;&gt;-->
+                        <!--hola-->
+                    <!--</a>-->
+                    <!--<br>-->
+<!--<a download="w3logo.txt" href="http://test.babelomics.org/opencga/rest/files/download-example?toolName=rnaseq-norm&fileName=download.zip" >xx</a>-->
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="example.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select gene length file</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="glFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="IDLIST_RANKED"></jso-project-browser-window>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Normalization method</div>
+                <div class="formcontent">
+                    <div id="methodDiv" vertical layout>
+                        <label class="control">
+                            <input id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">
+                            <span>Choose automatically the normalization method</span>
+                        </label>
+                        <label class="control">
+                            <input id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}"><span>Choose manually the normalization method</span></label>
+                        <label class="control" style="margin-left: 20px">
+                            <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}"><span>TMM</span></label>
+                        <label class="control" style="margin-left: 20px">
+                            <input id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}"><span>RPKM</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "rnaseq-norm";
+                this.description = "Job info..."
+            },
+//            handleDownloadFile: function (e) {
+//                var dataset = e.currentTarget.dataset;
+//                dataset.param1
+//                Utils.downloadExampleFile(this.toolName,"example.zip");
+//            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            handleForm: function () {
+                var me = this;
+                this.message = '';
+                me.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+                var utils = new FormUtils(this);
+                if (!utils.basicValidationForm()) {
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    "datafile": this.$.inputFile.selectedFile.id,
+                    description: this.description
+                };
+                if (this.$.chooseMan.checked) {
+                    query["method"] = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
+                }
+                else {
+                    query["method"] = this.$.methodDiv.querySelector('input[name="chooseMethod"]:checked').value;
+                }
+                if (this.$.glFile.selectedFile !== undefined && this.$.glFile.selectedFile.type == "FILE")
+                    query["glfile"] = this.$.glFile.selectedFile.id;
+
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "rna_norm";
+                this.description = "just_an_rna_example";
+                this.$.inputFile.selectedFile = {id: "example_normalization.txt", path: "normalization.txt", type: "FILE"};
+                this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"};
+                this.$.chooseMan.checked = true;
+                this.chooseClicked();
+                this.$.tmm.checked = true;
+                var exampleFolder = "rna_norm";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            chooseClicked: function () {
+                if (this.$.chooseAuto.checked) {
+                    this.$.tmm.disabled = true;
+                    this.$.rpkm.disabled = true;
+                }
+                else {
+                    this.$.tmm.disabled = false;
+                    this.$.tmm.checked = true;
+                    this.$.rpkm.disabled = false;
+                }
+            }
+        });
+    </script>
+</polymer-element>

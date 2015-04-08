@@ -1,0 +1,471 @@
+<polymer-element name="jso-reactome" extends="jso-window" attributes="networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+
+                width: 500px;
+                height: 350px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+            }
+
+            #container {
+                overflow-y: auto;
+            }
+
+            .attributelist {
+                box-sizing: border-box;
+                padding: 0 5px 5px 5px;
+            }
+
+            .attributelist .item {
+                margin-top: 3px;
+            }
+
+            .checkbox, .radiobox, .collapsebox {
+                width: 25px;
+            }
+
+            .checkbox::after, .radiobox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .radiobox[data-checked]::after {
+                content: '\f10c'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            .collapsebox::after {
+                font-family: 'FontAwesome';
+                content: ' \f054'
+            }
+
+            .collapsebox[data-checked]::after {
+                content: '\f078'
+            }
+
+            [data-leaf]::after {
+                content: '\f06c' !important;
+            }
+
+            textarea {
+                resize: none;
+                margin: 3px;
+            }
+
+            .selected {
+                text-decoration: underline;
+            }
+        </style>
+        <div id="panel" class="panel panel-shadow" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Reactome import</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div id="container" class="container" flex horizontal layout>
+
+                <div class="attributelist" flex>
+                    <template bind="{{imgs as images}}">
+                        <template repeat="{{items}}" id="itemsTemplate">
+                            <div horizontal layout class="item">
+                                <div class="button action collapsebox"
+                                     data-checked?="{{ open }}"
+                                     data-leaf?="{{items <= 0}}"
+                                     on-click="{{handleOpenNode}}"></div>
+                                <div class="button action radiobox" style="margin-left:5px;"
+                                     data-checked?="{{ selected }}"
+                                     on-click="{{handleItemSelect}}"></div>
+                                <img src="{{imgsrc}}" style="margin:0 5px;">
+
+                                <div class="text {{selected ? 'selected': ''}}" on-click="{{handleItemSelect}}">{{displayName}}</div>
+                            </div>
+                            <div style="margin-left:10px;">
+                                <template if="{{open}}">
+                                    <template ref="itemsTemplate" repeat="{{items}}"></template>
+                                </template>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <template if="{{loading}}">
+                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                    </template>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <!--<div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>-->
+                </div>
+            </div>
+            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+//                <template if="{{pathway.selected }}">
+//                <template repeat="{{pathwayEvent in pathway.hasEvent}}">
+//                <div horizontal layout>
+//                <div>pwE</div>
+//                <div flex class="text">{{pathwayEvent.displayName}}</div>
+//            </div>
+//            </template>
+//            </template>
+//                this.species = [];
+//                this.pathways = [];
+//                this.nodes = [{nodeName:"asdf"}];
+                this.items = [];
+                this.root = [];
+
+                this.images = {
+                    Reaction: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVR42mNgGCzgPxRTbADZBiFr/I9FjmTDGCgx5D8BcYLe/E8kpq0LqBoG/ymNRvonpCEGAFWvKtY210w0AAAAAElFTkSuQmCC",
+                    BlackBoxEvent: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAARklEQVR42mNgGAVgICkp+R+Enz179h+XPCH1IAZeA5ANwWsAsmIYGxkjqyHZBTB5DAOICQNkOazqQRxcBmATx6d+FNAbAABzKWs7aCV9SQAAAABJRU5ErkJggg==",
+                    Pathway: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAVklEQVR42tVSQQoAIAza0/a0/bwuLUZJaJ0SPGSbSGZW4O5t5UnfMC4mqwHSocFTgkRENEWHg0l0pnG9KMX+szqYSqku020GLKGB0gJlIL8B2w4N9h90t4HQjSs2eNAAAAAASUVORK5CYII="
+
+                };
+
+            },
+            domReady: function () {
+                this.super();
+//                <label>Species</label>
+//
+//                <div class="attributelist" flex>
+//                <template repeat="{{spe in species}}">
+//                <div horizontal layout>
+//                <div class="button action radiobox"
+//                data-checked?="{{ speciesSelected == spe }}"
+//                        on-click="{{handleSpeciesSelect}}"></div>
+//                        <div flex class="text">{{spe.name}}</div>
+//            </div>
+//            </template>
+//            </div>
+//                this._getSpecies();
+
+
+                this._getSpeciesPathways({value: 'Homo+sapiens'});
+            },
+            handleSpeciesSelect: function (e) {
+                this.speciesSelected = e.target.templateInstance.model.spe;
+                this._getSpeciesPathways(this.speciesSelected);
+            },
+            handleOpenNode: function (e) {
+                var item = e.target.templateInstance.model;
+                item.open = !item.open;
+            },
+            handleItemSelect: function (e) {
+                this._deselectAllItems();
+                var item = e.target.templateInstance.model;
+                item.selected = !item.selected;
+                this._getReactomeSbml(item);
+            },
+            _deselectAllItems: function () {
+                this._deselectItem(this.root);
+            },
+            _deselectItem: function (item) {
+                item.selected = false;
+                for (var i = 0; i < item.items.length; i++) {
+                    var it = item.items[i];
+                    this._deselectItem(it);
+                }
+            },
+            handlePathwayEventSelect: function (e) {
+                this.pathwayEventSelected = e.target.templateInstance.model.pathwayEvent;
+                this._getSpeciesPathways(this.speciesSelected);
+            },
+//            _getSpecies: function () {
+//                var me = this;
+//                OpencgaManager.util.proxy({
+//                    query: {
+//                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/speciesList'
+//                    },
+//                    request: {
+//                        success: function (response) {
+//                            me.species = [];
+//                            for (var i = 0; i < response.length; i++) {
+//                                var species = response[i];
+//                                me.species.push({
+//                                    name: species.displayName,
+//                                    value: species.displayName.replace(/ /gi, "+")
+//                                });
+//                            }
+//
+//                        }
+//                    }
+//
+//                });
+//            },
+
+            _processNode: function (node) {
+                var item = {
+                    type: node.nodeName,
+                    selected: false,
+                    open: false,
+                    items: [],
+                    imgsrc: this.images[node.nodeName]
+                };
+                for (var i = 0; i < node.attributes.length; i++) {
+                    var attribute = node.attributes[i];
+                    item[attribute.name] = attribute.value;
+                }
+                var childNodes = node.querySelectorAll(":scope > Pathway, :scope > Reaction, :scope > BlackBoxEvent");
+                if (childNodes.length > 0) {
+                    for (var i = 0; i < childNodes.length; i++) {
+                        var childNode = childNodes[i];
+                        item.items.push(this._processNode(childNode))
+                    }
+                }
+                return item;
+            },
+            _getSpeciesPathways: function (species) {
+                var me = this;
+
+                this.loading = true;
+                this.message = "Querying Reactome WS Server...";
+                var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/pathwayHierarchy/' + species.value;
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: url
+                    },
+                    request: {
+                        success: function (response) {
+                            me._processSpeciesPathways(response);
+                            me.message = "Human pathways ready.";
+                            me.loading = false;
+                        }
+                    }
+
+                });
+            },
+            _processSpeciesPathways: function (response) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(response, "application/xml");
+
+                var pathways = doc.querySelector("Pathways");
+                this.root = this._processNode(pathways);
+                this.items = this.root.items;
+            },
+            _getReactomeSbml: function (item) {
+                var me = this;
+
+                this.loading = true;
+                this.message = "Querying Reactome WS Server...";
+                var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/sbmlExporter/' + item.dbId;
+                OpencgaManager.util.proxy({
+                    query: {
+                        url: url
+                    },
+                    request: {
+                        success: function (response) {
+                            me._processReactomeSbml(response);
+                            me.message = "Pathway loaded.";
+                            me.loading = false;
+                        }
+                    }
+
+                });
+            },
+            _processReactomeSbml: function (response) {
+                var renderMap = {
+                    "macromolecule": {
+                        color: "#CCFFCC",
+                        strokeColor: '#111111',
+                        strokeSize: 2,
+                        shape: 'rectangle'
+                    },
+                    "unspecified entity": {
+                        color: "#CCFFFF",
+                        strokeColor: '#111111',
+                        strokeSize: 5,
+                        shape: 'rectangle'
+                    },
+                    "complex multimer": {
+                        color: "#CCFFFF",
+                        strokeColor: '#444444',
+                        strokeSize: 2,
+                        shape: 'rectangle'
+                    },
+                    "complex": {
+                        color: "#CCFFFF",
+                        strokeColor: '#444444',
+                        strokeSize: 2,
+                        shape: 'rectangle'
+                    },
+                    "annotation": {
+                        color: "#00FF00",
+                        strokeColor: '#FFFFFF',
+                        strokeSize: 5,
+                        shape: 'circle'
+                    },
+                    "unit of information": {
+                        color: "#0FF000",
+                        strokeColor: '#FFFFFF',
+                        strokeSize: 5,
+                        shape: 'circle'
+                    },
+                    "simple chemical": {
+                        color: "#CCFFCC",
+                        strokeColor: '#222222',
+                        strokeSize: 1,
+                        shape: 'ellipse'
+                    },
+                    "process": {
+                        color: "#FFFFFF",
+                        strokeColor: '#111111',
+                        strokeSize: 1,
+                        shape: 'square'
+                    }
+                }
+
+                var queryStr = [
+                    "glyph.macromolecule",
+                    "glyph.unspecified.entity",
+                    "glyph.complex",
+//                    "glyph.annotation",
+//                    "glyph.unit.of.information",
+                    "glyph.simple.chemical",
+                    "glyph.process"
+                ].join(",");
+
+                var parser = new DOMParser();
+
+                var doc = parser.parseFromString(response, "application/xml");
+                var map = doc.querySelector("map[language='process description']");
+                var glyphs = doc.querySelectorAll(queryStr);
+                var arcs = doc.querySelectorAll("arc");
+
+                var graph = new Graph();
+                var map = {};
+                for (var i = 0; i < glyphs.length; i++) {
+                    var glyph = glyphs[i];
+                    var id = glyph.getAttribute("id");
+                    var name = "";
+                    var label = glyph.querySelector("label");
+                    if (label) {
+                        var name = label.getAttribute("text");
+                    }
+                    var bbox = glyph.querySelector("bbox");
+                    var x = parseFloat(bbox.getAttribute("x"));
+                    var y = -parseFloat(bbox.getAttribute("y"));
+                    var size = bbox.getAttribute("h");
+                    if (glyph.className == "process") {
+                        size = 10;
+                    }
+                    var vertex = new Vertex({
+                        id: id,
+                        position: new Point(x, y),
+                        renderer: new CircosVertexRenderer({
+                            color: renderMap[glyph.className].color,
+                            strokeColor: renderMap[glyph.className].strokeColor,
+                            strokeSize: renderMap[glyph.className].strokeSize,
+                            shape: renderMap[glyph.className].shape,
+                            size: size
+                        })
+                    });
+                    var ports = glyph.querySelectorAll("port");
+                    for (var j = 0; j < ports.length; j++) {
+                        var port = ports[j];
+                        var pId = port.getAttribute("id");
+                        var px = parseFloat(port.getAttribute("x"));
+                        var py = -parseFloat(port.getAttribute("y"));
+                        var portVertex = new Vertex({
+                            id: pId,
+                            position: new Point(px, py),
+                            renderer: new CircosVertexRenderer({
+                                color: renderMap[glyph.className].color,
+                                strokeColor: renderMap[glyph.className].strokeColor,
+                                strokeSize: renderMap[glyph.className].strokeSize,
+                                shape: renderMap[glyph.className].shape,
+                                size: 10
+                            })
+                        });
+                        graph.addVertex(portVertex);
+                        map[pId] = {
+                            name: name,
+                            x: px,
+                            y: py
+                        };
+                        var edge = new Edge({
+                            id: vertex.id + "_" + "process" + "_" + portVertex.id,
+                            source: vertex,
+                            target: portVertex,
+                            renderer: new DefaultEdgeRenderer({
+                                color: '#111111',
+                                head: 'directed'
+                            })
+                        });
+                        graph.addEdge(edge);
+                    }
+
+                    graph.addVertex(vertex);
+                    map[id] = {
+                        name: name,
+                        x: x,
+                        y: y
+                    };
+                }
+                for (var i = 0; i < arcs.length; i++) {
+                    var arc = arcs[i];
+                    var source = graph.getVertexById(arc.getAttribute("source"));
+                    var target = graph.getVertexById(arc.getAttribute("target"));
+                    var id = source.id + "_" + arc.getAttribute("id") + "_" + target.id
+                    var edge = new Edge({
+                        id: id,
+                        source: source,
+                        target: target,
+                        renderer: new DefaultEdgeRenderer({
+                            color: '#111111',
+                            shape: 'directed'
+                        })
+                    });
+                    graph.addEdge(edge);
+                }
+                this.networkViewer.setGraph(graph);
+                var vAttr = this.networkViewer.vAttr;
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "x",
+                    title: "x",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                vAttr.addColumn({
+                    defaultValue: "",
+                    name: "y",
+                    title: "y",
+                    type: "string",
+                    cellTemplate: "inputTemplate"
+                });
+                for (var i = 0; i < vAttr.data.length; i++) {
+                    var row = vAttr.data[i];
+                    row["name"] = map[row["id"]].name;
+                    row["x"] = map[row["id"]].x;
+                    row["y"] = map[row["id"]].y;
+                }
+                this.networkViewer.vertexDefaults.labelAttribute = "name";
+                this.networkViewer.handleVertexDefaultLabelAttribute();
+
+                this.networkViewer.handleVertexDefaultXAttribute();
+                this.networkViewer.handleVertexDefaultYAttribute();
+                this.networkViewer.setLayout("Force directed");
+            }
+
+        });
+    </script>
+</polymer-element>

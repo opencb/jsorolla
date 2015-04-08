@@ -1,0 +1,243 @@
+<polymer-element name="jso-association" attributes="userData selectedOption selectedStudy studies">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+
+            input[type="text"]:disabled {
+                background: #dddddd;
+            }
+        </style>
+        <div class="tooltitle">
+            <div>
+                Association analysis
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20SNP%20Association%20Analysis">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Association analysis: chi-square test</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="association.zip" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="OTHER_GENOTYPE"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select the association test</div>
+                <div class="formcontent">
+                    <div id="testDiv" flex layout vertical>
+                        <label class="control">
+                            <input id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc"
+                                   checked="checked">
+                            <span>Chi-square case/control association test</span>
+                        </label>
+                        <label class="control">
+                            <input id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher"><span>Fisher's exact
+                        test (allelic association)</span></label>
+                        <label class="control">
+                            <input id="test_3" name="test" class="fc-radioitem" type="radio" value="linear"><span>Linear</span></label>
+                        <label class="control">
+                            <input id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic"><span>Logistic</span></label>
+                        <label class="control">
+                            <input id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt"><span>TDT (only for
+                        family-based analysis)</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Minor allele frequency</div>
+                <div class="formcontent">
+                    <label>Select MAF value</label><input name="maf" id="maf" class="fc-int fc-text" type="text"
+                                                          value="{{maf}}" style="width:50px;" required>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "association";
+                this.list1UploadMsg = "Select file...";
+                this.description = "Job description..."
+                this.maf = 0.02;
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            handleForm: function () {
+
+                this.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+                var utils = new FormUtils(this);
+                if (!Utils.basicValidationForm(this)) {
+                    return;
+                }
+                if (this.$.maf.value == "" || isNaN(this.$.maf.value)) {
+                    alert("Sorry. MAF is not a number.");
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    "zip-file": this.$.inputFile.selectedFile.id,
+                    maf: this.$.maf.value,
+                    test: this.$.testDiv.querySelector('input[name="test"]:checked').value
+                };
+
+
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "Association analysis: chi-square test";
+                this.description = "description...";
+                this.$.inputFile.selectedFile = {id: "example_association.zip", path: "association.zip", type: "FILE"};
+                this.maf = 0.02;
+                this.$.test_1.checked = true;
+                var exampleFolder = "assoc_chi_square";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>

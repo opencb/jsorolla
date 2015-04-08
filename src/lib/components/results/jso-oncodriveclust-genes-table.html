@@ -1,0 +1,134 @@
+<polymer-element name="jso-oncodriveclust-genes-table" attributes="content">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            sortable-table {
+                border: 1px solid #d3d3d3;
+                margin-bottom: 20px;
+            }
+
+            sortable-table::shadow thead tr th {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            sortable-table::shadow tbody tr td {
+                /*width: 1000px;*/
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: inherit;
+
+            }
+
+            @-moz-document url-prefix() {
+                sortable-table::shadow tbody tr td {
+                    text-overflow: ellipsis !important;
+                }
+            }
+
+            sortable-table::shadow .column-CLUST_COORDS {
+                width: 100px;
+                /*white-space: nowrap;*/
+            }
+
+
+        </style>
+        <sortable-table id="occlust_table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.data = [];
+                this.columns = [];
+            },
+            contentChanged: function () {
+
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    if (data[i].indexOf("##") >= 0) continue;
+                    if (data[i].indexOf("ID") == 0) continue;
+                    var localData = data[i].split("\t");
+                    var obj = {
+                        "GENE": localData[0],
+                        "CGC": localData[1],
+                        "GENE_LEN": localData[2],
+                        "GENE_NUM_MUTS": localData[3],
+                        "MUTS_IN_CLUST": localData[4],
+                        "NUM_CLUSTERS": localData[5],
+                        "CLUST_COORDS": localData[6],
+                        "DOM_COORDS": localData[7],
+                        "GENE_SCORE": Utils.formatNumber(localData[8]),
+                        "ZSCORE": Utils.formatNumber(localData[9]),
+                        "PVALUE": Utils.formatNumber(localData[10]),
+                        "QVALUE": Utils.formatNumber(localData[11])
+                    };
+                    this.data.push(obj)
+                }
+
+                this.columns = [
+                    {
+                        name: "GENE",
+                        title: "Gene"
+                    },
+//                    {
+//                        name: "CGC",
+//                        title: "CGC"
+//                    },
+                    {
+                        name: "GENE_LEN",
+                        title: "Gene length"
+                    },
+                    {
+                        name: "GENE_NUM_MUTS",
+                        title: "Gene num muts"
+                    },
+                    {
+                        name: "MUTS_IN_CLUST",
+                        title: "Muts in clust"
+                    },
+                    {
+                        name: "NUM_CLUSTERS",
+                        title: "Num clust"
+                    },
+                    {
+                        name: "CLUST_COORDS",
+                        title: "Clust coords"
+                    },
+                    {
+                        name: "DOM_COORDS",
+                        title: "Dom coords"
+                    },
+                    {
+                        name: "GENE_SCORE",
+                        title: "Gene score"
+                    },
+                    {
+                        name: "ZSCORE",
+                        title: "Z score"
+                    },
+                    {
+                        name: "PVALUE",
+                        title: "P value"
+                    },
+                    {
+                        name: "QVALUE",
+                        title: "Q value"
+                    }
+                ];
+                this.pageSize = "15";
+                this.footerTemplate = "simplePager";
+
+            }
+        })
+    </script>
+</polymer-element>

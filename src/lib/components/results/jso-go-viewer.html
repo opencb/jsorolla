@@ -1,0 +1,134 @@
+<polymer-element name="jso-go-viewer" attributes="content rootNode jobResult">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+            }
+
+            jso-network-viewer {
+                /*max-width: 1000px;*/
+                height: 800px;
+
+                border-color: rgb(217, 217, 217);
+                border-style: solid;
+                border-width: 1px;
+            }
+
+
+        </style>
+        <template if="{{jobResult.networkViewer}}">
+            <div horizontal layout>
+                <div>
+                    <input type="text" value="{{sessionName}}">
+                </div>
+                <div class="button action" style="margin-left:5px" on-click="{{handleSaveSessionToCellMaps}}">
+                    Save network as Cell Maps session
+                </div>
+            </div>
+            <div horizontal layout>
+                <label>
+                    {{saveMessage}}
+                </label>
+                <template if="{{saveMessageOk}}">
+                    <div class="button action" on-click="{{handleOpenCellMapsSessionManager}}">
+                        Open Cell Maps session Manager
+                    </div>
+                </template>
+            </div>
+            <br>
+        </template>
+        <jso-network-viewer
+                id="networkViewer"
+                lite="true"
+                ></jso-network-viewer>
+        <label>Colored nodes represent significant results: red for GOs overrepresented and blue for GOs underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs</label>
+        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+            <font-awesome icon="arrows"></font-awesome>
+        </label>
+        <br>
+    </template>
+    networkViewer =
+    <script>
+        Polymer({
+            created: function () {
+                this.sessionName = "";
+                this.saveMessage = "";
+                this.saveMessageOk = false;
+            },
+            ready: function () {
+            },
+            domReady: function () {
+                this.$.networkViewer.$.nodeRender.setAttribute('hidden', '');
+                this.$.networkViewer.$.edgeRender.setAttribute('hidden', '');
+
+//                this.$.networkViewer.selectVerticesByAttribute("id", "all");
+//                this.$.networkViewer.setLayout("Force directed");
+
+                //
+                this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute, false, false);
+                this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute, false, true);
+            },
+            setContent: function (sifContent, attrContent, attr2Content) {
+                var me = this;
+                new TextNetworkDataAdapter({
+                    dataSource: new StringDataSource(sifContent),
+                    handlers: {
+                        'data:load': function (event) {
+                            var sifAdapter = event.sender;
+                            var graph = sifAdapter.parseColumns(0, 1, -1, "r");
+                            me.$.networkViewer.setGraph(graph);
+//                            me.$.networkViewer.selectVertex(me.$.networkViewer.graph.vertices[0]);
+
+
+                            new AttributeNetworkDataAdapter({
+//                                ignoreColumns: ?,
+                                dataSource: new StringDataSource(attrContent),
+                                handlers: {
+                                    'data:load': function (event) {
+                                        var attributeManager1 = event.attributeManager;
+                                        me.$.networkViewer.importVertexAttributeManager(attributeManager1);
+
+                                        me._applyVertexAttributes();
+                                    },
+                                    'error:parse': function (event) {
+                                        me.message = event.errorMsg;
+                                    }
+                                }
+                            });
+                        },
+                        'error:parse': function (event) {
+                            console.log("ERRORRRR");
+                        }
+                    }
+                });
+
+            },
+            _applyVertexAttributes: function () {
+                this.$.networkViewer.vertexDefaults.labelAttribute = "name";
+                this.$.networkViewer.handleVertexDefaultLabelAttribute();
+
+                var nodeRender = this.$.networkViewer.shadowRoot.querySelector('jso-attribute-node-render');
+
+                //attributeName, displayProperty
+                nodeRender.applyDirect("color", "color");
+            },
+            handleSaveSessionToCellMaps: function (e) {
+                var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.networkViewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
+                if (saved) {
+                    this.saveMessage = "Saved as " + this.sessionName + ", you can go back to Cell Maps and load the network using the session manager inside File menu.";
+                    this.sessionName = '';
+                    this.saveMessageOk = true;
+                } else {
+                    this.saveMessage = this.sessionName + 'already exists.';
+                    this.saveMessageOk = false;
+                }
+            },
+            handleOpenCellMapsSessionManager: function () {
+                this.jobResult.selectedOption = "";
+                this.jobResult.networkViewer.selectedMenu = "session-manager";
+            }
+        })
+    </script>
+</polymer-element>
+

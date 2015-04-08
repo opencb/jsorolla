@@ -24,7 +24,9 @@ function DefaultEdgeRenderer(args) {
     _.extend(this, Backbone.Events);
 
     //defaults
-    this.shape = 'undirected';
+    this.shape = 'directed';
+    this.shaft = 'line';
+    this.bidirectional = 'false';
     this.size = 1;
     this.color = '#cccccc';
     this.strokeSize = 2;
@@ -49,7 +51,18 @@ function DefaultEdgeRenderer(args) {
     this.targetRenderer;
 
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            if (args[prop] != null) {
+                this[prop] = args[prop];
+            }
+        }
+    }
+
+    this.size = parseFloat(this.size);
+    this.strokeSize = parseFloat(this.strokeSize);
+    this.opacity = parseFloat(this.opacity);
+    this.labelSize = parseFloat(this.labelSize);
 
 }
 
@@ -65,14 +78,20 @@ DefaultEdgeRenderer.prototype = {
                 this.updateShape();
                 break;
             case "size":
-                this.edgeEl.setAttribute('stroke-width', this.size);
+                this.size = parseInt(this.size);
+                this.edgeEl.setAttribute('stroke-width', this._getStrokeWidth());
                 this.updateShape();
                 break;
+            case "bidirectional":
             case "shape":
                 this.updateShape();
                 break;
+            case "shaft":
+                this.updateShaft();
+                break;
             case "labelSize":
                 this.labelEl.setAttribute('font-size', this.labelSize);
+                this.setLabelContent(this.labelText);
                 break;
             case "opacity":
                 this.edgeEl.setAttribute('opacity', this.opacity);
@@ -81,37 +100,78 @@ DefaultEdgeRenderer.prototype = {
                 this.update();
         }
     },
-    setConfig: function (args) {
-        _.extend(this, args);
+    _getStrokeWidth: function () {
+        return 1 + (this.size / 2);
     },
+    //setConfig: function (args) {
+    //    if (args.size) {
+    //        args.size = parseInt(args.size);
+    //    }
+    //    if (args.opacity) {
+    //        args.opacity = parseFloat(args.opacity);
+    //    }
+    //    if (args.labelSize) {
+    //        args.labelSize = parseInt(args.labelSize);
+    //    }
+    //    if (args.labelPositionX) {
+    //        args.labelPositionX = parseInt(args.labelPositionX);
+    //    }
+    //    if (args.labelPositionY) {
+    //        args.labelPositionY = parseInt(args.labelPositionY);
+    //    }
+    //    _.extend(this, args);
+    //    this.edgeEl.setAttribute('opacity', this.opacity);
+    //},
     render: function (args) {
-        this.edge = args.edge;
+        //this.edge = args.edge;
         this.targetEl = args.target;
-        this.sourceCoords = args.sourceCoords;
-        this.targetCoords = args.targetCoords;
-        this.sourceRenderer = args.sourceRenderer;
-        this.targetRenderer = args.targetRenderer;
+        this.sourceCoords = this.edge.source.position;
+        this.targetCoords = this.edge.target.position;
+        this.sourceRenderer = this.edge.source.renderer;
+        this.targetRenderer = this.edge.target.renderer;
         this._render();
     },
     remove: function () {
-        $(this.el).remove();
+        if (this.el && this.el.parentNode) {
+            this.el.parentNode.removeChild(this.el);
+        }
     },
     update: function () {
         this.edgeEl.setAttribute('stroke', this.color);
-        this.edgeEl.setAttribute('stroke-width', this.size);
+        this.edgeEl.setAttribute('stroke-width', this._getStrokeWidth());
         this.labelEl.setAttribute('font-size', this.labelSize);
+        this.updateShaft();
         this.updateShape();
     },
     updateShape: function () {
-        if(!this.edgeEl){
+        if (!this.edgeEl) {
             debugger
         }
         if (this.shape === 'undirected') {
             this.edgeEl.removeAttribute('marker-end');
+            this.edgeEl.removeAttribute('marker-start');
         } else {
-            this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
+            if (this.bidirectional == 'true') {
+                this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId("end") + ")");
+                this.edgeEl.setAttribute('marker-start', "url(" + this._getMarkerArrowId("start") + ")");
+            } else {
+                this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId("end") + ")");
+                this.edgeEl.removeAttribute('marker-start');
+            }
         }
+
         this.move();
+    },
+    updateShaft: function () {
+        if (!this.edgeEl) {
+            debugger
+        }
+        if (this.selected) {
+            this._renderSelect();
+        }
+        if (!this.selected) {
+            this._removeSelect();
+        }
     },
     select: function () {
         if (!this.selected) {
@@ -124,13 +184,21 @@ DefaultEdgeRenderer.prototype = {
         }
     },
     setLabelContent: function (text) {
-        this.labelText = text;
-        var textSvg = $(this.el).find('text[network-type="edge-label"]')[0];
-        var label = '';
-        if ($.type(this.labelText) === 'string' && this.labelText.length > 0) {
-            label = this.labelText;
+        if (text == null) {
+            text = '';
         }
-        textSvg.textContent = label;
+        this.labelText = text;
+        this.labelEl.textContent = text;
+        //var splitted = text.split("\\n");
+        //var line, lineEl;
+        //for (var i = 0; i < splitted.length; i++) {
+        //    line = splitted[i];
+        //    lineEl = SVG.addChild(this.labelEl, "tspan", {
+        //        "dy": this.labelSize,
+        //        "x": this.labelEl.getAttribute("x")
+        //    });
+        //    lineEl.textContent = line;
+        //}
     },
 //    moveSourceOff: function (coords) {
 //        var linkLine = $(this.el).find('line[network-type="edge"]')[0];
@@ -167,12 +235,11 @@ DefaultEdgeRenderer.prototype = {
 //        text.setAttribute('y', y);
 //
 //    },
-    move: function (coords) {
+    move: function () {
         var val = this._calculateEdgePath();
         this.edgeEl.setAttribute('d', val.d);
         this.labelEl.setAttribute('x', val.xl);
         this.labelEl.setAttribute('y', val.yl);
-
     },
     _calculateEdgePath: function () {
         var d, labelX, labelY;
@@ -186,10 +253,10 @@ DefaultEdgeRenderer.prototype = {
 
             var rSize = this.sourceRenderer.getSize() / 2;
 
-            d = ['M', this.sourceCoords.x - rSize, this.sourceCoords.y ,
+            d = ['M', this.sourceCoords.x - rSize, this.sourceCoords.y,
                 'L', this.sourceCoords.x - length1, this.sourceCoords.y,
                 'C', this.sourceCoords.x - length2, this.sourceCoords.y, this.sourceCoords.x, this.sourceCoords.y - length2,
-                this.sourceCoords.x , this.sourceCoords.y - length1,
+                this.sourceCoords.x, this.sourceCoords.y - length1,
                 'L', this.targetCoords.x, this.targetCoords.y - rSize].join(' ');
         } else {
             //calculate bezier line
@@ -227,20 +294,23 @@ DefaultEdgeRenderer.prototype = {
             var pp = this._getPerimeterPositions(angle);
 
 //            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
+
+
             d = ['M', pp.sx, pp.sy, controlPath, pp.tx, pp.ty].join(' ');
         }
         return {d: d, xl: labelX, yl: labelY};
     },
     _getPerimeterPositions: function (angle) {
-        // Calculate source and target points of the perimeter - TODO ellipse, square, rectangle
-        var sign = this.targetCoords.x > this.sourceCoords.x ? 1 : -1;
+        // Calculate source and target points of the perimeter
+        var sign = this.targetCoords.x >= this.sourceCoords.x ? 1 : -1;
         var srHalfSize = this.sourceRenderer.getSize() / 2;
 
-        var offset = 0;
-        if (this.shape !== 'undirected') {
-            offset = this.size * 2;
-        }
-        var trHalfSize = offset + (this.targetRenderer.getSize() / 2);
+        //var offset = 0;
+        //if (this.shape !== 'undirected') {
+        //    offset = this.size * 2;
+        //}
+        //var trHalfSize = offset + (this.targetRenderer.getSize() / 2);
+        var trHalfSize = this.targetRenderer.getSize() / 2;
 
         var cosAngle = Math.cos(angle);
         var sinAngle = Math.sin(angle);
@@ -256,60 +326,70 @@ DefaultEdgeRenderer.prototype = {
         // center + (cos(angle), sin(angle))*magnitude
 
         //Source
-        switch (this.sourceRenderer.shape) {
-            case 'square':
-                magnitudeCos = srHalfSize / absCosAngle;
-                magnitudeSin = srHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
-                sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
-                break;
-            case 'rectangle':
-                magnitudeCos = srHalfSize * 1.4 / absCosAngle;
-                magnitudeSin = srHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
-                sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
-                break;
-            case 'ellipse':
-                sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.4);
-                sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
-                break;
-            case 'circle':
-            default:
-                sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
-                sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+        if (this.sourceRenderer.complex == true) {
+            sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
+            sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+        } else {
+            switch (this.sourceRenderer.shape) {
+                case 'square':
+                    magnitudeCos = srHalfSize / absCosAngle;
+                    magnitudeSin = srHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
+                    sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
+                    break;
+                case 'rectangle':
+                    magnitudeCos = srHalfSize * 1.5 / absCosAngle;
+                    magnitudeSin = srHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
+                    sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
+                    break;
+                case 'ellipse':
+                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.5);
+                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+                    break;
+                case 'circle':
+                default:
+                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize);
+                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+            }
         }
         //Target
-        switch (this.targetRenderer.shape) {
-            case 'square':
-                magnitudeCos = trHalfSize / absCosAngle;
-                magnitudeSin = trHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                tx = this.targetCoords.x - (sign * cosAngle * magnitude);
-                ty = this.targetCoords.y - (sign * sinAngle * magnitude);
-                break;
-            case 'rectangle':
-                magnitudeCos = trHalfSize * 1.4 / absCosAngle;
-                magnitudeSin = trHalfSize / absSinAngle;
-                magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
-                tx = this.targetCoords.x - (sign * cosAngle * magnitude);
-                ty = this.targetCoords.y - (sign * sinAngle * magnitude);
-                break;
-            case 'ellipse':
-                tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.4);
-                ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
-                break;
-            case 'circle':
-            default:
-                tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
-                ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+        if (this.targetRenderer.complex == true) {
+            tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
+            ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+        } else {
+            switch (this.targetRenderer.shape) {
+                case 'square':
+                    magnitudeCos = trHalfSize / absCosAngle;
+                    magnitudeSin = trHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    tx = this.targetCoords.x - (sign * cosAngle * magnitude);
+                    ty = this.targetCoords.y - (sign * sinAngle * magnitude);
+                    break;
+                case 'rectangle':
+                    magnitudeCos = trHalfSize * 1.5 / absCosAngle;
+                    magnitudeSin = trHalfSize / absSinAngle;
+                    magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
+                    tx = this.targetCoords.x - (sign * cosAngle * magnitude);
+                    ty = this.targetCoords.y - (sign * sinAngle * magnitude);
+                    break;
+                case 'ellipse':
+                    tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.5);
+                    ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+                    break;
+                case 'circle':
+                default:
+                    tx = this.targetCoords.x - (sign * cosAngle * trHalfSize);
+                    ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+            }
         }
         return {sx: sx, sy: sy, tx: tx, ty: ty};
     },
     /* Private */
     _render: function () {
-        var groupSvg = SVG.create('g', {
+        this.el = SVG.create('g', {
             "cursor": "pointer",
             "id": this.edge.id,
             opacity: this.opacity,
@@ -318,153 +398,137 @@ DefaultEdgeRenderer.prototype = {
 
         var val = this._calculateEdgePath();
 
-        var linkSvg = SVG.addChild(groupSvg, "path", {
+        this.edgeEl = SVG.addChild(this.el, "path", {
             "d": val.d,
             opacity: this.opacity,
             "stroke": this.color,
-            "stroke-width": this.size,
+            "stroke-width": this._getStrokeWidth(),
+            //"stroke-linecap": "round",
+            //"stroke-linejoin": "miter",
             "cursor": "pointer",
             fill: 'none',
             'network-type': 'edge'
-        }, 0);
-        if (this.shape !== 'undirected') {
-            linkSvg.setAttribute('marker-end', "url(" + this._getMarkerArrowId() + ")");
+        },1);
+
+        if (this.shape === 'undirected') {
+            this.edgeEl.removeAttribute('marker-end');
+            this.edgeEl.removeAttribute('marker-start');
+        } else {
+            if (this.bidirectional == 'true') {
+                this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId("end") + ")");
+                this.edgeEl.setAttribute('marker-start', "url(" + this._getMarkerArrowId("start") + ")");
+            } else {
+                this.edgeEl.setAttribute('marker-end', "url(" + this._getMarkerArrowId("end") + ")");
+                this.edgeEl.removeAttribute('marker-start');
+            }
         }
 
-        var textOffset = this.sourceRenderer.getSize();
-        var text = SVG.addChild(groupSvg, "text", {
+        this.labelEl = SVG.addChild(this.el, "text", {
             "x": val.xl,
             "y": val.yl,
             "font-size": this.labelSize,
             "fill": this.labelColor,
             'network-type': 'edge-label'
         });
-        text.textContent = this.edge.id;
+        this.setLabelContent(this.edge.id);
 
-        this.el = groupSvg;
-        this.edgeEl = linkSvg;
-        this.labelEl = text;
-        SVG._insert(this.targetEl, groupSvg, 0);
+        SVG._insert(this.targetEl, this.el, 1);
 
         if (this.selected) {
             this._renderSelect();
         }
+        if (!this.selected) {
+            this._removeSelect();
+        }
     },
 
     _renderSelect: function () {
-        this.edgeEl.setAttribute('stroke-dasharray', '5, 2');
-//        this.edgeEl.setAttribute('stroke-width', this.size + 1);
+        this.edgeEl.setAttribute('stroke-dasharray', '10, 5');
 
         this.selected = true;
     },
     _removeSelect: function () {
-        this.edgeEl.removeAttribute('stroke-dasharray');
-//        this.edgeEl.removeAttribute('stroke-width', this.size);
-
+        if (this.shaft !== 'dashed') {
+            this.edgeEl.removeAttribute('stroke-dasharray');
+        } else {
+            this.edgeEl.setAttribute('stroke-dasharray', '3, 2');
+        }
         this.selected = false;
     },
     /**/
-    _getMarkerArrowId: function () {
+    _getMarkerArrowId: function (markerLocation) {
         var offset = (this.size * -2) - 1;
         // if not exists this marker, add new one to defs
-        var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '');
+        var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '') + markerLocation;
         var markerArrowIdSel = '#' + markerArrowId;
-        if ($(markerArrowIdSel).length == 0) {
-            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId);
+        if (!this.targetEl.querySelector(markerArrowIdSel)) {
+            this._addArrowShape(this.shape, offset, this.color, this.size, this.targetEl, markerArrowId, markerLocation);
         }
         return markerArrowIdSel;
     },
-    _addArrowShape: function (type, offset, color, edgeSize, targetSvg, markerArrowId) {
-        if (edgeSize === 0) {
-            var scale = 0;
-        } else {
-            var scale = 1 / edgeSize;
-        }
-
-        var mult = scale * (1 + edgeSize / 2);
-
-        var headWidth = 4 * mult;
-        var headHeight = 5 * mult;
-        var headRadius = 3 * mult;
-
-        offset = scale * offset;
-
-        var halfSize = edgeSize / 2;
-
-        var defs = $(targetSvg).find('defs');
-        var defsEl = defs[0]
-        if (defs.length == 0) {
+    _addArrowShape: function (type, offset, color, edgeSize, targetSvg, markerArrowId, markerLocation) {
+        var defsEl = targetSvg.querySelector('defs');
+        if (!defsEl) {
             defsEl = SVG.addChild(targetSvg, "defs", {}, 0);
         }
         if (typeof color === 'undefined') {
             color = '#000000';
         }
+        var sign = 1;
+        if (markerLocation == "start") {
+            sign = -1;
+        }
+        var sw = this._getStrokeWidth();
+        var swh = sw / 2;
+        var w = 8 + edgeSize;
+        var h = 3 + edgeSize;
         var marker = SVG.addChild(defsEl, "marker", {
             "id": markerArrowId,
             "orient": "auto",
-            "refX": offset + headHeight,
-            "refY": headWidth / 2,
-            "angle": 10,
+            "refX": (w) * sign,
+            "refY": h,
+            'markerUnits': "userSpaceOnUse",
             "style": "overflow:visible;"
         });
-
         switch (type) {
             case "directed":
+                var d = ['M0,0', 'L', 1 * sign, h, 'L', 0, h * 2, 'L', w * sign, h + swh, 'L', w * sign, h - swh, 'Z'].join(' ')//"M0,0 V10 L5,5 Z"
+                //var d = ['M0,0', 'L', 1 * sign, h, 'L', 0, h * 2, 'L', w * sign, h, 'Z'].join(' ')//"M0,0 V10 L5,5 Z"
                 var arrow = SVG.addChild(marker, "path", {
-//                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "d": ['M0,0', 'V', headWidth, 'L', headHeight, headWidth / 2, 'Z'].join(' ')//"M0,0 V10 L5,5 Z"
-//                    "points": [-offset, -halfSize, -offset - headHeight, -headWidth, -offset - headHeight, headWidth, -offset, halfSize].join(' ')
+                    "d": d
                 });
                 break;
-//            case "odirected":
-//                var arrow = SVG.addChild(marker, "polyline", {
-//                    "transform": "scale(0.5) rotate(0) translate(0,0)",
-//                    "fill": color,
-//                    "points": "-" + offset + ",0 " + (-offset - 18) + ",-8 " + (-offset - 18) + ",8 -" + offset + ",0"
-//                });
-//                offset += 6;
-//                var arrow = SVG.addChild(marker, "polyline", {
-//                    "transform": "scale(0.5) rotate(0) translate(0,0)",
-//                    "fill": 'white',
-//                    "opacity": "1",
-//                    "points": "-" + offset + ",0 " + (-offset - 9) + ",-4 " + (-offset - 9) + ",4 -" + offset + ",0"
-//                });
-//                break;
             case "inhibited":
+                var x = w / 2;
+                var y = h + swh;
+                var x2 = w;
+                var y2 = h * 3 + swh;
                 var arrow = SVG.addChild(marker, "path", {
-//                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "d": ['M', headHeight , 0, 'V', headHeight, 'L', headHeight / 2, headHeight, 'L', headHeight / 2, 0, 'Z'].join(' ')
-//                    "x":0,
-//                    "y": 0,
-//                    "width": headWidth,
-//                    "height": headWidth * 2
+                    "d": ['M', sign * x, -y, 'L', sign * x, y2, 'L', sign * x2, y2, 'L', sign * x2, -y, 'Z'].join(' ')
                 });
                 break;
             case "dot":
                 var arrow = SVG.addChild(marker, "circle", {
-//                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "cx": headWidth / 2,
-                    "cy": headHeight / 2,
-                    "r": headRadius
+                    "cx": sign * w / 2,
+                    "cy": h,
+                    "r": w / 2
                 });
                 break;
             case "odot":
                 var arrow = SVG.addChild(marker, "circle", {
-//                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": color,
-                    "cx": headWidth / 2,
-                    "cy": headHeight / 2,
-                    "r": headRadius
+                    "cx": sign * w / 2,
+                    "cy": h,
+                    "r": w / 2
                 });
                 var arrow = SVG.addChild(marker, "circle", {
-//                    "transform": "scale(" + scale + ") rotate(0) translate(0,0)",
                     "fill": 'white',
-                    "cx": headWidth / 2,
-                    "cy": headHeight / 2,
-                    "r": headRadius - 2
+                    "cx": sign * w / 2,
+                    "cy": h,
+                    "r": (w / 2) - sw
                 });
                 break;
         }
@@ -472,6 +536,8 @@ DefaultEdgeRenderer.prototype = {
     toJSON: function () {
         return {
             shape: this.shape,
+            shaft: this.shaft,
+            bidirectional: this.bidirectional,
             size: this.size,
             color: this.color,
             strokeSize: this.strokeSize,

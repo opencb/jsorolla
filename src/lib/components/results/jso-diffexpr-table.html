@@ -1,0 +1,447 @@
+<polymer-element name="jso-diffexpr-table" attributes="content contentDataset files test">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+
+            jso-network-viewer {
+                height: 800px;
+                border: 1px solid #d3d3d3;
+            }
+
+            sortable-table {
+                border: 1px solid #d3d3d3;
+            }
+        </style>
+
+        <template if="{{!loading && data.length>0}}">
+            <div class="file"><label>Significative table</label>
+                <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
+                <sortable-table id="diffexpr-table"
+                                data="{{data}}"
+                                columns="{{columns}}"
+                                footerTemplate="{{footerTemplate}}"
+                                pageSize="{{pageSize}}">
+
+                </sortable-table>
+
+                <div id="heatMap" style="height: 600px; overflow-y: auto"></div>
+
+                <h3>Network viewer</h3>
+
+                <jso-protein-viewer nodes="{{nodes}}"></jso-protein-viewer>
+
+                <h3>Continue processing</h3>
+
+                <div id="redirection" style="margin-left: 20px">
+                    <h3>Single enrichment analysis</h3>
+                    <template if="{{topNumber>0}}">
+                        <jso-redirection titleRed="Top list vs Genome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
+                                         buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{topListFileUrlSeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{bottomNumber>0}}">
+
+                        <jso-redirection titleRed="Bottom list vs Genome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
+                                         buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{bottomListFileUrlSeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{topNumber>0 && bottomNumber > 0}}">
+                        <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
+                                         buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{sendTopVsBottomSeaArgs}}" id=""></jso-redirection>
+                    </template>
+
+                    <h3>Gene set enrichment analysis</h3>
+                    <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                                     buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileArgs}}" id=""></jso-redirection>
+
+                    <h3>Network enrichment analysis</h3>
+                    <template if="{{topNumber>0}}">
+                        <jso-redirection titleRed="Top list vs Interactome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
+                                         buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{topListFileUrlNeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{bottomNumber>0}}">
+
+                        <jso-redirection titleRed="Bottom list vs Interactome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
+                                         buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{bottomListFileUrlNeaArgs}}" id=""></jso-redirection>
+                    </template>
+                    <template if="{{topNumber>0 && bottomNumber > 0}}">
+                        <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
+                                         buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{sendTopVsBottomNeaArgs}}" id=""></jso-redirection>
+                    </template>
+
+                    <h3>Network set enrichment analysis</h3>
+                    <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                                     buttonLabel="Send to Network set enrichment" buttonWidth="300px" args="{{rankedListFileNseaArgs}}" id=""></jso-redirection>
+
+                    <h3>Clustering</h3>
+
+                    <jso-redirection titleRed="Dataset containing the significative values" fileName="{{significativeFile.name}}" fileUrl="{{significativeFileUrl}}"
+                                     buttonLabel="Send to clustering" buttonWidth="200px" args="{{sendClusteringArgs}}" id=""></jso-redirection>
+
+                </div>
+
+
+            </div>
+        </template>
+        <template if="{{!loading && data.length == 0}}">
+            <label>No significative results found</label>
+        </template>
+        <template if="{{loading}}">
+            <div>
+                <font-awesome icon="spinner" animation="spin"></font-awesome>
+                Loading elements...
+            </div>
+        </template>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.loading = true;
+
+                this.columns = [];
+                this.data = [];
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+                this.rowNames = [];
+                this.test = "";
+                this.topNumber = 0;
+                this.bottomNumber = 0;
+                this.networkNodes = 20;
+                this.sendTopVsBottomSeaArgs = [];
+                this.sendTopVsBottomNeaArgs = [];
+
+            },
+            contentDatasetChanged: function () {
+
+                var data = this.content.split("\n");
+//                var data = this.contentDataset.split("\n");
+                var nodes = [];
+                for (var i = 0; i < data.length; i++) {
+                    var line = data[i];
+                    if (line.indexOf("#NAMES") >= 0) {
+                        var splits = data[i].split("\t");
+                        for (var j = 0; j < splits.length; j++) {
+                            var elem = splits[j];
+                            this.columns.push(elem);
+                        }
+
+                    } else if (line.indexOf("#") < 0) {
+                        if (data[i].length > 0) {
+                            var localData = data[i].split("\t");
+                            var idx = 1;
+                            if (this.test == "spearman" || this.test == "pearson")
+                                idx = 2;
+
+                            if (Number(localData[idx]) >= 0)
+                                this.topNumber++;
+                            else
+                                this.bottomNumber++;
+                            nodes.push(localData[0]);
+
+                            var localArray = new Array();
+
+                            localArray.push(localData[0].toString());
+                            for (var z = 1; z < localData.length; z++) {
+                                var value = localData[z];
+                                if (!isNaN(value)) {
+                                    value = Utils.formatNumber(value);
+                                }
+                                localArray.push(value.toString());
+                            }
+                            this.data.push(localArray);
+                            this.rowNames.push(localArray[0]);
+                        }
+                    }
+                }
+                this.getFiles();
+                this.nodes = nodes;
+                this.loading = false;
+
+            },
+            dataChanged: function () {
+                this.heatMapData();
+
+            },
+            getFiles: function () {
+                var me = this;
+
+                for (var i = 0; i < this.files.length; i++) {
+                    var fileName = this.files[i].name;
+                    if (fileName.indexOf(".deleted") >= 0) {
+                        continue;
+                    }
+                    if (fileName.indexOf("_significative_table_up.txt") >= 0) {
+                        me.topListFile = this.files[i];
+                        me.topListFileUrl = Utils.getUrl(me.topListFile.id);
+                        me.topListFileUrlSeaArgs = {
+                            inputFile: me.topListFile,
+                            comparisonRadio: "list2genome",
+                            duplicates: "never",
+                            fisher: "greater",
+                            tool: "fatigo"
+                        };
+                        me.sendTopVsBottomSeaArgs["inputFile"] = me.topListFile;
+                        me.sendTopVsBottomSeaArgs["comparisonRadio"] = "list2list";
+                        me.sendTopVsBottomSeaArgs["duplicates"] = "never";
+                        me.sendTopVsBottomSeaArgs["fisher"] = "two-tailed";
+                        me.sendTopVsBottomSeaArgs["tool"] = "fatigo";
+
+                        me.topListFileUrlNeaArgs = {
+                            inputFile: me.topListFile,
+                            tool: "snow",
+                            type: "genes"
+                        };
+                        me.sendTopVsBottomNeaArgs["inputFile"] = me.topListFile;
+                        me.sendTopVsBottomNeaArgs["mode"] = "two_list";
+                        me.sendTopVsBottomNeaArgs["tool"] = "snow";
+                        me.sendTopVsBottomNeaArgs["type"] = "genes";
+                    }
+                    if (fileName.indexOf("_significative_table_down.txt") >= 0) {
+                        me.bottomListFile = this.files[i];
+                        me.bottomListFileUrl = Utils.getUrl(me.bottomListFile.id);
+                        me.bottomListFileUrlSeaArgs = {
+                            inputFile: this.bottomListFile,
+                            comparisonRadio: "list2genome",
+                            duplicates: "never",
+                            fisher: "greater",
+                            tool: "fatigo"
+                        };
+                        me.sendTopVsBottomSeaArgs["inputFile2"] = me.bottomListFile;
+
+                        me.bottomListFileUrlNeaArgs = {
+                            inputFile: this.bottomListFile,
+                            tool: "snow",
+                            type: "genes"
+                        };
+                        me.sendTopVsBottomNeaArgs["inputFile2"] = me.bottomListFile;
+                    }
+                    if (fileName.indexOf("_ranked_list.txt") >= 0) {
+                        me.rankedListFile = this.files[i];
+                        me.rankedListFileUrl = Utils.getUrl(me.rankedListFile.id);
+                        me.rankedListFileArgs = {
+                            inputFile: this.files[i],
+                            tool: "fatiscan"
+                        };
+                        me.rankedListFileNseaArgs = {
+                            inputFile: this.files[i],
+                            tool: "network-miner"
+                        };
+                    }
+                    if (fileName.indexOf("_significative_dataset.txt") >= 0) {
+                        me.significativeFile = this.files[i];
+                        me.significativeFileUrl = Utils.getUrl(me.significativeFile.id);
+                        me.sendClusteringArgs = {
+                            inputFile: me.significativeFile,
+                            distance: "square",
+                            method: "upgma",
+                            gene_clustering: "",
+                            tool: "clustering"
+                        };
+                    }
+                    if (fileName.indexOf("_significative_table.txt") >= 0) {
+                        me.significativeTable = this.files[i];
+                        me.significativeTableUrl = Utils.getUrl(me.significativeTable.id);
+                    }
+                }
+
+            },
+//            sendTop: function () {
+//
+//                var args = {
+//                    inputFile: this.topListFile,
+//                    comparisonRadio: "list2genome",
+//                    duplicates: "never",
+//                    fisher: "greater"
+//                };
+//                this.fire("redirection", {
+//                    tool: "fatigo",
+//                    args: args
+//                });
+//            },
+//            sendBottom: function () {
+//
+//                var args = {
+//                    inputFile: this.bottomListFile,
+//                    comparisonRadio: "list2genome",
+//                    duplicates: "never",
+//                    fisher: "greater"
+//                };
+//                this.fire("redirection", {
+//                    tool: "fatigo",
+//                    args: args
+//                });
+//            },
+//            sendTopVsBottom: function () {
+//
+//                var args = {
+//                    inputFile: this.topListFile,
+//                    inputFile2: this.bottomListFile,
+//                    comparisonRadio: "list2list",
+//                    duplicates: "never",
+//                    fisher: "two-tailed"
+//                };
+//                this.fire("redirection", {
+//                    tool: "fatigo",
+//                    args: args
+//                });
+//            },
+//            sendClustering: function () {
+//
+//                var args = {
+//                    inputFile: this.significativeFile,
+//                    distance: "square",
+//                    method: "upgma",
+//                    gene_clustering: ""
+//                };
+//                this.fire("redirection", {
+//                    tool: "clustering",
+//                    args: args
+//                });
+//            },
+            heatMapData: function () {
+                var cols = [];
+                var data = [];
+                var rows = [];
+                var dataIdx = 1;
+
+                var rawData = this.contentDataset.split("\n");
+                var prevLine = null;
+
+                var b = true;
+
+                /** Hack needed for sorting**/
+                var rawDataObj = {};
+                for (var i = 0; i < rawData.length; i++) {
+                    var line = rawData[i];
+                    if (line == "") continue;
+                    if (line.indexOf("#") < 0) {
+                        line = line.split("\t");
+                        rawDataObj[line[0].toString()] = line;
+                        if (b) { // PrevLine == last line of the header
+                            var splits = prevLine.split("\t");
+                            for (var j = 1; j < splits.length; j++) {
+                                cols.push(splits[j]);
+                            }
+                            b = false;
+                        }
+                    }
+                    prevLine = line;
+                }
+                var orderedContent = [];
+                for (var i = 0; i < this.rowNames.length; i++) {
+                    orderedContent.push(rawDataObj[this.rowNames[i]]);
+                }
+                /** end sorting **/
+
+                var numberRows = this.rowNames.length;
+                for (var i = 0; i < orderedContent.length; i++) {
+//                    console.log(i)
+//                    console.log(orderedContent[i])
+                    var lineData = orderedContent[i];
+                    lineData = lineData.slice(1, lineData.length).map(Number);
+                    var max = Math.max.apply(Math, lineData)
+                    var min = Math.min.apply(Math, lineData)
+                    for (var j = 0; j < lineData.length; j++) {
+                        var value = (lineData[j] - min) / (max - min);
+//                        value = lineData[j];
+                        data.push([j, numberRows - dataIdx, value]);
+//                        data.push([j, i, value]);
+
+                    }
+                    dataIdx++;
+
+                }
+                this.createHeatMap(data, cols, this.rowNames.reverse());
+
+            }
+            ,
+            createHeatMap: function (data, cols, rows) {
+                //data = data.slice(0,10)
+                //rows = rows.slice(0,10)
+//                var height = rows.length * 15;
+                var height = 200;
+                height = height + rows.length * 15;
+//                if (height < 800) {
+//                    height = 800;
+//                }
+                var width = cols.length * 15;
+                if (width < 500) {
+                    width = 500;
+                }
+                var heatMap = new Highcharts.Chart({
+                    chart: {
+                        renderTo: this.shadowRoot.querySelector("#heatMap"),
+                        type: 'heatmap',
+                        //  marginTop: 100,
+                        //marginBottom: 40,
+                        // height: 800,
+                        // width:400
+                        height: height,
+                        width: width
+                    },
+                    title: {
+                        text: 'Heat Map'
+                    },
+
+                    xAxis: {
+                        categories: cols,
+                        opposite: true,
+                        labels: {
+                            rotation: -90
+                        }
+
+                    },
+                    yAxis: {
+                        categories: rows
+
+                    },
+                    colorAxis: {
+//                        stops: [
+//                            [min, '#0000ff'],
+//                            [mean, '#ffffff'],
+//                            [max, '#ff0000']
+//                        ]
+                        minColor: '#0000ff',
+                        maxColor: '#ff0000',
+                        stops: [
+                            [0, '#0000ff'],
+                            [0.5, '#ffffff'],
+                            [1, '#ff0000']
+                        ],
+                        min: 0,
+                        max: 1
+
+                    },
+                    exporting: {
+                        buttons: {
+                            contextButton: {
+                                text: 'Download'
+                            }
+                        }
+                    },
+                    plotOptions: {
+                        heatmap: {
+                            turboThreshold: data.length + 1
+                        }
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return  '<b>Row:</b> ' + this.series.yAxis.categories[this.point.y] + '<br><b>' +
+                                    '<b>Column:</b> ' + this.series.xAxis.categories[this.point.x] + '<br><b>' +
+                                    '<b>Value:</b> ' + this.point.value + '<b>';
+                        }
+                    },
+
+                    series: [{
+                        name: 'DATA',
+                        borderWidth: 1,
+                        borderWidth: 1,
+                        data: data
+                    }]
+
+                });
+
+            }
+        })
+    </script>
+</polymer-element>
+

@@ -1,0 +1,545 @@
+<polymer-element name="jso-nv-layout" attributes="backgroundColor mode zoom scale tx ty">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+        </style>
+        <div id="svgDiv" style="height:100%;width:100%;">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 id="svg"
+                 _on-wheel="{{handleWheel}}"
+                 _on-mousedown="{{mouseDownHandler}}"
+                 _on-mouseup="{{mouseUpHandler}}"
+                 _on-contextmenu="{{mouseContextMenuHandler}}"
+                 width="100%" height="100%">
+                <rect id="backgroundColor" width="100%" height="100%" _fill="{{backgroundColor}}" x="0" y="0"></rect>
+                <svg id="drawArea">
+                    <svg id="backSvg" x="0" y="0">
+                        <g id="scaleBackGroup" _transform="translate({{tx}},{{ty}}) scale({{scale}})"></g>
+                    </svg>
+                    <svg id="frontSvg" x="0" y="0">
+                        <line id="linkHelp" x1="0" y1="0" x2="0" y2="0" stroke="slategray" opacity="1" stroke-width="2"
+                              cursor="pointer"></line>
+                        <rect id="selectHelp" x="0" y="0" width="0" height="0" stroke-width="2" stroke="#ff6500"
+                              opacity="0.5"
+                              fill="#fff0e7"></rect>
+
+                        <g id="scaleFrontGroup" font-family="Ubuntu Mono"
+                           _transform="translate({{tx}},{{ty}}) scale({{scale}})">
+                        </g>
+                    </svg>
+                </svg>
+            </svg>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.scale = 1;
+                this.x = 0;
+                this.y = 0;
+                this.tx = 0;
+                this.ty = 0;
+                this.moveHandlers = [];
+                this.mode;
+            },
+            ready: function () {
+
+            },
+            removeDom: function () {
+                this.$.frontSvg.removeChild(this.$.scaleFrontGroup);
+            },
+            appendDom: function () {
+                this.$.frontSvg.appendChild(this.$.scaleFrontGroup);
+                this.zoomChanged();
+            },
+            clean: function () {
+                this.tx = 0;
+                this.ty = 0;
+                this.x = 0;
+                this.y = 0;
+
+                while (this.$.scaleFrontGroup.firstChild) {
+                    this.$.scaleFrontGroup.removeChild(this.$.scaleFrontGroup.firstChild);
+                }
+                while (this.$.scaleBackGroup.firstChild) {
+                    this.$.scaleBackGroup.removeChild(this.$.scaleBackGroup.firstChild);
+                }
+            },
+            handleWheel: function (e) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    this.zoom = Math.min(100, this.zoom + 2);
+                } else {
+                    this.zoom = Math.max(0, this.zoom - 2);
+                }
+            },
+            modeChanged: function (oldValue, newValue) {
+//                this.$.svg.setAttribute("cursor", "url(data:image/png;base64,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), auto");
+                switch (newValue) {
+                    case "add":
+                        break;
+                    case "join":
+//                this.svg.setAttribute("cursor", "url(data:image/png;base64,), auto");
+                        break;
+
+                    case "delete":
+//                this.svg.setAttribute("cursor", "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA85JREFUWMPVlV1IpFUYx//ved/R+Z7WprUmddZGiZgN1rwoiCiXLIhi79o+2LK6aIyl9SOdIBCEMFrLFgKjC8WuZAO1K/Gi3KgsWVkEeQ1CSFv3dWYKJ9cdnXfnec55u1g2+sR1m1F6Ls+B5//j//zPc4D9rrm5uZ791BdSyt6ZmZnefQNgZoTD4Z7p6em398sB1NTUoLKy8q3Jycl39sUBAIhEIohEIm9OTEyc3nMAKSWklKiurkZVVVXX6Ojo6T0FUEqBmVEoFBCNRhGNRruGh4ff33MAIoJt26itrUUsFusYHBw8s2cA18eglAIAxGIx1NfXnxoYGPiw5ACGYcAwDOi6Dl3XMT4+vjU2NnZhYWGhQEQn+/r6SgYhiAiWZWFqaupqNpuFz+cDM3uZ+cnOzs7yZDKpEVF3T0+PpxQA2sjIiMPMaWY+xsxnm5ubD6XTaczOzn6STCZb9iID55n5/kQicZ6Z203TRENDA4joRG9vb6jkAET0SCKRuAgAbW1tny0tLaUzmQwaGxsFM7eXHKC1tTX/xwMi6p6fn0ddXR2YuaOrq6uspAB/PWDmswsLC6mhoaELzPxBf39/YbdN7ZZXvDccwt02d95IRgH4tffeXfxH8RdfjjtMjyried+no1/t2oEdxXV9xRHClKc64n8Tf+GlOIQwRSBwRhG9tvnUsXuKBnBdHOXlgNsNCGFS68nfIfInWuLQNFP3+1AWDsMVDB5XBXose7RZFGUETme321FqCx6P0AIBqM1NqI0NKDt/WBFDE8IUwQBcwRBs6xKuptJSEXkqzn1ORcuAfL3d7UiZ0zweXQRDkJc3wL9m4RBDDwTgCgVhX7Jgp9PSYfJXnPvCLnoI6dVWt2KZE16vbhy4BZAKUApQErZlwU5nrol/OW3f1DPcqVwff2Q7RH5aX1cgCaysAMvLgJSwU2mlqHDD4jcFAACKKKZpEJAMEAHMADM0XQhVoNh/WkQ71fYzz8ehwdQ9XoAJiESAyB0AM8pDIeiGbqaP3BcvySLaOv5cXBOaaXh9cAWDyKfWYGcyUhFp7gMVwhe5HdupNLbX1lC4kjt85w/fLxbNga2nn41rmmYaHi9cAR/y1rW0qwL5HSLflmXJKz8uwxu+FZ5wGEaZy1w9dNeOThi7mPtB4TIARyFvpZD/OSMdYn/4269tAEjde8Sfs6ycUyjoLp8PmhBwpDwIYLFoI9h4/Ikm4XJN0+ZlpYh9t333zZ/SbtXf7XakzJUFArqdzR6tWf3pXNG/z/WHHm765YEH3f92vxqtdV+sqmnC/6V+A4wb/YzHvgVzAAAAAElFTkSuQmCC), auto");
+                        break;
+                    case "selectbackground":
+                        this.$.backSvg.parentNode.appendChild(this.$.backSvg);
+                        break;
+                    case "select":
+                        this.$.frontSvg.parentNode.appendChild(this.$.frontSvg);
+                        break;
+                    case "move":
+                        this.$.frontSvg.parentNode.appendChild(this.$.frontSvg);
+                        break;
+                    default:
+                        break;
+                }
+            },
+            zoomChanged: function (oldValue, newValue) {
+                this.scale = (this.zoom == 0) ? 0.03 : (this.zoom / 25);
+                var clientRect = this.$.svg.getBoundingClientRect();
+                var centerX = clientRect.width / 2;
+                var centerY = clientRect.height / 2;
+                this.tx = this.x + (-centerX * (this.scale - 1));
+                this.ty = this.y + (-centerY * (this.scale - 1));
+            },
+            mouseDownHandler: function (e) {
+                switch (e.which) {
+                    case 1: //left click
+                        if (e.shiftKey == true && e.ctrlKey == true) {
+                            this._handleDownMoveCanvas(e);
+                        } else {
+                            this.leftMouseDown(e);
+                        }
+                        break;
+                    case 2: //middle click
+                        this.middleMouseDown(e);
+                        break;
+                    case 3: //right click
+                        break;
+                }
+            },
+            mouseUpHandler: function (e) {
+                switch (e.which) {
+                    case 1: //left click
+                        if (e.shiftKey == true && e.ctrlKey == true) {
+                            this._handleUp(e);
+                        } else {
+                            this.leftMouseUp(e);
+                        }
+                        break;
+                    case 2: //middle click
+                        this.middleMouseUp(e);
+                        break;
+                    case 3: //right click
+                        break;
+                }
+            },
+            mouseContextMenuHandler: function (e) {
+                e.preventDefault();
+                switch (e.which) {
+                    case 3: //right click
+                        this.contextMenu(e);
+                        break;
+                }
+            },
+            leftMouseDown: function (e) {
+                var me = this;
+                var targetEl = e.target;
+                var targetElNetworkType = targetEl.getAttribute('network-type');
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
+                switch (this.mode) {
+                    case "add":
+                        /* event coordinates */
+                        if (targetElNetworkType !== 'vertex' && targetElNetworkType !== 'vertex-label') {
+                            this.fire('createvertex', {x: downX, y: downY});
+                        }
+                        break;
+                    case "move":
+                        switch (targetElNetworkType) {
+                            case 'vertex':
+                            case 'vertex-label':
+                                this._handleDownSelectVertex(e);
+                                break;
+                            case 'edge':
+                            case 'edge-label':
+                                break;
+                            default:
+                                this._handleDownMoveCanvas(e);
+                        }
+                        break;
+                    case "select":
+                        switch (targetElNetworkType) {
+                            case 'vertex':
+                            case 'vertex-label':
+                                this._handleDownSelectVertex(e);
+                                break;
+                            case 'edge':
+                            case 'edge-label':
+                                this._handleDownSelectEdge(e);
+                                break;
+                            default:
+                                this.selectArea = true;
+                                /* background clicked */
+                                var lastX = 0, lastY = 0;
+                                var handler = function (moveEvent) {
+                                    moveEvent.preventDefault();
+                                    var moveX = moveEvent.clientX - br.left;
+                                    var moveY = moveEvent.clientY - br.top;
+                                    var dispX = moveX - downX;
+                                    var dispY = moveY - downY;
+                                    var x = (dispX >= 0) ? downX : downX - Math.abs(dispX);
+                                    var y = (dispY >= 0) ? downY : downY - Math.abs(dispY);
+                                    // Update selectRect size and position
+                                    me.$.selectHelp.setAttribute('x', x);
+                                    me.$.selectHelp.setAttribute('y', y);
+                                    me.$.selectHelp.setAttribute('width', Math.abs(dispX));
+                                    me.$.selectHelp.setAttribute('height', Math.abs(dispY));
+                                };
+                                this.$.svg.addEventListener('mousemove', handler);
+                                this.moveHandlers.push(handler);
+                        }
+                        break;
+                    case "join":
+                        /* vertex clicked */
+                        if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
+                            var vertexId = this.getVertexId(targetEl);
+                            // first time vertex click
+                            if (this.joinSourceVertex == null) {
+                                this.joinSourceVertex = vertexId;
+                                this.$.linkHelp.setAttribute('x1', downX);
+                                this.$.linkHelp.setAttribute('y1', downY);
+                                this.$.linkHelp.setAttribute('x2', downX);
+                                this.$.linkHelp.setAttribute('y2', downY);
+                                var handler = function (moveEvent) {
+                                    moveEvent.preventDefault();
+                                    var moveX = moveEvent.clientX - br.left;
+                                    var moveY = moveEvent.clientY - br.top;
+                                    me.$.linkHelp.setAttribute('x2', moveX);
+                                    me.$.linkHelp.setAttribute('y2', moveY);
+                                };
+                                this.$.svg.addEventListener('mousemove', handler);
+                                this.moveHandlers.push(handler);
+                                // second vertex click
+                            } else if (this.joinSourceVertex !== vertexId) {
+                                this.fire('createedge', {sourceId: this.joinSourceVertex, targetId: vertexId});
+                                this.joinSourceVertex = null;
+                            }
+                        }
+                        break;
+                    case "delete":
+                        if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
+                            var vertexId = this.getVertexId(targetEl);
+                            this.fire('removevertex', {vertexId: vertexId});
+                        }
+                        break;
+                    case "selectbackground":
+                        if (targetElNetworkType === 'background-image') {
+                            targetEl.parentNode.appendChild(targetEl);
+                            var lastX = downX;
+                            var lastY = downY;
+                            var handler = function (moveEvent) {
+                                moveEvent.preventDefault();
+                                var moveX = moveEvent.clientX - br.left;
+                                var moveY = moveEvent.clientY - br.top;
+                                var dispX = moveX - lastX;
+                                var dispY = moveY - lastY;
+
+                                dispX /= me.scale;
+                                dispY /= me.scale;
+
+                                var x = parseInt(targetEl.getAttribute('x'));
+                                var y = parseInt(targetEl.getAttribute('y'));
+
+                                x += dispX;
+                                y += dispY;
+
+                                targetEl.setAttribute('x', x);
+                                targetEl.setAttribute('y', y);
+
+                                lastX = moveX;
+                                lastY = moveY;
+                            };
+                            this.$.svg.addEventListener('mousemove', handler);
+                            this.moveHandlers.push(handler);
+                        }
+                        break;
+                }
+            },
+            leftMouseUp: function (event) {
+                this.style.cursor = "";
+                var me = this;
+                var targetEl = event.target;
+                var targetElNetworkType = targetEl.getAttribute('network-type');
+
+                switch (this.mode) {
+                    case "add":
+                        this._removeMouseMoveHandlers();
+                        break;
+                    case "move":
+                    case "select":
+                        if (this.selectArea && !event.ctrlKey) {
+                            var x = parseFloat(this.$.selectHelp.getAttribute('x'));
+                            var y = parseFloat(this.$.selectHelp.getAttribute('y'));
+                            var width = parseFloat(this.$.selectHelp.getAttribute('width'));
+                            var height = parseFloat(this.$.selectHelp.getAttribute('height'));
+
+                            this.fire('selectarea', {x: x, y: y, width: width, height: height});
+                            this.selectArea = false;
+                        } else {
+                            switch (targetElNetworkType) {
+                                case 'vertex':
+                                case 'vertex-label':
+                                    this._handleUpSelectVertex(event);
+                                    break;
+                                case 'edge':
+                                case 'edge-label':
+                                    this._handleUpSelectEdge(event);
+                                    break;
+                                default:
+                            }
+                        }
+                        this._removeMouseMoveHandlers();
+                        break;
+                    case "selectbackground":
+                        this._removeMouseMoveHandlers();
+                        break;
+                    case "join":
+                        if (!(targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label')) {
+                            this.joinSourceVertex = null;
+                        }
+                        if (this.joinSourceVertex == null) {
+                            this.$.linkHelp.setAttribute('x1', 0);
+                            this.$.linkHelp.setAttribute('y1', 0);
+                            this.$.linkHelp.setAttribute('x2', 0);
+                            this.$.linkHelp.setAttribute('y2', 0);
+                            this._removeMouseMoveHandlers();
+                        }
+                        break;
+                    case "delete":
+                        if (targetElNetworkType !== 'vertex') {
+
+                        }
+                        this._removeMouseMoveHandlers();
+                        break;
+                }
+                this.$.selectHelp.setAttribute('x', 0);
+                this.$.selectHelp.setAttribute('y', 0);
+                this.$.selectHelp.setAttribute('width', 0);
+                this.$.selectHelp.setAttribute('height', 0);
+            },
+            middleMouseDown: function (e) {
+                switch (this.mode) {
+                    case "add":
+                    case "move":
+                    case "join":
+                    case "delete":
+                    case "select":
+                    case "selectbackground":
+                        this._handleDownMoveCanvas(e);
+                        break;
+                    default:
+                }
+            },
+            middleMouseUp: function (e) {
+                switch (this.mode) {
+                    case "add":
+                    case "move":
+                    case "join":
+                    case "delete":
+                    case "select":
+                    case "selectbackground":
+                        this._handleUp(e);
+                        break;
+                    default:
+                }
+            },
+            contextMenu: function (e) {
+
+//        console.log('metaKey ' + event.metaKey);
+//        console.log('ctrlKey ' + event.ctrlKey);
+//        console.log('shiftKey ' + event.shiftKey);
+//        console.log('altKey ' + event.altKey);
+//        console.log(event);
+
+                var me = this;
+                var targetEl = e.target;
+                var targetElNetworkType = targetEl.getAttribute('network-type');
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
+                switch (this.mode) {
+                    case "add":
+                    case "move":
+                    case "join":
+                    case "delete":
+                    case "select":
+                        if (targetElNetworkType === 'vertex' || targetElNetworkType === 'vertex-label') {
+                            var vertexId = this.getVertexId(targetEl);
+                            this.fire('rightclickvertex', {vertexId: vertexId, x: downX, y: downY});
+                        }
+                        break;
+                    case "selectbackground":
+                        if (targetElNetworkType === 'background-image') {
+                            this.fire('rightclickbackgroundimage', {targetEl: targetEl, x: downX, y: downY});
+                        }
+                        break;
+                    default:
+                }
+            },
+            _removeMouseMoveHandlers: function () {
+                for (var i = 0; i < this.moveHandlers.length; i++) {
+                    this.$.svg.removeEventListener('mousemove', this.moveHandlers[i]);
+                }
+                this.moveHandlers = [];
+            },
+
+
+            /* NEW HANDLERS */
+            /**/
+            _handleUp: function (e) {
+                this.style.cursor = "";
+                this._removeMouseMoveHandlers();
+            },
+            _handleDownMoveCanvas: function (e) {
+                var me = this;
+                var targetEl = e.target;
+                var targetElNetworkType = targetEl.getAttribute('network-type');
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
+
+                this.style.cursor = "all-scroll";
+                var lastX = downX;
+                var lastY = downY;
+                var handler = function (moveEvent) {
+                    moveEvent.preventDefault();
+                    var moveX = moveEvent.clientX - br.left;
+                    var moveY = moveEvent.clientY - br.top;
+                    var dispX = moveX - lastX;
+                    var dispY = moveY - lastY;
+
+                    me.tx += dispX;
+                    me.ty += dispY;
+                    me.x += dispX;
+                    me.y += dispY;
+
+                    lastX = moveX;
+                    lastY = moveY;
+                };
+                this.$.svg.addEventListener('mousemove', handler);
+                this.moveHandlers.push(handler);
+            },
+
+            _handleDownSelectVertex: function (e) {
+                var me = this;
+                var targetEl = e.target;
+                var targetElNetworkType = targetEl.getAttribute('network-type');
+                var br = this.getBoundingClientRect();
+                var downX = e.clientX - br.left;
+                var downY = e.clientY - br.top;
+
+                var vertexId = this.getVertexId(targetEl);
+                this.fire('selectvertex', {vertexId: vertexId, addToSelection: e.ctrlKey});
+                var lastX = downX;
+                var lastY = downY;
+                var handler = function (moveEvent) {
+                    moveEvent.preventDefault();
+                    var moveX = moveEvent.clientX - br.left;
+                    var moveY = moveEvent.clientY - br.top;
+                    var dispX = moveX - lastX;
+                    var dispY = moveY - lastY;
+
+                    me.fire('moveselectedvertices', {dispX: dispX, dispY: dispY});
+
+                    lastX = moveX;
+                    lastY = moveY;
+                };
+                this.$.svg.addEventListener('mousemove', handler);
+                this.moveHandlers.push(handler);
+            },
+            _handleDownSelectEdge: function (e) {
+                var targetEl = e.target;
+                var edgeId = this.getEdgeId(targetEl);
+                var edgeId = this.getEdgeId(targetEl);
+                this.fire('selectedge', {edgeId: edgeId, addToSelection: e.ctrlKey});
+            },
+            _handleUpSelectVertex: function (e) {
+                var me = this;
+                var targetEl = e.target;
+
+                var vertexId = this.getVertexId(targetEl);
+                this.fire('leftclickvertex', {vertexId: vertexId});
+                this._handleUp();
+            },
+            _handleUpSelectEdge: function (e) {
+                var me = this;
+                var targetEl = e.target;
+
+                var edgeId = this.getEdgeId(targetEl);
+                this.fire('leftclickedge', {edgeId: edgeId});
+                this._handleUp();
+            },
+
+            /**/
+            /**/
+
+
+
+
+
+
+
+            getVertexId: function (targetEl) {
+                return targetEl.parentNode.getAttribute('id');
+            },
+            getEdgeId: function (targetEl) {
+                return targetEl.parentNode.getAttribute('id');
+            },
+            addBackgroundImage: function (image) {
+                SVG.addChildImage(this.$.scaleBackGroup, {
+                    "x": image.x,
+                    "y": image.y,
+                    "xlink:href": image.src,
+                    "width": image.width,
+                    "height": image.height,
+                    "network-type": "background-image"
+                });
+            },
+            addBackgroundImages: function (images) {
+                for (var i = 0, li = images.length; i < li; i++) {
+                    this.addBackgroundImage(images[i]);
+                }
+            },
+            getBackgroundImages: function () {
+                var images = [];
+                var imageElements = this.$.scaleBackGroup.querySelectorAll('image[network-type="background-image"]');
+                for (var i = 0; i < imageElements.length; i++) {
+                    images.push({
+                        src: imageElements[i].getAttribute('href'),
+                        width: imageElements[i].getAttribute('width'),
+                        height: imageElements[i].getAttribute('height'),
+                        x: imageElements[i].getAttribute('x'),
+                        y: imageElements[i].getAttribute('y')
+                    });
+                }
+                return images;
+            }
+        });
+    </script>
+</polymer-element>

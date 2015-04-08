@@ -72,6 +72,28 @@ Region.prototype = {
         }
     },
 
+    multiParse: function (str) {
+        if (_.isObject(str)) {
+            this.load(obj);
+        }
+        var pattern = /^([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+(,([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+)*$/;
+        var pattern2 = /^\[([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+(,([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+)*\]$/;
+
+        var withoutBrackets = str;
+        if (pattern2.test(str)) {
+            withoutBrackets = str.slice(1, str.length-1);
+        }
+
+        var regions = [];
+        if (pattern.test(withoutBrackets)) {
+            var splitRegions = withoutBrackets.split(",");
+            for ( var i = 0; i < splitRegions.length; i++) {
+                regions.push(new Region(splitRegions[i]));
+            }
+        }
+        return regions;
+    },
+
     center: function () {
         return this.start + Math.floor((this.length()) / 2);
     },

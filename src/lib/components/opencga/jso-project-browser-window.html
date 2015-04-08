@@ -1,0 +1,139 @@
+<polymer-element name="jso-project-browser-window"
+                 attributes="userData selectedProject selectedStudy studies selectionMode bioformat allowTextArea networkViewer">
+    <template>
+        <style>
+            :host {
+                position:relative;
+            }
+
+            .labelSelection {
+                margin-left: 10px;
+            }
+
+            jso-project-browser {
+                border: 1px solid #d3d3d3;
+                height: 500px;
+                font-size: 13px;
+            }
+
+        </style>
+        <link rel="stylesheet" href="../jso-style.css">
+
+
+        <template if="{{selectionMode == 'file' && allowTextArea}}">
+            <form horizontal layout style="margin-bottom:5px;">
+                <label class="control">
+                    <input type="radio" name="origin" value="server" on-change="{{handleOriginChange}}" checked>
+                    <span>File</span>
+                </label>
+
+                <label class="control">
+                    <input type="radio" name="origin" value="textarea" on-change="{{handleOriginChange}}">
+                    <span>Text area</span>
+                </label>
+
+                <template if="{{networkViewer}}">
+                    <label class="control">
+                        <input type="radio" name="origin" value="network" on-change="{{handleOriginChange}}">
+                        <span>Network</span>
+                    </label>
+                </template>
+            </form>
+        </template>
+
+
+        <template if="{{dataOrigin == 'server'}}">
+            <template if="{{selectionMode == 'file'}}">
+                <div style="color:#666;margin-bottom: 5px;">
+                    The files must be on the server to select them.<br>
+                    You can upload files using the button
+                    <font-awesome style="color:#445D76;font-size:16px;" icon="cloud-upload"></font-awesome>
+                    inside file browser.
+                </div>
+            </template>
+            <template if="{{selectionMode == 'folder'}}">
+                <div style="color:#666;margin-bottom: 5px;">
+                    You can create folders using the button
+                    <font-awesome style="color:#445D76;font-size:16px;" icon="folder-o"></font-awesome>
+                    +
+                    inside file browser.
+                </div>
+            </template>
+            <div horizontal layout>
+                <div class="button action" style="width:150px;" on-click="{{buttonHandler}}">File browser</div>
+                <div id="selection" style="line-height: 25px;" class="labelSelection"> {{selectedStudy.name}}/{{selectedFile.path}}</div>
+            </div>
+            <template if="{{ showBrowser }}">
+                <br>
+                <jso-project-browser
+                        id="jsoProjectBrowser"
+                        studies="{{studies}}"
+                        selectedProject="{{selectedProject}}"
+                        selectedStudy="{{selectedStudy}}"
+                        selectionMode="{{selectionMode}}"
+                        on-ok="{{selectHandler}}"
+                        bioformat="{{bioformat}}"
+                        on-cancel="{{handleCancel}}"
+
+                        >
+                </jso-project-browser>
+            </template>
+        </template>
+
+
+        <template if="{{dataOrigin == 'textarea'}}">
+            <template if="{{allowTextArea}}">
+                <label>You can paste your ids here:</label>
+
+                <div horizontal layout>
+                <textarea rows="10" cols="20" value="{{textAreaValue}}">
+                </textarea>
+                </div>
+            </template>
+        </template>
+
+        <template if="{{networkViewer}}">
+            <template if="{{dataOrigin == 'network'}}">
+                <template if="{{networkViewer}}">
+                    <div horizontal layout>
+                        <jso-network-list-select networkViewer="{{networkViewer}}"
+                                                 textAreaValue="{{textAreaValue}}"></jso-network-list-select>
+                    </div>
+                </template>
+            </template>
+        </template>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.allowTextArea = false;
+
+                this.dataOrigin = 'server';
+
+            },
+            ready: function () {
+                this.showBrowser = false;
+                this.textAreaValue = "";
+                //this.bioformat = "";
+            },
+            buttonHandler: function () {
+                //this.$.jsoProjectBrowser.hidden = !this.$.jsoProjectBrowser.hidden;
+                this.showBrowser = !this.showBrowser;
+            },
+            selectHandler: function (e) {
+//                console.log(this.shadowRoot.querySelector("#jsoProjectBrowser"))
+                this.showBrowser = false;
+                this.selectedFile = e.detail.file;
+            },
+            handleCancel: function (e) {
+                this.selectedFile = undefined;
+                this.showBrowser = false;
+            },
+            handleOriginChange: function (e) {
+                this.dataOrigin = e.target.value;
+                this.textAreaValue = "";
+            }
+        });
+    </script>
+</polymer-element>

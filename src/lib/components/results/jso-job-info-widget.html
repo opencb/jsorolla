@@ -1,0 +1,99 @@
+<polymer-element name="jso-job-info-widget" attributes="jobItem">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            .data {
+                margin-left: 20px;
+            }
+
+            .level-0 {
+                /*border: 1px solid grey;*/
+                padding: 20px;
+
+            }
+
+            .level-0 > .headerTitle {
+                font-size: 15pt;
+                font-weight: bold;
+                padding: 5px;
+            }
+
+            .message > label {
+                margin-right: 10px;
+            }
+
+            .message > label:after {
+                content: ':';
+            }
+
+            .message > .messageValue {
+                font-size: 9pt;
+                font-weight: bold;
+                font-style: italic;
+                color: #55f;
+                line-height: 21px;
+
+            }
+        </style>
+        <div class="level-0">
+            <div class="headerTitle">Job information</div>
+            <div class="data">
+
+                <div class="message" horizontal="" layout="">
+                    <label>Name </label>
+
+                    <div class="messageValue"> {{jobItem.name }}</div>
+                </div>
+                <div class="message" horizontal="" layout="">
+                    <label>Description </label>
+
+                    <div class="messageValue"> {{jobItem.description }}</div>
+                </div>
+                <div class="message" horizontal="" layout="">
+                    <label>Tool </label>
+
+                    <div class="messageValue"> {{jobItem.toolName }}</div>
+                </div>
+                <div class="message" horizontal="" layout="">
+                    <label>Output folder </label>
+
+                    <div class="messageValue"> {{jobItem.outDirPath }}</div>
+                </div>
+            </div>
+            <div class="children"></div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            jobItemChanged: function () {
+                this.getFileInfo(this.jobItem.outDirId);
+            },
+            getFileInfo: function (fileId) {
+                var me = this;
+                OpencgaManager.files.info({
+                    id: fileId,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.jobItem.outDirPath = STUDY_NAME+"/"+response.response[0].result[0].path;
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        })
+    </script>
+</polymer-element>
+

@@ -45,8 +45,68 @@ function FeatureTrack(args) {
     this.dataType = 'features';
 };
 
+
+FeatureTrack.prototype.clean = function () {
+    this._clean();
+
+//    console.time("-----------------------------------------empty");
+    while (this.svgCanvasFeatures.firstChild) {
+        this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
+    }
+//    console.timeEnd("-----------------------------------------empty");
+};
+
+FeatureTrack.prototype.updateHeight = function () {
+//    this._updateHeight();
+
+    if (this.histogram) {
+        $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
+        this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
+        return;
+    }
+
+    var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
+    this.main.setAttribute('height', renderedHeight);
+
+    if (this.resizable) {
+        if (this.autoHeight == false) {
+            $(this.contentDiv).css({'height': this.height});
+        } else if (this.autoHeight == true) {
+            var x = this.pixelPosition;
+            var width = this.width;
+            var lastContains = 0;
+            for (var i in this.renderedArea) {
+                if (this.renderedArea[i].contains({start: x, end: x + width })) {
+                    lastContains = i;
+                }
+            }
+            var visibleHeight = parseInt(lastContains) + 30;
+            $(this.contentDiv).css({'height': visibleHeight + 5});
+            this.main.setAttribute('height', visibleHeight);
+        }
+    }
+};
+
+FeatureTrack.prototype.initializeDom = function (targetId) {
+    this._initializeDom(targetId);
+
+    this.main = SVG.addChild(this.contentDiv, 'svg', {
+        'class': 'trackSvg',
+        'x': 0,
+        'y': 0,
+        'width': this.width
+    });
+    this.svgCanvasFeatures = SVG.addChild(this.main, 'svg', {
+        'class': 'features',
+        'x': -this.pixelPosition,
+        'width': this.svgCanvasWidth
+    });
+    this.updateHeight();
+};
+
 FeatureTrack.prototype.render = function (targetId) {
     var _this = this;
+
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -88,7 +148,7 @@ FeatureTrack.prototype.draw = function () {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
 
     this.updateHistogramParams();
-    this.cleanSvg();
+    this.clean();
 
     this.dataType = 'features';
     if (this.histogram) {
@@ -116,9 +176,9 @@ FeatureTrack.prototype.draw = function () {
             }
         });
 
-        this.invalidZoomText.setAttribute("visibility", "hidden");
+//        this.invalidZoomText.setAttribute("visibility", "hidden");
     } else {
-        this.invalidZoomText.setAttribute("visibility", "visible");
+//        this.invalidZoomText.setAttribute("visibility", "visible");
     }
     _this.updateHeight();
 };
@@ -187,7 +247,9 @@ FeatureTrack.prototype.move = function (disp) {
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
-
     }
 
+    if(this.autoHeight == true){
+        this.updateHeight();
+    }
 };

@@ -1,0 +1,277 @@
+<polymer-element name="jso-network-edit" extends="jso-window" attributes="networkViewer">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 630px;
+                height: 560px;
+            }
+
+            sortable-table {
+                border-width: 0;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+            }
+
+            #header[horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #header[horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            #left {
+                padding: 5px;
+                width: 180px;
+                border-right: 1px solid #d3d3d3;
+                box-sizing: border-box;
+            }
+
+            #left div {
+                margin-top: 3px;
+            }
+
+            /*#left div:first-child {*/
+            /*margin-top: 0px;*/
+            /*}*/
+
+            .tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
+            }
+
+            .table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 10px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager, .bar {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPager {
+                border-top: 1px solid #cccccc;
+            }
+
+            .bar {
+                border-bottom: 1px solid #cccccc;
+            }
+
+            .bar > div {
+                margin: 0 2px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 10px;
+                /*background-color: #c5c5c5;*/
+                background-color: #A9A9A9;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Edit Network</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" flex horizontal layout>
+                <div id="left" vertical layout>
+                    <div horizontal layout>
+                        <div flex class="button action"
+                             on-click="{{handleView}}"
+                             data-value="edge"
+                             data-checked="{{view == 'edge'}}">
+                            Edges
+                        </div>
+                        <div flex class="button action"
+                             on-click="{{handleView}}"
+                             data-value="node"
+                             data-checked="{{view == 'node'}}">
+                            Nodes
+                        </div>
+                    </div>
+
+                    <br>
+                    <template if="{{view == 'edge'}}">
+                        <label>New interaction:</label>
+
+                        <div>
+                            <input type="text" value="{{sourceId}}" placeholder="Source id">
+                        </div>
+                        <div>
+                            <input type="text" value="{{relation}}" placeholder="Relation">
+                        </div>
+                        <div>
+                            <input type="text" value="{{targetId}}" placeholder="Target id">
+                        </div>
+                        <div class="button action" on-click="{{handleAddEdge}}">
+                            Add
+                        </div>
+                        <div class="text">
+                            {{interactionMessage}}
+                        </div>
+                        <div style="margin-top:20px;" class="button action" on-click="{{handleDeleteEdges}}">
+                            Delete selected
+                        </div>
+
+                    </template>
+                    <template if="{{view == 'node'}}">
+                        <label>New node:</label>
+
+                        <div>
+                            <input type="text" value="{{nodeId}}" placeholder="Node id">
+                        </div>
+                        <div class="button action" on-click="{{handleAddNode}}">
+                            Add
+                        </div>
+                        <div style="margin-top:20px;" class="button action" on-click="{{handleDeleteNodes}}">
+                            Delete selected
+                        </div>
+                    </template>
+                </div>
+                <div flex vertical layout>
+                    <div class="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                        <sortable-table id="table" class="table" flex
+                                        data="{{view == 'edge' ? networkViewer.eAttr.data : networkViewer.vAttr.data }}"
+                                        columns="{{view == 'edge' ? edgeColumns : nodeColumns}}"
+                                        rowSelection="true"
+                                        multiselect="true"
+                                        selected="{{ view == 'edge' ? networkViewer.eAttr.selected : networkViewer.vAttr.selected }}"
+                                        page="{{page}}"
+                                        pageSize="{{pageSize}}">
+                            <template id="inputTemplate">
+                                <td class="edit">
+                                    <input type="text" value="{{row[column.name]}}" on-blur="{{cellEditFinished}}">
+                                </td>
+                            </template>
+                        </sortable-table>
+                        <div class="customPagerScroll"
+                             style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                    </div>
+                    <div class="customPager" horizontal layout>
+                        <div class="text">{{table.dataSize}} {{view}}{{table.dataSize != 1 ? 's' : ''}}</div>
+                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                            &lt;</div>
+                        <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                        <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                             on-click="{{moveToNextPage}}">&gt;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.selectedEdges = [];
+                this.selectedNodes = [];
+                this.view = 'edge';
+                this.page = 1;
+                this.defaultPageSize = 18;
+                this.pageSize = this.defaultPageSize;
+
+                this.selected = [];
+
+                this.edgeColumns = [{
+                    name: 'source',
+                    title: 'Source',
+                    formula: function (row) {
+                        return row.id.split('_')[0]
+                    }
+                }, {
+                    name: 'relation',
+                    title: 'Relation'
+                }, {
+                    name: 'target',
+                    title: 'Target',
+                    formula: function (row) {
+                        return row.id.split('_')[2]
+                    }
+                }];
+                this.nodeColumns = [{
+                    name: 'id',
+                    title: 'Id'
+                }];
+                this.sourceId = '';
+                this.relation = '';
+                this.targetId = '';
+                this.nodeId = '';
+
+                this.interactionMessage = '';
+                this.nodeMessage = '';
+            },
+            ready: function () {
+                var me = this;
+                this.table = this.$.table;
+                this.table.cellEditFinished = function (e) {
+                    var row = e.target.templateInstance.model.row;
+                    me.attributeManager._updateRow(row);
+                }
+            },
+            handleView: function (e) {
+                this.view = e.target.dataset.value;
+            },
+            handleAddEdge: function (e) {
+                if (this.sourceId != '' && this.relation != '' && this.targetId != '') {
+                    var sourceVertex = this.networkViewer.createVertex(null, null, this.sourceId);
+                    var targetVertex = this.networkViewer.createVertex(null, null, this.targetId);
+                    var edge = this.networkViewer.createEdge(sourceVertex, targetVertex, this.relation);
+                } else {
+                    this.interactionMessage = 'Please fill the fields';
+                }
+            },
+            handleDeleteEdges: function () {
+                this.networkViewer.removeSelectedEdges();
+            },
+            handleAddNode: function (e) {
+                if (this.nodeId != '') {
+                    var vertex = this.networkViewer.createVertex(0, 0, this.sourceId);
+                } else {
+                    this.interactionMessage = 'Please fill the fields';
+                }
+            },
+            handleDeleteNodes: function () {
+                this.networkViewer.removeSelectedVertices();
+            },
+            handleScroll: function (e) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
+            }
+        });
+    </script>
+</polymer-element>

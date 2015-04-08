@@ -1,0 +1,858 @@
+<link rel="import" href="jso-opencga-project.html">
+<link rel="import" href="jso-opencga-file-card.html">
+<link rel="import" href="jso-opencga-study.html">
+<link rel="import" href="jso-opencga-create-project.html">
+<link rel="import" href="jso-opencga-create-study.html">
+<!--<link rel="import" href="jso-opencga-create-analysis.html">-->
+<link rel="import" href="jso-opencga-create-folder.html">
+<link rel="import" href="jso-opencga-select-study.html">
+<link rel="import" href="jso-opencga-upload.html">
+<link rel="import" href="jso-file-info.html">
+
+
+<polymer-element name="jso-project-browser"
+                 attributes="userData selectedProject selectedStudy studies selectionMode bioformat">
+    <template>
+        <style>
+            :host {
+                position: relative;
+                display: block;
+                color: #444;
+                background-color: #ffffff;
+                font-size: 16px;
+                cursor: default;
+                /*box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);*/
+                /*box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.30);*/
+                box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
+            }
+
+            #bar {
+                box-sizing: border-box;
+                background-color: #FAFAFA;
+                height: 30px;
+                line-height: 30px;
+                border: 0px solid #d3d3d3;
+                border-bottom-width: 1px;
+            }
+
+            #topleftbar {
+                line-height: 21px;
+                padding: 4px;
+            }
+
+            #bottombar {
+                box-sizing: border-box;
+                background-color: #FAFAFA;
+                border: 0px solid #d3d3d3;
+                border-top-width: 1px;
+                font-size: 13px;
+                padding: 4px;
+                height: 32px;
+            }
+
+            #main {
+                position: relative;
+                height: calc(100% - 62px);
+                /*width: 100%;*/
+            }
+
+            #studiesList {
+                width: 150px;
+                height: 100%;
+                box-sizing: border-box;
+                overflow-y: auto;
+                border-right: 1px solid #d3d3d3;
+                background-color: #f5f5f5;
+            }
+
+            #foldersMain {
+                left: 150px;
+                height: 100%;
+                white-space: nowrap;
+                font-size: 0;
+                overflow-x: scroll;
+            }
+
+            #fileinfo {
+                width: 15%;
+                height: 100%;
+                box-sizing: border-box;
+                border-left: 1px solid #d3d3d3;
+                background-color: #f5f5f5;
+                word-wrap: break-word;
+            }
+
+            #foldersMain > jso-project-browser-folder-list {
+                display: inline-block;
+                margin: 0;
+            }
+
+            #navigation {
+                box-sizing: border-box;
+                width: 200px;
+                height: 100%;
+                border-right: 1px solid #d3d3d3;
+                background-color: #f5f5f5;
+            }
+
+            .navigation-title {
+                box-sizing: border-box;
+                text-transform: uppercase;
+                font-weight: bold;
+                font-size: 12px;
+                color: #5f83a6;
+                padding: 5px 10px;
+            }
+
+            .navigation-item {
+                box-sizing: border-box;
+                color: #314559;
+                padding: 5px 20px;
+                user-select: none;
+                margin: 0 1px;
+            }
+
+            .navigation-item:hover {
+                background-color: #D1D9E3;
+            }
+
+            .navigation-item[data-selected=true] {
+                background-color: #445D76;
+                color: #ffffff;
+            }
+
+            #search {
+                margin: 2px 4px;
+                display: block;
+                outline: 0;
+                box-sizing: border-box;
+                border: 1px solid #ccc;
+                padding: 0px 5px;
+                color: #333;
+                background-color: #fff;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            }
+
+            #search:focus {
+                border-color: #66afe9;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            }
+
+            #searchIcon {
+                color: #666;
+                margin: 0px 5px;
+            }
+
+            #breadcrums {
+                color: #314559;
+                box-sizing: border-box;
+                padding-left: 20px;
+            }
+
+            #breadcrums > span:first-of-type {
+                text-transform: capitalize;
+            }
+
+            #breadcrums > span:not(:last-of-type)::after {
+                font-family: 'FontAwesome';
+                content: '\f105';
+                margin-left: 5px;
+                color: #888;
+            }
+
+        </style>
+        <div id="bar" horizontal layout>
+            <div flex id="breadcrums">
+                <template repeat="{{bread in breadcrums}}">
+                    <span>{{bread}}</span>
+                </template>
+            </div>
+            <div id="topleftbar">
+                <div class="button action" data-checked="{{showInfo}}" on-click="{{handleShowInfo}}">
+                    <font-awesome icon="info"></font-awesome>
+                </div>
+            </div>
+            <div id="fileActions" horizontal layout>
+
+            </div>
+            <div>
+            </div>
+        </div>
+
+        <div id="main" horizontal layout>
+            <div id="studiesList">
+                <div class="navigation-title">Studies</div>
+                <template repeat="{{study in studies}}">
+                    <jso-opencga-study-card
+                            class="navigation-item" study="{{study}}" data-selected="{{selectedStudy == study}}"
+                            on-click="{{handleStudyClick}}">
+                    </jso-opencga-study-card>
+                </template>
+            </div>
+            <div flex id="foldersMain">
+            </div>
+            <template if="{{ showInfo == true }}">
+                <div id="fileinfo">
+                    <jso-file-info file="{{selectedFile}}"></jso-file-info>
+                </div>
+            </template>
+
+        </div>
+        <div id="bottombar" horizontal layout>
+            <template if="{{selectionMode != ''}}">
+                <div flex horizontal layout>
+                    <div flex horizontal layout style="text-overflow: ellipsis">
+                        <template if="{{bioformat != ''}}">
+                            <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Data-types">
+                                <font-awesome icon="question-circle"></font-awesome>
+                            </a>
+
+                            <div class="text">Accepted bioformats:{{bioformatText}}</div>
+                        </template>
+                    </div>
+                    <div horizontal layout end-justified>
+                        <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
+                        <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.userData;
+                this.selectedOption;
+                this.selectedOptionText;
+
+                this.selectedStudy;
+                this.selectedOption = 'browse';
+
+                this.breadcrums = [];
+
+                this.selectedFile;
+                this.selectionMode = '';
+                this.bioformat = "";
+                this.bioformatText = ""
+
+                this.showInfo = true;
+            },
+            bioformatChanged: function (oldV, newV) {
+                this.bioformatText = this.bioformat.replace(/_/g, '>');
+            },
+            ready: function () {
+            },
+            attached: function (oldValue, newValue) {
+                if (this.studies) {
+                    this.selectStudy(this.studies[0]);
+                }
+            },
+            studiesChanged: function (oldValue, newValue) {
+                if (this.selectedStudy.id !== this.studies[0].id) {
+                    this.selectStudy(this.studies[0]);
+                }
+            },
+            handleStudyClick: function (e) {
+                this.selectStudy(e.target.study);
+            },
+            selectStudy: function (study) {
+                this.selectedStudy = study;
+                this.getFilesInStudyFolder(this.selectedStudy.id);
+            },
+            getFilesInStudyFolder: function (studyId) {
+                var studyFolder = this._getStudyFolder(studyId);
+                this.selectedFile = studyFolder;
+                this.fire('file-select', {file: this.selectedFile});
+
+                this.breadcrums = [this.selectedStudy.name];
+                this._cleanAllFolderLists();
+//                this.breadcrums.push(studyFolder.name);
+
+                var files = this._getFilesInFolder(studyFolder);
+                var folderListElement = this._createFolderListElement(studyFolder, files);
+
+                this.$.foldersMain.appendChild(folderListElement);
+                this.$.foldersMain.scrollLeft = this.$.foldersMain.scrollWidth;
+            },
+            _getStudyFolder: function (studyId) {
+                var me = this;
+                this.message = '';
+                var folder;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: studyId,
+                        name: '.'
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return folder;
+            },
+            selectFileInFolder: function (e) {
+                var file = e.detail.file;
+                this.selectedFile = file;
+                this.fire('file-select', {file: this.selectedFile});
+
+                this.breadcrums = [this.selectedStudy.name];
+                var elsToRemove = this._cleanSiblingFolderLists(e.target);
+                this.breadcrums.push(file.name);
+
+                for (var i = 0; i < elsToRemove.length; i++) {
+                    this.$.foldersMain.removeChild(elsToRemove[i]);
+                }
+
+                if (file.type == "FOLDER") {
+                    var files = this._getFilesInFolder(file);
+                    var folderListElement = this._createFolderListElement(file, files);
+                    this.$.foldersMain.appendChild(folderListElement);
+                }
+
+                this.$.foldersMain.scrollLeft = this.$.foldersMain.scrollWidth;
+            },
+            _getFilesInFolder: function (folder) {
+                var me = this;
+                var files;
+                OpencgaManager.files.list({
+                    id: folder.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: this.selectedStudy.id
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                files = me.filterFiles(response.response[0].result);
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return files
+            },
+            _createFolderListElement: function (file, files) {
+                var me = this;
+                var el = document.createElement('jso-project-browser-folder-list');
+                el.classList.add('folderList');
+                el.files = files;
+                el.folder = file;
+                el.study = this.selectedStudy;
+                el.bioformat = this.bioformat;
+                el.selectionMode = this.selectionMode;
+                el.selectedFile = this.selectedFile;
+                el.addEventListener('file-click', function (e) {
+                    me.selectFileInFolder(e);
+                });
+                return el;
+            },
+            filterFiles: function (files) {
+                files.sort(function (a, b) {
+                    return b.creationDate.localeCompare(a.creationDate);
+                });
+                var filesFiltered = [];
+
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    if (file.status != "DELETED" && file.status != "DELETING" && file.name.charAt(0) !== ".") {
+                        if (this.selectionMode == 'folder') {
+                            if (file.type == "FOLDER") {
+                                filesFiltered.push(file);
+                            }
+                        } else if (this.selectionMode === 'file' || this.selectionMode === '') {
+                            if (this.bioformat !== "") {
+//                                if (file.bioformat === "NONE") {
+//                                    filesFiltered.push(file);
+//
+//                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                    filesFiltered.push(file);
+//                                }
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+                                    filesFiltered.push(file);
+                                }
+                            } else {
+                                filesFiltered.push(file);
+                            }
+                        }
+                    }
+                }
+                return filesFiltered;
+            },
+            _cleanSiblingFolderLists: function (element) {
+                var elsToRemove = [];
+                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list');
+                var found = false;
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    if (found) {
+                        elsToRemove.push(el);
+                    } else {
+                        if (el.classList.contains('folderList') && el.folder.name !== '.') {
+                            this.breadcrums.push(el.folder.name);
+                        }
+                    }
+                    if (el == element) {
+                        found = true;
+                    }
+                }
+                return elsToRemove;
+            },
+            _cleanAllFolderLists: function () {
+                var els = this.$.foldersMain.querySelectorAll('jso-project-browser-folder-list.folderList');
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    this.$.foldersMain.removeChild(el);
+                }
+            },
+            handleShowInfo: function (e) {
+                this.showInfo = !this.showInfo;
+            },
+            handleOk: function (e) {
+                switch (this.selectionMode) {
+                    case 'file':
+                    case 'folder':
+                        if (this.selectionMode.toUpperCase() == this.selectedFile.type) {
+                            this.fire("ok", {file: this.selectedFile});
+                        }
+                        break;
+                    default:
+                        this.fire("ok", {file: this.selectedFile});
+                }
+            },
+            handleCancel: function () {
+                this.selectedFile = undefined;
+                this.fire("cancel");
+            },
+
+            /** --------- **/
+            checkNavigtationSelected: function () {
+                return e.target.dataset['content'] === this.selectedNavigation;
+            },
+            handleNavigationClick: function (e) {
+                var option = e.target.dataset['content'];
+                if (option) {
+                    this.selectedOption = option;
+                    this.selectedOptionText = e.target.innerText.trim();
+                }
+            },
+            handleProjectClick: function (e) {
+                if (this.selectedProject === e.target.project) {
+                    this.selectedProject = null;
+                } else {
+                    this.selectedProject = e.target.project;
+                }
+                this.selectedStudy = null;
+            },
+            handleModifyBioformat: function (e) {
+                if (this.shadowRoot.querySelector("#uploadBioformat").getSelected() == "") {
+                    alert("No bioformat selected. Please select a bioformat");
+                    return;
+                }
+                var me = this;
+                OpencgaManager.files.modify({
+                    id: this.selectedFile.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        bioformat: this.shadowRoot.querySelector("#uploadBioformat").getSelected()
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            },
+            userDataChanged: function (oldValue, newValue) {
+//            this.selectedProject = this.userData.projects[0]
+//            if (newValue) {!=
+//                var projects = newValue.projects;
+//                if (this.selectedProject) {
+//                    for (var i = 0; i < projects.length; i++) {
+//                        var project = projects[i];
+//                        if (this.selectedProject.id === project.id) {
+//                            this.selectedProject = project;
+//                            break;
+//                        }
+//                    }
+//                }
+//                if (this.selectedStudy) {
+//                    for (var i = 0; i < this.selectedProject.studies.length; i++) {
+//                        var study = this.selectedProject.studies[i];
+//                        if (this.selectedStudy.id === study.id) {
+//                            this.selectedStudy = study;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat selectionMode selectedFile">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                width: 200px;
+                height: 100%;
+                border: 0px solid #d3d3d3;
+                border-right-width: 1px;
+                font-size: 13px;
+            }
+
+            jso-opencga-file-card:hover {
+                background-color: #eaeaea;
+            }
+
+            jso-opencga-file-card[selected] {
+                background-color: #D1D9E3;
+            }
+
+            .bar {
+                box-sizing: border-box;
+                height: 30px;
+                background-color: #fafafa;
+                border-bottom: 1px solid #d3d3d3;
+                padding: 3px;
+            }
+
+            .bar > * {
+                margin-left: 3px;
+            }
+
+            .foot {
+                box-sizing: border-box;
+                height: 25px;
+                line-height: 25px;
+                background-color: #fafafa;
+                border-top: 1px solid #d3d3d3;
+                padding: 0 4px;
+            }
+
+            .list {
+                box-sizing: border-box;
+                overflow-y: auto;
+                height: calc(100% - 55px);
+                /*padding: 2px;*/
+            }
+
+            jso-opencga-create-folder, jso-opencga-upload {
+                box-sizing: border-box;
+                position: absolute;
+                padding: 5px 10px 10px 10px;
+                width: 100%;
+                top: 30px;
+                border-bottom: 1px solid #d3d3d3;
+            }
+
+            .upload {
+                color: #ab0000 !important;
+            }
+        </style>
+        <div class="bar" horizontal layout flex>
+            <div horizontal layout flex>
+                <template if="{{selectionMode != 'folder'}}">
+                    <div class="button action upload" on-click="{{handleUploadFile}}" data-checked="{{!hideUploadFile}}">
+                        <font-awesome icon="cloud-upload"></font-awesome>
+                        Upload
+                        <!--Upload-->
+                    </div>
+                </template>
+                <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
+                    <font-awesome icon="folder-o"></font-awesome>
+                    +
+                </div>
+                <!--<template if="{{ selectedFile != null }">-->
+                    <div class="button action" on-click="{{handleDeleteFile}}">
+                        <font-awesome icon="trash"></font-awesome>
+                    </div>
+                <!--</template>-->
+                <template if="{{ selectedFile != null && selectedFile.type == 'FILE' }}">
+                    <div class="button action" on-click="{{handleDownloadFile}}">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </template>
+                <template
+                        if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'VARIANT' }}">
+                    <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
+                        <font-awesome icon="cog"></font-awesome>
+                    </div>
+                </template>
+            </div>
+            <!--<input type="text" flex placeholder="filter">-->
+            <div>
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Upload-your-data">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+        </div>
+        <div class="list">
+            <core-list data="{{files}}" height="27" style="height:100%;">
+                <template>
+                    <jso-opencga-file-card selected?="{{selectedFile.id == model.id }}"
+                                           on-click="{{handleFileClick}}"
+                                           file="{{model}}">
+                    </jso-opencga-file-card>
+                </template>
+            </core-list>
+        </div>
+        <div class="foot">
+            {{files.length}} item{{files.length != 1 ? 's' : ''}}
+        </div>
+        <jso-opencga-create-folder
+                folder="{{folder}}"
+                study="{{study}}"
+                on-folder-created="{{handleFolderCreated}}"
+                hidden?="{{hideCreateFolder}}"></jso-opencga-create-folder>
+        <jso-opencga-upload
+                folder="{{folder}}"
+                study="{{study}}"
+                on-file-uploaded="{{handleFileUploaded}}"
+                hidden?="{{hideUploadFile}}"
+                bioformat="{{bioformat}}"></jso-opencga-upload>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.folder;
+                this.files;
+                this.selectedFile;
+                this.hideCreateFolder = true;
+                this.hideUploadFile = true;
+                this.bioformat = "";
+            },
+            handleFileClick: function (e) {
+                
+                if (this.selectedFile == null || e.target.file.id != this.selectedFile.id) {
+                    this.fire('file-click', {file: e.target.file});
+                }
+                this.selectedFile = e.target.file;
+            },
+            handleIndexFile: function (e) {
+                var me = this;
+
+
+                var fileId = this.selectedFile.id;
+                var fileName = this.selectedFile.name;
+                var currentFolder = this.folder;
+                var folderName = "." + fileName + "_" + Utils.randomString(3) + "_index";
+                var folderId;
+
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: currentFolder.path + folderName,
+                        studyId: me.study.id
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folderId = response.response[0].result[0].id;
+                            } else {
+//                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+
+                if (folderId != null) {
+
+                    OpencgaManager.files.index({
+                        id: fileId,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            outdir: folderId,
+                            storageEngine: "mongodb"
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+
+                                    console.log("index");
+                                    me.refreshFolder();
+
+                                } else {
+//                                me.message = response.response[0].errorMsg;
+                                }
+                            },
+                            error: function () {
+                                alert('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+
+
+            },
+            handleCreateFolder: function (e) {
+                this.hideCreateFolder = !this.hideCreateFolder;
+                this.hideUploadFile = true;
+            },
+            handleFolderCreated: function (e) {
+                this.refreshFolder();
+
+                this.hideCreateFolder = true;
+
+            },
+            handleUploadFile: function (e) {
+                this.hideUploadFile = !this.hideUploadFile;
+                this.hideCreateFolder = true;
+            },
+            handleFileUploaded: function (e) {
+                this.refreshFolder();
+                this.hideUploadFile = true;
+            },
+            handleDeleteFile: function () {
+                if(this.selectedFile.name == "."){
+                    alert("Sorry, you can't delete your workspace. ");
+                    return;
+                }
+                if (confirm('Delete file ' + this.selectedFile.name + '?')) {
+                    var me = this;
+                    OpencgaManager.files.delete({
+                        id: this.selectedFile.id,
+                        query: {
+                            sid: Cookies('bioinfo_sid')
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    console.log(response.response[0].warningMsg);
+                                    me.refreshFolder();
+                                } else {
+                                    console.log(response.response[0].errorMsg);
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+            },
+            handleDownloadFile: function () {
+
+                var url = OpencgaManager.files.download({
+                    id: this.selectedFile.id,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        url: true
+                    }
+                });
+                var link = document.createElement('a');
+                link.href = url;
+                link.download = this.selectedFile.name;
+                var event = new MouseEvent('click', {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true
+                });
+                link.dispatchEvent(event);
+
+//                console.log(xx)
+//                 var win = window.open(xx, '_blank');
+//                    win.focus();
+
+            },
+            refreshFolder: function () {
+                var me = this;
+                OpencgaManager.files.list({
+                    id: this.folder.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: this.study.id
+                    },
+                    request: {
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.files = me.filterFiles(response.response[0].result);
+                                me.files.sort(function (a, b) {
+                                    return b.creationDate.localeCompare(a.creationDate);
+                                });
+                                me.fire('file-click', {file: me.files[0]});
+                                me.selectedFile = me.files[0];
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            filterFiles: function (files) {
+                files.sort(function (a, b) {
+                    return b.creationDate.localeCompare(a.creationDate);
+                });
+                var filesFiltered = [];
+
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    if (file.status != "DELETED" && file.status != "DELETING" && file.name.charAt(0) !== ".") {
+                        if (this.selectionMode == 'folder') {
+                            if (file.type == "FOLDER") {
+                                filesFiltered.push(file);
+                            }
+                        } else if (this.selectionMode === 'file' || this.selectionMode === '') {
+                            if (this.bioformat !== "") {
+//                                if (file.bioformat === "NONE") {
+//                                    filesFiltered.push(file);
+//
+//                                } else if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+//                                    filesFiltered.push(file);
+//                                }
+                                if (file.type == "FOLDER" || this.bioformat.indexOf(file.bioformat) != -1) {
+                                    filesFiltered.push(file);
+                                }
+                            } else {
+                                filesFiltered.push(file);
+                            }
+                        }
+                    }
+                }
+                return filesFiltered;
+            }
+        });
+    </script>
+</polymer-element>
+

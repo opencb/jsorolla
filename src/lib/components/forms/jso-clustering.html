@@ -1,0 +1,349 @@
+<polymer-element name="jso-clustering" attributes="userData selectedOption selectedStudy studies args">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+            input[type="text"]:disabled {
+                background: #dddddd;
+            }
+        </style>
+        <div class="tooltitle">
+            <div>
+                Clustering
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Clustering">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"> fibroblasts k-means clustering</div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="fibroblasts.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select type of clustering: samples and/or genes</div>
+                <div class="formcontent">
+                    <label class="control">
+                        <input name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox"
+                               value="true" checked="checked" on-click="{{clusteringTypeClick}}">
+                        <span>Clustering of samples</span></label>
+                    <label class="control">
+                        <input name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true"
+                               on-click="{{clusteringTypeClick}}">
+                        <span>Clustering of genes</span></label>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select method</div>
+                <div class="formcontent">
+                    <div id="methodDiv" vertical layout>
+                        <label class="control">
+                            <input id="method_1" name="method" class="fc-radioitem" type="radio" value="upgma"
+                                   checked="checked" on-click="{{methodClick}}"> <span>UPGMA </span></label>
+                        <label class="control">
+                            <input id="method_2" name="method" class="fc-radioitem" type="radio" value="sota"
+                                   on-click="{{methodClick}}"><span> SOTA </span></label>
+                        <label class="control">
+                            <input id="method_3" name="method" class="fc-radioitem" type="radio" value="kmeans"
+                                   on-click="{{methodClick}}"> <span>K-means </span></label>
+                    </div>
+                    <label>Number of sample-clusters (k-value)</label>
+                    <input name="sample_kvalue" id="sample_kvalue" class="fc-int fc-text" type="text"
+                           value="{{sample_kvalue}}" disabled="true" style="width: 50px">
+                    <label>Number of gene-clusters (k-value)</label>
+                    <input name="gene_kvalue" id="gene_kvalue" class="fc-int fc-text" type="text"
+                           value="{{gene_kvalue}}" disabled="true" style="width: 50px">
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Select distance</div>
+                <div class="formcontent">
+                    <div id="distanceDiv" vertical layout>
+                        <label class="control">
+                            <input id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean"
+                                   checked="checked"><span>Euclidean (normal)</span></label>
+                        <label class="control">
+                            <input id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square">
+                            <span>Euclidean (square)</span></label>
+                        <label class="control">
+                            <input id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman">
+                            <span>Correlation coeff. (Spearman)</span></label>
+                        <label class="control">
+                            <input id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">
+                            <span>Pearson correlation coeff.</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "clustering";
+                this.list1UploadMsg = "Select file...";
+                this.description = "Job description..."
+                this.sample_kvalue = 5;
+                this.gene_kvalue = 15;
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            argsChanged: function () {
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = "Job name";
+                    this.description = "description";
+                    if (this.args.list1 !== undefined)
+                        this.$.inputFile.selectedFile = this.args.list1;
+                    if (this.args.inputFile !== undefined)
+                        this.$.inputFile.selectedFile = this.args.inputFile;
+
+                    if (this.args.sample_clustering !== undefined)
+                        this.$.sample_clustering.checked = true;
+                    else
+                        this.$.sample_clustering.checked = false;
+
+                    if (this.args.gene_clustering !== undefined)
+                        this.$.gene_clustering.checked = true;
+                    else
+                        this.$.gene_clustering.checked = false;
+
+
+                    var radios = this.shadowRoot.querySelectorAll('input[name="method"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.method)
+                            radio.checked = true;
+                    }
+                    var radios = this.shadowRoot.querySelectorAll('input[name="distance"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.distance)
+                            radio.checked = true;
+                    }
+                }
+
+            },
+
+            handleForm: function () {
+                this.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+                if (this.$.sample_clustering.checked == false && this.$.gene_clustering.checked == false) {
+                    alert("Sorry. Type of clustering should be chosen. Please choose one.");
+                    return;
+                }
+                if (!Utils.basicValidationForm(this)) {
+                    return;
+                }
+
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description,
+                    dataset: this.$.inputFile.selectedFile.id,
+                    method: this.$.methodDiv.querySelector('input[name="method"]:checked').value,
+                    distance: this.$.distanceDiv.querySelector('input[name="distance"]:checked').value
+                }
+                if (this.$.sample_clustering.checked) {
+                    query["sample-clustering"] = true;
+                }
+                if (this.$.gene_clustering.checked) {
+                    query["gene-clustering"] = true;
+                }
+
+                if (this.$.sample_kvalue.disabled == false) {
+                    if (isNaN(this.$.sample_kvalue.value)) {
+                        alert("Sorry. Sample k value is not a number. ");
+                        return;
+                    }
+                    query["sample-kvalue"] = this.$.sample_kvalue.value;
+                }
+                if (this.$.gene_kvalue.disabled == false) {
+                    if (isNaN(this.$.gene_kvalue.value)) {
+                        alert("Sorry. Gene k value is not a number. ");
+                        return;
+                    }
+                    query["gene-kvalue"] = this.$.gene_kvalue.value;
+                }
+
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "fibroblasts k-means clustering";
+                this.description = "Non-hierarchical clustering - K-means demo";
+                this.$.inputFile.selectedFile = {id: "example_fibroblasts.txt", path: "fibroblasts.txt", type: "FILE"};
+                this.$.sample_clustering.checked = true;
+                this.$.gene_clustering.checked = true;
+                this.$.gene_clustering.checked = true;
+                this.$.method_3.checked = true;
+                this.sample_kvalue = 5;
+                this.$.sample_kvalue.disabled = false;
+                this.gene_kvalue = 15;
+                this.$.gene_kvalue.disabled = false;
+                this.$.distance_2.checked = true;
+
+                var exampleFolder = "fibroblast_example";
+                this.createExampleFolder(exampleFolder);
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            methodClick: function (e) {
+
+                if (this.$.method_3.checked && this.$.sample_clustering.checked) {
+                    this.$.sample_kvalue.disabled = false;
+                }
+                else {
+                    this.$.sample_kvalue.disabled = true;
+                }
+                if (this.$.method_3.checked && this.$.gene_clustering.checked) {
+                    this.$.gene_kvalue.disabled = false;
+                }
+                else {
+                    this.$.gene_kvalue.disabled = true;
+                }
+            },
+            clusteringTypeClick: function (e) {
+                this.methodClick();
+            }
+
+        });
+    </script>
+</polymer-element>

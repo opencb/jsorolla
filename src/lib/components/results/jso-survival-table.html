@@ -1,0 +1,224 @@
+<polymer-element name="jso-survival-table" attributes="content contentDataset">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+
+        </style>
+        <sortable-table id="surv_table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+
+        </sortable-table>
+
+        <div id="heatMap"></div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.columns = [];
+                this.data = [];
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+                this.adjPvalue = 0.05;
+                this.genes = {};
+
+            },
+            contentChanged: function () {
+
+                var data = this.content.split("\n");
+
+                for (var i = 1; i < data.length; i++) {
+                    var line = data[i];
+                    if (line.indexOf("#NAMES") >= 0) {
+                        var splits = data[i].split("\t");
+                        for (var j = 0; j < splits.length; j++) {
+                            var elem = splits[j];
+                            this.columns.push(elem);
+                        }
+
+                    } else if (line.indexOf("#") < 0) {
+                        if (data[i].length > 0) {
+                            var localData = data[i].split("\t");
+                            var localArray = new Array();
+                            var addFeature = false;
+                            for (var z = 0; z < localData.length; z++) {
+                                var value = localData[z];
+                                if (isFinite(value))
+                                    value = Utils.formatNumber(value);
+                                if (z == 3 && value <= this.adjPvalue) {
+                                    addFeature = true;
+                                }
+
+                                localArray.push(value);
+                            }
+                            if (addFeature) {
+                                this.data.push(localArray);
+                                this.genes[localArray[0]] = true;
+                            }
+                        }
+                    }
+
+                }
+            },
+            /* contentDatasetChanged: function(){
+             var cols = [];
+             var dataAux = [];
+             var rows = [];
+             var dataIdx = 0;
+             var rawData = this.contentDataset.split("\n");
+
+             var prevLine = null;
+             var b = true;
+
+             for (var i = 0; i < rawData.length; i++) {
+             var line = rawData[i];
+             if(line=="")continue;
+             console.log(line)
+             if (line.indexOf("#") < 0) {
+             if (b) { // PrevLine == last line of the header
+             var splits = prevLine.split("\t");
+             for (var j = 1; j < splits.length; j++) {
+             cols.push(splits[j]);
+             }
+             b = false;
+             }
+             var lineData = line.split("\t");
+             rows.push(lineData[0]);
+             lineData = lineData.slice(1,lineData.length).map(Number);
+             dataAux = dataAux.concat(lineData);
+
+             }
+
+             prevLine = line;
+             }
+
+             var data = []
+             for(var i=0; i < cols.length; i++){
+             for(var j=0; j < rows.length; j++){
+
+             data.push([i,j,dataAux[i+j*cols.length]]);
+             }
+             }
+             this.createHeatMap(data,cols,rows)
+
+             },*/
+            contentDatasetChanged: function () {
+                var cols = [];
+                var data = [];
+                var rows = [];
+                var dataIdx = 1;
+                var rawData = this.contentDataset.split("\n");
+
+                var prevLine = null;
+                var b = true;
+                var numberRows = 0;
+                for (var i = 0; i < rawData.length; i++) {
+                    var line = rawData[i];
+                    if (line == "")continue;
+                    if (line.indexOf("#") < 0) {
+                        numberRows++;
+                    }
+                }
+                for (var i = 0; i < rawData.length; i++) {
+                    var line = rawData[i];
+                    if (line == "")continue;
+                    if (line.indexOf("#") < 0) {
+                        if (b) { // PrevLine == last line of the header
+                            var splits = prevLine.split("\t");
+                            for (var j = 1; j < splits.length; j++) {
+                                cols.push(splits[j]);
+                            }
+                            b = false;
+                        }
+                        var lineData = line.split("\t");
+                        rows.push(lineData[0]);
+                        lineData = lineData.slice(1, lineData.length).map(Number);
+                        var max = Math.max.apply(Math, lineData)
+                        var min = Math.min.apply(Math, lineData)
+                        for (var j = 0; j < lineData.length; j++) {
+                            var value = (lineData[j] - min) / (max - min);
+                            // value = lineData[j];
+                            data.push(
+                                    [j, numberRows - dataIdx, value]
+                            );
+
+                        }
+                        dataIdx++;
+
+                    }
+
+                    prevLine = line;
+                }
+                this.createHeatMap(data, cols, rows.reverse());
+
+            },
+            createHeatMap: function (data, cols, rows) {
+                //data = data.slice(0,10)
+                //rows = rows.slice(0,10)
+
+
+                var heatMap = new Highcharts.Chart({
+                    chart: {
+                        renderTo: this.$.heatMap,
+                        type: 'heatmap',
+                        //  marginTop: 100,
+                        //marginBottom: 40,
+                        // height: 800,
+                        // width:400
+                        height: rows.length * 15,
+                        width: cols.length * 15
+                    },
+                    title: {
+                        text: 'Heat Map'
+                    },
+
+                    xAxis: {
+                        categories: cols,
+                        opposite: true,
+                        labels: {
+                            rotation: -90
+                        }
+
+                    },
+                    yAxis: {
+                        categories: rows,
+
+                    },
+                    colorAxis: {
+//                        stops: [
+//                            [min, '#0000ff'],
+//                            [mean, '#ffffff'],
+//                            [max, '#ff0000']
+//                        ]
+                        minColor: '#0000ff',
+                        maxColor: '#ff0000',
+                        stops: [
+                            [0, '#0000ff'],
+                            [0.5, '#ffffff'],
+                            [1, '#ff0000']
+                        ]
+                    },
+                    plotOptions: {
+                        heatmap: {
+                            turboThreshold: data.length + 1
+                        }
+                    },
+                    series: [{
+                        name: 'DATA',
+                        borderWidth: 1,
+                        borderWidth: 1,
+                        data: data
+                    }]
+
+                });
+
+            },
+
+
+        })
+    </script>
+</polymer-element>
+

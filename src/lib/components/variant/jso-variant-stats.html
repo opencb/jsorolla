@@ -1,0 +1,77 @@
+<polymer-element name="jso-variant-stats" attributes="stats">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                background-color: white;
+            }
+
+            #gtCount{
+                width: 300px; 
+                height: 200px; 
+                margin: 0 auto
+            }
+        </style>
+
+        <div id="stats">
+            <div id="gtCount"></div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            stats: null,
+            created: function () {
+            },
+            ready: function () {
+            },
+            statsChanged: function (oldValue, newValue) {
+
+                var gts = [];
+                for (var key in newValue.genotypesCount) {
+                    gts.push([key, newValue.genotypesCount[key]]);
+                }
+
+                console.log(gts);
+
+                if (gts.length > 0) {
+                    var heatMap = new Highcharts.Chart({
+                        chart: {
+                            renderTo: this.$.gtCount,
+                            plotBackgroundColor: null,
+                            plotBorderWidth: null,
+                            plotShadow: false
+                        },
+                        title: {
+                            text: 'Genotype Count'
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                    style: {
+                                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                    }
+                                }
+                            }
+                        },
+                        series: [{
+                            type: 'pie',
+                            name: 'Count',
+                            data: gts
+                        }]
+                    });
+                }
+            }
+        });
+    </script>
+</polymer-element>

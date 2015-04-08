@@ -1,0 +1,429 @@
+<link rel="import" href="jso-bioformat.html">
+<polymer-element name="jso-opencga-upload" attributes="folder study bioformat">
+    <template>
+        <style>
+            :host {
+                display: block;
+                background-color: #f0f0f0;
+            }
+
+            .action {
+                margin-top: 5px;
+            }
+
+            .message {
+                margin-top: 5px;
+            }
+
+            .filetext {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .uploadbar {
+                margin-top: 5px;
+                position: relative;
+                height: 20px;
+                border: 1px solid #d3d3d3;
+                background-color: white;
+                line-height: 20px;
+            }
+
+            .uploadprogress {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                height: 100%;
+                width: 100%;
+                background-color: #eaeaea;
+                /*margin-top: 10px;*/
+            }
+
+            .uploadtext {
+                position: absolute;
+                text-align: center;
+                top: 0px;
+                left: 0px;
+                height: 100%;
+                width: 100%;
+            }
+
+            jso-bioformat {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+                height: 170px;
+            }
+        </style>
+
+        <form id="form" vertical layout>
+            <div>
+
+                <div flex horizontal layout>
+                    <div flex>
+                        <label>Select format: </label>
+                    </div>
+                    <div>
+                        <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Data-types">
+                            <font-awesome icon="question-circle"></font-awesome>
+                        </a>
+                    </div>
+
+
+                </div>
+
+
+                <jso-bioformat id="bioformat" bioformat="{{bioformat}}"></jso-bioformat>
+            </div>
+            <div hidden>
+                <label>Description:</label>
+                <input type="text" id="description" value="{{description}}" pattern="[a-zA-Z0-9\s]+">
+                <br>
+            </div>
+            <div class="button action filetext" on-click="{{handleBrowseClick}}" pattern="[a-zA-Z0-9_-]+">{{fileName}}</div>
+            <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}" disabled?="{{uploading}}">
+
+            <div class="button action" on-click="{{handleForm}}">Upload</div>
+        </form>
+        <div class="uploadbar" hidden?="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <!--<div id="progressBarId" style="width:{{percentProgress}}%;" class="uploadprogress"></div>-->
+            <div class="uploadtext">
+                <font-awesome icon="spinner" animation="spin"></font-awesome>
+                {{percentProgress}}% {{message}}
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.fileFormat = 'PLAIN';
+                this.bioformat = 'NONE';
+                this.initWC();
+            },
+            initWC: function () {
+                this.description = '';
+                this.fileName = 'Choose file...';
+                this.message = '';
+                this.uploading = false;
+                this.percentProgress = 0;
+            },
+            ready: function () {
+                var me = this;
+                var observer = new MutationObserver(function (mutations) {
+                    if (me.uploading == false && me.hidden == true) {
+                        me.initWC();
+                        me.$.form.reset();
+                    }
+                }.bind(this));
+                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
+            },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                if (this.uploading == false) {
+                    var inputFile = this.$.fileInput.files[0];
+                    this.fileName = inputFile.name
+                }
+            },
+            handleForm: function () {
+
+                if (this.fileName == "Choose file...") {
+                    alert("No file selected. Please select one.");
+                    return;
+                }
+                if (this.$.bioformat.getSelected() == "") {
+                    alert("No format selected. Please select a format");
+                    return;
+                }
+                if (!(/^([a-zA-Z0-9._-]+)$/.test(this.fileName))) {
+                    alert("Sorry, some characters in your input file are not allowed. We only permit letters, numbers, dash(- or _) and point(.).");
+                    return;
+                }
+
+                var me = this;
+                var bioformat = this.$.bioformat.getSelected();
+                var inputFile = this.$.fileInput.files[0];
+                var reader = new FileReader();
+                var fileType = inputFile.type;
+                reader.readAsBinaryString(inputFile.slice(0, 1024*1024));
+                reader.addEventListener("loadend", function () {
+                    var validatedBioformat = me.validateBioformat(this.result, fileType, bioformat);
+                    if (!validatedBioformat)
+                        return;
+
+                    OpencgaManager.files.filesByFolder({
+                        id: me.folder.id,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
+                        },
+                        request: {
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var filesList = response.response[0].result;
+                                    me.fileName = me.$.fileInput.files[0].name;
+                                    for (var i = 0; i < filesList.length; i++) {
+                                        var file = filesList[i];
+                                        if (file.name == me.fileName) {
+                                            me.fileName = me.fileName + Math.floor(Math.random() * (999 - 100 + 1));
+                                            alert("File already exists. It will be uploaded as " + me.fileName + ".");
+                                            break;
+                                        }
+                                    }
+                                    me.relativeFilePath = me.folder.path + me.fileName;
+                                    me.uploadFile();
+
+                                }
+                            },
+                            error: function () {
+                                me.message = 'Server error, try again later.';
+                            }
+                        }
+                    });
+                });
+            },
+            validateBioformat: function (content, fileType, bioformat) {
+                var lines = content.split("\n");
+                if (bioformat == "DATAMATRIX_EXPRESSION") {
+                    var msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
+                            "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+                    var header = "";
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        console.log(line)
+                        if (line.indexOf("#") == 0) {
+                            header = lines[i];
+                        } else
+                            break;
+
+                    }
+                    if (header.indexOf("#NAMES") != 0 || lines.length <= 1) {
+                        msg = "Sorry, wrong file format. All lines beginning with # are treated as commentaries. " +
+                        "The first one with #NAMES is mandatory. It seem that yours is not starting with #NAMES.\n" +
+                        "Please refer to the documentation:\n " +
+                        "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+                        alert(msg);
+                        return false;
+                    }
+                    if (lines.length <= 1) {
+                        msg = "Sorry, wrong file format. Please refer to the documentation:\n " +
+                        "It seems that your file is empty.\n" +
+                        "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+                        alert(msg);
+                        return false;
+                    }
+                    var rowNames = {};
+                    for (var i = 0; i < lines.length - 1; i++) {
+                        var line = lines[i];
+                        if (line.indexOf("#") == 0) {
+                            continue;
+                        }
+                        /** tab validation **/
+                        var fields = lines[i].split("\t")
+                        if (fields.length == 0) {
+                            alert(msg);
+                            return false;
+                        }
+
+                        /** Duplicates validation**/
+                        if (rowNames[fields[0]]) {
+                            var msg = "Sorry, wrong file format. You have duplicated rows. Please refer to the documentation:\n " +
+                                    "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+//                            alert(msg);
+//                            return false;
+                        }
+                        rowNames[fields[0]] = true;
+
+//                        /** format number validation **/
+//                        for (var j = 0; j < fields.length; i++) {
+//                            var field = fields[j];
+//                            if (field.split(".").length > 1) {
+//                                var msg = "Sorry, wrong file format. You have numbers with more that one stop(.).\n" +
+//                                        "A period/full stop (never a comma) is used as the decimal point (6.57, not 6,57)" +
+//                                        ". Please refer to the documentation:\n " +
+//                                        "https://github.com/babelomics/babelomics/wiki/data-matrix-expression";
+//                                alert(msg);
+//                                return false;
+//                            }
+//                        }
+                    }
+                }
+                else if (bioformat == "IDLIST_RANKED") {
+                    var msg = "Sorry, wrong file format. It seems you don't have two columns in your file." +
+                            "\n Please refer to the documentation for more information:\n " +
+                            "https://github.com/babelomics/babelomics/wiki/Ranked";
+
+                    for (var i = 0; i < lines.length - 1; i++) {
+                        if(lines[i].indexOf("#")==0 || lines[i] == "")
+                            continue;
+                        if (lines[i].indexOf("\t") < 0) {
+                            alert(msg);
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            },
+            uploadFile: function () {
+                var me = this;
+                this.message = '';
+                if (me.uploading == false && me.$.form.checkValidity() && me.folder && me.study) {
+                    me.uploading = true;
+                    me._upload(function (chunk, total) {
+                        me.percentProgress = Math.round((chunk.id / total) * 100);
+                        if (chunk.last) {
+                            me.percentProgress = 100;
+                            me.message = 'Done';
+                            me.uploading = false;
+                            me.fire('file-uploaded');
+                        }
+                        me.$.progressBar.setAttribute("style", "width:" + me.percentProgress + "%")
+
+                    });
+
+                }
+                // reader.result contains the contents of blob as a typed array
+            },
+            _upload: function (callbackProgress) {
+                var me = this;
+                var url = OpencgaManager.files.upload({
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        url: true
+                    }
+                });
+                var inputFile = this.$.fileInput.files[0];
+                var fileName = this.fileName;
+                var userId = Cookies("bioinfo_user");
+                var studyId = this.study.id;
+                var relativeFilePath = this.relativeFilePath;
+                var fileFormat = this.fileFormat;
+                var bioFormat = this.$.bioformat.getSelected();
+                var description = this.description;
+
+                var resume = true;
+                var resumeInfo = {};
+                var chunkMap = {};
+                var chunkId = 0;
+                var blob = inputFile;
+                var BYTES_PER_CHUNK = 2 * 1024 * 1024;
+                var SIZE = blob.size;
+                var NUM_CHUNKS = Math.max(Math.ceil(SIZE / BYTES_PER_CHUNK), 1);
+                var start;
+                var end;
+
+
+                var getResumeInfo = function (formData) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', url, false);//false = sync call
+                    xhr.send(formData);
+                    var response = JSON.parse(xhr.responseText);
+                    return response.response[0];
+                };
+                var checkChunk = function (id, size, resumeInfo) {
+                    if (typeof resumeInfo[id] === 'undefined') {
+                        return false;
+                    } else if (resumeInfo[id].size != size /*|| resumeInfo[id].hash != hash*/) {
+                        return false;
+                    }
+                    return true;
+                };
+                var processChunk = function (c) {
+                    var chunkBlob = blob.slice(c.start, c.end);
+
+                    if (checkChunk(c.id, chunkBlob.size, resumeInfo) == false) {
+                        var formData = new FormData();
+                        formData.append('chunk_content', chunkBlob);
+                        formData.append('chunk_id', c.id);
+                        formData.append('chunk_size', chunkBlob.size);
+                        /*formData.append('chunk_hash', hash);*/
+                        formData.append("filename", fileName);
+                        formData.append('userId', userId);
+                        formData.append('studyId', studyId);
+                        formData.append('relativeFilePath', relativeFilePath);
+                        /*formData.append('chunk_gzip', );*/
+                        if (c.last) {
+                            formData.append("last_chunk", true);
+                            formData.append("total_size", SIZE);
+                            formData.append("fileFormat", fileFormat);
+                            formData.append("bioFormat", bioFormat);
+                            formData.append("description", description);
+                        }
+                        uploadChunk(formData, c, function () {
+                            callbackProgress(c, NUM_CHUNKS);
+                            if (!c.last) {
+                                processChunk(chunkMap[(c.id + 1)]);
+                            } else {
+
+                            }
+                        });
+                    } else {
+                        callbackProgress(c, NUM_CHUNKS);
+                        if (!c.last) {
+                            processChunk(chunkMap[(c.id + 1)]);
+                        } else {
+
+                        }
+                    }
+
+                };
+                var uploadChunk = function (formData, chunk, callback) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', url, true);
+                    xhr.onprogress = function (e) {
+                        if (e.lengthComputable) {
+                            var value = parseFloat(Math.round((e.loaded / e.total) * 100));
+                            console.log(parseFloat(value) + '%');
+                        }
+                    };
+                    xhr.onloadend = function (e) {
+//                        console.log('All Done!');
+                        chunk.done = true;
+                        callback();
+                    };
+                    xhr.send(formData);
+                };
+
+                /**/
+                /**/
+
+                if (resume) {
+                    var resumeFormData = new FormData();
+                    resumeFormData.append('resume_upload', resume);
+                    resumeFormData.append('filename', fileName);
+                    resumeFormData.append('userId', userId);
+                    resumeFormData.append('studyId', studyId);
+                    resumeFormData.append('relativeFilePath', relativeFilePath);
+                    resumeInfo = getResumeInfo(resumeFormData);
+                }
+
+                start = 0;
+                end = BYTES_PER_CHUNK;
+                while (start < SIZE) {
+                    var last = false;
+                    if (chunkId == (NUM_CHUNKS - 1)) {
+                        last = true;
+                    }
+                    chunkMap[chunkId] = {
+                        id: chunkId,
+                        start: start,
+                        end: end,
+                        done: false,
+                        last: last
+                    };
+                    start = end;
+                    end = start + BYTES_PER_CHUNK;
+                    chunkId++;
+                }
+                processChunk(chunkMap[0]);
+
+            }
+        })
+        ;
+    </script>
+</polymer-element>

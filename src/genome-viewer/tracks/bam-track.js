@@ -58,6 +58,7 @@ BamTrack.prototype.render = function(targetId){
             _this.renderer = _this.defaultRenderer;
             features = _this._removeDisplayedChunks(event);
         }
+        debugger
         _this.renderer.render(features, {
             svgCanvasFeatures : _this.svgCanvasFeatures,
             featureTypes:_this.featureTypes,
@@ -190,8 +191,8 @@ BamTrack.prototype._removeDisplayedChunks = function(response){
         if(this.chunksDisplayed[chunks[i].chunkKey] != true){//check if any chunk is already displayed and skip it
 
             features = []; //initialize array, will contain features not drawn by other drawn chunks
-            for ( var j = 0, lenj =  chunks[i].value.reads.length; j < lenj; j++) {
-                feature = chunks[i].value.reads[j];
+            for ( var j = 0, lenj =  chunks[i].value.alignments.length; j < lenj; j++) {
+                feature = chunks[i].value.alignments[j];
                 var chrChunkCache = this.dataAdapter.cache[dataType];
 
                 //check if any feature has been already displayed by another chunk
@@ -210,7 +211,7 @@ BamTrack.prototype._removeDisplayedChunks = function(response){
                 }
             }
             this.chunksDisplayed[chunks[i].chunkKey]=true;
-            chunks[i].value.reads = features;//update features array
+            chunks[i].value.alignments = features;//update features array
             newChunks.push(chunks[i]);
         }
     }

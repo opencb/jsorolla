@@ -1,0 +1,314 @@
+<link rel="import" href="../lib/components/jso-color-picker.html">
+<polymer-element name="jso-nv-edition-bar" attributes="vAttr eAttr selectionColor">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                height: 32px;
+                padding: 4px 8px;
+                background-color: #FAFAFA;
+                border-bottom: 1px solid #D9D9D9;
+            }
+
+            #bar {
+                width: 900px;
+            }
+
+            /*:host > *, #vertexToolbar > *, #edgeToolbar > * {*/
+            /*float: left;*/
+            /*}*/
+
+            [hide=true] {
+                display: none !important;
+            }
+
+        </style>
+
+        <div id="bar" horizontal layout flex>
+            <div title="Show node controls" class="button" data-checked="{{selectedBar == 'vertex'}}" data-bar="vertex"
+                 on-click="{{handleSelectedBar}}" style="border-right: none">
+                Nodes
+            </div>
+            <div title="Show edge controls" class="button" data-checked="{{selectedBar == 'edge'}}" data-bar="edge" on-click="{{handleSelectedBar}}">
+                Edges
+            </div>
+            <div id="vertexToolbar" horizontal layout hide="{{selectedBar != 'vertex'}}">
+                <input hidden value="{{vertexNameField}}" id="vertexNameField" class="button" type="text" placeholder="name"
+                       on-keypress="{{handleVertexNameField}}"
+                       style="width: 70px; margin-left: 5px;">
+
+                <div title="Change the shape of the selected node(s)" class="dropdown" style="margin-left: 5px">
+                    <div tabindex="-1" id="vertexShapeButton" class="button">
+                        <font-awesome icon="star"></font-awesome>
+                    </div>
+                    <ul id="vertexShapeMenu">
+                        <li on-click="{{handleVertexShape}}" data-value="circle">Circle</li>
+                        <li on-click="{{handleVertexShape}}" data-value="square">Square</li>
+                        <li on-click="{{handleVertexShape}}" data-value="ellipse">Ellipse</li>
+                        <li on-click="{{handleVertexShape}}" data-value="rectangle">Rectangle</li>
+                    </ul>
+                </div>
+
+                <div title="Change the opacity of the selected node(s)" class="dropdown" style="margin-left: 5px">
+                    <div tabindex="-1" id="vertexOpacityButton" class="button">
+                        <font-awesome icon="adjust"></font-awesome>
+                    </div>
+                    <ul id="vertexOpacityMenu">
+                        <li on-click="{{handleVertexOpacity}}" data-value="1">None</li>
+                        <li on-click="{{handleVertexOpacity}}" data-value="0.75">Low</li>
+                        <li on-click="{{handleVertexOpacity}}" data-value="0.5">Medium</li>
+                        <li on-click="{{handleVertexOpacity}}" data-value="0.25">High</li>
+                        <li on-click="{{handleVertexOpacity}}" data-value="0">Invisible</li>
+                    </ul>
+                </div>
+
+                <div title="Change the size of the selected node(s)" class="dropdown" style="margin-left: 10px">
+                    <div tabindex="-1" id="vertexSizeButton" class="button" style="border-right: none">
+                        <font-awesome icon="circle"></font-awesome>
+                    </div>
+                    <ul id="vertexSizeMenu">
+                        <li on-click="{{handleVertexSize}}" data-value="10">10</li>
+                        <li on-click="{{handleVertexSize}}" data-value="20">20</li>
+                        <li on-click="{{handleVertexSize}}" data-value="30">30</li>
+                        <li on-click="{{handleVertexSize}}" data-value="40">40</li>
+                        <li on-click="{{handleVertexSize}}" data-value="50">50</li>
+                        <li on-click="{{handleVertexSize}}" data-value="60">60</li>
+                        <li on-click="{{handleVertexSize}}" data-value="70">70</li>
+                        <li on-click="{{handleVertexSize}}" data-value="80">80</li>
+                        <li on-click="{{handleVertexSize}}" data-value="90">90</li>
+                        <li on-click="{{handleVertexSize}}" data-value="100">100</li>
+                        <li on-click="{{handleVertexSize}}" data-value="120">120</li>
+                        <li on-click="{{handleVertexSize}}" data-value="140">140</li>
+                        <li on-click="{{handleVertexSize}}" data-value="160">160</li>
+                    </ul>
+                </div>
+                <input value="{{vertexSizeField}}" id="vertexSizeField" class="button" type="text"
+                       style="width: 50px;border-right-width:0">
+
+                <jso-color-picker ctitle="Change the color of the selected node(s)" id="vertexColorPicker" color="{{vertexColor}}"
+                                  on-color-click="{{handleVertexColor}}"
+                                  style="float:left;width:90px;"></jso-color-picker>
+
+                <div title="Change the stroke size of the selected node(s)" class="dropdown" style="margin-left: 10px">
+                    <div tabindex="-1" id="vertexStrokeSizeButton" class="button" style="border-right: none">
+                        <font-awesome icon="circle-o"></font-awesome>
+                    </div>
+                    <ul id="vertexStrokeSizeMenu">
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="1">1</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="2">2</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="3">3</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="4">4</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="5">5</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="6">6</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="7">7</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="8">8</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="9">9</li>
+                        <li on-click="{{handleVertexStrokeSize}}" data-value="10">10</li>
+                    </ul>
+                </div>
+                <input value="{{vertexStrokeSizeField}}" id="vertexStrokeSizeField" class="button" type="text"
+                       style="width: 50px;border-right-width:0">
+
+                <jso-color-picker ctitle="Change the stroke color of the selected node(s)" id="vertexStrokeColorPicker" color="{{vertexStrokeColor}}"
+                                  on-color-click="{{handleVertexStrokeColor}}"
+                                  style="float:left;width:90px;"></jso-color-picker>
+
+
+                <div title="Change the label size of the selected node(s)" class="dropdown" style="margin-left: 10px">
+                    <div tabindex="-1" id="vertexLabelSizeButton" class="button">
+                        <font-awesome icon="text-height"></font-awesome>
+                    </div>
+                    <ul id="vertexLabelSizeMenu">
+                        <li on-click="{{handleVertexLabelSize}}" data-value="0">None</li>
+                        <li on-click="{{handleVertexLabelSize}}" data-value="8">8</li>
+                        <li on-click="{{handleVertexLabelSize}}" data-value="10">10</li>
+                        <li on-click="{{handleVertexLabelSize}}" data-value="12">12</li>
+                        <li on-click="{{handleVertexLabelSize}}" data-value="14">14</li>
+                        <li on-click="{{handleVertexLabelSize}}" data-value="16">16</li>
+                        <li on-click="{{handleVertexLabelSize}}" data-value="18">18</li>
+                    </ul>
+                </div>
+
+
+                <!--<div class="dropdown" style="margin-left: 10px">-->
+                <!--<div tabindex="-1" id="vertexSearchButton" class="button" style="border-right: none;">-->
+                <!--<font-awesome icon="search"></font-awesome></div>-->
+                <!--<ul id="vertexSearchMenu"></ul>-->
+                <!--</div>-->
+                <div class="select" title="Select nodes by attribute">
+                    <select id="nodeSearchSelect" style="width:70px;margin-left: 5px;border-right-width: 0;">
+                        <template repeat="{{column in vAttr.columns}}">
+                            <option value="{{column.name}}">{{column.title}}</option>
+                        </template>
+                    </select>
+                </div>
+                <input on-keypress="{{handleVertexSearch}}" id="vertexSearchField" class="button" type="text"
+                       placeholder="Search" style="width: 80px;border-right-width: 0;">
+
+                <div style="width:90px;" title="Selection color">
+                    <jso-color-picker ctitle="Select node selection color" color="{{selectionColor}}">
+                    </jso-color-picker>
+                </div>
+            </div>
+
+            <!--Edges -->
+            <div id="edgeToolbar" flex horizontal layout hide="{{selectedBar != 'edge'}}">
+                <input hidden id="edgeNameField" class="button" type="text" placeholder="name"
+                       on-keypress="{{handleEdgeNameField}}"
+                       style="width: 70px;margin-left: 5px;">
+
+                <div title="Change the shape of the selected edge(s)" class="dropdown" style="margin-left: 5px">
+                    <div tabindex="-1" id="edgeShapeButton" class="button">
+                        <font-awesome icon="location-arrow"></font-awesome>
+                    </div>
+                    <ul id="edgeShapeMenu">
+                        <li on-click="{{handleEdgeShape}}" data-value="directed">Directed</li>
+                        <li on-click="{{handleEdgeShape}}" data-value="undirected">Undirected</li>
+                        <li on-click="{{handleEdgeShape}}" data-value="inhibited">Inhibited</li>
+                        <li on-click="{{handleEdgeShape}}" data-value="dot">Dot</li>
+                        <li on-click="{{handleEdgeShape}}" data-value="odot">Dot o</li>
+                    </ul>
+                </div>
+
+                <div title="Change the size of the selected edges(s)" class="dropdown" style="margin-left: 5px">
+                    <div tabindex="-1" id="edgeSizeButton" class="button" style="border-right: none">
+                        <font-awesome icon="minus"></font-awesome>
+                    </div>
+                    <ul id="edgeSizeMenu">
+                        <li on-click="{{handleEdgeSize}}" data-value="1">1</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="2">2</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="3">3</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="4">4</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="5">5</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="6">6</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="7">7</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="8">8</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="9">9</li>
+                        <li on-click="{{handleEdgeSize}}" data-value="10">10</li>
+                    </ul>
+                </div>
+                <input id="edgeSizeField" class="button" type="text" style="width: 50px;border-right-width: 0">
+
+                <jso-color-picker ctitle="Change the color of the selected edges(s)" id="edgeColorPicker" style="float:left;width:90px;"
+                                  on-color-click="{{handleEdgeColor}}"
+                                  color="#888888"></jso-color-picker>
+
+
+                <div title="Change the label size of the selected edges(s)" class="dropdown" style="margin-left: 5px">
+                    <div tabindex="-1" id="edgeLabelSizeButton" class="button">
+                        <font-awesome icon="text-height"></font-awesome>
+                    </div>
+                    <ul id="edgeLabelSizeMenu">
+                        <li on-click="{{handleEdgeLabelSize}}" data-value="0">None</li>
+                        <li on-click="{{handleEdgeLabelSize}}" data-value="8">8</li>
+                        <li on-click="{{handleEdgeLabelSize}}" data-value="10">10</li>
+                        <li on-click="{{handleEdgeLabelSize}}" data-value="12">12</li>
+                        <li on-click="{{handleEdgeLabelSize}}" data-value="14">14</li>
+                        <li on-click="{{handleEdgeLabelSize}}" data-value="16">16</li>
+                        <li on-click="{{handleEdgeLabelSize}}" data-value="18">18</li>
+                    </ul>
+                </div>
+
+                <!--<div class="dropdown" style="margin-left: 10px">-->
+                <!--<div tabindex="-1" id="edgeSearchButton" class="button" style="border-right: none;">-->
+                <!--<font-awesome icon="search"></font-awesome>-->
+                <!--</div>-->
+                <!--<ul id="edgeSearchMenu"></ul>-->
+                <!--</div>-->
+                <select hidden id="edgeSearchSelect" style="width:70px;margin-left: 10px;border-right-width: 0;">
+                    <template repeat="{{column in eAttr.columns}}">
+                        <option value="{{column.name}}">{{column.title}}</option>
+                    </template>
+                </select>
+                <input hidden on-keypress="{{handleEdgeSearch}}" id="edgeSearchField" class="button" type="text"
+                       placeholder="Search"
+                       style="width: 80px;">
+            </div>
+
+        </div>
+
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.vertexColor = '#FFFFFF';
+                this.vertexStrokeColor = '#888888'
+                this.vertexNameField = '';
+                this.vertexSizeField = '';
+                this.vertexStrokeSizeField = '';
+
+                this.selectedBar = 'vertex';
+            },
+            ready: function () {
+
+            },
+            handleSelectedBar: function (e) {
+                this.selectedBar = e.currentTarget.dataset.bar;
+            },
+
+
+            handleVertexShape: function (e) {
+                this.fire('vertexshape', {value: e.currentTarget.dataset.value});
+            },
+            handleVertexOpacity: function (e) {
+                this.fire('vertexopacity', {value: e.currentTarget.dataset.value});
+            },
+            handleVertexSize: function (e) {
+                this.fire('vertexsize', {value: e.currentTarget.dataset.value});
+            },
+            handleVertexColor: function (e) {
+                this.fire('vertexcolor', {value: e.detail.color});
+            },
+            handleVertexStrokeSize: function (e) {
+                this.fire('vertexstrokesize', {value: e.currentTarget.dataset.value});
+            },
+            handleVertexStrokeColor: function (e) {
+                this.fire('vertexstrokecolor', {value: e.detail.color});
+            },
+            handleVertexLabelSize: function (e) {
+                this.fire('vertexlabelsize', {value: e.currentTarget.dataset.value});
+            },
+            handleVertexSearch: function (e) {
+                var input = e.currentTarget;
+                input.style.color = '';
+                if (e.which == 13) {
+                    this.fire('vertexsearch', {value: e.currentTarget.value, columnName: this.$.nodeSearchSelect.value, inputEl: input});
+                }
+            },
+            handleVertexNameField: function (e) {
+                if (e.which == 13) {
+                    this.fire('vertexnamefield', {value: e.currentTarget.value});
+                }
+            },
+
+
+            handleEdgeShape: function (e) {
+                this.fire('edgeshape', {value: e.currentTarget.dataset.value});
+            },
+            handleEdgeSize: function (e) {
+                this.fire('edgesize', {value: e.currentTarget.dataset.value});
+            },
+            handleEdgeColor: function (e) {
+                this.fire('edgecolor', {value: e.detail.color});
+            },
+            handleEdgeLabelSize: function (e) {
+                this.fire('edgelabelsize', {value: e.currentTarget.dataset.value});
+            },
+            handleEdgeSearch: function (e) {
+                var input = e.currentTarget;
+                input.style.color = '';
+                if (e.which == 13) {
+                    this.fire('edgesearch', {value: e.currentTarget.value, columnName: this.$.edgeSearchSelect.value, inputEl: input});
+                }
+            },
+            handleEdgeNameField: function (e) {
+                if (e.which == 13) {
+                    this.fire('edgenamefield', {value: e.currentTarget.value});
+                }
+            }
+        });
+    </script>
+</polymer-element>

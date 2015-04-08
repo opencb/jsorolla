@@ -21,18 +21,26 @@
 
 function Edge(args) {
 
-    this.id = 'e'+Utils.genId();
+    this.id = 'e' + Utils.genId();
 
-    this.relation='';
+    this.relation = '';
     this.source;
     this.target;
     this.weight;
     this.directed;
     this.overlapCount;
 
+    this.renderer = new DefaultEdgeRenderer();
     //set instantiation args, must be last
-    _.extend(this, args);
+    for (var prop in args) {
+        if (hasOwnProperty.call(args, prop)) {
+            this[prop] = args[prop];
+        }
+    }
 
+    if (this.renderer) {
+        this.renderer.edge = this;
+    }
 }
 
 Edge.prototype = {
@@ -48,14 +56,24 @@ Edge.prototype = {
     setTarget: function (vertex) {
         this.target = vertex;
     },
-    toJSON:function(){
+    render: function (args) {
+        this.renderer.render(args)
+    },
+    setRenderer: function (renderer) {
+        if (renderer) {
+            this.renderer = renderer;
+            this.renderer.edge = this;
+        }
+    },
+    toJSON: function () {
         return {
-            id:this.id,
-            source:this.source,
-            target:this.target,
-            weight:this.weight,
-            directed:this.directed,
-            relation:this.relation
+            id: this.id,
+            source: this.source,
+            target: this.target,
+            weight: this.weight,
+            directed: this.directed,
+            relation: this.relation,
+            renderer: this.renderer
         }
     }
 }

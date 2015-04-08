@@ -1,0 +1,225 @@
+<polymer-element name="jso-opencga-study" attributes="study">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+
+            #main {
+                height: 100%;
+            }
+
+            #container {
+                padding: 30px;
+            }
+
+            #information {
+                border: 0px solid #d3d3d3;
+                border-top-width: 1px;
+            }
+
+            #files {
+                border: 0px solid #d3d3d3;
+                border-right-width: 1px;
+            }
+
+            #experiments {
+                border: 0px solid #d3d3d3;
+                border-right-width: 1px;
+            }
+
+            #analyses {
+
+            }
+
+            #title {
+                padding: 30px;
+                font-size: 40px;
+            }
+            #chart{
+                padding:10px;
+            }
+
+        </style>
+
+        <div id="main" vertical layout>
+            <div horizontal layout flex>
+                <div id="files" flex>
+                    <font-awesome icon="file-o"></font-awesome> Files list - todo
+                    <template repeat="{{file in study.files}}">
+                        {{file.name}}<br>
+                    </template>
+                </div>
+                <div id="experiments" flex>
+                    <font-awesome icon="flask"></font-awesome> Experiments list - todo
+                    <template repeat="{{experiment in study.experiments}}">
+                        {{experiment.name}}<br>
+                    </template>
+                </div>
+                <div id="analyses" flex>
+                    <font-awesome icon="gears"></font-awesome> Analyses list - todo
+                    <template repeat="{{analysis in study.analyses}}">
+                        {{analysis.name}}<br>
+                    </template>
+                </div>
+            </div>
+            <div id="information" class="bottom" horizontal layout>
+                <div  vertical layout>
+                    <div id="title">
+                        <font-awesome icon="pie-chart"></font-awesome> {{study.name}}
+                    </div>
+                    <div id="container" vertical layout>
+                        <div>
+                            {{study.description}}
+                        </div>
+                        <div>
+                            {{study.type}}
+                        </div>
+                        <div>
+                            {{study.status}}
+                        </div>
+                        <div>
+                            {{study.diskUsage}} bytes
+                        </div>
+                    </div>
+                </div>
+                <div id="chart" flex>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.study;
+            },
+            ready: function () {
+                this.renderChart();
+            },
+            renderChart: function () {
+                var chart = new Highcharts.Chart({
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,//null,
+                        plotShadow: false,
+                        renderTo: this.$.chart
+                    },
+                    title: {
+                        text: 'Study features'
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    navigation: {
+                        buttonOptions: {
+                            enabled: false
+                        }
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            type: 'pie',
+                            name: 'Browser share',
+                            data: [
+                                ['Variants', 45.0],
+                                ['Mutations', 26.8],
+                                {
+                                    name: 'SNPs',
+                                    y: 12.8,
+                                    sliced: true,
+                                    selected: true
+                                },
+                                ['Genes', 8.5],
+                                ['Alignments', 6.2],
+                                ['Others', 0.7]
+                            ]
+                        }
+                    ]
+                });
+            }
+        })
+        ;
+    </script>
+</polymer-element>
+
+
+<polymer-element name="jso-opencga-study-card" attributes="study">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: block;
+                padding: 5px 5px;
+            }
+
+            #name {
+                text-transform: capitalize;
+            }
+        </style>
+        <div vertical layout>
+            <div id="name">
+                <font-awesome icon="pie-chart"></font-awesome> &nbsp; {{study.name}}
+            </div>
+            <!--<div>-->
+            <!--{{study.type}}-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--{{study.status}}-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--{{study.diskUsage}}-->
+            <!--</div>-->
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.study;
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="jso-opencga-study-item" attributes="study">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: inline-block;
+                position: relative;
+            }
+
+            .id {
+                color: #888;
+            }
+        </style>
+        <font-awesome icon="pie-chart"></font-awesome> &nbsp; {{study.name}} &nbsp; <span class="id"> {{study.alias}} </span>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.study;
+            }
+        });
+    </script>
+</polymer-element>

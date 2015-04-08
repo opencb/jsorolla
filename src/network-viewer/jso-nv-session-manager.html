@@ -1,0 +1,428 @@
+<polymer-element name="jso-nv-session-manager" extends="jso-window" attributes="networkViewer userData">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                width: 500px;
+            }
+
+            .selbox {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+            }
+
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+            }
+
+            .container {
+                margin: 5px;
+            }
+
+            .container div {
+                margin: 2px;
+            }
+
+            .light {
+                color: #666;
+            }
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Session manager</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <!--<template if="{{moved}}">-->
+                    <!--<div class="text headerpin" on-click="{{handlePin}}"></div>-->
+                    <!--</template>-->
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" vertical layout>
+
+                <label>Save current session:</label>
+
+                <div horizontal layout>
+                    <div flex>
+                        <input type="text" value="{{sessionName}}" placeholder="Session name">
+                    </div>
+                    <div class="button action" on-click="{{handleAddSession}}">
+                        Add session
+                    </div>
+
+                </div>
+
+
+                <label>Saved sessions:</label>
+
+                <div class="selbox" style="height: 200px;">
+                    <template if="{{!logged}}">
+                        <div class="selitem">You must be logged in to save your sessions.</div>
+                    </template>
+                    <template if="{{logged && sessions.length == 0}}">
+                        <div class="selitem">No sessions found.</div>
+                    </template>
+                    <template repeat="{{session in sessions}}">
+                        <div class="selitem" on-click="{{handleSelectSession}}" data-checked="{{selectedSessionKey == session.key}}">
+                            <div>{{session.name}}</div>
+                            <div class="light">{{session.dateString}}</div>
+                        </div>
+                    </template>
+                </div>
+
+                <div horizontal layout>
+                    <div horizontal layout flex>
+                        <div class="button action" on-click="{{handleLoadSession}}">
+                            Load session
+                        </div>
+                        <div class="button action" on-click="{{handleRemoveSession}}">
+                            Delete session
+                        </div>
+                    </div>
+                    <div horizontal layout>
+                        <div class="button action" on-click="{{handleRemoveAllSessions}}">
+                            Delete all sessions
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <div class="button action" style="width:100px;" on-click="{{handleClose}}">Cancel</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.sessions = [];
+                this.sessionMap = {};
+
+                this.selectedSessionKey = null;
+                this.selectedSession = null;
+
+                this.sessionName = '';
+
+                this.logged = false;
+                this.selectedStudy;
+            },
+            ready: function () {
+                this.keyPrefix = 'NV_SESSION_MANAGER' + this.networkViewer.serializeVersion;
+            },
+            domReady: function () {
+                this.super();
+                var me = this;
+//                this.networkViewer.jsoHeader.addEventListener('login', function (e) {
+//                    me.handleLogin();
+//                });
+                if (this.networkViewer.jsoHeader) {
+                    this.networkViewer.jsoHeader.addEventListener('logout', function (e) {
+                        me.handleLogout();
+                    });
+                }
+            },
+            handleLogin: function () {
+                this.logged = true;
+                this._updateSessionsFromUserData();
+            },
+            handleLogout: function () {
+                this.logged = false;
+                this.sessions = [];
+                this.sessionMap = {};
+            },
+            userDataChanged: function (oldValue, newValue) {
+                var me = this;
+                if (this.userData) {
+
+                    this.selectedProject = this.userData.projects[0];
+
+                    OpencgaManager.projects.studies({
+                        id: this.selectedProject.id,
+                        query: {
+                            sid: Cookies("bioinfo_sid")
+                        },
+                        request: {
+                            //method: 'POST',
+                            success: function (response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.studies = response.response[0].result;
+                                    me.selectedStudy = me.studies[0];
+                                    me.handleLogin();
+                                } else {
+                                    console.log(response.error);
+                                    console.log(response.response[0].errorMsg);
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    })
+                }
+            },
+            selectedStudyChanged: function (o, n) {
+                console.log("selected study changed")
+                this.logged = true;
+                this._updateSessionsFromUserData();
+            },
+            handleAddSession: function (e) {
+                this.saveSession(this.networkViewer, this.sessionName);
+            },
+            saveSession: function (networkViewer, name) {
+                if (this.logged) {
+                    if (name != '') {
+                        name = name.replace(/--/gi, "");
+                        var sessionKey = this.keyPrefix + '--' + Date.now() + '--' + name;
+                        if (!this.sessionMap[sessionKey]) {
+                            var fileContent = pako.gzip(JSON.stringify(networkViewer), {to: 'string'});
+
+                            this.uploadFile(fileContent, sessionKey);
+                            this._updateSessionsFromUserData();
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            },
+            handleRemoveSession: function () {
+                if (this.logged) {
+                    this.deleteFile(this.selectedSession.file);
+                    this._updateSessionsFromUserData();
+
+                    this.selectedSessionKey = null;
+                    this.selectedSession = null;
+                }
+            },
+            handleRemoveAllSessions: function () {
+                if (this.logged) {
+                    if (this.sessions.length > 0 && confirm('All saved sessions will be deleted. Are you sure?')) {
+                        for (var i = 0; i < this.sessions.length; i++) {
+                            var session = this.sessions[i];
+                            this.deleteFile(session.file);
+                        }
+                        this.sessions = [];
+                        this.sessionMap = {};
+                        this.selectedSessionKey = null;
+                        this.selectedSession = null;
+                    }
+                }
+            },
+            handleLoadSession: function () {
+                if (this.logged) {
+                    if (this.selectedSessionKey) {
+                        var file = this.selectedSession.file;
+                        var content = this._getFileContent(file);
+                        this.networkViewer.loadJSON(JSON.parse(pako.ungzip(content, {to: 'string'})));
+                    }
+                }
+            },
+            handleSelectSession: function (e) {
+                this.selectedSessionKey = e.target.templateInstance.model.session.key;
+                this.selectedSession = e.target.templateInstance.model.session;
+            },
+            _updateSessionsFromUserData: function () {
+                var sessions = [];
+                this.sessionMap = {};
+                var sessionsFolder = this._getSessionsFolder(this.selectedStudy.id);
+                if (sessionsFolder == null) {
+                    sessionsFolder = this._createSessionsFolder(this.selectedStudy.id);
+                }
+                var sessionsFiles = this._getSessionsFiles(sessionsFolder);
+
+                for (var i = 0; i < sessionsFiles.length; i++) {
+                    var sessionFile = sessionsFiles[i];
+                    if (sessionFile.status != "DELETED" && sessionFile.status != "DELETING") {
+                        var keySplit = sessionFile.name.split('--');
+                        if (keySplit[0] == this.keyPrefix) {
+                            var timeStamp = parseInt(keySplit[1]);
+                            sessions.push({
+                                file: sessionFile,
+                                key: sessionFile.name,
+                                name: keySplit[2],
+                                timeStamp: timeStamp,
+                                dateString: new Date(timeStamp).toString()
+                            });
+                            this.sessionMap[sessionFile.name] = true;
+                        }
+                    }
+                }
+                sessions.sort(function (a, b) {
+                    return b.timeStamp - a.timeStamp;
+                });
+                this.sessions = sessions;
+            },
+            _getFileContent: function (file) {
+                var content;
+                OpencgaManager.files.content({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            content = response;
+                        },
+                        error: function () {
+//                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return content;
+            },
+            _getSessionsFolder: function (studyId) {
+                var me = this;
+                var folder;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: studyId,
+                        name: '.cellmaps_sessions'
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            } else {
+//                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+//                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return folder;
+            },
+            _createSessionsFolder: function (studyId) {
+                var me = this;
+                var folder;
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: '.cellmaps_sessions',
+                        studyId: studyId
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            } else {
+//                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+//                             me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return folder;
+            },
+            _getSessionsFiles: function (folder) {
+                var me = this;
+                var files;
+                OpencgaManager.files.list({
+                    id: folder.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: this.selectedStudy.id
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                files = response.response[0].result;
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+                return files
+            },
+            deleteFile: function (file) {
+                OpencgaManager.files.delete({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                        },
+                        error: function () {
+//                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            },
+            uploadFile: function (fileContent, fileName) {
+                var url = OpencgaManager.files.upload({
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        url: true
+                    }
+                });
+
+                var blob = new Blob([fileContent], {type: 'text/plain'});
+
+                var formData = new FormData();
+                var userId = Cookies("bioinfo_user");
+                var studyId = this.selectedStudy.id;
+                var relativeFilePath = '.cellmaps_sessions/' + fileName;
+                var fileFormat = 'GZIP';
+                var bioFormat = 'NONE';
+                var description = '';
+                var chunkId = 0;
+
+                formData.append('chunk_content', blob);
+                formData.append('chunk_id', chunkId);
+                formData.append('chunk_size', blob.size);
+                /*formData.append('chunk_hash', hash);*/
+                formData.append("filename", fileName);
+                formData.append('userId', userId);
+                formData.append('studyId', studyId);
+                formData.append('relativeFilePath', relativeFilePath);
+                /*formData.append('chunk_gzip', );*/
+
+                formData.append("last_chunk", true);
+                formData.append("total_size", blob.size);
+                formData.append("fileFormat", fileFormat);
+                formData.append("bioFormat", bioFormat);
+                formData.append("description", description);
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url, false);
+                xhr.onloadend = function (e) {
+                    console.log('upload Done!');
+
+                };
+                xhr.send(formData);
+            }
+        });
+    </script>
+</polymer-element>

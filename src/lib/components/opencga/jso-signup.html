@@ -1,0 +1,269 @@
+<polymer-element name="jso-signup">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 500px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            div.button {
+                margin-top: 30px;
+                height:50px;
+                line-height: 50px;
+                font-size: 16px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Create a new user
+            </div>
+            <div class="icon">
+                <font-awesome icon="pencil-square-o"></font-awesome>
+            </div>
+        </div>
+        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+            <label>User ID</label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
+            <label>Name</label> <input type="text" id="name" value="{{name}}" required>
+            <label>e-mail</label> <input type="email" id="email" value="{{email}}" required>
+            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required>
+            <label>Password</label> <input type="password" id="password" value="{{password}}" required>
+            <label>Check password</label> <input type="password" id="check" value="{{check}}" required>
+
+            <div class="button action" on-click="{{handleForm}}">Sign up</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.user;
+                this.email;
+                this.name;
+                this.password;
+                this.check;
+                this.sid;
+                this.projectId;
+            },
+            handleFormKey: function (e) {
+                if (e.which == 13) {
+                    this.handleForm();
+                }
+            },
+            handleForm: function (e) {
+                this.message = '';
+
+                if (this.$.form.checkValidity()) {
+                    if (this.password === this.check) {
+                        this._signup();
+                    }
+                    else{
+                        alert("Sorry, your password does not match");
+                    }
+                }
+                else{
+                    alert("Please, you should fill all the fields. If error persist, contact babelomics crew at "+CONTACT_MAIL+".");
+                }
+            },
+            _signup: function () {
+                var me = this;
+                OpencgaManager.users.create({
+                    query: {
+                        userId: this.user,
+                        name: this.name,
+                        email: this.email,
+                        organization: this.organization,
+                        password: CryptoJS.SHA1(this.password).toString()
+                    },
+                    request: {
+                        async:false,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.login()
+
+                            } else {
+                                debugger
+                                me.message = response.response[0].errorMsg;
+                                //Delete cookies
+                                Cookies.expire('bioinfo_sid');
+                                Cookies.expire('bioinfo_user');
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            },
+            login: function (e) {
+                var me = this;
+                this.message = '';
+
+
+                OpencgaManager.users.login({
+                    id: this.user,
+                    query: {
+                        password: CryptoJS.SHA1(this.password).toString()
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.sid = response.response[0].result[0].sessionId;
+                                Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                                Cookies.set('bioinfo_user', response.response[0].result[0].userId);
+                                me.createProject(me.userId, me.sid);
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                                //Delete all cookies
+                                Cookies.expire('bioinfo_sid');
+                                Cookies.expire('bioinfo_user');
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            },
+            createProject: function (userId, sid) {
+                var me = this;
+                this.message = '';
+
+                OpencgaManager.projects.create({
+                    query: {
+                        userId: me.user,
+                        sid: me.sid,
+                        name: "defaultPr",
+                        alias: "defaultPr",
+                        description: "default project",
+                        organization: this.organization
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Project created sucessfully.';
+                                me.projectId = response.response[0].result[0].id;
+                                me.createStudy()
+
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            createStudy: function (e) {
+                var me = this;
+                this.message = '';
+//                var studyName = "WorkSpace";
+                OpencgaManager.studies.create({
+                    query: {
+                        sid: me.sid,
+                        name: STUDY_NAME,
+                        alias: STUDY_NAME,
+                        description: STUDY_NAME,
+                        organization: STUDY_NAME,
+//                    type: "default",
+                        projectId: me.projectId
+
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Study created sucessfully.';
+                                me.studyId = response.response[0].result[0].id;
+
+
+                                me.user = "";
+                                me.name = "";
+                                me.email = "";
+                                me.organization = "";
+                                me.password = "";
+                                me.check = "";
+
+                                me.fire('login', {status: true});
+//                            me.createAnalysis();
+
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+//        createAnalysis: function (e) {
+//            var me = this;
+//            this.message = '';
+//            OpencgaManager.analysis.create({
+//                query: {
+//                    sid: me.sid,
+//                    name: "default",
+//                    alias: "default",
+//                    description: "default",
+//                    studyId: me.studyId
+//
+//                },
+//                request: {
+//                    success: function (response) {
+//                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Analysis created sucessfully.';
+//                        } else {
+//                            me.message = response.response[0].errorMsg;
+//                        }
+//                    },
+//                    error: function () {
+//                        alert('Server error, try again later.');
+//                    }
+//                }
+//            });
+//        }
+        });
+    </script>
+</polymer-element>

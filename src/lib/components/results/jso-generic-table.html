@@ -1,0 +1,93 @@
+<polymer-element name="jso-generic-table" attributes="content selected">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+
+            sortable-table::shadow tbody tr td {
+                white-space: inherit;
+                overflow: auto;
+                text-overflow: clip;
+            }
+
+            @-moz-document url-prefix() {
+                sortable-table::shadow tbody tr td {
+                    text-overflow: ellipsis !important;
+                }
+            }
+
+        </style>
+        <sortable-table id="generic_table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}"
+                        rowSelection="true"
+                        selected="{{selected}}"
+                >
+        </sortable-table>
+    </template>
+    <script>
+        Polymer({
+            multiselect: false,
+            data: null,
+            created: function () {
+                this.columns = [];
+                this.data = [];
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+
+
+                // parseFloat((0.0001).toPrecision(3)).toExponential()
+            },
+            selectedChanged: function (oldValue, newValue) {
+//                console.log(newValue);
+//                debugger
+            },
+            contentChanged: function () {
+                var data = this.content.split("\n");
+//                if(data > 2000)
+//                    data = data.slice(0,2000);
+                var columns = [];
+                var finalData = [];
+                for (var i = 0; i < data.length; i++) {
+                    var newRow = {};
+                    if (i == 0) {
+
+//                        this.columns = data[i].split("\t");
+//                        continue;
+//                    if (data[i] == "") continue;
+//                    this.data.push(data[i].split("\t"));
+
+                        var aux = data[i].split("\t")
+                        for (var j = 0; j < aux.length; j++) {
+                            var field = aux[j];
+                            columns.push({name: field, title: field});
+                        }
+                        this.columns = columns;
+                        continue;
+                    }
+                    if (data[i] == "") continue;
+
+                    var row = data[i].split("\t");
+                    for (var j = 0; j < columns.length; j++) {
+                        var columnName = columns[j].name;
+                        var value = row[j];
+                        if (!isNaN(value)) {
+                            value = Utils.formatNumber(value);
+                        }
+                        newRow[columnName] = value;
+                    }
+
+//                    console.log(newRow);
+                    finalData.push(newRow);
+
+
+                }
+
+                this.data = finalData;
+            }
+
+
+        })
+    </script>
+</polymer-element>

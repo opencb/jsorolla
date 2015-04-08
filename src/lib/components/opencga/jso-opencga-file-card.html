@@ -1,0 +1,54 @@
+<polymer-element name="jso-opencga-file-card" attributes="file"
+                 on-click="{{handleClick}}">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding: 5px 5px;
+            }
+
+            .name {
+                margin: 0 2px 0 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /*#delete:hover {*/
+            /*color: #000;*/
+            /*cursor: pointer;*/
+            /*}*/
+        </style>
+        <div horizontal layout>
+            <font-awesome icon="{{iconMap[file.type]}}"></font-awesome>
+            <div flex class="name">{{file.name}}</div>
+            <!--<template if="{{ file.">-->
+                <!--<font-awesome icon="cog" animation="spin"></font-awesome>-->
+            <!--</template>-->
+            <!--<font-awesome id="delete" icon="times" on-click="{{handleDeleteClick}}"></font-awesome>-->
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.file;
+
+                this.iconMap = {
+                    FILE: 'file-o',
+                    FOLDER: 'folder',
+                    INDEX: 'file'
+                }
+            },
+            handleDeleteClick: function (e) {
+                e.stopPropagation();
+                console.log("delete")
+                console.log(this.file)
+            },
+            handleClick: function (e) {
+                console.log("click")
+                console.log(this.file)
+            }
+        });
+    </script>
+</polymer-element>
+

@@ -1,0 +1,134 @@
+<polymer-element name="jso-logistic-table" attributes="content">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            /*  sortable-table {
+              max-width: 1000px;
+              margin-top: 10px;
+              }*/
+            sortable-table {
+                border: 1px solid #d3d3d3;
+            }
+
+            /*sortable-table::shadow thead tr th {*/
+                /*width: 1000px;*/
+                /*white-space: inherit;*/
+                /*overflow: auto;*/
+                /*text-overflow: inherit;*/
+
+            /*}*/
+
+            /*sortable-table::shadow tbody tr td {*/
+                /*width: 1000px;*/
+                /*white-space: inherit;*/
+                /*overflow: auto;*/
+                /*text-overflow: inherit;*/
+
+            /*}*/
+
+            /*sortable-table::shadow .column-term_size,*/
+            /*sortable-table::shadow .column-term_size_genome,*/
+            /*sortable-table::shadow .column-term_annotations_list_perc,*/
+            /*sortable-table::shadow .column-lor,*/
+            /*sortable-table::shadow .column-converged,*/
+            /*sortable-table::shadow .column-adj_pvalue {*/
+                /*width: 70px;*/
+                /*white-space: nowrap;*/
+            /*}*/
+
+        </style>
+        <sortable-table id="logistic_table"
+                        data="{{data}}"
+                        columns="{{columns}}"
+                        footerTemplate="{{footerTemplate}}"
+                        pageSize="{{pageSize}}">
+            <template id="linkTemplate">
+                <td>
+                    <a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>
+                </td>
+            </template>
+            <template id="listTemplate">
+                <td style="padding:0px;">
+                    <div horizontal layout style="max-height: 100px; overflow-y: auto; overflow-x: hidden">
+                        <div flex style="text-align: center;">
+                            <div class="idlist" title="{{row[column.name]}}">
+                                <template repeat="{{ item in row[column.name]}}">
+                                    <div>{{item}}</div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </template>
+        </sortable-table>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.columns = [];
+                this.data = [];
+            },
+            contentChanged: function () {
+
+                var data = this.content.split("\n");
+                for (var i = 1; i < data.length; i++) {
+                    if (data[i] == "") continue;
+                    var localData = data[i].split("\t");
+//                    var listObj = {list1: localData[9], list2: localData[10]};
+                    var link = Utils.getLink(localData[0]);
+                    var obj = {
+                        "term": localData[0],
+                        "term_size": localData[1],
+                        "term_size_genome": localData[2],
+                        "annotated_genes": localData[3].split(","),
+                        "converged": localData[4],
+                        "lor": Utils.formatNumber(localData[5]),
+                        "adj_pvalue": Utils.formatNumber(localData[6]),
+                        link: link
+                    };
+                    this.data.push(obj)
+                }
+
+                this.columns = [
+                    {
+                        name: "term",
+                        title: "Term",
+                        cellTemplate: "linkTemplate"
+
+
+                    },
+                    {
+                        name: "term_size",
+                        title: "Term size"
+                    },
+                    {
+                        name: "term_size_genome",
+                        title: "Term size(in genome) "
+                    },
+                    {
+                        name: "annotated_genes",
+                        title: "annotated_genes lists",
+                        cellTemplate: "listTemplate"
+                    },
+                    {
+                        name: "converged",
+                        title: "converged ids list"
+                    },
+                    {
+                        name: "lor",
+                        title: "lor"
+                    },
+                    {
+                        name: "adj_pvalue",
+                        title: "adj_pvalue"
+                    }
+                ];
+                this.pageSize = "10";
+                this.footerTemplate = "simplePager";
+
+            }
+        })
+    </script>
+</polymer-element>
+

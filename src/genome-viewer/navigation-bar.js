@@ -106,7 +106,7 @@ NavigationBar.prototype = {
 
             '<div class="ocb-dropdown" style="margin-left: 5px">' +
             '   <div tabindex="-1" id="chromosomesButton" class="ocb-ctrl"><span id="chromosomesText"></span> <i class="fa fa-caret-down"></i></div>' +
-            '   <ul id="chromosomesMenu"></ul>' +
+            '   <ul id="chromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>' +
             '</div>' +
 
             '<div style="margin-left: 5px; float: left; " >' +
@@ -148,7 +148,8 @@ NavigationBar.prototype = {
             '</div>' +
 
 
-            '<div id="autoheightButton" class="ocb-ctrl" style="margin-left: 5px;font-size:18px;"><i class="fa fa-compress"></i></div>' +
+//            '<div id="autoheightButton" class="ocb-ctrl" style="margin-left: 5px;font-size:18px;"><i class="fa fa-compress"></i></div>' +
+            '<label class="ocb-ctrl"><input type="checkbox" id="autoheightButton"><span style="margin-left: 5px;font-size:18px;"><i class="fa fa-compress"></i></span></label>' +
 //            '<div id="compactButton" class="ocb-ctrl" style="margin-left: 5px;font-size:18px;"><i class="fa fa-expand"></i></div>' +
 
 
@@ -273,8 +274,11 @@ NavigationBar.prototype = {
             _this._handleMoveRegion(-1);
         });
 
-        this.els.autoheightButton.addEventListener('click', function (e) {
-            _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
+//        this.els.autoheightButton.addEventListener('click', function (e) {
+//            _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
+//        });
+        this.els.autoheightButton.addEventListener('click', function () {
+            _this.trigger('autoHeight-button:change', {selected: this.checked, sender: _this});
         });
 
 //        this.els.compactButton.addEventListener('click', function (e) {
@@ -381,18 +385,28 @@ NavigationBar.prototype = {
 
         //find species object
         var list = [];
-        for (var i in this.availableSpecies.items) {
-            for (var j in this.availableSpecies.items[i].items) {
+        for (var i = 0; i < this.availableSpecies.items.length; i++) {
+            for (var j = 0; j < this.availableSpecies.items[i].items.length; j++) {
                 var species = this.availableSpecies.items[i].items[j];
                 if (species.text === this.species.text) {
                     list = species.chromosomes;
                     break;
                 }
             }
+
         }
+        //for (var i in this.availableSpecies.items) {
+        //    for (var j in this.availableSpecies.items[i].items) {
+        //        var species = this.availableSpecies.items[i].items[j];
+        //        if (species.text === this.species.text) {
+        //            list = species.chromosomes;
+        //            break;
+        //        }
+        //    }
+        //}
 
         this.currentChromosomeList = list;
-        for (var i in list) {
+        for (var i = 0; i < list.length; i++) {
             var menuEntry = document.createElement('li');
             menuEntry.textContent = list[i];
             this.els.chromosomesMenu.appendChild(menuEntry);
@@ -405,7 +419,22 @@ NavigationBar.prototype = {
                 });
                 _this._triggerRegionChange({region: region, sender: _this})
             });
+
         }
+        //for (var i in list) {
+        //    var menuEntry = document.createElement('li');
+        //    menuEntry.textContent = list[i];
+        //    this.els.chromosomesMenu.appendChild(menuEntry);
+        //
+        //    menuEntry.addEventListener('click', function () {
+        //        var region = new Region({
+        //            chromosome: this.textContent,
+        //            start: _this.region.start,
+        //            end: _this.region.end
+        //        });
+        //        _this._triggerRegionChange({region: region, sender: _this})
+        //    });
+        //}
     },
 
 //    _setSpeciesMenu: function () {

@@ -1,0 +1,133 @@
+<polymer-element name="jso-login" attributes="selectedOption">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 30px 100px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 500px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            label {
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            div.button {
+                margin-top: 30px;
+                height:50px;
+                line-height: 50px;
+                font-size: 16px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            #remember {
+                text-align: right;
+                color: #666;
+                cursor: pointer;
+            }
+
+            #remember:hover {
+                color: #445D76;
+                text-decoration: underline;
+            }
+        </style>
+        <div class="title">
+            <div>
+                Log in with your user
+            </div>
+            <div class="icon">
+                <font-awesome icon="sign-in"></font-awesome>
+            </div>
+        </div>
+        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+            <label>User</label> <input type="text" value="{{user}}" required pattern="[a-zA-Z0-9]+">
+            <label>Password</label> <input type="password" id="password" value="{{password}}" required
+                                           pattern="[a-zA-Z0-9]+">
+
+            <div id="remember" on-click="{{handleRemember}}">Remember password...</div>
+
+            <div class="button action" on-click="{{handleForm}}">Log in</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.user;
+                this.password;
+            },
+            handleFormKey: function (e) {
+                if (e.which == 13) {
+                    this.handleForm();
+                }
+            },
+            handleRemember: function (e) {
+                this.selectedOption = "rememberpassword";
+            },
+            handleForm: function (e) {
+                this.message = '';
+                if (this.$.form.checkValidity()) {
+                    this._login();
+                }
+            },
+            _login: function () {
+                var me = this;
+                OpencgaManager.users.login({
+                    id: this.user,
+                    query: {
+                        password: CryptoJS.SHA1(this.password).toString()
+                    },
+                    request: {
+                        success: function (response) {
+                            console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                                Cookies.set('bioinfo_user', response.response[0].result[0].userId);
+                                me.fire('login', {status: true});
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                                //Delete all cookies
+                                Cookies.expire('bioinfo_sid');
+                                Cookies.expire('bioinfo_user');
+                            }
+                            me.user = null;
+                            me.password = null;
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>

@@ -1,0 +1,361 @@
+<polymer-element name="jso-xlsx-network-file-open" extends="jso-window" attributes="selectedMenu">
+    <template>
+        <link rel="stylesheet" href="../sortable-table.css">
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 900px;
+            }
+
+            sortable-table {
+                border-width: 0px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+            }
+
+            .container {
+                box-sizing: border-box;
+            }
+
+            #left {
+                width: 220px;
+                border-right: 1px solid #d3d3d3;
+                box-sizing: border-box;
+                padding: 5px;
+            }
+
+            #left [horizontal] > * {
+                margin-right: 3px;
+            }
+
+            #left [horizontal] > *:last-child {
+                margin-right: 0px;
+            }
+
+            .columns > div {
+                margin-right: 4px;
+            }
+
+            .columns > div:last-of-type {
+                margin-right: 0px;
+            }
+
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
+                height: 346px;
+                border-top: 1px solid #d3d3d3;
+            }
+
+            #table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 10px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                border-top: 1px solid #cccccc;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 10px;
+                /*background-color: #c5c5c5;*/
+                background-color: #A9A9A9;
+            }
+        </style>
+
+
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div class="header" id="header" horizontal layout>
+                <div class="text">Import a network XLSX file</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
+                    <div class="text headerclose" on-click="{{handleCancel}}"></div>
+                </div>
+            </div>
+            <div class="container">
+
+                <div style="padding:10px 15px;">
+                    <label>Select XLSX file:</label>
+
+                    <div class="button" on-click="{{handleBrowseClick}}">{{fileName}}</div>
+                    <input type="file" hidden id="fileInput" required on-change="{{handleInputChange}}">
+
+                    <label>Select sheet</label>
+
+                    <div class="dropdown">
+                        <div tabindex="-1" class="button">
+                            {{selectedSheet}}
+                        </div>
+                        <ul on-click="{{handleSheetMenu}}">
+                            <template repeat="{{sheet in sheets}}">
+                                <li data-value="{{sheet}}">{{sheet}}</li>
+                            </template>
+                        </ul>
+                    </div>
+                    <label>Select columns</label>
+
+                    <div class="columns" horizontal layout>
+                        <div class="dropdown" flex horizontal layout>
+                            <div tabindex="-1" class="button" flex>
+                                {{sourceColumnIndex}}
+                            </div>
+                            <ul on-click="{{handleSourceColumnIndex}}">
+                                <template repeat="{{index in columnsNumbers}}">
+                                    <li data-value="{{index}}">{{index}}</li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div class="dropdown" flex horizontal layout>
+                            <div tabindex="-1" class="button" flex>
+                                {{relationColumnIndex}}
+                            </div>
+                            <ul on-click="{{handleRelationColumnIndex}}">
+                                <li data-value="none">none</li>
+                                <template repeat="{{index in columnsNumbers}}">
+                                    <li data-value="{{index}}">{{index}}</li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div class="dropdown" flex horizontal layout>
+                            <div tabindex="-1" class="button" flex>
+                                {{targetColumnIndex}}
+                            </div>
+                            <ul on-click="{{handleTargetColumnIndex}}">
+                                <template repeat="{{index in columnsNumbers}}">
+                                    <li data-value="{{index}}">{{index}}</li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div hidden?="{{columns.length < 1}}">
+                    <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                        <sortable-table id="table" flex
+                                        data="{{parsedData}}"
+                                        columns="{{columns}}"
+                                        page="{{page}}"
+                                        pageSize="{{pageSize}}">
+                        </sortable-table>
+                        <div class="customPagerScroll"
+                             style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                    </div>
+                    <div class="customPager" horizontal layout>
+                        <div class="text">{{table.dataSize}} item{{table.dataSize != 1 ? 's' : ''}}</div>
+                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                            &lt;</div>
+                        <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                        <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                             on-click="{{moveToNextPage}}">&gt;</div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <div class="button action" style="width:100px;" on-click="{{handleOk}}">OK</div>
+                    <div class="button action" style="width:100px;" on-click="{{handleCancel}}">Cancel</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.page = 1;
+                this.defaultPageSize = 12;
+                this.pageSize = this.defaultPageSize;
+
+                this.fileName = 'Choose file...';
+                this.message = ' ';
+                this.graph;
+                this.adapter;
+                this.textAdapter;
+
+                this.selectedSheet = 'Choose a sheet';
+                this.sheets;
+
+                this.sourceColumnIndex = 'select';
+                this.relationColumnIndex = 'none';
+                this.targetColumnIndex = 'select';
+
+                this.columnsNumbers = [];
+
+                this.parsedData = [];
+                this.columns = [{
+                    name: 'source',
+                    title: 'Source',
+                    formula: function (row) {
+                        return row.id
+                    }
+                }, {
+                    name: 'relation',
+                    title: 'Relation'
+                }, {
+                    name: 'target',
+                    title: 'Target',
+                    formula: function (row) {
+                        return row.id
+                    }
+                }];
+            },
+            ready: function () {
+                this.table = this.$.table;
+            },
+            handleOk: function () {
+                if (this.graph) {
+                    this.selectedMenu = '';
+                    this.fire('graph', {graph: this.graph, fileName: this.fileName});
+                }
+            },
+            handleCancel: function () {
+                this.selectedMenu = '';
+            },
+            handleBrowseClick: function (e) {
+                this.$.fileInput.click();
+            },
+            handleInputChange: function (e) {
+                var me = this;
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name;
+                this.message = '';
+
+                if (this.$.fileInput.files.length > 0) {
+                    this.adapter = new XLSXNetworkDataAdapter({
+                        dataSource: new FileDataSource({file: inputFile, type: 'binary'}),
+                        separator: this.parseCharacter,
+                        handlers: {
+                            'data:load': function (event) {
+                                me.adapter = event.sender;
+                                me.processWorkbook(event.sender);
+                            },
+                            'error:parse': function (event) {
+                                me.message = event.errorMsg;
+                            }
+                        }
+                    });
+                }
+            },
+
+            processWorkbook: function () {
+                this.sheets = Object.keys(this.adapter.xlsx.Sheets);
+            },
+            handleSheetMenu: function (e) {
+                var me = this;
+                this.selectedSheet = e.target.dataset.value;
+
+                this.sourceColumnIndex = 'select';
+                this.relationColumnIndex = 'none';
+                this.targetColumnIndex = 'select';
+                this.parsedData = [];
+
+                var csv = this.adapter.parseSheet(this.selectedSheet);
+
+                var textAdapter = new TextNetworkDataAdapter({
+                    dataSource: new StringDataSource(csv),
+                    separator: ',',
+                    handlers: {
+                        'data:load': function (event) {
+                            me.processColumns(event.sender);
+                        },
+                        'error:parse': function (event) {
+                            me.message = event.errorMsg;
+                        }
+                    }
+                });
+            },
+            handleSourceColumnIndex: function (e) {
+                if (e.target.dataset.value) {
+                    this.sourceColumnIndex = parseInt(e.target.dataset.value);
+                    this.processColumnNumbers();
+                }
+            },
+            handleRelationColumnIndex: function (e) {
+                if (e.target.dataset.value) {
+                    this.relationColumnIndex = e.target.dataset.value;
+                    this.processColumnNumbers();
+
+                }
+            },
+            handleTargetColumnIndex: function (e) {
+                if (e.target.dataset.value) {
+                    this.targetColumnIndex = parseInt(e.target.dataset.value);
+                    this.processColumnNumbers();
+                }
+            },
+            processColumns: function (textAdapter) {
+                this.textAdapter = textAdapter;
+                this.columnsNumbers = [];
+                for (var i = 0; i < textAdapter.columnLength; i++) {
+                    this.columnsNumbers.push(i + 1);
+                }
+            },
+            processColumnNumbers: function () {
+                if (this.textAdapter) {
+                    if (!(isNaN(this.sourceColumnIndex)) && !(isNaN(this.targetColumnIndex))) {
+                        var relationDefaultName = 'none';
+                        var columnIndex;
+                        if (this.relationColumnIndex === 'none') {
+                            columnIndex = -1;
+                        } else {
+                            columnIndex = this.relationColumnIndex - 1;
+                        }
+                        var graph = this.textAdapter.parseColumns(this.sourceColumnIndex - 1, this.targetColumnIndex - 1, columnIndex, relationDefaultName);
+                        this.processData(graph);
+                    }
+                }
+
+            },
+            processData: function (graph) {
+                try {
+                    var verticesLength = graph.vertices.length;
+                    var edgesLength = graph.edges.length;
+
+                    this.parsedData = graph.edges;
+
+                    this.message = 'File loaded sucessfully, Vertices:' + verticesLength + ', edges:' + edgesLength + '';
+
+                    this.graph = graph;
+                } catch (e) {
+                    this.message = 'File not valid. ';
+                    console.log(e)
+                }
+            },
+            /*Table handlers*/
+            handleScroll: function (e) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
+            }
+        });
+    </script>
+</polymer-element>

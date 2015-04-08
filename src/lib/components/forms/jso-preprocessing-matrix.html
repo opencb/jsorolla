@@ -1,0 +1,408 @@
+<polymer-element name="jso-preprocessing-matrix" attributes="userData selectedOption selectedStudy studies args">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+
+            }
+
+            .title {
+                text-align: center;
+                font-size: 25px;
+                color: #666;
+            }
+
+            .icon {
+                color: #445D76;
+                font-size: 50px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            /*jso-file-browser {*/
+            /*width: 70%;*/
+            /*}*/
+
+        </style>
+        <div class="tooltitle">
+            <div>
+                Normalized data preprocesing
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Data%20matrix%20preprocessing">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Preprocessing a two classes matrix
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="twoclasses.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample2}}"  style="margin-top:5px">Preprocessing a correlation matrix
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="correlation.txt" style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Log-transform</div>
+                <div class="formcontent" vertical layout>
+                    <label class="control">
+                        <input id="logarithm_base_1" name="logarithm_base" class="fc-radioitem" type="radio" value="none"
+                               checked="checked"><span>none</span></label>
+                    <label class="control">
+                        <input id="logarithm_base_2" name="logarithm_base" class="fc-radioitem" type="radio" value="2"><span>Log 2</span></label>
+                    <label class="control">
+                        <input id="logarithm_base_3" name="logarithm_base" class="fc-radioitem" type="radio" value="e"><span>Log e</span></label>
+                    <label class="control">
+                        <input id="logarithm_base_4" name="logarithm_base" class="fc-radioitem" type="radio" value="10"><span>Log 10</span></label>
+                    </h3>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Exponential function</div>
+                <div class="formcontent" vertical layout>
+                    <label class="control">
+                        <input id="exp_1" name="exp" class="fc-radioitem" type="radio" value="none"
+                               checked="checked"><span>none</span></label>
+                    <label class="control">
+                        <input id="exp_2" name="exp" class="fc-radioitem" type="radio" value="2"><span>2</span></label>
+                    <label class="control">
+                        <input id="exp_3" name="exp" class="fc-radioitem" type="radio" value="e"><span>e</span></label>
+                    <label class="control">
+                        <input id="exp_4" name="exp" class="fc-radioitem" type="radio" value="10"><span>10</span></label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Merge replicates</div>
+                <div class="formcontent" vertical layout>
+                    <label class="control">
+                        <input id="merge_replicates_1" name="merge_replicates" class="fc-radioitem" type="radio"
+                               value="none" checked="checked"><span>none</span></label>
+                    <label class="control">
+                        <input id="merge_replicates_2" name="merge_replicates" class="fc-radioitem" type="radio"
+                               value="mean"><span>Average</span></label>
+                    <label class="control">
+                        <input id="merge_replicates_3" name="merge_replicates" class="fc-radioitem" type="radio"
+                               value="median"><span>Median</span></label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Filter missing values</div>
+                <div class="formcontent">
+                    <!--<input name="filter_missing_bool" id="filter_missing_bool" class="fc-checkbox" type="checkbox" value="true">Check to apply this filter<br>-->
+                    <label>Minimum percentage of existing values (%)</label>
+                    <input name="filter_missing" id="filter_missing" class="fc-int fc-text" type="text" style="width: 30px" value="">
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Impute missing values</div>
+                <div class="formcontent" vertical layout>
+                    <label class="control">
+                        <div horizontal layout></div>
+                        <input id="impute_missing_1" name="impute_missing" class="fc-radioitem" type="radio" value="none"
+                               checked="checked" on-click="{{knnClicked}}">
+                        <span>Do not impute</span>
+                    </label>
+
+                    <div horizontal layout>
+                        <label class="control">
+                            <input id="impute_missing_2" name="impute_missing" class="fc-radioitem" type="radio" value="knn" on-click="{{knnClicked}}"><span>KNN imputation</span>
+                        </label>
+                        <label>K-value</label><input name="kvalue" id="kvalue" class="fc-int fc-text" type="text" style="width: 30px" value="15" disabled>
+                    </div>
+                    <label class="control">
+                        <input id="impute_missing_3" name="impute_missing" class="fc-radioitem" type="radio" value="mean" on-click="{{knnClicked}}"><span>Row
+                    mean imputation </span></label>
+                    <label class="control">
+                        <input id="impute_missing_4" name="impute_missing" class="fc-radioitem" type="radio" value="median" on-click="{{knnClicked}}"><span>Row
+                    median imputation </span></label>
+                    <label class="control">
+                        <input id="impute_missing_5" name="impute_missing" class="fc-radioitem" type="radio" value="zero" on-click="{{knnClicked}}"><span>Impute
+                    with zeros</span></label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Extract IDs from dataset and save into a file</div>
+                <div class="formcontent">
+                    <label class="control">
+                        <input name="extract_ids" id="extract_ids" class="fc-checkbox" type="checkbox" value="true"><span>Check to
+                    extract IDs</span></label>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Filter genes by names</div>
+                <div class="formcontent">
+                    <jso-project-browser-window id="gene_file_filter" studies="{{studies}}"
+                                                selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file"
+                                                on-file-select="{{handleFileSelect}}"></jso-project-browser-window>
+                </div>
+            </div>
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Convert IDs from dataset</div>-->
+            <!--<div class="formcontent">-->
+            <!--<label class="control">
+                            <input id="convert_ids_1" name="convert_ids" class="fc-radioitem" type="radio" value="none" checked="checked">none<br>-->
+            <!--<label class="control">
+                            <input id="convert_ids_2" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_gene">Ensembl gene<br>-->
+            <!--<label class="control">
+                            <input id="convert_ids_3" name="convert_ids" class="fc-radioitem" type="radio" value="ensembl_transcript">Ensembl transcript <br>-->
+            <!--<label>Organism</label>-->
+            <!--<select name="species" id="species" class="fc-combobox" type="text" value="hsa">-->
+            <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="hsa" selected="selected">Human (homo sapiens)</option>-->
+            <!--<option name="species_2" id="species_2" class="fc-combobox-item" value="mmu">Mouse (mus musculus)</option>-->
+            <!--<option name="species_3" id="species_3" class="fc-combobox-item" value="rno">Rat (rattus norvegicus)</option>-->
+            <!--<option name="species_4" id="species_4" class="fc-combobox-item" value="gga">Chicken (gallus gallus)</option>-->
+            <!--<option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly (drosophila melanogaster)</option>-->
+            <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
+            <!--<option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish (danio rerio)</option>-->
+            <!--<option name="species_8" id="species_8" class="fc-combobox-item" value="aga">Anopheles gambiae</option>-->
+            <!--<option name="species_9" id="species_9" class="fc-combobox-item" value="sce">Saccharomyces cerevisiae</option>-->
+            <!--<option name="species_10" id="species_10" class="fc-combobox-item" value="cel">Caenorhabditis elegans</option>-->
+            <!--<option name="species_11" id="species_11" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>-->
+            <!--</select>-->
+            <!--<label>Select method to merge the replicated result IDs</label><br>-->
+            <!--<label class="control">
+                            <input id="convert_ids_merge_1" name="convert_ids_merge" class="fc-radioitem" type="radio" value="mean" checked="checked">Average <br>-->
+            <!--<label class="control">
+                            <input id="convert_ids_merge_2" name="convert_ids_merge" class="fc-radioitem" type="radio" value="median">Median<br>-->
+            <!--</div>-->
+            <!--</div>-->
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "preprocessing";
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            handleForm: function () {
+                this.launchJob();
+            },
+            argsChanged: function () {
+                if (this.toolName == this.args.tool) {
+                    this.message = '';
+                    this.jobName = this.args.jobName;
+                    this.description = this.args.description;
+                    this.$.inputFile.selectedFile = this.args.inputFile;
+//                this.$.inputFile2.selectedFile = this.args.list2;
+
+                    var radios = this.shadowRoot.querySelectorAll('input[name="merge_replicates"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.merge_replicates)
+                            radio.checked = true;
+                    }
+                    var radios = this.shadowRoot.querySelectorAll('input[name="impute_missing"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.impute_missing)
+                            radio.checked = true;
+                    }
+                }
+            },
+            launchJob: function () {
+                var me = this;
+                var utils = new FormUtils(this);
+                if (!utils.basicValidationForm()) {
+                    return;
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    outdir: this.$.outdir.selectedFile.id,
+                    dataset: this.$.inputFile.selectedFile.id,
+                    name: this.jobName,
+                    description: this.description
+                };
+                if (this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value != "none")
+                    query["logarithm-base"] = this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value;
+
+                if (this.shadowRoot.querySelector('input[name="exp"]:checked').value != "none")
+                    query["exp"] = this.shadowRoot.querySelector('input[name="exp"]:checked').value;
+
+                if (this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value != "none")
+                    query["merge-replicates"] = this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value;
+
+                if (this.$.filter_missing.value != "")
+                    query["filter-missing"] = this.$.filter_missing.value;
+
+                if (this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value != "none") {
+                    query["impute-missing"] = this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value;
+                    if (this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value == "knn")
+                        query["kvalue"] = this.$.kvalue.value;
+                }
+
+                if (this.$.extract_ids.checked) {
+                    query["extract-ids"] = this.$.extract_ids.checked;
+                }
+                if (this.$.gene_file_filter.selectedFile !== undefined) {
+                    if (this.$.gene_file_filter.selectedFile.type == "FILE") {
+                        query["gene_file_filter"] = this.$.gene_file_filter.selectedFile.id;
+                    }
+                }
+//                if (this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
+//                    query["convert-ids"] = this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;
+//                    query["species"] = this.$.species.value;
+//                    query["merge-replicates"] = this.$.merge_replicates.value;
+//                }
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+            loadExample1: function (e) {
+                this.jobName = "Preprocessing a two classes matrix (twoclasses.txt)";
+                this.description = "just a preprocessing sample";
+                this.$.inputFile.selectedFile = {id: "example_twoclasses.txt", path: "twoclasses.txt", type: "FILE"};
+                this.$.logarithm_base_2.checked = true;
+                this.$.exp_1.checked = true;
+                this.$.merge_replicates_2.checked = true;
+                this.$.impute_missing_4.checked = true;
+//                this.$.convert_ids_1.checked = true;
+
+                var exampleFolder = "two_classes_matrix";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            loadExample2: function (e) {
+                this.jobName = "Preprocessing a correlation matrix (correlation.txt)";
+                this.description = "just a preprocessing sample";
+                this.$.inputFile.selectedFile = {id: "example_correlation.txt", path: "correlation.txt", type: "FILE"};
+                this.$.logarithm_base_2.checked = true;
+                this.$.exp_1.checked = true;
+                this.$.merge_replicates_2.checked = true;
+                this.$.impute_missing_5.checked = true;
+//                this.$.convert_ids_1.checked = true;
+
+                var exampleFolder = "pre_correlation";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            debugger
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+            knnClicked: function(){
+                if(this.$.impute_missing_2.checked){
+                    this.$.kvalue.disabled = false;
+                }
+                else
+                    this.$.kvalue.disabled = true;
+            }
+
+        });
+    </script>
+</polymer-element>

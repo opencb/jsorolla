@@ -25,14 +25,16 @@ function AttributeNetworkDataAdapter(args) {
 
     this.dataSource;
     this.async = true;
-    this.jsonObject;
     this.ignoreColumns = {};
+    this.renameColumns = {};
+
+    this.useFirstLineAsColumnNames = false;
 
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.attributes = [];
-    this.data = [];
+
+    this.attributeManager = new AttributeManagerMemory();
 
     this.on(this.handlers);
 
@@ -78,31 +80,53 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
 //    }
 
     try {
-        var lines = data.split("\n");
-        var firstLine = lines[0].replace(/^\s+|\s+$/g, "");
+        data = data.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        var lines = data.split(/\n/);
+
+
+        var firstLine = lines[0].trim();
         var columnNames = [];
         if (firstLine.substr(0, 1) === "#") {
-            columnNames = firstLine.split("\t");
+            columnNames = firstLine.split(/\t/);
 
             //search for first non header line "#"
             for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].replace(/^\s+|\s+$/g, "");
-                if(line.substr(0, 1) !== "#"){
+                var line = lines[i].trim();
+                if (line.substr(0, 1) !== "#") {
                     firstLine = line;
                     break;
                 }
             }
+
+        }
+        if (this.useFirstLineAsColumnNames) {
+            columnNames = firstLine.split(/\t/);
+            //first non header line
+            firstLine = lines[1];
+
         }
 
-        var numColumns = firstLine.split("\t").length;
+        var finalColumnNames = [];
+        var numColumns = firstLine.split(/\t/).length;
         for (var i = 0; i < numColumns; i++) {
-            var name = (columnNames[i]) ? columnNames[i] : "Column" + i;
+
+            if (this.renameColumns[i]) {
+                finalColumnNames[i] = this.renameColumns[i];
+            } else {
+                if (columnNames[i]) {
+                    finalColumnNames[i] = columnNames[i];
+                } else {
+                    finalColumnNames[i] = "Column" + i;
+                }
+            }
+
             if (i == 0) {
-                name = "id";
+                finalColumnNames[i] = "id";
             }
             if (this.ignoreColumns[i] !== true) {
-                this.attributes.push({
-                    "name": name,
+                this.attributeManager.addColumn({
+                    "name": finalColumnNames[i],
+                    "title": finalColumnNames[i],
                     "type": "string",
                     "defaultValue": ""
                 });
@@ -113,31 +137,45 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
         //ignore attributes
         if (Object.keys(this.ignoreColumns).length > 0) {
             for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].replace(/^\s+|\s+$/g, "");
-                if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+                var line = lines[i].trim();
+                if ((line != null) &&
+                    (line.length > 0) &&
+                    line.substr(0, 1) != "#"
+                ) {
+                    if (i == 0 && this.useFirstLineAsColumnNames == true) continue;
+
                     var fields = line.split("\t");
 
-                    var filteredFields = [];
+                    var row = {};
                     for (var j = 0; j < fields.length; j++) {
                         if (this.ignoreColumns[j] !== true) {
-                            filteredFields.push(fields[j])
+                            row[finalColumnNames[j]] = fields[j].trim();
                         }
                     }
-
-                    this.data.push(filteredFields);
+                    this.attributeManager.addRow(row);
                 }
             }
         } else {
             for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].replace(/^\s+|\s+$/g, "");
-                if ((line != null) && (line.length > 0) && line.substr(0, 1) != "#") {
+                var line = lines[i].trim();
+                if ((line != null) &&
+                    (line.length > 0) &&
+                    line.substr(0, 1) != "#"
+                ) {
+                    if (i == 0 && this.useFirstLineAsColumnNames == true) continue;
+
                     var fields = line.split("\t");
-                    this.data.push(fields);
+
+                    var row = {};
+                    for (var j = 0; j < fields.length; j++) {
+                        row[finalColumnNames[j]] = fields[j].trim();
+                    }
+                    this.attributeManager.addRow(row);
                 }
             }
         }
 
-        this.trigger('data:load', {sender: this});
+        this.trigger('data:load', {attributeManager: this.attributeManager, sender: this});
     } catch (e) {
         console.log(e);
         console.log(e.stack);
@@ -145,11 +183,4 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
     }
 
 
-};
-
-AttributeNetworkDataAdapter.prototype.getAttributesJSON = function () {
-    var json = {};
-    json.attributes = this.attributes;
-    json.data = this.data;
-    return json;
 };

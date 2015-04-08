@@ -1,0 +1,112 @@
+<polymer-element name="jso-opencga-select-study" attributes="studyList selectedStudy">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding-left: 30px;
+                padding-top: 10px;
+            }
+
+            label {
+                display: inline-block;
+                color: #666;
+                margin-top: 10px;
+            }
+
+            label::after {
+                content: ':'
+            }
+
+            .action {
+                margin-top: 30px;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+        </style>
+
+        <form id="form" vertical layout>
+            <label>Study</label>
+
+            <div class="dropdown">
+                <div tabindex="-1" class="button">
+                    <jso-opencga-study-item study="{{selectedStudy}}"></jso-opencga-study-item>
+                </div>
+                <ul>
+                    <template repeat="{{study in studyList}}">
+                        <li>
+                            <jso-opencga-study-item
+                                    study="{{study}}"
+                                    data-selected="{{selectedStudy == study}}"
+                                    on-mousedown="{{handleClick}}">
+                            </jso-opencga-study-item>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </form>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            },
+            ready: function () {
+//                this.selectedStudy = this.userData.selectedStudy;
+            },
+            handleClick: function (e) {
+                this.selectedStudy = e.target.study;
+                /** The next should be automatic with lastActivity when one study is changed **/
+                this.getData();
+
+            },
+            getData: function (e) {
+                var me = this;
+                OpencgaManager.studies.analysis({
+                    id: this.selectedStudy.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var selectedAnalysis = response.response[0].result[0]
+                                me.selectedStudy.analysis = selectedAnalysis
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+
+                /** llamada ficheros **/
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: me.selectedStudy.id
+//                        type: "file"
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var files = response.response[0].result
+                                me.selectedStudy.files = files
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
+
+
+        });
+    </script>
+</polymer-element>

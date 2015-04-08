@@ -1,0 +1,128 @@
+/*
+    Panel
+
+    Note 1: panel-shadow class is optional
+
+    <div class="panel panel-shadow" vertical layout>
+        <div class="header" horizontal layout>
+            <div>Header text</div>
+            <div class="headeractions" horizontal layout end-justified flex>
+                <div class="headerexpand"></div>
+                <div class="headerclose"></div>
+            </div>
+        </div>
+        <div class="container">
+        </div>
+        <div class="footer">
+        </div>
+    </div>
+
+*/
+
+* /deep/ .panel {
+    /*border: 1px solid #d4d4d4;*/
+    position: relative;
+    box-sizing: border-box;
+    /*background-color: #ECECEC;*/
+    background-color: #f5f5f5;
+}
+
+* /deep/ .panel-shadow {
+    box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.2);
+    /*box-shadow: -4px 4px 4px rgba(0, 0, 0, 0.2);*/
+}
+
+* /deep/ .header {
+    /*background-color: #E5E5E5;*/
+    /*background-color: #3F3F3F;*/
+    /*background-color: #435F7A;*/
+    background-color: #314559;
+    color: #FFFFFF;
+    text-transform: capitalize;
+
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+* /deep/ .header > .headeractions > *[data-checked] {
+    background-color: #636363;
+}
+
+* /deep/ .header > .headeractions > *:hover {
+    /*background-color: #7493b3;*/
+    /*background-color: #737373;*/
+    background-color: #435F7A;
+    /*background-color: #FFAD76;*/
+}
+
+* /deep/ .header > .headeractions > .headerclose:after {
+    font-family: FontAwesome;
+    content: '\f00d';
+}
+
+* /deep/ .header > .headeractions > .headerexpand:after {
+    font-family: FontAwesome;
+    content: '\f065';
+}
+
+* /deep/ .header > .headeractions > .headerpin:after {
+    font-family: FontAwesome;
+    content: '\f08d';
+}
+
+* /deep/ .header > .headeractions > .headerexpand[expanded]:after {
+    content: '\f066';
+}
+
+* /deep/ .header, .container {
+    position: relative;
+}
+
+* /deep/ .header,
+* /deep/ .footer {
+    /*background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);*/
+    /*background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);*/
+    /*background-repeat: repeat-x;*/
+    /*height: 31px;*/
+    padding: 4px 5px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+* /deep/ .footer {
+    border-top: 1px solid #d4d4d4;
+    background-color: #EDEDED;
+}
+
+* /deep/ .footer > div,
+* /deep/ .footer > div > div {
+    margin-right: 2px;
+    margin-left: 2px;
+}
+
+* /deep/ .header[data-collapsible=true][data-collapsed=true]:after {
+    font-family: FontAwesome;
+    content: "\f107";
+    position: absolute;
+    box-sizing: border-box;
+    line-height: 23px;
+    padding: 0px 5px;
+    right: 10px;
+}
+
+* /deep/ .header[data-collapsible=true][data-collapsed=false]:after {
+    font-family: FontAwesome;
+    content: "\f106";
+    position: absolute;
+    box-sizing: border-box;
+    line-height: 23px;
+    padding: 0px 5px;
+    right: 10px;
+}
+
+* /deep/ .header[data-collapsible=true][data-collapsed=true] + div {
+    display: none;
+}

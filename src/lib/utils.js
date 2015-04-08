@@ -66,8 +66,7 @@ var Utils = {
         return regex.test(str);
     },
     endsWith: function (str, test) {
-        var regex = new RegExp('^.*\\.(' + test + ')$');
-        return regex.test(str);
+        return str.length >= test.length && str.substr(str.length - test.length) == test;
     },
     addQueryParamtersToUrl: function (paramsWS, url) {
         var chr = "?";
@@ -131,6 +130,172 @@ var Utils = {
         }
         return code;
 
+    },
+    basicValidationForm: function (scope) {
+        var validated = true;
+        var msg = "";
+        if (scope.$.outdir.selectedFile === undefined || scope.$.outdir.selectedFile.type != "FOLDER") {
+            msg += "Error: Please select an output folder.\n";
+            validated = false;
+        }
+        if (scope.$.inputFile.selectedFile === undefined || scope.$.inputFile.selectedFile.type != "FILE") {
+            msg += "Error: Please select an input file.\n";
+            validated = false;
+        }
+        if (scope.$.jobName.value == "") {
+            msg += "Error: Please add a job name.\n";
+            validated = false;
+        }
+        if (!validated) {
+            alert(msg)
+        }
+        return validated;
+    },
+    getUrl: function (fileId) {
+        return OpencgaManager.files.download({
+            id: fileId,
+            query: {
+                sid: Cookies("bioinfo_sid")
+            },
+            request: {
+                url: true
+            }
+        });
+    },
+    getFileContent: function (callback, fileId) {
+        OpencgaManager.files.content({
+            id: fileId,
+            query: {
+                sid: Cookies("bioinfo_sid")
+            },
+            request: {
+                success: function (response) {
+                    callback(response);
+                },
+                error: function () {
+                    this.message = 'Server error, try again later.';
+                }
+            }
+        })
+    },
+    loadExampleFile: function (callback, toolName, exampleFileName) {
+
+        var me = this;
+        OpencgaManager.files.contentExample({
+            query: {
+                toolName: toolName,
+                fileName: exampleFileName
+            },
+            request: {
+                //method: 'POST',
+                success: function (response) {
+                    callback(response);
+//                            debugger
+//                            me.loadedMainSelectChanged(false,true);
+                },
+                error: function () {
+                    alert('Server error, try again later.');
+                }
+            }
+        })
+    },
+    downloadExampleFile: function (toolName, fileName) {
+        var url = OpencgaManager.files.downloadExample({
+            query: {
+                toolName: toolName,
+                fileName: fileName
+            },
+            request: {
+                url: true
+            }
+        });
+        var link = document.createElement('a');
+        link.href = url;
+        //link.setAttribute("download", "download.zip");
+        var event = new MouseEvent('click', {
+            'view': window,
+            'bubbles': true,
+            'cancelable': true
+        });
+        link.dispatchEvent(event);
+    },
+    argsParser: function (form, args) {
+        if (form.toolName == args.tool) {
+            for (var key in args) {
+                if (typeof(args[key]) == "object") {
+                    if (form.$[key] !== undefined)
+                        form.$[key].selectedFile = args[key];
+                }
+                else {
+                    var elems = form.shadowRoot.querySelectorAll('input[name="' + key + '"]');
+                    if (form.$[key] !== undefined) {
+                        switch (form.$[key].type) {
+                            case "checkbox":
+                                form.$[key].checked = args[key];
+                            default:
+                                form.$[key].value = args[key];
+                        }
+                    }
+                    for (var i = 0; i < elems.length; i++) {
+                        var elem = elems[i];
+                        if (elem.value == args[key])
+                            elem.checked = true;
+                    }
+
+                }
+            }
+        }
+    },
+    getLinks: function (terms) {
+        var links = [];
+        for (var i = 0; i < terms.length; i++) {
+            var term = terms[i];
+            links.push(Utils.getLink(term));
+        }
+        return links;
+    },
+    getLink: function (term) {
+        var link = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
+        if (term.indexOf("(") >= 0) {
+            var id = term.split("(");
+            if (id.length > 1)
+                id = id[1];
+            id = id.split(")")[0];
+
+        }
+        else
+            id = term;
+        if (id.indexOf("IPR") == 0)
+            link = "http://www.ebi.ac.uk/interpro/entry/";
+        link = link + id;
+        return link;
+    },
+    myRound: function (value, decimals) {
+        decimals = typeof decimals !== 'undefined' ? decimals : 2;
+        value = parseFloat(value);
+        /** rounding **/
+        if (Math.abs(value) >= 1)
+            value = value.toFixed(decimals);
+        else
+            value = value.toPrecision(decimals);
+        value = parseFloat(value);
+        return value;
+    },
+    formatNumber: function (value, decimals) {
+        value = Utils.myRound(value, decimals);
+
+        if (Math.abs(value) > 0 && Math.abs(value) < 0.001)
+            value = value.toExponential();
+        return value;
+    },
+    getSpecies: function (specieValue, species) {
+        for (var i = 0; i < species.length; i++) {
+            var specie = species[i];
+            if (specie.value == specieValue) {
+                return specie;
+            }
+        }
+        return null;
     },
     test: function () {
         return this;
@@ -217,6 +382,49 @@ var Utils = {
         setTimeout(function () {
             $(div).remove();
         }, 2200);
+    },
+    repeat: function (string, count) {
+        'use strict';
+        if (string == null) {
+            throw new TypeError('can\'t convert ' + string + ' to object');
+        }
+        var str = '' + string;
+        count = +count;
+        if (count != count) {
+            count = 0;
+        }
+        if (count < 0) {
+            throw new RangeError('repeat count must be non-negative');
+        }
+        if (count == Infinity) {
+            throw new RangeError('repeat count must be less than infinity');
+        }
+        count = Math.floor(count);
+        if (str.length == 0 || count == 0) {
+            return '';
+        }
+        // Ensuring count is a 31-bit integer allows us to heavily optimize the
+        // main part. But anyway, most current (august 2014) browsers can't handle
+        // strings 1 << 28 chars or longer, so:
+        if (str.length * count >= 1 << 28) {
+            throw new RangeError('repeat count must not overflow maximum string size');
+        }
+        var rpt = '';
+        for (; ;) {
+            if ((count & 1) == 1) {
+                rpt += str;
+            }
+            count >>>= 1;
+            if (count == 0) {
+                break;
+            }
+            str += str;
+        }
+        return rpt;
+
+    },
+    clone: function (obj) {
+        return JSON.parse(JSON.stringify(obj));
     }
 
 };
@@ -237,10 +445,9 @@ Utils.images = {
     box: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wMHAwRAVvTmTAAAAK/SURBVDjLpZM9bFxFGEXPNzPvZ+39sb2xHceREjDQBwlDCqqIiiotokAghYKEjvSkQkKJkEiB0lOkoAHaBAokFCQKUATIIOLIMbHWrHfX+7zvvZk3MzQODUgU3PJK5+g2F/5n5N/Kb66/1NNK3hAxr4HcFqVuvfju18V/Cu58sPmMVnJZ4K32Qr+t8za+KnCz4kCUuiGibm5euTv5h+CL958/nxj1XivVF+e6C9TVhPmFdbROgEhwNU1d4m09UaJuInLjhct3DgDUh5ee7j14PLxulLvYP/0seadPkub88Wib0eB3bDkmxgbRoFPpxeCuKvjsyQIzOyqImT7/y8Mh++NveW7jLFmrx6m1NlWxz6PHA7otQ7tloAmYJE9isOeeCJRtIrULLLUTjsqG7+//xs72z7jZgCTNONlVJKEiuobW0jqSaoiet19dFQATJcc2FSFEciNoLYwOHcPDASvdjM5cQntxlbR9gqacoFSK84VsnOrkH11Zdmp0FFXjobSeCFgXSDS0Eo11ge7yGXSaU092UUlCaEpC8FK4tDcu4rzZ2a/S+bWI94HSAgFigDQD24Cvp4gIOp0juBJvC2L07B1Uc/Mtg9k7sHMbywZrA3lLECV4AtaCpAp79CcmzXHlhOBrAJrGyNbOVBY7qTO1C9r5EKyPSttAiJEs01SuQStFkrdp6gKd5AzHjixVxCDxp+1paZRUxoc4Kp36bndYbS53U5WlCq0CMYIPMY7GI0mNpiqmGK0oK4jIveGkPgRqfTBt3A8Pqtvrq52HtglnGh9XIaKUkCQ6nj6RyWBsmdXCtFI/bu2Fq5c+3roGzIAgWokCDNACOhfOLb781Ip+vd+RC2dXWibROkxKvvp1z376yZe7d4HpMdz8/YVjiQYyoA30Ti6la2++0n/n83vTW/e3ix1gcgzXgPchBoC/AFu/UBF5InryAAAAAElFTkSuQmCC",
     bluebox: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wMHAwTE5pcivoAAALsSURBVDjLXZPPaxxlGMc/77wz+3N2k822tWsTIrQFe/BWEKxKCV5UohdFhJ60p6rgUfpP6C0K4kHx0ENEkV7aElHwUikhFVosRGoTm83+3pnZnXfed2beHtItIQ98+Z6+H57nga8AsNYKDkYcEofcHvKZEEJYcSTszPzqL3fmf3+w/+a51tytby9d6D0N5UecGeBZ8MPv/jh9fy/6dKzMpVPHmvWdbl/XCvKn5Wbl6+ufrNwGssMgYa2VgFj58sZr7VB/LqX3zlKrydJzTTzXxdqcx90hO+0Bk2l8Z74i1z6+cOba5VfOqGeAb3579M/NR53T40xwrDGHFALPEUjn4LoMi0ktwWTKXqCIqAVrbyycvHj2hHYBR+bO8Q/Ov0imEzZ2xrRDRalQwC9LLBalUgaJQy+tU6gvIBJbv3j2RA4IFxDdICFa9ulMCrz/UgOs5kEwpeh57I4Nt/dzsmLOYlEThgFjUePp33IHoD9SJAbuTVyudRweixJvnVtg3/i00wpLPiwQ0hkO6YYKawWj0UjONqAfKHwDkxTqqeW/RHA3hO2+Zqk05e5wTD9KmOqMKDEUqoLNzU0PyF2AQaBoaIhiw0h6TIwgUDCODb5NiWJNlKREyhAozXwOW1tbFSmlcAHbD2KaytCdGgyWglfEs4LeNKeaa4axYRgpwlgTTTXVDDqdTslaewAYh4kNlKUbZsTGonOwCYwm1vq5Ft1AMYgU08SQR5o0gziOcRxHuoCNtdl6uPHX6/Vmi3Yyh9I5IoEgMdkgT9x+qJhEGrdQo77cJMuy+4DJskwLa60DOCtf3HhZpfZKtVx+L3x+sfCv8CFxTINd72HfodQ4aQp5fP24/v/Hd4Nf/5RSJmma6lkXZn1wPvvq5qndsbhS9esf/Zy/UEtzxnURfn8+/fuHV7m353mecV1XSym1lDI72kaxvr5e3N7eruyP0tpG/e3LK/rW2mLNUb7vm3K5nFarVdNqtbJer2dXV1fzJ6cDpboAZRAGAAAAAElFTkSuQmCC",
     refresh: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAK8AAACvABQqw0mAAAAAd0SU1FB90CFA8bKScXIjIAAAJ1SURBVDjLlVJdSJNRGH7es+/7NlduWFLTKAskwjJqZYiBglJhLKguqou6EFkFIkLQH9IPBFI3BsouzMJupGYRajcqmeBFhWBU5oUgpZikrSnzZ9v3nW/ndKEbziXUAwfOOe/7Puc9z/MCq1DwMmB1NX/rzfCNnsc/gK08lPgnnT8Cs33BULg0HI4YKdkHX9DqKwKArXXv1bTMTFcoyruC89E8MxaDw659t6rKhIUwRBLdP2t2v/5bBwQA+5pH8ibnIj3BucgWIQRASw8RERTGYFUtsGmWYUXKmqmr7t4UAnal54GQ8lq8MBlyOU0CEnA67MiwqfvHbhZ+Smgg6o9eV2L8Nhk6wI2lZeggrpvE+TTjxgxxQ4IbmJsJYSa00JQiotnguacJ8zIZOmDosAnzTpowt8tGj0s0ejZqprnDKmPHSNebjHDkUPatt4cTTbZ+LsmO79XK52dZxTNp9/ovAEDnaM62lo8HHrd9SVfiOelVryrSq9vrEx0s8sW2tuEzDgDgT875bcIsjy6owwAwHhjnYT5bGTL29PiHyuwAMO873aL/Ct5PiPjwXe5vq7KJW2hdJxENMFInGCkhIblLj80WRoyxGxZmh1XJGlSIlV8s6A8kuVDXn+MF6JHC7GBkBSNlOSRgiihMsQhAgJGGNNU1atc2HPG6O8YSBABwt2/nGyFlGSCSB4UIBMuyoQKMFNiUjIApRH5t8YfpFOOrO/JrhZBVUiJLxq2ipIkY8Z36uivpC6txqb3YbhqhIingFlLmxmLSKyXAGAaYqh13aFjfcHJwfE2ClSitK9psc85PMVC3M999orX4Kcf/wuPb27VW7A+O2QVVA1M1CQAAAABJRU5ErkJggg==",
-    newitem: "data:image/png;base64,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",
-    pathwayParent: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAVklEQVR42tVSQQoAIAza0/a0/bwuLUZJaJ0SPGSbSGZW4O5t5UnfMC4mqwHSocFTgkRENEWHg0l0pnG9KMX+szqYSqku020GLKGB0gJlIL8B2w4N9h90t4HQjSs2eNAAAAAASUVORK5CYII=",
-    pathway: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVR42mNgGCzgPxRTbADZBiFr/I9FjmTDGCgx5D8BcYLe/E8kpq0LqBoG/ymNRvonpCEGAFWvKtY210w0AAAAAElFTkSuQmCC"
+    newitem: "data:image/png;base64,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"
 };
+
 
 Utils.genBamVariants = function (seq, size, x, y) {
     var length = seq.length;
@@ -252,71 +459,71 @@ Utils.genBamVariants = function (seq, size, x, y) {
         switch (seq.charAt(i)) {
             case "A" :
                 d += "M" + ((2.5 * s) + x) + "," + (y) +
-                    "l-" + (2.5 * s) + "," + (6 * s) +
-                    "l" + s + ",0" +
-                    "l" + (0.875 * s) + ",-" + (2 * s) +
-                    "l" + (2.250 * s) + ",0" +
-                    "l" + (0.875 * s) + "," + (2 * s) +
-                    "l" + s + ",0" +
-                    "l-" + (2.5 * s) + ",-" + (6 * s) +
-                    "l-" + (0.5 * s) + ",0" +
-                    "l0," + s +
-                    "l" + (0.75 * s) + "," + (2 * s) +
-                    "l-" + (1.5 * s) + ",0" +
-                    "l" + (0.75 * s) + ",-" + (2 * s) +
-                    "l0,-" + s +
-                    " ";
+                "l-" + (2.5 * s) + "," + (6 * s) +
+                "l" + s + ",0" +
+                "l" + (0.875 * s) + ",-" + (2 * s) +
+                "l" + (2.250 * s) + ",0" +
+                "l" + (0.875 * s) + "," + (2 * s) +
+                "l" + s + ",0" +
+                "l-" + (2.5 * s) + ",-" + (6 * s) +
+                "l-" + (0.5 * s) + ",0" +
+                "l0," + s +
+                "l" + (0.75 * s) + "," + (2 * s) +
+                "l-" + (1.5 * s) + ",0" +
+                "l" + (0.75 * s) + ",-" + (2 * s) +
+                "l0,-" + s +
+                " ";
                 break;
             case "T" :
                 d += "M" + ((0.5 * s) + x) + "," + (y) +
-                    "l0," + s +
-                    "l" + (2 * s) + ",0" +
-                    "l0," + (5 * s) +
-                    "l" + s + ",0" +
-                    "l0,-" + (5 * s) +
-                    "l" + (2 * s) + ",0" +
-                    "l0,-" + s +
-                    " ";
+                "l0," + s +
+                "l" + (2 * s) + ",0" +
+                "l0," + (5 * s) +
+                "l" + s + ",0" +
+                "l0,-" + (5 * s) +
+                "l" + (2 * s) + ",0" +
+                "l0,-" + s +
+                " ";
                 break;
             case "C" :
                 d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
-                    "l-" + (2 * s) + ",0" +
-                    "l-" + (1.5 * s) + "," + (0.5 * s) +
-                    "l-" + (0.5 * s) + "," + (1.5 * s) +
-                    "l0," + (2 * s) +
-                    "l" + (0.5 * s) + "," + (1.5 * s) +
-                    "l" + (1.5 * s) + "," + (0.5 * s) +
-                    "l" + (2 * s) + ",0" +
-                    "l0,-" + s +
-                    "l-" + (2 * s) + ",0" +
-                    "l-" + (0.75 * s) + ",-" + (0.25 * s) +
-                    "l-" + (0.25 * s) + ",-" + (0.75 * s) +
-                    "l0,-" + (2 * s) +
-                    "l" + (0.25 * s) + ",-" + (0.75 * s) +
-                    "l" + (0.75 * s) + ",-" + (0.25 * s) +
-                    "l" + (2 * s) + ",0" +
-                    " ";
+                "l-" + (2 * s) + ",0" +
+                "l-" + (1.5 * s) + "," + (0.5 * s) +
+                "l-" + (0.5 * s) + "," + (1.5 * s) +
+                "l0," + (2 * s) +
+                "l" + (0.5 * s) + "," + (1.5 * s) +
+                "l" + (1.5 * s) + "," + (0.5 * s) +
+                "l" + (2 * s) + ",0" +
+                "l0,-" + s +
+                "l-" + (2 * s) + ",0" +
+                "l-" + (0.75 * s) + ",-" + (0.25 * s) +
+                "l-" + (0.25 * s) + ",-" + (0.75 * s) +
+                "l0,-" + (2 * s) +
+                "l" + (0.25 * s) + ",-" + (0.75 * s) +
+                "l" + (0.75 * s) + ",-" + (0.25 * s) +
+                "l" + (2 * s) + ",0" +
+                " ";
                 break;
             case "G" :
                 d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
-                    "l-" + (2 * s) + ",0" +
-                    "l-" + (1.5 * s) + "," + (0.5 * s) +
-                    "l-" + (0.5 * s) + "," + (1.5 * s) +
-                    "l0," + (2 * s) +
-                    "l" + (0.5 * s) + "," + (1.5 * s) +
-                    "l" + (1.5 * s) + "," + (0.5 * s) +
-                    "l" + (2 * s) + ",0" +
-                    "l0,-" + (3 * s) +
-                    "l-" + (s) + ",0" +
-                    "l0," + (2 * s) +
-                    "l-" + (s) + ",0" +
-                    "l-" + (0.75 * s) + ",-" + (0.25 * s) +
-                    "l-" + (0.25 * s) + ",-" + (0.75 * s) +
-                    "l0,-" + (2 * s) +
-                    "l" + (0.25 * s) + ",-" + (0.75 * s) +
-                    "l" + (0.75 * s) + ",-" + (0.25 * s) +
-                    "l" + (2 * s) + ",0" +
-                    " ";
+                "l-" + (2 * s) + ",0" +
+                "l-" + (1.5 * s) + "," + (0.5 * s) +
+                "l-" + (0.5 * s) + "," + (1.5 * s) +
+                "l0," + (2 * s) +
+                "l" + (0.5 * s) + "," + (1.5 * s) +
+                "l" + (1.5 * s) + "," + (0.5 * s) +
+                "l" + (2 * s) + ",0" +
+                "l0,-" + (3 * s) +
+                "l-" + (s) + ",0" +
+                "l0," + (2 * s) +
+                "l-" + (s) + ",0" +
+                "l-" + (0.75 * s) + ",-" + (0.25 * s) +
+                "l-" + (0.25 * s) + ",-" + (0.75 * s) +
+                "l0,-" + (2 * s) +
+                "l" + (0.25 * s) + ",-" + (0.75 * s) +
+                "l" + (0.75 * s) + ",-" + (0.25 * s) +
+                "l" + (2 * s) + ",0" +
+                " ";
 //                d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
 //                    "l-" + (2 * s) + ",0" +
 //                    "l-" + (2 * s) + "," + (2 * s) +
@@ -335,24 +542,24 @@ Utils.genBamVariants = function (seq, size, x, y) {
                 break;
             case "N" :
                 d += "M" + ((0.5 * s) + x) + "," + ((0 * s) + y) +
-                    "l0," + (6 * s) +
-                    "l" + s + ",0" +
-                    "l0,-" + (4.5 * s) +
-                    "l" + (3 * s) + "," + (4.5 * s) +
-                    "l" + s + ",0" +
-                    "l0,-" + (6 * s) +
-                    "l-" + s + ",0" +
-                    "l0," + (4.5 * s) +
-                    "l-" + (3 * s) + ",-" + (4.5 * s) +
-                    " ";
+                "l0," + (6 * s) +
+                "l" + s + ",0" +
+                "l0,-" + (4.5 * s) +
+                "l" + (3 * s) + "," + (4.5 * s) +
+                "l" + s + ",0" +
+                "l0,-" + (6 * s) +
+                "l-" + s + ",0" +
+                "l0," + (4.5 * s) +
+                "l-" + (3 * s) + ",-" + (4.5 * s) +
+                " ";
                 break;
             case "d" :
                 d += "M" + ((0 * s) + x) + "," + ((2.5 * s) + y) +
-                    "l" + (6 * s) + ",0" +
-                    "l0," + (s) +
-                    "l-" + (6 * s) + ",0" +
-                    "l0,-" + (s) +
-                    " ";
+                "l" + (6 * s) + ",0" +
+                "l0," + (s) +
+                "l-" + (6 * s) + ",0" +
+                "l0,-" + (s) +
+                " ";
                 break;
             default:
                 d += "M0,0";

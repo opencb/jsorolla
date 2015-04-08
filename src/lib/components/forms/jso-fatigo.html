@@ -1,0 +1,780 @@
+<polymer-element name="jso-fatigo" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                padding: 15px 40px;
+
+                z-index: 50000;
+                margin: 0px auto 0px auto;
+
+                width: 80%;
+                min-width: 800px;
+                border: 1px solid #c6d0da;
+                transition: all 0.2s;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+                background-color: #FFFFFF;
+            }
+
+
+            .close {
+                color: #aaa;
+            }
+
+            .close:hover {
+                color: #ffad76;
+            }
+
+            .message {
+                margin-top: 20px;
+            }
+
+            .botbar {
+                margin-top: 10px;
+            }
+
+            .db_options {
+                margin: 5px;
+                border: 1px solid #d3d3d3;
+                padding: 5px
+            }
+
+            textarea {
+                margin: 3px;
+            }
+
+            input:disabled + span,
+            input:disabled + span:before {
+                color: #d3d3d3 !important;
+            }
+
+            input:disabled + span,
+            input:disabled + span:before {
+                color: #d3d3d3 !important;
+            }
+
+            input:disabled + span,
+            input:disabled + span:before {
+                color: #d3d3d3 !important;
+            }
+
+            select:disabled {
+                color: #d3d3d3 !important;
+            }
+
+            label {
+                display: block;
+            }
+
+            input[type=text] {
+                width: 150px;
+            }
+        </style>
+        <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
+            <div flex>
+                Fatigo
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Single%20Enrichment">
+                    <font-awesome icon="question-circle"></font-awesome>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
+        </div>
+        <form id="form">
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"
+                         style="width:150px;">motor vs apoptosis
+                    </div>
+                    <div class="button action" on-click="{{handleDownloadFile}}"data-example="example.zip"  style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Define your comparison</div>
+                <div class="formcontent">
+                    <label class="control">
+                        <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}"
+                               checked>
+                        <span>Id list vs Id list</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}"
+                                >
+                        <span>Id List vs Rest of genome</span>
+                    </label>
+                    <label class="control">
+                        <input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">
+                        <span>Id List vs Rest of ids contained in your annotations (complementary list)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your data</div>
+                <div class="formcontent">
+                    <jso-project-browser-window
+                            id="inputFile"
+                            studies="{{studies}}"
+                            selectedStudy="{{selectedStudy}}"
+                            selectionMode="file"
+                            allowTextArea="true"
+                            on-file-select="{{handleFileSelect}}"
+                            bioformat="IDLIST,IDLIST_RANKED"
+                            networkViewer="{{networkViewer}}"
+                            ></jso-project-browser-window>
+                </div>
+            </div>
+
+            <!--<div class="formbox">-->
+            <!--<div class="formtitle">Select your data(List 2)</div>-->
+            <!--<div class="formcontent">-->
+            <!---->
+            <!--</div>-->
+            <!--</div>-->
+            <div class="formbox">
+                <div class="formtitle">List 2</div>
+                <div class="formcontent">
+                    <div id="option1">
+                        <jso-project-browser-window id="inputFile2" studies="{{studies}}"
+                                                    selectedStudy="{{selectedStudy}}"
+                                                    selectionMode="file"
+                                                    on-file-select="{{handleFileSelect}}"
+                                                    allowTextArea="true"
+                                                    bioformat="IDLIST,IDLIST_RANKED"
+                                                    networkViewer="{{networkViewer}}"
+                                ></jso-project-browser-window>
+                    </div>
+                    <div id="option2" hidden>
+                        <span>Rest of the genome</span>
+                    </div>
+
+                    <div id="option3" hidden>
+                        <span>Rest of ids contained in your annotations (complementary list)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Options</div>
+                <div id="options" class="formcontent" vertical layout>
+                    <label>Fisher exact test</label>
+
+                    <div class="select" style="width: 200px">
+                        <select name="fisher" id="fisher" class="fc-combobox" type="text" value="" >
+                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed" >Two
+                                tailed
+                            </option>
+                            <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
+                                Over-represented terms in list 1 (genome
+                                comparison)
+                            </option>
+                            <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented
+                                terms in list 2
+                            </option>
+                        </select>
+                    </div>
+                    <label>Remove duplicates</label>
+
+                    <div class="select" style="width: 200px">
+                        <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
+                            <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">Never
+                            </option>
+                            <option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">Remove
+                                on each list separately
+                            </option>
+                            <option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">Remove on
+                                each list and common ids
+                            </option>
+                            <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">Remove
+                                from list2 those appearing in list1
+                                (complementary list)
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Databases</div>
+                <div class="formcontent">
+                    <div id="databases">
+                        <div class="select">
+                            <select name="species" id="species" class="fc-combobox" type="text" value="none"
+                                    on-change="{{handleSpecies}}">
+                                <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism</option>
+                                <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
+                                <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa"
+                                        >Human (homo sapiens)
+                                </option>
+                                <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">Mouse (mus
+                                    musculus)
+                                </option>
+                                <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">Rat (rattus
+                                    norvegicus)
+                                </option>
+                                <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">Fruitfly
+                                    (drosophila melanogaster)
+                                </option>
+                                <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
+                                <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">Zebrafish
+                                    (danio rerio)
+                                </option>
+                                <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">Saccharomyces
+                                    cerevisiae
+                                </option>
+                                <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">Caenorhabditis
+                                    elegans
+                                </option>
+                                <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">Arabidopsis
+                                    thaliana
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <br>
+
+                            <div horizontal layout>
+                                <label class="control">
+                                    <input name="go_bp" id="go_bp" type="checkbox" value="gobp">
+                                    <span>GO biological process</span>
+                                </label>
+
+                                <div id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show
+                                    options...
+                                </div>
+                            </div>
+                            <div id="bpOptions" class="db_options" hidden>
+                                Filter terms by number of annotated ids in DB<br>
+                                <label>Minimum</label>
+                                <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text"
+                                       type="text" value="5" size="10">
+                                <label>Maximum</label>
+                                <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text"
+                                       type="text" value="500" size="10">
+                                <!--Filter terms by keywords-->
+                                <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                                <!--<label class="control">
+                            <input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                                <!--<label class="control">
+                            <input id="go_bp_keyword_operator_2" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                            </div>
+                            <br>
+
+                            <div horizontal layout>
+                                <label class="control">
+                                    <input name="go_mf" id="go_mf" type="checkbox" value="gomf">
+                                    <span>GO molecular function</span>
+                                </label>
+
+                                <div id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show
+                                    options...
+                                </div>
+                            </div>
+                            <div id="mfOptions" class="db_options" hidden>
+                                Filter terms by number of annotated ids in DB<br>
+                                <label>Minimum</label>
+                                <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text"
+                                       type="text" value="5" size="10">
+                                <label>Maximum</label>
+                                <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text"
+                                       type="text" value="500" size="10">
+                                <!--Filter terms by keywords-->
+                                <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                                <!--<label class="control">
+                            <input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                                <!--<label class="control">
+                            <input id="go_mf_keyword_operator_2" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                            </div>
+                            <br>
+
+                            <div horizontal layout>
+                                <label class="control">
+                                    <input name="go_cc" id="go_cc" type="checkbox" value="gocc">
+                                    <span>GO cellular component</span>
+                                </label>
+
+                                <div id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show
+                                    options...
+                                </div>
+                            </div>
+                            <div id="ccOptions" class="db_options" hidden>
+                                Filter terms by number of annotated ids in DB<br>
+                                <label>Minimum</label>
+                                <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text"
+                                       type="text" value="5" size="10">
+                                <label>Maximum</label>
+                                <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text"
+                                       type="text" value="500" size="10">
+                                <!--Filter terms by keywords-->
+                                <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                                <!--<label class="control">
+                            <input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                                <!--<label class="control">
+                            <input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                            </div>
+                            <br>
+
+                            <div horizontal layout>
+                                <label class="control">
+                                    <input name="go_slim" id="go_slim" type="checkbox" value="go-slim">
+                                    <span>GOSlim GOA</span>
+                                </label>
+
+                                <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show
+                                    options...
+                                </div>
+                            </div>
+                            <div id="slimOptions" class="db_options" hidden>
+                                Filter terms by number of annotated ids in DB<br>
+                                <label>Minimum</label>
+                                <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text"
+                                       type="text" value="5" size="10">
+                                <label>Maximum</label>
+                                <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text"
+                                       type="text" value="500" size="10">
+                                <!--Filter terms by keywords-->
+                                <!--<input name="go_slim_keyword_list" id="go_slim_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                                <!--<label class="control">
+                            <input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                                <!--<label class="control">
+                            <input id="go_slim_keyword_operator_2" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                            </div>
+                            <br>
+
+                            <div horizontal layout>
+                                <label class="control">
+                                    <input name="interpro" id="interpro" type="checkbox" value="interpro">
+                                    <span>Interpro</span>
+                                </label>
+
+                                <div id="interproOptionsButton" class="button action"
+                                     on-click="{{interproOptionsFunction}}">Show options...
+                                </div>
+                            </div>
+                            <div id="interproOptions" class="db_options" hidden>
+                                Filter terms by number of annotated ids in DB<br>
+                                <label>Minimum</label>
+                                <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text"
+                                       type="text" value="5" size="10">
+                                <label>Maximum</label>
+                                <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text"
+                                       type="text" value="500" size="10">
+                                <!--Filter terms by keywords-->
+                                <!--<input name="go_interpro_keyword_list" id="go_interpro_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                                <!--<label class="control">
+                            <input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                                <!--<label class="control">
+                            <input id="go_interpro_keyword_operator_2" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                            </div>
+                            <br>
+
+                            <div horizontal layout>
+                                <label class="control">
+                                    <input name="recon" id="recon" type="checkbox" value="recon">
+                                    <span>Genome-Scale Metabolic Network</span>
+                                </label>
+
+                                <div id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show
+                                    options...
+                                </div>
+                            </div>
+                            <div id="reconOptions" class="db_options" hidden>
+                                Filter terms by number of annotated ids in DB<br>
+                                <label>Minimum</label>
+                                <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text"
+                                       type="text" value="5" size="10">
+                                <label>Maximum</label>
+                                <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text"
+                                       type="text" value="500" size="10">
+                                <!--Filter terms by keywords-->
+                                <!--<input name="recon_keyword_list" id="recon_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
+                                <!--<label class="control">
+                            <input id="recon_keyword_operator_1" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
+                                <!--<label class="control">
+                            <input id="recon_keyword_operator_2" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
+                            </div>
+                            <br>
+                            <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
+                            <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
+                            <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
+                            <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
+                            <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
+                            <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
+
+
+                        </div>
+                    </div>
+                    <div id="your_annotations_div">
+                        <div horizontal layout>
+                            <label class="control">
+                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
+                                <span>Your annotations</span>
+
+                            </label>
+                        </div>
+                        <div style="margin-left: 30px">
+                            <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                                                        selectedStudy="{{selectedStudy}}"
+                                                        selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                        bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="formbox">
+                <div class="formtitle">Job information</div>
+                <div class="formcontent">
+                    <label>Output folder</label>
+                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
+                    <br>
+                    <label>Job name</label>
+                    <input type="text" id="jobName" value="{{jobName}}" required>
+                    <label>Description</label>
+                    <textarea value="{{description}}" required></textarea>
+                </div>
+            </div>
+
+            <div class="botbar" horizontal layout center-justified>
+                <div class="button action big" on-click="{{handleForm}}">
+                    <font-awesome icon="rocket"></font-awesome>
+                    &nbsp; Launch job
+                </div>
+            </div>
+            </div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.jobName = 'JobName';
+                this.toolName = "fatigo";
+                this.description = "Description";
+
+            },
+            handleDownloadFile: function (e) {
+                Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
+            },
+
+            argsChanged: function () {
+                Utils.argsParser(this, this.args);
+
+
+//                this.message = '';
+//                this.jobName = "Job name";
+//                this.description = "description";
+//                this.$.inputFile.selectedFile = this.args.list1;
+//
+//                if (this.args.list2 !== undefined)
+//                    this.$.inputFile2.selectedFile = this.args.list2;
+//
+//                if (this.args.species !== undefined)
+//                    this.$.species.value = this.args.species;
+//
+//                if (this.args.duplicates !== undefined)
+//                    this.$.duplicates.value = "never";
+//
+//                if (this.args.fisher !== undefined)
+//                    this.$.fisher.value = this.args.fisher;
+//
+                if (this.args.comparisonRadio !== undefined) {
+                    var radios = this.shadowRoot.querySelectorAll('input[name="comparisonRadio"]');
+                    for (var i = 0; i < radios.length; i++) {
+                        var radio = radios[i];
+                        if (radio.value == this.args.comparisonRadio)
+                            radio.checked = true;
+                    }
+                    this.comparisonChange();
+                }
+
+            },
+
+            comparisonChange: function () {
+                this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
+                this.list2 = false;
+                this.rest = false;
+                this.genome = false;
+                if (this.comparison == "list2list") {
+                    this.$.option1.hidden = false;
+                    this.$.option2.hidden = true;
+                    this.$.option3.hidden = true;
+                    this.$.fisher.disabled = false;
+
+                    this.$.species.disabled = false;
+                    this.$.your_annotations.disabled = false;
+//                    this.$.annotationsFile.disabled = false;
+
+                }
+                if (this.comparison == "list2genome") {
+                    this.genome = true;
+                    this.$.option1.hidden = true;
+                    this.$.option2.hidden = false;
+                    this.$.option3.hidden = true;
+                    this.$.fisher.disabled = true;
+
+                    this.$.species.disabled = false;
+
+//                    this.$.your_annotations.disabled = true;
+                    this.$.your_annotations.disabled = false;
+//                    this.$.annotationsFile.disabled = true;
+
+
+                }
+                if (this.comparison == "list2rest") {
+                    this.genome = true;
+                    this.$.option1.hidden = true;
+                    this.$.option2.hidden = true;
+                    this.$.option3.hidden = false;
+
+                    this.$.species.disabled = true;
+
+
+                    this.$.your_annotations.disabled = false;
+//                    this.$.annotationsFile.disabled = false;
+                }
+            },
+            handleCancel: function () {
+                this.selectedOption = '';
+            },
+            handleForm: function () {
+                this.launchJob();
+            },
+            launchJob: function () {
+                var me = this;
+//                if (!Utils.basicValidationForm(this)) {
+//                    return;
+//                }
+                if (this.$.outdir.selectedFile === undefined) {
+                    alert("Sorry. No output folder selected. Please select one. ");
+                    return;
+                }
+                this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
+                if (this.$.species.value == "none" && this.comparison != "list2rest") {
+                    alert("Sorry. No species selected. Please select one. ");
+                    return
+                }
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.selectedStudy.id,
+                    toolId: this.toolName,
+                    name: this.jobName,
+                    description: this.description,
+                    outdir: this.$.outdir.selectedFile.id,
+//                    list1: "",
+                    duplicates: this.$.duplicates.value,
+                    "species": this.$.species.value,
+                    fisher: this.$.fisher.value
+                };
+
+                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                    alert("Sorry. No input selected. Please select a file or write something in the text area");
+                    return;
+                }
+                if (this.$.inputFile.textAreaValue != "") {
+                    query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+                }
+                else if (this.$.inputFile.selectedFile !== undefined) {
+                    query["list1"] = this.$.inputFile.selectedFile.id;
+                }
+
+                this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
+                if (this.comparison == "list2list") {
+                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
+                        alert("Sorry. No list 2 selected. Please select a file or write something in the text area");
+                        return;
+                    }
+                    if (this.$.inputFile2.selectedFile !== undefined) {
+                        query["list2"] = this.$.inputFile2.selectedFile.id;
+                    }
+                    if (this.$.inputFile2.textAreaValue != "") {
+                        query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
+                    }
+                }
+                else if (this.comparison == "list2genome") {
+                    query["genome"] = "";
+                }
+                //else if (this.comparison == "list2rest") {
+                if (this.$.your_annotations.checked) {
+                    if (this.$.annotationsFile.selectedFile === undefined) {
+                        alert("no annotation file selected")
+                        return;
+                    }
+                    else
+                        query["annotations"] = this.$.annotationsFile.selectedFile.id;
+                }
+                // }
+                if (!this.$.go_bp.checked && !this.$.go_cc.checked && !this.$.go_mf.checked && !this.$.go_slim.checked && !this.$.interpro.checked && !this.$.recon.checked && !this.$.your_annotations.checked) {
+                    alert("Sorry. No database selected. Please select one");
+                    return;
+                }
+                if (this.$.go_bp.checked) {
+                    query["go-bp"] = "";
+                    query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes.value;
+                    query["go-bp-max-num-genes"] = this.$.go_bp_max_num_genes.value;
+                }
+                if (this.$.go_cc.checked) {
+                    query["go-cc"] = "";
+                    query["go-cc-min-num-genes"] = this.$.go_cc_min_num_genes.value;
+                    query["go-cc-max-num-genes"] = this.$.go_cc_max_num_genes.value;
+                }
+                if (this.$.go_mf.checked) {
+                    query["go-mf"] = "";
+                    query["go-mf-min-num-genes"] = this.$.go_mf_min_num_genes.value;
+                    query["go-mf-max-num-genes"] = this.$.go_mf_max_num_genes.value;
+                }
+                if (this.$.go_slim.checked) {
+                    query["go-slim"] = "";
+                    query["go-slim-min-num-genes"] = this.$.go_slim_min_num_genes.value;
+                    query["go-slim-max-num-genes"] = this.$.go_slim_max_num_genes.value;
+                }
+                if (this.$.interpro.checked) {
+                    query["interpro"] = "";
+                    query["interpro-min-num-genes"] = this.$.interpro_min_num_genes.value;
+                    query["interpro-max-num-genes"] = this.$.interpro_max_num_genes.value;
+                }
+                if (this.$.recon.checked) {
+                    query["recon"] = "";
+                    query["recon-min-num-genes"] = this.$.recon_min_num_genes.value;
+                    query["recon-max-num-genes"] = this.$.recon_max_num_genes.value;
+                }
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = userId + ' created';
+                                me.selectedOption = "jobLaunched"
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            },
+
+            loadExample1: function (e) {
+                this.$.go_bp.disabled = false;
+                this.$.go_bp.checked = true;
+                this.message = '';
+                this.duplicates = "never";
+                this.go_bp_keyword_operator = "all";
+                this.$.species.value = "hsa";
+                this.go_bp_max_level = 9;
+                this.go_bp = "gobp";
+                this.go_bp_propagation = "propagate";
+                this.go_bp_min_num_genes = 5;
+                this.$.inputFile.selectedFile = {id: "example_example.motor", path: "example.motor", type: "FILE"};
+                this.$.inputFile2.selectedFile = {id: "example_example.apoptosis", path: "example.apoptosis"};
+                this.annotations = "none";
+                this.go_bp_nannot_domain = "genome";
+                this.fisher = "two-tailed";
+                this.go_bp_max_num_genes = 500;
+                this.go_bp_min_level = 3;
+
+                var exampleFolder = "fati_motor_apop";
+                this.createExampleFolder(exampleFolder);
+
+            },
+            createExampleFolder: function (exampleFolder) {
+                var me = this;
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: me.$.outdir.selectedStudy.id,
+                        name: exampleFolder
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.$.outdir.selectedFile = response.response[0].result[0];
+                                if (response.response[0].result.length == 0) {
+                                    OpencgaManager.files.createFolder({
+                                        query: {
+                                            sid: Cookies('bioinfo_sid'),
+                                            studyId: me.$.outdir.selectedStudy.id,
+                                            folder: exampleFolder
+
+                                        },
+                                        request: {
+                                            success: function (response) {
+                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                                    me.$.outdir.selectedFile = response.response[0].result[0];
+                                                } else {
+
+                                                }
+                                            },
+                                            error: function () {
+                                                alert('Server error, try again later.');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            },
+
+            handleSpecies: function (e) {
+                this.species = this.$.species.value;
+                if (this.species == "hsa") {
+                    this.$.go_slim.disabled = false;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = false;
+
+                }
+                if (this.species == "ath") {
+                    this.$.go_slim.disabled = true;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = true;
+
+                }
+                if (this.species == "cel") {
+                    this.$.go_slim.disabled = true;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = true;
+                }
+                if (this.species == "dme" || this.species == "dre" || this.species == "mmu" || this.species == "rno" || this.species == "sce") {
+                    this.$.go_slim.disabled = false;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = true;
+                }
+
+            },
+            bpOptionsFunction: function (e, b) {
+                this.$.bpOptions.hidden = !this.$.bpOptions.hidden;
+            },
+            ccOptionsFunction: function () {
+                this.$.ccOptions.hidden = !this.$.ccOptions.hidden;
+            },
+            mfOptionsFunction: function () {
+                this.$.mfOptions.hidden = !this.$.mfOptions.hidden;
+            },
+            slimOptionsFunction: function () {
+                this.$.slimOptions.hidden = !this.$.slimOptions.hidden;
+            },
+            interproOptionsFunction: function () {
+                this.$.interproOptions.hidden = !this.$.interproOptions.hidden;
+            },
+            reconOptionsFunction: function () {
+                this.$.reconOptions.hidden = !this.$.reconOptions.hidden;
+            }
+        });
+    </script>
+</polymer-element>

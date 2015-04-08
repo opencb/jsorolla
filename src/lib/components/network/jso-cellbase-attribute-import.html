@@ -1,0 +1,474 @@
+<polymer-element name="jso-cellbase-attribute-import" extends="jso-window" attributes="attributeManager">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+
+                width: 650px;
+                height: 420px;
+            }
+
+            #panel {
+                width: 100%;
+                height: 100%;
+                /*background-color: #FFFFFF;*/
+            }
+
+            .checkbox {
+                width: 25px;
+            }
+
+            .checkbox::after {
+                font-family: 'FontAwesome';
+                content: ' \00a0'
+            }
+
+            .checkbox[data-checked]::after {
+                content: '\f00c'
+            }
+
+            .selbox {
+                box-sizing: border-box;
+                overflow-y: auto;
+                border: 1px solid #d3d3d3;
+                background-color: #FFF;
+            }
+
+            .selitem {
+                padding: 2px 5px;
+            }
+
+            .selitem[data-checked=true] {
+                background-color: #ddd;
+                /*background-color: #435f7a;*/
+                /*background-color: #f07746;*/
+                /*color: #fff;*/
+            }
+
+
+        </style>
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Import Cellbase attributes</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" flex horizontal layout>
+
+                <div vertical layout style="width:230px;padding:5px;">
+                    <label style="margin-top: 5px;">Species</label>
+
+                    <div class="selbox" flex>
+                        <template repeat="{{spe in species}}">
+                            <div class="selitem"
+                                 data-checked="{{ speciesSelected == spe }}"
+                                 on-click="{{handleSpeciesSelect}}">{{spe.name}}
+                            </div>
+                        </template>
+                    </div>
+
+                    <label style="margin-top: 10px;">Attributes</label>
+
+                    <div class="selbox" flex>
+                        <template repeat="{{column in attributeManager.columns}}">
+                            <div class="selitem"
+                                 data-checked="{{ columnSelected == column }}"
+                                 on-click="{{handleEditSelect}}">{{column.title}}
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div flex vertical layout style="margin:5px;">
+                    <div horizontal layout>
+                        <div class="button action" style="padding:0 10px;margin-right:2px;"
+                             data-checked="{{selectedList == 'ext'}}"
+                             on-click="{{handleSelectExtList}}">External Ids
+                        </div>
+                        <div class="button action"
+                             data-checked="{{selectedList == 'func'}}"
+                             on-click="{{handleSelectFuncList}}">Functional information
+                        </div>
+                        <!--<div class="button action" style="padding:0 10px;margin-left:2px;"-->
+                        <!--data-checked="{{selectedList == 'repo'}}"-->
+                        <!--on-click="{{handleSelectRepoList}}">Repositories-->
+                        <!--</div>-->
+                    </div>
+                    <div class="selbox" flex style="margin-top:3px;">
+                        <template if="{{selectedList == 'ext'}}">
+                            <div class="attributelist">
+                                <template repeat="{{item in extList}}">
+                                    <div horizontal layout style="padding:2px;">
+                                        <div class="button action checkbox"
+                                             data-checked?="{{ item.selected }}"
+                                             on-click="{{handleItemSelect}}"></div>
+                                        <div class="text">{{item.boxLabel}}</div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template if="{{selectedList == 'func'}}">
+                            <div class="attributelist">
+                                <template repeat="{{item in funcList}}">
+                                    <div horizontal layout style="padding:2px;">
+                                        <div class="button action checkbox"
+                                             data-checked?="{{ item.selected }}"
+                                             on-click="{{handleItemSelect}}"></div>
+                                        <div class="text">{{item.boxLabel}}</div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template if="{{selectedList == 'repo'}}">
+                            <div class="attributelist">
+                                <template repeat="{{item in repoList}}">
+                                    <div horizontal layout style="padding:2px;">
+                                        <div class="button action checkbox"
+                                             data-checked?="{{ item.selected }}"
+                                             on-click="{{handleItemSelect}}"></div>
+                                        <div class="text">{{item.boxLabel}}</div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+            <div class="footer" horizontal layout>
+                <div class="text" horizontal layout flex>
+                    <template if="{{loading}}">
+                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                    </template>
+                    <div>{{message}}</div>
+                </div>
+                <div horizontal end-justified layout>
+                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Go</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.species = [
+                    {name: "Homo sapiens", value: "hsapiens"},
+                    {name: "Mus musculus", value: "mmusculus"},
+                    {name: "Rattus norvegicus", value: "rnorvegicus"},
+                    {name: "Bos taurus", value: "btaurus"},
+                    {name: "Gallus gallus", value: "ggallus"},
+                    {name: "Sus scrofa", value: "sscrofa"},
+                    {name: "Canis familiaris", value: "cfamiliaris"},
+                    {name: "Drosophila melanogaster", value: "dmelanogaster"},
+                    {name: "Caenorhabditis elegans", value: "celegans"},
+                    {name: "Saccharomyces cerevisiae", value: "scerevisiae"},
+                    {name: "Danio rerio", value: "drerio"},
+                    {name: "Schizosaccharomyces pombe", value: "spombe"},
+                    {name: "Escherichia coli", value: "ecoli"},
+                    {name: "Human immunodeficiency virus 1", value: "hiv-1"},
+                    {name: "Influenza A virus", value: "flu-a"},
+                    {name: "Clostridium botulinum", value: "cbotulinum"},
+                    {name: "Arabidopsis thaliana", value: "athaliana"},
+                    {name: "Plasmodium falciparum", value: "pfalciparum"},
+                    {name: "Dictyostelium discoideum", value: "ddiscoideum"},
+                    {name: "Mycobacterium tuberculosis", value: "mtuberculosis"},
+                    {name: "Neisseria meningitidis serogroup B", value: "nmeningitidis"},
+                    {name: "Chlamydia trachomatis", value: "ctrachomatis"},
+                    {name: "Oryza sativa", value: "osativa"},
+                    {name: "Toxoplasma gondii", value: "tgondii"},
+                    {name: "Xenopus tropicalis", value: "xtropicalis"},
+                    {name: "Salmonella typhimurium", value: "styphimurium"},
+                    {name: "Taeniopygia guttata", value: "tguttata"},
+                    {name: "Staphylococcus aureus N315", value: "saureus"}
+                ];
+
+                this.extList = [
+//                    {"boxLabel": "HUGO", selected: false, "inputValue": {db: "WikiGene", field: "id"}},
+                    {"boxLabel": "HGNC Symbol", selected: false, "inputValue": {db: "hgnc_symbol", field: "id"}},
+                    {"boxLabel": "Ensembl gene", selected: false, "inputValue": {db: "ensembl_gene", field: "id"}},
+//        {"boxLabel": "MIM gene",  "inputValue": {db: "omim_gene", field: "id"}}, //mysql cellbase
+                    {
+                        "boxLabel": "Ensembl protein",
+                        selected: false,
+                        "inputValue": {db: "ensembl_protein", field: "id"}
+                    },
+                    {"boxLabel": "UCSC Stable ID", selected: false, "inputValue": {db: "ucsc_stable_id", field: "id"}},
+                    {"boxLabel": "Havana gene", selected: false, "inputValue": {db: "havana_gene", field: "id"}},
+                    {
+                        "boxLabel": "UniProtKB Gene Name",
+                        selected: false,
+                        "inputValue": {db: "Uniprot_gn", field: "id"}
+                    },
+                    {
+                        "boxLabel": "UniProtKB/Swiss-Prot",
+                        selected: false,
+                        "inputValue": {db: "Uniprot/SWISSPROT", field: "id"}
+                    }, //mysql cellbase
+                    {
+                        "boxLabel": "UniProtKB/TrEMBL",
+                        selected: false,
+                        "inputValue": {db: "uniprotkb/trembl", field: "id"}
+                    },
+                    {"boxLabel": "Uniprotkb Acc", selected: false, "inputValue": {db: "uniprotkb_acc", field: "id"}},
+                    {"boxLabel": "Uniprotkb ID", selected: false, "inputValue": {db: "uniprotkb_id", field: "id"}},
+                    {"boxLabel": "UniParc", selected: false, "inputValue": {db: "uniparc", field: "id"}},
+                    {"boxLabel": "miRBase", selected: false, "inputValue": {db: "miRBase", field: "id"}},
+
+                    {
+                        "boxLabel": "Ensembl transcript",
+                        selected: false,
+                        "inputValue": {db: "ensembl_transcript", field: "id"}
+                    },
+                    {
+                        "boxLabel": "HGNC transcript name",
+                        selected: false,
+                        "inputValue": {db: "hgnc_transcript_name", field: "id"}
+                    },
+                    {
+                        "boxLabel": "Havana transcript",
+                        selected: false,
+                        "inputValue": {db: "havana_transcript", field: "id"}
+                    },
+                    {"boxLabel": "RefSeq peptide", selected: false, "inputValue": {db: "refseq_peptide", field: "id"}},
+                    {"boxLabel": "RefSeq mRNA", selected: false, "inputValue": {db: "refseq_mrna", field: "id"}}
+                ];
+
+                this.funcList = [
+//        {"boxLabel": "Biotype", "name": "biotype", "inputValue": "biotype"},
+
+                    {"boxLabel": "GO Term Accession", selected: false, "inputValue": {db: "go", field: "id"}},
+//                    {"boxLabel": "GO Term Name", selected: false, "inputValue": {db: "go", field: "description"}},
+                    {
+                        "boxLabel": "Projected GO Accession",
+                        selected: false,
+                        "inputValue": {db: "projected_go", field: "id"}
+                    },
+//                    {
+//                        "boxLabel": "Propagated GO Name",
+//                        selected: false,
+//                        "inputValue": {db: "projected_go", field: "description"}
+//                    },
+                    {
+                        "boxLabel": "GOSlim GOA Accession",
+                        selected: false,
+                        "inputValue": {db: "goslim_goa", field: "id"}
+                    },
+//                    {
+//                        "boxLabel": "GOSlim GOA Name",
+//                        selected: false,
+//                        "inputValue": {db: "goslim_goa", field: "description"}
+//                    },
+                    {"boxLabel": "InterPro ID", selected: false, "inputValue": {db: "interpro", field: "id"}}
+//                    {
+//                        "boxLabel": "InterPro Short Description",
+//                        selected: false,
+//                        "inputValue": {db: "interpro", field: "description"}
+//                    }
+                ];
+
+
+                this.repoList = [
+//        {"boxLabel": "PDB",  "inputValue": {db: "pdb", field: "id"}}, //mysql cellbase
+                    {
+                        "boxLabel": "European Nucleotide Archive",
+                        selected: false,
+                        "inputValue": {db: "european_nucleotide_archive", field: "id"}
+                    },
+                    {
+                        "boxLabel": "Human Protein Atlas",
+                        selected: false,
+                        "inputValue": {db: "human_protein_atlas", field: "id"}
+                    },
+                    {
+                        "boxLabel": "INSDC protein ID",
+                        selected: false,
+                        "inputValue": {db: "insdc_protein_id", field: "id"}
+                    }
+                ];
+
+                this.attributeManager;
+
+                this.columnSelected;
+                this.speciesSelected = this.species[0];
+
+                this.selectedList = 'ext';
+                this.message = '';
+            },
+            handleEditSelect: function (e) {
+                this.columnSelected = e.target.templateInstance.model.column;
+            },
+            handleSpeciesSelect: function (e) {
+                this.speciesSelected = e.target.templateInstance.model.spe;
+            },
+            handleItemSelect: function (e) {
+                var item = e.target.templateInstance.model.item;
+                item.selected = !item.selected;
+            },
+            handleSelectExtList: function () {
+                this.selectedList = 'ext';
+            },
+            handleSelectFuncList: function () {
+                this.selectedList = 'func';
+            },
+            handleSelectRepoList: function () {
+                this.selectedList = 'repo';
+            },
+            handleGo: function () {
+                if (this.columnSelected != null && this.speciesSelected != null) {
+                    this.retrieveData(this.columnSelected.name, this.speciesSelected.value);
+                } else {
+                    this.message = "Please select one species and one attribute";
+                }
+            },
+            uncheckAllDatabases: function () {
+                var processCheckBoxes = function (item) {
+                    item.selected = false;
+                };
+                this.extList.forEach(processCheckBoxes);
+                this.funcList.forEach(processCheckBoxes);
+                this.repoList.forEach(processCheckBoxes);
+            },
+            checkDatabase: function (db) {
+                var processCheckBoxes = function (item) {
+                    if (db === item.inputValue.db) {
+                        item.selected = true;
+                    }
+                };
+                this.extList.forEach(processCheckBoxes);
+                this.funcList.forEach(processCheckBoxes);
+                this.repoList.forEach(processCheckBoxes);
+            },
+            retrieveData: function (attributeName, speciesCode, callbackFunction) {
+                var me = this;
+
+                var columns = [];
+                var columnsMap = {};
+                var dbnamesMap = {};
+
+                var databasesSelectedFlag = false;
+
+                var processCheckBoxes = function (item) {
+                    if (item.selected) {
+                        databasesSelectedFlag = true;
+                        var label = item.boxLabel;
+                        var columnId = item.inputValue.db + item.inputValue.field;
+                        var column = {
+                            defaultValue: "",
+                            cellTemplate: "inputTemplate",
+                            name: columnId,
+                            title: label,
+                            type: "string"
+                        }
+                        var idx = columns.push(column) - 1;
+                        columnsMap[columnId] = idx;
+
+                        if (!dbnamesMap[item.inputValue.db]) {
+                            dbnamesMap[item.inputValue.db] = true;
+                        }
+                    }
+                }
+                this.extList.forEach(processCheckBoxes);
+                this.funcList.forEach(processCheckBoxes);
+                this.repoList.forEach(processCheckBoxes);
+
+                if (databasesSelectedFlag) {
+                    var queries = [];
+
+                    for (var i = 0; i < this.attributeManager.data.length; i++) {
+                        var row = this.attributeManager.data[i];
+                        queries.push(row[attributeName]);
+                    }
+
+                    if (queries.length > 0) {
+
+                        this.loading = true;
+                        this.message = "Retrieving data...";
+
+                        CellBaseManager.get({
+                            species: speciesCode,
+                            category: 'feature',
+                            subCategory: 'id',
+                            query: queries.toString(),
+                            resource: 'xref',
+                            params: {
+                                dbname: Object.keys(dbnamesMap)
+                            },
+                            success: function (data) {
+                                var row;
+                                for (var r = 0; r < data.response.length; r++) {
+                                    var response = data.response[r];
+                                    var xrefs = response.result;
+                                    row = me.attributeManager.data[r];
+                                    if (xrefs.length > 0) {
+                                        for (var i = 0; i < xrefs.length; i++) {
+                                            var xref = xrefs[i];
+
+                                            var mapId1 = xref.dbName + 'id';
+                                            var mapId2 = xref.dbName + 'description';
+
+                                            var index1 = columnsMap[mapId1];
+                                            var index2 = columnsMap[mapId2];
+
+                                            if (index1 != null) {
+                                                if (i == 0) {
+                                                    row[mapId1] = '';
+                                                }
+                                                if (!row[mapId1]) {
+                                                    row[mapId1] = '';
+                                                }
+                                                if (row[mapId1] === '') {
+                                                    row[mapId1] += xref.id;
+                                                } else {
+                                                    row[mapId1] += ',' + xref.id;
+                                                }
+                                            }
+                                            if (index2 != null) {
+                                                if (i == 0) {
+                                                    row[mapId2] = '';
+                                                }
+                                                if (!row[mapId2]) {
+                                                    row[mapId2] = '';
+                                                }
+                                                if (row[mapId2] === '') {
+                                                    row[mapId2] += xref.description;
+                                                } else {
+                                                    row[mapId2] += ',' + xref.description;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                for (var i = 0; i < columns.length; i++) {
+                                    var column = columns[i];
+                                    me.attributeManager.addColumn(column);
+                                }
+
+                                me.loading = false;
+                                me.message = "Information has been saved as attributes";
+
+                                if (callbackFunction) {
+                                    callbackFunction();
+                                }
+                            }
+                        });
+                    } else {
+                        this.message = "Node list is empty";
+                    }
+                } else {
+                    this.message = "Please select at least one database";
+
+                }
+
+            }
+        });
+    </script>
+</polymer-element>

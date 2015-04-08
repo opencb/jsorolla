@@ -1,0 +1,47 @@
+<polymer-element name="jso-nv-status-bar" attributes="networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                height: 32px;
+                padding: 4px 8px;
+                background-color: #FAFAFA;
+                border-top: 1px solid #D9D9D9;
+            }
+
+            .grey {
+                color: #666;
+            }
+        </style>
+
+        <div horizontal layout>
+            <div horizontal layout class="text">
+                <div class="grey">Nodes: </div>
+                {{networkViewer.vAttr.data.length}}
+            </div>
+            <div horizontal layout class="text">
+                <div class="grey">Edges: </div>
+                {{networkViewer.eAttr.data.length}}
+            </div>
+            <div flex></div>
+            <template if="{{networkViewer.lastLoadedFileName !== ''}}">
+                <div class="text">
+                    <span class="grey">File: </span>{{networkViewer.lastLoadedFileName}}
+                </div>
+            </template>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+
+            },
+            ready: function () {
+
+            }
+        });
+    </script>
+</polymer-element>

@@ -1,0 +1,232 @@
+<link rel="import" href="jso-job.html">
+<polymer-element name="jso-job-list" attributes="showJobs selectedOption jobItem selectedStudy allowedTools">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: absolute;
+                transition: height 0.1s;
+                z-index: 50000;
+                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            }
+
+            .panel {
+                height: 100%;
+            }
+
+            .container {
+                position: relative;
+                overflow-y: auto;
+            }
+
+            sortable-table::shadow thead {
+                display: none;
+            }
+
+            #tablewrap {
+                position: relative;
+                background-color: #FAFAFA;
+            }
+
+            #table {
+                overflow-y: hidden;
+                overflow-x: auto;
+                margin-right: 10px;
+                border-right: 1px solid #d3d3d3;
+                background-color: #ffffff;
+            }
+
+            .customPager {
+                background-color: #fafafa;
+                box-sizing: border-box;
+                border-bottom: 1px solid #cccccc;
+                color: #445D76;
+                padding: 3px;
+            }
+
+            .customPagerScroll {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 10px;
+                background-color: #9a9a9a;
+                /*background-color: #3F3F3F;*/
+            }
+
+        </style>
+
+        <div class="panel" vertical layout>
+            <template if="{{loading}}">
+                <div class="loading" style="margin: 5px;">
+                    <font-awesome icon="spinner" animation="spin"></font-awesome>
+                    Loading ...
+                </div>
+            </template>
+            <!--<div class="header" horizontal layout>-->
+            <!--<div class="text">Jobs</div>-->
+            <!--<div class="headeractions" horizontal end-justified layout flex>-->
+            <!--<div class="text headerclose" on-click="{{handleClose}}"></div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <div class="container" flex vertical layout>
+                <div class="customPager" horizontal layout>
+                    <div class="text">{{table.dataSize}} job{{table.dataSize != 1 ? 's' : ''}}</div>
+                    <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                        &lt;</div>
+                    <div class="text"> {{table.page}} of {{table.lastPage}}</div>
+                    <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                         on-click="{{moveToNextPage}}">&gt;</div>
+                </div>
+                <div id="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
+                    <sortable-table id="table" flex
+                                    data="{{jobList}}"
+                                    rowSelection="true"
+                                    selected="{{selected}}"
+                                    page="{{page}}"
+                                    columns="{{columns}}"
+                                    pageSize="{{pageSize}}">
+                        <template id="jobTemplate">
+                            <jso-job jobItem="{{row}}"></jso-job>
+                        </template>
+                    </sortable-table>
+                    <div class="customPagerScroll"
+                         style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>
+                </div>
+            </div>
+
+            <!--<template repeat="{{jobItemList in jobList}}">-->
+            <!--<jso-job jobItem="{{jobItemList}}" on-click="{{handleJobViewClick}}"></jso-job>-->
+            <!--</template>-->
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.checkTimeInterval = 5000;
+                this.interval;
+
+                this.jobList = [];
+                this.selected;
+                this.page = 1;
+                this.pageSize = 10;
+                this.itemSize = 64;
+                this.loading = true;
+
+                this.columns = [{
+                    title: 'JOB',
+                    name: 'job',
+                    cellTemplate: 'jobTemplate'
+                }];
+
+            },
+            ready: function () {
+                var me = this;
+                this.addEventListener('transitionend', function () {
+                    me.handleResize();
+                });
+//                this.resizeHandler = function (e) {
+//                };
+//                window.addEventListener("resize", this.handleResize.call());
+                this.table = this.$.table;
+//                this.pageSize = Math.floor(this.$.table.getBoundingClientRect().height / 25) - 2;
+            },
+            detached: function () {
+                clearInterval(this.interval);
+                this.interval = null;
+            },
+            attached: function () {
+                var me = this;
+                if (this.interval == null) {
+                    this.getJobs();//first call
+                    this.interval = setInterval(function () {
+                        me.getJobs();
+                    }, this.checkTimeInterval);
+                }
+            },
+            domReady: function () {
+                console.log(this.getBoundingClientRect().height);
+                this.handleResize()
+            },
+            handleResize: function () {
+//                this.page = 1;
+                this.pageSize = Math.floor(this.getBoundingClientRect().height / this.itemSize) - 1;
+//                console.log(this.getBoundingClientRect().height);
+            },
+            handleScroll: function (e) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.moveToNextPage();
+                }
+                if (e.deltaY < 0) {
+                    this.moveToPreviousPage();
+                }
+            },
+            moveToNextPage: function () {
+                this.$.table.moveToNextPage();
+            },
+            moveToPreviousPage: function () {
+                this.$.table.moveToPreviousPage();
+            },
+            handleClose: function () {
+//                this.showJobs = false;
+            },
+            handleJobViewClick: function (jobItem) {
+                this.selectedOption = "jobView"
+//                this.jobItem = e.target.jobItem
+                this.jobItem = jobItem;
+
+//                this.jobItem = e.target.jobItem;
+                if (this.jobItem.status == "READY")
+                    this.selectedOption = "jobReady";
+                else
+                    this.selectedOption = "jobNoReady";
+//                console.log(this.jobItem)
+
+                this.fire('job-item-click', {jobItem: this.jobItem});
+                console.log(this.jobItem)
+            },
+            selectedChanged: function (oldValue, newValue) {
+                this.handleJobViewClick(newValue);
+            },
+            getJobs: function () {
+                var me = this;
+                if (this.selectedStudy === undefined)
+                    return;
+                console.log("this.selectedStudy.id: " + this.selectedStudy.id)
+                OpencgaManager.studies.job({
+                    id: this.selectedStudy.id,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.loading = false;
+                                var jobList = response.response[0].result;
+
+                                jobList.sort(function (a, b) {
+                                    return b.date.localeCompare(a.date);
+                                });
+
+                                if (me.allowedTools != null) {
+                                    me.jobList = jobList.filter(function (item) {
+                                        return me.allowedTools.indexOf(item.toolName) != -1;
+                                    });
+                                } else {
+                                    me.jobList = jobList;
+                                }
+
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                })
+            }
+        });
+    </script>
+</polymer-element>

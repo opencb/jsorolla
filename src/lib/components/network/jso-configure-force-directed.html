@@ -1,0 +1,204 @@
+<polymer-element name="jso-configure-force-directed" extends="jso-window" attributes="networkViewer selectedMenu">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+                background-color: #FFFFFF;
+                width: 350px;
+            }
+
+            .link {
+                text-decoration: none;
+                color: inherit;
+                margin-left: 15px;
+            }
+
+            .link:hover {
+                text-decoration: underline;
+            }
+
+            .link:visited {
+                color: inherit;
+            }
+
+            label {
+                width: 100px;
+            }
+
+            .container {
+                padding: 0px 5px 5px 5px;
+            }
+
+            .container > [horizontal] {
+                margin: 3px;
+            }
+
+            .title {
+                color: #333;
+                margin-bottom: 4px;
+                margin-top: 7px;
+                border-bottom: 1px solid #808080;
+            }
+
+            .footer > * {
+                margin-left: 5px;
+            }
+        </style>
+        <div class="panel panel-shadow">
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Force directed layout configuration
+                    <a class="link" target="_blank" href="https://github.com/mbostock/d3/wiki/Force-Layout">
+                        <font-awesome icon="external-link"></font-awesome>
+                        about
+                    </a>
+                </div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+                </div>
+            </div>
+            <div class="container" vertical layout>
+                <div class="title">Node related settings</div>
+
+                <div horizontal layout>
+                    <label>Charge:</label>
+
+                    <div flex>
+                        <input type="number" value="{{charge}}">
+                    </div>
+
+                    <div flex class="select">
+                        <select style="margin-left: 5px;" value="{{chargeAttribute}}">
+                            <option value="none">None</option>
+                            <template repeat="{{column in networkViewer.vAttr.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div class="title">Edge related settings</div>
+                <div horizontal layout>
+                    <label>Link distance:</label>
+
+                    <div flex>
+                        <input type="number" min="0" value="{{linkDistance}}">
+                    </div>
+
+                    <div flex class="select">
+                        <select style="margin-left: 5px;" value="{{linkDistanceAttribute}}">
+                            <option value="none">None</option>
+                            <template repeat="{{column in networkViewer.eAttr.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div horizontal layout>
+                    <label>Link strength:</label>
+
+                    <div flex>
+                        <input type="number" min="0" max="1" step="0.1" value="{{linkStrength}}">
+                    </div>
+
+                    <div flex class="select">
+                        <select style="margin-left: 5px;" value="{{linkStrengthAttribute}}">
+                            <option value="none">None</option>
+                            <template repeat="{{column in networkViewer.eAttr.columns}}">
+                                <option value="{{column.name}}">{{column.title}}</option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div class="title">Global settings</div>
+
+                <div horizontal layout>
+                    <label>Friction:</label>
+
+                    <div flex>
+                        <input type="number" min="0" max="1" step="0.1" value="{{friction}}">
+                    </div>
+                </div>
+                <div horizontal layout>
+                    <label>Gravity:</label>
+
+                    <div flex>
+                        <input type="number" min="0" step="0.1" value="{{gravity}}">
+                    </div>
+                </div>
+                <div horizontal layout>
+                    <label>Charge distance:</label>
+
+                    <div flex>
+                        <input type="number" min="0" value="{{chargeDistance}}">
+                    </div>
+                </div>
+            </div>
+            <div class="footer" horizontal layout end-justified>
+                <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
+                <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.charge = -300;
+                this.linkDistance = 20;
+                this.linkStrength = 1;
+                this.friction = 0.9;
+                this.gravity = 0.1;
+                this.chargeDistance = 500;
+
+                this.chargeAttribute = 'none';
+                this.linkDistanceAttribute = 'none';
+                this.linkStrengthAttribute = 'none';
+            },
+            domReady: function () {
+                this.super();
+            },
+            handleOk: function () {
+                var networkViewer = this.networkViewer;
+
+                var clientRect = networkViewer.$.networkLayout.getBoundingClientRect();
+                var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+                var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+
+                GraphLayout.force({
+                    network: networkViewer,
+                    width: width,
+                    height: height,
+                    linkDistance: parseFloat(this.linkDistance),
+                    linkStrength: parseFloat(this.linkStrength),
+                    charge: parseFloat(this.charge),
+                    attributes: {
+                        linkDistance: this.linkDistanceAttribute,
+                        linkStrength: this.linkStrengthAttribute,
+                        charge: this.chargeAttribute
+                    },
+                    friction: parseFloat(this.friction),
+                    gravity: parseFloat(this.gravity),
+                    chargeDistance: parseFloat(this.chargeDistance),
+
+                    simulation: false,
+                    end: function (verticesArray) {
+                        for (var i = 0, l = verticesArray.length; i < l; i++) {
+                            var v = verticesArray[i];
+                            var vertex = networkViewer.graph.getVertexById(v.id);
+                            vertex.position.x = v.x;
+                            vertex.position.y = v.y;
+                            vertex.renderer.move();
+                            networkViewer._updateEdgeCoords(vertex);
+                        }
+                    }
+                });
+            },
+            handleCancel: function () {
+                this.handleClose();
+            }
+        });
+    </script>
+</polymer-element>

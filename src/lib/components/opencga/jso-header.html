@@ -1,0 +1,412 @@
+<link rel="import" href="jso-login.html">
+<link rel="import" href="jso-signup.html">
+<link rel="import" href="jso-profile.html">
+<link rel="import" href="jso-remember.html">
+
+<link rel="import" href="jso-job-list.html">
+<link rel="import" href="jso-job-launched.html">
+
+<link rel="import" href="jso-help-menu.html">
+
+<polymer-element name="jso-header"
+                 attributes="selectedOption allowLogin allowJobs allowBrowse showJobs isLogged
+                 userData jobItem selectedStudy allowedTools showMenu">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                cursor: default;
+                z-index: 70000;
+            }
+
+            .main {
+                min-width: 970px;
+                position: relative;
+                z-index: 60000;
+                height: 60px;
+                box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
+                /*background-color: #FFFFFF;*/
+                /*background-color: #435f7a;*/
+                background-color: #314559;
+                line-height: 60px;
+                font-size: 18px;
+                color: #CCCCCC;
+                font-weight: 300;
+                margin: 0;
+                padding: 0;
+                text-transform: none;
+            }
+
+            .content {
+                /*margin-top: 20px;*/
+                /*margin-bottom: 25px;*/
+                position: relative;
+                background-color: #435f7a;
+            }
+
+            .content > * {
+                min-height: calc(100vh - 160px);
+            }
+
+            .main > div > div {
+                display: block;
+                text-align: center;
+                padding: 0 5px;
+                cursor: pointer;
+            }
+
+            .main > div > div:hover {
+                color: #FFFFFF;
+            }
+
+            div.icon {
+                margin-left: 10px;
+            }
+
+            div.title {
+                font-size: 30px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            div.description {
+                color: #ffad76;
+                font-size: 18px;
+                padding-left: 10px;
+                padding-bottom: 10px;
+            }
+
+            div.description:hover {
+                color: #ffad76;
+                cursor: default;
+            }
+
+            @media (max-width: 1250px) {
+                div.left {
+                    display: none;
+                }
+            }
+
+            #user {
+                color: #ffad76;
+            }
+
+            jso-job-list {
+                height: calc(100vh - 160px);
+                width: 250px;
+                right: 0px;
+                top: 0px;
+            }
+        </style>
+
+        <div class="main" horizontal layout>
+            <div horizontal layout start-justified>
+                <div class="icon" data-option="home" on-click="{{handleMenu}}">
+                    <content select=".icon"></content>
+                </div>
+                <div class="title" data-option="home" on-click="{{handleMenu}}">
+                    <content select=".title"></content>
+                </div>
+                <div id="description" class="description">
+                    <content select=".description"></content>
+                </div>
+                <div style="cursor:default;">
+                    <content select=".announce"></content>
+                </div>
+            </div>
+            <div horizontal layout center-justified flex>
+                <template if="{{isLogged || showMenu}}">
+                    <content select=".menu"></content>
+                </template>
+            </div>
+            <div horizontal layout end-justified>
+                <template if="{{allowLogin == true}}">
+
+                    <div id="user" hidden?="{{!isLogged}}">
+                        {{userText}}
+                    </div>
+                    <div id="logout" on-click="{{handleLogoutClick}}" hidden?="{{!isLogged}}">
+                        <font-awesome icon="sign-out"></font-awesome>
+                        &nbsp;logout
+                    </div>
+
+
+                    <template if="{{allowBrowse == true}}">
+                        <div id="projects" data-option="projects" on-click="{{handleMenu}}" hidden?="{{!isLogged}}">
+                            <font-awesome icon="cloud-upload"></font-awesome>
+                            <!--<font-awesome icon="pie-chart"></font-awesome>-->
+                            <!--&nbsp;studies-->
+                            &nbsp;Upload
+                        </div>
+                    </template>
+
+
+                    <div id="profile" data-option="profile" on-click="{{handleMenu}}"
+                         hidden?="{{!isLogged || userText == 'anonymous'}}">
+                        <font-awesome icon="user"></font-awesome>
+                        &nbsp;profile
+                    </div>
+
+
+                    <template if="{{allowJobs == true}}">
+                        <div id="jobs" data-option="jobs" on-click="{{handleJobClick}}" hidden?="{{!isLogged}}">
+                            <font-awesome icon="pencil-square-o"></font-awesome>
+                            &nbsp;jobs
+                        </div>
+                    </template>
+                    <div id="login" data-option="login" on-click="{{handleMenu}}" hidden?="{{isLogged}}">
+                        <font-awesome icon="sign-in"></font-awesome>
+                        &nbsp;log in
+                    </div>
+                    <div id="signup" data-option="signup" on-click="{{handleMenu}}" hidden?="{{isLogged}}">
+                        <font-awesome icon="pencil-square-o"></font-awesome>
+                        &nbsp;sign up
+                    </div>
+
+                </template>
+                <content select=".helpmenu"></content>
+            </div>
+
+        </div>
+        <div class="content">
+            <jso-login id="jsoLogin"
+                       hidden?="{{ selectedOption != 'login' }}"
+                       on-login="{{handleLogin}}"
+                       selectedOption="{{selectedOption}}">
+            </jso-login>
+
+            <jso-signup id="jsoSignup"
+                        hidden?="{{ selectedOption != 'signup' }}"
+                        on-login="{{handleLogin}}">
+            </jso-signup>
+
+            <template if="{{ selectedOption == 'profile' }}">
+                <jso-profile></jso-profile>
+            </template>
+
+            <template if="{{ selectedOption == 'rememberpassword' }}">
+                <jso-remember></jso-remember>
+            </template>
+
+
+            <template if="{{ selectedOption == 'jobLaunched' }}">
+                <jso-job-launched></jso-job-launched>
+            </template>
+
+            <template if="{{ showJobs ||  selectedOption == 'jobLaunched' }}">
+                <jso-job-list
+                        jobItem="{{jobItem}}"
+                        on-job-item-click="{{handleJobItemClick}}"
+                        userData="{{userData}}"
+                        selectedOption="{{selectedOption}}"
+                        selectedStudy="{{selectedStudy}}"
+                        allowedTools="{{allowedTools}}"
+                        showJobs="{{showJobs}}"></jso-job-list>
+            </template>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            created: function () {
+                this.allowLogin = true;
+                this.allowJobs = true;
+                this.allowBrowse = true;
+                this.showMenu = false;
+
+                this.checkTimeInterval = 5000;
+                this.version = '';
+
+                this.homeLink = "";
+                this.helpLink = "";
+                this.tutorialLink = "";
+                this.aboutHTML = "";
+
+                this.userData;
+
+                this.userText;
+                this.selectedOption;
+                this.userInfoInterval;
+                this.checkTimeInterval = 5000;
+
+                this.isLogged = false;
+            },
+            domReady: function () {
+                if(this.allowLogin){
+                    if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
+                        this.sessionInitiated();
+                    } else {
+                        this.logout();
+                    }
+                }
+            },
+            handleMenu: function (e) {
+                var option = e.currentTarget.dataset['option'];
+                console.log(option);
+                if (option) {
+                    this.selectedOption = option;
+                }
+            },
+            handleJobClick: function (e) {
+                this.showJobs = !this.showJobs;
+            },
+            handleLogoutClick: function (e) {
+                this.sessionFinished();
+            },
+            handleSupportMenu: function (e) {
+                this.$.helpMenu.classList.toggle('help-menu-shown');
+            },
+            handleHelpMenuMouseOut: function () {
+                this.$.helpMenu.classList.remove('help-menu-shown');
+            },
+            handleLogin: function (e) {
+                if (e.detail.status) {
+                    this.sessionInitiated();
+                } else {
+                    this.sessionFinished();
+                }
+                this.fire('session-change');
+            },
+            demoLogin: function (username) {
+                this.$.jsoLogin.user = username;
+                this.$.jsoLogin.password = "demo";
+                this.$.jsoLogin._login();
+            },
+            anonymousSign: function () {
+                this.$.jsoSignup.user = "anonymous" + Utils.randomString(40);
+                this.$.jsoSignup.name = "anonymous";
+                this.$.jsoSignup.email = "anonymous@anonymous.anonymous";
+                this.$.jsoSignup.organization = "none";
+                this.$.jsoSignup.password = "anonymous";
+                this.$.jsoSignup._signup();
+            },
+            sessionInitiated: function (e) {
+                var me = this;
+
+                this.isLogged = true;
+                this.selectedOption = 'home';
+
+                /**START OPENCGA CHECK**/
+                if (!this.userInfoInterval) {
+                    this.getUserInfo();//first call
+                    this.userInfoInterval = setInterval(function () {
+                        me.getUserInfo();
+                    }, this.checkTimeInterval);
+                }
+                this.fire("login");
+            },
+            sessionFinished: function (e) {
+
+                this.showJobs = false;
+                this.selectedOption = 'home';
+                this.isLogged = false;
+                Cookies.expire('bioinfo_sid');
+                Cookies.expire('bioinfo_user');
+
+                /**END OPENCGA CHECK**/
+                clearInterval(this.userInfoInterval);
+                this.userInfoInterval = null;
+                this.fire("logout");
+            },
+            getUserInfo: function () {
+                var me = this;
+                var lastActivity = null;
+                if (this.userData != null) {
+                    lastActivity = this.userData.lastActivity;
+                }
+                var user = Cookies('bioinfo_user');
+                if (!user) {
+                    console.log('cookie: bioinfo_user, is not set, session will be finished...');
+                    this.sessionFinished();
+                } else {
+                    OpencgaManager.users.read({
+                        id: user,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            lastActivity: lastActivity
+                        },
+                        request: {
+                            success: function (response) {
+                                if ((response.response[0].errorMsg === '' || response.response[0].errorMsg == null) && response.response[0].result.length > 0) {
+                                    me.userData = response.response[0].result[0];
+                                    me.userText = me.userData.name;
+                                    console.log("userData has been modified since last call");
+                                }
+                                if (response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1) {
+                                    me.sessionFinished()
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+            },
+            logout: function () {
+                var me = this;
+                var user = Cookies('bioinfo_user');
+                if (!user) {
+                    console.log('cookie: bioinfo_user, is not set, session will be finished...');
+                    this.sessionFinished();
+                } else {
+                    OpencgaManager.users.logout({
+                        id: user,
+                        query: {
+                            sid: Cookies('bioinfo_sid')
+                        },
+                        request: {
+                            success: function (response) {
+                                console.log(response);
+                            },
+                            error: function () {
+                                console.log('Server error, try again later.');
+                            }
+                        }
+                    });
+                }
+            },
+//            handleHomeHelp: function (event) {
+//                if (this.homeLink != '') {
+//                    window.open(this.homeLink);
+//                } else {
+//                    alert("Home is not defined!");
+//                }
+//
+//            },
+//            handleDocumentation: function (event) {
+//                if (this.helpLink != '') {
+//                    window.open(this.helpLink);
+//                } else {
+//                    alert("Help is not defined!");
+//                }
+//
+//            },
+//            handleTutorial: function (event) {
+//                if (this.tutorialLink != '') {
+//                    window.open(this.tutorialLink);
+//                } else {
+//                    alert("Tutorial is not defined!");
+//                }
+//
+//            },
+//            handleWorkedExamples: function (event) {
+//                if (this.tutorialLink != '') {
+//                    window.open(this.workedExamplesLink);
+//                } else {
+//                    alert("worked examples is not defined!");
+//                }
+//
+//            },
+//            handleAbout: function (event) {
+//                alert("About is not defined!");
+//            },
+            handleJobItemClick: function (e) {
+                this.showJobs = false;
+            }
+        });
+    </script>
+</polymer-element>

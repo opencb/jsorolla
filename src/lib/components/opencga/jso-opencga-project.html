@@ -1,0 +1,87 @@
+<polymer-element name="jso-opencga-project" attributes="project">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            .hasItems::after {
+                font-family: 'FontAwesome';
+                content: '\f105';
+                position: absolute;
+                right: 5px;
+            }
+
+        </style>
+        <span class="{{ (project.studies.length > 0) ? 'hasItems' : '' }}">
+            <font-awesome icon="folder-o"></font-awesome> &nbsp; {{project.name}}
+        </span>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.project;
+            }
+        });
+    </script>
+</polymer-element>
+
+<polymer-element name="jso-opencga-project-item" attributes="project">
+    <template>
+        <link rel="stylesheet" href="../jso-style.css">
+        <style>
+            :host {
+                display: inline-block;
+                position: relative;
+            }
+
+            .id {
+                color: #888;
+            }
+        </style>
+        <font-awesome icon="folder-o"></font-awesome>
+        &nbsp; {{project.name}} &nbsp; <span class="id"> {{project.alias}} </span>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            }
+        });
+    </script>
+</polymer-element>
+<polymer-element name="jso-opencga-project-tree" attributes="project">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            :host([data-selected=true]) > span.hasItems::before {
+                font-family: 'FontAwesome';
+                content: '\f107';
+                display: inline-block;
+                width: 10px;
+                padding: 0 2px;
+            }
+
+            :host([data-selected=false]) > span.hasItems::before {
+                font-family: 'FontAwesome';
+                content: '\f105';
+                display: inline-block;
+                width: 10px;
+                padding: 0 2px;
+            }
+        </style>
+         <span class="{{ (project.studies.length > 0) ? 'hasItems' : '' }}">
+            <font-awesome icon="folder-o"></font-awesome> &nbsp; {{project.name}}
+        </span>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            }
+        });
+    </script>
+</polymer-element>

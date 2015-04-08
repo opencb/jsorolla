@@ -1,0 +1,53 @@
+<link rel="import" href="jso-reactome-fi.html">
+<polymer-element name="jso-nv-reactome-fi" extends="jso-window" attributes="userData selectedOption selectedStudy studies networkViewer">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: fixed;
+                box-sizing: border-box;
+            }
+
+            .container {
+                overflow-y: scroll;
+                height: 500px;
+            }
+
+            jso-reactome-fi {
+                padding: 5px;
+                border: 0px;
+            }
+        </style>
+
+        <div class="panel panel-shadow" id="panel" vertical layout>
+            <div id="header" class="header" horizontal layout
+                 on-mousedown="{{handleHeaderMouseDown}}"
+                 on-mouseup="{{handleHeaderMouseUp}}">
+                <div class="text">Reactome FI form</div>
+                <div class="headeractions" horizontal end-justified layout flex>
+                    <div class="text headerclose" on-click="{{handleCancel}}"></div>
+                </div>
+            </div>
+            <div class="container">
+                <jso-reactome-fi
+                        selectedOption="{{selectedOption}}"
+                        userData="{{userData}}"
+                        selectedStudy="{{selectedStudy}}"
+                        studies="{{studies}}"
+                        networkViewer="{{networkViewer}}"
+                        hideTitle="true"
+                        >
+                </jso-reactome-fi>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+            },
+            handleCancel: function () {
+                this.selectedOption = '';
+            }
+        });
+    </script>
+</polymer-element>

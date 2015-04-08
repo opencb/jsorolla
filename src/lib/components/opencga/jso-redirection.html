@@ -1,0 +1,45 @@
+<polymer-element name="jso-redirection" attributes="args titleRed fileName fileUrl buttonLabel buttonWidth">
+    <template>
+        <style>
+
+
+        </style>
+
+        <!--<font-awesome icon="cloud-upload"></font-awesome>Upload-->
+
+        <!--<i class="fa fa-chevron-circle-right"></i>-->
+
+        <div class="file"><label>{{titleRed}}</label>
+            <a href="{{fileUrl}}" download="{{fileName}}">{{fileName}}</a>
+            <div id="buttonDiv" class="button action" on-click="{{sendTo}}" >
+                <font-awesome icon="chevron-circle-right"></font-awesome>
+                {{buttonLabel}}
+            </div>
+            <br>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.titleRed = "";
+                this.fileUrl = "";
+                this.fileName = "";
+                this.buttonLabel = "";
+                this.buttonWidth = "400px";
+
+
+            },
+            ready: function(){
+                this.$.buttonDiv.style.width = this.buttonWidth;
+            },
+            sendTo: function() {
+                this.fire("redirection", {
+                    tool: this.args.tool,
+                    args: this.args
+                });
+            }
+
+        })
+    </script>
+</polymer-element>
