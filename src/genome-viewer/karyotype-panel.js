@@ -193,7 +193,7 @@ KaryotypePanel.prototype = {
             resource: 'all',
             async: false,
             success: function (data) {
-                _this.chromosomeList = data.response.result.chromosomes;
+                _this.chromosomeList = data.response[0].result[0].chromosomes;
                 _this.chromosomeList.sort(sortfunction);
                 _this._drawSvg(_this.chromosomeList);
             }
@@ -356,12 +356,11 @@ KaryotypePanel.prototype = {
             needDraw = true;
             this.lastSpecies = this.species;
         }
-
-        this.updateRegionControls();
-
         if (needDraw) {
             this.draw();
         }
+
+        this.updateRegionControls();
     },
 
 

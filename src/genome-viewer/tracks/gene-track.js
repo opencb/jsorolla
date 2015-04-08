@@ -77,7 +77,7 @@ GeneTrack.prototype.updateTranscriptParams = function () {
     if (this.region.length() < this.minTranscriptRegionSize) {
         this.exclude = this.dataAdapter.params.exclude;
     } else {
-        this.exclude = 'transcripts';
+        this.exclude = 'transcripts,chunkIds';
     }
 };
 
@@ -95,7 +95,7 @@ GeneTrack.prototype.draw = function () {
     var dataType = 'features';
 
     if (!_.isUndefined(this.exclude)) {
-        dataType = 'features' + this.exclude;
+        dataType = 'features' + this.exclude.replace(/[,.]/gi,'');
     }
 
     if (this.histogram) {

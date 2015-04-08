@@ -208,22 +208,22 @@ AttributeEditWidget.prototype = {
         var toolbar = Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
             items: [
-                {
-                    xtype: 'button',
-                    text: '<span style="font-size: 12px">Columns <span class="caret"></span></span>',
-                    handler: function (bt, e) {
-                        var menu = _this.grid.headerCt.getMenu().down('menuitem[text=Columns]').menu;
-                        menu.showBy(bt);
-                    }
-                },
-                '-',
+//                {
+//                    xtype: 'button',
+//                    text: '<span style="font-size: 12px">Columns <span class="caret"></span></span>',
+//                    handler: function (bt, e) {
+//                        var menu = _this.grid.headerCt.getMenu().down('menuitem[text=Columns]').menu;
+//                        menu.showBy(bt);
+//                    }
+//                },
+//                '-',
                 {
 //                    toolbar.down('radiogroup').getValue() --> {selection: "all"}
                     xtype: 'radiogroup',
                     id: this.id + 'selectMode',
                     fieldLabel: 'Show',
                     labelWidth: 30,
-                    width:230,
+                    width: 230,
                     margin: '0 0 0 10',
                     defaults: {
                         margin: '0 0 0 10'
@@ -285,13 +285,23 @@ AttributeEditWidget.prototype = {
                 mode: 'MULTI'
             },
             loadMask: true,
-            plugins: ['bufferedrenderer',
-                Ext.create('Ext.grid.plugin.CellEditing', {
-                    // double click to edit cell
+            plugins: [
+                {
+                    ptype: 'bufferedrenderer'
+                },
+                {
+                    ptype: 'cellediting',
                     clicksToEdit: 2
-                })
+                }
             ],
+            viewConfig:{
+                markDirty:false
+            },
             listeners: {
+                validateedit: function (editor, context, eOpts) {
+                    _this.attrMan.setRecordsAttribute([context.record], context.field, context.value);
+                    return false;
+                }
 //                selectionchange: function (model, selected) {
 //                    console.log('selection change')
 //                    var nodeList = [];

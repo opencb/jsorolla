@@ -177,7 +177,7 @@ ChromosomePanel.prototype = {
             resource: 'info',
             async: false,
             success: function (data) {
-                _this.data = data.response[0].result.chromosomes;
+                _this.data = data.response[0].result[0].chromosomes[0];
                 _this.data.cytobands.sort(function (a, b) {
                     return (a.start - b.start);
                 });

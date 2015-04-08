@@ -27,6 +27,28 @@ function VariantGenotypeGrid(args) {
     this.gridConfig = {};
     this.height = 500;
     this.target;
+    this.columns = [
+        {
+            text: "Sample",
+            dataIndex: "sample",
+            flex: 1
+        },
+        {
+            text: "Genotype",
+            dataIndex: "genotype",
+            flex: 1
+        },
+        {
+            text: "Sex",
+            dataIndex: "sex",
+            flex: 1
+        },
+        {
+            text: "Phenotype",
+            dataIndex: "phenotype",
+            flex: 1
+        }
+    ];
 
     _.extend(this, args);
 
@@ -148,28 +170,7 @@ VariantGenotypeGrid.prototype = {
                     enableTextSelection: true
                 },
                 plugins: ["bufferedrenderer"],
-                columns: [
-                    {
-                        text: "Sample",
-                        dataIndex: "sample",
-                        flex: 1
-                    },
-                    {
-                        text: "Genotype",
-                        dataIndex: "genotype",
-                        flex: 1
-                    },
-                    {
-                        text: "Sex",
-                        dataIndex: "sex",
-                        flex: 1
-                    },
-                    {
-                        text: "Phenotype",
-                        dataIndex: "phenotype",
-                        flex: 1
-                    }
-                ]
+                columns: this.columns
             });
 
             var gts = this._getGenotypeCount(stats.genotypesCount);
@@ -224,11 +225,21 @@ VariantGenotypeGrid.prototype = {
         }
 
 
-
+        //TO BE REMOVED
+        var study_title;
+        if(projects){
+            for (var i = 0; i < projects.length; i++) {
+                if (projects[i].studyId === data.studyId) {
+                    study_title = '<a href="?eva-study='+projects[i].studyId+'" target="_blank">'+projects[i].studyName+'</a> ('+ projects[i].studyId +')';
+                }
+            }
+        }else{
+            study_title = '<a href="?eva-study='+data.studyId+'" target="_blank">'+data.studyId+'</a>';
+        }
 
 
         var studyPanel = Ext.create('Ext.panel.Panel', {
-            title: data.studyId,
+            title: study_title,
             border: true,
             layout: {
                 type: 'hbox',

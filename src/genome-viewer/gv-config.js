@@ -439,7 +439,7 @@ FEATURE_TYPES = {
                 'filter:&nbsp;<span class="emph">' + f.filter + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             return "black";
         },
         infoWidgetId: "id",

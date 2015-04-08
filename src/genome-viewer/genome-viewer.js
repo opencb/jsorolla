@@ -303,7 +303,7 @@ GenomeViewer.prototype = {
                 resource: 'all',
                 async: false,
                 success: function (data) {
-                    chromosomes = saveChromosomes(data.response.result.chromosomes);
+                    chromosomes = saveChromosomes(data.response[0].result[0].chromosomes);
                 },
                 error: function (data) {
                     console.log('Could not get chromosome list');
@@ -506,9 +506,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             karyotypePanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            karyotypePanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            karyotypePanel.setSpecies(event.species);
+//        });
 
         karyotypePanel.draw();
 
@@ -546,9 +546,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             chromosomePanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            chromosomePanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            chromosomePanel.setSpecies(event.species);
+//        });
 
         chromosomePanel.draw();
 
@@ -592,9 +592,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             trackListPanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            trackListPanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            trackListPanel.setSpecies(event.species);
+//        });
 
         trackListPanel.draw();
 
@@ -636,9 +636,9 @@ GenomeViewer.prototype = {
         this.on('width:change', function (event) {
             trackListPanel.setWidth(event.width - _this.sidePanelWidth);
         });
-        this.on('species:change', function (event) {
-            trackListPanel.setSpecies(event.species);
-        });
+//        this.on('species:change', function (event) {
+//            trackListPanel.setSpecies(event.species);
+//        });
 
         this.on('feature:highlight', function (event) {
             trackListPanel.highlight(event);
@@ -719,7 +719,7 @@ GenomeViewer.prototype = {
     },
     _calculateZoomByRegion: function (region) {
         var minNtPixels = 10; // 10 is the minimum pixels per nt
-        var chr = this.chromosomes[this.region.chromosome];
+        var chr = this.chromosomes[region.chromosome];
         var minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
         var zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
 
@@ -849,6 +849,12 @@ GenomeViewer.prototype = {
     _speciesChangeHandler: function (event) {
         //Relaunch
         this.trigger('species:change', event);
+
+        this.overviewTrackListPanel.setSpecies(event.species);
+        this.trackListPanel.setSpecies(event.species);
+        this.chromosomePanel.setSpecies(event.species);
+        this.karyotypePanel.setSpecies(event.species);
+
         this.setRegion(event.species.region);
     },
 

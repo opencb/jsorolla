@@ -1358,7 +1358,6 @@ ResultWidget.prototype = {
                 }
             });
         }
-
         return div;
     },
 

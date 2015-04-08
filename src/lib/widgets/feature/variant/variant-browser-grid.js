@@ -223,17 +223,12 @@ VariantBrowserGrid.prototype = {
             listeners: {
                 load: function (store, records, successful, operation, eOpts) {
 
-                    console.log(records);
-
                     if (typeof this.dataParser !== 'undefined') {
                         _this.dataParser(records);
-                    } else {
+                    } else if(!_.isNull(records)){
                         _this._parserFunction(records);
                         _this.grid.getSelectionModel().select(0, true);
-
                     }
-
-                    console.log(records);
 
                     _this.setLoading(false);
                 },

@@ -40,6 +40,7 @@
     <script type="text/javascript" src="../lib/cache/file-feature-cache.js"></script>
     <script type="text/javascript" src="../lib/cache/feature-chunk-cache.js"></script>
     <script type="text/javascript" src="../lib/cache/memory-store.js"></script>
+    <script type="text/javascript" src="../lib/cache/indexedDB-store.js"></script>
 
 
     <script type="text/javascript" src="../lib/data-adapter/feature/cellbase-adapter.js"></script>
@@ -163,9 +164,18 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
+    var CELLBASE_HOST = 'https://wwwdev.ebi.ac.uk/cellbase/webservices/rest';
+    /*
+     *  For development purpose only
+     */
+    if (window.location.host.indexOf("localhost") != -1 ||
+            window.location.protocol === "file:"
+            ) {
+        CELLBASE_HOST = "http://localhost:8080/cellbase/webservices/rest";
+    }
 
     genomeViewer = new GenomeViewer({
-        cellBaseHost: 'https://www.ebi.ac.uk/cellbase/webservices/rest',
+        cellBaseHost: CELLBASE_HOST,
         cellBaseVersion: 'v3',
         target: 'application',
         width: $('#application').width(),
@@ -259,7 +269,7 @@ var run = function () {
             resource: "gene",
             species: genomeViewer.species,
             params: {
-                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence,chunkIds'
             },
             cacheConfig: {
                 chunkSize: 100000

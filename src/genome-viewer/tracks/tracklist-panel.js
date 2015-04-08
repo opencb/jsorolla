@@ -534,7 +534,13 @@ TrackListPanel.prototype = {
 
     setSpecies: function (species) {
         this.species = species;
-        this.trigger('trackSpecies:change', {species: species, sender: this})
+//        this.trigger('trackSpecies:change', {species: species, sender: this});
+
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            track.setSpecies(this.species);
+
+        }
     },
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
@@ -666,9 +672,9 @@ TrackListPanel.prototype = {
         });
 
 
-        track.set('trackSpecies:change', function (event) {
-            track.setSpecies(event.species);
-        });
+//        track.set('trackSpecies:change', function (event) {
+//            track.setSpecies(event.species);
+//        });
 
 
         track.set('trackRegion:change', function (event) {
@@ -736,7 +742,7 @@ TrackListPanel.prototype = {
         });
 
         this.on('track:draw', track.get('track:draw'));
-        this.on('trackSpecies:change', track.get('trackSpecies:change'));
+//        this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on('trackRegion:change', track.get('trackRegion:change'));
         this.on('trackRegion:move', track.get('trackRegion:move'));
         this.on('trackWidth:change', track.get('trackWidth:change'));
@@ -799,8 +805,14 @@ TrackListPanel.prototype = {
         this._updateTracksIndex();
 
         // delete listeners
+
+        track.off('track:close');
+        track.off('track:up');
+        track.off('track:down');
+
+
         this.off('track:draw', track.get('track:draw'));
-        this.off('trackSpecies:change', track.get('trackSpecies:change'));
+//        this.off('trackSpecies:change', track.get('trackSpecies:change'));
         this.off('trackRegion:change', track.get('trackRegion:change'));
         this.off('trackRegion:move', track.get('trackRegion:move'));
         this.off('trackWidth:change', track.set('trackWidth:change'));

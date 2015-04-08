@@ -43,9 +43,9 @@ function NavigationBar(args) {
         regionHistoryButton: true,
         speciesButton: true,
         chromosomesButton: true,
-        karyotypeButton: true,
-        chromosomeButton: true,
-        regionButton: true,
+        karyotypeButtonLabel: true,
+        chromosomeButtonLabel: true,
+        regionButtonLabel: true,
         zoomControl: true,
         windowSizeControl: true,
         positionControl: true,
@@ -109,9 +109,11 @@ NavigationBar.prototype = {
             '   <ul id="chromosomesMenu"></ul>' +
             '</div>' +
 
-            '<label style="margin-left: 5px;" class="ocb-ctrl"><input type="checkbox" id="karyotypeButton"><span style="border-right: none"><span class="ocb-icon ocb-icon-karyotype"></span></span></label>' +
-            '<label class="ocb-ctrl"><input type="checkbox" id="chromosomeButton"><span style="border-right: none"><span class="ocb-icon ocb-icon-chromosome"></span></span></label>' +
-            '<label class="ocb-ctrl"><input type="checkbox" id="regionButton"><span><span class="ocb-icon ocb-icon-region"></span></span></label>' +
+            '<div style="margin-left: 5px; float: left; " >' +
+            '   <label class="ocb-ctrl" id="karyotypeButtonLabel"><input id="karyotypeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-karyotype"></span></span></label>' +
+            '   <label class="ocb-ctrl" id="chromosomeButtonLabel"><input id="chromosomeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-chromosome"></span></span></label>' +
+            '   <label class="ocb-ctrl" id="regionButtonLabel"><input id="regionButton" type="checkbox"><span><span class="ocb-icon ocb-icon-region"></span></span></label>' +
+            '</div>' +
 
 
             '<div id="zoomControl" style="float:left;">' +
@@ -236,7 +238,9 @@ NavigationBar.prototype = {
             _this._handleZoomSlider(0);
         });
         this.els.progressBarCont.addEventListener('click', function (e) {
-            var zoom = 100 / parseInt(getComputedStyle(this).width) * e.offsetX;
+            var br = this.getBoundingClientRect();
+            var offsetX = e.clientX - br.left;
+            var zoom = 100 / parseInt(getComputedStyle(this).width) * offsetX;
             _this._handleZoomSlider(zoom);
         });
 
