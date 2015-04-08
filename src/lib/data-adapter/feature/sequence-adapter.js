@@ -147,7 +147,7 @@ SequenceAdapter.prototype._processSequenceQuery = function (data, throwNotify) {
         var queryEnd = parseInt(splitDash[1]);
 
         var queryId = queryResponse.id;
-        var seqResponse = queryResponse.result;
+        var seqResponse = queryResponse.result[0];
 
 
         var chromosome = seqResponse.chromosome;
