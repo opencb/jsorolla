@@ -147,8 +147,8 @@
 
                 if (newValue != '') {
                     CellBaseManager.get({
-                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
-                        version: 'v3',
+                        host: CELLBASE_HOST,
+                        version: CELLBASE_VERSION,
                         species: 'hsapiens',
                         category: 'genomic',
                         subCategory: 'variant',
@@ -183,56 +183,56 @@
                         console.log(data);
                         console.log(cat);
 
-                        var chart = new Highcharts.Chart({
-                            chart: {
-                                renderTo: this.$.mafChart,
-                                type: 'bar'
-                            },
-                            title: {
-                                text: 'minor allele frequency'
-                            },
-                            xAxis: {
-                                min: 0,
-                                categories: cat,
-                                title: {
-                                    text: null
-                                }
-                            },
-                            yAxis: {
-                                min: 0,
-                                max: 1,
-                                title: {
-                                    text: 'Population (millions)',
-                                    align: 'high'
-                                },
-                                labels: {
-                                    overflow: 'justify'
-                                }
-                            },
-                            plotOptions: {
-                                bar: {
-                                    dataLabels: {
-                                        enabled: true
-                                    }
-                                }
-                            },
-                            legend: {
-                                layout: 'vertical',
-                                align: 'right',
-                                verticalAlign: 'top',
-                                x: -40,
-                                y: 100,
-                                floating: true,
-                                borderWidth: 1,
-                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                                shadow: true
-                            },
-                            series: [{
-                                name: 'MAF',
-                                data: data
-                            }
-                            ]
-                        });
+//                        var chart = new Highcharts.Chart({
+//                            chart: {
+//                                renderTo: this.$.mafChart,
+//                                type: 'bar'
+//                            },
+//                            title: {
+//                                text: 'minor allele frequency'
+//                            },
+//                            xAxis: {
+//                                min: 0,
+//                                categories: cat,
+//                                title: {
+//                                    text: null
+//                                }
+//                            },
+//                            yAxis: {
+//                                min: 0,
+//                                max: 1,
+//                                title: {
+//                                    text: 'Population (millions)',
+//                                    align: 'high'
+//                                },
+//                                labels: {
+//                                    overflow: 'justify'
+//                                }
+//                            },
+//                            plotOptions: {
+//                                bar: {
+//                                    dataLabels: {
+//                                        enabled: true
+//                                    }
+//                                }
+//                            },
+//                            legend: {
+//                                layout: 'vertical',
+//                                align: 'right',
+//                                verticalAlign: 'top',
+//                                x: -40,
+//                                y: 100,
+//                                floating: true,
+//                                borderWidth: 1,
+//                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+//                                shadow: true
+//                            },
+//                            series: [{
+//                                name: 'MAF',
+//                                data: data
+//                            }
+//                            ]
+//                        });
                     }
                 }
             }

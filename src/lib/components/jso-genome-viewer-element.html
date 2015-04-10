@@ -103,8 +103,8 @@
             },
             createGenomeViewer: function () {
                 this.genomeViewer = new GenomeViewer({
-                    cellBaseHost: 'https://www.ebi.ac.uk/cellbase/webservices/rest',
-                    cellBaseVersion: 'v3',
+                    cellBaseHost: CELLBASE_HOST,
+                    cellBaseVersion: CELLBASE_VERSION,
                     target: this.$.gv,
 //                    width: 500,
                     width: this.parentElement.getBoundingClientRect().width - 15,
