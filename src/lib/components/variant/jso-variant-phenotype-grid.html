@@ -69,14 +69,14 @@
 
                 if (newValue != '') {
                     CellBaseManager.get({
-                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
-                        version: 'v3',
+                        host: CELLBASE_HOST,
+                        version: CELLBASE_VERSION,
                         species: 'hsapiens',
                         category: 'genomic',
                         subCategory: 'variant',
                         resource: 'full_annotation',
-//                        query: newValue,
-                        query: '19:45411941:T:C',
+                        query: newValue,
+                        //query: '19:45411941:T:C',
                         async: false,
                         success: function (response) {
                             try {
