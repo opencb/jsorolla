@@ -126,7 +126,7 @@
         html {
             width: 100%;
             height: 100%;
-            position: fixed;
+            position: relative;
             overflow-x: hidden;
         }
 
@@ -173,7 +173,8 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
-    var CELLBASE_HOST = 'https://wwwdev.ebi.ac.uk/cellbase/webservices/rest';
+//    var CELLBASE_HOST = 'https://wwwdev.ebi.ac.uk/cellbase/webservices/rest';
+    var CELLBASE_HOST = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
     /*
      *  For development purpose only
      */
@@ -412,7 +413,7 @@ var run = function () {
             }
         })
     });
-    tracks.push(this.variant);
+//    tracks.push(this.variant);
 
 //    /***************************************/
 //    var geneEnsembl = new FeatureTrack({
