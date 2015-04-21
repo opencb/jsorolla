@@ -168,8 +168,8 @@
 
                 if (newValue != '') {
                     CellBaseManager.get({
-                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
-                        version: 'v3',
+                        host: CELLBASE_HOST,
+                        version: CELLBASE_VERSION,
                         species: 'hsapiens',
                         category: 'genomic',
                         subCategory: 'variant',
