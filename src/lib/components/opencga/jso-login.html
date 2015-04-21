@@ -68,9 +68,8 @@
             </div>
         </div>
         <form id="form" vertical layout on-keypress="{{handleFormKey}}">
-            <label>User</label> <input type="text" value="{{user}}" required pattern="[a-zA-Z0-9]+">
-            <label>Password</label> <input type="password" id="password" value="{{password}}" required
-                                           pattern="[a-zA-Z0-9]+">
+            <label>User</label> <input type="text" value="{{user}}" required>
+            <label>Password</label> <input type="password" id="password" value="{{password}}" required>
 
             <div id="remember" on-click="{{handleRemember}}">Remember password...</div>
 
@@ -95,9 +94,7 @@
             },
             handleForm: function (e) {
                 this.message = '';
-                if (this.$.form.checkValidity()) {
-                    this._login();
-                }
+                this._login();
             },
             _login: function () {
                 var me = this;

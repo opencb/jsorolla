@@ -265,7 +265,7 @@
                     },
                     success: function (data) {
                         console.log(data)
-                        var interactions = data.response.result;
+                        var interactions = data.response[0].result;
 
                         for (var j = 0; j < interactions.length; j++) {
                             var interaction = interactions[j];
