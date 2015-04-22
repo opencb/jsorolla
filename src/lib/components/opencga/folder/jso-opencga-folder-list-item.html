@@ -1,0 +1,80 @@
+<dom-module id="jso-opencga-folder-list-item">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        :host[selected] {
+            background-color: #ccc;
+        }
+
+        .name {
+        }
+
+        .icon {
+            padding: 0 5px 0 2px;
+        }
+
+        .creationDate {
+            color: #444;
+            width: 120px;
+        }
+
+        .status {
+            color: #444;
+            width: 120px;
+            text-transform: capitalize;
+        }
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <div class="horizontal layout flex">
+                <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
+                <div class="name">{{file.name}}</div>
+            </div>
+            <div class="creationDate">{{computeDate(file)}}</div>
+            <div class="status">
+                <i class$="{{computeStatusIcon(file)}}"></i>
+                <span>{{computeStatus(file)}}</span>
+            </div>
+
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-folder-list-item",
+        properties: {
+            file: {
+                type: Object,
+                notify: true
+            }
+        },
+        computeDate: function (file) {
+            var date = new Date(Date.parse(Utils.parseDate(file.creationDate)));
+            return date.toLocaleString("en-us", {month: "short"}) + " " + date.getDate() + ", " + date.getFullYear();
+        },
+        computeIcon: function (file) {
+            var iconMap = {
+                "FOLDER": 'fa fa-folder-o',
+                "FILE": 'fa fa-file-o'
+            };
+            return iconMap[file.type];
+        },
+        computeStatusIcon: function (file) {
+            var iconMap = {
+                "INDEXING": 'fa fa-cog fa-spin',
+                "READY": 'fa fa-check'
+            };
+            return iconMap[file.index.status];
+        },
+        computeStatus: function (file) {
+            if (file.index) {
+                return file.index.status;
+            }
+            return 'Not indexed';
+        },
+    });
+</script>

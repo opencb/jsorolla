@@ -1,0 +1,212 @@
+<link rel="import" href="../table/jso-table.html">
+<dom-module id="jso-variant-grid">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .title {
+            font-size: 22px;
+            border-bottom: thin solid #edebe3;
+            /*margin: 7px 5px;*/
+        }
+    </style>
+    <template>
+        <!--<div class="title">-->
+            <!--Variant Browser-->
+        <!--</div>-->
+        <jso-table id="table" enable-paging enable-remote request="{{request}}"
+                   on-rowclick="handleRowClick"></jso-table>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-variant-grid",
+        properties: {
+            url: {
+                type: String,
+                notify: true,
+                value: '',
+                observer: 'urlChanged'
+            },
+            file: {
+                type: Object,
+                observer: 'fileChanged'
+            },
+            request: {
+                type: Object
+            }
+        },
+        _columns: [
+            {
+                name: 'variant',
+                title: "Variant",
+                width: 100,
+                formula: function (row) {
+                    return row.chromosome + ":" + row.start;
+                }
+            }, {
+                name: 'alleles',
+                title: 'Alleles',
+                width: 100,
+                formula: function (row) {
+                    return row.reference + ">" + row.alternate;
+                }
+            }, {
+                name: 'snpId',
+                title: 'SNP Id',
+                width: 100,
+                formula: function (row) {
+                    return row.id;
+                }
+            }, {
+                name: 'samples',
+                title: 'Samples',
+                width: 100
+//            cellTemplate: 'samplesCellTemplate',
+//            headerTemplate: 'samplesHeaderTemplate',
+//            formula: function (row) {
+//                return row.sourceEntries[me.studyId + "_" + me.fileId].samplesData;
+//            }
+            }, {
+                name: 'genes',
+                title: 'Genes',
+                width: 100
+            }, {
+                name: 'ct',
+                title: 'Conseq. Type',
+                width: 100
+            }, {
+                name: 'sift',
+                title: 'SIFT',
+                width: 100,
+                formula: function (row) {
+                    return ".";
+                }
+            }, {
+                name: 'polyphen',
+                title: 'POLYPHEN',
+                width: 100,
+                formula: function (row) {
+                    return ".";
+                }
+            },
+            {
+                name: 'phenotype',
+                title: 'Phenotype',
+//                width: 100,
+                formula: function (row) {
+                    return ".";
+                }
+            }
+        ],
+        fileChanged: function (neo, old) {
+            this.$.table.clear();
+            this._updateColumns();
+
+        },
+        _updateColumns: function () {
+            var samples = this.file.attributes.variantSource.samples;
+            var sampleColumns = [];
+            var colWidth = 100;
+            for (var i = 0; i < samples.length; i++) {
+                var sample = samples[i];
+                sampleColumns.push({
+                    name: sample,
+                    title: sample,
+                    width: colWidth
+                });
+            }
+            this._columns[3].columns = sampleColumns;
+            this._columns[3].width = sampleColumns.length * colWidth;
+            this.$.table.columns = this._columns;
+        },
+        handleRowClick: function (e) {
+            console.log(e.detail.row);
+        },
+        urlChanged: function (neo, old) {
+            var me = this;
+            if (neo != '') {
+                this.request = {
+                    url: this.url,
+                    parse: this._parse,
+                    parseTotal: this._parseTotal,
+                    file: this.file
+                };
+            }
+        },
+        _parse: function (response) {
+            var me = this;
+            var file = this.file;
+            var data = response.response[0].result;
+
+            console.log(data);
+            var fileId = file.attributes.variantSource.fileId;
+            var studyId = file.attributes.variantSource.studyId;
+            var sourceEntryId = studyId + "_" + fileId;
+
+            for (var i = 0; i < data.length; i++) {
+                var variant = data[i];
+                var samples = {};
+
+                var se = variant.sourceEntries[sourceEntryId];
+
+                // Parse Samples Gt
+                for (var sample in se.samplesData) {
+//                            samples.push({sample: se.sampleData[sample].GT});
+                    samples[sample] = se.samplesData[sample].GT
+                }
+                variant.samples = samples;
+
+
+                var ctsAux = {};
+                var genesAux = {};
+
+                if (variant.annotation.consequenceTypes != null) {
+                    for (var j = 0; j < variant.annotation.consequenceTypes.length; j++) {
+                        var ct = variant.annotation.consequenceTypes[j];
+                        var soTerms = ct.soTerms;
+                        for (var k = 0; k < soTerms.length; k++) {
+                            var sot = soTerms[k];
+                            if (sot.soName != null) {
+                                ctsAux[sot.soName] = true;
+                            }
+
+                        }
+                    }
+                }
+
+                if (variant.annotation.xrefs != null) {
+                    for (var j = 0; j < variant.annotation.xrefs.length; j++) {
+                        var xref = variant.annotation.xrefs[j];
+
+                        if (xref.src == "HGNC") {
+                            genesAux[xref.id] = true;
+                        }
+
+                    }
+                }
+
+
+                var cts = Object.keys(ctsAux);
+                if (cts.length > 0) {
+                    variant.ct = cts.join(",");
+
+                }
+
+                var genes = Object.keys(genesAux);
+                if (genes.length > 0) {
+                    variant.genes = genes.join(",");
+                }
+            }
+
+            return data;
+        },
+        _parseTotal: function (response) {
+            return response.response[0].numTotalResults;
+        }
+    });
+</script>

@@ -1,0 +1,86 @@
+<dom-module id="jso-project-select">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .selbox {
+            box-sizing: border-box;
+            background-color: #FFF;
+            height: 150px;
+            overflow-y: auto;
+            border: 1px solid #d3d3d3;
+        }
+
+        .project-item {
+            padding: 2px 5px;
+        }
+
+        .project-item:hover {
+            background-color: #eee;
+        }
+
+        .project-item[data-checked] {
+            background-color: #ddd;
+        }
+
+        label.jso {
+            display: block;
+        }
+
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <div class="flex">
+                <label class="jso">Projects:</label>
+
+                <div class="selbox" id="projects">
+                    <template is="x-repeat" items="{{projects}}">
+                        <div class="project-item" on-click="handleProjectClick" data-id$="{{item.id}}">
+                            <span>{{item.name}}</span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-project-select",
+        properties: {
+            projects: {
+                type: Array,
+                observer: 'projectsChanged'
+            },
+            selectedProject: {
+                type: String
+            }
+        },
+        handleProjectClick: function (e) {
+            var sel = this.querySelectorAll('.project-item');
+            for (var i = 0; i < sel.length; i++) {
+                var el = sel[i];
+                el.removeAttribute('data-checked');
+            }
+            this.selectedProject = e.currentTarget.dataset.id;
+            e.currentTarget.setAttribute('data-checked', '')
+        },
+        projectsChanged: function (neo, old) {
+            var found = false;
+            for (var i = 0; i < neo.length; i++) {
+                var p = neo[i];
+                if (p.id == parseInt(this.selectedProject)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                this.selectedProject = null;
+            }
+        }
+    });
+</script>

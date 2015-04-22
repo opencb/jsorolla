@@ -1,0 +1,100 @@
+<dom-module id="jso-study-select">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .selbox {
+            box-sizing: border-box;
+            background-color: #FFF;
+            height: 150px;
+            overflow-y: auto;
+            border: 1px solid #d3d3d3;
+        }
+
+        .study-item, .project-item {
+            padding: 2px 5px;
+        }
+
+        .project-item {
+            color: #555;
+        }
+
+        .study-item {
+            padding-left: 15px;
+        }
+
+        .study-item:hover {
+            background-color: #eee;
+        }
+
+        .study-item[data-checked] {
+            background-color: #ddd;
+        }
+
+        label.jso {
+            display: block;
+        }
+
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <div class="flex">
+                <label class="jso">Studies:</label>
+
+                <div class="selbox" id="projects">
+                    <template is="x-repeat" items="{{projects}}">
+                        <div class="project-item" on-click="handleProjectClick">{{item.name}}</div>
+                        <template is="x-repeat" items="{{item.studies}}">
+                            <div class="study-item" on-click="handleStudyClick"
+                                 data-id$="{{item.id}}"><span>{{item.name}}</span>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-study-select",
+        properties: {
+            projects: {
+                type: Array,
+                observer: 'projectsChanged'
+            },
+            selectedStudy: {
+                type: String
+            }
+        },
+        handleStudyClick: function (e) {
+            var sel = this.querySelectorAll('.study-item');
+            for (var i = 0; i < sel.length; i++) {
+                var el = sel[i];
+                el.removeAttribute('data-checked');
+            }
+            this.selectedStudy = e.currentTarget.dataset.id;
+            e.currentTarget.setAttribute('data-checked', '')
+        },
+        projectsChanged: function (neo, old) {
+            var found = false;
+            for (var i = 0; i < neo.length; i++) {
+                var p = neo[i];
+                for (var j = 0; j < p.studies.length; j++) {
+                    var s = p.studies[j];
+                    if (s.id == parseInt(this.selectedStudy)) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                this.selectedStudy = null;
+            }
+        }
+    });
+</script>

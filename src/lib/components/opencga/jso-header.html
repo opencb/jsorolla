@@ -38,14 +38,16 @@
             text-transform: none;
         }
 
-        .main > div > div {
+        #left > div,
+        #right > div {
             display: block;
             text-align: center;
             padding: 0 5px;
             cursor: pointer;
         }
 
-        .main > div > div:hover {
+        #left > div:hover,
+        #right > div:hover {
             color: #FFFFFF;
         }
 
@@ -72,12 +74,6 @@
             cursor: default;
         }
 
-        @media (max-width: 1250px) {
-            div.left {
-                display: none;
-            }
-        }
-
         #user {
             color: #ffad76;
         }
@@ -91,7 +87,7 @@
     </style>
     <template>
         <div class="main horizontal layout">
-            <div class="horizontal layout start-justified">
+            <div id="left" class="horizontal layout start-justified">
                 <div class="icon" data-option="home" on-click="handleMenu">
                     <content select=".icon"></content>
                 </div>
@@ -105,12 +101,12 @@
                     <content select=".announce"></content>
                 </div>
             </div>
-            <div class="horizontal layout center-justified flex">
+            <div id="center" class="horizontal layout center-justified flex">
                 <div hidden$="{{computeMenu(showMenuOnLogin, isLogged)}}">
                     <content select=".menu"></content>
                 </div>
             </div>
-            <div hidden$="{{!allowLogin}}" class="horizontal layout end-justified">
+            <div id="right" hidden$="{{!allowLogin}}" class="horizontal layout end-justified">
                 <div id="user" hidden$="{{!isLogged}}">{{userText}}</div>
 
                 <div hidden$="{{!allowBrowse}}">
@@ -217,11 +213,12 @@
             },
             allowJobs: {
                 type: Boolean,
-                value: true
+                value: false,
+                reflectToAttribute: true
             },
             allowBrowse: {
                 type: Boolean,
-                value: true,
+                value: false,
                 reflectToAttribute: true
             },
             showJobs: {
@@ -230,9 +227,7 @@
             },
             userData: {
                 type: Object,
-                value: function () {
-                    return {};
-                }
+                notify: true
             },
             userText: {
                 type: String,

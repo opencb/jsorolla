@@ -1,0 +1,79 @@
+<link rel="import" href="jso-opencga-folder-list-item.html">
+<dom-module id="jso-opencga-folder-list">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        #header {
+            background-color: #fafafa;
+            color: #444;
+            border-bottom: 1px solid #eaeaea;
+            padding: 3px 7px;
+        }
+
+        .name {
+        }
+
+        .creationDate {
+            color: #444;
+            width: 120px;
+        }
+        .status {
+            color: #444;
+            width: 120px;
+        }
+
+        jso-opencga-folder-list-item {
+            padding: 3px 7px;
+            border-bottom: 1px solid #eaeaea;
+        }
+    </style>
+    <template>
+        <div id="header" class="horizontal layout">
+            <div class="name flex">Name</div>
+            <div class="creationDate">Creation date</div>
+            <div class="status">Status</div>
+        </div>
+        <template is="x-repeat" items="{{files}}" filter="isVariantFile" observe="type">
+            <jso-opencga-folder-list-item file="{{item}}" on-click="handleSelect">
+            </jso-opencga-folder-list-item>
+        </template>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-folder-list",
+        properties: {
+            folder: {
+                type: Object,
+                notify: true
+            },
+            files: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return [];
+                }
+            },
+            selected: {
+                type: Object,
+                notify: true
+            }
+        },
+        handleSelect: function (e) {
+            this.selected = e.currentTarget.file;
+            var sel = this.querySelector("jso-opencga-folder-list-item[selected]");
+            if (sel) {
+                sel.removeAttribute('selected');
+            }
+            e.currentTarget.setAttribute('selected', '');
+            this.fire('fileselect', this.selected);
+        },
+        isVariantFile: function (item) {
+            return item.bioformat == "VARIANT";
+        }
+    });
+</script>

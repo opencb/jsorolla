@@ -1,137 +1,164 @@
-<polymer-element name="jso-opencga-create-study" attributes="projectList userData">
+<link rel="import" href="jso-project-select.html">
+<dom-module id="jso-opencga-create-study">
+    <style>
+        :host {
+            display: block;
+            position: fixed;
+            box-sizing: border-box;
+
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            background-color: rgba(150, 150, 150, 0.7);
+        }
+
+        .main {
+            position: absolute;
+            box-sizing: border-box;
+            padding: 30px 100px;
+
+            left: 0;
+            right: 0;
+            top: 200px;
+            margin: 0 auto;
+
+            width: 500px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+            color: #666;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        .close {
+            position: absolute;
+            margin: 15px;
+            font-size: 18px;
+            top: 0;
+            right: 0;
+        }
+
+        .close:hover {
+            color: orangered;
+        }
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                padding-left: 30px;
-                padding-top: 10px;
-            }
+        <div class="main">
+            <div class="close" on-click="handleClose">
+                <i class="fa fa-times"></i>
+            </div>
+            <div class="title">
+                <div>
+                    Create Study
+                </div>
+                <div class="icon">
+                    <i class="fa fa-cloud-upload"></i>
+                </div>
+            </div>
 
-            label {
-                display: inline-block;
-                color: #666;
-                margin-top: 10px;
-            }
+            <jso-project-select id="projectSelect" projects="{{projects}}">
+            </jso-project-select>
 
-            label::after {
-                content: ':'
-            }
+            <br>
 
-            .action {
-                margin-top: 30px;
-            }
+            <form id="form">
 
-            .message {
-                margin-top: 20px;
-            }
+                <div>
+                    <label class="jso">Study type</label>
+                    <label class="jso-control">
+                        <input value="FAMILY" type="radio" name="type" checked>
+                        <span>Family</span>
+                    </label>
+                    <label class="jso-control">
+                        <input value="CASE_CONTROL" type="radio" name="type">
+                        <span>Case / Control</span>
+                    </label>
+                    <label class="jso-control">
+                        <input value="TRIO" type="radio" name="type">
+                        <span>Trio</span>
+                    </label>
+                    <label class="jso-control">
+                        <input value="PAIRED" type="radio" name="type">
+                        <span>Paired</span>
+                    </label>
+                    <label class="jso-control">
+                        <input value="CASE_SET" type="radio" name="type">
+                        <span>Case set</span>
+                    </label>
+                    <label class="jso-control">
+                        <input value="CONTROL_SET" type="radio" name="type">
+                        <span>Control set</span>
+                    </label>
+                </div>
+                <br>
+                <label class="jso">Study name:</label>
+                <input class="jso" type="text" value={{name::input}} placeholder="New study" required
+                       pattern="[a-zA-Z0-9]+">
+                <br>
 
-        </style>
-
-
-        <form id="form" vertical layout>
-
-            <!--<label>Project</label>-->
-
-            <!--<div class="dropdown">-->
-                <!--<div tabindex="-1" class="button">-->
-                    <!--<jso-opencga-project-item project="{{selectedProject}}"></jso-opencga-project-item>-->
-                <!--</div>-->
-                <!--<ul>-->
-                    <!--<template repeat="{{project in projectList}}">-->
-                        <!--<li>-->
-                            <!--<jso-opencga-project-item-->
-                                    <!--project="{{project}}"-->
-                                    <!--data-selected="{{selectedProject == project}}"-->
-                                    <!--on-mousedown="{{handleProjectClick}}">-->
-                            <!--</jso-opencga-project-item>-->
-                        <!--</li>-->
-                    <!--</template>-->
-                <!--</ul>-->
-            <!--</div>-->
-
-            <label>Name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9\s]+">
-            <label>Alias</label> <input type="text" id="alias" value="{{alias}}" required pattern="[a-zA-Z0-9]+">
-            <label>Type</label> <input type="text" id="type" value="{{type}}" required pattern="[a-zA-Z0-9]+">
-            <label>Description</label> <input type="text" id="description" value="{{description}}" required
-                                              pattern="[a-zA-Z0-9\s]+">
-            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required
-                                               pattern="[a-zA-Z0-9\s]+">
-
-            <div class="button action" on-click="{{handleForm}}">Create</div>
-
-        </form>
-        <div class="message">{{message}}</div>
+                <div class="jso-btn jso-btn-shdw" on-click="handleForm">Create</div>
+            </form>
+        </div>
     </template>
-    <script>
-        Polymer({
-            created: function () {
-                this.name = '';
-                this.alias = '';
-                this.description = '';
-                this.organization = '';
-                this.type = '';
 
-                this.selectedProject;
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-create-study",
+        properties: {
+            projects: {
+                type: Array,
+                notify: true
+            },
+            name: {
+                type: String
+            }
+        },
+        handleForm: function () {
+            var me = this;
+            if (this.$.projectSelect.selectedProject == null) {
+                alert("Please select a Project");
+                return;
+            }
 
+            if (this.$.form.checkValidity()) {
 
-                this.message = '';
-            },
-            ready: function(){
-                this.selectedProject = this.projectList[0]
-            },
-            handleProjectClick: function (e) {
-                this.selectedProject = e.target.project;
-            },
-            handleForm: function (e) {
-                var me = this;
-                this.message = '';
-                if (this.$.form.checkValidity()) {
-                    OpencgaManager.studies.create({
-                        query: {
-                            sid: Cookies('bioinfo_sid'),
-                            name: this.name,
-                            alias: this.alias,
-                            description: this.description,
-                            organization: this.organization,
-                            type: this.type,
-                            projectId: this.selectedProject.id
-
-                        },
-                        request: {
-                            success: function (response) {
-                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                    me.message = 'Study created sucessfully.';
-                                    var studyId = response.response[0].result[0].id;
-                                    me.createAnalysis(studyId);
-                                } else {
-                                    me.message = response.response[0].errorMsg;
-                                }
-                            },
-                            error: function () {
-                                alert('Server error, try again later.');
-                            }
-                        }
-                    });
-                }
-            },
-            createAnalysis: function (studyId) {
-                var me = this;
-                this.message = '';
-                OpencgaManager.analysis.create({
+                OpencgaManager.studies.create({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        name: "default",
-                        alias: "default",
-                        description: "default",
-                        studyId: studyId
+                        name: this.name,
+                        alias: this.name.replace(/ /gi, ''),
+                        description: '',
+                        organization: '',
+                        type: this.querySelector('input[name="type"]:checked').value,
+                        projectId: this.$.projectSelect.selectedProject
 
                     },
                     request: {
+                        async: true,
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.message = 'Analysis created sucessfully.';
+//                                me.message = 'Study created sucessfully.';
+                                me.name = "";
+                                me.handleClose();
                             } else {
-                                me.message = response.response[0].errorMsg;
+                                alert('Server error, try again later.');
                             }
                         },
                         error: function () {
@@ -140,6 +167,9 @@
                     }
                 });
             }
-        });
-    </script>
-</polymer-element>
+        },
+        handleClose: function (e) {
+            this.fire("close");
+        }
+    });
+</script>

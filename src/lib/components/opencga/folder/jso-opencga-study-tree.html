@@ -1,0 +1,87 @@
+<dom-module id="jso-opencga-study-tree">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        :host[selected] > .main {
+            background-color: #ccc;
+        }
+
+        .main {
+            border: 1px solid transparent;
+            padding-left: 12px;
+        }
+
+        .name:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            content: '\f114';
+        }
+
+        .arrow:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 15px;
+            text-align: center;
+            content: '\f0da';
+        }
+
+        .arrow[open]:before {
+            content: '\f0d7';
+        }
+
+        .arrow[empty]:before {
+            content: '\00a0';
+        }
+
+        .arrow {
+            padding: 2px 0 2px 2px;
+        }
+
+        .name {
+            padding: 2px 2px 2px 0;
+        }
+    </style>
+    <template>
+        <div class="main horizontal layout">
+            <div class="arrow" empty$="{{isEmpty(study)}}" open$="{{open}}" on-click="handleArrowClick"></div>
+            <div class="name flex" on-click="handleClick">{{study.name}}</div>
+        </div>
+        <div hidden$="{{!open}}">
+
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-study-tree",
+        properties: {
+            study: {
+                type: Object
+            },
+            selected: {
+                type: Object
+            },
+            open: {
+                type: Boolean,
+                value: false
+            }
+        },
+        isEmpty: function (study) {
+            return study.files.length <= 0;
+        },
+        handleClick: function (e) {
+            this.fire("select", {type: 'study', item: this.study});
+        },
+        handleArrowClick: function (e) {
+            if (this.study.files.length > 0) {
+                this.open = !this.open;
+            }
+        }
+    });
+</script>

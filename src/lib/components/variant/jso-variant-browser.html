@@ -1,355 +1,334 @@
-<link rel="import" href="jso-variant-effect-grid.html">
-<link rel="import" href="jso-variant-frequencies-grid.html">
-<link rel="import" href="jso-variant-stats.html">
-<link rel="import" href="jso-variant-phenotype-grid.html">
+<!--<link rel="import" href="jso-variant-effect-grid.html">-->
+<!--<link rel="import" href="jso-variant-frequencies-grid.html">-->
+<!--<link rel="import" href="jso-variant-stats.html">-->
+<!--<link rel="import" href="jso-variant-phenotype-grid.html">-->
+<!--<link rel="import" href="../jso-genome-viewer-element.html">-->
+
+<link rel="import" href="jso-variant-filter-form.html">
+<link rel="import" href="jso-variant-grid.html">
 <link rel="import" href="../jso-genome-viewer-element.html">
-<polymer-element name="jso-variant-browser" attributes="jobItem samples url fileId studyId">
+<dom-module id="jso-variant-browser">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            height: 100%;
+            background-color: #fff;
+        }
+
+        #right {
+            margin-left:5px;
+        }
+
+        /*#grid {*/
+        /*position: relative;*/
+        /*box-sizing: border-box;*/
+        /*height: 282px;*/
+        /*}*/
+
+        #tools {
+            margin-top:10px;
+            height: calc(100% - 375px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .title {
+            font-size: 22px;
+            color: #435f7a;
+            padding: 5px 20px;
+            /*padding:10px 20px;*/
+        }
+
+        /*#dataGridElement {*/
+        /*border-radius: 5px;*/
+        /*padding: 5px;*/
+        /*padding-left: 10px;*/
+        /*padding-right: 10px;*/
+        /*margin: 20px 20px 20px 0px;*/
+        /*background-color: #FFFFFF;*/
+        /*}*/
+
+        /*#tool {*/
+        /*margin-top: 20px;*/
+        /*overflow-y: auto;*/
+        /*}*/
+
+
+    </style>
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-                /*position: absolute;*/
-                box-sizing: border-box;
-                height: 100%;
-
-            }
-
-            #grid {
-                position: relative;
-                box-sizing: border-box;
-                height: 282px;
-            }
-
-            #tools {
-                height: calc(100% - 375px);
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-
-            .title {
-                font-size: 22px;
-                color: #435f7a;
-                border-bottom: thin solid #edebe3;
-                margin: 5px 0px;
-            }
-
-            #dataGridElement {
-                border-radius: 5px;
-                padding: 5px;
-                padding-left: 10px;
-                padding-right: 10px;
-                margin: 20px 20px 20px 0px;
-                background-color: #FFFFFF;
-            }
-
-            sortable-table {
-                box-sizing: border-box;
-                border: 1px solid #d3d3d3;
-                overflow-x: auto;
-            }
-
-            sortable-table::shadow > table > tbody > * {
-                font-size: 11px;
-            }
-
-            sortable-table::shadow > table > thead > * {
-                font-size: 12px;
-            }
-
-            sortable-table::shadow .column-variant {
-                width: 70px;
-            }
-
-            sortable-table::shadow .column-alleles {
-                width: 70px;
-            }
-
-            sortable-table::shadow .column-snpId {
-                width: 70px;
-            }
-
-            sortable-table::shadow .column-genes {
-                width: 70px;
-            }
-
-            sortable-table::shadow .column-sift {
-                width: 70px;
-            }
-
-            sortable-table::shadow .column-polyphen {
-                width: 70px;
-            }
-
-            paper-tabs::shadow #selectionBar {
-                background-color: #314559;
-            }
-
-            paper-tabs paper-tab::shadow #ink {
-                color: #435f7a;
-            }
-
-            #tool {
-                /*margin-top: 20px;*/
-                /*overflow-y: auto;*/
-            }
-
-            core-item {
-                margin-right: 25px;
-                /*font-weight: lighter;*/
-                font-weight: normal !important;
-                cursor: pointer !important;
-                color: #909090;
-                padding: 0px 2px;
-                border-bottom: 2px solid transparent;
-            }
-
-            core-item.core-selected {
-                border-bottom: 2px solid #d3d3d3;
-                color: #435f7a;
-            }
-
-        </style>
-
         <div class="title">
-            Results
+            <span>{{file.attributes.variantSource.studyName}}</span>
+            <i class="fa fa-angle-right"></i>
+            <span>{{file.name}}</span>
         </div>
-        <div id="grid">
-            <sortable-table class="bootstrap"
-                            id="dataGrid"
-                            footerTemplate="defaultPager"
-                            pageSize="10"
-                            columns="{{ columns }}"
-                            loading="true"
-                            rowSelection="true"
-                            args="{{args}}">
-                <template id="samplesHeaderTemplate">
-                    <th class="column-samples" style="padding:0px;">
-                        <div vertical layout class="mainDiv">
-                            <div horizontal layout center-justified class="totalName bb">Samples</div>
-                            <div id="headerSamples" horizontal layout>
-                                <template repeat="{{sample in args.samples}}">
-                                    <div horizontal layout flex center-justified>{{sample}}</div>
-                                </template>
+        <div class="horizontal layout">
+            <jso-variant-filter-form url="{{url}}" file="{{file}}"></jso-variant-filter-form>
+            <div id="right" class="flex">
+                <jso-variant-grid url="{{url}}" file="{{file}}"
+                                  on-rowclick="handleRowClick"></jso-variant-grid>
 
-                            </div>
-                        </div>
-                    </th>
-                </template>
-                <template id="samplesCellTemplate">
-                    <style>
-                    </style>
-                    <td horizontal layout>
-                        <template repeat="{{sample in args.samples}}">
-                            <div horizontal layout center-justified flex>{{value[sample].GT}}</div>
-                        </template>
-                    </td>
-                </template>
+                <div id="tools">
+                    <jso-genome-viewer-element id="gv"></jso-genome-viewer-element>
 
-
-                <template id="mafHeaderTemplate">
-                    <style>
-                        .column-total {
-                            width: 240px;
-                        }
-
-                        .br {
-                            border-right-color: rgb(221, 221, 221);
-                            border-right-style: solid;
-                            border-right-width: 1px;
-                        }
-
-                        .bl {
-                            border-left-color: rgb(221, 221, 221);
-                            border-left-style: solid;
-                            border-left-width: 1px;
-                        }
-
-                        .bt {
-                            border-top-color: rgb(221, 221, 221);
-                            border-top-style: solid;
-                            border-top-width: 1px;
-                        }
-
-                        .bb {
-                            border-bottom-color: rgb(221, 221, 221);
-                            border-bottom-style: solid;
-                            border-bottom-width: 1px;
-                        }
-
-                        .genotypesDiv {
-                            width: 120px;
-                        }
-
-                        .freqDiv {
-                            width: 120px;
-                        }
-
-                        .value {
-                            width: 40px;
-                        }
-                    </style>
-                    <th class="column-total" style="padding:0px;">
-                        <div vertical layout class="mainDiv">
-                            <div horizontal layout center-justified class="totalName bb">Total</div>
-                            <div horizontal layout>
-                                <div vertical layout class="genotypesDiv br">
-                                    <div horizontal layout center-justified class="bb">Genotypes</div>
-                                    <div horizontal layout>
-                                        <div horizontal layout center-justified flex class="br">0/0</div>
-                                        <div horizontal layout center-justified flex class="br">0/1</div>
-                                        <div horizontal layout center-justified flex>1/1</div>
-                                    </div>
-                                </div>
-                                <div vertical layout class="freqDiv">
-                                    <div horizontal layout center-justified class="bb">Freq.</div>
-                                    <div horizontal layout>
-                                        <div horizontal layout center-justified flex class="br">0 freq</div>
-                                        <div horizontal layout center-justified flex class="br">1 freq</div>
-                                        <div horizontal layout center-justified flex>MAF</div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </th>
-                </template>
-                <template id="mafStaticHT">
-                    <style>
-                        .column-total {
-                            width: 240px;
-                        }
-
-                        .br {
-                            border-right-color: rgb(221, 221, 221);
-                            border-right-style: solid;
-                            border-right-width: 1px;
-                        }
-
-                        .bl {
-                            border-left-color: rgb(221, 221, 221);
-                            border-left-style: solid;
-                            border-left-width: 1px;
-                        }
-
-                        .bt {
-                            border-top-color: rgb(221, 221, 221);
-                            border-top-style: solid;
-                            border-top-width: 1px;
-                        }
-
-                        .bb {
-                            border-bottom-color: rgb(221, 221, 221);
-                            border-bottom-style: solid;
-                            border-bottom-width: 1px;
-                        }
-
-                        .genotypesDiv {
-                            width: 120px;
-                        }
-
-                        .freqDiv {
-                            width: 120px;
-                        }
-
-                        .value {
-                            width: 40px;
-                        }
-                    </style>
-                    <th class="column-total" style="padding:0px;">
-                        <div vertical layout class="mainDiv">
-                            <div horizontal layout center-justified class="totalName bb">{{ column.title }}
-                            </div>
-                            <div horizontal layout>
-                                <div vertical layout class="genotypesDiv br">
-                                    <div horizontal layout center-justified class="bb">Genotypes</div>
-                                    <div horizontal layout>
-                                        <div horizontal layout center-justified flex class="br">0/0</div>
-                                        <div horizontal layout center-justified flex class="br">0/1</div>
-                                        <div horizontal layout center-justified flex>1/1</div>
-                                    </div>
-                                </div>
-                                <div vertical layout class="freqDiv">
-                                    <div horizontal layout center-justified class="bb">Freq.</div>
-                                    <div horizontal layout>
-                                        <div horizontal layout center-justified flex class="br">0 freq</div>
-                                        <div horizontal layout center-justified flex class="br">1 freq</div>
-                                        <div horizontal layout center-justified flex>MAF</div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </th>
-                </template>
-                <template id="mafStaticCT">
-                    <style>
-                        .row-total {
-                            width: 240px;
-                        }
-                    </style>
-                    <td>
-                        <div horizontal layout class="row-total">
-                            <!--<div flex horizontal layout center-justified flex>{{ value.stats.gt00 || "." }}</div>-->
-                            <div flex horizontal layout center-justified flex>{{ value.stats.gt00 }}</div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.gt01 || "." }}
-                            </div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.gt11 || "." }}
-                            </div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.refmaf || "." }}
-                            </div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.altmaf || "." }}
-                            </div>
-                            <div flex horizontal layout center-justified flex>{{ value.stats.maf || "." }}</div>
-                        </div>
-                    </td>
-                </template>
-
-                <jso-sortable-table-ajax id="jsoSortableTableAjax"
-                                         role="datasource"
-                                         url="{{url}}"
-                                         start=0
-                                         length=10
-                                         parseFunction="{{parseFunction}}">
-                </jso-sortable-table-ajax>
-
-            </sortable-table>
+                </div>
+            </div>
         </div>
 
-        <core-menu class="title" selected="{{selectedTab}}" horizontal layout>
-            <core-item icon="" label="Genomic Context"></core-item>
-            <core-item icon="" label="Effect"></core-item>
-            <core-item icon="" label="Frequencies"></core-item>
-            <core-item icon="" label="Phenotype"></core-item>
-            <core-item icon="" label="Stats"></core-item>
-        </core-menu>
 
-        <div id="tools" vertical layout>
-            <!--<div hidden?="{{ selectedTab != 0}}" id="genomeViewer"></div>-->
-            <jso-genome-viewer-element id="gvEl" hidden?="{{ selectedTab != 0}}"></jso-genome-viewer-element>
-            <jso-variant-effect-grid hidden?="{{ selectedTab != 1}}"
-                                     variant="{{ variantEffect }}"></jso-variant-effect-grid>
-            <jso-variant-frequencies-grid hidden?="{{ selectedTab != 2}}"
-                                          variant="{{ variantEffect }}"></jso-variant-frequencies-grid>
-            <jso-variant-phenotype-grid hidden?="{{ selectedTab != 3}}"
-                                        variant="{{ variantEffect }}"></jso-variant-phenotype-grid>
-            <jso-variant-stats id="jsoVariantStats" hidden?="{{ selectedTab != 4}}"></jso-variant-stats>
-        </div>
+        <!--<div class="title">-->
+        <!--Results-->
+        <!--</div>-->
+        <!--<div id="grid">-->
+        <!--<sortable-table class="bootstrap"-->
+        <!--id="dataGrid"-->
+        <!--footerTemplate="defaultPager"-->
+        <!--pageSize="10"-->
+        <!--columns="{{ columns }}"-->
+        <!--loading="true"-->
+        <!--rowSelection="true"-->
+        <!--args="{{args}}">-->
+        <!--<template id="samplesHeaderTemplate">-->
+        <!--<th class="column-samples" style="padding:0px;">-->
+        <!--<div vertical layout class="mainDiv">-->
+        <!--<div horizontal layout center-justified class="totalName bb">Samples</div>-->
+        <!--<div id="headerSamples" horizontal layout>-->
+        <!--<template repeat="{{sample in args.samples}}">-->
+        <!--<div horizontal layout flex center-justified>{{sample}}</div>-->
+        <!--</template>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--</th>-->
+        <!--</template>-->
+        <!--<template id="samplesCellTemplate">-->
+        <!--<style>-->
+        <!--</style>-->
+        <!--<td horizontal layout>-->
+        <!--<template repeat="{{sample in args.samples}}">-->
+        <!--<div horizontal layout center-justified flex>{{value[sample].GT}}</div>-->
+        <!--</template>-->
+        <!--</td>-->
+        <!--</template>-->
+
+
+        <!--<template id="mafHeaderTemplate">-->
+        <!--<style>-->
+        <!--.column-total {-->
+        <!--width: 240px;-->
+        <!--}-->
+
+        <!--.br {-->
+        <!--border-right-color: rgb(221, 221, 221);-->
+        <!--border-right-style: solid;-->
+        <!--border-right-width: 1px;-->
+        <!--}-->
+
+        <!--.bl {-->
+        <!--border-left-color: rgb(221, 221, 221);-->
+        <!--border-left-style: solid;-->
+        <!--border-left-width: 1px;-->
+        <!--}-->
+
+        <!--.bt {-->
+        <!--border-top-color: rgb(221, 221, 221);-->
+        <!--border-top-style: solid;-->
+        <!--border-top-width: 1px;-->
+        <!--}-->
+
+        <!--.bb {-->
+        <!--border-bottom-color: rgb(221, 221, 221);-->
+        <!--border-bottom-style: solid;-->
+        <!--border-bottom-width: 1px;-->
+        <!--}-->
+
+        <!--.genotypesDiv {-->
+        <!--width: 120px;-->
+        <!--}-->
+
+        <!--.freqDiv {-->
+        <!--width: 120px;-->
+        <!--}-->
+
+        <!--.value {-->
+        <!--width: 40px;-->
+        <!--}-->
+        <!--</style>-->
+        <!--<th class="column-total" style="padding:0px;">-->
+        <!--<div vertical layout class="mainDiv">-->
+        <!--<div horizontal layout center-justified class="totalName bb">Total</div>-->
+        <!--<div horizontal layout>-->
+        <!--<div vertical layout class="genotypesDiv br">-->
+        <!--<div horizontal layout center-justified class="bb">Genotypes</div>-->
+        <!--<div horizontal layout>-->
+        <!--<div horizontal layout center-justified flex class="br">0/0</div>-->
+        <!--<div horizontal layout center-justified flex class="br">0/1</div>-->
+        <!--<div horizontal layout center-justified flex>1/1</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div vertical layout class="freqDiv">-->
+        <!--<div horizontal layout center-justified class="bb">Freq.</div>-->
+        <!--<div horizontal layout>-->
+        <!--<div horizontal layout center-justified flex class="br">0 freq</div>-->
+        <!--<div horizontal layout center-justified flex class="br">1 freq</div>-->
+        <!--<div horizontal layout center-justified flex>MAF</div>-->
+        <!--</div>-->
+
+        <!--</div>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--</th>-->
+        <!--</template>-->
+        <!--<template id="mafStaticHT">-->
+        <!--<style>-->
+        <!--.column-total {-->
+        <!--width: 240px;-->
+        <!--}-->
+
+        <!--.br {-->
+        <!--border-right-color: rgb(221, 221, 221);-->
+        <!--border-right-style: solid;-->
+        <!--border-right-width: 1px;-->
+        <!--}-->
+
+        <!--.bl {-->
+        <!--border-left-color: rgb(221, 221, 221);-->
+        <!--border-left-style: solid;-->
+        <!--border-left-width: 1px;-->
+        <!--}-->
+
+        <!--.bt {-->
+        <!--border-top-color: rgb(221, 221, 221);-->
+        <!--border-top-style: solid;-->
+        <!--border-top-width: 1px;-->
+        <!--}-->
+
+        <!--.bb {-->
+        <!--border-bottom-color: rgb(221, 221, 221);-->
+        <!--border-bottom-style: solid;-->
+        <!--border-bottom-width: 1px;-->
+        <!--}-->
+
+        <!--.genotypesDiv {-->
+        <!--width: 120px;-->
+        <!--}-->
+
+        <!--.freqDiv {-->
+        <!--width: 120px;-->
+        <!--}-->
+
+        <!--.value {-->
+        <!--width: 40px;-->
+        <!--}-->
+        <!--</style>-->
+        <!--<th class="column-total" style="padding:0px;">-->
+        <!--<div vertical layout class="mainDiv">-->
+        <!--<div horizontal layout center-justified class="totalName bb">{{ column.title }}-->
+        <!--</div>-->
+        <!--<div horizontal layout>-->
+        <!--<div vertical layout class="genotypesDiv br">-->
+        <!--<div horizontal layout center-justified class="bb">Genotypes</div>-->
+        <!--<div horizontal layout>-->
+        <!--<div horizontal layout center-justified flex class="br">0/0</div>-->
+        <!--<div horizontal layout center-justified flex class="br">0/1</div>-->
+        <!--<div horizontal layout center-justified flex>1/1</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div vertical layout class="freqDiv">-->
+        <!--<div horizontal layout center-justified class="bb">Freq.</div>-->
+        <!--<div horizontal layout>-->
+        <!--<div horizontal layout center-justified flex class="br">0 freq</div>-->
+        <!--<div horizontal layout center-justified flex class="br">1 freq</div>-->
+        <!--<div horizontal layout center-justified flex>MAF</div>-->
+        <!--</div>-->
+
+        <!--</div>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--</th>-->
+        <!--</template>-->
+        <!--<template id="mafStaticCT">-->
+        <!--<style>-->
+        <!--.row-total {-->
+        <!--width: 240px;-->
+        <!--}-->
+        <!--</style>-->
+        <!--<td>-->
+        <!--<div horizontal layout class="row-total">-->
+        <!--&lt;!&ndash;<div flex horizontal layout center-justified flex>{{ value.stats.gt00 || "." }}</div>&ndash;&gt;-->
+        <!--<div flex horizontal layout center-justified flex>{{ value.stats.gt00 }}</div>-->
+        <!--<div flex horizontal layout center-justified flex>{{ value.stats.gt01 || "." }}-->
+        <!--</div>-->
+        <!--<div flex horizontal layout center-justified flex>{{ value.stats.gt11 || "." }}-->
+        <!--</div>-->
+        <!--<div flex horizontal layout center-justified flex>{{ value.stats.refmaf || "." }}-->
+        <!--</div>-->
+        <!--<div flex horizontal layout center-justified flex>{{ value.stats.altmaf || "." }}-->
+        <!--</div>-->
+        <!--<div flex horizontal layout center-justified flex>{{ value.stats.maf || "." }}</div>-->
+        <!--</div>-->
+        <!--</td>-->
+        <!--</template>-->
+
+        <!--<jso-sortable-table-ajax id="jsoSortableTableAjax"-->
+        <!--role="datasource"-->
+        <!--url="{{url}}"-->
+        <!--start=0-->
+        <!--length=10-->
+        <!--parseFunction="{{parseFunction}}">-->
+        <!--</jso-sortable-table-ajax>-->
+
+        <!--</sortable-table>-->
+        <!--</div>-->
+
+        <!--<core-menu class="title" selected="{{selectedTab}}" horizontal layout>-->
+        <!--<core-item icon="" label="Genomic Context"></core-item>-->
+        <!--<core-item icon="" label="Effect"></core-item>-->
+        <!--<core-item icon="" label="Frequencies"></core-item>-->
+        <!--<core-item icon="" label="Phenotype"></core-item>-->
+        <!--<core-item icon="" label="Stats"></core-item>-->
+        <!--</core-menu>-->
+
+        <!--<div id="tools" vertical layout>-->
+        <!--&lt;!&ndash;<div hidden?="{{ selectedTab != 0}}" id="genomeViewer"></div>&ndash;&gt;-->
+        <!--<jso-genome-viewer-element id="gvEl" hidden?="{{ selectedTab != 0}}"></jso-genome-viewer-element>-->
+        <!--<jso-variant-effect-grid hidden?="{{ selectedTab != 1}}"-->
+        <!--variant="{{ variantEffect }}"></jso-variant-effect-grid>-->
+        <!--<jso-variant-frequencies-grid hidden?="{{ selectedTab != 2}}"-->
+        <!--variant="{{ variantEffect }}"></jso-variant-frequencies-grid>-->
+        <!--<jso-variant-phenotype-grid hidden?="{{ selectedTab != 3}}"-->
+        <!--variant="{{ variantEffect }}"></jso-variant-phenotype-grid>-->
+        <!--<jso-variant-stats id="jsoVariantStats" hidden?="{{ selectedTab != 4}}"></jso-variant-stats>-->
+        <!--</div>-->
     </template>
     <script>
         Polymer({
-            parseFunction: null,
-            species: 'Homo sapiens',
-            jobItem: null,
-            args: null,
-            selectedTab: 2,
-            variantEffect: null,
+//                attributes="jobItem samples url fileId studyId"
+            is: 'jso-variant-browser',
+            properties: {
+                url: {
+                    type: String,
+                    notify: true,
+                    value: ''
+                },
+                file: {
+                    type: Object
+                }
+            },
+//            parseFunction: null,
+//            species: 'Homo sapiens',
+//            jobItem: null,
+//            args: null,
+//            selectedTab: 2,
+//            variantEffect: null,
+            handleRowClick: function (e) {
+                this.$.gv.genomeViewer.setRegion(e.detail.row);
+            },
             ready: function () {
                 var me = this;
-
 
                 this.columns = [
                     {
@@ -683,4 +662,4 @@
 
         })
     </script>
-</polymer-element>
+</dom-module>

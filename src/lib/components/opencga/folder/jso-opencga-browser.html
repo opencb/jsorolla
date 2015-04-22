@@ -1,0 +1,278 @@
+<link rel="import" href="jso-opencga-project-tree.html">
+<link rel="import" href="jso-opencga-folder-list.html">
+<dom-module id="jso-opencga-browser">
+    <style>
+        :host {
+            display: block;
+            position: fixed;
+            box-sizing: border-box;
+            z-index: 2;
+
+            /*left: 0;*/
+            right: 0;
+            /*margin: 0px auto 0px auto;*/
+
+            width: 600px;
+            height: 400px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+        }
+
+        #bar {
+            box-sizing: border-box;
+            background-color: #FAFAFA;
+            height: 30px;
+            line-height: 30px;
+            border: 0px solid #d3d3d3;
+            border-bottom-width: 1px;
+        }
+
+        #main {
+            position: relative;
+            /*height: calc(100% - 60px);*/
+            height: calc(100% - 30px);
+        }
+
+        #mainmenu {
+            box-sizing: border-box;
+            width: 150px;
+            height: 100%;
+            overflow-y: auto;
+            border-right: 1px solid #d3d3d3;
+            background-color: #f5f5f5;
+        }
+
+        #maincontent {
+            position: absolute;
+            left: 150px;
+            top: 0;
+            width: calc(100% - 150px);
+            height: 100%;
+            white-space: nowrap;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        #maininfo {
+            box-sizing: border-box;
+            width: 150px;
+            height: 100%;
+            border-left: 1px solid #d3d3d3;
+            background-color: #f5f5f5;
+            word-wrap: break-word;
+        }
+
+        #bottombar {
+            box-sizing: border-box;
+            background-color: #FAFAFA;
+            border: 0px solid #d3d3d3;
+            border-top-width: 1px;
+            font-size: 13px;
+            padding: 4px;
+            height: 30px;
+        }
+
+        .project-menu-item {
+
+        }
+
+        #breadcrums {
+            box-sizing: border-box;
+            padding-left: 10px;
+            color: #555;
+        }
+
+        #breadcrums > span:hover {
+            cursor: pointer;
+            color: #333;
+        }
+
+        #breadcrums > span:not(:last-of-type)::after {
+            font-family: 'FontAwesome';
+            content: '\f105';
+            margin-left: 5px;
+            color: #888;
+        }
+
+    </style>
+    <template>
+        <div id="bar" class="horizontal layout">
+            <!--<div flex id="breadcrums">-->
+                <!--<span>{{selectedProject.name}}</span>-->
+                <!--<span>{{selectedStudy.name}}</span>-->
+                <!--<span>{{selectedFile.name}}</span>-->
+
+                <!--&lt;!&ndash;<template is="x-repeat" items="{{breadcrums}}">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<span>{{item.name}}</span>&ndash;&gt;-->
+                <!--&lt;!&ndash;</template>&ndash;&gt;-->
+            <!--</div>-->
+        </div>
+
+        <div id="main" class="horizontal layout">
+            <div id="mainmenu">
+                <template is="x-repeat" items="{{projects}}">
+                    <jso-opencga-project-tree on-select="handleSelect"
+                                              project="{{item}}">
+                    </jso-opencga-project-tree>
+                </template>
+            </div>
+            <div id="maincontent">
+                <jso-opencga-folder-list
+                        on-fileselect="handleFileSelect"
+                        folder="{{folder}}" files="{{files}}">
+                </jso-opencga-folder-list>
+            </div>
+            <!--<div id="maininfo">-->
+
+            <!--</div>-->
+        </div>
+
+        <!--<div id="bottombar" class="horizontal layout">-->
+        <!--</div>-->
+
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-browser",
+        properties: {
+            projects: {
+                type: Array,
+                notify: true,
+                observer: 'projectsChanged'
+            },
+            selectedProject: {
+                type: Object,
+                notify: true
+            },
+            selectedStudy: {
+                type: Object,
+                notify: true,
+                observer: 'selectedStudyChanged'
+            },
+            selectedFile: {
+                type: Object,
+                notify: true
+            },
+            folder: {
+                type: Object,
+                notify: true
+            },
+            files: {
+                type: Array,
+                notify: true
+            },
+            breadcrums: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return []
+                }
+            }
+        },
+        projectsChanged: function (neo, old) {
+            if (this.selectedProject == null) {
+                if (neo && neo[0]) {
+                    this.selectedProject = neo[0];
+                    if (this.selectedProject.studies[0]) {
+                        this.selectedStudy = this.selectedProject.studies[0];
+                    }
+                }
+            }
+        },
+        selectedStudyChanged: function (neo, old) {
+            var me = this;
+            this._getStudyFolder(this.selectedStudy.id, function (folder) {
+                me.folder = folder;
+                me._getFilesInFolder(me.selectedStudy.id, me.folder.id, function (files) {
+                    me.files = files;
+                    console.log(files);
+                });
+            });
+        },
+        handleSelect: function (e) {
+            var sel = this.$.mainmenu.querySelector("jso-opencga-project-tree[selected]");
+            if (sel) {
+                sel.removeAttribute('selected');
+            }
+            var sel = this.$.mainmenu.querySelector("jso-opencga-study-tree[selected]");
+            if (sel) {
+                sel.removeAttribute('selected');
+            }
+
+            if (e.detail.type == "project") {
+                this.selectedProject = e.detail.item;
+                e.target.setAttribute('selected', '');
+                this.breadcrums[0] = this.selectedProject;
+            } else if (e.detail.type == "study") {
+                this.selectedStudy = e.detail.item;
+                e.target.setAttribute('selected', '');
+                this.breadcrums[1] = this.selectedStudy;
+            }
+        },
+        handleFileSelect: function (e) {
+            this.selectedFile = e.detail;
+            this.breadcrums[2] = this.selectedFile;
+
+        },
+
+        /* Private methods */
+        _getStudyFolder: function (studyId, callback) {
+            var me = this;
+            this.message = '';
+            var folder;
+            OpencgaManager.files.search({
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: studyId,
+                    name: '.'
+                },
+                request: {
+                    async: true,
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            folder = response.response[0].result[0];
+                            callback(folder);
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+        },
+        _getFilesInFolder: function (studyId, folderId, callback) {
+            var me = this;
+            var files;
+            OpencgaManager.files.list({
+                id: folderId,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: studyId
+                },
+                request: {
+                    async: true,
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            files = me.filterFiles(response.response[0].result);
+                            files = response.response[0].result;
+                            callback(files);
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+        }
+    });
+</script>

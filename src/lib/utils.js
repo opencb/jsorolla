@@ -41,7 +41,7 @@ var Utils = {
         return typeof(s) === 'function' || s instanceof Function;
     },
     parseDate: function (strDate) {
-        return strDate.substring(0, 4) + " " + strDate.substring(4, 6) + " " + strDate.substring(6, 8) + ", " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
+        return strDate.substring(0, 4) + "-" + strDate.substring(4, 6) + "-" + strDate.substring(6, 8) + " " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
     },
     genId: function (prefix) {
         prefix = prefix || '';

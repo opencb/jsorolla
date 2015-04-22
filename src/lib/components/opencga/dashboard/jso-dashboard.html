@@ -1,0 +1,676 @@
+<link rel="import" href="jso-dashboard-project-tree.html">
+
+<dom-module id="jso-dashboard">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #menu {
+            z-index: 2;
+            position: absolute;
+            box-sizing: border-box;
+            left: 0;
+            top: 50px;
+            bottom: 0;
+            width: 250px;
+            padding: 10px;
+            border-width: 1px 1px 0 0;
+            border-style: solid;
+            border-color: rgba(120, 120, 120, 0.4);
+
+            transition: all 0.2s;
+        }
+
+        #menu[collapsed] {
+            left: -250px !important;
+        }
+
+        #bar {
+            z-index: 3;
+            position: absolute;
+            box-sizing: border-box;
+
+            top: 0px;
+            left: 0;
+            right: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 10px;
+
+            width: 50%;
+            min-width: 600px;
+            height: 50px;
+            line-height: 50px;
+
+            border: 1px solid deepskyblue;
+            border-width: 0 1px 1px 1px;
+            border-style: solid;
+            border-color: rgba(120, 120, 120, 0.4);
+
+            transition: all 0.4s;
+        }
+
+        .bar-hidden {
+            top: -60px !important;
+        }
+
+        #list {
+            z-index: 1;
+            position: absolute;
+            box-sizing: border-box;
+
+            top: 0;
+            left: 0;
+            right: 0;
+            padding-top: 50px;
+            margin-left: auto;
+            margin-right: auto;
+
+            height: 100%;
+            /*border: 1px solid #90D93F;*/
+
+            min-width: 600px;
+            overflow-y: scroll;
+        }
+
+        #project-list {
+            box-sizing: border-box;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        #actions {
+            z-index: 3;
+            position: absolute;
+            box-sizing: border-box;
+            /*border: 1px solid orange;*/
+
+            bottom: 20px;
+            right: 40px;
+            /*height: 100px;*/
+            /*width: 200px;*/
+        }
+
+        .test1 {
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid rgba(120, 120, 120, 0.4);
+        }
+
+        .bar-button {
+            font-size: 24px;
+        }
+
+        #project-button:before {
+            font-family: FontAwesome;
+            content: '\f067';
+        }
+
+        .search-div {
+            position: relative;
+            box-sizing: border-box;
+            padding: 10px;
+            height: 100%;
+            font-size: 18px;
+        }
+
+        #search-input {
+            border-color: transparent;
+            height: 100%;
+            box-shadow: none;
+        }
+
+        .divider {
+            left: 0;
+            right: 0;
+            margin: 0 auto 0 auto;
+            padding: 20px 20px 5px 20px;
+            font-size: 16px;
+            font-weight: lighter;
+            min-width: 600px !important;
+            width: 50% !important;
+        }
+
+        .round-button {
+            position: relative;
+            border-radius: 40px;
+            background-color: #006699;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            font-size: 24px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #upload-button:after {
+            font-family: FontAwesome;
+            content: '\f093';
+        }
+
+        #create-project-button:after {
+            font-family: FontAwesome;
+            content: '\f07b';
+        }
+
+        #create-study-button:after {
+            font-family: FontAwesome;
+            content: '\f114';
+        }
+
+        #menu-button {
+            font-size: 24px;
+            z-index: 3;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #menu-button:after {
+            font-family: FontAwesome;
+            content: '\f0c9';
+        }
+
+        #back-to-search-button {
+            position: absolute;
+            font-size: 24px;
+            z-index: 3;
+            top: 10px;
+            left: 70px;
+            font-weight: lighter;
+        }
+
+        #back-to-search-button:before {
+            padding-right: 10px;
+            font-family: FontAwesome;
+            content: '\f104';
+        }
+
+        #loading {
+            position: absolute;
+            font-size: 20px;
+            z-index: 3;
+            top: 10px;
+            right: 30px;
+            font-weight: lighter;
+        }
+    </style>
+    <template>
+        <div id="bar" class="horizontal layout jso-bgcolor-main-3 jso-shadow">
+            <div class="bar-button" style="margin-left:20px;">
+                <i class="fa fa-search"></i>
+            </div>
+            <div class="search-div flex">
+                <input class="jso" id="search-input" type="text" placeholder="Search" value="{{searchToken::input}}">
+            </div>
+            <div class="bar-button" style="margin: 0 20px;" on-click="{{handleViewMode}}">
+                <i class="fa fa-list"></i>
+                <!--th-large-->
+            </div>
+        </div>
+
+        <div id="menu-button" class="jso-color-main-1h" on-click="handleHideMenu"></div>
+        <!--<div id="back-to-search-button"-->
+        <!--hidden?="{{mode=='search'}}"-->
+        <!--class="jso-color-main-1h" on-click="{{handleBack}}">-->
+        <!--Back-->
+        <!--</div>-->
+        <div id="loading"
+             hidden$="{{!loading}}">
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+            Loading...
+        </div>
+
+        <div id="menu" class="jso-bgcolor-main-3 jso-shadow" collapsed$="{{collapseMenu(menuHidden, searchingFlag)}}">
+            <div id="project-list" hidden$="{{hideProjectList(menuHidden, searchingFlag)}}">
+                <template is="x-repeat" items="{{userData.projects}}">
+                    <jso-dashboard-project-tree
+                            selected="{{selected}}"
+                            project="{{item}}">
+                    </jso-dashboard-project-tree>
+                </template>
+            </div>
+        </div>
+
+        <!--<div id="list" hidden?="{{ mode == 'browse'}}">-->
+        <!--<template repeat="{{group, i in groups}}">-->
+        <!--<div horizontal layout divider class="divider">-->
+        <!--<div flex>Project: {{group.name}}</div>-->
+        <!--<div>-->
+        <!--{{group.count}} stud{{group.count == 1 ? 'y' : 'ies'}}-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<template repeat="{{study in data[i]}}">-->
+        <!--<jso-dashboard-study-card-->
+        <!--study="{{study}}"-->
+        <!--on-open="{{handleOpenStudy}}">-->
+        <!--</jso-dashboard-study-card>-->
+        <!--</template>-->
+        <!--</template>-->
+        <!--</div>-->
+
+        <!--<div id="actions" vertical layout reverse>-->
+        <!--<div id="upload-button" class="round-button jso-shadow"-->
+        <!--title="Upload file"-->
+        <!--on-click="{{handleUploadVariantFile}}">-->
+        <!--</div>-->
+        <!--<br>-->
+
+        <!--<div id="create-project-button" class="round-button jso-shadow"-->
+        <!--title="Create project"-->
+        <!--on-click="{{handleCreateProject}}">-->
+        <!--</div>-->
+        <!--<br>-->
+
+        <!--<div id="create-study-button" class="round-button jso-shadow"-->
+        <!--title="Create study"-->
+        <!--on-click="{{handleCreateStudy}}">-->
+        <!--</div>-->
+        <!--<br>-->
+        <!--</div>-->
+
+        <!--<jso-dashboard-create-project-->
+        <!--hidden?="{{createProjectHidden}}"-->
+        <!--hide="{{createProjectHidden}}">-->
+        <!--</jso-dashboard-create-project>-->
+
+        <!--<jso-dashboard-create-study-->
+        <!--hidden?="{{createStudyHidden}}"-->
+        <!--hide="{{createStudyHidden}}">-->
+        <!--</jso-dashboard-create-study>-->
+
+        <!--<jso-dashboard-upload-variant-file-->
+        <!--hidden?="{{uploadVariantFileHidden}}"-->
+        <!--hide="{{uploadVariantFileHidden}}">-->
+        <!--</jso-dashboard-upload-variant-file>-->
+
+        <!--<template if="{{mode == 'browse'}}">-->
+        <!--<jso-variant-component-->
+        <!--style="padding-top:40px;"-->
+        <!--jobItem="{{jobItem}}">-->
+        <!--</jso-variant-component>-->
+        <!--</template>-->
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-dashboard",
+        properties: {
+            projects: {
+                type: Object,
+                notify: true,
+//                observer: 'userDataChanged'
+            },
+            searchToken: {
+                type: String,
+                value: ''
+            },
+            menuHidden: {
+                type: Boolean,
+                value: false
+            },
+            searchingFlag: {
+                type: Boolean,
+                value: false
+            },
+            loading: {
+                type: Boolean,
+                value: false
+            }
+        },
+        collapseMenu: function (menuHidden, searchingFlag) {
+            return menuHidden || searchingFlag;
+        },
+        hideProjectList: function (menuHidden, searchingFlag) {
+            return menuHidden || searchingFlag;
+        },
+
+        //        created: function () {
+//            this.userData;
+//            this.response; //TODO fix temporal
+//
+//            this.selected = null;
+//
+//            this.data = [];
+//            this.groups = [];
+//
+//            this.originalData = [];
+//            this.originalGroups = [];
+//
+//            this.searchToken = '';
+//
+//            this.view = '';
+////                this.listHeight = 40;
+//
+//            this.menuHidden = true;
+//            this.searchingFlag = false;
+//            this.createProjectHidden = true;
+//            this.createStudyHidden = true;
+//            this.uploadVariantFileHidden = true;
+//
+//            this.mode = 'search';// search or browse
+//
+//            this.loading = false;
+//        },
+        searchTokenChanged: function (newValue, oldValue) {
+            if (newValue != '') {
+                this.searchingFlag = true;
+                var data = [];
+                var groups = [];
+                for (var i = 0; i < this.originalData.length; i++) {
+                    var studies = this.originalData[i];
+                    var filteredStudies = [];
+                    for (var j = 0; j < studies.length; j++) {
+                        var study = studies[j];
+                        if (study.name.toLowerCase().indexOf(newValue.toLowerCase()) >= 0) {
+                            filteredStudies.push(study);
+                        }
+                    }
+
+                    if (filteredStudies.length > 0) {
+                        data.push(filteredStudies);
+                        groups.push({
+                            name: this.originalGroups[i].name,
+                            count: filteredStudies.length
+                        });
+                    }
+                }
+
+                this.data = data;
+                this.groups = groups;
+            } else {
+                this.searchingFlag = false;
+                if (this.selected != null) {
+                    this.selectedChanged(null, this.selected);
+                } else {
+                    this.data = this.originalData;
+                    this.groups = this.originalGroups;
+                }
+            }
+        },
+        _updateData: function () {
+            this.data = [];
+            this.groups = [];
+            this.originalData = [];
+            this.originalGroups = [];
+            for (var i = 0; i < this.response.response.length; i++) {
+                var r = this.response.response[i];
+                this.userData.projects[i].studies = r.result;
+
+                if (this.selected && this.selected.id == this.userData.projects[i].id) {
+                    this.selected = this.userData.projects[i];
+                }
+
+                /*Grouping*/
+                if (this.userData.projects[i].studies.length > 0) {
+                    this.data.push(this.userData.projects[i].studies);
+                    this.groups.push({
+                        name: this.userData.projects[i].name,
+                        count: this.userData.projects[i].studies.length
+                    });
+                    this.originalData.push(this.userData.projects[i].studies);
+                    this.originalGroups.push({
+                        name: this.userData.projects[i].name,
+                        count: this.userData.projects[i].studies.length
+                    });
+                }
+                this.searchTokenChanged(this.searchToken);
+            }
+            console.log(this.selected)
+        },
+        selectedChanged: function (oldValue, newValue) {
+            console.log("selected changed")
+            console.log(this.selected.is)
+            if (this.selected.type == 'project') {
+                var project = this.selected.item;
+                this.data = [project.studies];
+                this.groups = [{
+                    name: project.name,
+                    count: project.studies.length
+                }];
+            } else if (this.selected.type == 'study') {
+                var project = this.selected.project;
+                this.data = [[this.selected.item]];
+                this.groups = [{
+                    name: project.name,
+                    count: 1
+                }];
+            }
+        },
+        userDataChanged: function (oldValue, newValue) {
+            if (this.userData) {
+                var me = this;
+                this.loading = true;
+
+                var projects = this.userData.projects;
+                var projectIds = [];
+                for (var i = 0; i < projects.length; i++) {
+                    var p = projects[i];
+                    projectIds.push(p.id);
+                }
+                OpencgaManager.projects.studies({
+                    id: projectIds.join(','),
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.response = response;
+                                me._updateData();
+                                if (me.selected != null) {
+                                    me.selectedChanged(null, me.selected);
+                                }
+                            } else {
+                                console.log(response.error);
+                                console.log(response.response[0].errorMsg);
+                            }
+                            me.loading = false;
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                            me.loading = false;
+                        }
+                    }
+                });
+            }
+        },
+        handleViewMode: function (e) {
+            var cards = this.shadowRoot.querySelectorAll('jso-dashboard-study-card');
+            if (this.view == 'compact') {
+                this.view = '';
+                for (var i = 0; i < cards.length; i++) {
+                    cards[i].collapsed = false;
+                }
+//                    this.listHeight = 500;
+            } else {
+                this.view = 'compact';
+                for (var i = 0; i < cards.length; i++) {
+                    cards[i].collapsed = true;
+                }
+//                    this.listHeight = 40;
+            }
+        },
+        handleHideMenu: function () {
+            debugger
+            this.menuHidden = !this.menuHidden;
+        },
+        handleCreateProject: function (e) {
+            this.createProjectHidden = !this.createProjectHidden;
+        },
+        handleUploadVariantFile: function (e) {
+            this.uploadVariantFileHidden = !this.uploadVariantFileHidden;
+        },
+        handleCreateStudy: function (e) {
+            this.createStudyHidden = !this.createStudyHidden;
+        },
+        handleOpenStudy: function (e) {
+            this.mode = 'browse';
+        },
+        handleBack: function (e) {
+            this.mode = 'search';
+        },
+        createStudy: function (sid, name, alias, description, organization, projectId) {
+            var me = this;
+//                var studyName = "WorkSpace";
+            OpencgaManager.studies.create({
+                query: {
+                    sid: sid,
+                    name: name,
+                    alias: alias,
+                    description: description,
+                    organization: organization,
+//                    type: "default",
+                    projectId: projectId
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            console.log(response.response[0].result);
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+<!--<polymer-element name="jso-dashboard-create-project"-->
+<!--class=""-->
+<!--attributes="hide">-->
+<!--<template>-->
+<!--<style>-->
+<!--:host {-->
+<!--position: fixed;-->
+<!--display: block;-->
+<!--box-sizing: border-box;-->
+<!--width: 100%;-->
+<!--height: 100%;-->
+<!--background-color: rgba(150, 150, 150, 0.4);-->
+<!--z-index: 10;-->
+<!--}-->
+
+<!--#main {-->
+<!--padding: 20px 60px;-->
+<!--position: absolute;-->
+<!--display: block;-->
+<!--width: 300px;-->
+
+<!--top: 150px;-->
+<!--left: 0;-->
+<!--right: 0;-->
+<!--margin-left: auto;-->
+<!--margin-right: auto;-->
+<!--border: 1px solid rgba(120, 120, 120, 0.6);-->
+<!--}-->
+
+<!--#title {-->
+<!--margin: 10px;-->
+<!--font-size: 20px;-->
+<!--text-align: center;-->
+<!--}-->
+
+<!--#close:after {-->
+<!--position: absolute;-->
+<!--top: 20px;-->
+<!--right: 20px;-->
+<!--font-size: 18px;-->
+<!--font-family: FontAwesome;-->
+<!--content: '\f00d';-->
+<!--}-->
+
+<!--#description {-->
+<!--box-sizing: border-box;-->
+<!--width: 100%;-->
+<!--height: 90px;-->
+<!--resize: none;-->
+<!--}-->
+
+<!--.button.action {-->
+<!--margin-left: 10px;-->
+<!--width: 100px;-->
+<!--}-->
+
+<!--</style>-->
+<!--<form id="main" class="jso-bgcolor-comp-1 jso-color-comp-1 jso-shadow">-->
+<!--<div id="close" on-click="{{handleClose}}"></div>-->
+<!--<div id="title">-->
+<!--Create project-->
+<!--</div>-->
+<!--<div>-->
+<!--<label>Name:</label>-->
+<!--<input type="text" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
+<!--</div>-->
+<!--<div style="margin-top:15px;">-->
+<!--<label>Organization:</label>-->
+<!--<input type="text" value="{{organization}}">-->
+<!--</div>-->
+<!--<div style="margin-top:15px;">-->
+<!--<label>Description</label>-->
+<!--<textarea id="description"></textarea>-->
+<!--</div>-->
+<!--<div style="margin-top:15px;" horizontal layout reverse>-->
+<!--<div class="button action" on-click="{{handleOk}}">OK</div>-->
+<!--<div class="button action" on-click="{{handleClose}}">Cancel</div>-->
+<!--</div>-->
+<!--</form>-->
+<!--</template>-->
+<!--<script>-->
+<!--Polymer({-->
+<!--created: function () {-->
+<!--this.name = '';-->
+<!--this.organization = '';-->
+<!--},-->
+<!--domReady: function () {-->
+
+<!--},-->
+<!--handleClose: function () {-->
+<!--this.hide = true;-->
+<!--},-->
+<!--handleOk: function () {-->
+<!--if (this.$.main.checkValidity()) {-->
+<!--this.createProject();-->
+<!--}-->
+<!--},-->
+<!--createProject: function () {-->
+<!--var me = this;-->
+<!--OpencgaManager.projects.create({-->
+<!--query: {-->
+<!--userId: Cookies('bioinfo_user'),-->
+<!--sid: Cookies('bioinfo_sid'),-->
+<!--name: this.name,-->
+<!--alias: this.name,-->
+<!--description: this.$.description.value.trim(),-->
+<!--organization: this.organization-->
+<!--},-->
+<!--request: {-->
+<!--async: false,-->
+<!--success: function (response) {-->
+<!--if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {-->
+<!--console.log(response.response[0].result);-->
+<!--me.hide = true;-->
+<!--} else {-->
+<!--me.message = response.response[0].errorMsg;-->
+<!--}-->
+<!--},-->
+<!--error: function () {-->
+<!--alert('Server error, try again later.');-->
+<!--}-->
+<!--}-->
+<!--});-->
+<!--}-->
+<!--});-->
+<!--</script>-->
+<!--</polymer-element>-->

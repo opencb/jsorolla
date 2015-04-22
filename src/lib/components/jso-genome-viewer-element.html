@@ -70,44 +70,71 @@
 <script src="../../genome-viewer/genome-viewer.js"></script>
 
 
-<polymer-element name="jso-genome-viewer-element" attributes="jobItem">
-    <template>
-        <link rel="stylesheet" href="../../../styles/css/style.css">
-        <link rel="stylesheet" href="../../../bower_components/fontawesome/css/font-awesome.css">
-        <style>
-            :host {
-                position: relative;
-                box-sizing: border-box;
-                display: block;
-            }
+<dom-module id="jso-genome-viewer-element">
+    <link rel="stylesheet" href="../../../styles/css/style.css">
+    <link rel="stylesheet" href="../../../bower_components/fontawesome/css/font-awesome.css">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            width: 100%;
+            z-index: 0;
+        }
 
-            #gv {
-                border: 1px solid #d3d3d3;
-            }
-        </style>
+        #gv {
+            position: relative;
+            box-sizing: border-box;
+            border: 1px solid #d3d3d3;
+            width: 100%;
+        }
+    </style>
+    <template>
         <div id="gv"></div>
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.selectedSpecies = DEFAULT_SPECIES;
-                this.region = new Region();
-                this.region.load("1:1004608-1004608");
+            is: "jso-genome-viewer-element",
+            properties: {
+                selectedSpecies: {
+                    type: Object,
+                    value: function () {
+                        return DEFAULT_SPECIES;
+                    }
+                },
+                region: {
+                    type: Object,
+                    value: function () {
+                        var region = new Region();
+                        region.load("1:1004608-1004608");
+                        return region;
+                    }
+                }
             },
             ready: function () {
+                var me = this;
+                var observer = new MutationObserver(function (mutations) {
+                    if (!this.host.hasAttribute('hidden') && this.genomeViewer == null) {
+                        this.createGenomeViewer();
+                        this.genomeViewer.draw();
+                        this.genomeViewer.toggleAutoHeight(true);
+                    }
+                }.bind(this));
+                observer.observe(this.host, {attributes: true, attributeFilter: ['hidden']});
+
+                window.addEventListener("resize", function (e) {
+                    me.genomeViewer.setWidth(me.getBoundingClientRect().width - 20);
+                });
             },
-            domReady: function () {
-                this.createGenomeViewer();
-                this.genomeViewer.draw();
-                this.genomeViewer.toggleAutoHeight(true);
+            attached: function () {
             },
             createGenomeViewer: function () {
                 this.genomeViewer = new GenomeViewer({
-                    cellBaseHost: 'https://www.ebi.ac.uk/cellbase/webservices/rest',
+                    cellBaseHost: 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest',
                     cellBaseVersion: 'v3',
                     target: this.$.gv,
 //                    width: 500,
-                    width: this.parentElement.getBoundingClientRect().width - 15,
+                    width: this.getBoundingClientRect().width - 20,
                     region: this.region,
 //                    version: this.version,
                     availableSpecies: AVAILABLE_SPECIES,
@@ -269,4 +296,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

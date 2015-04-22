@@ -1,0 +1,508 @@
+<dom-module id="jso-table">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            border: 1px solid #d3d3d3;
+            font-size: 13px;
+        }
+
+        .table-header-row {
+            position: relative;
+            box-sizing: border-box;
+            border-bottom: 1px solid #d3d3d3;
+            background-color: #F1F3F5;
+            font-weight: bold;
+            color: #666;
+            /*overflow-y: scroll;*/
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        .table-header-field {
+            box-sizing: border-box;
+            border-right: 1px solid #d3d3d3;
+            /*white-space: nowrap;*/
+            /*overflow: hidden;*/
+            /*text-overflow: ellipsis;*/
+        }
+
+        .table-header-field > .name {
+            box-sizing: border-box;
+            cursor: pointer;
+            text-align: center;
+            padding: 7px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table-header-field > .sub {
+            box-sizing: border-box;
+            cursor: pointer;
+            text-align: center;
+            border-top: 1px solid #d3d3d3;
+        }
+
+        div.table-header-field:last-of-type {
+            border-right-width: 0;
+        }
+
+        .table-pager {
+            position: relative;
+            box-sizing: border-box;
+            border-top: 1px solid #d3d3d3;
+            background-color: #fafafa;
+            font-weight: bold;
+            color: #666;
+            padding: 3px;
+        }
+
+        .table-pager > * {
+            margin: 0 3px;
+        }
+
+        .table-body {
+            box-sizing: border-box;
+            overflow-x: auto;
+            /*overflow-y: scroll;*/
+            height: calc(100% - 30px);
+            background-color: #f8f8f8;
+        }
+
+        .table-body[enable-paging] {
+            overflow-y: scroll;
+        }
+
+        .table-row {
+            box-sizing: border-box;
+            cursor: default;
+            background-color: #fff;
+            overflow: hidden;
+            border-bottom: 1px solid #ddd;
+            height: 30px;
+        }
+
+        div.table-row:last-of-type {
+            border-bottom-width: 0;
+        }
+
+        .table-row:nth-child(2n) {
+            background-color: #fbfbfb;
+        }
+
+        .table-row:hover {
+            background-color: #eee;
+        }
+
+        .table-field {
+            box-sizing: border-box;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-right: 1px solid #d3d3d3;
+            float: left;
+            padding: 7px 10px;
+        }
+
+        div.table-field:last-of-type {
+            border-right-width: 0;
+        }
+
+    </style>
+    <template>
+
+        <div id="header" class="table-header horizontal layout">
+            <!--<template is="x-repeat" items="{{columns}}">-->
+            <!--<div class="table-header-field flex" on-click="handleHeaderClick">{{item.text}}</div>-->
+            <!--</template>-->
+        </div>
+
+
+        <div id="list" class="table-body" enable-paging$="{{!enablePaging}}">
+            <!--<template is="x-repeat" items="{{viewData}}">-->
+            <!--<div class="table-row horizontal layout" style="height:30px;">-->
+            <!--<template is="x-repeat" items="{{item}}">-->
+            <!--<div class="table-field flex">{{item}}</div>-->
+            <!--</template>-->
+            <!--</div>-->
+            <!--</template>-->
+        </div>
+
+        <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout">
+            <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i></div>
+            <div class="jso-btn jso-btn-shdw" on-click="handlePreviousClick"><i class="fa fa-angle-left"></i></div>
+            <div class="jso-txt">Page</div>
+            <input type="text" class="jso" style="width:80px;" value="{{currentPage::input}}">
+
+            <div class="jso-txt">of</div>
+            <div class="jso-txt">{{computePageTotal(pageSize, totalItems)}}</div>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleNextClick"><i class="fa fa-angle-right"></i></div>
+            <div class="jso-btn jso-btn-shdw" on-click="handleLastClick"><i class="fa fa-angle-double-right"></i></div>
+
+            <div class="flex"></div>
+
+            <div class="jso-txt">items</div>
+            <div class="jso-txt">{{pageFirstItem}}</div>
+            <div class="jso-txt">-</div>
+            <div class="jso-txt">{{pageLastItem}}</div>
+            <div class="jso-txt">of</div>
+            <div class="jso-txt">{{totalItems}}</div>
+        </div>
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-table',
+        properties: {
+            columns: {
+                type: Array,
+                notify: true,
+                observer: 'columnsChanged',
+                value: function () {
+                    return [];
+                }
+            },
+            data: {
+                type: Array,
+                notify: true,
+                observer: 'dataChanged',
+                value: function () {
+                    return [];
+                }
+            },
+            viewData: {
+                type: Array,
+                notify: true,
+                observer: 'viewDataChanged',
+                value: function () {
+                    return [];
+                }
+            },
+            request: {
+                type: Object,
+                observer: 'requestChanged',
+            },
+            enableRemote: {
+                type: Boolean,
+                observer: 'enableRemoteChanged',
+                value: false
+            },
+            enablePaging: {
+                type: Boolean,
+                observer: 'enablePagingChanged',
+                value: false
+            },
+            pageSize: {
+                type: Number,
+                observer: 'pageSizeChanged',
+                value: 10
+            },
+            currentPage: {
+                type: Number,
+                observer: 'currentPageChanged',
+                value: 1
+            },
+            totalItems: {
+                type: Number,
+                value: 0,
+            },
+            pageFirstItem: {
+                type: Number,
+                computed: 'computePageFirstItem(currentPage, pageSize, totalItems)',
+                value: 0
+            },
+            pageLastItem: {
+                type: Number,
+                computed: 'computePageLastItem(currentPage, pageSize, totalItems)',
+                value: 0
+            }
+        },
+        /* OBSERVERS */
+        dataChanged: function (neo, old) {
+            this.totalItems = neo.length;
+            this.checkPaging();
+        },
+        enableRemoteChanged: function (neo, old) {
+            if (this.request) {
+                this.checkRemote();
+            }
+        },
+        requestChanged: function (neo, old) {
+            if (this.currentPage != 1) {
+                this.currentPage = 1;
+            } else if (this.request) {
+                this.checkRemote();
+            }
+        },
+        enablePagingChanged: function (neo, old) {
+            this.checkPaging();
+        },
+        currentPageChanged: function (neo, old) {
+            this.checkPaging();
+            if (this.request) {
+                this.checkRemote();
+            }
+        },
+        pageSizeChanged: function (neo, old) {
+            this.checkPaging();
+            if (this.request) {
+                this.checkRemote();
+            }
+        },
+        columnsChanged: function (neo, old) {
+            this.updateColumns();
+            this.update(this.viewData);
+        },
+        viewDataChanged: function (neo, old) {
+            this.update(neo);
+        },
+
+        clear: function () {
+            this.data = [];
+            this.viewData = [];
+            this.currentPage = 1;
+            this.columns = [];
+            this.totalItems = 0;
+        },
+        checkRemote: function () {
+            var me = this;
+            if (this.enableRemote) {
+                this._callRemote(function (resp) {
+                    me.totalItems = me.request.parseTotal(resp);
+                    me.viewData = me.request.parse(resp);
+                });
+            } else {
+//                ...
+            }
+        },
+        _callRemote: function (callback) {
+            var method = 'GET';
+            if (typeof this.request.method !== 'undefined' && this.request.method != null) {
+                method = this.request.method;
+            }
+            var request = new XMLHttpRequest();
+            request.onload = function () {
+                var contentType = this.getResponseHeader('Content-Type');
+                var resp;
+                if (contentType === 'application/json') {
+                    resp = JSON.parse(this.response, this);
+                } else {
+                    resp = this.response;
+                }
+                callback(resp)
+            };
+            request.onerror = function () {
+//                args.request.error(this);
+            };
+            var url = Utils.addQueryParamtersToUrl({
+                skip: ((this.currentPage - 1) * this.pageSize),
+                limit: this.pageSize
+            }, this.request.url);
+            request.open(method, url, true);
+            request.send();
+            console.log(url)
+        },
+
+        checkPaging: function () {
+            if (this.enablePaging) {
+                this.viewData = this.data.slice(this.pageFirstItem - 1, this.pageLastItem);
+                this.$.list.style.height = (30 * this.pageSize) + 'px';
+            } else {
+                this.viewData = this.data;
+                this.$.list.style.height = '';
+            }
+        },
+        handlePreviousClick: function (e) {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            } else {
+                this.currentPage = 1;
+            }
+        },
+        handleNextClick: function (e) {
+            var lastPage = Math.ceil(this.totalItems / this.pageSize);
+            if (this.currentPage < lastPage) {
+                this.currentPage++;
+            } else {
+                this.currentPage = lastPage;
+            }
+
+        },
+        handleFirstClick: function (e) {
+            this.currentPage = 1;
+
+        },
+        handleLastClick: function (e) {
+            var lastPage = Math.ceil(this.totalItems / this.pageSize);
+
+            this.currentPage = lastPage;
+
+        },
+        computePageFirstItem: function (currentPage, pageSize, totalItems) {
+            return ((currentPage - 1) * pageSize) + 1;
+        },
+        computePageLastItem: function (currentPage, pageSize, totalItems) {
+            var end = currentPage * pageSize;
+            if (totalItems < end) {
+                return totalItems;
+            }
+            return end;
+        },
+        computePageTotal: function (pageSize, totalItems) {
+            return Math.ceil(totalItems / pageSize);
+        },
+
+        updateColumns: function () {
+            while (this.$.header.firstChild) {
+                this.$.header.removeChild(this.$.header.firstChild);
+            }
+            this._createHeaderRow();
+
+
+            for (var i = 0; i < this.columns.length; i++) {
+                var x = [];
+                var column = this.columns[i];
+                this._processColumn(column, x);
+                column.plainColumns = x;
+            }
+        },
+        _processColumn: function (column, x) {
+            if (column.columns && column.columns.length > 0) {
+                for (var i = 0; i < column.columns.length; i++) {
+                    var col = column.columns[i];
+                    if (column.ak) {
+                        col.ak = column.ak + "." + col.name
+                    } else {
+                        col.ak = column.name + "." + col.name
+                    }
+                    if (col.columns == null) {
+                        x.push(col);
+                    }
+                    this._processColumn(col, x);
+                }
+            }
+        },
+
+        update: function (data) {
+            while (this.$.list.firstChild) {
+                this.$.list.removeChild(this.$.list.firstChild);
+            }
+            for (var i = 0; data && i < data.length; i++) {
+                var rowData = data[i];
+                this._createRow(rowData);
+            }
+        },
+
+        _createHeaderRow: function () {
+            var el = document.createElement('div');
+            el.classList.add('table-header-row', 'horizontal', 'layout');
+            el.setAttribute('style-scope', 'jso-table');
+
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                this._createHeaderField(el, column);
+            }
+
+            this.$.header.appendChild(el);
+        },
+
+        _createHeaderField: function (rowEl, column) {
+            var el = document.createElement('div');
+            el.setAttribute('style-scope', 'jso-table');
+            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified');
+            if (isNaN(column.width)) {
+                el.classList.add('flex');
+            } else {
+                el.style.width = column.width + "px";
+            }
+
+            var nameEl = document.createElement('div');
+            nameEl.setAttribute('style-scope', 'jso-table');
+            nameEl.classList.add('name');
+            nameEl.innerHTML = column.title;
+            el.appendChild(nameEl);
+
+            if (column.columns && column.columns.length > 0) {
+                var subColumnsEl = document.createElement('div');
+                subColumnsEl.setAttribute('style-scope', 'jso-table');
+                subColumnsEl.classList.add('sub', 'horizontal', 'layout');
+                for (var i = 0; i < column.columns.length; i++) {
+                    var subColumn = column.columns[i];
+                    this._createHeaderField(subColumnsEl, subColumn);
+                }
+                el.appendChild(subColumnsEl);
+            }
+            rowEl.appendChild(el);
+        },
+
+        _createRow: function (rowData) {
+            var me = this;
+            var el = document.createElement('div');
+            el.classList.add('table-row', 'horizontal', 'layout');
+            el.setAttribute('style-scope', 'jso-table');
+            el.addEventListener('click', function (e) {
+                me.fire('rowclick', {row: rowData});
+            });
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                this._createField(el, column, rowData);
+            }
+            this.$.list.appendChild(el);
+        },
+        _createField: function (rowEl, column, rowData) {
+            var el = document.createElement('div');
+            el.classList.add('table-field', 'horizontal', 'layout');
+            el.setAttribute('style-scope', 'jso-table');
+            if (isNaN(column.width)) {
+                el.classList.add('flex');
+            } else {
+                el.style.width = column.width + "px";
+            }
+
+            if (column.plainColumns.length > 0) {
+                for (var i = 0; i < column.plainColumns.length; i++) {
+                    var cEl = document.createElement('div');
+                    var c = column.plainColumns[i];
+                    cEl.style.width = c.width + "px";
+                    if (c.formula) {
+                        cEl.innerHTML = c.formula(rowData);
+                    } else {
+                        cEl.innerHTML = this._deepValue(rowData, c.ak);
+                    }
+                    el.appendChild(cEl);
+                }
+            } else {
+                if (column.formula) {
+                    el.innerHTML = column.formula(rowData);
+                } else {
+                    el.innerHTML = rowData[column.name];
+                }
+            }
+            rowEl.appendChild(el);
+        },
+        _deepValue: function (obj, path) {
+            for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
+                obj = obj[path[i]];
+            }
+            return obj;
+        },
+
+//        handleHeaderClick: function (e) {
+//            var columnName = e.currentTarget.templateInstance.model.c.name;
+//            if (this.currentColumnSort != columnName) {
+//                this.data = this.data.slice(0).sort(function (a, b) {
+//                    return a[columnName].localeCompare(b[columnName]);
+//                });
+//            } else if (this.currentColumnSort == columnName) {
+//                this.data = this.data.slice(0).sort(function (a, b) {
+//                    return b[columnName].localeCompare(a[columnName]);
+//                });
+//            }
+//            this.currentColumnSort = columnName;
+//        }
+    })
+</script>

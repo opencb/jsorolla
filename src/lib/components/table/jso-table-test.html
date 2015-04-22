@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>&lt;table&gt;</title>
+
+    <!-- Importing Web Component's Polyfill -->
+    <script src="../../../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../../../../bower_components/polymer/polymer.html">
+    <link rel="import" href="../../../../bower_components/layout/layout.html">
+    <script src="../../utils.js"></script>
+
+    <link href='../../../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+    <link href='../jso-global.css' rel='stylesheet' type='text/css'>
+
+    <!-- Importing Custom Elements -->
+    <link rel="import" href="jso-table.html">
+</head>
+<body>
+
+
+<script>
+    var columns = [{
+        name: 'i',
+        title: 'i',
+        width: 300,
+        _toltal: 2,
+        columns: [
+            {
+                name: 'a1',
+                title: 'a1',
+                width: 50,
+                columns: [{
+                    name: 'a11',
+                    title: 'a11',
+                    width: 25
+                }, {
+                    name: 'a12',
+                    title: 'a12',
+                    width: 25
+                }]
+            },
+            {
+                name: 'a2',
+                title: 'a2',
+                width: 200
+            }]
+    }, {
+        name: 'b',
+        title: 'b',
+        width: 200
+    }];
+    //    for (var i = 0; i < 1; i++) {
+    //        var name = Utils.randomString(Utils.getRandomInt(10, 30));
+    //        columns.push({
+    //            name: name,
+    //            text: name,
+    //            width: 100,
+    //        });
+    //    }
+    var column;
+    var data = [];
+    //    for (var i = 0; i < 51; i++) {
+    //        var obj = {};
+    //        obj['i'] = i + 1;
+    //        for (var j = 1; j < columns.length; j++) {
+    //            column = columns[j];
+    //            obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
+    //        }
+    //        data.push(obj)
+    //    }
+    data.push({
+        i: {
+            a1: {
+                a11: 3,
+                a12: 7
+            },
+            a2: 'a2'
+        },
+        b: 2
+
+    });
+    console.log(columns.length);
+    console.log(data.length);
+
+    //    var el = document.querySelector('jso-table');
+    //    el.setData(data);
+    //    el.setColumns(columns);
+    //    el.columns = columns;
+    //    el.data = data;
+
+    var table = document.createElement('jso-table');
+    table.setAttribute("enable-paging", "");
+    //        table.style.height = "500px";
+    table.data = data;
+    table.columns = columns;
+    document.body.appendChild(table);
+
+</script>
+
+
+</body>
+</html>
