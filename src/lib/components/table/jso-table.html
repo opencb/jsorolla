@@ -399,8 +399,7 @@
 
         _createHeaderRow: function () {
             var el = document.createElement('div');
-            el.classList.add('table-header-row', 'horizontal', 'layout');
-            el.setAttribute('style-scope', 'jso-table');
+            el.classList.add('table-header-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
 
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
@@ -412,8 +411,7 @@
 
         _createHeaderField: function (rowEl, column) {
             var el = document.createElement('div');
-            el.setAttribute('style-scope', 'jso-table');
-            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified');
+            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table');
             if (isNaN(column.width)) {
                 el.classList.add('flex');
             } else {
@@ -421,15 +419,13 @@
             }
 
             var nameEl = document.createElement('div');
-            nameEl.setAttribute('style-scope', 'jso-table');
-            nameEl.classList.add('name');
+            nameEl.classList.add('name', 'style-scope', 'jso-table');
             nameEl.innerHTML = column.title;
             el.appendChild(nameEl);
 
             if (column.columns && column.columns.length > 0) {
                 var subColumnsEl = document.createElement('div');
-                subColumnsEl.setAttribute('style-scope', 'jso-table');
-                subColumnsEl.classList.add('sub', 'horizontal', 'layout');
+                subColumnsEl.classList.add('sub', 'horizontal', 'layout', 'style-scope', 'jso-table');
                 for (var i = 0; i < column.columns.length; i++) {
                     var subColumn = column.columns[i];
                     this._createHeaderField(subColumnsEl, subColumn);
@@ -442,8 +438,7 @@
         _createRow: function (rowData) {
             var me = this;
             var el = document.createElement('div');
-            el.classList.add('table-row', 'horizontal', 'layout');
-            el.setAttribute('style-scope', 'jso-table');
+            el.classList.add('table-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
             el.addEventListener('click', function (e) {
                 me.fire('rowclick', {row: rowData});
             });
@@ -455,8 +450,7 @@
         },
         _createField: function (rowEl, column, rowData) {
             var el = document.createElement('div');
-            el.classList.add('table-field', 'horizontal', 'layout');
-            el.setAttribute('style-scope', 'jso-table');
+            el.classList.add('table-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
             if (isNaN(column.width)) {
                 el.classList.add('flex');
             } else {

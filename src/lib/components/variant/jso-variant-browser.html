@@ -18,7 +18,7 @@
         }
 
         #right {
-            margin-left:5px;
+            margin-left: 5px;
         }
 
         /*#grid {*/
@@ -28,7 +28,7 @@
         /*}*/
 
         #tools {
-            margin-top:10px;
+            margin-top: 10px;
             height: calc(100% - 375px);
             overflow-y: auto;
             overflow-x: hidden;
@@ -71,7 +71,6 @@
 
                 <div id="tools">
                     <jso-genome-viewer-element id="gv"></jso-genome-viewer-element>
-
                 </div>
             </div>
         </div>
@@ -318,6 +317,16 @@
                     type: Object
                 }
             },
+            created: function() {
+                var observer = new MutationObserver(function (mutations) {
+                    if (this.hasAttribute('hidden')) {
+                        this.$.gv.setAttribute('hidden','');
+                    }else{
+                        this.$.gv.removeAttribute('hidden');
+                    }
+                }.bind(this));
+                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
+            },
 //            parseFunction: null,
 //            species: 'Homo sapiens',
 //            jobItem: null,
@@ -327,7 +336,7 @@
             handleRowClick: function (e) {
                 this.$.gv.genomeViewer.setRegion(e.detail.row);
             },
-            ready: function () {
+            _old_ready: function () {
                 var me = this;
 
                 this.columns = [
@@ -477,29 +486,26 @@
 
 
             },
-            created: function () {
-
-            },
-            observe: {
-                '$.dataGrid.selected': "handleDataGridSelected",
-                '$.dataGrid.data': "handleDataGridChanged"
-            },
-            samplesChanged: function (oldValue, newValue) {
-                var me = this;
-                this.args = {
-                    samples: Object.keys(newValue)
-                }
-            },
-            urlChanged: function (oldValue, newValue) {
-                this.data = [];
-                this.page = 0;
-                console.log("Form URL " + this.url);
-            },
+//            observe: {
+//                '$.dataGrid.selected': "handleDataGridSelected",
+//                '$.dataGrid.data': "handleDataGridChanged"
+//            },
+//            samplesChanged: function (oldValue, newValue) {
+//                var me = this;
+//                this.args = {
+//                    samples: Object.keys(newValue)
+//                }
+//            },
+//            urlChanged: function (oldValue, newValue) {
+//                this.data = [];
+//                this.page = 0;
+//                console.log("Form URL " + this.url);
+//            },
             selectedTabChanged: function (oldValue, newValue) {
                 console.log(newValue);
             },
-            handleDataGridChanged: function (oldValue, newValue) {
-            },
+//            handleDataGridChanged: function (oldValue, newValue) {
+//            },
             _getSNPId: function (records) {
                 var speciesCode = Utils.getSpeciesCode(this.species);
 

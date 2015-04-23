@@ -111,22 +111,20 @@
                     }
                 }
             },
-            ready: function () {
+            created: function () {
                 var me = this;
                 var observer = new MutationObserver(function (mutations) {
-                    if (!this.host.hasAttribute('hidden') && this.genomeViewer == null) {
+                    if (!this.hasAttribute('hidden') && this.genomeViewer == null) {
                         this.createGenomeViewer();
                         this.genomeViewer.draw();
                         this.genomeViewer.toggleAutoHeight(true);
                     }
                 }.bind(this));
-                observer.observe(this.host, {attributes: true, attributeFilter: ['hidden']});
+                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
 
                 window.addEventListener("resize", function (e) {
-                    me.genomeViewer.setWidth(me.getBoundingClientRect().width - 20);
+                    me.genomeViewer.setWidth(me.getBoundingClientRect().width);
                 });
-            },
-            attached: function () {
             },
             createGenomeViewer: function () {
                 this.genomeViewer = new GenomeViewer({
@@ -134,7 +132,7 @@
                     cellBaseVersion: 'v3',
                     target: this.$.gv,
 //                    width: 500,
-                    width: this.getBoundingClientRect().width - 20,
+                    width: this.getBoundingClientRect().width,
                     region: this.region,
 //                    version: this.version,
                     availableSpecies: AVAILABLE_SPECIES,
