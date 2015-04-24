@@ -29,7 +29,7 @@
         }
     </style>
     <template>
-        <div class="horizontal layout">
+        <div class="horizontal layout" >
             <div class="horizontal layout flex">
                 <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
                 <div class="name">{{file.name}}</div>
@@ -50,6 +50,8 @@
                 type: Object,
                 notify: true
             }
+        },
+        created: function(){
         },
         computeDate: function (file) {
             var date = new Date(Date.parse(Utils.parseDate(file.creationDate)));

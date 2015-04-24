@@ -449,6 +449,7 @@
             this.$.list.appendChild(el);
         },
         _createField: function (rowEl, column, rowData) {
+
             var el = document.createElement('div');
             el.classList.add('table-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
             if (isNaN(column.width)) {
@@ -462,19 +463,27 @@
                     var cEl = document.createElement('div');
                     var c = column.plainColumns[i];
                     cEl.style.width = c.width + "px";
+                    var defValue = c.defaultValue != null ? c.defaultValue : '';
+                    var value = null;
                     if (c.formula) {
-                        cEl.innerHTML = c.formula(rowData);
+                        value = c.formula(rowData);
                     } else {
-                        cEl.innerHTML = this._deepValue(rowData, c.ak);
+                        value = this._deepValue(rowData, c.ak);
                     }
+                    cEl.innerHTML = value != null ? value : defValue;
                     el.appendChild(cEl);
                 }
             } else {
+                var defValue = column.defaultValue != null ? column.defaultValue : '';
+                var value = null;
+
                 if (column.formula) {
-                    el.innerHTML = column.formula(rowData);
+                    value = column.formula(rowData);
                 } else {
-                    el.innerHTML = rowData[column.name];
+                    value = rowData[column.name];
                 }
+
+                el.innerHTML = value != null ? value : defValue;
             }
             rowEl.appendChild(el);
         },
