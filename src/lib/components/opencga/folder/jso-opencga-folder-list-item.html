@@ -39,7 +39,6 @@
                 <i class$="{{computeStatusIcon(file)}}"></i>
                 <span>{{computeStatus(file)}}</span>
             </div>
-
         </div>
     </template>
 </dom-module>
@@ -68,7 +67,10 @@
                 "INDEXING": 'fa fa-cog fa-spin',
                 "READY": 'fa fa-check'
             };
-            return iconMap[file.index.status];
+            if(file.index){
+                return iconMap[file.index.status];
+            }
+            return "";
         },
         computeStatus: function (file) {
             if (file.index) {
