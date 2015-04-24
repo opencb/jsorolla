@@ -5,27 +5,23 @@
             position: fixed;
             box-sizing: border-box;
             padding: 30px 100px;
-            z-index: 2;
 
             left: 0;
             right: 0;
             margin: 0px auto 0px auto;
 
             width: 500px;
-            border: 1px solid #c6d0da;
             transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+            background-color: inherit;
         }
 
         .title {
             text-align: center;
             font-size: 25px;
-            color: #666;
         }
 
         .icon {
-            color: #445D76;
             font-size: 50px;
         }
 
@@ -35,12 +31,10 @@
 
         #remember {
             text-align: right;
-            color: #666;
             cursor: pointer;
         }
 
         #remember:hover {
-            color: #445D76;
             text-decoration: underline;
         }
     </style>
@@ -49,7 +43,7 @@
             <div>
                 Log in
             </div>
-            <div class="icon">
+            <div class="icon color-2">
                 <i class="fa fa-sign-in"></i>
             </div>
         </div>
@@ -60,7 +54,7 @@
             <label class="jso">Password</label>
             <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <div id="remember" on-click="handleRemember">Remember password...</div>
+            <div id="remember" class="color-2" on-click="handleRemember">Remember password...</div>
             <br>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleForm">Log in</div>

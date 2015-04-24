@@ -6,6 +6,10 @@
             box-sizing: border-box;
         }
 
+        :host:hover {
+            background-color: #ddd;
+        }
+
         :host[selected] > .main {
             background-color: #ccc;
         }
@@ -65,7 +69,8 @@
                 type: Object
             },
             selected: {
-                type: Object
+                type: Boolean,
+                reflectToAttribute: true
             },
             open: {
                 type: Boolean,
@@ -76,7 +81,6 @@
             return study.files.length <= 0;
         },
         handleClick: function (e) {
-            this.fire("select", {type: 'study', item: this.study});
         },
         handleArrowClick: function (e) {
             if (this.study.files.length > 0) {

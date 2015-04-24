@@ -126,8 +126,6 @@ div.jso-btn.jso-btn-shdw {
     border: 1px solid #ddd;
     background-color: #FFFFFF;
     text-align: center;
-    color: #445D76;
-    /*font-weight: bold;*/
     box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
     transition: background-color 0.15s;
 }

@@ -5,27 +5,21 @@
             position: fixed;
             box-sizing: border-box;
             padding: 30px 100px;
-            z-index: 2;
 
             left: 0;
             right: 0;
             margin: 0px auto 0px auto;
 
             width: 500px;
-            border: 1px solid #c6d0da;
-            transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
         }
 
         .title {
             text-align: center;
             font-size: 25px;
-            color: #666;
         }
 
         .icon {
-            color: #445D76;
             font-size: 50px;
         }
 
@@ -38,11 +32,11 @@
             <div>
                 Create a new user
             </div>
-            <div class="icon">
+            <div class="icon color-2">
                 <i class="fa fa-pencil-square-o"></i>
             </div>
         </div>
-        <form id="form" vertical layout on-keypress="handleFormKey">
+        <form id="form" on-keypress="handleFormKey">
             <label class="jso">User name</label>
             <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
             <label class="jso">E-mail</label>

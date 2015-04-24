@@ -6,6 +6,10 @@
             box-sizing: border-box;
         }
 
+        :host:hover {
+            background-color: #ddd;
+        }
+
         :host[selected] {
             background-color: #ccc;
         }
@@ -68,7 +72,11 @@
                 "INDEXING": 'fa fa-cog fa-spin',
                 "READY": 'fa fa-check'
             };
-            return iconMap[file.index.status];
+            if (file.index) {
+                return iconMap[file.index.status];
+            } else {
+                return '';
+            }
         },
         computeStatus: function (file) {
             if (file.index) {

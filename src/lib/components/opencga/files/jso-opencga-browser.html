@@ -6,7 +6,6 @@
             display: block;
             position: fixed;
             box-sizing: border-box;
-            z-index: 2;
 
             /*left: 0;*/
             right: 0;
@@ -14,19 +13,16 @@
 
             width: 600px;
             height: 400px;
-            border: 1px solid #c6d0da;
             transition: all 0.2s;
-            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-            background-color: #FFFFFF;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+            background-color: inherit;
         }
 
         #bar {
             box-sizing: border-box;
-            background-color: #FAFAFA;
             height: 30px;
             line-height: 30px;
-            border: 0px solid #d3d3d3;
-            border-bottom-width: 1px;
+            border-bottom: 1px solid rgba(130, 130, 130, 0.4);
         }
 
         #main {
@@ -40,8 +36,7 @@
             width: 150px;
             height: 100%;
             overflow-y: auto;
-            border-right: 1px solid #d3d3d3;
-            background-color: #f5f5f5;
+            border-right: 1px solid rgba(130, 130, 130, 0.4);
         }
 
         #maincontent {
@@ -59,16 +54,13 @@
             box-sizing: border-box;
             width: 150px;
             height: 100%;
-            border-left: 1px solid #d3d3d3;
-            background-color: #f5f5f5;
+            border-left: 1px solid rgba(130, 130, 130, 0.4);;
             word-wrap: break-word;
         }
 
         #bottombar {
             box-sizing: border-box;
-            background-color: #FAFAFA;
-            border: 0px solid #d3d3d3;
-            border-top-width: 1px;
+            border-top: 1px solid rgba(130, 130, 130, 0.4);;
             font-size: 13px;
             padding: 4px;
             height: 30px;
@@ -81,39 +73,34 @@
         #breadcrums {
             box-sizing: border-box;
             padding-left: 10px;
-            color: #555;
         }
 
         #breadcrums > span:hover {
             cursor: pointer;
-            color: #333;
         }
 
-        #breadcrums > span:not(:last-of-type)::after {
-            font-family: 'FontAwesome';
-            content: '\f105';
-            margin-left: 5px;
-            color: #888;
-        }
+        /*#breadcrums > span:not(:last-of-type)::after {*/
+            /*font-family: 'FontAwesome';*/
+            /*content: '\f105';*/
+            /*margin-left: 5px;*/
+        /*}*/
 
     </style>
     <template>
         <div id="bar" class="horizontal layout">
-            <!--<div flex id="breadcrums">-->
-                <!--<span>{{selectedProject.name}}</span>-->
-                <!--<span>{{selectedStudy.name}}</span>-->
-                <!--<span>{{selectedFile.name}}</span>-->
-
-                <!--&lt;!&ndash;<template is="x-repeat" items="{{breadcrums}}">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<span>{{item.name}}</span>&ndash;&gt;-->
-                <!--&lt;!&ndash;</template>&ndash;&gt;-->
-            <!--</div>-->
+            <div flex id="breadcrums">
+                <span>Root</span>
+                <i hidden hidden$="{{computeAngle(selectedProject)}}" class="fa fa-angle-right"></i>
+                <span>{{selectedProject.project.name}}</span>
+                <i hidden hidden$="{{computeAngle(selectedStudy)}}" class="fa fa-angle-right"></i>
+                <span>{{selectedStudy.study.name}}</span>
+            </div>
         </div>
 
         <div id="main" class="horizontal layout">
             <div id="mainmenu">
                 <template is="x-repeat" items="{{projects}}">
-                    <jso-opencga-project-tree on-select="handleSelect"
+                    <jso-opencga-project-tree on-click="handleProjectTreeClick"
                                               project="{{item}}">
                     </jso-opencga-project-tree>
                 </template>
@@ -146,7 +133,8 @@
             },
             selectedProject: {
                 type: Object,
-                notify: true
+                notify: true,
+                observer: 'selectedProjectChanged'
             },
             selectedStudy: {
                 type: Object,
@@ -164,62 +152,56 @@
             files: {
                 type: Array,
                 notify: true
-            },
-            breadcrums: {
-                type: Array,
-                notify: true,
-                value: function () {
-                    return []
-                }
             }
         },
         projectsChanged: function (neo, old) {
             if (this.selectedProject == null) {
                 if (neo && neo[0]) {
-                    this.selectedProject = neo[0];
-                    if (this.selectedProject.studies[0]) {
-                        this.selectedStudy = this.selectedProject.studies[0];
-                    }
+//                    this.selectedProject = neo[0];
+//                    if (this.selectedStudy == null) {
+//                        if (this.selectedProject.studies[0]) {
+//                            this.selectedStudy = this.selectedProject.studies[0];
+//                        }
+//                    }
                 }
             }
         },
         selectedStudyChanged: function (neo, old) {
-            var me = this;
-            this._getStudyFolder(this.selectedStudy.id, function (folder) {
-                me.folder = folder;
-                me._getFilesInFolder(me.selectedStudy.id, me.folder.id, function (files) {
-                    me.files = files;
-                    console.log(files);
-                });
-            });
-        },
-        handleSelect: function (e) {
-            var sel = this.$.mainmenu.querySelector("jso-opencga-project-tree[selected]");
-            if (sel) {
-                sel.removeAttribute('selected');
-            }
-            var sel = this.$.mainmenu.querySelector("jso-opencga-study-tree[selected]");
-            if (sel) {
-                sel.removeAttribute('selected');
-            }
+            if (old) old.selected = false;
+            if (neo) neo.selected = true;
 
-            if (e.detail.type == "project") {
-                this.selectedProject = e.detail.item;
-                e.target.setAttribute('selected', '');
-                this.breadcrums[0] = this.selectedProject;
-            } else if (e.detail.type == "study") {
-                this.selectedStudy = e.detail.item;
-                e.target.setAttribute('selected', '');
-                this.breadcrums[1] = this.selectedStudy;
+            var me = this;
+            if (neo) {
+                this._getStudyFolder(this.selectedStudy.study.id, function (folder) {
+                    me.folder = folder;
+                    me._getFilesInFolder(me.selectedStudy.study.id, me.folder.id, function (files) {
+                        me.files = files;
+                        console.log(files);
+                    });
+                });
+            } else {
+                this.files = [];
             }
+        },
+        selectedProjectChanged: function (neo, old) {
+            if (old) old.selected = false;
+            if (neo) neo.selected = true;
+        },
+        handleProjectTreeClick: function (e) {
+            this.selectedProject = e.currentTarget;
+            this.selectedStudy = e.currentTarget.selectedStudy;
         },
         handleFileSelect: function (e) {
             this.selectedFile = e.detail;
-            this.breadcrums[2] = this.selectedFile;
-
         },
 
         /* Private methods */
+        computeAngle:function(el){
+            if(el){
+                return false;
+            }
+            return true;
+        },
         _getStudyFolder: function (studyId, callback) {
             var me = this;
             this.message = '';

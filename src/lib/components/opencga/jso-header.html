@@ -2,7 +2,6 @@
 <link rel="import" href="jso-signup.html">
 <link rel="import" href="jso-profile.html">
 <link rel="import" href="jso-remember.html">
-<link rel="import" href="jso-help-menu.html">
 <!--
 
 <link rel="import" href="jso-job-list.html">
@@ -13,29 +12,28 @@
 <dom-module id="jso-header">
     <style>
         :host {
-            display: block;
             position: relative;
+            display: block;
             box-sizing: border-box;
             cursor: default;
         }
 
         .main {
-            z-index: 3;
-            min-width: 970px;
             position: relative;
+            min-width: 970px;
             height: 60px;
-            box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
-            /*background-color: #FFFFFF;*/
-            /*background-color: #FFFFFF;*/
-            /*background-color: #435f7a;*/
-            background-color: #314559;
             line-height: 60px;
             font-size: 18px;
-            color: #CCCCCC;
-            font-weight: 300;
             margin: 0;
             padding: 0;
             text-transform: none;
+            box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+            background-color: inherit;
+        }
+
+        #tools{
+            background-color: #FAFAFA;
         }
 
         #left > div,
@@ -44,11 +42,6 @@
             text-align: center;
             padding: 0 5px;
             cursor: pointer;
-        }
-
-        #left > div:hover,
-        #right > div:hover {
-            color: #FFFFFF;
         }
 
         div.icon {
@@ -63,19 +56,20 @@
         }
 
         div.description {
-            color: #ffad76;
             font-size: 18px;
             padding-left: 10px;
             padding-bottom: 10px;
         }
 
         div.description:hover {
-            color: #ffad76;
             cursor: default;
         }
 
-        #user {
-            color: #ffad76;
+        jso-login,
+        jso-signup,
+        jso-profile,
+        jso-remember {
+            z-index: 1;
         }
 
         jso-job-list {
@@ -88,10 +82,10 @@
     <template>
         <div class="main horizontal layout">
             <div id="left" class="horizontal layout start-justified">
-                <div class="icon" data-option="home" on-click="handleMenu">
+                <div class="icon hover" data-option="home" on-click="handleMenu">
                     <content select=".icon"></content>
                 </div>
-                <div class="title" data-option="home" on-click="handleMenu">
+                <div class="title hover" data-option="home" on-click="handleMenu">
                     <content select=".title"></content>
                 </div>
                 <div id="description" class="description">
@@ -107,34 +101,35 @@
                 </div>
             </div>
             <div id="right" hidden$="{{!allowLogin}}" class="horizontal layout end-justified">
-                <div id="user" hidden$="{{!isLogged}}">{{userText}}</div>
+                <div id="user" class="color-1" hidden$="{{!isLogged}}">{{userText}}</div>
 
                 <div hidden$="{{!allowBrowse}}">
-                    <div id="projects" data-option="projects" on-click="handleMenu" hidden$="{{!isLogged}}">
+                    <div id="projects" class="hover" data-option="projects" on-click="handleMenu"
+                         hidden$="{{!isLogged}}">
                         <i class="fa fa-cloud-upload"></i>&nbsp;Upload
                     </div>
                 </div>
 
-                <div id="jobs" data-option="jobs" on-click="handleJobClick"
+                <div id="jobs" class="hover" data-option="jobs" on-click="handleJobClick"
                      hidden$="{{computeJobs(isLogged, allowJobs)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     &nbsp;jobs
                 </div>
 
-                <div id="profile" data-option="profile" on-click="handleMenu"
+                <div id="profile" class="hover" data-option="profile" on-click="handleMenu"
                      hidden$="{{computeProfile(isLogged, userText)}}">
                     <i class="fa fa-user"></i>&nbsp;profile
                 </div>
 
-                <div id="logout" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
+                <div id="logout" class="hover" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
                     <i class="fa fa-sign-out"></i>&nbsp;logout
                 </div>
 
-                <div id="login" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div id="login" class="hover" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-sign-in"></i>
                     &nbsp;log in
                 </div>
-                <div id="signup" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div id="signup" class="hover" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-pencil-square-o"></i>
                     &nbsp;sign up
                 </div>
@@ -143,20 +138,24 @@
                 </div>
             </div>
         </div>
-        <jso-login id="jsoLogin"
-                   menu-option="login"
-                   on-login="handleLogin"
-                   on-remember="handleRemember">
-        </jso-login>
-        <jso-signup id="jsoSignup"
-                    menu-option="signup">
-        </jso-signup>
 
-        <jso-profile id="jsoProfile"
-                     menu-option="profile">
-        </jso-profile>
-        <jso-remember menu-option="remember">
-        </jso-remember>
+        <div id="tools">
+            <jso-login id="jsoLogin"
+                       menu-option="login"
+                       on-login="handleLogin"
+                       on-remember="handleRemember">
+            </jso-login>
+            <jso-signup id="jsoSignup"
+                        menu-option="signup">
+            </jso-signup>
+
+            <jso-profile id="jsoProfile"
+                         menu-option="profile">
+            </jso-profile>
+
+            <jso-remember menu-option="remember">
+            </jso-remember>
+        </div>
     </template>
 
     <!--<div class="content">-->

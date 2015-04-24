@@ -7,8 +7,8 @@
             box-sizing: border-box;
         }
 
-        :host[selected] > .main {
-            /*background-color: #ccc;*/
+        :host[selected] > .main > .name {
+            text-decoration: underline;
         }
 
         .main {
@@ -56,6 +56,7 @@
         <div hidden$="{{!open}}">
             <template is="x-repeat" items="{{project.studies}}">
                 <jso-opencga-study-tree
+                        on-click="handleStudyClick"
                         study="{{item}}">
                 </jso-opencga-study-tree>
             </template>
@@ -73,6 +74,9 @@
                 type: Boolean,
                 reflectToAttribute: true
             },
+            selectedStudy: {
+                type: Object
+            },
             open: {
                 type: Boolean,
                 value: true
@@ -82,13 +86,16 @@
             return project.studies.length <= 0;
         },
         handleClick: function (e) {
-            this.fire("select", {type: 'project', item: this.project});
+            this.selectedStudy = null;
         },
         handleDblclick: function (e) {
             this.toggleOpen();
         },
         handleArrowClick: function (e) {
             this.toggleOpen();
+        },
+        handleStudyClick: function (e) {
+            this.selectedStudy = e.currentTarget;
         },
         toggleOpen: function () {
             if (this.project.studies.length != 0) {
