@@ -33,7 +33,7 @@
         }
     </style>
     <template>
-        <div class="horizontal layout">
+        <div class="horizontal layout" >
             <div class="horizontal layout flex">
                 <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
                 <div class="name">{{file.name}}</div>
@@ -43,7 +43,6 @@
                 <i class$="{{computeStatusIcon(file)}}"></i>
                 <span>{{computeStatus(file)}}</span>
             </div>
-
         </div>
     </template>
 </dom-module>
@@ -55,6 +54,8 @@
                 type: Object,
                 notify: true
             }
+        },
+        created: function(){
         },
         computeDate: function (file) {
             var date = new Date(Date.parse(Utils.parseDate(file.creationDate)));
@@ -72,17 +73,16 @@
                 "INDEXING": 'fa fa-cog fa-spin',
                 "READY": 'fa fa-check'
             };
-            if (file.index) {
+            if(file.index){
                 return iconMap[file.index.status];
-            } else {
-                return '';
             }
+            return '';
         },
         computeStatus: function (file) {
             if (file.index) {
                 return file.index.status;
             }
             return 'Not indexed';
-        },
+        }
     });
 </script>

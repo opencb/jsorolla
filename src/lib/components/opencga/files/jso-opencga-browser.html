@@ -80,10 +80,14 @@
         }
 
         /*#breadcrums > span:not(:last-of-type)::after {*/
-            /*font-family: 'FontAwesome';*/
-            /*content: '\f105';*/
-            /*margin-left: 5px;*/
+        /*font-family: 'FontAwesome';*/
+        /*content: '\f105';*/
+        /*margin-left: 5px;*/
         /*}*/
+
+        jso-opencga-folder-list {
+            height: calc(100% - 30px);
+        }
 
     </style>
     <template>
@@ -110,6 +114,12 @@
                         on-fileselect="handleFileSelect"
                         folder="{{folder}}" files="{{files}}">
                 </jso-opencga-folder-list>
+                <div id="bottombar" class="horizontal layout end-justified">
+                    <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
+                         on-click="handleOnClickIndex">
+                        <i class="fa fa-cog"></i>&nbsp;Index
+                    </div>
+                </div>
             </div>
             <!--<div id="maininfo">-->
 
@@ -143,7 +153,10 @@
             },
             selectedFile: {
                 type: Object,
-                notify: true
+                notify: true,
+                value: function () {
+                    return null;
+                }
             },
             folder: {
                 type: Object,
@@ -153,6 +166,15 @@
                 type: Array,
                 notify: true
             }
+        },
+        handleHiddenIndex: function (selectedFile) {
+            if (selectedFile == null) {
+                return true;
+            }
+            return selectedFile.index != null;
+        },
+        handleOnClickIndex: function (e) {
+            alert("Index File: " + this.selectedFile.name)
         },
         projectsChanged: function (neo, old) {
             if (this.selectedProject == null) {
@@ -182,6 +204,7 @@
             } else {
                 this.files = [];
             }
+            this.selectedFile = null;
         },
         selectedProjectChanged: function (neo, old) {
             if (old) old.selected = false;
@@ -196,8 +219,8 @@
         },
 
         /* Private methods */
-        computeAngle:function(el){
-            if(el){
+        computeAngle: function (el) {
+            if (el) {
                 return false;
             }
             return true;

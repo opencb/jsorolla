@@ -116,6 +116,11 @@
             projects: {
                 type: Array,
                 notify: true
+            },
+            disableIndex: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
             }
         },
         handleBrowseClick: function (e) {
@@ -158,26 +163,31 @@
         },
         indexFile: function (file) {
             console.log(file.id);
-            OpencgaManager.files.index({
-                id: file.id,
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    storageEngine: "mongodb"
-                },
-                request: {
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            console.log("index");
-                            console.log(response);
-                        } else {
-//                                me.message = response.response[0].errorMsg;
-                        }
+
+            if (!this.disableIndex) {
+                OpencgaManager.files.index({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        storageEngine: "mongodb"
                     },
-                    error: function () {
-                        alert('Server error, try again later.');
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log("index");
+                                console.log(response);
+                            } else {
+                                //                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                console.log("Disabled Index");
+            }
         },
         handleClose: function (e) {
             this.fire("close");
