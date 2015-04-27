@@ -9,7 +9,7 @@ cp -r styles/fonts/*.woff* build/network-viewer/fonts/
 cp -r src/network-viewer/example-files build/network-viewer/
 
 sed -i 's@../../bower_components/fontawesome/fonts/fontawesome-webfont.@fonts/fontawesome-webfont.@g' build/network-viewer/jso-network-viewer-min.html
-sed -i 's@../../src/fonts/@fonts/@g' build/network-viewer/jso-network-viewer-min.html
+sed -i 's@../../styles/fonts/@fonts/@g' build/network-viewer/jso-network-viewer-min.html
 
 
 cp -r bower_components/webcomponentsjs/ build/network-viewer/
