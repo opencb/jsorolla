@@ -18,6 +18,3 @@ cp src/network-viewer/jso-network-viewer-index.html build/network-viewer/index.h
 
 sed -i 's@../../bower_components/@@g' build/network-viewer/index.html
 sed -i 's@jso-network-viewer.html@jso-network-viewer-min.html@g' build/network-viewer/index.html
-
-
-cp -r build/network-viewer ~/appl/tmp
