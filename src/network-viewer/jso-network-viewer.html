@@ -1,3 +1,30 @@
+<link rel="stylesheet" href="../lib/components/jso-style.css">
+<link rel="stylesheet" href="../lib/components/jso-panel.css">
+<link rel="stylesheet" href="../lib/components/jso-form.css">
+<link rel="stylesheet" href="../lib/components/jso-dropdown.css">
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer-fontawesome/polymer-fontawesome.html">
+<link rel="import" href="../../bower_components/sortable-table/sortable-table.html">
+<link rel="import" href="../../bower_components/core-list/core-list.html">
+
+
+<script src="../../bower_components/d3/d3.min.js"></script>
+<script src="../../bower_components/pako/dist/pako.min.js"></script>
+
+<script src="../../bower_components/js-xlsx/dist/jszip.js"></script>
+<script src="../../bower_components/js-xlsx/dist/xlsx.min.js"></script>
+
+<script src="../../bower_components/cookies-js/dist/cookies.min.js"></script>
+<script src="../../bower_components/crypto-js-evanvosberg/core.js"></script>
+<script src="../../bower_components/crypto-js-evanvosberg/sha1.js"></script>
+<script src="../../bower_components/highcharts-release/adapters/standalone-framework.js"></script>
+<script src="../../bower_components/highcharts-release/highcharts.js"></script>
+
+<script src="../../bower_components/underscore/underscore-min.js"></script>
+<script src="../../bower_components/backbone/backbone.js"></script>
+
+
 <link rel="import" href="jso-nv-bar.html">
 <link rel="import" href="jso-nv-edition-bar.html">
 <link rel="import" href="jso-nv-tool-bar.html">
@@ -61,19 +88,22 @@
 
 
 <script src="../lib/cellbase-manager.js"></script>
-
-<script src="../../bower_components/d3/d3.min.js"></script>
-<script src="../../bower_components/pako/dist/pako.min.js"></script>
+<script src="../lib/opencga-manager.js"></script>
 
 <polymer-element name="jso-network-viewer"
                  attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies jsoHeader lite">
     <template>
+        <link href='../../styles/fonts/fonts.css' rel='stylesheet' type='text/css'>
+        <!--<link rel="stylesheet" href="../../bower_components/fontawesome/css/font-awesome.min.css">-->
         <style>
             :host {
                 display: block;
                 position: relative;
                 height: 100%;
                 background-color: #FFFFFF;
+                font-size: 13px;
+                font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, 'sans-serif' !important;
+                height: 100%;
             }
 
             .left-side {
