@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "cookies-js": "~1.1.0",
-    "crypto-js-evanvosberg": "~3.1.2",
+    "crypto-js-evanvosberg": "~3.1.4",
     "highcharts-release": "~4.0.4",
     "backbone": "~1.1.2",
     "underscore": "~1.7.0",
