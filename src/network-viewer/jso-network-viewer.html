@@ -2186,6 +2186,55 @@
                         }
                     })
                 }
+            },
+            loadSif: function (sifString) {
+                var graph;
+                var adapter = new SIFNetworkDataAdapter({
+                    async:false,
+                    dataSource: new StringDataSource(sifString),
+                    handlers: {
+                        'data:load': function (event) {
+                            graph = event.graph;
+                        },
+                        'error:parse': function (event) {
+                            console.log(event)
+                        }
+                    }
+                });
+                this.setGraph(graph);
+                this.setLayout('Force directed');
+            },
+            loadNodeAttributes: function (attrString) {
+                var attributeManager;
+                varadapter = new AttributeNetworkDataAdapter({
+                    async:false,
+                    dataSource: new StringDataSource(attrString),
+                    handlers: {
+                        'data:load': function (event) {
+                            attributeManager = event.attributeManager;
+                        },
+                        'error:parse': function (event) {
+                            console.log(event)
+                        }
+                    }
+                });
+                this.importVertexAttributeManager(attributeManager);
+            },
+            loadEdgeAttributes: function (attrString) {
+                var attributeManager;
+                varadapter = new AttributeNetworkDataAdapter({
+                    async:false,
+                    dataSource: new StringDataSource(attrString),
+                    handlers: {
+                        'data:load': function (event) {
+                            attributeManager = event.attributeManager;
+                        },
+                        'error:parse': function (event) {
+                            console.log(event)
+                        }
+                    }
+                });
+                this.importEdgeAttributeManager(attributeManager);
             }
         });
     </script>
