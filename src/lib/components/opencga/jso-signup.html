@@ -203,13 +203,14 @@
             var me = this;
             this.message = '';
 //                var studyName = "WorkSpace";
+
             OpencgaManager.studies.create({
                 query: {
                     sid: me.sid,
-                    name: STUDY_NAME,
-                    alias: STUDY_NAME.replace(/ /gi, ''),
-                    description: STUDY_NAME,
-                    organization: STUDY_NAME,
+                    name: "Default study",
+                    alias: "defaultSt",
+                    description: "default study",
+                    organization: this.organization,
                     type: "FAMILY",
                     projectId: me.projectId
 
