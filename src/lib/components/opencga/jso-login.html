@@ -29,7 +29,8 @@
             margin-top: 20px;
         }
 
-        #remember {
+        #remember,
+        #signup{
             text-align: right;
             cursor: pointer;
         }
@@ -50,6 +51,8 @@
         <form id="form" vertical layout on-keypress="handleFormKey">
             <label class="jso">User</label>
             <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
+
+            <div id="signup" class="color-2" on-click="handleSignup">Create new user...</div>
             <br>
             <label class="jso">Password</label>
             <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
@@ -87,6 +90,9 @@
         },
         handleRemember: function (e) {
             this.fire("remember", {});
+        },
+        handleSignup: function (e) {
+            this.fire("signup", {});
         },
         handleForm: function (e) {
             this.message = '';

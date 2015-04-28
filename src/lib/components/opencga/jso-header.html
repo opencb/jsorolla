@@ -32,7 +32,7 @@
             background-color: inherit;
         }
 
-        #tools{
+        #tools {
             background-color: #FAFAFA;
         }
 
@@ -143,9 +143,11 @@
             <jso-login id="jsoLogin"
                        menu-option="login"
                        on-login="handleLogin"
-                       on-remember="handleRemember">
+                       on-remember="handleRemember"
+                       on-signup="handleSignup">
             </jso-login>
             <jso-signup id="jsoSignup"
+                        on-login="handleLogin"
                         menu-option="signup">
             </jso-signup>
 
@@ -285,6 +287,9 @@
         },
         handleRemember: function (e) {
             this.selectedOption = 'remember';
+        },
+        handleSignup: function (e) {
+            this.selectedOption = 'signup';
         },
         handleMenu: function (e) {
             var option = e.currentTarget.dataset['option'];
