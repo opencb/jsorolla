@@ -82,8 +82,12 @@
             border-bottom: 1px solid #ddd;
             height: 30px;
         }
-        .table-row.selected{
-            background-color: red !important;
+
+        .table-row.selected {
+            background-color: #ccc !important;
+        }
+        .table-row.selected:hover {
+            background-color: #bbb !important;
         }
 
         div.table-row:last-of-type {
@@ -232,7 +236,7 @@
             },
             selectable: {
                 type: Boolean,
-                value: true,
+                value: false,
                 reflectToAttribute: true
             },
             multiselect: {
@@ -465,82 +469,40 @@
             var el = document.createElement('div');
             el.classList.add('table-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
             // el.rowPos = rowData._pos;
-            el.setAttribute("pos", rowData._pos);
+            el._rowData = rowData;
             el.addEventListener('click', function (e) {
                 me.fire('rowclick', {row: rowData});
 
                 var currentTarget = e.currentTarget;
 
-                if (e.ctrlKey) {
-                    me._toggleSelected(currentTarget);
-                }
+                if (me.selectable) {
+                    if (e.ctrlKey) {
+                        me._toggleSelected(currentTarget, rowData);
 
-                if (e.button === 0) {
-                    if (!e.ctrlKey && !e.shiftKey) {
-//                        clearAll();
-                        me._clearSelection();
-                        me._toggleSelected(currentTarget);
                     }
-
-                    if (e.shiftKey) {
-
-                        var first = parseInt(me.lastSelectedRow.getAttribute("pos"));
-                        var last = parseInt(currentTarget.getAttribute("pos"));
-
-                        if (last < first) {
-                            var tmp = last;
-                            last = first;
-                            first = tmp;
-
+                    if (e.button === 0) {
+                        if (!e.ctrlKey && !e.shiftKey) {
+                            me._clearSelection();
+                            me._toggleSelected(currentTarget, rowData);
                         }
-                        me._selectRowsBetweenIndexes(first, last);
+
+                        if (e.shiftKey) {
+
+                            var first = parseInt(me.lastSelectedRow._rowData._pos);
+                            var last = parseInt(currentTarget._rowData._pos);
+
+                            if (last < first) {
+                                var tmp = last;
+                                last = first;
+                                first = tmp;
+
+                            }
+                            me._selectRowsBetweenIndexes(first, last);
+                        }
                     }
+//                    me.fire('rowselection', {rows: me.selected});
+
                 }
-
-
-//                if (me.selectable) {
-//                    var row = rowData;
-//                    var index = me.selected.indexOf(row);
-//                    var selected = [];
-//
-//
-////                    debugger
-////                    if (!me.multiselect) {
-////                        for (var i = 0; i < me.selected.length; i++) {
-////                            var obj = me.selected[i];
-////
-////                        }
-////                        var rows = me.$.list.getElementsByClassName("table-row");
-////                        for (var i = 0; i < rows.length; i++) {
-////                            var obj = rows[i];
-////                            obj.classList.remove("selected");
-////                        }
-////                    }
-//
-//                    for (var i = 0; i < me.selected.length; i++) {
-//                        var obj = me.selected[i];
-//                        selected.push(obj);
-//                    }
-//
-//                    if (index > -1) {
-//                        if (row._selected) {
-//                            selected.splice(index, 1);
-//                            row._selected = false;
-//                            me._toggleSelected(e.currentTarget);
-////                            e.currentTarget.classList.remove("selected");
-//                        }
-//                    } else {
-//                        if (!row._selected) {
-//                            selected.push(row);
-//                            row._selected = true;
-//                            me._toggleSelected(e.currentTarget);
-////                            e.currentTarget.classList.add("selected");
-//                        }
-//                    }
-//
-//                    me.selected = selected;
-//
-//                }
             });
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
@@ -548,27 +510,53 @@
             }
             this.$.list.appendChild(el);
         },
-        _toggleSelected: function (elem) {
+        _toggleSelected: function (domElem, rowData) {
 
-            elem.classList.toggle("selected");
-            this.lastSelectedRow = elem;
+            var selected = this.selected;
 
+            if (domElem.classList.contains("selected")) {
+                var index = this.selected.indexOf(rowData);
+                if (index > -1) {
+                    selected.splice(index, 1);
+                }
+            } else {
+                if (this.selected.indexOf(rowData) < 0) {
+                    selected.push(rowData);
+                }
+            }
+            this.selected = selected;
+            console.log(this.selected);
+            domElem.classList.toggle("selected");
+            this.lastSelectedRow = domElem;
         },
         _selectRowsBetweenIndexes: function (first, last) {
 
             var rows = this.$.list.getElementsByClassName("table-row");
+            var selected = this.selected;
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
-                var pos = parseInt(obj.getAttribute("pos"));
+                var pos = parseInt(obj._rowData._pos);
+
+                var index = selected.indexOf(obj._rowData);
+
                 if (pos >= first && pos <= last) {
                     obj.classList.add("selected");
+                    if (index < 0) {
+                        selected.push(obj._rowData);
+                    }
+                } else {
+                    if (index > 0) {
+                        selected.splice(index, 1);
+                    }
                 }
             }
+            this.selected = selected;
 
         },
         _clearSelection: function () {
 
             var rows = this.$.list.getElementsByClassName("table-row");
+            this.selected = [];
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
                 obj.classList.remove("selected");
