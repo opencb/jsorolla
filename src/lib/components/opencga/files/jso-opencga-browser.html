@@ -14,7 +14,6 @@
             width: 600px;
             height: 400px;
             transition: all 0.2s;
-            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
             background-color: inherit;
         }
 
@@ -27,11 +26,10 @@
 
         #main {
             position: relative;
-            /*height: calc(100% - 60px);*/
-            height: calc(100% - 30px);
         }
 
         #mainmenu {
+            position: absolute;
             box-sizing: border-box;
             width: 150px;
             height: 100%;
@@ -58,13 +56,6 @@
             word-wrap: break-word;
         }
 
-        #bottombar {
-            box-sizing: border-box;
-            border-top: 1px solid rgba(130, 130, 130, 0.4);;
-            font-size: 13px;
-            padding: 4px;
-            height: 30px;
-        }
 
         .project-menu-item {
 
@@ -91,40 +82,47 @@
 
     </style>
     <template>
-        <div id="bar" class="horizontal layout">
-            <div flex id="breadcrums">
-                <span>Root</span>
-                <i hidden hidden$="{{computeAngle(selectedProject)}}" class="fa fa-angle-right"></i>
-                <span>{{selectedProject.project.name}}</span>
-                <i hidden hidden$="{{computeAngle(selectedStudy)}}" class="fa fa-angle-right"></i>
-                <span>{{selectedStudy.study.name}}</span>
+        <jso-panel>
+            <div class="header">
+                Browse
             </div>
-        </div>
 
-        <div id="main" class="horizontal layout">
-            <div id="mainmenu">
-                <template is="x-repeat" items="{{projects}}">
-                    <jso-opencga-project-tree on-click="handleProjectTreeClick"
-                                              project="{{item}}">
-                    </jso-opencga-project-tree>
-                </template>
-            </div>
-            <div id="maincontent">
-                <jso-opencga-folder-list
-                        on-fileselect="handleFileSelect"
-                        folder="{{folder}}" files="{{files}}">
-                </jso-opencga-folder-list>
-                <div id="bottombar" class="horizontal layout end-justified">
-                    <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
-                         on-click="handleOnClickIndex">
-                        <i class="fa fa-cog"></i>&nbsp;Index
-                    </div>
+            <div id="bar" class="container horizontal layout">
+                <div flex id="breadcrums">
+                    <span>Root</span>
+                    <i hidden hidden$="{{computeAngleIcon(selectedProject)}}" class="fa fa-angle-right"></i>
+                    <span>{{selectedProject.project.name}}</span>
+                    <i hidden hidden$="{{computeAngleIcon(selectedStudy)}}" class="fa fa-angle-right"></i>
+                    <span>{{selectedStudy.study.name}}</span>
                 </div>
             </div>
-            <!--<div id="maininfo">-->
 
-            <!--</div>-->
-        </div>
+            <div id="main" class="container flex horizontal layout">
+                <div id="mainmenu">
+                    <template is="x-repeat" items="{{projects}}">
+                        <jso-opencga-project-tree on-click="handleProjectTreeClick"
+                                                  project="{{item}}">
+                        </jso-opencga-project-tree>
+                    </template>
+                </div>
+                <div id="maincontent">
+                    <jso-opencga-folder-list
+                            on-fileselect="handleFileSelect"
+                            folder="{{folder}}" files="{{files}}">
+                    </jso-opencga-folder-list>
+                </div>
+                <!--<div id="maininfo">-->
+
+                <!--</div>-->
+            </div>
+
+            <div id="bottombar" class="footer horizontal layout end-justified">
+                <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
+                     on-click="handleOnClickIndex">
+                    <i class="fa fa-cog"></i>&nbsp;Index
+                </div>
+            </div>
+        </jso-panel>
 
         <!--<div id="bottombar" class="horizontal layout">-->
         <!--</div>-->
@@ -219,7 +217,7 @@
         },
 
         /* Private methods */
-        computeAngle: function (el) {
+        computeAngleIcon: function (el) {
             if (el) {
                 return false;
             }

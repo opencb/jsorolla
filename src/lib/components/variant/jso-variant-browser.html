@@ -6,7 +6,10 @@
 
 <link rel="import" href="jso-variant-filter-form.html">
 <link rel="import" href="jso-variant-grid.html">
+
+<link rel="import" href="jso-variant-effect-grid.html">
 <link rel="import" href="../jso-genome-viewer-element.html">
+
 <dom-module id="jso-variant-browser">
     <style>
         :host {
@@ -56,6 +59,11 @@
         /*overflow-y: auto;*/
         /*}*/
 
+        jso-variant-grid,
+        jso-genome-viewer-element,
+        jso-variant-effect-grid {
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+        }
 
     </style>
     <template>
@@ -71,7 +79,10 @@
                                   on-rowclick="handleRowClick"></jso-variant-grid>
 
                 <div id="tools">
+                    <jso-variant-effect-grid id="effect"></jso-variant-effect-grid>
+                    <br>
                     <jso-genome-viewer-element id="gv"></jso-genome-viewer-element>
+
                 </div>
             </div>
         </div>
@@ -306,7 +317,6 @@
     </template>
     <script>
         Polymer({
-//                attributes="jobItem samples url fileId studyId"
             is: 'jso-variant-browser',
             properties: {
                 url: {
@@ -318,11 +328,11 @@
                     type: Object
                 }
             },
-            created: function() {
+            created: function () {
                 var observer = new MutationObserver(function (mutations) {
                     if (this.hasAttribute('hidden')) {
-                        this.$.gv.setAttribute('hidden','');
-                    }else{
+                        this.$.gv.setAttribute('hidden', '');
+                    } else {
                         this.$.gv.removeAttribute('hidden');
                     }
                 }.bind(this));
@@ -336,6 +346,7 @@
 //            variantEffect: null,
             handleRowClick: function (e) {
                 this.$.gv.genomeViewer.setRegion(e.detail.row);
+                this.$.effect.row = e.detail.row;
             },
             _old_ready: function () {
                 var me = this;

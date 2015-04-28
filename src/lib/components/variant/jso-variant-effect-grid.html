@@ -1,210 +1,202 @@
-<polymer-element name="jso-variant-effect-grid" attributes="variant">
+<dom-module id="jso-variant-effect-grid">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+    </style>
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                background-color: white;
-                width: 100%;
-            }
+        <!--<sortable-table class="bootstrap"-->
+        <!--id="effectGrid"-->
+        <!--footerTemplate="defaultPager"-->
+        <!--pageSize="10"-->
+        <!--page="{{page}}"-->
+        <!--columns="{{ columns }}"-->
+        <!--loading="true"-->
+        <!--data="{{data}}">-->
 
-            sortable-table {
-            }
+        <!--<template id="proteinSubstitutionScoresTemplate">-->
+        <!--<td>-->
+        <!--{{value.score}} - {{value.description}}-->
+        <!--</td>-->
+        <!--</template>-->
+        <!--<template id="seqOntologyTemplate">-->
+        <!--<td>-->
+        <!--<a href="http://www.sequenceontology.org/browser/current_svn/term/{{value.soAccession}}"-->
+        <!--target="_blank">{{value.soName}}</a>-->
+        <!--</td>-->
+        <!--</template>-->
+        <!--<template id="ensemblGeneIdTemplate">-->
+        <!--<td>-->
+        <!--<a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value}}"-->
+        <!--target="_blank">{{value}}</a>-->
+        <!--</td>-->
+        <!--</template>-->
+        <!--<template id="ensemblTranscriptIdTemplate">-->
+        <!--<td>-->
+        <!--<a href="http://www.ensembl.org/Homo_sapiens/Location/View?t={{value}}"-->
+        <!--target="_blank">{{value}}</a>-->
+        <!--</td>-->
+        <!--</template>-->
+        <!--</sortable-table>-->
 
-            sortable-table::shadow .column-codon {
-                width: 50px;
-            }
-
-            sortable-table::shadow .column-strand {
-                width: 50px;
-            }
-
-            sortable-table::shadow .column-biotype {
-                width: 100px;
-            }
-
-            sortable-table::shadow .column-ensemblGeneId {
-                width: 120px;
-            }
-
-            sortable-table::shadow .column-ensemblTranscriptId {
-                width: 120px;
-            }
-
-            sortable-table::shadow .column-cDnaPosition {
-                width: 80px;
-            }
-
-            sortable-table::shadow .column-cdsPosition {
-                width: 70px;
-            }
-
-            sortable-table::shadow .column-aPosition {
-                width: 70px;
-            }
-
-            sortable-table::shadow .column-aChange {
-                width: 70px;
-            }
-
-        </style>
-        <sortable-table class="bootstrap"
-                        id="effectGrid"
-                        footerTemplate="defaultPager"
-                        pageSize="10"
-                        page="{{page}}"
-                        columns="{{ columns }}"
-                        loading="true"
-                        data="{{data}}">
-
-            <template id="proteinSubstitutionScoresTemplate">
-                <td>
-                    {{value.score}} - {{value.description}}
-                </td>
-            </template>
-            <template id="seqOntologyTemplate">
-                <td>
-                    <a href="http://www.sequenceontology.org/browser/current_svn/term/{{value.soAccession}}"
-                       target="_blank">{{value.soName}}</a>
-                </td>
-            </template>
-            <template id="ensemblGeneIdTemplate">
-                <td>
-                    <a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value}}"
-                       target="_blank">{{value}}</a>
-                </td>
-            </template>
-            <template id="ensemblTranscriptIdTemplate">
-                <td>
-                    <a href="http://www.ensembl.org/Homo_sapiens/Location/View?t={{value}}"
-                       target="_blank">{{value}}</a>
-                </td>
-            </template>
-        </sortable-table>
+        <jso-table id="table"
+                   on-rowclick="handleRowClick"></jso-table>
 
     </template>
-    <script>
-        Polymer({
-            variant: null,
-            columns: null,
-            data: null,
-            page: 1,
-            created: function () {
-            },
-            ready: function () {
-                this.columns = [
-                    {name: "geneName", title: "Gene Name"},
-                    {name: "ensemblGeneId", title: "Ensembl Gene Id", cellTemplate: "ensemblGeneIdTemplate"},
-                    {
-                        name: "ensemblTranscriptId",
-                        title: "Ensembl Transcript Id",
-                        cellTemplate: 'ensemblTranscriptIdTemplate'
-                    },
-                    {
-                        name: "so",
-                        title: "Conseq. type",
-                        cellTemplate: 'seqOntologyTemplate',
-                        formula: function (row) {
-                            var aux = {};
-                            if (row.soName && row.soAccession) {
+</dom-module>
 
-                                aux.soName = row.soName;
-                                aux.soAccession = row.soAccession;
-                            }
-                            return aux;
-                        }
-                    },
-                    {name: "relativePosition", title: "Relative Position"},
-                    {name: "codon", title: "Codon"},
-                    {name: "strand", title: "Strand"},
-                    {name: "biotype", title: "Biotype"},
-                    {name: "cDnaPosition", title: "cDna Position"},
-                    {name: "cdsPosition", title: "cds Position"},
-                    {name: "aPosition", title: "AA Position"},
-                    {name: "aChange", title: "AA Change"},
-                    {
-                        name: "sift",
-                        title: "Sift",
-                        cellTemplate: 'proteinSubstitutionScoresTemplate',
-                        formula: function (row) {
-                            var pss = row.proteinSubstitutionScores;
-
-                            if (pss != null && pss.length > 0) {
-                                for (var i = 0; i < pss.length; i++) {
-                                    var elem = pss[i];
-                                    if (elem.source == "Sift") {
-                                        return elem;
-                                    }
-                                }
-                            }
-                            return {};
-                        }
-                    },
-                    {
-                        name: "polyphen", title: "Polyphen", cellTemplate: 'proteinSubstitutionScoresTemplate',
-                        formula: function (row) {
-                            var pss = row.proteinSubstitutionScores;
-
-                            if (pss != null && pss.length > 0) {
-                                for (var i = 0; i < pss.length; i++) {
-                                    var elem = pss[i];
-                                    if (elem.source == "Polyphen") {
-                                        return elem;
-                                    }
-                                }
-                            }
-                            return {};
-                        }
-                    }
-                ];
-            },
-            variantChanged: function (oldValue, newValue) {
-                var me = this;
-
-                this.page = 1;
-                this.data = [];
-
-                if (newValue != '') {
-                    CellBaseManager.get({
-                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
-                        version: 'v3',
-                        species: 'hsapiens',
-                        category: 'genomic',
-                        subCategory: 'variant',
-                        resource: 'full_annotation',
-                        query: newValue,
-                        async: false,
-                        success: function (response) {
-                            try {
-                                me.data = me.parseFunction(response.response[0].result[0].consequenceTypes);
-                            } catch (e) {
-                                me.data = [];
-                            }
-                        }
-                    });
-                }
-            },
-            parseFunction: function (data) {
-                var res = [];
-
-                for (var i = 0; i < data.length; i++) {
-                    var elem = data[i];
-
-                    for (var j = 0; j < elem.soTerms.length; j++) {
-                        var soTerm = elem.soTerms[j];
-                        var aux = Utils.clone(elem);
-                        aux.soName = soTerm.soName;
-                        aux.soAccession = soTerm.soAccession;
-
-                        res.push(aux);
-                    }
-                }
-                return res;
+<script>
+    Polymer({
+        is: 'jso-variant-effect-grid',
+        properties: {
+            row: {
+                type: Object,
+                observer: 'rowChanged'
             }
-        });
-    </script>
-</polymer-element>
+        },
+        _columns: [
+            {
+                name: "geneName",
+                title: "Gene Name"
+            },
+            {
+                name: "ensemblGeneId",
+                title: "Ensembl Gene Id",
+                cellTemplate: "ensemblGeneIdTemplate"
+            },
+            {
+                name: "ensemblTranscriptId",
+                title: "Ensembl Transcript Id",
+                cellTemplate: 'ensemblTranscriptIdTemplate'
+            },
+            {
+                name: "so",
+                title: "Conseq. type",
+                cellTemplate: 'seqOntologyTemplate',
+                formula: function (row) {
+                    var aux = {};
+                    if (row.soName && row.soAccession) {
 
+                        aux.soName = row.soName;
+                        aux.soAccession = row.soAccession;
+                    }
+                    return aux;
+                }
+            },
+            {
+                name: "relativePosition",
+                title: "Relative Position"
+            },
+            {
+                name: "codon",
+                title: "Codon"
+            },
+            {
+                name: "strand",
+                title: "Strand"
+            },
+            {
+                name: "biotype",
+                title: "Biotype"
+            },
+            {
+                name: "cDnaPosition",
+                title: "cDna Position"
+            },
+            {
+                name: "cdsPosition",
+                title: "cds Position"
+            },
+            {
+                name: "aPosition",
+                title: "AA Position"
+            },
+            {
+                name: "aChange",
+                title: "AA Change"
+            },
+            {
+                name: "sift",
+                title: "Sift",
+                cellTemplate: 'proteinSubstitutionScoresTemplate',
+                formula: function (row) {
+                    var pss = row.proteinSubstitutionScores;
 
+                    if (pss != null && pss.length > 0) {
+                        for (var i = 0; i < pss.length; i++) {
+                            var elem = pss[i];
+                            if (elem.source == "Sift") {
+                                return elem;
+                            }
+                        }
+                    }
+                    return {};
+                }
+            },
+            {
+                name: "polyphen", title: "Polyphen", cellTemplate: 'proteinSubstitutionScoresTemplate',
+                formula: function (row) {
+                    var pss = row.proteinSubstitutionScores;
+
+                    if (pss != null && pss.length > 0) {
+                        for (var i = 0; i < pss.length; i++) {
+                            var elem = pss[i];
+                            if (elem.source == "Polyphen") {
+                                return elem;
+                            }
+                        }
+                    }
+                    return {};
+                }
+            }
+        ],
+
+        rowChanged: function (neo, old) {
+            var me = this;
+            this.page = 1;
+            me.$.table.currentPage = 1;
+            if (neo) {
+                var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                CellBaseManager.get({
+                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                    version: 'v3',
+                    species: 'hsapiens',
+                    category: 'genomic',
+                    subCategory: 'variant',
+                    resource: 'full_annotation',
+                    query: variant,
+                    async: false,
+                    success: function (response) {
+                        try {
+                            me.$.table.data = me.parseFunction(response.response[0].result[0].consequenceTypes);
+                            me.$.table.columns = me._columns;
+                            debugger
+                        } catch (e) {
+                            me.$.table.data = [];
+                            me.$.table.columns = [];
+                        }
+                    }
+                });
+            }
+        },
+        parseFunction: function (data) {
+            var res = [];
+
+            for (var i = 0; i < data.length; i++) {
+                var elem = data[i];
+
+                for (var j = 0; j < elem.soTerms.length; j++) {
+                    var soTerm = elem.soTerms[j];
+                    var aux = Utils.clone(elem);
+                    aux.soName = soTerm.soName;
+                    aux.soAccession = soTerm.soAccession;
+
+                    res.push(aux);
+                }
+            }
+            return res;
+        }
+    });
+</script>

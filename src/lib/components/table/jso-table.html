@@ -7,16 +7,39 @@
             font-size: 13px;
         }
 
+        .scrollfix {
+            position: absolute;
+            width: 30px;
+            height: 100%;
+            top: 0;
+            right: 0;
+            background-color: inherit;
+            z-index: 1;
+        }
+
+        :host[enable-paging] .scrollfix {
+            display: none;
+        }
+
+        #header {
+            position:relative;
+            background-color: #F1F3F5;
+            border-bottom: 1px solid #d3d3d3;
+        }
+
         .table-header-row {
             position: relative;
             box-sizing: border-box;
-            border-bottom: 1px solid #d3d3d3;
-            background-color: #F1F3F5;
             font-weight: bold;
             color: #666;
             overflow-y: scroll;
             overflow-x: hidden;
             width: 100%;
+            background-color: inherit;
+        }
+
+        :host[enable-paging] .table-header-row {
+            overflow-y: hidden;
         }
 
         .table-header-field {
@@ -82,7 +105,8 @@
             border-bottom: 1px solid #ddd;
             height: 30px;
         }
-        .table-row.selected{
+
+        .table-row.selected {
             background-color: red !important;
         }
 
@@ -117,7 +141,9 @@
     </style>
     <template>
 
-        <div id="header" class="table-header horizontal layout">
+        <div id="header" class="table-header">
+            <div class="scrollfix"></div>
+
             <!--<template is="x-repeat" items="{{columns}}">-->
             <!--<div class="table-header-field flex" on-click="handleHeaderClick">{{item.text}}</div>-->
             <!--</template>-->
@@ -153,6 +179,7 @@
             <div class="jso-txt">of</div>
             <div class="jso-txt">{{totalItems}}</div>
         </div>
+
 
     </template>
 </dom-module>
@@ -382,9 +409,11 @@
         },
 
         updateColumns: function () {
-            while (this.$.header.firstChild) {
-                this.$.header.removeChild(this.$.header.firstChild);
+            var els = this.$.header.querySelectorAll('.table-header-row');
+            for (var i = 0; i < els.length; i++) {
+                this.$.header.removeChild(els[i]);
             }
+
             this._createHeaderRow();
 
             for (var i = 0; i < this.columns.length; i++) {

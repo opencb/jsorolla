@@ -29,13 +29,12 @@
             margin-top: 20px;
         }
 
-        #remember,
-        #signup{
+        .shortcut{
             text-align: right;
             cursor: pointer;
         }
 
-        #remember:hover {
+        .shortcut:hover {
             text-decoration: underline;
         }
     </style>
@@ -52,12 +51,12 @@
             <label class="jso">User</label>
             <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <div id="signup" class="color-2" on-click="handleSignup">Create new user...</div>
+            <div class="shortcut color-2" on-click="handleSignup">Create new user...</div>
             <br>
             <label class="jso">Password</label>
             <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <div id="remember" class="color-2" on-click="handleRemember">Remember password...</div>
+            <div class="shortcut color-2" on-click="handleRemember">Remember password...</div>
             <br>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleForm">Log in</div>
