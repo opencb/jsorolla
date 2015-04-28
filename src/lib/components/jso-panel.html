@@ -1,0 +1,156 @@
+<dom-module id="jso-panel">
+    <style>
+        /*
+            Panel
+
+            Note 1: panel-shadow class is optional
+
+            <div class="panel panel-shadow" vertical layout>
+                <div class="header" horizontal layout>
+                    <div>Header text</div>
+                    <div class="headeractions" horizontal layout end-justified flex>
+                        <div class="headerexpand"></div>
+                        <div class="headerclose"></div>
+                    </div>
+                </div>
+                <div class="container">
+                </div>
+                <div class="footer">
+                </div>
+            </div>
+        */
+        :host {
+            position: relative;
+            box-sizing: border-box;
+            height: 100%;
+            width: 100%;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+        }
+
+        .header {
+            text-transform: capitalize;
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .header > .headeractions > * {
+            box-sizing: border-box;
+            padding: 0 5px;
+            border: 1px solid transparent;
+            line-height: 21px;
+        }
+
+        .header > .headeractions > *[data-checked] {
+            background-color: rgba(0, 0, 0, 0.20);
+        }
+
+        .header > .headeractions > *:hover {
+            background-color: rgba(0, 0, 0, 0.20);
+        }
+
+        .header > .headeractions > .headerclose:after {
+            font-family: FontAwesome;
+            content: '\f00d';
+        }
+
+        .header > .headeractions > .headerexpand:after {
+            font-family: FontAwesome;
+            content: '\f065';
+        }
+
+        .header > .headeractions > .headerpin:after {
+            font-family: FontAwesome;
+            content: '\f08d';
+        }
+
+        .header > .headeractions > .headerexpand[expanded]:after {
+            content: '\f066';
+        }
+
+        .header, .container {
+            position: relative;
+        }
+
+        .header,
+        .footer {
+            /*background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);*/
+            /*background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);*/
+            /*background-repeat: repeat-x;*/
+            /*height: 31px;*/
+            box-sizing: border-box;
+            padding: 4px 5px 4px 12px;
+            border-bottom: 1px solid #d4d4d4;
+            height: 32px;
+            line-height: 21px;
+        }
+
+        .footer {
+            border-top: 1px solid #d4d4d4;
+            background-color: #EDEDED;
+        }
+
+        .footer > div,
+        .footer > div > div {
+            margin-right: 2px;
+            margin-left: 2px;
+        }
+
+        .header[data-collapsible=true][data-collapsed=true]:after {
+            font-family: FontAwesome;
+            content: "\f107";
+            position: absolute;
+            box-sizing: border-box;
+            line-height: 23px;
+            padding: 0px 5px;
+            right: 10px;
+        }
+
+        .header[data-collapsible=true][data-collapsed=false]:after {
+            font-family: FontAwesome;
+            content: "\f106";
+            position: absolute;
+            box-sizing: border-box;
+            line-height: 23px;
+            padding: 0px 5px;
+            right: 10px;
+        }
+
+        .header[data-collapsible=true][data-collapsed=true] + div {
+            display: none;
+        }
+
+    </style>
+    <template>
+        <div class="header horizontal layout">
+            <content select=".header"></content>
+            <div class="headeractions horizontal layout end-justified flex">
+                <!--<div class="headerexpand"></div>-->
+                <div hidden$="{{!closable}}" class="headerclose"></div>
+            </div>
+        </div>
+        <div class="container vertical layout flex">
+            <content select=".container"></content>
+        </div>
+        <div class="footer">
+            <content select=".footer"></content>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-panel",
+        properties: {
+            closable:{
+                type:Boolean,
+                reflectToAttribute: true,
+                value:false
+            }
+        },
+        hostAttributes: {
+            'class': 'vertical layout flex'
+        }
+    });
+</script>
