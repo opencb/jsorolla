@@ -14,7 +14,6 @@
     <script src="../../utils.js"></script>
 
     <link href='../../../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
-    <link href='../jso-global.css' rel='stylesheet' type='text/css'>
 
     <!-- Importing Custom Elements -->
     <link rel="import" href="jso-table.html">
@@ -26,74 +25,33 @@
     var columns = [{
         name: 'i',
         title: 'i',
-        width: 300,
-        _toltal: 2,
-        columns: [
-            {
-                name: 'a1',
-                title: 'a1',
-                width: 50,
-                columns: [{
-                    name: 'a11',
-                    title: 'a11',
-                    width: 25
-                }, {
-                    name: 'a12',
-                    title: 'a12',
-                    width: 25
-                }]
-            },
-            {
-                name: 'a2',
-                title: 'a2',
-                width: 200
-            }]
-    }, {
-        name: 'b',
-        title: 'b',
-        width: 200
+        width: 50
     }];
-    //    for (var i = 0; i < 1; i++) {
-    //        var name = Utils.randomString(Utils.getRandomInt(10, 30));
-    //        columns.push({
-    //            name: name,
-    //            text: name,
-    //            width: 100,
-    //        });
-    //    }
+        for (var i = 0; i < 10; i++) {
+            var name = Utils.randomString(Utils.getRandomInt(10, 30));
+            columns.push({
+                name: "col_" + i,
+                title: "col_" + i
+            });
+        }
     var column;
     var data = [];
-    //    for (var i = 0; i < 51; i++) {
-    //        var obj = {};
-    //        obj['i'] = i + 1;
-    //        for (var j = 1; j < columns.length; j++) {
-    //            column = columns[j];
-    //            obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
-    //        }
-    //        data.push(obj)
-    //    }
-    data.push({
-        i: {
-            a1: {
-                a11: 3,
-                a12: 7
-            },
-            a2: 'a2'
-        },
-        b: 2
-
-    });
+        for (var i = 0; i < 500; i++) {
+            var obj = {};
+            obj['i'] = i + 1;
+            for (var j = 1; j < columns.length; j++) {
+                column = columns[j];
+                obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
+            }
+            data.push(obj)
+        }
     console.log(columns.length);
     console.log(data.length);
 
-    //    var el = document.querySelector('jso-table');
-    //    el.setData(data);
-    //    el.setColumns(columns);
-    //    el.columns = columns;
-    //    el.data = data;
-
     var table = document.createElement('jso-table');
-    table.setAttribute("enable-paging", "");
+    table.setAttribute("enable-filter", "");
+    table.setAttribute("selectable", "");
+    // table.setAttribute("enable-paging", "");
     //        table.style.height = "500px";
     table.data = data;
     table.columns = columns;

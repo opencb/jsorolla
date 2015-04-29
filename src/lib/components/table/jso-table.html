@@ -5,6 +5,12 @@
             position: relative;
             border: 1px solid #d3d3d3;
             font-size: 13px;
+
+            -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+            -moz-user-select: none; /* mozilla browsers */
+            -khtml-user-select: none; /* webkit (konqueror) browsers */
+            -ms-user-select: none; /* IE10+ */
+
         }
 
         .scrollfix {
@@ -21,10 +27,14 @@
             display: none;
         }
 
-        #header {
-            position:relative;
+        .table-header {
+            position: relative;
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
+        }
+
+        #header {
+            position: relative;
         }
 
         .table-header-row {
@@ -108,7 +118,9 @@
 
         .table-row.selected {
             background-color: #ccc !important;
+
         }
+
         .table-row.selected:hover {
             background-color: #bbb !important;
         }
@@ -144,21 +156,12 @@
     </style>
     <template>
 
-        <div id="header" class="table-header">
+        <div class="table-header">
+            <div id="header"></div>
+            <div id="filterRow" hidden$="{{!enableFilter}}"></div>
             <div class="scrollfix"></div>
-
-            <!--<template is="x-repeat" items="{{columns}}">-->
-            <!--<div class="table-header-field flex" on-click="handleHeaderClick">{{item.text}}</div>-->
-            <!--</template>-->
         </div>
         <div id="list" class="table-body" enable-paging$="{{!enablePaging}}">
-            <!--<template is="x-repeat" items="{{viewData}}">-->
-            <!--<div class="table-row horizontal layout" style="height:30px;">-->
-            <!--<template is="x-repeat" items="{{item}}">-->
-            <!--<div class="table-field flex">{{item}}</div>-->
-            <!--</template>-->
-            <!--</div>-->
-            <!--</template>-->
         </div>
 
         <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout">
@@ -205,6 +208,15 @@
                 value: function () {
                     return [];
                 }
+            },
+            filteredData: {
+                type: Array,
+                notify: true,
+                observer: 'dataChanged',
+                value: function () {
+                    return [];
+                }
+
             },
             viewData: {
                 type: Array,
@@ -272,14 +284,29 @@
             lastSelectedRow: {
                 type: Object,
                 value: null
+            },
+            enableFilter: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+
+            },
+            filters: {
+                type: Object,
+                value: function () {
+                    return {};
+                }
             }
         },
         created: function () {
         },
         /* OBSERVERS */
         dataChanged: function (neo, old) {
+
+
+            this.currentPage = 1;
             this.totalItems = neo.length;
-            this.checkPaging();
+            this.checkData();
         },
         enableRemoteChanged: function (neo, old) {
             if (this.request) {
@@ -294,16 +321,16 @@
             }
         },
         enablePagingChanged: function (neo, old) {
-            this.checkPaging();
+            this.checkData();
         },
         currentPageChanged: function (neo, old) {
-            this.checkPaging();
+            this.checkData();
             if (this.request) {
                 this.checkRemote();
             }
         },
         pageSizeChanged: function (neo, old) {
-            this.checkPaging();
+            this.checkData();
             if (this.request) {
                 this.checkRemote();
             }
@@ -361,14 +388,29 @@
             request.send();
             console.log(url)
         },
+        checkData: function () {
+            console.log(this.filters);
+            if (this.enableFilter) {
 
-        checkPaging: function () {
-            if (this.enablePaging) {
-                this.viewData = this.data.slice(this.pageFirstItem - 1, this.pageLastItem);
-                this.$.list.style.height = (30 * this.pageSize) + 'px';
+                if (Object.keys(this.filters).length == 0) {
+                    this.filteredData = this.data;
+                }
+
+                if (this.enablePaging) {
+                    this.viewData = this.filteredData.slice(this.pageFirstItem - 1, this.pageLastItem);
+                    this.$.list.style.height = (30 * this.pageSize) + 'px';
+                } else {
+                    this.viewData = this.filteredData;
+                    this.$.list.style.height = '';
+                }
             } else {
-                this.viewData = this.data;
-                this.$.list.style.height = '';
+                if (this.enablePaging) {
+                    this.viewData = this.data.slice(this.pageFirstItem - 1, this.pageLastItem);
+                    this.$.list.style.height = (30 * this.pageSize) + 'px';
+                } else {
+                    this.viewData = this.data;
+                    this.$.list.style.height = '';
+                }
             }
         },
         handlePreviousClick: function (e) {
@@ -425,7 +467,108 @@
                 this._processColumn(column, x);
                 column.plainColumns = x;
             }
+            this._createFilterRow();
         },
+        _createFilterRow: function () {
+            var el = document.createElement('div');
+            el.classList.add('horizontal', 'layout', 'style-scope', 'jso-table');
+
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                this._createFilterField(el, column);
+            }
+            this.$.filterRow.appendChild(el);
+        },
+        _createFilterField: function (rowEl, column, rowData) {
+
+            var me = this;
+            var el = document.createElement('div');
+            el.classList.add('table-filter-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
+            if (isNaN(column.width)) {
+                el.classList.add('flex');
+            } else {
+                el.style.width = column.width + "px";
+            }
+
+
+            if (column.plainColumns.length > 0) {
+                // TODO aaleman: nested columns
+//                for (var i = 0; i < column.plainColumns.length; i++) {
+//
+//                    var cEl = document.createElement('div');
+//                    var c = column.plainColumns[i];
+//                    cEl.style.width = c.width + "px";
+//                    var defValue = c.defaultValue != null ? c.defaultValue : '';
+//                    var value = null;
+//                    if (c.formula) {
+//                        value = c.formula(rowData);
+//                    } else {
+//                        value = this._deepValue(rowData, c.ak);
+//                    }
+//                    cEl.innerHTML = value != null ? value : defValue;
+//                    el.appendChild(cEl);
+//                }
+            } else {
+
+                var input = document.createElement("input");
+                input._col = column.name;
+
+                input.addEventListener('input', function (e) {
+
+                            var query = this.value;
+
+                            var filter = {}
+                            if (input._col in me.filters) {
+                                filter = me.filters[input._col];
+                            }
+
+                            if (query != "") {
+
+                                filter.type = 'text';
+                                filter.colName = input._col;
+                                filter.query = query;
+                                filter.func = null;
+                                me.filters[input._col] = filter;
+
+                            } else {
+                                delete me.filters[input._col];
+                            }
+
+
+                            me._applyFilters();
+                        }
+                );
+                el.appendChild(input);
+            }
+            rowEl.appendChild(el);
+        },
+        _applyFilters: function () {
+            var filteredData = [];
+
+            for (var i = 0; i < this.data.length; i++) {
+                var row = this.data[i];
+                var filtered = true;
+
+                for (var key in this.filters) {
+                    var filter = this.filters[key];
+                    var match = false;
+                    switch (filter.type) {
+                        case 'text':
+                            var value = row[filter.colName].toLowerCase();
+                            match = value.indexOf(filter.query.toLowerCase()) >= 0;
+                            break;
+                    }
+                    filtered &= match;
+                }
+
+                if (filtered) {
+                    filteredData.push(row);
+                }
+            }
+
+            this.filteredData = filteredData;
+        },
+
         _processColumn: function (column, x) {
             if (column.columns && column.columns.length > 0) {
                 for (var i = 0; i < column.columns.length; i++) {
@@ -441,7 +584,8 @@
                     this._processColumn(col, x);
                 }
             }
-        },
+        }
+        ,
 
         update: function (data) {
             while (this.$.list.firstChild) {
@@ -453,7 +597,8 @@
 
                 this._createRow(rowData);
             }
-        },
+        }
+        ,
 
         _createHeaderRow: function () {
             var el = document.createElement('div');
@@ -465,7 +610,8 @@
             }
 
             this.$.header.appendChild(el);
-        },
+        }
+        ,
         _createHeaderField: function (rowEl, column) {
             var el = document.createElement('div');
             el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table');
@@ -490,7 +636,8 @@
                 el.appendChild(subColumnsEl);
             }
             rowEl.appendChild(el);
-        },
+        }
+        ,
 
         _createRow: function (rowData) {
             var me = this;
@@ -537,7 +684,8 @@
                 this._createField(el, column, rowData);
             }
             this.$.list.appendChild(el);
-        },
+        }
+        ,
         _toggleSelected: function (domElem, rowData) {
 
             var selected = this.selected;
@@ -556,7 +704,8 @@
             console.log(this.selected);
             domElem.classList.toggle("selected");
             this.lastSelectedRow = domElem;
-        },
+        }
+        ,
         _selectRowsBetweenIndexes: function (first, last) {
 
             var rows = this.$.list.getElementsByClassName("table-row");
@@ -580,7 +729,8 @@
             }
             this.selected = selected;
 
-        },
+        }
+        ,
         _clearSelection: function () {
 
             var rows = this.$.list.getElementsByClassName("table-row");
@@ -589,7 +739,8 @@
                 var obj = rows[i];
                 obj.classList.remove("selected");
             }
-        },
+        }
+        ,
         _createField: function (rowEl, column, rowData) {
 
             var el = document.createElement('div');
@@ -628,26 +779,13 @@
                 el.innerHTML = value != null ? value : defValue;
             }
             rowEl.appendChild(el);
-        },
+        }
+        ,
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 obj = obj[path[i]];
             }
             return obj;
-        },
-
-//        handleHeaderClick: function (e) {
-//            var columnName = e.currentTarget.templateInstance.model.c.name;
-//            if (this.currentColumnSort != columnName) {
-//                this.data = this.data.slice(0).sort(function (a, b) {
-//                    return a[columnName].localeCompare(b[columnName]);
-//                });
-//            } else if (this.currentColumnSort == columnName) {
-//                this.data = this.data.slice(0).sort(function (a, b) {
-//                    return b[columnName].localeCompare(a[columnName]);
-//                });
-//            }
-//            this.currentColumnSort = columnName;
-//        }
+        }
     })
 </script>
