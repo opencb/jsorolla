@@ -272,7 +272,7 @@
                 },
 //                reflectToAttribute: true
             },
-            selectable: {
+            enableSelect: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
@@ -650,7 +650,7 @@
 
                 var currentTarget = e.currentTarget;
 
-                if (me.selectable) {
+                if (me.enableSelect) {
                     if (e.ctrlKey) {
                         me._toggleSelected(currentTarget, rowData);
 
