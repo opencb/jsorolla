@@ -41,9 +41,11 @@
         <!--</template>-->
         <!--</sortable-table>-->
 
-        <jso-table id="table"
+        <jso-table id="table" hidden$="{{isEmpty}}"
                    on-rowclick="handleRowClick"></jso-table>
-
+        <div hidden$="{{!isEmpty}}" style="padding:20px 50px;">
+            No effect found.
+        </div>
     </template>
 </dom-module>
 
@@ -54,7 +56,14 @@
             row: {
                 type: Object,
                 observer: 'rowChanged'
+            },
+            isEmpty: {
+                value: false,
+                type: Boolean
             }
+        },
+        ready: function () {
+            this.$.table.columns = this._columns;
         },
         _columns: [
             {
@@ -155,8 +164,7 @@
 
         rowChanged: function (neo, old) {
             var me = this;
-            this.page = 1;
-            me.$.table.currentPage = 1;
+            this.$.table.currentPage = 1;
             if (neo) {
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
@@ -171,10 +179,10 @@
                     success: function (response) {
                         try {
                             me.$.table.data = me.parseFunction(response.response[0].result[0].consequenceTypes);
-                            me.$.table.columns = me._columns;
+                            me.isEmpty = (me.$.table.data.length > 0) ? false : true;
                         } catch (e) {
                             me.$.table.data = [];
-                            me.$.table.columns = [];
+                            me.isEmpty = true;
                         }
                     }
                 });
