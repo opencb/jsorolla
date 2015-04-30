@@ -272,7 +272,7 @@
                 },
 //                reflectToAttribute: true
             },
-            selectable: {
+            enableSelect: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
@@ -510,11 +510,64 @@
 //                }
             } else {
 
-                var input = document.createElement("input");
-                input._col = column.name;
 
-                input.addEventListener('input', function (e) {
+                if (!column.type) {
+                    column.type = 'text';
+                }
 
+                var input;
+
+                switch (column.type) {
+                    case 'text':
+
+                        input = document.createElement("input");
+                        input._col = column.name;
+
+                        input.addEventListener('input', function (e) {
+
+                                    var query = this.value;
+
+                                    var filter = {}
+                                    if (input._col in me.filters) {
+                                        filter = me.filters[input._col];
+                                    }
+
+                                    if (query != "") {
+
+                                        filter.type = 'text';
+                                        filter.colName = input._col;
+                                        filter.query = query;
+                                        filter.func = null;
+                                        me.filters[input._col] = filter;
+
+                                    } else {
+                                        delete me.filters[input._col];
+                                    }
+
+
+                                    me._applyFilters();
+                                }
+                        );
+                        break;
+                    case 'select':
+                        input = document.createElement("select");
+                        input._col = column.name;
+
+                        var option = document.createElement("option");
+                        var optVal = "";
+                        option.value = optVal;
+                        option.text = optVal;
+                        input.appendChild(option);
+
+                        for (var i = 0; i < column.options.length; i++) {
+                            option = document.createElement("option");
+                            optVal = column.options[i];
+                            option.value = optVal;
+                            option.text = optVal;
+                            input.appendChild(option);
+                        }
+
+                        input.addEventListener('click', function (e) {
                             var query = this.value;
 
                             var filter = {}
@@ -524,7 +577,7 @@
 
                             if (query != "") {
 
-                                filter.type = 'text';
+                                filter.type = 'select';
                                 filter.colName = input._col;
                                 filter.query = query;
                                 filter.func = null;
@@ -536,8 +589,10 @@
 
 
                             me._applyFilters();
-                        }
-                );
+                        });
+
+                        break;
+                }
                 el.appendChild(input);
             }
             rowEl.appendChild(el);
@@ -556,6 +611,10 @@
                         case 'text':
                             var value = row[filter.colName].toLowerCase();
                             match = value.indexOf(filter.query.toLowerCase()) >= 0;
+                            break;
+                        case 'select':
+                            var value = row[filter.colName].toLowerCase();
+                            match = value === filter.query.toLowerCase();
                             break;
                     }
                     filtered &= match;
@@ -650,7 +709,7 @@
 
                 var currentTarget = e.currentTarget;
 
-                if (me.selectable) {
+                if (me.enableSelect) {
                     if (e.ctrlKey) {
                         me._toggleSelected(currentTarget, rowData);
 
