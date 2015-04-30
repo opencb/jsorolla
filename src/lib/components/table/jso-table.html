@@ -10,7 +10,7 @@
             -moz-user-select: none; /* mozilla browsers */
             -khtml-user-select: none; /* webkit (konqueror) browsers */
             -ms-user-select: none; /* IE10+ */
-    
+
         }
 
         .scrollfix {
@@ -185,6 +185,7 @@
             <div class="jso-txt">of</div>
             <div class="jso-txt">{{totalItems}}</div>
         </div>
+        <div>Total:<span>{{totalItems}}</span></div>
 
 
     </template>
@@ -303,7 +304,6 @@
         /* OBSERVERS */
         dataChanged: function (neo, old) {
 
-
             this.currentPage = 1;
             this.totalItems = neo.length;
             this.checkData();
@@ -389,7 +389,6 @@
             console.log(url)
         },
         checkData: function () {
-            console.log(this.filters);
             if (this.enableFilter) {
 
                 if (Object.keys(this.filters).length == 0) {
@@ -661,6 +660,9 @@
                 rowData._pos = i;
                 this._createRow(rowData);
             }
+            if(data){
+                this.dataChanged(data);
+            }
         }
         ,
 
@@ -818,11 +820,24 @@
                 remove._me = this;
 
                 remove.classList.add("fa", "fa-remove");
-
                 remove.addEventListener('click', function (e) {
-                    var data = this._me.data;
-                    data.splice(this._pos, 1);
-                    this._me.update(data);
+
+//                    var data = this._me.data;
+//                    data.splice(this._pos, 1);
+//                    this._me.data = data;
+//                    console.log(this._me.data.length);
+//
+                    var data = [];
+                    for (var i = 0; i < this._me.data.length; i++) {
+                        var row = this._me.data[i];
+                        if (i == this._pos) {
+                            continue;
+                        } else {
+                            data.push(row);
+                        }
+                    }
+                    this._me.data = data;
+//                    this._me.update(data);
                 });
 
                 el.appendChild(remove);
