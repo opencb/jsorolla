@@ -10,7 +10,7 @@
             -moz-user-select: none; /* mozilla browsers */
             -khtml-user-select: none; /* webkit (konqueror) browsers */
             -ms-user-select: none; /* IE10+ */
-
+    
         }
 
         .scrollfix {
@@ -510,6 +510,9 @@
 //                }
             } else {
 
+                if (column.name === "action") {
+                    column.type = "action";
+                }
 
                 if (!column.type) {
                     column.type = 'text';
@@ -592,6 +595,9 @@
                         });
 
                         break;
+                    default:
+                        input = document.createElement("div");
+                        break;
                 }
                 el.appendChild(input);
             }
@@ -653,7 +659,6 @@
             for (var i = 0; data && i < data.length; i++) {
                 var rowData = data[i];
                 rowData._pos = i;
-
                 this._createRow(rowData);
             }
         }
@@ -702,7 +707,6 @@
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
-            // el.rowPos = rowData._pos;
             el._rowData = rowData;
             el.addEventListener('click', function (e) {
                 me.fire('rowclick', {row: rowData});
@@ -787,7 +791,6 @@
                 }
             }
             this.selected = selected;
-
         }
         ,
         _clearSelection: function () {
@@ -809,8 +812,24 @@
             } else {
                 el.style.width = column.width + "px";
             }
+            if (column.name === "action") {
+                var remove = document.createElement("i");
+                remove._pos = rowData._pos;
+                remove._me = this;
 
-            if (column.plainColumns.length > 0) {
+                remove.classList.add("fa", "fa-remove");
+
+                remove.addEventListener('click', function (e) {
+                    var data = this._me.data;
+                    data.splice(this._pos, 1);
+                    this._me.update(data);
+                });
+
+                el.appendChild(remove);
+
+
+            }
+            else if (column.plainColumns.length > 0) {
                 for (var i = 0; i < column.plainColumns.length; i++) {
                     var cEl = document.createElement('div');
                     var c = column.plainColumns[i];
