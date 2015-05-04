@@ -11,14 +11,14 @@
 
 */
 .jso-formbox {
-    border: 1px solid #d3d3d3;
+    border: 1px solid rgba(125, 125, 125, 0.4);
     box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
     margin: 0 5px 10px 5px;
     background-color: #FFFFFF;
 }
 
 .jso-formtitle {
-    border-bottom: 1px solid #dfdfdf;
+    border-bottom: 1px solid rgba(125, 125, 125, 0.3);
     padding: 6px 10px;
     font-size: 16px;
     color: #000;
@@ -116,9 +116,9 @@ label.jso-control > input[type=checkbox]:checked + span:before {
 
 label.jso-control > input[type=radio]:disabled + span,
 label.jso-control > input[type=radio]:disabled + span:before {
-    color: #d3d3d3 !important;
+    color: rgba(125, 125, 125, 0.25); !important;
 }
 
 input[type=text]:disabled {
-    color: #d3d3d3 !important;
+    color: rgba(125, 125, 125, 0.25); !important;
 }

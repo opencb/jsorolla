@@ -1,13 +1,10 @@
-<!--<link rel="import" href="jso-variant-effect-grid.html">-->
-<!--<link rel="import" href="jso-variant-frequencies-grid.html">-->
-<!--<link rel="import" href="jso-variant-stats.html">-->
-<!--<link rel="import" href="jso-variant-phenotype-grid.html">-->
-<!--<link rel="import" href="../jso-genome-viewer-element.html">-->
-
 <link rel="import" href="jso-variant-filter-form.html">
 <link rel="import" href="jso-variant-grid.html">
 
 <link rel="import" href="jso-variant-effect-grid.html">
+<link rel="import" href="jso-variant-frequencies-grid.html">
+<link rel="import" href="jso-variant-phenotype-grid.html">
+<link rel="import" href="jso-variant-stats.html">
 <link rel="import" href="../jso-genome-viewer-element.html">
 
 <dom-module id="jso-variant-browser">
@@ -21,43 +18,42 @@
             overflow-y: scroll;
         }
 
+        .title {
+            font-size: 22px;
+            padding: 5px 20px;
+        }
+
         #right {
             margin-left: 5px;
             margin-right: 5px;
         }
 
-        /*#grid {*/
-        /*position: relative;*/
-        /*box-sizing: border-box;*/
-        /*height: 282px;*/
-        /*}*/
+        #menu {
+            /*border-bottom: 1px solid rgba(125, 125, 125, 0.4);*/
+            margin-top: 15px;
+        }
+
+        #menu > div {
+            font-size: 17px;
+            padding: 5px 5px;
+            margin: 0 20px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.1s;
+            cursor: pointer;
+        }
+
+        #menu > div:hover {
+            border-bottom-color: rgba(125, 125, 125, 0.4);
+        }
+
+        #menu > div[selected] {
+            border-bottom-color: rgba(125, 125, 125, 0.7);
+        }
 
         #tools {
-            margin-top: 10px;
             /*height: calc(100% - 375px);*/
             /*overflow-x: hidden;*/
         }
-
-        .title {
-            font-size: 22px;
-            color: #435f7a;
-            padding: 5px 20px;
-            /*padding:10px 20px;*/
-        }
-
-        /*#dataGridElement {*/
-        /*border-radius: 5px;*/
-        /*padding: 5px;*/
-        /*padding-left: 10px;*/
-        /*padding-right: 10px;*/
-        /*margin: 20px 20px 20px 0px;*/
-        /*background-color: #FFFFFF;*/
-        /*}*/
-
-        /*#tool {*/
-        /*margin-top: 20px;*/
-        /*overflow-y: auto;*/
-        /*}*/
 
         jso-variant-grid,
         jso-genome-viewer-element,
@@ -67,7 +63,7 @@
 
     </style>
     <template>
-        <div class="title">
+        <div class="title color-2">
             <span>{{file.attributes.variantSource.studyName}}</span>
             <i class="fa fa-angle-right"></i>
             <span>{{file.name}}</span>
@@ -78,11 +74,22 @@
                 <jso-variant-grid url="{{url}}" file="{{file}}"
                                   on-rowclick="handleRowClick"></jso-variant-grid>
 
-                <div id="tools">
-                    <jso-variant-effect-grid id="effect"></jso-variant-effect-grid>
-                    <br>
-                    <jso-genome-viewer-element id="gv"></jso-genome-viewer-element>
+                <div id="menu" class="color-2 color-hover-2 horizontal layout">
+                    <div on-click="handleMenuClick" data-option="gv">Genomic context</div>
+                    <div on-click="handleMenuClick" data-option="frequency">Frequencies</div>
+                    <div on-click="handleMenuClick" data-option="phenotype">Phenotype</div>
+                    <div on-click="handleMenuClick" data-option="effect">Effect</div>
+                    <div on-click="handleMenuClick" data-option="stats">Stats</div>
+                </div>
 
+                <br>
+
+                <div id="tools">
+                    <jso-genome-viewer-element id="gv"></jso-genome-viewer-element>
+                    <jso-variant-frequencies-grid id="frequency" hidden></jso-variant-frequencies-grid>
+                    <jso-variant-phenotype-grid id="phenotype" hidden></jso-variant-phenotype-grid>
+                    <jso-variant-effect-grid id="effect" hidden></jso-variant-effect-grid>
+                    <jso-variant-stats id="stats" hidden></jso-variant-stats>
                 </div>
             </div>
         </div>
@@ -304,7 +311,7 @@
         <!--</core-menu>-->
 
         <!--<div id="tools" vertical layout>-->
-        <!--&lt;!&ndash;<div hidden?="{{ selectedTab != 0}}" id="genomeViewer"></div>&ndash;&gt;-->
+        <!--<div hidden?="{{ selectedTab != 0}}" id="genomeViewer"></div>-->
         <!--<jso-genome-viewer-element id="gvEl" hidden?="{{ selectedTab != 0}}"></jso-genome-viewer-element>-->
         <!--<jso-variant-effect-grid hidden?="{{ selectedTab != 1}}"-->
         <!--variant="{{ variantEffect }}"></jso-variant-effect-grid>-->
@@ -326,6 +333,10 @@
                 },
                 file: {
                     type: Object
+                },
+                selectedMenuTool: {
+                    type: Object,
+                    observer: 'selectedMenuChanged'
                 }
             },
             created: function () {
@@ -338,97 +349,32 @@
                 }.bind(this));
                 observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
             },
-//            parseFunction: null,
-//            species: 'Homo sapiens',
-//            jobItem: null,
-//            args: null,
-//            selectedTab: 2,
-//            variantEffect: null,
+            ready: function () {
+                this.selectedMenuTool = this.$.menu.querySelector('div');
+            },
+            selectedMenuChanged: function (neo, old) {
+                if (old) {
+                    old.removeAttribute('selected');
+                    this.$[old.dataset.option].setAttribute('hidden', '');
+                }
+                if (neo) {
+                    neo.setAttribute('selected', '');
+                    this.$[neo.dataset.option].removeAttribute('hidden');
+                }
+            },
+            handleMenuClick: function (e) {
+                this.selectedMenuTool = e.currentTarget;
+            },
             handleRowClick: function (e) {
                 this.$.gv.genomeViewer.setRegion(e.detail.row);
                 this.$.effect.row = e.detail.row;
+                this.$.frequency.row = e.detail.row;
+                this.$.phenotype.row = e.detail.row;
+                this.$.stats.row = e.detail.row;
             },
             _old_ready: function () {
                 var me = this;
 
-                this.columns = [
-                    {
-                        name: 'variant',
-                        title: "Variant",
-                        formula: function (row) {
-                            return row.chromosome + ":" + row.start;
-
-                        }
-                    },
-                    {
-                        name: 'alleles',
-                        title: 'Alleles',
-                        formula: function (row) {
-                            return row.reference + ">" + row.alternate;
-                        }
-                    },
-                    {name: 'snpId', title: 'SNP Id'},
-                    {
-                        name: 'samples',
-                        title: 'Samples',
-                        cellTemplate: 'samplesCellTemplate',
-                        headerTemplate: 'samplesHeaderTemplate',
-                        formula: function (row) {
-                            return row.sourceEntries[me.studyId + "_" + me.fileId].samplesData;
-                        }
-                    },
-                    {name: 'genes', title: 'Genes'},
-                    {name: 'ct', title: 'Conseq. Type'},
-                    {name: 'sift', title: 'SIFT'},
-                    {name: 'polyphen', title: 'POLYPHEN'},
-                    {name: 'phenotype', title: 'Phenotype'}
-                ];
-
-                this.parseFunction = function (data) {
-
-                    if (data.length == 0) {
-                        return;
-                    }
-
-                    for (var i = 0; i < data.length; i++) {
-                        var variant = data[i];
-
-                        var ctsAux = {};
-                        var genesAux = {};
-
-                        for (var j = 0; j < variant.annotation.consequenceTypes.length; j++) {
-                            var ct = variant.annotation.consequenceTypes[j];
-                            if (ct.soname != null) {
-                                ctsAux[ct.soname] = true;
-                            }
-                        }
-
-                        for (var j = 0; j < variant.annotation.xrefs.length; j++) {
-                            var xref = variant.annotation.xrefs[j];
-
-                            if (xref.src == "HGNC") {
-                                genesAux[xref.id] = true;
-                            }
-
-                        }
-
-
-                        var cts = Object.keys(ctsAux);
-                        if (cts.length > 0) {
-                            variant.ct = cts.join(",");
-                        }
-                        var genes = Object.keys(genesAux);
-                        if (genes.length > 0) {
-                            variant.genes = genes.join(",");
-                        }
-                    }
-
-//                    me._getPhenotypes(data);
-//                    me._getGenes(data);
-                    me._getSNPId(data);
-
-                    return data;
-                }
             },
             _getConsequenceTypes: function (data) {
                 var variants = [];

@@ -3,7 +3,7 @@
         :host {
             display: block;
             position: relative;
-            border: 1px solid #d3d3d3;
+            border: 1px solid rgba(125, 125, 125, 0.4);
             font-size: 13px;
 
             -webkit-user-select: none; /* webkit (safari, chrome) browsers */
@@ -62,7 +62,7 @@
 
         .table-header-field > .name {
             box-sizing: border-box;
-            cursor: pointer;
+            /*cursor: pointer;*/
             text-align: center;
             padding: 7px 0;
             white-space: nowrap;
@@ -72,7 +72,7 @@
 
         .table-header-field > .sub {
             box-sizing: border-box;
-            cursor: pointer;
+            /*cursor: pointer;*/
             text-align: center;
             border-top: 1px solid #d3d3d3;
         }
@@ -229,7 +229,7 @@
             },
             request: {
                 type: Object,
-                observer: 'requestChanged',
+                observer: 'requestChanged'
             },
             enableRemote: {
                 type: Boolean,
@@ -644,8 +644,7 @@
                     this._processColumn(col, x);
                 }
             }
-        }
-        ,
+        },
 
         update: function (data) {
             while (this.$.list.firstChild) {
@@ -656,12 +655,10 @@
                 rowData._pos = i;
                 this._createRow(rowData);
             }
-            if (data) {
-                this.dataChanged(data);
-            }
-        }
-        ,
-
+//            if(data){
+//                this.dataChanged(data);
+//            }
+        },
         _createHeaderRow: function () {
             var el = document.createElement('div');
             el.classList.add('table-header-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -672,8 +669,8 @@
             }
 
             this.$.header.appendChild(el);
-        }
-        ,
+        },
+
         _createHeaderField: function (rowEl, column) {
             var el = document.createElement('div');
             el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table');
@@ -698,8 +695,7 @@
                 el.appendChild(subColumnsEl);
             }
             rowEl.appendChild(el);
-        }
-        ,
+        },
 
         _createRow: function (rowData) {
             var me = this;
@@ -745,8 +741,8 @@
                 this._createField(el, column, rowData);
             }
             this.$.list.appendChild(el);
-        }
-        ,
+        },
+
         _toggleSelected: function (domElem, rowData) {
 
             var selected = this.selected;
@@ -765,8 +761,8 @@
             console.log(this.selected);
             domElem.classList.toggle("selected");
             this.lastSelectedRow = domElem;
-        }
-        ,
+        },
+
         _selectRowsBetweenIndexes: function (first, last) {
 
             var rows = this.$.list.getElementsByClassName("table-row");
@@ -789,8 +785,8 @@
                 }
             }
             this.selected = selected;
-        }
-        ,
+        },
+
         _clearSelection: function () {
 
             var rows = this.$.list.getElementsByClassName("table-row");
@@ -799,8 +795,8 @@
                 var obj = rows[i];
                 obj.classList.remove("selected");
             }
-        }
-        ,
+        },
+
         _createField: function (rowEl, column, rowData) {
 
             var el = document.createElement('div');
@@ -868,8 +864,8 @@
                 el.innerHTML = value != null ? value : defValue;
             }
             rowEl.appendChild(el);
-        }
-        ,
+        },
+
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 obj = obj[path[i]];
