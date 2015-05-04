@@ -509,10 +509,6 @@
 //                }
             } else {
 
-                if (column.name === "action") {
-                    column.type = "action";
-                }
-
                 if (!column.type) {
                     column.type = 'text';
                 }
@@ -660,7 +656,7 @@
                 rowData._pos = i;
                 this._createRow(rowData);
             }
-            if(data){
+            if (data) {
                 this.dataChanged(data);
             }
         }
