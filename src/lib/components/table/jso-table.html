@@ -519,10 +519,6 @@
 //                }
             } else {
 
-                if (column.name === "action") {
-                    column.type = "action";
-                }
-
                 if (!column.type) {
                     column.type = 'text';
                 }
@@ -673,7 +669,6 @@
 //                this.dataChanged(data);
 //            }
         },
-
         _createHeaderRow: function () {
             var el = document.createElement('div');
             el.classList.add('table-header-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
