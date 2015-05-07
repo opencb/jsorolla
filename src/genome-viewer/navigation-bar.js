@@ -31,7 +31,7 @@ function NavigationBar(args) {
     this.target;
     this.autoRender = true;
 
-    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     this.species = 'Homo sapiens';
