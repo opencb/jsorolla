@@ -93,7 +93,7 @@
 <script src="../lib/opencga-manager.js"></script>
 
 <polymer-element name="jso-network-viewer"
-                 attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies jsoHeader lite">
+                 attributes="hideBar hideToolBar hideEditionBar hideStatusBar userData selectedStudy studies jsoHeader lite">
     <template>
         <style>
             :host {
@@ -272,11 +272,12 @@
 
                 ></jso-nv-layout>
 
-        <jso-nv-status-bar networkViewer="{{}}">
+        <jso-nv-status-bar hidden?="{{hideStatusBar == 'true'}}" networkViewer="{{}}">
         </jso-nv-status-bar>
 
         <div class="right-side">
             <jso-attribute-node-render
+                    hidden
                     id="nodeRender"
                     attributeManager="{{vAttr}}"
                     defaults="{{vertexDefaults}}"
@@ -299,6 +300,7 @@
             </jso-attribute-node-render>
 
             <jso-attribute-edge-render
+                    hidden
                     id="edgeRender"
                     attributeManager="{{eAttr}}"
                     defaults="{{edgeDefaults}}"
@@ -525,6 +527,20 @@
                 });
             },
             domReady: function () {
+                var h = 126;
+                if (this.hideBar == 'true') {
+                    h -= 30;
+                }
+                if (this.hideToolBar == 'true') {
+                    h -= 32;
+                }
+                if (this.hideEditionBar == 'true') {
+                    h -= 32;
+                }
+                if (this.hideStatusBar == 'true') {
+                    h -= 28;
+                }
+                this.$.networkLayout.style.height = "calc(100% - " + h + "px)";
 
             },
             _init: function () {
@@ -2190,7 +2206,7 @@
             loadSif: function (sifString) {
                 var graph;
                 var adapter = new SIFNetworkDataAdapter({
-                    async:false,
+                    async: false,
                     dataSource: new StringDataSource(sifString),
                     handlers: {
                         'data:load': function (event) {
@@ -2202,12 +2218,11 @@
                     }
                 });
                 this.setGraph(graph);
-                this.setLayout('Force directed');
             },
             loadNodeAttributes: function (attrString) {
                 var attributeManager;
                 varadapter = new AttributeNetworkDataAdapter({
-                    async:false,
+                    async: false,
                     dataSource: new StringDataSource(attrString),
                     handlers: {
                         'data:load': function (event) {
@@ -2223,7 +2238,7 @@
             loadEdgeAttributes: function (attrString) {
                 var attributeManager;
                 varadapter = new AttributeNetworkDataAdapter({
-                    async:false,
+                    async: false,
                     dataSource: new StringDataSource(attrString),
                     handlers: {
                         'data:load': function (event) {

@@ -160,13 +160,13 @@ FormPanel.prototype = {
                 break;
             case 'vbox':
                 this.filtersPanel = Ext.create('Ext.container.Container', {
-                    margin: '20 0 0 0',
+                    margin: '5 0 0 0',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
                     },
                     defaults: {
-                        margin: '20 0 0 0'
+                        margin: '5 0 0 0'
                     }
                 });
                 break;
