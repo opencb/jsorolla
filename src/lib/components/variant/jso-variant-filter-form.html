@@ -121,15 +121,6 @@
                 </div>
             </div>
 
-
-            <!--<div class="jso-formbox">-->
-            <!--<div class="jso-formtitle">-->
-            <!--MAF-->
-            <!--</div>-->
-            <!--<div class="jso-formcontent">-->
-            <!--</div>-->
-            <!--</div>-->
-
             <div class="jso-formbox">
                 <div class="jso-formtitle">
                     Position
@@ -155,8 +146,91 @@
                     <input type="file" hidden id="fileInput" on-change="handleInputChange">
 
                 </div>
+            </div>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">
+                    Population Freqs.
+                </div>
+                <div class="jso-formcontent vertical layout">
 
+                    <div>
+                        <label class="jso">1000G</label>
+                        <input type="text"/>
+                    </div>
 
+                    <div>
+                        <label class="jso">EVS</label>
+                        <input type="text"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jso-formbox">
+                <div class="jso-formtitle">
+                    Protein Substitution Scores
+                </div>
+                <div class="jso-formcontent vertical layout">
+
+                    <div class="horizontal layout">
+                        <label class="jso">SIFT</label>
+                        <select name="sift_op" id="sift_op">
+                            <option value="==">==</option>
+                            <option value="!=">!=</option>
+                            <option value="<" selected><</option>
+                            <option value="<="><=</option>
+                            <option value=">">></option>
+                            <option value=">=">>=</option>
+                        </select>
+                        <input type="text" id="sift" name="sift" flex/>
+                    </div>
+
+                    <div class="horizontal layout">
+                        <label class="jso">Polyphen</label>
+                        <select name="polyphen_op" id="polyphen_op">
+                            <option value="==">==</option>
+                            <option value="!=">!=</option>
+                            <option value="<" selected><</option>
+                            <option value="<="><=</option>
+                            <option value=">">></option>
+                            <option value=">=">>=</option>
+                        </select>
+                        <input type="text" id="polyphen" name="polyphen" flex/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jso-formbox">
+                <div class="jso-formtitle">
+                    Conservation
+                </div>
+                <div class="jso-formcontent vertical layout">
+
+                    <div class="horizontal layout">
+                        <label class="jso">phyloP</label>
+                        <select name="phylop_op" id="phylop_op">
+                            <option value="==">==</option>
+                            <option value="!=">!=</option>
+                            <option value="<" selected><</option>
+                            <option value="<="><=</option>
+                            <option value=">">></option>
+                            <option value=">=">>=</option>
+                        </select>
+                        <input type="text" flex/>
+                    </div>
+
+                    <div class="horizontal layout">
+                        <label class="jso">PhastCons</label>
+                        <select name="phastcons_op" id="phastcons_op">
+                            <option value="==">==</option>
+                            <option value="!=">!=</option>
+                            <option value="<" selected><</option>
+                            <option value="<="><=</option>
+                            <option value=">">></option>
+                            <option value=">=">>=</option>
+                        </select>
+                        <input type="text" flex/>
+                    </div>
+                </div>
             </div>
 
 
@@ -368,23 +442,7 @@
             }
 
 
-//                for (var sample in me.samples) {
-////                        console.log(sample);
-//                    var checkboxName = "GT_" + sample;
-//                    var selectedCheckboxes = this.shadowRoot.querySelectorAll("input[name='" + checkboxName + "']:checked");
-//                    var gtValues = [];
-//                    for (var i = 0; i < selectedCheckboxes.length; i++) {
-//                        var obj = selectedCheckboxes[i];
-//                        gtValues.push(obj.value);
-//                    }
-//                    if (gtValues.length > 0) {
-//                        var aux = me.samples[sample] + ":" + gtValues.join(",");
-//                        genotypes.push(aux);
-//                    }
-//                }
-
             if (genotypes.length > 0) {
-//                query.genotype = genotypes.join(";"); //.replace(new RegExp("\/", "gi"), "%2f");
                 query.genotype = genotypes.join(";").replace(new RegExp("\/", "gi"), "%2f");
             }
 
@@ -399,45 +457,32 @@
                 query["annot-ct"] = cts.join(",");
             }
 
+            // Protein Substitution Scores
+            var sift = parseFloat(this.$.sift.value);
+            var polyphen = parseFloat(this.$.polyphen.value);
+            if (sift) {
+                query.sift = sift;
+            }
+            if (polyphen) {
+                query.polyphen = polyphen;
+            }
+
             var regionQuery = regions.join(",");
-//            if (regionQuery != '') {
             query.region = regionQuery;
-//            }
 
             var geneQuery = this.geneValue.toUpperCase();
             if (geneQuery != '') {
                 query.gene = geneQuery;
             }
 
-//                    if (this.fileName != '') {
-//
-//                        var inputFile = this.$.fileInput.files[0];
-//
-//                        var file = new FileDataSource({
-//                            file: inputFile
-//                        });
-//
-//                        file.on("success", function (data) {
-//
-//
-//
-//                        });
-//                        file.fetch(true);
-//
-//
-//                    } else {
-//                    }
-
-
             console.log(query);
             this.search(query);
         },
 
         search: function (query) {
-//            if (query.region != null && query.region.length > 0) {
             query.sid = Cookies("bioinfo_sid");
 
-            //TODO fix
+            //TODO fsalavert: fix
             query.sessionId = Cookies("bioinfo_sid");
 
             var url = OpencgaManager.files.fetch({
@@ -449,15 +494,54 @@
             });
             this.url = url;
             console.log(url);
-//            }
 
         },
         handleBrowseClick: function (e) {
             this.$.fileInput.click();
+
         },
         handleInputChange: function (e) {
+            var me = this;
             var inputFile = this.$.fileInput.files[0];
-            this.fileName = inputFile.name
+            this.fileName = inputFile.name;
+
+
+            var bedRegions = [];
+
+            if (this.regionValue) {
+                bedRegions = this.regionValue.split(",");
+            }
+
+            if (inputFile != null) {
+
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var lines = data.split("\n");
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        if (line.indexOf("#") < 0 && line != '') {
+                            var fields = line.split("\t");
+                            var chr = fields[0];
+                            var start = parseInt(fields[1]);
+                            var end = parseInt(fields[2]);
+
+                            if (start <= end) {
+                                var r = chr + ":" + start + "-" + end;
+                                bedRegions.push(r);
+                            }
+                        }
+                    }
+
+                    me.regionValue = bedRegions.join(",");
+                    inputFile = null;
+                    me.fileName = "Choose file...";
+
+                };
+                reader.readAsText(inputFile);
+
+            }
         }
     });
 </script>
