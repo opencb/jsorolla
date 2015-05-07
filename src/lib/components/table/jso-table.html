@@ -10,7 +10,6 @@
             -moz-user-select: none; /* mozilla browsers */
             -khtml-user-select: none; /* webkit (konqueror) browsers */
             -ms-user-select: none; /* IE10+ */
-
         }
 
         .scrollfix {
@@ -58,6 +57,12 @@
             /*white-space: nowrap;*/
             /*overflow: hidden;*/
             /*text-overflow: ellipsis;*/
+            cursor: pointer;
+        }
+
+        .table-header-field.sort-down > .name:after {
+            font-family: 'FontAwesome';
+            content: '\f107';
         }
 
         .table-header-field > .name {
@@ -93,6 +98,15 @@
 
         .table-pager > * {
             margin: 0 3px;
+        }
+
+        .table-bbar {
+            position: relative;
+            box-sizing: border-box;
+            border-top: 1px solid #d3d3d3;
+            background-color: #fafafa;
+            color: #666;
+            padding: 5px;
         }
 
         .table-body {
@@ -185,7 +199,9 @@
             <div class="jso-txt">of</div>
             <div class="jso-txt">{{totalItems}}</div>
         </div>
-        <div>Total:<span>{{totalItems}}</span></div>
+
+
+        <div hidden$="{{enablePaging}}" class="table-bbar">Total:<span>{{totalItems}}</span></div>
 
 
     </template>
@@ -672,6 +688,8 @@
         },
 
         _createHeaderField: function (rowEl, column) {
+            var me = this;
+
             var el = document.createElement('div');
             el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table');
             if (isNaN(column.width)) {
@@ -679,6 +697,8 @@
             } else {
                 el.style.width = column.width + "px";
             }
+
+            el._column = column;
 
             var nameEl = document.createElement('div');
             nameEl.classList.add('name', 'style-scope', 'jso-table');
@@ -693,8 +713,28 @@
                     this._createHeaderField(subColumnsEl, subColumn);
                 }
                 el.appendChild(subColumnsEl);
+            } else {
+                el.addEventListener('click', this.handleHeaderFieldClick.bind(this));
             }
             rowEl.appendChild(el);
+        },
+
+        handleHeaderFieldClick: function (e) {
+            var els = this.querySelectorAll('.table-header-field');
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                el.classList.remove('sort-down');
+            }
+
+
+            var column = e.currentTarget._column;
+            var sortedData = this.data.slice(0);
+
+            sortedData.sort(function (a, b) {
+                return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
+            });
+            this.data = sortedData;
+            e.currentTarget.classList.add('sort-down');
         },
 
         _createRow: function (rowData) {

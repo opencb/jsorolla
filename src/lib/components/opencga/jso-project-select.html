@@ -37,7 +37,7 @@
                 <label class="jso">Projects:</label>
 
                 <div class="selbox" id="projects">
-                    <template is="x-repeat" items="{{projects}}">
+                    <template is="dom-repeat" items="{{projects}}">
                         <div class="project-item" on-click="handleProjectClick" data-id$="{{item.id}}">
                             <span>{{item.name}}</span>
                         </div>

@@ -96,7 +96,7 @@
                         <div class="segregation segregationValue flex">. / .</div>
                     </div>
                     <div id="segregation" class="vertical layout">
-                        <template is="x-repeat" items="{{samples}}">
+                        <template is="dom-repeat" items="{{samples}}">
                             <div class="horizontal layout">
                                 <div class="segregation sampleName">{{item}}</div>
                                 <label class="jso-control flex">
@@ -239,7 +239,7 @@
                     Consequence Type
                 </div>
                 <div id="consequenceTypes" class="jso-formcontent">
-                    <template is="x-repeat" items="{{consequenceTypes}}">
+                    <template is="dom-repeat" items="{{consequenceTypes}}">
                         <label class="jso-control">
                             <input value="{{item.value}}" type="checkbox" name="consequence_type">
                             <span>{{item.name}}</span>

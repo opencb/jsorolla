@@ -20,6 +20,7 @@
             </div>
         */
         :host {
+            display: block;
             position: relative;
             box-sizing: border-box;
             height: 100%;
@@ -122,6 +123,11 @@
             display: none;
         }
 
+        .container {
+            position: relative;
+            height: calc(100% - 64px);
+        }
+
     </style>
     <template>
         <div class="header horizontal layout">
@@ -131,7 +137,7 @@
                 <div hidden$="{{!closable}}" class="headerclose"></div>
             </div>
         </div>
-        <div class="container vertical layout flex">
+        <div class="container">
             <content select=".container"></content>
         </div>
         <div class="footer">
@@ -143,10 +149,10 @@
     Polymer({
         is: "jso-panel",
         properties: {
-            closable:{
-                type:Boolean,
+            closable: {
+                type: Boolean,
                 reflectToAttribute: true,
-                value:false
+                value: false
             }
         },
         hostAttributes: {

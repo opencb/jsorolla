@@ -37,7 +37,7 @@
             <div class="creationDate">Creation date</div>
             <div class="status">Status</div>
         </div>
-        <template is="x-repeat" items="{{files}}" filter="isVariantFile" observe="type">
+        <template is="dom-repeat" items="{{files}}" filter="isVariantFile" observe="type">
             <jso-opencga-folder-list-item file="{{item}}" on-click="handleSelect">
             </jso-opencga-folder-list-item>
         </template>
