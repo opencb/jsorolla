@@ -188,11 +188,11 @@ HeaderWidget.prototype = {
         $(this.els.logout).click(function () {
             OpencgaManager.users.req({
                 path: {
-                    id: $.cookie('bioinfo_user'),
+                    id: Cookies('bioinfo_user'),
                     action: 'logout'
                 },
                 query: {
-                    sid: $.cookie('bioinfo_sid')
+                    sid: Cookies('bioinfo_sid')
                 },
                 request: {
                     success: _this.logoutSuccess,
@@ -201,11 +201,9 @@ HeaderWidget.prototype = {
                 }
             });
 
-            //Se borran todas las cookies por si acaso
-            $.cookie('bioinfo_sid', null);
-            $.cookie('bioinfo_sid', null, {path: '/'});
-            $.cookie('bioinfo_user', null);
-            $.cookie('bioinfo_user', null, {path: '/'});
+            //Delete all cookies
+            Cookies.expire('bioinfo_sid');
+            Cookies.expire('bioinfo_user');
             _this.sessionFinished();
             _this.trigger('logout', {sender: this});
 
@@ -267,7 +265,7 @@ HeaderWidget.prototype = {
         this.profileWidget.draw();
         this.opencgaBrowserWidget.draw();
 
-        if ($.cookie('bioinfo_sid') != null) {
+        if (Cookies('bioinfo_sid') != null) {
             this.sessionInitiated();
         } else {
             this.sessionFinished();
@@ -620,17 +618,15 @@ HeaderWidget.prototype = {
         if (this.userData != null) {
             lastActivity = this.userData.lastActivity;
         }
-        if (!$.cookie('bioinfo_user')) {
+        var user = Cookies('bioinfo_user');
+        if (!user) {
             console.log('cookie: bioinfo_user, is not set, session will be finished...');
             this.sessionFinished();
         } else {
-            OpencgaManager.users.req({
-                path: {
-                    id: $.cookie('bioinfo_user'),
-                    action: 'info'
-                },
+            OpencgaManager.users.read({
+                id: user,
                 query: {
-                    sid: $.cookie('bioinfo_sid'),
+                    sid: Cookies('bioinfo_sid'),
                     lastActivity: lastActivity
                 },
                 request: {
@@ -642,7 +638,7 @@ HeaderWidget.prototype = {
 
     },
     _getUserText: function () {
-        var nameToShow = $.cookie('bioinfo_user');
+        var nameToShow = Cookies('bioinfo_user');
         if (nameToShow.indexOf('anonymous_') != -1) {
             nameToShow = 'anonymous';
         }
