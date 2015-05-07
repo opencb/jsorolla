@@ -54,7 +54,7 @@
             <div class="name flex" on-click="handleClick" on-dblclick="handleDblclick">{{project.name}}</div>
         </div>
         <div hidden$="{{!open}}">
-            <template is="x-repeat" items="{{project.studies}}">
+            <template is="dom-repeat" items="{{project.studies}}">
                 <jso-opencga-study-tree
                         on-click="handleStudyClick"
                         study="{{item}}">

@@ -26,6 +26,7 @@
 
         #main {
             position: relative;
+            height: calc(100% - 30px);
         }
 
         #mainmenu {
@@ -55,7 +56,6 @@
             border-left: 1px solid rgba(130, 130, 130, 0.4);;
             word-wrap: break-word;
         }
-
 
         .project-menu-item {
 
@@ -97,9 +97,9 @@
                 </div>
             </div>
 
-            <div id="main" class="container flex horizontal layout">
+            <div id="main" class="container flex">
                 <div id="mainmenu">
-                    <template is="x-repeat" items="{{projects}}">
+                    <template is="dom-repeat" items="{{projects}}">
                         <jso-opencga-project-tree on-click="handleProjectTreeClick"
                                                   project="{{item}}">
                         </jso-opencga-project-tree>

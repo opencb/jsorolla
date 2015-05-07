@@ -45,9 +45,9 @@
                 <label class="jso">Studies:</label>
 
                 <div class="selbox" id="projects">
-                    <template is="x-repeat" items="{{projects}}">
+                    <template is="dom-repeat" items="{{projects}}">
                         <div class="project-item" on-click="handleProjectClick">{{item.name}}</div>
-                        <template is="x-repeat" items="{{item.studies}}">
+                        <template is="dom-repeat" items="{{item.studies}}">
                             <div class="study-item" on-click="handleStudyClick"
                                  data-id$="{{item.id}}"><span>{{item.name}}</span>
                             </div>
