@@ -360,11 +360,8 @@ LoginWidget.prototype.register = function () {
 
 LoginWidget.prototype.sendRecover = function () {
     if (this.checkUserId() && this.checkemail()) {
-        OpencgaManager.users.req({
-            path: {
-                id: this.getLogin(),
-                action: 'reset-password'
-            },
+        OpencgaManager.users.resetPassword({
+            id: this.getLogin(),
             query: {
                 email: this.getEmail()
             },

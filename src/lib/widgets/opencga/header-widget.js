@@ -186,18 +186,14 @@ HeaderWidget.prototype = {
             _this.loginWidget.show();
         });
         $(this.els.logout).click(function () {
-            OpencgaManager.users.req({
-                path: {
-                    id: Cookies('bioinfo_user'),
-                    action: 'logout'
-                },
+            OpencgaManager.users.logout({
+                id: Cookies('bioinfo_user'),
                 query: {
                     sid: Cookies('bioinfo_sid')
                 },
                 request: {
                     success: _this.logoutSuccess,
                     error: _this.logoutSuccess
-
                 }
             });
 
