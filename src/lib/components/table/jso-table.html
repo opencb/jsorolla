@@ -846,7 +846,9 @@
             } else {
                 el.style.width = column.width + "px";
             }
-            if (column.name === "action") {
+            if (column.type === "action") {
+                el.style.width = "50px";
+
                 var remove = document.createElement("i");
                 remove._pos = rowData._pos;
                 remove._me = this;
@@ -905,12 +907,28 @@
             }
             rowEl.appendChild(el);
         },
-
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 obj = obj[path[i]];
             }
             return obj;
+        },
+        contains: function(searchElem, compareFunction){
+            var cmp = function(a,b){
+                return a===b;
+            }
+
+            if(compareFunction && typeof(compareFunction) === "function"){
+                    cmp = compareFunction;
+            }
+
+            for(var i = 0; i< this.data.length; i++){
+                var elem = this.data[i];
+                if(cmp(searchElem, elem)){
+                    return true;
+                }
+            }
+            return false;
         }
     })
 </script>
