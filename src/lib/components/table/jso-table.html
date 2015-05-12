@@ -675,6 +675,9 @@
 //                this.dataChanged(data);
 //            }
         },
+        refresh: function () {
+            this.update(this.data);
+        },
         _createHeaderRow: function () {
             var el = document.createElement('div');
             el.classList.add('table-header-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -685,7 +688,8 @@
             }
 
             this.$.header.appendChild(el);
-        },
+        }
+        ,
 
         _createHeaderField: function (rowEl, column) {
             var me = this;
@@ -717,7 +721,8 @@
                 el.addEventListener('click', this.handleHeaderFieldClick.bind(this));
             }
             rowEl.appendChild(el);
-        },
+        }
+        ,
 
         handleHeaderFieldClick: function (e) {
             var els = this.querySelectorAll('.table-header-field');
@@ -735,7 +740,8 @@
             });
             this.data = sortedData;
             e.currentTarget.classList.add('sort-down');
-        },
+        }
+        ,
 
         _createRow: function (rowData) {
             var me = this;
@@ -781,7 +787,8 @@
                 this._createField(el, column, rowData);
             }
             this.$.list.appendChild(el);
-        },
+        }
+        ,
 
         _toggleSelected: function (domElem, rowData) {
 
@@ -801,7 +808,8 @@
             console.log(this.selected);
             domElem.classList.toggle("selected");
             this.lastSelectedRow = domElem;
-        },
+        }
+        ,
 
         _selectRowsBetweenIndexes: function (first, last) {
 
@@ -825,7 +833,8 @@
                 }
             }
             this.selected = selected;
-        },
+        }
+        ,
 
         _clearSelection: function () {
 
@@ -835,7 +844,8 @@
                 var obj = rows[i];
                 obj.classList.remove("selected");
             }
-        },
+        }
+        ,
 
         _createField: function (rowEl, column, rowData) {
 
@@ -872,6 +882,7 @@
                     }
                     this._me.data = data;
 //                    this._me.update(data);
+                    this.fire
                 });
 
                 el.appendChild(remove);
@@ -906,25 +917,27 @@
                 el.innerHTML = value != null ? value : defValue;
             }
             rowEl.appendChild(el);
-        },
+        }
+        ,
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 obj = obj[path[i]];
             }
             return obj;
-        },
-        contains: function(searchElem, compareFunction){
-            var cmp = function(a,b){
-                return a===b;
+        }
+        ,
+        contains: function (searchElem, compareFunction) {
+            var cmp = function (a, b) {
+                return a === b;
             }
 
-            if(compareFunction && typeof(compareFunction) === "function"){
-                    cmp = compareFunction;
+            if (compareFunction && typeof(compareFunction) === "function") {
+                cmp = compareFunction;
             }
 
-            for(var i = 0; i< this.data.length; i++){
+            for (var i = 0; i < this.data.length; i++) {
                 var elem = this.data[i];
-                if(cmp(searchElem, elem)){
+                if (cmp(searchElem, elem)) {
                     return true;
                 }
             }
