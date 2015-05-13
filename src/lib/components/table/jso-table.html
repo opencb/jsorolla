@@ -185,7 +185,7 @@
             <input type="text" class="jso" style="width:80px;" value="{{currentPage::input}}">
 
             <div class="jso-txt">of</div>
-            <div class="jso-txt">{{computePageTotal(pageSize, totalItems)}}</div>
+            <div class="jso-txt">{{computePageTotal(pageSize, itemCount)}}</div>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleNextClick"><i class="fa fa-angle-right"></i></div>
             <div class="jso-btn jso-btn-shdw" on-click="handleLastClick"><i class="fa fa-angle-double-right"></i></div>
@@ -197,11 +197,10 @@
             <div class="jso-txt">-</div>
             <div class="jso-txt">{{pageLastItem}}</div>
             <div class="jso-txt">of</div>
-            <div class="jso-txt">{{totalItems}}</div>
+            <div class="jso-txt">{{itemCount}}</div>
         </div>
 
-
-        <div hidden$="{{enablePaging}}" class="table-bbar">Total:<span>{{totalItems}}</span></div>
+        <div hidden$="{{enablePaging}}" class="table-bbar">Total:<span>{{itemCount}}</span></div>
 
 
     </template>
@@ -221,24 +220,13 @@
             data: {
                 type: Array,
                 notify: true,
-                observer: 'dataChanged',
                 value: function () {
                     return [];
                 }
-            },
-            filteredData: {
-                type: Array,
-                notify: true,
-                observer: 'dataChanged',
-                value: function () {
-                    return [];
-                }
-
             },
             viewData: {
                 type: Array,
                 notify: true,
-                observer: 'viewDataChanged',
                 value: function () {
                     return [];
                 }
@@ -267,18 +255,14 @@
                 observer: 'currentPageChanged',
                 value: 1
             },
-            totalItems: {
-                type: Number,
-                value: 0,
-            },
             pageFirstItem: {
                 type: Number,
-                computed: 'computePageFirstItem(currentPage, pageSize, totalItems)',
+                computed: 'computePageFirstItem(currentPage, pageSize, itemCount)',
                 value: 0
             },
             pageLastItem: {
                 type: Number,
-                computed: 'computePageLastItem(currentPage, pageSize, totalItems)',
+                computed: 'computePageLastItem(currentPage, pageSize, itemCount)',
                 value: 0
             },
             selected: {
@@ -286,17 +270,12 @@
                 notify: true,
                 value: function () {
                     return [];
-                },
-//                reflectToAttribute: true
+                }
             },
             enableSelect: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
-            },
-            multiselect: {
-                type: Boolean,
-                value: false
             },
             lastSelectedRow: {
                 type: Object,
@@ -306,57 +285,158 @@
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
-
             },
             filters: {
                 type: Object,
                 value: function () {
                     return {};
                 }
+            },
+            itemCount: {
+                type: Number,
+                value: 0
+            },
+            pageCount: {
+                type: Number,
+                value: 0
             }
         },
-        created: function () {
-        },
+        observers: ["dataChanged(data.splices)", "viewDataChanged(viewData.splices)"],
         /* OBSERVERS */
         dataChanged: function (neo, old) {
 
-            this.currentPage = 1;
-            this.totalItems = neo.length;
-            this.checkData();
+            for (var i = 0; i < this.data.length; i++) {
+                var row = this.data[i];
+                delete row._filtered;
+            }
+
+            this.refreshPagination();
         },
+        refreshPagination: function () {
+
+            this.currentPage = 1;
+            var count = 0;
+            if (this.data) {
+                this.data.forEach(function (row) {
+                    if (row._filtered || row._filtered == null) {
+                        count++;
+                    }
+                });
+            }
+            this.itemCount = count;
+            this.pageCount = Math.ceil(count / this.pageSize);
+
+            this.filterPage();
+        },
+
+        filterPage: function () {
+
+            var filteredRows = this.enableFilter ? this.data.filter(function (r) {
+                if (r._filtered == undefined) {
+                    return true;
+                }
+                return r._filtered;
+            }) : this.data;
+
+            if (this.enablePaging) {
+
+                var from = (this.currentPage - 1) * this.pageSize;
+                var to = from + this.pageSize;
+
+                this.set('viewData', filteredRows.slice(from, to));
+            } else {
+
+                var viewData = [];
+
+                for (var i = 0; filteredRows && i < filteredRows.length; i++) {
+                    var row = filteredRows[i];
+                    viewData.push(row);
+                }
+
+                this.set('viewData', viewData);
+            }
+        },
+
+        viewDataChanged: function (neo, old) {
+
+            while (this.$.list.firstChild) {
+                this.$.list.removeChild(this.$.list.firstChild);
+            }
+
+            for (var i = 0; this.viewData && i < this.viewData.length; i++) {
+                var rowData = this.viewData[i];
+                this._createRow(rowData);
+            }
+        },
+
+
+        // pagination
+
+        handleFirstClick: function () {
+            this.currentPage = 1;
+        },
+        handlePreviousClick: function () {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
+        },
+        handleNextClick: function () {
+            if (this.currentPage < this.pageCount) {
+                this.currentPage++;
+            }
+        },
+        handleLastClick: function () {
+            this.currentPage = this.pageCount;
+        },
+
+        currentPageChanged: function () {
+            this.currentPage = this.currentPage ? parseInt(this.currentPage) : 0;
+            this.currentPage = this.currentPage < 1 ? 1 : this.currentPage;
+            this.currentPage = this.pageCount > 0 && this.currentPage > this.pageCount ? this.pageCount : this.currentPage;
+            this.filterPage();
+        },
+        pageSizeChanged: function () {
+            this.pagesize = parseInt(this.pagesize);
+            this.refreshPagination();
+        },
+
+
+        computePageFirstItem: function (currentPage, pageSize, itemCount) {
+            return ((currentPage - 1) * pageSize) + 1;
+        },
+        computePageLastItem: function (currentPage, pageSize, itemCount) {
+
+            var end = currentPage * pageSize;
+            if (itemCount < end) {
+                return itemCount;
+            }
+            return end;
+        },
+        computePageTotal: function (pageSize, itemCount) {
+            return Math.ceil(itemCount / pageSize);
+        },
+
+        enablePagingChanged: function (neo, old) {
+            this.refreshPagination();
+        },
+
         enableRemoteChanged: function (neo, old) {
             if (this.request) {
-                this.checkRemote();
+//                this.checkRemote();
             }
         },
         requestChanged: function (neo, old) {
             if (this.currentPage != 1) {
                 this.currentPage = 1;
             } else if (this.request) {
-                this.checkRemote();
+//                this.checkRemote();
             }
         },
-        enablePagingChanged: function (neo, old) {
-            this.checkData();
-        },
-        currentPageChanged: function (neo, old) {
-            this.checkData();
-            if (this.request) {
-                this.checkRemote();
-            }
-        },
-        pageSizeChanged: function (neo, old) {
-            this.checkData();
-            if (this.request) {
-                this.checkRemote();
-            }
-        },
+
         columnsChanged: function (neo, old) {
             this.updateColumns();
-            this.update(this.viewData);
-        },
-        viewDataChanged: function (neo, old) {
-            this.update(neo);
+
+            this.viewDataChanged();
         },
 
         clear: function () {
@@ -364,14 +444,15 @@
             this.viewData = [];
             this.currentPage = 1;
             this.columns = [];
-            this.totalItems = 0;
+//            this.totalItems = 0;
         },
+
         checkRemote: function () {
             var me = this;
             if (this.enableRemote) {
                 this._callRemote(function (resp) {
-                    me.totalItems = me.request.parseTotal(resp);
-                    me.viewData = me.request.parse(resp);
+//                    me.totalItems = me.request.parseTotal(resp);
+//                    me.viewData = me.request.parse(resp);
                 });
             } else {
 //                ...
@@ -404,70 +485,6 @@
             request.send();
             console.log(url)
         },
-        checkData: function () {
-            if (this.enableFilter) {
-
-                if (Object.keys(this.filters).length == 0) {
-                    this.filteredData = this.data;
-                }
-
-                if (this.enablePaging) {
-                    this.viewData = this.filteredData.slice(this.pageFirstItem - 1, this.pageLastItem);
-                    this.$.list.style.height = (30 * this.pageSize) + 'px';
-                } else {
-                    this.viewData = this.filteredData;
-                    this.$.list.style.height = '';
-                }
-            } else {
-                if (this.enablePaging) {
-                    this.viewData = this.data.slice(this.pageFirstItem - 1, this.pageLastItem);
-                    this.$.list.style.height = (30 * this.pageSize) + 'px';
-                } else {
-                    this.viewData = this.data;
-                    this.$.list.style.height = '';
-                }
-            }
-        },
-        handlePreviousClick: function (e) {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-            } else {
-                this.currentPage = 1;
-            }
-        },
-        handleNextClick: function (e) {
-            var lastPage = Math.ceil(this.totalItems / this.pageSize);
-            if (this.currentPage < lastPage) {
-                this.currentPage++;
-            } else {
-                this.currentPage = lastPage;
-            }
-
-        },
-        handleFirstClick: function (e) {
-            this.currentPage = 1;
-
-        },
-        handleLastClick: function (e) {
-            var lastPage = Math.ceil(this.totalItems / this.pageSize);
-
-            this.currentPage = lastPage;
-
-        },
-        computePageFirstItem: function (currentPage, pageSize, totalItems) {
-            return ((currentPage - 1) * pageSize) + 1;
-        },
-        computePageLastItem: function (currentPage, pageSize, totalItems) {
-            var end = currentPage * pageSize;
-            if (totalItems < end) {
-                return totalItems;
-            }
-            return end;
-        },
-        computePageTotal: function (pageSize, totalItems) {
-            return Math.ceil(totalItems / pageSize);
-        },
-
         updateColumns: function () {
             var els = this.$.header.querySelectorAll('.table-header-row');
             for (var i = 0; i < els.length; i++) {
@@ -615,8 +632,6 @@
             rowEl.appendChild(el);
         },
         _applyFilters: function () {
-            var filteredData = [];
-
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 var filtered = true;
@@ -627,22 +642,21 @@
                     switch (filter.type) {
                         case 'text':
                             var value = row[filter.colName].toLowerCase();
-                            match = value.indexOf(filter.query.toLowerCase()) >= 0;
+                            match = (value.indexOf(filter.query.toLowerCase()) >= 0);
                             break;
                         case 'select':
                             var value = row[filter.colName].toLowerCase();
-                            match = value === filter.query.toLowerCase();
+                            match = (value === filter.query.toLowerCase());
                             break;
                     }
                     filtered &= match;
                 }
 
-                if (filtered) {
-                    filteredData.push(row);
-                }
+                row._filtered = filtered;
+
             }
 
-            this.filteredData = filteredData;
+            this.refreshPagination();
         },
 
         _processColumn: function (column, x) {
@@ -660,23 +674,6 @@
                     this._processColumn(col, x);
                 }
             }
-        },
-
-        update: function (data) {
-            while (this.$.list.firstChild) {
-                this.$.list.removeChild(this.$.list.firstChild);
-            }
-            for (var i = 0; data && i < data.length; i++) {
-                var rowData = data[i];
-                rowData._pos = i;
-                this._createRow(rowData);
-            }
-//            if(data){
-//                this.dataChanged(data);
-//            }
-        },
-        refresh: function () {
-            this.update(this.data);
         },
         _createHeaderRow: function () {
             var el = document.createElement('div');
@@ -721,16 +718,13 @@
                 el.addEventListener('click', this.handleHeaderFieldClick.bind(this));
             }
             rowEl.appendChild(el);
-        }
-        ,
-
+        },
         handleHeaderFieldClick: function (e) {
             var els = this.querySelectorAll('.table-header-field');
             for (var i = 0; i < els.length; i++) {
                 var el = els[i];
                 el.classList.remove('sort-down');
             }
-
 
             var column = e.currentTarget._column;
             var sortedData = this.data.slice(0);
@@ -740,9 +734,17 @@
             });
             this.data = sortedData;
             e.currentTarget.classList.add('sort-down');
-        }
-        ,
+        },
+        _getPos: function (row) {
 
+            for (var i = 0; i < this.viewData.length; i++) {
+                var elem = this.viewData[i];
+                if (elem === row) {
+                    return i;
+                }
+            }
+            return -1;
+        },
         _createRow: function (rowData) {
             var me = this;
             var el = document.createElement('div');
@@ -750,13 +752,13 @@
             el._rowData = rowData;
             el.addEventListener('click', function (e) {
                 me.fire('rowclick', {row: rowData});
-
                 var currentTarget = e.currentTarget;
+
+                console.log("Position: " + me._getPos(currentTarget._rowData));
 
                 if (me.enableSelect) {
                     if (e.ctrlKey) {
                         me._toggleSelected(currentTarget, rowData);
-
                     }
                     if (e.button === 0) {
                         if (!e.ctrlKey && !e.shiftKey) {
@@ -766,8 +768,8 @@
 
                         if (e.shiftKey) {
 
-                            var first = parseInt(me.lastSelectedRow._rowData._pos);
-                            var last = parseInt(currentTarget._rowData._pos);
+                            var first = me._getPos(me.lastSelectedRow._rowData);
+                            var last = me._getPos(currentTarget._rowData);
 
                             if (last < first) {
                                 var tmp = last;
@@ -778,8 +780,6 @@
                             me._selectRowsBetweenIndexes(first, last);
                         }
                     }
-//                    me.fire('rowselection', {rows: me.selected});
-
                 }
             });
             for (var i = 0; i < this.columns.length; i++) {
@@ -787,68 +787,58 @@
                 this._createField(el, column, rowData);
             }
             this.$.list.appendChild(el);
-        }
-        ,
+        },
 
         _toggleSelected: function (domElem, rowData) {
 
-            var selected = this.selected;
-
             if (domElem.classList.contains("selected")) {
                 var index = this.selected.indexOf(rowData);
-                if (index > -1) {
-                    selected.splice(index, 1);
+                if (index >= 0) {
+                    this.splice('selected', index, 1);
+                    domElem.classList.remove("selected");
                 }
             } else {
                 if (this.selected.indexOf(rowData) < 0) {
-                    selected.push(rowData);
+                    this.push('selected', rowData);
+                    domElem.classList.add("selected");
                 }
+
             }
-            this.selected = selected;
-            console.log(this.selected);
-            domElem.classList.toggle("selected");
             this.lastSelectedRow = domElem;
-        }
-        ,
-
+        },
         _selectRowsBetweenIndexes: function (first, last) {
-
             var rows = this.$.list.getElementsByClassName("table-row");
-            var selected = this.selected;
+
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
-                var pos = parseInt(obj._rowData._pos);
-
-                var index = selected.indexOf(obj._rowData);
+                var pos = this._getPos(obj._rowData);
+                var index = this.selected.indexOf(obj._rowData);
 
                 if (pos >= first && pos <= last) {
                     obj.classList.add("selected");
                     if (index < 0) {
-                        selected.push(obj._rowData);
+                        this.push('selected', obj._rowData);
                     }
                 } else {
-                    if (index > 0) {
-                        selected.splice(index, 1);
+                    if (index >= 0) {
+                        this.splice('selected', index, 1);
                     }
                 }
             }
-            this.selected = selected;
+
         }
         ,
-
         _clearSelection: function () {
-
             var rows = this.$.list.getElementsByClassName("table-row");
-            this.selected = [];
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
                 obj.classList.remove("selected");
             }
-        }
-        ,
-
+            this.splice('selected', 0, this.selected.length);
+        },
         _createField: function (rowEl, column, rowData) {
 
+            var me = this;
             var el = document.createElement('div');
             el.classList.add('table-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
             if (isNaN(column.width)) {
@@ -857,37 +847,20 @@
                 el.style.width = column.width + "px";
             }
             if (column.type === "action") {
-                el.style.width = "50px";
 
                 var remove = document.createElement("i");
-                remove._pos = rowData._pos;
-                remove._me = this;
 
                 remove.classList.add("fa", "fa-remove");
                 remove.addEventListener('click', function (e) {
 
-//                    var data = this._me.data;
-//                    data.splice(this._pos, 1);
-//                    this._me.data = data;
-//                    console.log(this._me.data.length);
-//
-                    var data = [];
-                    for (var i = 0; i < this._me.data.length; i++) {
-                        var row = this._me.data[i];
-                        if (i == this._pos) {
-                            continue;
-                        } else {
-                            data.push(row);
-                        }
+                    me.fire('removerow', {row: rowData});
+
+                    var pos = me._getPos(rowData);
+                    if (pos >= 0) {
+                        me.splice('data', pos, 1);
                     }
-                    this._me.data = data;
-//                    this._me.update(data);
-                    this.fire
                 });
-
                 el.appendChild(remove);
-
-
             }
             else if (column.plainColumns.length > 0) {
                 for (var i = 0; i < column.plainColumns.length; i++) {

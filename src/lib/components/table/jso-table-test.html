@@ -36,7 +36,7 @@
         }
     var column;
     var data = [];
-        for (var i = 0; i < 500; i++) {
+        for (var i = 0; i < 25; i++) {
             var obj = {};
             obj['i'] = i + 1;
             for (var j = 1; j < columns.length; j++) {
@@ -50,11 +50,12 @@
 
     var table = document.createElement('jso-table');
     table.setAttribute("enable-filter", "");
-    table.setAttribute("selectable", "");
+    table.setAttribute("enable-select", "");
     // table.setAttribute("enable-paging", "");
     //        table.style.height = "500px";
     table.data = data;
     table.columns = columns;
+    table.dataChanged();
     document.body.appendChild(table);
 
 </script>
