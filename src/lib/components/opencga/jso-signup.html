@@ -154,6 +154,7 @@
                             Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
                             Cookies.set('bioinfo_user', response.response[0].result[0].userId);
                             me.createProject(me.userId, me.sid);
+                            me.createMetaProject(me.userId, me.sid);
                         } else {
                             me.message = response.response[0].errorMsg;
                             //Delete all cookies
@@ -198,6 +199,75 @@
                 }
             });
         },
+        createMetaProject: function (userId, sid) {
+            var me = this;
+            this.message = '';
+
+            OpencgaManager.projects.create({
+                query: {
+                    userId: me.user,
+                    sid: me.sid,
+                    name: ".meta",
+                    alias: "meta",
+                    description: "meta",
+                    organization: this.organization
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Project created sucessfully.';
+                            var projectId = response.response[0].result[0].id;
+                            me.createMetaStudy(projectId)
+
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+
+        },
+        createMetaStudy: function (projectId) {
+            var me = this;
+            this.message = '';
+
+            OpencgaManager.studies.create({
+                query: {
+                    sid: me.sid,
+                    name: ".meta",
+                    alias: "meta",
+                    description: "meta",
+                    organization: this.organization,
+                    type: "FAMILY",
+                    projectId: projectId
+
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+
+                            me.user = "";
+                            me.name = "";
+                            me.email = "";
+                            me.organization = "";
+                            me.password = "";
+                            me.check = "";
+
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+        },
         createStudy: function (e) {
             var me = this;
             this.message = '';
@@ -220,14 +290,6 @@
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
 //                            me.message = 'Study created sucessfully.';
                             me.studyId = response.response[0].result[0].id;
-
-
-                            me.user = "";
-                            me.name = "";
-                            me.email = "";
-                            me.organization = "";
-                            me.password = "";
-                            me.check = "";
 
                             me.fire('login', {status: true});
 //                            me.createAnalysis();

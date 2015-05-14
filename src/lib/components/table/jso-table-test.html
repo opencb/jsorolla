@@ -27,24 +27,24 @@
         title: 'i',
         width: 50
     }];
-        for (var i = 0; i < 10; i++) {
-            var name = Utils.randomString(Utils.getRandomInt(10, 30));
-            columns.push({
-                name: "col_" + i,
-                title: "col_" + i
-            });
-        }
+    for (var i = 0; i < 10; i++) {
+        var name = Utils.randomString(Utils.getRandomInt(10, 30));
+        columns.push({
+            name: "col_" + i,
+            title: "col_" + i
+        });
+    }
     var column;
     var data = [];
-        for (var i = 0; i < 25; i++) {
-            var obj = {};
-            obj['i'] = i + 1;
-            for (var j = 1; j < columns.length; j++) {
-                column = columns[j];
-                obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
-            }
-            data.push(obj)
+    for (var i = 0; i < 25; i++) {
+        var obj = {};
+        obj['i'] = i + 1;
+        for (var j = 1; j < columns.length; j++) {
+            column = columns[j];
+            obj[column.name] = Utils.randomString(Utils.getRandomInt(1, 10));
         }
+        data.push(obj)
+    }
     console.log(columns.length);
     console.log(data.length);
 
@@ -55,6 +55,7 @@
     //        table.style.height = "500px";
     table.data = data;
     table.columns = columns;
+
     table.dataChanged();
     document.body.appendChild(table);
 

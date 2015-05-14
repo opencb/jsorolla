@@ -166,9 +166,40 @@
             border-right-width: 0;
         }
 
+        #loading {
+            position: absolute;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+
+            background-color: rgba(125, 125, 125, 0.75);
+            z-index: 2;
+        }
+
+        #loading-text {
+            position: absolute;;
+
+            color: white;
+            top: 50%;
+            left: 50%;
+            font-size: 20pt;
+            padding: 20px;
+            /*background-color: rgba(125, 125, 125, 0.5);*/
+
+        }
 
     </style>
     <template>
+        <div id="loading" hidden$="{{!loading}}">
+
+            <div id="loading-text">
+
+                <i class="fa fa-spinner fa-pulse"></i>
+                Loading
+            </div>
+        </div>
 
         <div class="table-header">
             <div id="header"></div>
@@ -201,7 +232,6 @@
         </div>
 
         <div hidden$="{{enablePaging}}" class="table-bbar">Total:<span>{{itemCount}}</span></div>
-
 
     </template>
 </dom-module>
@@ -299,6 +329,10 @@
             pageCount: {
                 type: Number,
                 value: 0
+            },
+            loading: {
+                type: Boolean,
+                value: false
             }
         },
         observers: ["dataChanged(data.splices)", "viewDataChanged(viewData.splices)"],
@@ -358,7 +392,6 @@
         },
 
         viewDataChanged: function (neo, old) {
-
             while (this.$.list.firstChild) {
                 this.$.list.removeChild(this.$.list.firstChild);
             }
@@ -685,9 +718,7 @@
             }
 
             this.$.header.appendChild(el);
-        }
-        ,
-
+        },
         _createHeaderField: function (rowEl, column) {
             var me = this;
 
@@ -736,7 +767,6 @@
             e.currentTarget.classList.add('sort-down');
         },
         _getPos: function (row) {
-
             for (var i = 0; i < this.viewData.length; i++) {
                 var elem = this.viewData[i];
                 if (elem === row) {
@@ -750,6 +780,10 @@
             var el = document.createElement('div');
             el.classList.add('table-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
             el._rowData = rowData;
+
+            var id = "idRow_" + this._getPos(rowData);
+            el.setAttribute("id", id);
+
             el.addEventListener('click', function (e) {
                 me.fire('rowclick', {row: rowData});
                 var currentTarget = e.currentTarget;
@@ -790,7 +824,6 @@
         },
 
         _toggleSelected: function (domElem, rowData) {
-
             if (domElem.classList.contains("selected")) {
                 var index = this.selected.indexOf(rowData);
                 if (index >= 0) {
@@ -802,7 +835,6 @@
                     this.push('selected', rowData);
                     domElem.classList.add("selected");
                 }
-
             }
             this.lastSelectedRow = domElem;
         },
@@ -825,9 +857,7 @@
                     }
                 }
             }
-
-        }
-        ,
+        },
         _clearSelection: function () {
             var rows = this.$.list.getElementsByClassName("table-row");
             for (var i = 0; i < rows.length; i++) {
@@ -890,15 +920,13 @@
                 el.innerHTML = value != null ? value : defValue;
             }
             rowEl.appendChild(el);
-        }
-        ,
+        },
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 obj = obj[path[i]];
             }
             return obj;
-        }
-        ,
+        },
         contains: function (searchElem, compareFunction) {
             var cmp = function (a, b) {
                 return a === b;
@@ -915,6 +943,9 @@
                 }
             }
             return false;
+        },
+        setLoading: function (loading) {
+            this.loading = loading;
         }
     })
 </script>
