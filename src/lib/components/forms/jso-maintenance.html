@@ -93,7 +93,7 @@
         <div vertical layout center style="">
             <font-awesome icon="wrench"></font-awesome>
             <br>
-            Babelomics 5 uses webservices from EBI (European Bioinformatics Institute) and they are currently down, we will back very soon. Sorry for the inconvenience
+            {{message}}
 
         </div>
         <jso-contact></jso-contact>
@@ -105,6 +105,7 @@
     <script>
         Polymer({
             created: function () {
+                this.message = MAINTENANCE_MSG
             }
 
         })
