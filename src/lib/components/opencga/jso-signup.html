@@ -59,9 +59,9 @@
 
         <form id="form" vertical layout on-keypress="{{handleFormKey}}">
             <label>User ID <span style="font-size: 12px">(Only letters and numbers are permitted)</span></label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
-            <label>Name</label> <input type="text" id="name" value="{{name}}" required>
+            <!--<label>Name</label> <input type="text" id="name" value="{{name}}" required>-->
             <label>e-mail<span style="font-size: 12px">(format: user@example.com)</span></label> <input type="email" id="email" value="{{email}}" required>
-            <label>Organization</label> <input type="text" id="organization" value="{{organization}}" required>
+            <!--<label>Organization</label> <input type="text" id="organization" value="{{organization}}" required>-->
             <label>Password</label> <input type="password" id="password" value="{{password}}" required>
             <label>Check password</label> <input type="password" id="check" value="{{check}}" required>
 
@@ -109,9 +109,9 @@
                 OpencgaManager.users.create({
                     query: {
                         userId: this.user,
-                        name: this.name,
+                        name: this.user,
                         email: this.email,
-                        organization: this.organization,
+                        organization: "",
                         password: CryptoJS.SHA1(this.password).toString()
                     },
                     request: {
