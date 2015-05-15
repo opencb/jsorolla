@@ -136,6 +136,8 @@
             </div>
         </template>
         <!--<template if="{{!loading}}">-->
+        <jso-redirection args="{{relaunchArgs}}" buttonLabel="Prueba"></jso-redirection>
+
         <div id="output" class="output">
 
         </div>
@@ -174,6 +176,15 @@
             },
             jobItemChanged: function (oldV, newV) {
                 var me = this;
+                this.relaunchArgs = {
+                    tool: this.jobItem.toolName
+                };
+                var commandLineArgs = this.jobItem.commandLine.split(" ");
+                for (var i = 0; i < commandLineArgs.length; i++) {
+                    var obj = commandLineArgs[i];
+
+                }
+                debugger
                 this.resultXML = null;
                 this.error = false;
                 this.loading = true;
