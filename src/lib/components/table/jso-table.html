@@ -206,7 +206,7 @@
             <div id="filterRow" hidden$="{{!enableFilter}}"></div>
             <div class="scrollfix"></div>
         </div>
-        <div id="list" class="table-body" enable-paging$="{{!enablePaging}}">
+        <div id="list" class="table-body" enable-paging$="{{!enablePaging}}" on-dragover="allowDrop" on-drop="drop">
         </div>
 
         <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout">
@@ -783,6 +783,9 @@
 
             var id = "idRow_" + this._getPos(rowData);
             el.setAttribute("id", id);
+            el.setAttribute("draggable", "true");
+
+            el.addEventListener('dragstart', this.drag);
 
             el.addEventListener('click', function (e) {
                 me.fire('rowclick', {row: rowData});
@@ -946,6 +949,20 @@
         },
         setLoading: function (loading) {
             this.loading = loading;
+        },
+        allowDrop: function(e){
+            console.log("drag!!!")
+                e.preventDefault();
+        },
+        drop: function(e){
+            e.preventDefault();
+            var data = JSON.parse(e.dataTransfer.getData("rowData"));
+            this.push('data',data);
+
+        },
+        drag: function(e){
+            e.dataTransfer.setData("rowData", JSON.stringify(e.currentTarget._rowData));
+            
         }
     })
 </script>
