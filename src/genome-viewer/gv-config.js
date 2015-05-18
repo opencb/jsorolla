@@ -501,16 +501,16 @@ FEATURE_TYPES = {
         histogramColor: "gray"
     },
     gff2: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return f.featureType.toUpperCase() +
                 ' - <span class="ok">' + f.label + '</span>';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return 'score:&nbsp;<span class="emph">' + f.score + '</span><br>' +
                 'frame:&nbsp;<span class="emph">' + f.frame + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);

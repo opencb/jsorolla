@@ -168,7 +168,7 @@ FileWidget.prototype.draw = function(){
 			
 //			browseBar.add(this.btnBrowse);
 			
-			if($.cookie('bioinfo_sid') != null){
+			if(Cookies('bioinfo_sid') != null){
 				this.sessionInitiated();
 			}else{
 				this.sessionFinished();

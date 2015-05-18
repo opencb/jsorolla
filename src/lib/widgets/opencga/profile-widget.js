@@ -171,7 +171,7 @@ ProfileWidget.prototype = {
             width: 350,
             border: false,
             layout: 'accordion',
-            items: [ changePasswordForm, changeEmailForm],
+            items: [changePasswordForm, changeEmailForm],
             listeners: {
                 tabchange: function () {
                     _this.clearAllFields();
@@ -217,10 +217,10 @@ ProfileWidget.prototype = {
     },
 
     getOldPassword: function () {
-        return $.sha1(Ext.getCmp(this.id + 'fldOld').getValue());
+        return CryptoJS.SHA1(Ext.getCmp(this.id + 'fldOld').getValue()).toString();
     },
     getNewPassword: function () {
-        return $.sha1(Ext.getCmp(this.id + 'fldNew1').getValue());
+        return CryptoJS.SHA1(Ext.getCmp(this.id + 'fldNew1').getValue()).toString();
     },
     getEmail: function () {
         return Ext.getCmp(this.id + 'fldEmail').getValue();
@@ -236,12 +236,12 @@ ProfileWidget.prototype = {
         if (this.checkemail()) {
             OpencgaManager.users.req({
                 path: {
-                    id: $.cookie('bioinfo_user'),
+                    id: Cookies('bioinfo_user'),
                     action: 'change-email'
                 },
                 query: {
                     nemail: this.getEmail(),
-                    sid: $.cookie('bioinfo_sid')
+                    sid: Cookies('bioinfo_sid')
                 },
                 request: {
                     success: this.changeEmailSuccess
@@ -254,13 +254,13 @@ ProfileWidget.prototype = {
         if (this.checkpass()) {
             OpencgaManager.users.req({
                 path: {
-                    id: $.cookie('bioinfo_user'),
+                    id: Cookies('bioinfo_user'),
                     action: 'change-password'
                 },
                 query: {
                     password: this.getOldPassword(),
                     npassword: this.getNewPassword(),
-                    sid: $.cookie('bioinfo_sid')
+                    sid: Cookies('bioinfo_sid')
                 },
                 request: {
                     success: this.changePasswordSuccess

@@ -511,6 +511,7 @@ TrackListPanel.prototype = {
         var mid = this.width / 2;
         this._setPixelBase();
 
+
         $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase});
 

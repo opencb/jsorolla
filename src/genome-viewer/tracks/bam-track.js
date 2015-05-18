@@ -22,7 +22,7 @@
 BamTrack.prototype = new Track({});
 
 function BamTrack(args) {
-    Track.call(this,args);
+    Track.call(this, args);
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
@@ -32,24 +32,77 @@ function BamTrack(args) {
     this.defaultRenderer = this.renderer;
     this.histogramRenderer = new HistogramRenderer();
 
-
-    this.chunksDisplayed = {};
+    this.dataType = 'features';
 
     //set instantiation args, must be last
     _.extend(this, args);
 
-    this.dataType = 'features';
 };
 
-BamTrack.prototype.render = function(targetId){
+
+BamTrack.prototype.clean = function () {
+    this._clean();
+
+//    console.time("-----------------------------------------empty");
+    while (this.svgCanvasFeatures.firstChild) {
+        this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
+    }
+//    console.timeEnd("-----------------------------------------empty");
+};
+
+BamTrack.prototype.updateHeight = function () {
+//    this._updateHeight();
+
+
+    var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
+    this.main.setAttribute('height', renderedHeight);
+
+    //if (this.resizable) {
+    //    if (this.autoHeight == false) {
+    //        $(this.contentDiv).css({'height': this.height});
+    //    } else if (this.autoHeight == true) {
+    //        var x = this.pixelPosition;
+    //        var width = this.width;
+    //        var lastContains = 0;
+    //        for (var i in this.renderedArea) {
+    //            if (this.renderedArea[i].contains({start: x, end: x + width })) {
+    //                lastContains = i;
+    //            }
+    //        }
+    //        var visibleHeight = parseInt(lastContains) + 30;
+    //        $(this.contentDiv).css({'height': visibleHeight + 5});
+    //        this.main.setAttribute('height', visibleHeight);
+    //    }
+    //}
+};
+
+BamTrack.prototype.initializeDom = function (targetId) {
+    this._initializeDom(targetId);
+
+    this.main = SVG.addChild(this.contentDiv, 'svg', {
+        'class': 'trackSvg',
+        'x': 0,
+        'y': 0,
+        'width': this.width
+    });
+    this.svgCanvasFeatures = SVG.addChild(this.main, 'svg', {
+        'class': 'features',
+        'x': -this.pixelPosition,
+        'width': this.svgCanvasWidth
+    });
+    this.updateHeight();
+};
+
+BamTrack.prototype.render = function (targetId) {
     var _this = this;
+
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
-    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
+    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
-    this.dataAdapter.on('data:ready',function(event){
+    this.dataAdapter.on('data:ready', function (event) {
         var features;
         if (event.dataType == 'histogram') {
             _this.renderer = _this.histogramRenderer;
@@ -57,36 +110,33 @@ BamTrack.prototype.render = function(targetId){
         } else {
             _this.renderer = _this.defaultRenderer;
             features = _this._removeDisplayedChunks(event);
+            //features = _this.getFeaturesToRenderByChunk(event);
         }
-        debugger
         _this.renderer.render(features, {
-            svgCanvasFeatures : _this.svgCanvasFeatures,
-            featureTypes:_this.featureTypes,
-            renderedArea:_this.renderedArea,
-            pixelBase : _this.pixelBase,
-            position : _this.region.center(),
-            region : _this.region,
-            width : _this.width,
+            svgCanvasFeatures: _this.svgCanvasFeatures,
+            featureTypes: _this.featureTypes,
+            renderedArea: _this.renderedArea,
+            pixelBase: _this.pixelBase,
+            position: _this.region.center(),
             regionSize: _this.region.length(),
             maxLabelRegionSize: _this.maxLabelRegionSize,
-            pixelPosition : _this.pixelPosition
+            width: _this.width,
+            pixelPosition: _this.pixelPosition,
+            region: _this.region
         });
-
         _this.updateHeight();
-        _this.setLoading(false);
     });
-
 };
 
-BamTrack.prototype.draw = function(){
+BamTrack.prototype.draw = function () {
     var _this = this;
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
-    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset*2;
-    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset*2
+    this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
+    this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 
     this.updateHistogramParams();
-    this.cleanSvg();
+    this.clean();
 
     this.dataType = 'features';
     if (this.histogram) {
@@ -107,18 +157,20 @@ BamTrack.prototype.draw = function(){
                 histogramLogarithm: this.histogramLogarithm,
                 histogramMax: this.histogramMax,
                 interval: this.interval
+            },
+            done: function () {
+                _this.setLoading(false);
             }
         });
-
-        this.invalidZoomText.setAttribute("visibility", "hidden");
-    }else{
-        this.invalidZoomText.setAttribute("visibility", "visible");
+        //this.invalidZoomText.setAttribute("visibility", "hidden");
+    } else {
+        //this.invalidZoomText.setAttribute("visibility", "visible");
     }
     _this.updateHeight();
 };
 
 
-BamTrack.prototype.move = function(disp){
+BamTrack.prototype.move = function (disp) {
     var _this = this;
 
     this.dataType = 'features';
@@ -127,19 +179,19 @@ BamTrack.prototype.move = function(disp){
     }
 
     _this.region.center();
-    var pixelDisplacement = disp*_this.pixelBase;
-    this.pixelPosition-=pixelDisplacement;
+    var pixelDisplacement = disp * _this.pixelBase;
+    this.pixelPosition -= pixelDisplacement;
 
     //parseFloat important
-    var move =  parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
-    this.svgCanvasFeatures.setAttribute("x",move);
+    var move = parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
+    this.svgCanvasFeatures.setAttribute("x", move);
 
     var virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
     var virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
 
-        if(disp>0 && virtualStart < this.svgCanvasLeftLimit){
+        if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -152,12 +204,13 @@ BamTrack.prototype.move = function(disp){
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
-                }
+                },
+                done: function () {}
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
 
-        if(disp<0 && virtualEnd > this.svgCanvasRightLimit){
+        if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
             this.dataAdapter.getData({
                 dataType: this.dataType,
                 region: new Region({
@@ -170,47 +223,53 @@ BamTrack.prototype.move = function(disp){
                     histogramLogarithm: this.histogramLogarithm,
                     histogramMax: this.histogramMax,
                     interval: this.interval
-                }
+                },
+                done: function () {}
             });
-            this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit+this.svgCanvasOffset);
+            this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }
 
     }
 
 };
 
-BamTrack.prototype._removeDisplayedChunks = function(response){
+BamTrack.prototype._removeDisplayedChunks = function (response) {
     //Returns an array avoiding already drawn features in this.chunksDisplayed
+
+    var getChunkId = function (position) {
+        return Math.floor(position / response.chunkSize);
+    };
+    var getChunkKey = function (chromosome, chunkId) {
+        return chromosome + ":" + chunkId + "_" + response.dataType + "_" + response.chunkSize;
+    };
+
     var chunks = response.items;
-    var dataType = response.dataType;
     var newChunks = [];
-//    var chromosome = response.params.chromosome;
 
     var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
-    for ( var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
-        if(this.chunksDisplayed[chunks[i].chunkKey] != true){//check if any chunk is already displayed and skip it
+    for (var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
+        if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
 
             features = []; //initialize array, will contain features not drawn by other drawn chunks
-            for ( var j = 0, lenj =  chunks[i].value.alignments.length; j < lenj; j++) {
+            for (var j = 0, lenj = chunks[i].value.alignments.length; j < lenj; j++) {
                 feature = chunks[i].value.alignments[j];
-                var chrChunkCache = this.dataAdapter.cache[dataType];
 
                 //check if any feature has been already displayed by another chunk
                 displayed = false;
-                featureFirstChunk = chrChunkCache.getChunkId(feature.start);
-                featureLastChunk = chrChunkCache.getChunkId(feature.end);
-                for(var chunkId=featureFirstChunk; chunkId<=featureLastChunk; chunkId++){//loop over chunks touched by this feature
-                    var chunkKey = chrChunkCache.getChunkKey(feature.chromosome, chunkId);
-                    if(this.chunksDisplayed[chunkKey]==true){
+                featureFirstChunk = getChunkId(feature.start);
+                featureLastChunk = getChunkId(feature.end);
+                for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {//loop over chunks touched by this feature
+                    var chunkKey = getChunkKey(feature.chromosome, chunkId);
+                    if (this.chunksDisplayed[chunkKey] == true) {
                         displayed = true;
                         break;
                     }
                 }
-                if(!displayed){
+                if (!displayed) {
                     features.push(feature);
                 }
             }
-            this.chunksDisplayed[chunks[i].chunkKey]=true;
+            this.chunksDisplayed[chunks[i].chunkKey] = true;
             chunks[i].value.alignments = features;//update features array
             newChunks.push(chunks[i]);
         }

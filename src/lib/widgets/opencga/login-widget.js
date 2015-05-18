@@ -384,11 +384,11 @@ LoginWidget.prototype.getEmail = function () {
 };
 
 LoginWidget.prototype.getPassword = function () {
-    return CryptoJS.SHA1(Ext.getCmp(this.fldPasswordId).getValue()).toString()
+    return CryptoJS.SHA1(Ext.getCmp(this.fldPasswordId).getValue()).toString();
 };
 
 LoginWidget.prototype.getPasswordReg = function () {
-    return CryptoJS.SHA1(Ext.getCmp(this.fldNpass1Id).getValue()).toString()
+    return CryptoJS.SHA1(Ext.getCmp(this.fldNpass1Id).getValue()).toString();
 };
 
 //LoginWidget.prototype.draw = function () {

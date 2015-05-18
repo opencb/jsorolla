@@ -36,6 +36,7 @@ function HeaderWidget(args) {
     this.checkTimeInterval = 5000;
     this.version = '';
     this.allowLogin = true;
+    this.allowJobs = true;
     this.width;
     this.height = 60;
     this.chunkedUpload = false;
@@ -71,6 +72,11 @@ HeaderWidget.prototype = {
 //            appLi = '<li id="appMenu" class="menu"> &#9776; </li>';
             appLi = '<li id="appMenu" class="menu">&nbsp;<i class="fa fa-chevron-right"></i>&nbsp; <span class="">Menu</span></li>';
         }
+        var jobsLi = '';
+        if (this.allowJobs) {
+            jobsLi = '<li id="jobs" class="right hidden"><i class="fa fa-tasks"></i> &nbsp;jobs</li>';
+        }
+
         var navgationHtml = '' +
             '   <ul class="ocb-header">' +
             appLi +
@@ -82,14 +88,13 @@ HeaderWidget.prototype = {
             '       </li>' +
             '       <li id="signin" class="right"><i class="fa fa-sign-in"></i> &nbsp;sign in' +
             '       </li>' +
-            '       <li id="jobs" class="right hidden"><i class="fa fa-tasks"></i> &nbsp;jobs' +
-            '       </li>' +
+            appLi +
             '       <li id="profile" class="right hidden"><i class="fa fa-user"></i> &nbsp;profile' +
             '       </li>' +
             '       <li id="upload" class="right hidden"><i class="fa fa-cloud-upload"></i> &nbsp;upload & manage' +
             '       </li>' +
-            '       <li id="projects" class="right hidden"><i class="fa fa-folder"></i> &nbsp;projects' +
-            '       </li>' +
+            //'       <li id="projects" class="right hidden"><i class="fa fa-folder"></i> &nbsp;projects' +
+            //'       </li>' +
             '       <li id="logout" class="right hidden"><i class="fa fa-sign-out"></i> &nbsp;logout' +
             '       </li>' +
             '       <li id="user" class="right hidden text">' +
