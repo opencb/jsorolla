@@ -179,25 +179,29 @@
         }
 
         #loading-text {
-            position: absolute;;
+            position: absolute;
 
             color: white;
             top: 50%;
-            left: 50%;
-            font-size: 20pt;
+            left: calc(50% - 62px);
+            font-size: 16pt;
             padding: 20px;
+            width: 124px;
+
+            /*margin: 0 auto;*/
             /*background-color: rgba(125, 125, 125, 0.5);*/
 
+        }
+
+        datalist {
+            width: 100px;
         }
 
     </style>
     <template>
         <div id="loading" hidden$="{{!loading}}">
-
             <div id="loading-text">
-
-                <i class="fa fa-spinner fa-pulse"></i>
-                Loading
+                <i class="fa fa-spinner fa-pulse"></i><span>{{loadingMsg}}</span>
             </div>
         </div>
 
@@ -332,7 +336,12 @@
             },
             loading: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: 'handleLoading'
+            },
+            loadingMsg: {
+                type: String,
+                value: 'Loading'
             }
         },
         observers: ["dataChanged(data.splices)", "viewDataChanged(viewData.splices)"],
@@ -950,19 +959,22 @@
         setLoading: function (loading) {
             this.loading = loading;
         },
-        allowDrop: function(e){
+        allowDrop: function (e) {
             console.log("drag!!!")
-                e.preventDefault();
+            e.preventDefault();
         },
-        drop: function(e){
+        drop: function (e) {
             e.preventDefault();
             var data = JSON.parse(e.dataTransfer.getData("rowData"));
-            this.push('data',data);
+            this.push('data', data);
 
         },
-        drag: function(e){
+        drag: function (e) {
             e.dataTransfer.setData("rowData", JSON.stringify(e.currentTarget._rowData));
-            
+
+        },
+        handleLoading: function (neo, old) {
+
         }
     })
 </script>
