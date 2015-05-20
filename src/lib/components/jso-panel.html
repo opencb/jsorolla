@@ -28,6 +28,10 @@
             box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
         }
 
+        :host[no-shadow] {
+            box-shadow: none;
+        }
+
         .header {
             text-transform: capitalize;
             -moz-user-select: -moz-none;
@@ -52,9 +56,19 @@
             background-color: rgba(0, 0, 0, 0.20);
         }
 
-        .header > .headeractions > .headerclose:after {
+        .header > .headeractions > .closable:after {
             font-family: FontAwesome;
             content: '\f00d';
+        }
+
+        .header > .headeractions > .collapsible:after {
+            font-family: FontAwesome;
+            content: '\f106';
+        }
+
+        :host[collapsed] > .header > .headeractions > .collapsible:after {
+            font-family: FontAwesome;
+            content: '\f107';
         }
 
         .header > .headeractions > .headerexpand:after {
@@ -83,7 +97,6 @@
             /*height: 31px;*/
             box-sizing: border-box;
             padding: 4px 5px 4px 12px;
-            border-bottom: 1px solid #d4d4d4;
             height: 32px;
             line-height: 21px;
         }
@@ -99,30 +112,6 @@
             margin-left: 2px;
         }
 
-        .header[data-collapsible=true][data-collapsed=true]:after {
-            font-family: FontAwesome;
-            content: "\f107";
-            position: absolute;
-            box-sizing: border-box;
-            line-height: 23px;
-            padding: 0px 5px;
-            right: 10px;
-        }
-
-        .header[data-collapsible=true][data-collapsed=false]:after {
-            font-family: FontAwesome;
-            content: "\f106";
-            position: absolute;
-            box-sizing: border-box;
-            line-height: 23px;
-            padding: 0px 5px;
-            right: 10px;
-        }
-
-        .header[data-collapsible=true][data-collapsed=true] + div {
-            display: none;
-        }
-
         .container {
             position: relative;
             height: calc(100% - 64px);
@@ -130,17 +119,18 @@
 
     </style>
     <template>
-        <div class="header horizontal layout">
+        <div class="header horizontal layout" on-dblclick="handleDblclick">
             <content select=".header"></content>
             <div class="headeractions horizontal layout end-justified flex">
                 <!--<div class="headerexpand"></div>-->
-                <div hidden$="{{!closable}}" class="headerclose"></div>
+                <div hidden$="{{!closable}}" class="closable"></div>
+                <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapse"></div>
             </div>
         </div>
-        <div class="container">
+        <div class="container" hidden$="{{isHidden(collapsible, collapsed)}}">
             <content select=".container"></content>
         </div>
-        <div class="footer">
+        <div class="footer" hidden$="{{isHidden(collapsible, collapsed)}}">
             <content select=".footer"></content>
         </div>
     </template>
@@ -153,10 +143,37 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
+            },
+            collapsible: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
+            },
+            collapsed: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
             }
         },
         hostAttributes: {
             'class': 'vertical layout flex'
+        },
+        isHidden: function (collapsible, collapsed) {
+            if (collapsible && collapsed) {
+                return true;
+            }
+            return false;
+        },
+        handleDblclick: function (e) {
+            this.toggleCollapse();
+        },
+        handleCollapse: function (e) {
+            this.toggleCollapse();
+        },
+        toggleCollapse: function () {
+            if (this.collapsible) {
+                this.collapsed = !this.collapsed;
+            }
         }
     });
 </script>
