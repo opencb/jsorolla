@@ -82,6 +82,9 @@
             return '';
         },
         computeStatus: function (file) {
+            if (file.type == 'FOLDER') {
+                return '--';
+            }
             if (file.index) {
                 return file.index.status;
             }

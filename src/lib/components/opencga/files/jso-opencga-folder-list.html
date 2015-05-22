@@ -70,12 +70,16 @@
         <div id="footer" class="horizontal layout">
             <div class="horizontal layout flex">
 
-            </div>
-            <div class="horizontal layout">
                 <div class="jso-btn jso-btn-shdw"
                      hidden$="{{checkFolder(folder)}}"
                      on-click="handleCreateFolder">
                     <i class="fa fa-folder-o"></i> +
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selected)}}"
+                     on-click="handleOnClickIndex">
+                    <i class="fa fa-cog"></i>&nbsp;Index
                 </div>
             </div>
         </div>
@@ -94,6 +98,8 @@
                 </form>
             </div>
         </jso-panel>
+
+
     </template>
 </dom-module>
 <script>
@@ -114,7 +120,10 @@
             },
             selected: {
                 type: Object,
-                notify: true
+                notify: true,
+                value: function () {
+                    return null;
+                }
             },
             study: {
                 type: Object
@@ -182,6 +191,21 @@
         checkFilters: function (item) {
             return true;
 //            return item.bioformat == "VARIANT";
+        },
+
+        handleHiddenIndex: function (selected) {
+            if (selected == null) {
+                return true;
+            } else {
+                if (selected.type == 'FOLDER') {
+                    return true;
+                }
+            }
+            return selected.index != null;
+        },
+        handleOnClickIndex: function (e) {
+            alert("Index File: " + this.selected.name)
         }
+
     });
 </script>

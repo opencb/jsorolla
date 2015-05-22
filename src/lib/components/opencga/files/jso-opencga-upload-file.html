@@ -1,0 +1,147 @@
+<link rel="import" href="../jso-study-select.html">
+<link rel="import" href="../jso-bioformat.html">
+<dom-module id="jso-opencga-upload-file">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+        jso-study-select{
+            height: 410px;
+        }
+    </style>
+    <template>
+
+
+        <div class="horizontal layout">
+            <div class="flex">
+                <label class="jso">Studies:</label>
+                <jso-study-select id="studySelect" projects="{{projects}}">
+                </jso-study-select>
+            </div>
+            <div class="flex" style="margin-left: 20px;">
+                <label class="jso">Bioformat:</label>
+                <jso-bioformat></jso-bioformat>
+            </div>
+        </div>
+
+
+        <br>
+
+
+        <br>
+
+        <form id="form">
+            <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
+                <span>{{fileName}}</span>
+            </div>
+            <input type="file" hidden id="fileInput" required on-change="handleInputChange"
+                   disabled$="{{uploading}}">
+
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Upload</div>
+            <div class="">{{percentProgress}}</div>
+        </form>
+        </div>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-upload-file",
+        properties: {
+            uploading: {
+                type: Boolean,
+                value: false
+            },
+            fileName: {
+                type: String,
+                value: 'Choose file...'
+            },
+            percentProgress: {
+                type: Number,
+                value: ''
+            },
+            projects: {
+                type: Array,
+                notify: true
+            },
+            disableIndex: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            }
+        },
+        handleBrowseClick: function (e) {
+            this.$.fileInput.click();
+        },
+        handleInputChange: function () {
+            if (this.uploading == false) {
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name
+            }
+        },
+        handleForm: function () {
+            var me = this;
+            if (this.$.studySelect.selectedStudy == null) {
+                alert("Please select a study");
+                return;
+            }
+            var config = {
+                inputFile: this.$.fileInput.files[0],
+                fileName: this.fileName,
+                userId: Cookies("bioinfo_user"),
+                sid: Cookies("bioinfo_sid"),
+                studyId: this.$.studySelect.selectedStudy,
+                relativeFilePath: '' + this.fileName,
+                fileFormat: 'PLAIN',
+                bioFormat: 'VARIANT',
+                description: '',
+                callbackProgress: function (chunk, total, response) {
+                    me.percentProgress = Math.round((chunk.id / total) * 100);
+                    if (chunk.last) {
+                        me.percentProgress = 100;
+                        me.uploading = false;
+
+                        var uploadedFile = response.response[0].result[0];
+                        me.indexFile(uploadedFile);
+                    }
+                }
+            };
+            OpencgaManager.files.upload2(config);
+        },
+        indexFile: function (file) {
+            console.log(file.id);
+
+            if (!this.disableIndex) {
+                OpencgaManager.files.index({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        storageEngine: "mongodb"
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log("index");
+                                console.log(response);
+                            } else {
+                                //                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            } else {
+                console.log("Disabled Index");
+            }
+        },
+        handleClose: function (e) {
+            this.fire("close");
+        }
+    });
+</script>

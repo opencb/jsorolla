@@ -1,5 +1,6 @@
 <link rel="import" href="jso-opencga-project-tree.html">
 <link rel="import" href="jso-opencga-folder-list.html">
+<link rel="import" href="jso-opencga-upload-file.html">
 <dom-module id="jso-opencga-browser">
     <style>
         :host {
@@ -19,8 +20,8 @@
         #botbar {
             box-sizing: border-box;
             height: 30px;
+            padding: 3px 7px;
             line-height: 30px;
-            height: 30px;
         }
 
         #topbar {
@@ -43,6 +44,14 @@
             height: 100%;
             overflow-y: auto;
             border-right: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #mainmenubar {
+            box-sizing: border-box;
+            background-color: rgba(125, 125, 125, 0.1);
+            padding: 3px 7px;
+            height: 30px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
         }
 
         #maincontent {
@@ -85,6 +94,16 @@
             height: 100%;
         }
 
+        #uploadFileModal {
+            width: 600px;
+        }
+
+        #uploadFile {
+            box-sizing: border-box;
+            background-color: #fafafa;
+            padding: 20px 30px;
+        }
+
     </style>
     <template>
         <div id="topbar" class="horizontal layout">
@@ -99,6 +118,12 @@
 
         <div id="main" class="flex">
             <div id="mainmenu">
+                <div id="mainmenubar" class="horizontal layout">
+                    <div class="jso-btn jso-btn-shdw"
+                         on-click="handleUploadFile">
+                        <i class="fa fa-cloud-upload"></i> Upload
+                    </div>
+                </div>
                 <template is="dom-repeat" items="{{projects}}">
                     <jso-opencga-project-tree on-click="handleProjectTreeClick"
                                               project="{{item}}">
@@ -120,11 +145,17 @@
 
 
         <div id="botbar" class="horizontal layout end-justified">
-            <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
-                 on-click="handleOnClickIndex">
-                <i class="fa fa-cog"></i>&nbsp;Index
-            </div>
         </div>
+
+        <jso-panel modal closable hidden id="uploadFileModal">
+            <div class="header">
+                <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
+            </div>
+            <div class="container" id="uploadFile">
+                <jso-opencga-upload-file
+                        ></jso-opencga-upload-file>
+            </div>
+        </jso-panel>
 
     </template>
 
@@ -162,16 +193,11 @@
             files: {
                 type: Array,
                 notify: true
+            },
+            bioformats: {
+                type: Array,
+                notify: true,
             }
-        },
-        handleHiddenIndex: function (selectedFile) {
-            if (selectedFile == null) {
-                return true;
-            }
-            return selectedFile.index != null;
-        },
-        handleOnClickIndex: function (e) {
-            alert("Index File: " + this.selectedFile.name)
         },
         projectsChanged: function (neo, old) {
             if (this.selectedProject == null) {
@@ -214,6 +240,16 @@
         handleFileSelect: function (e) {
             this.selectedFile = e.detail;
         },
+
+
+        handleUploadFile: function (e) {
+            if (this.$.uploadFileModal.hasAttribute('hidden')) {
+                this.$.uploadFileModal.removeAttribute('hidden');
+            } else {
+                this.$.uploadFileModal.setAttribute('hidden', '');
+            }
+        },
+
 
         /* Private methods */
         computeAngleIcon: function (el) {
@@ -258,6 +294,7 @@
                     sid: Cookies('bioinfo_sid'),
 //                    status:'READY,STAGED,MISSING',
                     status: 'READY',
+                    bioformat: this.bioformats.join(','),
                     studyId: studyId
                 },
                 request: {
@@ -265,8 +302,8 @@
                     success: function (response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                            files = me.filterFiles(response.response[0].result);
-                            files = response.response[0].result;
+                            files = me._filterFiles(response.response[0].result);
+//                            files = response.response[0].result;
                             callback(files);
                         } else {
                             console.log(response.response[0].errorMsg);
@@ -277,6 +314,25 @@
                     }
                 }
             });
+        },
+        _filterFiles: function (files) {
+            files.sort(function (a, b) {
+                return b.creationDate.localeCompare(a.creationDate);
+            });
+            var filesFiltered = [];
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                if (Utils.endsWith(file.name, '.snappy')) {
+                    continue;
+                }
+                if (file.bioformat == 'ALIGNMENT'
+                        && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
+                ) {
+                    continue;
+                }
+                filesFiltered.push(file);
+            }
+            return filesFiltered;
         }
     });
 </script>
