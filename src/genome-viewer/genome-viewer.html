@@ -393,26 +393,27 @@ var run = function () {
     tracks.push(this.variant);
 */
 
-    this.variant = new MultisampleTrack({
-        title: 'Alignment+Variant',
-//        featureType: 'mixed',   // FIXME this can explode
-        minHistogramRegionSize: 10000,
-        maxLabelRegionSize: 3000,
-        height: 200,
-        samples: ['34', '87'],
-        featureTypes: ['alignments', 'variants'],
+//    this.variant = new MultisampleTrack({
+//        title: 'Alignment+Variant',
+////        featureType: 'mixed',   // FIXME this can explode
+//        minHistogramRegionSize: 10000,
+//        maxLabelRegionSize: 3000,
+//        height: 200,
+//        samples: ['34', '87'],
+//        featureTypes: ['alignments', 'variants'],
+//
+//        variantRenderer: new VariantRenderer(FEATURE_TYPES.opencgaVariant),
+//        alignmentRenderer: new AlignmentRenderer(FEATURE_TYPES.bam),
+//
+//        dataAdapter: new OpencgaAdapter({
+//            sid: "RNk4P0ttFGHyqLA3YGS8",
+//            cacheConfig: {
+//                defaultChunkSize: 1500,
+//                cacheId: "opencga:alignment"
+//            }
+//        })
+//    });
 
-        variantRenderer: new VariantRenderer(FEATURE_TYPES.opencgaVariant),
-        alignmentRenderer: new AlignmentRenderer(FEATURE_TYPES.bam),
-
-        dataAdapter: new OpencgaAdapter({
-            sid: "RNk4P0ttFGHyqLA3YGS8",
-            cacheConfig: {
-                defaultChunkSize: 1500,
-                cacheId: "opencga:alignment"
-            }
-        })
-    });
 //    tracks.push(this.variant);
 
 //    /***************************************/
