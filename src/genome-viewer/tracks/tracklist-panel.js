@@ -25,7 +25,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     //set default args
@@ -510,6 +510,7 @@ TrackListPanel.prototype = {
         this.width = width - 18;
         var mid = this.width / 2;
         this._setPixelBase();
+
 
         $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase + 2});
         $(this.mouseLine).css({'width': this.pixelBase});

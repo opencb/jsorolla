@@ -36,6 +36,7 @@ function HeaderWidget(args) {
     this.checkTimeInterval = 5000;
     this.version = '';
     this.allowLogin = true;
+    this.allowJobs = true;
     this.width;
     this.height = 60;
     this.chunkedUpload = false;
@@ -71,6 +72,11 @@ HeaderWidget.prototype = {
 //            appLi = '<li id="appMenu" class="menu"> &#9776; </li>';
             appLi = '<li id="appMenu" class="menu">&nbsp;<i class="fa fa-chevron-right"></i>&nbsp; <span class="">Menu</span></li>';
         }
+        var jobsLi = '';
+        if (this.allowJobs) {
+            jobsLi = '<li id="jobs" class="right hidden"><i class="fa fa-tasks"></i> &nbsp;jobs</li>';
+        }
+
         var navgationHtml = '' +
             '   <ul class="ocb-header">' +
             appLi +
@@ -82,14 +88,13 @@ HeaderWidget.prototype = {
             '       </li>' +
             '       <li id="signin" class="right"><i class="fa fa-sign-in"></i> &nbsp;sign in' +
             '       </li>' +
-            '       <li id="jobs" class="right hidden"><i class="fa fa-tasks"></i> &nbsp;jobs' +
-            '       </li>' +
+            appLi +
             '       <li id="profile" class="right hidden"><i class="fa fa-user"></i> &nbsp;profile' +
             '       </li>' +
             '       <li id="upload" class="right hidden"><i class="fa fa-cloud-upload"></i> &nbsp;upload & manage' +
             '       </li>' +
-            '       <li id="projects" class="right hidden"><i class="fa fa-folder"></i> &nbsp;projects' +
-            '       </li>' +
+            //'       <li id="projects" class="right hidden"><i class="fa fa-folder"></i> &nbsp;projects' +
+            //'       </li>' +
             '       <li id="logout" class="right hidden"><i class="fa fa-sign-out"></i> &nbsp;logout' +
             '       </li>' +
             '       <li id="user" class="right hidden text">' +
@@ -186,26 +191,20 @@ HeaderWidget.prototype = {
             _this.loginWidget.show();
         });
         $(this.els.logout).click(function () {
-            OpencgaManager.users.req({
-                path: {
-                    id: $.cookie('bioinfo_user'),
-                    action: 'logout'
-                },
+            OpencgaManager.users.logout({
+                id: Cookies('bioinfo_user'),
                 query: {
-                    sid: $.cookie('bioinfo_sid')
+                    sid: Cookies('bioinfo_sid')
                 },
                 request: {
                     success: _this.logoutSuccess,
                     error: _this.logoutSuccess
-
                 }
             });
 
-            //Se borran todas las cookies por si acaso
-            $.cookie('bioinfo_sid', null);
-            $.cookie('bioinfo_sid', null, {path: '/'});
-            $.cookie('bioinfo_user', null);
-            $.cookie('bioinfo_user', null, {path: '/'});
+            //Delete all cookies
+            Cookies.expire('bioinfo_sid');
+            Cookies.expire('bioinfo_user');
             _this.sessionFinished();
             _this.trigger('logout', {sender: this});
 
@@ -267,7 +266,7 @@ HeaderWidget.prototype = {
         this.profileWidget.draw();
         this.opencgaBrowserWidget.draw();
 
-        if ($.cookie('bioinfo_sid') != null) {
+        if (Cookies('bioinfo_sid') != null) {
             this.sessionInitiated();
         } else {
             this.sessionFinished();
@@ -620,17 +619,15 @@ HeaderWidget.prototype = {
         if (this.userData != null) {
             lastActivity = this.userData.lastActivity;
         }
-        if (!$.cookie('bioinfo_user')) {
+        var user = Cookies('bioinfo_user');
+        if (!user) {
             console.log('cookie: bioinfo_user, is not set, session will be finished...');
             this.sessionFinished();
         } else {
-            OpencgaManager.users.req({
-                path: {
-                    id: $.cookie('bioinfo_user'),
-                    action: 'info'
-                },
+            OpencgaManager.users.read({
+                id: user,
                 query: {
-                    sid: $.cookie('bioinfo_sid'),
+                    sid: Cookies('bioinfo_sid'),
                     lastActivity: lastActivity
                 },
                 request: {
@@ -642,7 +639,7 @@ HeaderWidget.prototype = {
 
     },
     _getUserText: function () {
-        var nameToShow = $.cookie('bioinfo_user');
+        var nameToShow = Cookies('bioinfo_user');
         if (nameToShow.indexOf('anonymous_') != -1) {
             nameToShow = 'anonymous';
         }

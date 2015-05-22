@@ -28,7 +28,7 @@ function KaryotypePanel(args) {
     this.autoRender = true;
     this.id = Utils.genId('KaryotypePanel');
 
-    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     this.pixelBase;

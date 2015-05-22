@@ -41,7 +41,6 @@ function BamRenderer(args) {
 BamRenderer.prototype.render = function (response, args) {
     var _this = this;
 
-
     //CHECK VISUALIZATON MODE
     if (_.isUndefined(response.params)) {
         response.params = {};
@@ -440,21 +439,21 @@ BamRenderer.prototype.render = function (response, args) {
 
     var drawChunk = function (chunk) {
         drawCoverage(chunk.value);
-        var readList = chunk.value.reads;
-        for (var i = 0, li = readList.length; i < li; i++) {
-            var read = readList[i];
+        var alignments = chunk.value.alignments;
+        for (var i = 0, li = alignments.length; i < li; i++) {
+            var alignment = alignments[i];
             if (viewAsPairs) {
-                var nextRead = readList[i + 1];
+                var nextRead = alignments[i + 1];
                 if (nextRead != null) {
-                    if (read.name == nextRead.name) {
-                        drawPairedReads(read, nextRead);
+                    if (alignment.name == nextRead.name) {
+                        drawPairedReads(alignment, nextRead);
                         i++;
                     } else {
-                        drawSingleRead(read);
+                        drawSingleRead(alignment);
                     }
                 }
             } else {
-                drawSingleRead(read);
+                drawSingleRead(alignment);
             }
         }
     };

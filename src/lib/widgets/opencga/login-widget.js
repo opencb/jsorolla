@@ -55,16 +55,14 @@ LoginWidget.prototype = {
             }
             console.log(response);
             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                $.cookie('bioinfo_sid', response.response[0].result[0].sessionId /*,{path: '/'}*/);
-                $.cookie('bioinfo_user', response.response[0].result[0].userId);
+                Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                Cookies.set('bioinfo_user', response.response[0].result[0].userId);
                 _this.trigger('session:initiated', {sender: _this});
             } else {
                 Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.response[0].errorMsg + '</span>', false);
                 //Delete all cookies
-                $.cookie('bioinfo_sid', null);
-                $.cookie('bioinfo_sid', null, {path: '/'});
-                $.cookie('bioinfo_user', null);
-                $.cookie('bioinfo_user', null, {path: '/'});
+                Cookies.expire('bioinfo_sid');
+                Cookies.expire('bioinfo_user');
             }
         };
 
@@ -76,11 +74,9 @@ LoginWidget.prototype = {
                 Ext.getCmp(_this.labelEmailId).setText('<span class="ok">' + userId + ' created</span>', false);
             } else {
                 Ext.getCmp(_this.labelEmailId).setText('<span class="err">' + response.response[0].errorMsg + '</span>', false);
-                //Delete cookies
-                $.cookie('bioinfo_sid', null);
-                $.cookie('bioinfo_sid', null, {path: '/'});
-                $.cookie('bioinfo_user', null);
-                $.cookie('bioinfo_user', null, {path: '/'});
+                //Delete all cookies
+                Cookies.expire('bioinfo_sid');
+                Cookies.expire('bioinfo_user');
             }
         };
 
@@ -147,7 +143,7 @@ LoginWidget.prototype = {
                 {
                     id: this.id + "userId",
                     xtype: 'textfield',
-                    value: $.cookie('bioinfo_user'),
+                    value: Cookies('bioinfo_user'),
                     fieldLabel: 'user ID',
                     hidden: false,
 //		        enableKeyEvents: true,
@@ -318,11 +314,8 @@ LoginWidget.prototype.sign = function () {
         this.panel.setLoading('Waiting server...');
     } else {
         if (this.checkUserId()) {
-            OpencgaManager.users.req({
-                path: {
-                    id: this.getLogin(),
-                    action: 'login'
-                },
+            OpencgaManager.users.login({
+                id: this.getLogin(),
                 query: {
                     password: this.getPassword()
                 },
@@ -331,27 +324,25 @@ LoginWidget.prototype.sign = function () {
                 }
             });
             this.panel.setLoading('Waiting server...');
-            $.cookie('bioinfo_user', null, {path: '/'});
-            $.cookie('bioinfo_user', this.getLogin(), {expires: 7});
+
+            Cookies.set('bioinfo_user', this.getLogin());
         }
     }
 };
 
 LoginWidget.prototype.anonymousSign = function () {
-    OpencgaManager.login({
-        userId: "anonymous",
-        password: "",
-        suiteId: this.suiteId,
-        success: this.loginSuccess
-    });
+    //TODO new opencga
+    //OpencgaManager.login({
+    //    userId: "anonymous",
+    //    password: "",
+    //    suiteId: this.suiteId,
+    //    success: this.loginSuccess
+    //});
 };
 
 LoginWidget.prototype.register = function () {
     if (this.checkUserId() && this.checkemail() && this.checkName() && this.checkpass()) {
-        OpencgaManager.users.req({
-            path: {
-                action: 'create'
-            },
+        OpencgaManager.users.create({
             query: {
                 userId: this.getLogin(),
                 name: this.getUserName(),
@@ -369,11 +360,8 @@ LoginWidget.prototype.register = function () {
 
 LoginWidget.prototype.sendRecover = function () {
     if (this.checkUserId() && this.checkemail()) {
-        OpencgaManager.users.req({
-            path: {
-                id: this.getLogin(),
-                action: 'reset-password'
-            },
+        OpencgaManager.users.resetPassword({
+            id: this.getLogin(),
             query: {
                 email: this.getEmail()
             },
@@ -396,11 +384,11 @@ LoginWidget.prototype.getEmail = function () {
 };
 
 LoginWidget.prototype.getPassword = function () {
-    return $.sha1(Ext.getCmp(this.fldPasswordId).getValue());
+    return CryptoJS.SHA1(Ext.getCmp(this.fldPasswordId).getValue()).toString();
 };
 
 LoginWidget.prototype.getPasswordReg = function () {
-    return $.sha1(Ext.getCmp(this.fldNpass1Id).getValue());
+    return CryptoJS.SHA1(Ext.getCmp(this.fldNpass1Id).getValue()).toString();
 };
 
 //LoginWidget.prototype.draw = function () {
