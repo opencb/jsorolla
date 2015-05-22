@@ -801,6 +801,7 @@ TrackListPanel.prototype = {
             $(track.div).detach();
             $(this.tlTracksDiv).append(track.div);
         }
+        this.trigger('tracks:refresh', {sender: this});
     },
     removeTrack: function (track) {
         if (!this.containsTrack(track)) {

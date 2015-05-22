@@ -28,11 +28,13 @@
             padding: 0;
             text-transform: none;
             box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
-            z-index: 2;
             background-color: inherit;
         }
 
         #tools {
+            position: absolute;
+            top: 60px;
+            width:100%;
             background-color: #FAFAFA;
         }
 
@@ -65,13 +67,6 @@
             cursor: default;
         }
 
-        jso-login,
-        jso-signup,
-        jso-profile,
-        jso-remember {
-            z-index: 1;
-        }
-
         jso-job-list {
             height: calc(100vh - 160px);
             width: 250px;
@@ -80,6 +75,26 @@
         }
     </style>
     <template>
+        <div id="tools">
+            <jso-login id="jsoLogin"
+                       menu-option="login"
+                       on-login="handleLogin"
+                       on-remember="handleRemember"
+                       on-signup="handleSignup">
+            </jso-login>
+            <jso-signup id="jsoSignup"
+                        on-login="handleLogin"
+                        menu-option="signup">
+            </jso-signup>
+
+            <jso-profile id="jsoProfile"
+                         menu-option="profile">
+            </jso-profile>
+
+            <jso-remember menu-option="remember">
+            </jso-remember>
+        </div>
+
         <div class="main horizontal layout">
             <div id="left" class="horizontal layout start-justified">
                 <div class="icon hover" data-option="home" on-click="handleMenu">
@@ -137,26 +152,6 @@
                     <content select=".helpmenu"></content>
                 </div>
             </div>
-        </div>
-
-        <div id="tools">
-            <jso-login id="jsoLogin"
-                       menu-option="login"
-                       on-login="handleLogin"
-                       on-remember="handleRemember"
-                       on-signup="handleSignup">
-            </jso-login>
-            <jso-signup id="jsoSignup"
-                        on-login="handleLogin"
-                        menu-option="signup">
-            </jso-signup>
-
-            <jso-profile id="jsoProfile"
-                         menu-option="profile">
-            </jso-profile>
-
-            <jso-remember menu-option="remember">
-            </jso-remember>
         </div>
     </template>
 

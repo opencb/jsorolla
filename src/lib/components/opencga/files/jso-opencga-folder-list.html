@@ -7,11 +7,27 @@
             box-sizing: border-box;
         }
 
-        #header {
-            background-color: #fafafa;
-            color: #444;
-            border-bottom: 1px solid #eaeaea;
+        #header,
+        #footer {
+            box-sizing: border-box;
+            background-color: rgba(125, 125, 125, 0.1);
             padding: 3px 7px;
+        }
+
+        #header {
+            height: 25px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #footer {
+            height: 30px;
+            border-top: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #content {
+            height: calc(100% - 55px);
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .name {
@@ -21,6 +37,7 @@
             color: #444;
             width: 120px;
         }
+
         .status {
             color: #444;
             width: 120px;
@@ -28,7 +45,14 @@
 
         jso-opencga-folder-list-item {
             padding: 3px 7px;
-            border-bottom: 1px solid #eaeaea;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+        }
+
+        #createfolder {
+            box-sizing: border-box;
+            width: 300px;
+            background-color: #fafafa;
+            padding: 20px 30px;
         }
     </style>
     <template>
@@ -37,10 +61,39 @@
             <div class="creationDate">Creation date</div>
             <div class="status">Status</div>
         </div>
-        <template is="dom-repeat" items="{{files}}" filter="isVariantFile" observe="type">
-            <jso-opencga-folder-list-item file="{{item}}" on-click="handleSelect">
-            </jso-opencga-folder-list-item>
-        </template>
+        <div id="content">
+            <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
+                <jso-opencga-folder-list-item file="{{item}}" on-click="handleSelect">
+                </jso-opencga-folder-list-item>
+            </template>
+        </div>
+        <div id="footer" class="horizontal layout">
+            <div class="horizontal layout flex">
+
+            </div>
+            <div class="horizontal layout">
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkFolder(folder)}}"
+                     on-click="handleCreateFolder">
+                    <i class="fa fa-folder-o"></i> +
+                </div>
+            </div>
+        </div>
+
+        <jso-panel modal movable closable hidden id="createFolderModal">
+            <div class="header">Create folder</div>
+            <div class="container" id="createfolder">
+                <form id="form" class="vertical layout" on-keypress="handleCreateFolderFormKey">
+                    <!--<label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
+                    <label class="jso"> Folder name</label>
+                    <input class="jso" type="text" id="name" value="{{newFolderName::input}}" required pattern="[a-zA-Z0-9_-]+">
+                    <br>
+
+                    <div class="jso-btn jso-btn-shdw" on-click="handleCreateFolderForm">Create</div>
+                    <br>
+                </form>
+            </div>
+        </jso-panel>
     </template>
 </dom-module>
 <script>
@@ -49,7 +102,8 @@
         properties: {
             folder: {
                 type: Object,
-                notify: true
+                notify: true,
+                value: null
             },
             files: {
                 type: Array,
@@ -61,6 +115,56 @@
             selected: {
                 type: Object,
                 notify: true
+            },
+            study: {
+                type: Object
+            },
+            newFolderName: {
+                type: String,
+                value: ''
+            }
+        },
+        handleCreateFolder: function (e) {
+            if (this.$.createFolderModal.hasAttribute('hidden')) {
+                this.$.createFolderModal.removeAttribute('hidden');
+            } else {
+                this.$.createFolderModal.setAttribute('hidden', '');
+            }
+        },
+        handleCreateFolderFormKey: function (e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                this.handleCreateFolderForm();
+            }
+        },
+        handleCreateFolderForm: function (e) {
+            var me = this;
+
+            if (this.$.form.checkValidity()) {
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: this.folder.path + this.newFolderName,
+                        studyId: this.study.id
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.message = '';
+                                me.name = '';
+                                me.fire('folder-created');
+                                me.$.createFolderModal.setAttribute('hidden', '');
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            } else {
+                this.message = 'Only letters, numbers or slash(-,_) admitted';
             }
         },
         handleSelect: function (e) {
@@ -72,8 +176,12 @@
             e.currentTarget.setAttribute('selected', '');
             this.fire('fileselect', this.selected);
         },
-        isVariantFile: function (item) {
-            return item.bioformat == "VARIANT";
+        checkFolder: function (folder) {
+            return folder == null;
+        },
+        checkFilters: function (item) {
+            return true;
+//            return item.bioformat == "VARIANT";
         }
     });
 </script>

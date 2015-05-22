@@ -15,6 +15,9 @@
         }
 
         .name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .icon {
@@ -36,7 +39,7 @@
         <div class="horizontal layout" >
             <div class="horizontal layout flex">
                 <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
-                <div class="name">{{file.name}}</div>
+                <div class="name flex">{{file.name}}</div>
             </div>
             <div class="creationDate">{{computeDate(file)}}</div>
             <div class="status">

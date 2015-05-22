@@ -1,53 +1,42 @@
-<script src="../svg.js"></script>
-
 <script src="../../genome-viewer/gv-config.js"></script>
 
-<script src="../widgets/feature/info/info-widget.js"></script>
-<script src="../widgets/feature/info/gene-info-widget.js"></script>
-<script src="../widgets/feature/info/protein-info-widget.js"></script>
-<script src="../widgets/feature/info/snp-info-widget.js"></script>
-<script src="../widgets/feature/info/transcript-info-widget.js"></script>
-<script src="../widgets/feature/info/vcf-variant-info-widget.js"></script>
+<script src="../svg.js"></script>
+<script src="../region.js"></script>
+<script src="../feature-binary-search-tree.js"></script>
+<script src="../cellbase-manager.js"></script>
+<script src="../ensembl-manager.js"></script>
+<script src="../opencga-manager.js"></script>
 
+<script src="../cache/file-feature-cache.js"></script>
+<script src="../cache/feature-chunk-cache.js"></script>
+<script src="../cache/memory-store.js"></script>
+<script src="../cache/indexedDB-store.js"></script>
+<script src="../cache/bam-cache.js"></script>
 
 <script src="../data-adapter/feature/cellbase-adapter.js"></script>
 <script src="../data-adapter/feature/sequence-adapter.js"></script>
 <script src="../data-adapter/feature/opencga-adapter.js"></script>
+<script src="../data-adapter/feature/ensembl-adapter.js"></script>
+
 <script src="../data-adapter/feature/bam-adapter.js"></script>
+<script src="../data-adapter/feature/das-adapter.js"></script>
+
 <script src="../data-adapter/feature/feature-data-adapter.js"></script>
 <script src="../data-adapter/feature/vcf-data-adapter.js"></script>
 <script src="../data-adapter/feature/gff2-data-adapter.js"></script>
 <script src="../data-adapter/feature/gff3-data-adapter.js"></script>
 <script src="../data-adapter/feature/bed-data-adapter.js"></script>
-<script src="../data-adapter/feature/das-adapter.js"></script>
 
 <script src="../data-source/data-source.js"></script>
 <script src="../data-source/string-data-source.js"></script>
 <script src="../data-source/file-data-source.js"></script>
 
-<script src="../region.js"></script>
-<script src="../feature-binary-search-tree.js"></script>
-<script src="../cache/file-feature-cache.js"></script>
-<script src="../cache/bam-cache.js"></script>
-
-<script src="../cache/memory-store.js"></script>
-<script src="../cache/indexedDB-store.js"></script>
-<script src="../cache/feature-chunk-cache.js"></script>
-
-<script src="../widgets/feature/file/url-widget.js"></script>
-<script src="../widgets/feature/file/file-widget.js"></script>
-<script src="../widgets/feature/file/vcf-file-widget.js"></script>
-<script src="../widgets/feature/file/gff-file-widget.js"></script>
-<script src="../widgets/feature/file/bed-file-widget.js"></script>
-
-
 <script src="../../genome-viewer/navigation-bar.js"></script>
 <script src="../../genome-viewer/chromosome-panel.js"></script>
 <script src="../../genome-viewer/karyotype-panel.js"></script>
-<script src="../../genome-viewer/tracks/tracklist-panel.js"></script>
 <script src="../../genome-viewer/status-bar.js"></script>
 
-
+<script src="../../genome-viewer/tracks/tracklist-panel.js"></script>
 <script src="../../genome-viewer/tracks/track.js"></script>
 <script src="../../genome-viewer/tracks/feature-track.js"></script>
 <script src="../../genome-viewer/tracks/sequence-track.js"></script>
@@ -66,6 +55,19 @@
 <script src="../../genome-viewer/renderers/vcf-multisample-renderer.js"></script>
 <script src="../../genome-viewer/renderers/alignment-renderer.js"></script>
 
+<!--**-->
+<script src="../widgets/feature/file/url-widget.js"></script>
+<script src="../widgets/feature/file/file-widget.js"></script>
+<script src="../widgets/feature/file/vcf-file-widget.js"></script>
+<script src="../widgets/feature/file/gff-file-widget.js"></script>
+<script src="../widgets/feature/file/bed-file-widget.js"></script>
+
+<script src="../widgets/feature/info/info-widget.js"></script>
+<script src="../widgets/feature/info/gene-info-widget.js"></script>
+<script src="../widgets/feature/info/protein-info-widget.js"></script>
+<script src="../widgets/feature/info/snp-info-widget.js"></script>
+<script src="../widgets/feature/info/transcript-info-widget.js"></script>
+<script src="../widgets/feature/info/vcf-variant-info-widget.js"></script>
 
 <script src="../../genome-viewer/genome-viewer.js"></script>
 
@@ -80,6 +82,8 @@
             box-sizing: border-box;
             width: 100%;
             z-index: 0;
+            overflow-x: hidden;
+            overflow-y: scroll;
         }
 
         #gv {
@@ -109,7 +113,11 @@
                         region.load("1:1004608-1004608");
                         return region;
                     }
-                }
+                },
+                width: {
+                    type: Number,
+                    value: 800
+                },
             },
             created: function () {
                 var me = this;
@@ -126,61 +134,69 @@
                     me.genomeViewer.setWidth(me.getBoundingClientRect().width);
                 });
             },
-            createGenomeViewer: function () {
-                this.genomeViewer = new GenomeViewer({
-                    cellBaseHost: 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest',
-                    cellBaseVersion: 'v3',
-                    target: this.$.gv,
-//                    width: 500,
-                    width: this.getBoundingClientRect().width,
-                    region: this.region,
-//                    version: this.version,
-                    availableSpecies: AVAILABLE_SPECIES,
-                    species: this.selectedSpecies,
-                    sidePanel: false,
-//                    resizable: true,
-                    resizable: false,
-                    drawOverviewTrackListPanel: true,
-//        quickSearchResultFn:quickSearchResultFn,
-//        quickSearchDisplayKey:,
-                    karyotypePanelConfig: {
-                        hidden: true,
-                        collapsed: false,
-                        collapsible: true
-                    },
-                    chromosomePanelConfig: {
-                        hidden: true,
-                        collapsed: false,
-                        collapsible: true
-                    },
-                    regionPanelConfig: {
-                        hidden: false,
-                        collapsed: false,
-                        collapsible: true
-                    },
-                    drawStatusBar: true,
-//            drawNavigationBar: false,
-                    navigationBarConfig: {
-                        componentsConfig: {
-                            menuButton: false,
-                            leftSideButton: false,
-                            restoreDefaultRegionButton: false,
-                            regionHistoryButton: false,
-                            speciesButton: false,
-                            chromosomesButton: false,
-                            karyotypeButton: false,
-                            chromosomeButton: false,
+            createGenomeViewer: function (config) {
+                if (config != null) {
+                    config.target = this.$.gv;
+                    this.genomeViewer = new GenomeViewer(config);
+                    this.addOverviewTracks();
+                } else {
 
-//                regionButton:false,
-//                zoomControl:false,
-//                windowSizeControl:false,
-//                positionControl:false,
-//                moveControl:false,
-//                autoheightButton:false,
-//                compactButton:false,
-                            searchControl: false
-                        }
+                    var w = this.width;
+                    if (w == null) {
+                        w = this.getBoundingClientRect().width;
                     }
+
+                    this.genomeViewer = new GenomeViewer({
+                        cellBaseHost: 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest',
+                        cellBaseVersion: 'v3',
+                        target: this.$.gv,
+                        width: w,
+                        region: this.region,
+//                        version: this.version,
+                        availableSpecies: AVAILABLE_SPECIES,
+                        species: this.selectedSpecies,
+                        sidePanel: false,
+                        resizable: false,
+                        drawOverviewTrackListPanel: true,
+//                        quickSearchResultFn:quickSearchResultFn,
+//                        quickSearchDisplayKey:,
+                        karyotypePanelConfig: {
+                            hidden: true,
+                            collapsed: false,
+                            collapsible: true
+                        },
+                        chromosomePanelConfig: {
+                            hidden: true,
+                            collapsed: false,
+                            collapsible: true
+                        },
+                        regionPanelConfig: {
+                            hidden: false,
+                            collapsed: false,
+                            collapsible: true
+                        },
+                        drawStatusBar: true,
+//                       drawNavigationBar: false,
+                        navigationBarConfig: {
+                            componentsConfig: {
+                                menuButton: false,
+                                leftSideButton: false,
+                                restoreDefaultRegionButton: false,
+                                regionHistoryButton: false,
+                                speciesButton: false,
+                                chromosomesButton: false,
+                                karyotypeButton: false,
+                                chromosomeButton: false,
+//                                regionButton:false,
+//                                zoomControl:false,
+//                                windowSizeControl:false,
+//                                positionControl:false,
+//                                moveControl:false,
+//                                autoheightButton:false,
+//                                compactButton:false,
+                                searchControl: false
+                            }
+                        }
 
 //        chromosomeList:[]
 //            trackListTitle: ''
@@ -189,7 +205,13 @@
 //            drawChromosomePanel: false,
 //            drawOverviewTrackListPanel: false
 
-                });
+                    });
+                    this.addOverviewTracks();
+                    this.addDefaultTracks();
+                }
+                return this.genomeViewer;
+            },
+            addOverviewTracks: function () {
                 var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
                 renderer.on({
                     'feature:click': function (event) {
@@ -218,8 +240,9 @@
                         }
                     })
                 });
-
                 this.genomeViewer.addOverviewTrack(gene);
+            },
+            addDefaultTracks: function () {
 
 
                 this.sequence = new SequenceTrack({
@@ -290,7 +313,6 @@
                     })
                 });
                 this.genomeViewer.addTrack(this.snp);
-                return this.genomeViewer;
             }
         });
     </script>

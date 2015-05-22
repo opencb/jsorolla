@@ -23,13 +23,21 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-            height: 100%;
-            width: 100%;
-            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+            width: inherit;
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.4);
         }
 
-        :host[no-shadow] {
-            box-shadow: none;
+        :host[modal] {
+            position: fixed;
+        }
+
+        #back {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
         }
 
         .header {
@@ -63,22 +71,22 @@
 
         .header > .headeractions > .collapsible:after {
             font-family: FontAwesome;
-            content: '\f106';
+            content: '\f102';
         }
 
         :host[collapsed] > .header > .headeractions > .collapsible:after {
             font-family: FontAwesome;
-            content: '\f107';
+            content: '\f103';
+        }
+
+        .header > .headeractions > .pin:after {
+            font-family: FontAwesome;
+            content: '\f08d';
         }
 
         .header > .headeractions > .headerexpand:after {
             font-family: FontAwesome;
             content: '\f065';
-        }
-
-        .header > .headeractions > .headerpin:after {
-            font-family: FontAwesome;
-            content: '\f08d';
         }
 
         .header > .headeractions > .headerexpand[expanded]:after {
@@ -90,7 +98,7 @@
         }
 
         .header,
-        .footer {
+        ::content .footer {
             /*background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);*/
             /*background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);*/
             /*background-repeat: repeat-x;*/
@@ -101,13 +109,13 @@
             line-height: 21px;
         }
 
-        .footer {
+        ::content .footer {
             border-top: 1px solid #d4d4d4;
             background-color: #EDEDED;
         }
 
-        .footer > div,
-        .footer > div > div {
+        ::content .footer > div,
+        ::content .footer > div > div {
             margin-right: 2px;
             margin-left: 2px;
         }
@@ -119,61 +127,170 @@
 
     </style>
     <template>
-        <div class="header horizontal layout" on-dblclick="handleDblclick">
-            <content select=".header"></content>
-            <div class="headeractions horizontal layout end-justified flex">
+
+        <div id="back" hidden$="{{!modal}}"></div>
+
+        <div id="header"
+             class="header horizontal layout"
+             on-dblclick="handleHeaderDblclick"
+             on-mousedown="handleHeaderMouseDown"
+             on-mouseup="handleHeaderMouseUp">
+            <div class="flex">
+                <content select=".header"></content>
+            </div>
+            <div class="headeractions horizontal layout end-justified" on-mousedown="handleActionsMouseDown">
                 <!--<div class="headerexpand"></div>-->
-                <div hidden$="{{!closable}}" class="closable"></div>
-                <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapse"></div>
+                <div hidden$="{{!closable}}" class="closable" on-click="handleCloseAction"></div>
+                <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction"></div>
+                <div hidden$="{{isPinHidden(movable,moved,modal)}}" class="pin" on-click="handlePinAction"></div>
             </div>
         </div>
-        <div class="container" hidden$="{{isHidden(collapsible, collapsed)}}">
+        <div class="container" hidden$="{{isContainerHidden(collapsible, collapsed)}}">
             <content select=".container"></content>
         </div>
-        <div class="footer" hidden$="{{isHidden(collapsible, collapsed)}}">
-            <content select=".footer"></content>
-        </div>
+        <content select=".footer"></content>
     </template>
 </dom-module>
 <script>
-    Polymer({
-        is: "jso-panel",
-        properties: {
-            closable: {
-                type: Boolean,
-                reflectToAttribute: true,
-                value: false
+    (function () {
+        var lastWindow_;
+
+        Polymer({
+            is: "jso-panel",
+            properties: {
+                closable: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                collapsible: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                collapsed: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                movable: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                modal: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                moved: {
+                    type: Boolean,
+                    value: false
+                }
             },
-            collapsible: {
-                type: Boolean,
-                reflectToAttribute: true,
-                value: false
+            attributeChanged: function (attrName, old, neo) {
+                // check if is not hidden
+                if (attrName == 'hidden' && neo == null) {
+                    if (this.modal) {
+                        this._center();
+                    }
+                }
             },
-            collapsed: {
-                type: Boolean,
-                reflectToAttribute: true,
-                value: false
+            hostAttributes: {
+                'class': 'vertical layout flex'
+            },
+            isContainerHidden: function (collapsible, collapsed) {
+                if (collapsible && collapsed) {
+                    return true;
+                }
+                return false;
+            },
+            isPinHidden: function (movable, moved) {
+                if(this.modal){
+                    return true;
+                }
+                if (!movable) {
+                    return true;
+                }
+                return !moved;
+            },
+
+            /* */
+            toggleCollapse: function () {
+                if (this.collapsible) {
+                    this.collapsed = !this.collapsed;
+                }
+            },
+            handleHeaderDblclick: function (e) {
+                this.toggleCollapse();
+            },
+            handleCollapseAction: function (e) {
+                this.toggleCollapse();
+            },
+            handleCloseAction: function () {
+                this.setAttribute('hidden', '');
+            },
+            handlePinAction: function (e) {
+                this.style.position = '';
+                this.style.left = '';
+                this.style.top = '';
+                this.style.top = '';
+                this.style["z-index"] = '';
+
+                this.moved = false;
+            },
+            handleActionsMouseDown: function (e) {
+                e.stopPropagation();
+            },
+            handleHeaderMouseDown: function (e) {
+                if (this.movable) {
+                    var me = this;
+                    var bcr = this.$.header.getBoundingClientRect();
+
+                    this.headerOffsetX = e.clientX - bcr.left;
+                    this.headerOffsetY = e.clientY - bcr.top;
+
+                    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+                    this.moved = true;
+                    this.style.position = 'fixed';
+
+                    this._updateLastWindow();
+
+                    this.mouseMoveHandler = function (moveEvent) {
+                        me.handleMouseMove(moveEvent);
+                    };
+                    window.addEventListener('mousemove', this.mouseMoveHandler, true);
+                }
+            },
+            handleHeaderMouseUp: function () {
+                if (this.movable) {
+                    window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+                }
+            },
+            handleMouseMove: function (e) {
+                if (this.movable) {
+                    this.style.left = (e.clientX - this.headerOffsetX) + 'px';
+                    this.style.top = (e.clientY - this.headerOffsetY) + 'px';
+                }
+            },
+
+            /** **/
+            _center: function () {
+                var bcr = this.getBoundingClientRect();
+                this.style.left = (window.innerWidth / 2 - bcr.width / 2 ) + 'px';
+                this.style.top = (window.innerHeight / 2 - bcr.height / 2) + 'px';
+            },
+            _updateLastWindow: function () {
+                if (lastWindow_) {
+                    lastWindow_.style["z-index"] = '1';
+                }
+                lastWindow_ = this;
+                if (lastWindow_) {
+                    lastWindow_.style["z-index"] = '2';
+                }
             }
-        },
-        hostAttributes: {
-            'class': 'vertical layout flex'
-        },
-        isHidden: function (collapsible, collapsed) {
-            if (collapsible && collapsed) {
-                return true;
-            }
-            return false;
-        },
-        handleDblclick: function (e) {
-            this.toggleCollapse();
-        },
-        handleCollapse: function (e) {
-            this.toggleCollapse();
-        },
-        toggleCollapse: function () {
-            if (this.collapsible) {
-                this.collapsed = !this.collapsed;
-            }
-        }
-    });
+
+        });
+
+    })();
 </script>

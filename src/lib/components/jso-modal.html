@@ -1,0 +1,89 @@
+<dom-module id="jso-modal">
+    <style>
+        :host {
+            display: block;
+            position: fixed;
+            box-sizing: border-box;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        :host ::content > .container {
+            position: fixed;
+            box-sizing: border-box;
+            z-index: 2;
+            padding: 40px 60px;
+            left: 0;
+            right: 0;
+            top: 100px;
+            margin: 0px auto 0px auto;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+        }
+
+        /*.back {*/
+        /*z-index: 1;*/
+        /*}*/
+
+        /*.front {*/
+        /*background-color: inherit;*/
+
+        /*padding: 40px 60px;*/
+
+        /*width:400px;*/
+
+        /*left: 0;*/
+        /*right: 0;*/
+        /*top: 100px;*/
+        /*margin: 0px auto 0px auto;*/
+
+        /*box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);*/
+        /*}*/
+
+        /*::content .container {*/
+        /*text-align: center;*/
+        /*font-size: 18px;*/
+        /*}*/
+
+        /*::content.title {*/
+        /*text-align: center;*/
+        /*font-size: 18px;*/
+        /*}*/
+
+        /*.close {*/
+        /*position: absolute;*/
+        /*margin: 15px;*/
+        /*font-size: 17px;*/
+        /*top: 0;*/
+        /*right: 0;*/
+        /*}*/
+
+        /*.close:hover {*/
+        /*cursor: pointer;*/
+        /*font-size: 18px;*/
+        /*}*/
+    </style>
+    <template>
+        <content select=".container"></content>
+        <!--<div class="back"></div>-->
+        <!--<div class="front">-->
+        <!--<div class="close" on-click="handleClose">-->
+        <!--<i class="fa fa-times"></i>-->
+        <!--</div>-->
+        <!--<content select=".title"></content>-->
+        <!--<br>-->
+        <!--</div>-->
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-modal",
+        properties: {},
+        handleClose: function () {
+            this.setAttribute('hidden', '');
+        }
+    });
+</script>

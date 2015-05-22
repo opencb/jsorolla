@@ -4,29 +4,36 @@
     <style>
         :host {
             display: block;
-            position: fixed;
+            position: relative;
             box-sizing: border-box;
 
             /*left: 0;*/
-            right: 0;
+            /*right: 0;*/
             /*margin: 0px auto 0px auto;*/
 
-            width: 600px;
-            height: 400px;
             transition: all 0.2s;
             background-color: inherit;
         }
 
-        #bar {
+        #topbar,
+        #botbar {
             box-sizing: border-box;
             height: 30px;
             line-height: 30px;
+            height: 30px;
+        }
+
+        #topbar {
             border-bottom: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #botbar {
+            border-top: 1px solid rgba(130, 130, 130, 0.4);
         }
 
         #main {
             position: relative;
-            height: calc(100% - 30px);
+            height: calc(100% - 60px);
         }
 
         #mainmenu {
@@ -45,8 +52,6 @@
             width: calc(100% - 150px);
             height: 100%;
             white-space: nowrap;
-            overflow-y: auto;
-            overflow-x: hidden;
         }
 
         #maininfo {
@@ -77,55 +82,49 @@
         /*}*/
 
         jso-opencga-folder-list {
-            height: calc(100% - 30px);
+            height: 100%;
         }
 
     </style>
     <template>
-        <jso-panel>
-            <div class="header">
-                Browse
+        <div id="topbar" class="horizontal layout">
+            <div flex id="breadcrums">
+                <span>Root</span>
+                <i hidden hidden$="{{computeAngleIcon(selectedProject)}}" class="fa fa-angle-right"></i>
+                <span>{{selectedProject.project.name}}</span>
+                <i hidden hidden$="{{computeAngleIcon(selectedStudy)}}" class="fa fa-angle-right"></i>
+                <span>{{selectedStudy.study.name}}</span>
             </div>
+        </div>
 
-            <div id="bar" class="container horizontal layout">
-                <div flex id="breadcrums">
-                    <span>Root</span>
-                    <i hidden hidden$="{{computeAngleIcon(selectedProject)}}" class="fa fa-angle-right"></i>
-                    <span>{{selectedProject.project.name}}</span>
-                    <i hidden hidden$="{{computeAngleIcon(selectedStudy)}}" class="fa fa-angle-right"></i>
-                    <span>{{selectedStudy.study.name}}</span>
-                </div>
+        <div id="main" class="flex">
+            <div id="mainmenu">
+                <template is="dom-repeat" items="{{projects}}">
+                    <jso-opencga-project-tree on-click="handleProjectTreeClick"
+                                              project="{{item}}">
+                    </jso-opencga-project-tree>
+                </template>
             </div>
-
-            <div id="main" class="container flex">
-                <div id="mainmenu">
-                    <template is="dom-repeat" items="{{projects}}">
-                        <jso-opencga-project-tree on-click="handleProjectTreeClick"
-                                                  project="{{item}}">
-                        </jso-opencga-project-tree>
-                    </template>
-                </div>
-                <div id="maincontent">
-                    <jso-opencga-folder-list
-                            on-fileselect="handleFileSelect"
-                            folder="{{folder}}" files="{{files}}">
-                    </jso-opencga-folder-list>
-                </div>
-                <!--<div id="maininfo">-->
-
-                <!--</div>-->
+            <div id="maincontent">
+                <jso-opencga-folder-list
+                        on-fileselect="handleFileSelect"
+                        study="{{selectedStudy.study}}"
+                        folder="{{folder}}"
+                        files="{{files}}">
+                </jso-opencga-folder-list>
             </div>
+            <!--<div id="maininfo">-->
 
-            <div id="bottombar" class="footer horizontal layout end-justified">
-                <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
-                     on-click="handleOnClickIndex">
-                    <i class="fa fa-cog"></i>&nbsp;Index
-                </div>
+            <!--</div>-->
+        </div>
+
+
+        <div id="botbar" class="horizontal layout end-justified">
+            <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
+                 on-click="handleOnClickIndex">
+                <i class="fa fa-cog"></i>&nbsp;Index
             </div>
-        </jso-panel>
-
-        <!--<div id="bottombar" class="horizontal layout">-->
-        <!--</div>-->
+        </div>
 
     </template>
 
@@ -257,6 +256,8 @@
                 id: folderId,
                 query: {
                     sid: Cookies('bioinfo_sid'),
+//                    status:'READY,STAGED,MISSING',
+                    status: 'READY',
                     studyId: studyId
                 },
                 request: {
