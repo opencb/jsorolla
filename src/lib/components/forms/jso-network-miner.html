@@ -259,7 +259,7 @@
                 this.interactome = "hsa"
                 this.interactomeText = "Homo sapiens"
 
-                this.significant_value = 0.05
+                this.significantValue = 0.05
 
                 this.group = "all"
                 this.groupText = "Non curated"
@@ -311,7 +311,7 @@
                     components: true,
                     randoms: 1000,
                     order: this.$.orderDiv.querySelector('input[name="order"]:checked').value,
-                    "significant-value": 0.05,
+                    "significant-value": this.significantValue,
 //                        components: false,
                     "list-tags": this.$.typeDiv.querySelector('input[name="type"]:checked').value
                     //ranked-list:
@@ -456,6 +456,7 @@
 
                 this.$.intermediate_2.checked = true;
                 this.$.order_1.checked = true;
+                this.significantValue = 0.06;
 //                var exampleFolder = "nm_gwas";
 //                this.createExampleFolder(exampleFolder);
 

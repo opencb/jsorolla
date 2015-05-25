@@ -1,0 +1,48 @@
+<polymer-element name="jso-fatigo-options" attributes="propagation">
+    <template>
+        <style>
+            .body {
+                display: inline-block;
+                margin: 5px;
+                border: 1px solid #d3d3d3;
+                padding: 5px
+            }
+
+        </style>
+        <div class="body">
+            <div hidden?="{{!propagation}}">
+                <div style="font-weight: bold; margin: 2px">Options:</div>
+                <label class="control">
+                    <input name="go_propagation" id="go_propagation" type="checkbox" value="propagate" checked>
+                    <span>Propagation of functional annotations</span>
+                </label>
+                <br>
+            </div>
+            <div style="font-weight: bold; margin: 2px">Filter terms by number of annotated ids in DB:</div>
+            <label>Minimum</label>
+            <input name="go_min_num_genes" id="go_min_num_genes" style="width: 100px" type="text" value="5" size="10">
+            <label>Maximum</label>
+            <input name="go_max_num_genes" id="go_max_num_genes" style="width: 100px" type="text" value="500">
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.propagation = true;
+            },
+            getGOPropagationValue: function () {
+                if (this.$.go_propagation.checked)
+                    return this.$.go_propagation.value;
+                else
+                    return "none";
+
+            },
+            getMinNumGenes: function () {
+                return this.$.go_min_num_genes;
+            },
+            getMaxNumGenes: function () {
+                return this.$.go_max_num_genes;
+            }
+        });
+    </script>
+</polymer-element>

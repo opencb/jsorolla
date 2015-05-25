@@ -106,10 +106,13 @@
             },
             _signup: function () {
                 var me = this;
+                var name = this.user;
+                if(this.name == "anonymous")
+                    name = this.name;
                 OpencgaManager.users.create({
                     query: {
                         userId: this.user,
-                        name: this.user,
+                        name: name,
                         email: this.email,
                         organization: "",
                         password: CryptoJS.SHA1(this.password).toString()

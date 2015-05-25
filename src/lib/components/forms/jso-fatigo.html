@@ -241,21 +241,8 @@
                                     options...
                                 </div>
                             </div>
-                            <div id="bpOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
-                                <label>Minimum</label>
-                                <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="fc-int fc-text"
-                                       type="text" value="5" size="10">
-                                <label>Maximum</label>
-                                <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="fc-int fc-text"
-                                       type="text" value="500" size="10">
-                                <!--Filter terms by keywords-->
-                                <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                                <!--<label class="control">
-                            <input id="go_bp_keyword_operator_1" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                                <!--<label class="control">
-                            <input id="go_bp_keyword_operator_2" name="go_bp_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                            </div>
+                            <jso-fatigo-options id="bpOptions" hidden></jso-fatigo-options>
+
                             <br>
 
                             <div horizontal layout>
@@ -268,21 +255,7 @@
                                     options...
                                 </div>
                             </div>
-                            <div id="mfOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
-                                <label>Minimum</label>
-                                <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="fc-int fc-text"
-                                       type="text" value="5" size="10">
-                                <label>Maximum</label>
-                                <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="fc-int fc-text"
-                                       type="text" value="500" size="10">
-                                <!--Filter terms by keywords-->
-                                <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                                <!--<label class="control">
-                            <input id="go_mf_keyword_operator_1" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                                <!--<label class="control">
-                            <input id="go_mf_keyword_operator_2" name="go_mf_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                            </div>
+                            <jso-fatigo-options id="mfOptions" hidden></jso-fatigo-options>
                             <br>
 
                             <div horizontal layout>
@@ -295,21 +268,7 @@
                                     options...
                                 </div>
                             </div>
-                            <div id="ccOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
-                                <label>Minimum</label>
-                                <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="fc-int fc-text"
-                                       type="text" value="5" size="10">
-                                <label>Maximum</label>
-                                <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="fc-int fc-text"
-                                       type="text" value="500" size="10">
-                                <!--Filter terms by keywords-->
-                                <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                                <!--<label class="control">
-                            <input id="go_cc_keyword_operator_1" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                                <!--<label class="control">
-                            <input id="go_cc_keyword_operator_2" name="go_cc_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                            </div>
+                            <jso-fatigo-options id="ccOptions" hidden></jso-fatigo-options>
                             <br>
 
                             <div horizontal layout>
@@ -318,25 +277,13 @@
                                     <span>GOSlim GOA</span>
                                 </label>
 
+
                                 <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
-                            <div id="slimOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
-                                <label>Minimum</label>
-                                <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="fc-int fc-text"
-                                       type="text" value="5" size="10">
-                                <label>Maximum</label>
-                                <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="fc-int fc-text"
-                                       type="text" value="500" size="10">
-                                <!--Filter terms by keywords-->
-                                <!--<input name="go_slim_keyword_list" id="go_slim_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                                <!--<label class="control">
-                            <input id="go_slim_keyword_operator_1" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                                <!--<label class="control">
-                            <input id="go_slim_keyword_operator_2" name="go_slim_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                            </div>
+                            <jso-fatigo-options id="slimOptions" propagation="false" hidden></jso-fatigo-options>
+
                             <br>
 
                             <div horizontal layout>
@@ -349,21 +296,8 @@
                                      on-click="{{interproOptionsFunction}}">Show options...
                                 </div>
                             </div>
-                            <div id="interproOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
-                                <label>Minimum</label>
-                                <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="fc-int fc-text"
-                                       type="text" value="5" size="10">
-                                <label>Maximum</label>
-                                <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="fc-int fc-text"
-                                       type="text" value="500" size="10">
-                                <!--Filter terms by keywords-->
-                                <!--<input name="go_interpro_keyword_list" id="go_interpro_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                                <!--<label class="control">
-                            <input id="go_interpro_keyword_operator_1" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                                <!--<label class="control">
-                            <input id="go_interpro_keyword_operator_2" name="go_interpro_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                            </div>
+                            <jso-fatigo-options id="interproOptions" propagation="false" hidden></jso-fatigo-options>
+
                             <br>
 
                             <div horizontal layout>
@@ -376,28 +310,9 @@
                                     options...
                                 </div>
                             </div>
-                            <div id="reconOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
-                                <label>Minimum</label>
-                                <input name="recon_min_num_genes" id="recon_min_num_genes" class="fc-int fc-text"
-                                       type="text" value="5" size="10">
-                                <label>Maximum</label>
-                                <input name="recon_max_num_genes" id="recon_max_num_genes" class="fc-int fc-text"
-                                       type="text" value="500" size="10">
-                                <!--Filter terms by keywords-->
-                                <!--<input name="recon_keyword_list" id="recon_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
-                                <!--<label class="control">
-                            <input id="recon_keyword_operator_1" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="all" checked="checked"> All keywords-->
-                                <!--<label class="control">
-                            <input id="recon_keyword_operator_2" name="recon_keyword_operator" class="fc-radioitem" type="radio" value="any">An keyword-->
-                            </div>
+                            <jso-fatigo-options id="reconOptions" propagation="false" hidden></jso-fatigo-options>
+
                             <br>
-                            <!--<input name="kegg" id="kegg" type="checkbox" value="kegg" disabled>KEGG pathways <br>-->
-                            <!--<input name="reactome" id="reactome" type="checkbox" value="reactome" disabled>Reactome <br>-->
-                            <!--<input name="biocarta" id="biocarta" type="checkbox" value="biocarta" disabled>Biocarta <br>-->
-                            <!--<input name="mirna" id="mirna" type="checkbox" value="mirna" disabled>miRNA targets <br>-->
-                            <!--<input name="jaspar" id="jaspar" type="checkbox" value="jaspar" disabled>Jaspar TFBS <br>-->
-                            <!--<input name="your_annotations" id="your_annotations" type="checkbox" value="true">Your annotations <br>-->
 
 
                         </div>
@@ -459,24 +374,6 @@
             argsChanged: function () {
                 Utils.argsParser(this, this.args);
 
-
-//                this.message = '';
-//                this.jobName = "Job name";
-//                this.description = "description";
-//                this.$.inputFile.selectedFile = this.args.list1;
-//
-//                if (this.args.list2 !== undefined)
-//                    this.$.inputFile2.selectedFile = this.args.list2;
-//
-//                if (this.args.species !== undefined)
-//                    this.$.species.value = this.args.species;
-//
-//                if (this.args.duplicates !== undefined)
-//                    this.$.duplicates.value = "never";
-//
-//                if (this.args.fisher !== undefined)
-//                    this.$.fisher.value = this.args.fisher;
-//
                 if (this.args.comparisonRadio !== undefined) {
                     var radios = this.shadowRoot.querySelectorAll('input[name="comparisonRadio"]');
                     for (var i = 0; i < radios.length; i++) {
@@ -613,33 +510,36 @@
                 }
                 if (this.$.go_bp.checked) {
                     query["go-bp"] = "";
-                    query["go-bp-min-num-genes"] = this.$.go_bp_min_num_genes.value;
-                    query["go-bp-max-num-genes"] = this.$.go_bp_max_num_genes.value;
+                    query["go-bp-min-num-genes"] = this.$.bpOptions.getMinNumGenes().value;
+                    query["go-bp-max-num-genes"] = this.$.bpOptions.getMaxNumGenes().value;
+                    query["go-bp-propagation"] = this.$.bpOptions.getGOPropagationValue();
                 }
                 if (this.$.go_cc.checked) {
                     query["go-cc"] = "";
-                    query["go-cc-min-num-genes"] = this.$.go_cc_min_num_genes.value;
-                    query["go-cc-max-num-genes"] = this.$.go_cc_max_num_genes.value;
+                    query["go-cc-min-num-genes"] = this.$.ccOptions.getMinNumGenes().value;
+                    query["go-cc-max-num-genes"] = this.$.ccOptions.getMinNumGenes().value;
+                    query["go-cc-propagation"] = this.$.ccOptions.getGOPropagationValue();
                 }
                 if (this.$.go_mf.checked) {
                     query["go-mf"] = "";
-                    query["go-mf-min-num-genes"] = this.$.go_mf_min_num_genes.value;
-                    query["go-mf-max-num-genes"] = this.$.go_mf_max_num_genes.value;
+                    query["go-mf-min-num-genes"] = this.$.mfOptions.getMinNumGenes().value;
+                    query["go-mf-max-num-genes"] = this.$.mfOptions.getMinNumGenes().value;
+                    query["go-mf-propagation"] = this.$.mfOptions.getGOPropagationValue();
                 }
                 if (this.$.go_slim.checked) {
                     query["go-slim"] = "";
-                    query["go-slim-min-num-genes"] = this.$.go_slim_min_num_genes.value;
-                    query["go-slim-max-num-genes"] = this.$.go_slim_max_num_genes.value;
+                    query["go-slim-min-num-genes"] = this.$.slimOptions.getMinNumGenes().value;
+                    query["go-slim-max-num-genes"] = this.$.slimOptions.getMaxNumGenes().value;
                 }
                 if (this.$.interpro.checked) {
                     query["interpro"] = "";
-                    query["interpro-min-num-genes"] = this.$.interpro_min_num_genes.value;
-                    query["interpro-max-num-genes"] = this.$.interpro_max_num_genes.value;
+                    query["interpro-min-num-genes"] = this.$.interproOptions.getMinNumGenes().value;
+                    query["interpro-max-num-genes"] = this.$.interproOptions.getMaxNumGenes().value;
                 }
                 if (this.$.recon.checked) {
                     query["recon"] = "";
-                    query["recon-min-num-genes"] = this.$.recon_min_num_genes.value;
-                    query["recon-max-num-genes"] = this.$.recon_max_num_genes.value;
+                    query["recon-min-num-genes"] = this.$.reconOptions.getMinNumGenes().value;
+                    query["recon-max-num-genes"] = this.$.reconOptions.getMaxNumGenes().value;
                 }
                 OpencgaManager.jobs.create({
                     query: query,
