@@ -34,7 +34,7 @@
         #tools {
             position: absolute;
             top: 60px;
-            width:100%;
+            width: 100%;
             background-color: #FAFAFA;
         }
 
@@ -354,11 +354,13 @@
             this.userInfoInterval = null;
             this.fire("logout");
         },
-        getUserInfo: function () {
+        getUserInfo: function (force) {
             var me = this;
             var lastActivity = null;
-            if (this.userData != null) {
-                lastActivity = this.userData.lastActivity;
+            if (force != true) {
+                if (this.userData != null) {
+                    lastActivity = this.userData.lastActivity;
+                }
             }
             var user = Cookies('bioinfo_user');
             if (!user) {

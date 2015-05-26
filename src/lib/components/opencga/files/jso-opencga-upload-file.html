@@ -7,43 +7,88 @@
             position: relative;
             box-sizing: border-box;
         }
-        jso-study-select{
-            height: 410px;
+
+        jso-study-select {
+            height: 150px;
         }
+
+        jso-bioformat {
+            height: 150px;
+        }
+
+        .uploadbar {
+            margin-top: 5px;
+            position: relative;
+            height: 20px;
+            border: 1px solid #d3d3d3;
+            background-color: white;
+            line-height: 20px;
+        }
+
+        .uploadprogress {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+            background-color: #eaeaea;
+            /*margin-top: 10px;*/
+        }
+
+        .uploadtext {
+            position: absolute;
+            text-align: center;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .filename{
+            word-break: break-all;
+        }
+
     </style>
     <template>
-
-
-        <div class="horizontal layout">
-            <div class="flex">
+        <div>
+            <div>
                 <label class="jso">Studies:</label>
                 <jso-study-select id="studySelect" projects="{{projects}}">
                 </jso-study-select>
             </div>
-            <div class="flex" style="margin-left: 20px;">
+            <br>
+
+            <div>
                 <label class="jso">Bioformat:</label>
-                <jso-bioformat></jso-bioformat>
+                <jso-bioformat id="bioformatSelect"
+                               bioformats="{{bioformats}}"></jso-bioformat>
             </div>
         </div>
-
-
-        <br>
-
-
         <br>
 
         <form id="form">
             <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
-                <span>{{fileName}}</span>
+                <span>Choose file...</span>
             </div>
+            <br>
+            <label class="jso">Selected file name:</label>
+            <div class="filename">{{fileName}}</div>
+
             <input type="file" hidden id="fileInput" required on-change="handleInputChange"
                    disabled$="{{uploading}}">
 
             <br>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleForm">Upload</div>
-            <div class="">{{percentProgress}}</div>
         </form>
+        <br>
+
+        <div class="uploadbar" hidden$="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <div class="uploadtext">
+                <i class="fa fa-spinner fa-spin"></i>
+                <span>{{percentProgress}}</span> % <span>{{message}}</span>
+            </div>
         </div>
     </template>
 
@@ -58,11 +103,7 @@
             },
             fileName: {
                 type: String,
-                value: 'Choose file...'
-            },
-            percentProgress: {
-                type: Number,
-                value: ''
+                value: 'None'
             },
             projects: {
                 type: Array,
@@ -72,10 +113,28 @@
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
+            },
+            bioformats: {
+                type: Array
+            },
+            uploading: {
+                type: Boolean,
+                value: false
+            },
+            percentProgress: {
+                type: Number,
+                value: 0,
+                observer: 'percentProgressChanged'
+            },
+            message: {
+                type: String,
+                value: ''
             }
         },
         handleBrowseClick: function (e) {
-            this.$.fileInput.click();
+            if (this.uploading == false) {
+                this.$.fileInput.click();
+            }
         },
         handleInputChange: function () {
             if (this.uploading == false) {
@@ -85,34 +144,54 @@
         },
         handleForm: function () {
             var me = this;
-            if (this.$.studySelect.selectedStudy == null) {
-                alert("Please select a study");
-                return;
-            }
-            var config = {
-                inputFile: this.$.fileInput.files[0],
-                fileName: this.fileName,
-                userId: Cookies("bioinfo_user"),
-                sid: Cookies("bioinfo_sid"),
-                studyId: this.$.studySelect.selectedStudy,
-                relativeFilePath: '' + this.fileName,
-                fileFormat: 'PLAIN',
-                bioFormat: 'VARIANT',
-                description: '',
-                callbackProgress: function (chunk, total, response) {
-                    me.percentProgress = Math.round((chunk.id / total) * 100);
-                    if (chunk.last) {
-                        me.percentProgress = 100;
-                        me.uploading = false;
-
-                        var uploadedFile = response.response[0].result[0];
-                        me.indexFile(uploadedFile);
-                    }
+            if (this.uploading == false) {
+                if (this.$.studySelect.selectedStudy == null) {
+                    alert("Please select a study");
+                    return;
                 }
-            };
-            OpencgaManager.files.upload2(config);
+                if (this.$.bioformatSelect.selectedBioformat == '') {
+                    alert("Please select a bioformat");
+                    return;
+                }
+                if (this.$.form.checkValidity()) {
+                    this.uploading = true;
+                    this.message = '';
+                    var config = {
+                        inputFile: this.$.fileInput.files[0],
+                        fileName: this.fileName,
+                        userId: Cookies("bioinfo_user"),
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: this.$.studySelect.selectedStudy,
+                        relativeFilePath: '' + this.fileName,
+                        fileFormat: 'PLAIN',
+                        bioFormat: 'VARIANT',
+                        description: '',
+                        callbackProgress: function (chunk, total, response) {
+                            me.percentProgress = Math.round((chunk.id / total) * 100);
+                            if (chunk.last) {
+                                me.percentProgress = 100;
+                                me.uploading = false;
+                                me.message = 'Done';
+                                me.fire('need-refresh');
+                                me.fire('file-uploaded');
+
+                                var uploadedFile = response.response[0].result[0];
+                                me._indexFile(uploadedFile);
+                            }
+                        }
+                    };
+                    OpencgaManager.files.upload2(config);
+                } else {
+                    alert("Please select a file");
+                    return;
+                }
+            }
         },
-        indexFile: function (file) {
+        percentProgressChanged: function (neo, old) {
+            this.$.progressBar.style.width = neo + '%';
+        },
+
+        _indexFile: function (file) {
             console.log(file.id);
 
             if (!this.disableIndex) {
@@ -139,9 +218,6 @@
             } else {
                 console.log("Disabled Index");
             }
-        },
-        handleClose: function (e) {
-            this.fire("close");
         }
     });
 </script>

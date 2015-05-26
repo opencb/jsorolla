@@ -1,3 +1,4 @@
+<link rel="import" href="jso-opencga-create-folder.html">
 <link rel="import" href="jso-opencga-folder-list-item.html">
 <dom-module id="jso-opencga-folder-list">
     <style>
@@ -8,20 +9,19 @@
         }
 
         #header,
-        #footer {
+        #bar {
             box-sizing: border-box;
             background-color: rgba(125, 125, 125, 0.1);
             padding: 3px 7px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
         }
 
         #header {
             height: 25px;
-            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
         }
 
-        #footer {
+        #bar {
             height: 30px;
-            border-top: 1px solid rgba(125, 125, 125, 0.5);
         }
 
         #content {
@@ -56,6 +56,34 @@
         }
     </style>
     <template>
+        <div id="bar" class="horizontal layout">
+            <div class="horizontal layout flex">
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkBack(folder)}}"
+                     on-click="handleBack">
+                    <i class="fa fa-arrow-left"></i>
+                </div>
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkFolder(folder)}}"
+                     on-click="handleCreateFolder">
+                    <i class="fa fa-folder-o"></i> +
+                </div>
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkSelected(selected)}}"
+                     on-click="handleDeleteFile">
+                    <i class="fa fa-trash"></i>
+                </div>
+
+            </div>
+            <div class="horizontal layout">
+
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{handleHiddenIndex(selected)}}"
+                     on-click="handleIndexFile">
+                    <i class="fa fa-cog"></i>&nbsp;Index
+                </div>
+            </div>
+        </div>
         <div id="header" class="horizontal layout">
             <div class="name flex">Name</div>
             <div class="creationDate">Creation date</div>
@@ -63,40 +91,21 @@
         </div>
         <div id="content">
             <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
-                <jso-opencga-folder-list-item file="{{item}}" on-click="handleSelect">
+                <jso-opencga-folder-list-item file="{{item}}"
+                                              on-dblclick="handleFileDblClick"
+                                              on-click="handleFileClick">
                 </jso-opencga-folder-list-item>
             </template>
         </div>
-        <div id="footer" class="horizontal layout">
-            <div class="horizontal layout flex">
 
-                <div class="jso-btn jso-btn-shdw"
-                     hidden$="{{checkFolder(folder)}}"
-                     on-click="handleCreateFolder">
-                    <i class="fa fa-folder-o"></i> +
-                </div>
-            </div>
-            <div class="horizontal layout">
-                <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selected)}}"
-                     on-click="handleOnClickIndex">
-                    <i class="fa fa-cog"></i>&nbsp;Index
-                </div>
-            </div>
-        </div>
-
-        <jso-panel modal movable closable hidden id="createFolderModal">
+        <jso-panel modal closable hidden id="createFolderModal">
             <div class="header">Create folder</div>
-            <div class="container" id="createfolder">
-                <form id="form" class="vertical layout" on-keypress="handleCreateFolderFormKey">
-                    <!--<label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
-                    <label class="jso"> Folder name</label>
-                    <input class="jso" type="text" id="name" value="{{newFolderName::input}}" required pattern="[a-zA-Z0-9_-]+">
-                    <br>
-
-                    <div class="jso-btn jso-btn-shdw" on-click="handleCreateFolderForm">Create</div>
-                    <br>
-                </form>
-            </div>
+            <jso-opencga-create-folder
+                    class="container" id="createfolder"
+                    on-folder-created="handleFolderCreated"
+                    folder="{{folder}}"
+                    study="{{study}}">
+            </jso-opencga-create-folder>
         </jso-panel>
 
 
@@ -127,10 +136,6 @@
             },
             study: {
                 type: Object
-            },
-            newFolderName: {
-                type: String,
-                value: ''
             }
         },
         handleCreateFolder: function (e) {
@@ -140,43 +145,16 @@
                 this.$.createFolderModal.setAttribute('hidden', '');
             }
         },
-        handleCreateFolderFormKey: function (e) {
-            if (e.which == 13) {
-                e.preventDefault();
-                this.handleCreateFolderForm();
-            }
+        handleFolderCreated: function (e) {
+            this.$.createFolderModal.setAttribute('hidden', '');
         },
-        handleCreateFolderForm: function (e) {
-            var me = this;
-
-            if (this.$.form.checkValidity()) {
-                OpencgaManager.files.createFolder({
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        folder: this.folder.path + this.newFolderName,
-                        studyId: this.study.id
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.message = '';
-                                me.name = '';
-                                me.fire('folder-created');
-                                me.$.createFolderModal.setAttribute('hidden', '');
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
-                    }
-                });
-            } else {
-                this.message = 'Only letters, numbers or slash(-,_) admitted';
-            }
+        handleDeleteFile: function (e) {
+            this._deleteFile();
         },
-        handleSelect: function (e) {
+        handleIndexFile: function (e) {
+            this._indexFile();
+        },
+        handleFileClick: function (e) {
             this.selected = e.currentTarget.file;
             var sel = this.querySelector("jso-opencga-folder-list-item[selected]");
             if (sel) {
@@ -185,14 +163,31 @@
             e.currentTarget.setAttribute('selected', '');
             this.fire('fileselect', this.selected);
         },
+        handleFileDblClick: function (e) {
+            var file = e.currentTarget.file;
+            if (file.type == 'FOLDER') {
+                this.fire('openfolder', file);
+            }
+        },
+        handleBack: function () {
+            this.fire('back');
+        },
         checkFolder: function (folder) {
             return folder == null;
         },
-        checkFilters: function (item) {
-            return true;
-//            return item.bioformat == "VARIANT";
+        checkBack: function (folder) {
+            if (folder == null) {
+                return true
+            } else {
+                if (folder.name == '.') {
+                    return true;
+                }
+            }
+            return false;
         },
-
+        checkSelected: function (selected) {
+            return selected == null;
+        },
         handleHiddenIndex: function (selected) {
             if (selected == null) {
                 return true;
@@ -203,9 +198,61 @@
             }
             return selected.index != null;
         },
-        handleOnClickIndex: function (e) {
-            alert("Index File: " + this.selected.name)
-        }
+        checkFilters: function (item) {
+            return true;
+//            return item.bioformat == "VARIANT";
+        },
 
+
+        /**/
+        _deleteFile: function () {
+            var me = this;
+            if (this.selected) {
+                OpencgaManager.files.delete({
+                    id: this.selected.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log("delete");
+                                console.log(response);
+                                me.fire('need-refresh');
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        },
+        _indexFile: function () {
+            if (this.selected) {
+                OpencgaManager.files.index({
+                    id: this.selected.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        storageEngine: "mongodb"
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log("index");
+                                console.log(response);
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        },
     });
 </script>

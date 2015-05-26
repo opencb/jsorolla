@@ -8,7 +8,7 @@
         }
 
         :host[selected] > .main > .name {
-            font-weight: bold;
+            /*font-weight: bold;*/
         }
 
         .main {
@@ -20,7 +20,7 @@
             display: inline-block;
             width: 20px;
             text-align: center;
-            content: '\f07b';
+            content: '\f187';
         }
 
         .arrow:before {
@@ -86,7 +86,8 @@
             return project.studies.length <= 0;
         },
         handleClick: function (e) {
-            this.selectedStudy = null;
+            this.fire('clickproject');
+//            this.selectedStudy = null;
         },
         handleDblclick: function (e) {
             this.toggleOpen();
@@ -96,6 +97,7 @@
         },
         handleStudyClick: function (e) {
             this.selectedStudy = e.currentTarget;
+            this.fire('clickstudy');
         },
         toggleOpen: function () {
             if (this.project.studies.length != 0) {

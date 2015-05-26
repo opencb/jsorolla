@@ -1,55 +1,49 @@
 <dom-module id="jso-opencga-create-folder">
+    <style>
+        :host {
+            display: block;
+        }
+
+        .message {
+            margin-top: 5px;
+        }
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                background-color: #f0f0f0;
-            }
-
-            label {
-                display: inline-block;
-                color: #666;
-            }
-
-            label::after {
-                content: ':'
-            }
-
-            .action {
-                margin-top: 5px;
-            }
-
-            .message {
-                margin-top: 5px;
-            }
-
-        </style>
-
-
-        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+        <form id="form" class="vertical layout" on-keypress="handleFormKey">
             <!--<label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
-            <label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9_-]+">
+            <label class="jso"> Folder name</label>
+            <input class="jso" type="text" id="name" value="{{newFolderName::input}}" required pattern="[a-zA-Z0-9_-]+">
+            <br>
 
-            <div class="button action" on-click="{{handleForm}}">Create</div>
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Create</div>
+            <br>
         </form>
-        <div class="message">{{message}}</div>
+        <div>{{message}}</div>
     </template>
 </dom-module>
 <script>
     Polymer({
-        is:'jso-opencga-create-folder',
-//        created: function () {
-//            this.name = '';
-//            this.alias = '';
-//            this.description = '';
-//            this.type = '';
-//
-//            this.selectedProject;
-//
-//            this.message = '';
-//        },
+        is: 'jso-opencga-create-folder',
+        properties: {
+            folder: {
+                type: Object,
+                notify: true,
+                value: null
+            },
+            study: {
+                type: Object
+            },
+            message: {
+                type: String,
+                value: ''
+            },
+            newFolderName: {
+                type: String,
+                value: ''
+            },
+        },
         handleFormKey: function (e) {
-
             if (e.which == 13) {
                 e.preventDefault();
                 this.handleForm();
@@ -63,7 +57,7 @@
                 OpencgaManager.files.createFolder({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        folder: this.folder.path + this.name,
+                        folder: this.folder.path + this.newFolderName,
                         studyId: this.study.id
 
                     },
@@ -72,6 +66,7 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.message = '';
                                 me.name = '';
+                                me.fire('need-refresh');
                                 me.fire('folder-created');
                             } else {
                                 me.message = response.response[0].errorMsg;
@@ -85,34 +80,6 @@
             } else {
                 this.message = 'Only letters, numbers or slash(-,_) admitted';
             }
-        },
-        getFiles: function (e) {
-            var me = this;
-            OpencgaManager.files.search({
-                query: {
-                    //userId: 1,
-                    //projectId: 1,
-                    //studyId: 1,
-                    sid: Cookies("bioinfo_sid"),
-                    studyId: this.study.id
-//                        type: "file"
-                },
-                request: {
-                    //method: 'POST',
-                    success: function (response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var files = response.response[0].result;
-
-                            me.study.files = files
-                        } else {
-                            me.message = response.response[0].errorMsg;
-                        }
-                    },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
-                    }
-                }
-            })
         }
     });
 </script>

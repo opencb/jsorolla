@@ -1,0 +1,65 @@
+<dom-module id="jso-opencga-create-project">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+    </style>
+    <template>
+        <form id="form">
+            <label class="jso">Project name:</label>
+            <input class="jso" type="text" value={{name::input}} placeholder="New project" required
+                   pattern="[a-zA-Z0-9]+">
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Create</div>
+        </form>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-create-project",
+        properties: {
+            projects: {
+                type: Array,
+                notify: true
+            },
+            name: {
+                type: String,
+            }
+        },
+        handleForm: function () {
+            var me = this;
+            if (this.$.form.checkValidity()) {
+                OpencgaManager.projects.create({
+                    query: {
+                        userId: Cookies('bioinfo_user'),
+                        sid: Cookies('bioinfo_sid'),
+                        name: this.name,
+                        alias: this.name.replace(/ /gi, ''),
+                        description: '',
+                        organization: ''
+                    },
+                    request: {
+                        async: true,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.message = 'Project created sucessfully.';
+                                me.name = "";
+                                me.fire('need-refresh');
+                                me.fire('project-created');
+                            } else {
+                                alert('Server error, try again later.');
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
