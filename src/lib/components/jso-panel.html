@@ -1,34 +1,19 @@
 <dom-module id="jso-panel">
     <style>
-        /*
-            Panel
-
-            Note 1: panel-shadow class is optional
-
-            <div class="panel panel-shadow" vertical layout>
-                <div class="header" horizontal layout>
-                    <div>Header text</div>
-                    <div class="headeractions" horizontal layout end-justified flex>
-                        <div class="headerexpand"></div>
-                        <div class="headerclose"></div>
-                    </div>
-                </div>
-                <div class="container">
-                </div>
-                <div class="footer">
-                </div>
-            </div>
-        */
         :host {
             display: block;
             position: relative;
             box-sizing: border-box;
-            /*width: inherit;*/
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.4);
         }
 
         :host[modal] {
             position: fixed;
+            box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
+        }
+
+        :host[movable] {
+            box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
         }
 
         #back {
@@ -49,11 +34,16 @@
             user-select: none;
         }
 
+        :host[movable] > .header {
+            cursor: move;
+        }
+
         .header > .headeractions > * {
             box-sizing: border-box;
             padding: 0 5px;
             border: 1px solid transparent;
             line-height: 21px;
+            cursor: pointer;
         }
 
         .header > .headeractions > *[data-checked] {
@@ -84,12 +74,12 @@
             content: '\f08d';
         }
 
-        .header > .headeractions > .headerexpand:after {
+        :host[expandible] .headeractions > .expandible:after {
             font-family: FontAwesome;
             content: '\f065';
         }
 
-        .header > .headeractions > .headerexpand[expanded]:after {
+        :host[expandible][expanded] .headeractions > .expandible:after {
             content: '\f066';
         }
 
@@ -139,10 +129,10 @@
                 <content select=".header"></content>
             </div>
             <div class="headeractions horizontal layout end-justified" on-mousedown="handleActionsMouseDown">
-                <!--<div class="headerexpand"></div>-->
-                <div hidden$="{{!closable}}" class="closable" on-click="handleCloseAction"></div>
-                <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction"></div>
+                <div hidden$="{{!expandible}}" class="expandible" on-click="handleExpandAction"></div>
                 <div hidden$="{{isPinHidden(movable,moved,modal)}}" class="pin" on-click="handlePinAction"></div>
+                <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction"></div>
+                <div hidden$="{{!closable}}" class="closable" on-click="handleCloseAction"></div>
             </div>
         </div>
         <div class="container" hidden$="{{isContainerHidden(collapsible, collapsed)}}">
@@ -178,7 +168,22 @@
                     reflectToAttribute: true,
                     value: false
                 },
+                expandible: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                expanded: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
                 modal: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                constraint: {
                     type: Boolean,
                     reflectToAttribute: true,
                     value: false
@@ -189,6 +194,9 @@
                 }
             },
             attributeChanged: function (attrName, old, neo) {
+                if (attrName == 'hidden') {
+                    this.fire('hidden', this.hidden);
+                }
                 // check if is not hidden
                 if (attrName == 'hidden' && neo == null) {
                     if (this.modal) {
@@ -206,7 +214,7 @@
                 return false;
             },
             isPinHidden: function (movable, moved) {
-                if(this.modal){
+                if (this.modal) {
                     return true;
                 }
                 if (!movable) {
@@ -228,7 +236,7 @@
                 this.toggleCollapse();
             },
             handleCloseAction: function () {
-                this.setAttribute('hidden', '');
+                this.hidden = true;
             },
             handlePinAction: function (e) {
                 this.style.position = '';
@@ -239,11 +247,32 @@
 
                 this.moved = false;
             },
+            handleExpandAction: function (e) {
+                if (this.expandible) {
+                    this.expanded = !this.expanded;
+                    if (this.expanded) {
+                        this.style.width = '100%';
+                        this.style.height = '100%';
+                        this.style.position = 'fixed';
+                        this.style.top = '0';
+                        this.style.left = '0';
+                    } else {
+                        this.style.width = '';
+                        this.style.height = '';
+                        this.style.position = '';
+                        this.style.top = '';
+                        this.style.left = '';
+//                        this._center();
+                    }
+                }
+            },
+
             handleActionsMouseDown: function (e) {
                 e.stopPropagation();
             },
             handleHeaderMouseDown: function (e) {
                 if (this.movable) {
+                    document.body.classList.add('jso-nosel');
                     var me = this;
                     var bcr = this.$.header.getBoundingClientRect();
 
@@ -265,12 +294,28 @@
             handleHeaderMouseUp: function () {
                 if (this.movable) {
                     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
+                    document.body.classList.remove('jso-nosel');
                 }
             },
             handleMouseMove: function (e) {
                 if (this.movable) {
-                    this.style.left = (e.clientX - this.headerOffsetX) + 'px';
-                    this.style.top = (e.clientY - this.headerOffsetY) + 'px';
+                    var left = e.clientX - this.headerOffsetX;
+                    var top = e.clientY - this.headerOffsetY;
+                    if (this.constraint) {
+                        var bcr = this.getBoundingClientRect();
+                        var rightLimit = window.innerWidth - bcr.width;
+                        var bottomLimit = window.innerHeight - bcr.height;
+                        if (left > 0 && left < rightLimit) {
+                            this.style.left = left + 'px';
+                        }
+                        if (top > 0 && top < bottomLimit) {
+                            this.style.top = top + 'px';
+                        }
+                    } else {
+                        this.style.left = left + 'px';
+                        this.style.top = top + 'px';
+                    }
+
                 }
             },
 
