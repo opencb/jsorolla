@@ -311,7 +311,8 @@ TrackListPanel.prototype = {
             _this.mousePosition = centerPosition + rcX - posOffset;
             _this.trigger('mousePosition:change', {
                 mousePos: _this.mousePosition,
-                baseHtml: _this.getMousePosition(_this.mousePosition)
+                chromosome: _this.region.chromosome,
+                base: _this.getMousePosition(_this.mousePosition)
             });
         });
 
@@ -994,14 +995,12 @@ TrackListPanel.prototype = {
 
     getMousePosition: function (position) {
         var base = '';
-        var colorStyle = '';
         if (position > 0) {
             base = this.getSequenceNucleotid(position);
-            colorStyle = 'color:' + SEQUENCE_COLORS[base];
         }
 //        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
 //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
-        return '<span style="' + colorStyle + '">' + base + '</span>';
+        return base;
     },
 
     getSequenceNucleotid: function (position) {

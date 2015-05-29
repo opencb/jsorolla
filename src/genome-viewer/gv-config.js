@@ -176,7 +176,7 @@ FEATURE_TYPES = {
     //methods
     formatTitle: function (str) {
         var s = str;
-        if(str){
+        if (str) {
             str.replace(/_/gi, " ");
             s = s.charAt(0).toUpperCase() + s.slice(1);
         }
@@ -184,9 +184,21 @@ FEATURE_TYPES = {
     },
     getTipCommons: function (f) {
         var strand = (f.strand != null) ? f.strand : "NA";
-        return 'start-end:&nbsp;<span class="emph">' + f.start + '-' + f.end + '</span><br>' +
-            'strand:&nbsp;<span class="emph">' + strand + '</span><br>' +
-            'length:&nbsp;<span class="info">' + (f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+        return 'start-end:&nbsp;<span style="font-weight: bold">' + f.start + '-' + f.end + '</span><br>' +
+            'strand:&nbsp;<span style="font-weight: bold">' + strand + '</span><br>' +
+            'length:&nbsp;<span style="font-weight: bold; color:#005fdb">' + (f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+    },
+    _getSimpleKeys: function (f) {
+        var s = '';
+        for (key in f) {
+            if(key == 'start' || key == 'end'){
+                continue;
+            }
+            if (_.isNumber(f[key]) || _.isString(f[key])) {
+                s += key + ':&nbsp;<span style="font-weight: bold">' + f[key] + '</span><br>'
+            }
+        }
+        return s
     },
 
     //items
@@ -208,7 +220,7 @@ FEATURE_TYPES = {
         color: function (f) {
             return "grey";
         },
-//		infoWidgetId: "id",
+        infoWidgetId: "id",
         height: 10
 //		histogramColor:"lightblue"
     },
@@ -226,11 +238,11 @@ FEATURE_TYPES = {
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return FEATURE_TYPES.formatTitle('Gene') +' - <span class="ok">' + name + '</span>';
+            return FEATURE_TYPES.formatTitle('Gene') + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             var color = GENE_BIOTYPE_COLORS[f.biotype];
-            return    'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
+            return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
                 'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) +
                 'source:&nbsp;<span class="ssel">' + f.source + '</span><br><br>' +
@@ -290,7 +302,7 @@ FEATURE_TYPES = {
         },
         tooltipText: function (f) {
             var color = GENE_BIOTYPE_COLORS[f.biotype];
-            return    'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
+            return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
                 'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
                 'description:&nbsp;<span class="emph">' + f.description + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
@@ -318,7 +330,7 @@ FEATURE_TYPES = {
             var ename = (e.name != null) ? e.name : e.id;
             var tname = (t.name != null) ? t.name : t.id;
             var color = GENE_BIOTYPE_COLORS[t.biotype];
-            return    'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
+            return 'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
                 'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
                 'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
                 'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
@@ -355,26 +367,6 @@ FEATURE_TYPES = {
         infoWidgetId: "id",
         height: 8,
         histogramColor: "orange"
-    },
-    mutation: {
-        label: function (f) {
-            return ('name' in f) ? f.name : f.id;
-        },
-        tooltipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
-        },
-        tooltipText: function (f) {
-            return   FEATURE_TYPES.getTipCommons(f) +
-                '';
-
-        },
-        color: function (f) {
-            return 'limegreen'
-        },
-        infoWidgetId: "id",
-        height: 8,
-        histogramColor: "limegreen"
     },
     file: {
         getLabel: function (f) {
@@ -627,7 +619,7 @@ FEATURE_TYPES = {
             return summary;
         },
         label: function (f) {
-            return  "bam  " + f.chromosome + ":" + f.start + "-" + f.end;
+            return "bam  " + f.chromosome + ":" + f.start + "-" + f.end;
         },
         tooltipTitle: function (f) {
             return FEATURE_TYPES.formatTitle(f.featureType) + ' - <span class="ok">' + f.name + '</span>';
@@ -703,6 +695,101 @@ FEATURE_TYPES = {
                 console.log(e)
             }
         }
+    },
+
+    "Histone": {
+        label: function (f) {
+            var str = "";
+            str += f.chromosome + ":" + f.start + "-" + f.end;
+            return str;
+        },
+        tooltipTitle: function (f) {
+            return "Histone";
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: function (f) {
+            return "#d7e961";
+        },
+        infoWidgetId: "id",
+        height: 10
+    },
+    "Open Chromatin": {
+        label: function (f) {
+            var str = "";
+            str += f.chromosome + ":" + f.start + "-" + f.end;
+            return str;
+        },
+        tooltipTitle: function (f) {
+            return "Open Chromatin";
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: function (f) {
+            return "#7361e9";
+        },
+        infoWidgetId: "id",
+        height: 10
+//		histogramColor:"lightblue"
+    },
+    "Polymerase": {
+        label: function (f) {
+            var str = "";
+            str += f.chromosome + ":" + f.start + "-" + f.end;
+            return str;
+        },
+        tooltipTitle: function (f) {
+            return "Polymerase";
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: function (f) {
+            return "#ffc04d";
+        },
+        infoWidgetId: "id",
+        height: 10
+//		histogramColor:"lightblue"
+    },
+    "Transcription Factor": {
+        label: function (f) {
+            var str = "";
+            str += f.chromosome + ":" + f.start + "-" + f.end;
+            return str;
+        },
+        tooltipTitle: function (f) {
+            return "Transcription Factor";
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: function (f) {
+            return "#ff748c";
+        },
+        infoWidgetId: "id",
+        height: 10
+//		histogramColor:"lightblue"
+    },
+    "microRNA": {
+        label: function (f) {
+            var str = "";
+            str += f.chromosome + ":" + f.start + "-" + f.end;
+            return str;
+        },
+        tooltipTitle: function (f) {
+            return "microRNA";
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: function (f) {
+            return "#74f5ff";
+        },
+        infoWidgetId: "id",
+        height: 10
+//		histogramColor:"lightblue"
     }
 };
 

@@ -30,7 +30,7 @@ function FeatureRenderer(args) {
     this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
-     if (_.isObject(args)) {
+    if (_.isObject(args)) {
         _.extend(this, args);
     }
 
@@ -45,6 +45,13 @@ FeatureRenderer.prototype.render = function (features, args) {
         if (typeof feature.featureType === 'undefined') {
             feature.featureType = args.featureType;
         }
+        //check feature class
+        if (feature.featureClass != null) {//regulatory
+            _.extend(_this, FEATURE_TYPES[feature.featureClass]);
+        } else if (feature.source != null) {//clinical
+            _.extend(_this, FEATURE_TYPES[feature.source]);
+        }
+
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
         var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
@@ -121,18 +128,28 @@ FeatureRenderer.prototype.render = function (features, args) {
                         content: {text: tooltipText, title: tooltipTitle},
 //                        position: {target: "mouse", adjust: {x: 15, y: 0}, effect: false},
                         position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                        style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                         show: {delay: 300},
                         hide: {delay: 300}
                     });
                 }
 
                 $(featureGroup).mouseover(function (event) {
-                    _this.trigger('feature:mouseover', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, mouseoverEvent: event})
+                    _this.trigger('feature:mouseover', {
+                        query: feature[infoWidgetId],
+                        feature: feature,
+                        featureType: feature.featureType,
+                        mouseoverEvent: event
+                    })
                 });
 
                 $(featureGroup).click(function (event) {
-                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event})
+                    _this.trigger('feature:click', {
+                        query: feature[infoWidgetId],
+                        feature: feature,
+                        featureType: feature.featureType,
+                        clickEvent: event
+                    })
                 });
                 break;
             }

@@ -194,14 +194,16 @@
                 }
             },
             attributeChanged: function (attrName, old, neo) {
-                if (attrName == 'hidden') {
-                    this.fire('hidden', this.hidden);
-                }
+                console.log("attr changed");
                 // check if is not hidden
                 if (attrName == 'hidden' && neo == null) {
                     if (this.modal) {
+                        console.log("attr hidden changed");
                         this._center();
                     }
+                }
+                if (attrName == 'hidden') {
+                    this.fire('hidden', this.hidden);
                 }
             },
             hostAttributes: {
