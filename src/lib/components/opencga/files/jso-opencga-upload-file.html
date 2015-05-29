@@ -6,6 +6,9 @@
             display: block;
             position: relative;
             box-sizing: border-box;
+            width: 300px;
+            padding: 20px 30px;
+
         }
 
         jso-study-select {
@@ -44,7 +47,7 @@
             width: 100%;
         }
 
-        .filename{
+        .filename {
             word-break: break-all;
         }
 
@@ -72,6 +75,7 @@
             </div>
             <br>
             <label class="jso">Selected file name:</label>
+
             <div class="filename">{{fileName}}</div>
 
             <input type="file" hidden id="fileInput" required on-change="handleInputChange"
@@ -176,7 +180,7 @@
                                 me.fire('file-uploaded');
 
                                 var uploadedFile = response.response[0].result[0];
-                                me._indexFile(uploadedFile);
+//                                me._indexFile(uploadedFile);
                             }
                         }
                     };
@@ -193,7 +197,7 @@
 
         _indexFile: function (file) {
             console.log(file.id);
-
+debugger
             if (!this.disableIndex) {
                 OpencgaManager.files.index({
                     id: file.id,

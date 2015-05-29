@@ -17,6 +17,8 @@
 
             transition: all 0.2s;
             background-color: inherit;
+            width: 600px;
+            height: 400px;
         }
 
         #topbar,
@@ -441,9 +443,9 @@
                 query: {
                     sid: Cookies('bioinfo_sid'),
 //                    status:'READY,STAGED,MISSING',
-                    status: 'READY',
-                    bioformat: this.bioformats.join(',') + ',NONE',
-                    type: 'FILE,FOLDER',
+//                    status: 'READY',
+//                    bioformat: me.bioformats.join(',') + ',NONE',
+//                    type: 'FILE,FOLDER',
                     studyId: studyId
                 },
                 request: {
