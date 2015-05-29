@@ -188,15 +188,18 @@
         <div id="botbar" class="horizontal layout end-justified">
         </div>
 
-        <jso-panel modal closable hidden id="uploadFilePanel">
+        <jso-panel modal movable closable hidden id="uploadFilePanel">
             <div class="header">
-                <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
+                <i class="fa fa-cloud-upload"></i> &nbsp; xxUpload file
             </div>
             <jso-opencga-upload-file
                     class="container" id="uploadFile"
                     on-file-uploaded="handleFileUploaded"
                     projects="{{projects}}"
+                    selected-study="{{selectedStudy.study}}"
+                    selected-folder="{{selectedFile}}"
                     bioformats="{{bioformats}}"
+
                     ></jso-opencga-upload-file>
         </jso-panel>
 
