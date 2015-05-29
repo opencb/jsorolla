@@ -1,0 +1,93 @@
+<link rel="import" href="jso-opencga-job-list-item.html">
+<dom-module id="jso-opencga-job-list">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        #header,
+        #footer {
+            box-sizing: border-box;
+            background-color: rgba(125, 125, 125, 0.1);
+            padding: 3px 7px;
+        }
+
+        #header {
+            height: 25px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #footer {
+            height: 30px;
+            border-top: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #content {
+            height: calc(100% - 55px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        jso-opencga-job-list-item {
+            padding: 3px 7px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+        }
+
+    </style>
+    <template>
+        <div id="header" class="horizontal layout">
+        </div>
+        <div id="content">
+            <template is="dom-repeat" items="{{jobs}}" filter="checkFilters" observe="status">
+                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect">
+                </jso-opencga-job-list-item>
+            </template>
+        </div>
+        <div id="footer" class="horizontal layout">
+
+        </div>
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-job-list",
+        properties: {
+            folder: {
+                type: Object,
+                notify: true,
+                value: null
+            },
+            jobs: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return [];
+                }
+            },
+            selected: {
+                type: Object,
+                notify: true
+            }
+        },
+        handleSelect: function (e) {
+            this.selected = e.currentTarget.job;
+            var sel = this.querySelector("jso-opencga-job-list-item[selected]");
+            if (sel) {
+                sel.removeAttribute('selected');
+            }
+            e.currentTarget.setAttribute('selected', '');
+            console.log(this.selected);
+            this.fire('jobselect', this.selected);
+        },
+        checkFolder: function (folder) {
+            return folder == null;
+        },
+        checkFilters: function (item) {
+            return true;
+//            return item.bioformat == "VARIANT";
+        }
+    });
+</script>

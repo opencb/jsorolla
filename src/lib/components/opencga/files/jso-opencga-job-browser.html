@@ -1,0 +1,260 @@
+<link rel="import" href="jso-opencga-project-tree.html">
+<link rel="import" href="jso-opencga-job-list.html">
+<dom-module id="jso-opencga-job-browser">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+
+            transition: all 0.2s;
+            background-color: inherit;
+            width: 100%;
+        }
+
+        #topbar,
+        #botbar {
+            box-sizing: border-box;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        #topbar {
+            border-bottom: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #botbar {
+            border-top: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #main {
+            position: relative;
+            height: calc(100% - 60px);
+        }
+
+        #mainmenu {
+            position: absolute;
+            box-sizing: border-box;
+            width: 150px;
+            height: 100%;
+            overflow-y: auto;
+            border-right: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #maincontent {
+            position: absolute;
+            left: 150px;
+            top: 0;
+            width: calc(100% - 150px);
+            height: 100%;
+            white-space: nowrap;
+        }
+
+        #maininfo {
+            box-sizing: border-box;
+            width: 150px;
+            height: 100%;
+            border-left: 1px solid rgba(130, 130, 130, 0.4);;
+            word-wrap: break-word;
+        }
+
+        .project-menu-item {
+
+        }
+
+        #breadcrums {
+            box-sizing: border-box;
+            padding-left: 10px;
+        }
+
+        #breadcrums > span:hover {
+            cursor: pointer;
+        }
+
+        /*#breadcrums > span:not(:last-of-type)::after {*/
+        /*font-family: 'FontAwesome';*/
+        /*content: '\f105';*/
+        /*margin-left: 5px;*/
+        /*}*/
+
+        jso-opencga-job-list {
+            height: 100%;
+        }
+
+    </style>
+    <template>
+        <div id="topbar" class="horizontal layout">
+            <!--<div flex id="breadcrums">-->
+            <!--<span>Root</span>-->
+            <!--<i hidden hidden$="{{computeAngleIcon(selectedProject)}}" class="fa fa-angle-right"></i>-->
+            <!--<span>{{selectedProject.project.name}}</span>-->
+            <!--<i hidden hidden$="{{computeAngleIcon(selectedStudy)}}" class="fa fa-angle-right"></i>-->
+            <!--<span>{{selectedStudy.study.name}}</span>-->
+            <!--</div>-->
+        </div>
+
+        <div id="main" class="flex">
+            <div id="mainmenu">
+                <template is="dom-repeat" items="{{projects}}">
+                    <jso-opencga-project-tree on-click="handleProjectTreeClick"
+                                              project="{{item}}">
+                    </jso-opencga-project-tree>
+                </template>
+            </div>
+            <div id="maincontent">
+                <jso-opencga-job-list
+                        on-fileselect="handleFileSelect"
+                        study="{{selectedStudy.study}}"
+                        jobs="{{jobs}}">
+                </jso-opencga-job-list>
+
+            </div>
+        </div>
+
+        <div id="botbar" class="horizontal layout end-justified">
+            <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
+                 on-click="handleOnClickIndex">
+                <i class="fa fa-cog"></i>&nbsp;Index
+            </div>
+        </div>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-job-browser",
+        properties: {
+            projects: {
+                type: Array,
+                notify: true,
+                observer: 'projectsChanged'
+            },
+            selectedProject: {
+                type: Object,
+                notify: true,
+                observer: 'selectedProjectChanged'
+            },
+            selectedStudy: {
+                type: Object,
+                notify: true,
+                observer: 'selectedStudyChanged'
+            },
+            selectedFile: {
+                type: Object,
+                notify: true,
+                value: function () {
+                    return null;
+                }
+            },
+            folder: {
+                type: Object,
+                notify: true
+            },
+            jobs: {
+                type: Array,
+                notify: true
+            },
+            allowedTools: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            }
+        },
+        handleHiddenIndex: function (selectedFile) {
+            if (selectedFile == null) {
+                return true;
+            }
+            return selectedFile.index != null;
+        },
+        handleOnClickIndex: function (e) {
+            alert("Index File: " + this.selectedFile.name)
+        },
+        projectsChanged: function (neo, old) {
+//            if (this.selectedProject == null) {
+//                if (neo && neo[0]) {
+//                    var studyId;
+//
+//                    for (var i = 0; i < neo.length; i++) {
+//                        var pr = neo[i];
+//
+//                        if (pr.name !== ".meta" && pr.studies.length > 0) {
+//                            this._getJobs(pr.studies[0].id);
+//
+//
+//                        }
+//                    }
+//                }
+//            }
+        },
+        selectedStudyChanged: function (neo, old) {
+            if (old) old.selected = false;
+            if (neo) neo.selected = true;
+
+            var me = this;
+            if (neo) {
+
+                me._getJobs(this.selectedStudy.study.id);
+            } else {
+                this.jobs = [];
+            }
+            this.selectedFile = null;
+        },
+        selectedProjectChanged: function (neo, old) {
+            if (old) old.selected = false;
+            if (neo) neo.selected = true;
+        },
+        handleProjectTreeClick: function (e) {
+            this.selectedProject = e.currentTarget;
+            this.selectedStudy = e.currentTarget.selectedStudy;
+        },
+        handleFileSelect: function (e) {
+            this.selectedFile = e.detail;
+        },
+
+        /* Private methods */
+        computeAngleIcon: function (el) {
+            if (el) {
+                return false;
+            }
+            return true;
+        },
+        _getJobs: function (studyId) {
+            var me = this;
+
+            OpencgaManager.studies.job({
+                id: studyId,
+                query: {
+                    sid: Cookies('bioinfo_sid')
+                },
+                request: {
+                    async: true,
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            var jobList = response.response[0].result;
+
+                            if (me.allowedTools != null && me.allowedTools.length > 0) {
+                                me.jobs = jobList.filter(function (item) {
+                                    return me.allowedTools.indexOf(item.toolName) != -1;
+                                })
+                            } else {
+                                me.jobs = jobList;
+                            }
+
+//                            me.jobs = response.response[0].result;
+
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+
+        }
+
+    });
+</script>
