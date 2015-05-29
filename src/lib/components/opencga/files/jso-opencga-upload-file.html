@@ -6,6 +6,9 @@
             display: block;
             position: relative;
             box-sizing: border-box;
+            width: 300px;
+            padding: 20px 30px;
+
         }
 
         jso-study-select {
@@ -44,7 +47,7 @@
             width: 100%;
         }
 
-        .filename{
+        .filename {
             word-break: break-all;
         }
 
@@ -53,12 +56,12 @@
         <div>
             <div>
                 <label class="jso">Studies:</label>
-                <jso-study-select id="studySelect" projects="{{projects}}">
+                <jso-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
                 </jso-study-select>
             </div>
             <br>
 
-            <div>
+            <div hidden$="{{!showbioformats}}">
                 <label class="jso">Bioformat:</label>
                 <jso-bioformat id="bioformatSelect"
                                bioformats="{{bioformats}}"></jso-bioformat>
@@ -72,6 +75,7 @@
             </div>
             <br>
             <label class="jso">Selected file name:</label>
+
             <div class="filename">{{fileName}}</div>
 
             <input type="file" hidden id="fileInput" required on-change="handleInputChange"
@@ -97,10 +101,6 @@
     Polymer({
         is: "jso-opencga-upload-file",
         properties: {
-            uploading: {
-                type: Boolean,
-                value: false
-            },
             fileName: {
                 type: String,
                 value: 'None'
@@ -108,6 +108,13 @@
             projects: {
                 type: Array,
                 notify: true
+            },
+            selectedStudy: {
+                type: Object,
+                observer: "selectedStudyChanged"
+            },
+            selectedFolder: {
+                type: Object
             },
             disableIndex: {
                 type: Boolean,
@@ -129,7 +136,18 @@
             message: {
                 type: String,
                 value: ''
+            },
+            showbioformats: {
+                type: Boolean,
+                value: false
             }
+        },
+        ready: function (e) {
+            if (this.bioformats.length == 0) {
+                console.log("No bioformats selected")
+            }
+            if (this.bioformats.length == 1)
+                this.selectedBioformat = this.bioformats[0];
         },
         handleBrowseClick: function (e) {
             if (this.uploading == false) {
@@ -149,9 +167,13 @@
                     alert("Please select a study");
                     return;
                 }
-                if (this.$.bioformatSelect.selectedBioformat == '') {
+                if (this.selectedBioformat == '') {
                     alert("Please select a bioformat");
                     return;
+                }
+                var folder = "";
+                if (this.selectedFolder != null) {
+                    folder = this.selectedFolder.path;
                 }
                 if (this.$.form.checkValidity()) {
                     this.uploading = true;
@@ -161,10 +183,10 @@
                         fileName: this.fileName,
                         userId: Cookies("bioinfo_user"),
                         sid: Cookies("bioinfo_sid"),
-                        studyId: this.$.studySelect.selectedStudy,
-                        relativeFilePath: '' + this.fileName,
+                        studyId:this.$.studySelect.selectedStudy.id,
+                        relativeFilePath: folder + this.fileName,
                         fileFormat: 'PLAIN',
-                        bioFormat: 'VARIANT',
+                        bioFormat: this.selectedBioformat,
                         description: '',
                         callbackProgress: function (chunk, total, response) {
                             me.percentProgress = Math.round((chunk.id / total) * 100);
@@ -176,7 +198,7 @@
                                 me.fire('file-uploaded');
 
                                 var uploadedFile = response.response[0].result[0];
-                                me._indexFile(uploadedFile);
+//                                me._indexFile(uploadedFile);
                             }
                         }
                     };
@@ -190,10 +212,9 @@
         percentProgressChanged: function (neo, old) {
             this.$.progressBar.style.width = neo + '%';
         },
-
+        
         _indexFile: function (file) {
             console.log(file.id);
-
             if (!this.disableIndex) {
                 OpencgaManager.files.index({
                     id: file.id,

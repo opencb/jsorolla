@@ -39,8 +39,8 @@
         <template is="dom-repeat" items="{{projects}}">
             <div class="project-item" on-click="handleProjectClick">{{item.name}}</div>
             <template is="dom-repeat" items="{{item.studies}}">
-                <div class="study-item" on-click="handleStudyClick"
-                     data-id$="{{item.id}}"><span>{{item.name}}</span>
+                <div class="study-item" on-click="handleStudyClick" data-id$="{{item.id}}">
+                    <span>{{item.name}}</span>
                 </div>
             </template>
         </template>
@@ -56,33 +56,65 @@
                 observer: 'projectsChanged'
             },
             selectedStudy: {
-                type: String
+                type: Object,
+                observer: 'selectedStudyChanged'
             }
         },
         handleStudyClick: function (e) {
+            this._cleanStudiesSelection();
+            this.selectedStudy = e.currentTarget.dataset;
+            e.currentTarget.setAttribute('data-checked', '')
+        },
+        projectsChanged: function (neo, old) {
+//            var found = false;
+//            for (var i = 0; i < neo.length; i++) {
+//                var p = neo[i];
+//                for (var j = 0; j < p.studies.length; j++) {
+//                    var s = p.studies[j];
+//                    if (s.id == parseInt(this.selectedStudy.id)) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!found) {
+//                this.selectedStudy = null;
+//            }
+        },
+//        selectStudy:function(study){
+//            this._cleanStudiesSelection();
+//
+//        },
+        _cleanStudiesSelection:function(){
             var sel = this.querySelectorAll('.study-item');
             for (var i = 0; i < sel.length; i++) {
                 var el = sel[i];
                 el.removeAttribute('data-checked');
             }
-            this.selectedStudy = e.currentTarget.dataset.id;
-            e.currentTarget.setAttribute('data-checked', '')
         },
-        projectsChanged: function (neo, old) {
-            var found = false;
-            for (var i = 0; i < neo.length; i++) {
-                var p = neo[i];
-                for (var j = 0; j < p.studies.length; j++) {
-                    var s = p.studies[j];
-                    if (s.id == parseInt(this.selectedStudy)) {
-                        found = true;
-                        break;
+        selectedStudyChanged: function (neo, old) {
+            if(neo != null) {
+                var sel = this.querySelectorAll('.study-item');
+                for (var i = 0; i < sel.length; i++) {
+                    var el = sel[i];
+                    el.removeAttribute('data-checked');
+                    if (this.selectedStudy.id == el.dataset.id) {
+                        el.setAttribute('data-checked', '');
                     }
                 }
             }
-            if (!found) {
-                this.selectedStudy = null;
-            }
+
+//            var found = false;
+//            for (var i = 0; i < neo.length; i++) {
+//                var p = neo[i];
+//                for (var j = 0; j < p.studies.length; j++) {
+//                    var s = p.studies[j];
+//                    if (s.id == parseInt(this.selectedStudy)) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//            }
         }
     });
 </script>

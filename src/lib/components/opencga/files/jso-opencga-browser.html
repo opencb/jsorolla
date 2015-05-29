@@ -19,6 +19,8 @@
 
             transition: all 0.2s;
             background-color: inherit;
+            width: 600px;
+            height: 400px;
         }
 
         #topbar,
@@ -186,15 +188,18 @@
         <div id="botbar" class="horizontal layout end-justified">
         </div>
 
-        <jso-panel modal closable hidden id="uploadFilePanel">
+        <jso-panel modal movable closable hidden id="uploadFilePanel">
             <div class="header">
-                <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
+                <i class="fa fa-cloud-upload"></i> &nbsp; xxUpload file
             </div>
             <jso-opencga-upload-file
                     class="container" id="uploadFile"
                     on-file-uploaded="handleFileUploaded"
                     projects="{{projects}}"
+                    selected-study="{{selectedStudy.study}}"
+                    selected-folder="{{selectedFile}}"
                     bioformats="{{bioformats}}"
+
                     ></jso-opencga-upload-file>
         </jso-panel>
 
@@ -433,9 +438,9 @@
                 query: {
                     sid: Cookies('bioinfo_sid'),
 //                    status:'READY,STAGED,MISSING',
-                    status: 'READY',
-                    bioformat: this.bioformats.join(',') + ',NONE',
-                    type: 'FILE,FOLDER',
+//                    status: 'READY',
+//                    bioformat: me.bioformats.join(',') + ',NONE',
+//                    type: 'FILE,FOLDER',
                     studyId: studyId
                 },
                 request: {
