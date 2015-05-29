@@ -117,8 +117,7 @@
             bioformats: {
                 type: Array
             },
-            uploading: {
-                type: Boolean,
+            uploading: {type: Boolean,
                 value: false
             },
             percentProgress: {
@@ -176,7 +175,7 @@
                                 me.fire('file-uploaded');
 
                                 var uploadedFile = response.response[0].result[0];
-                                me._indexFile(uploadedFile);
+//                                me._indexFile(uploadedFile);
                             }
                         }
                     };
