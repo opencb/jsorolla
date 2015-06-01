@@ -5,13 +5,16 @@
             position: relative;
             box-sizing: border-box;
             text-align: center;
-            width: 50px;
+            margin-right: 5px;
+            margin-left: 5px;
         }
+
         .text {
             outline: 0;
             height: 100%;
             cursor: pointer;
         }
+
         .menu {
             position: absolute;
             visibility: hidden;
@@ -40,7 +43,7 @@
     </style>
     <template>
         <div class="text" tabindex="-1">
-            &nbsp;<i class="fa fa-question-circle"></i>
+            <i class="fa fa-question-circle"></i>
         </div>
         <div class="menu">
             <content class=".link"></content>
