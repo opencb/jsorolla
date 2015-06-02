@@ -69,7 +69,7 @@
             top: 0px;
         }
 
-        @media (max-width: 1000px) {
+        @media (max-width: 1100px) {
             .option-text {
                 display: none;
             }
@@ -136,34 +136,34 @@
                 </div>
 
                 <div hidden$="{{!allowBrowse}}">
-                    <div id="projects" class="hover" data-option="projects" on-click="handleMenu"
+                    <div title="Upload"  id="projects" class="hover" data-option="projects" on-click="handleMenu"
                          hidden$="{{!isLogged}}">
                         <span class="option-text"> upload </span>
                     </div>
                 </div>
 
-                <div id="jobs" class="hover" data-option="jobs" on-click="handleJobClick"
+                <div title="jobs"  id="jobs" class="hover" data-option="jobs" on-click="handleJobClick"
                      hidden$="{{computeJobs(isLogged, allowJobs)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> jobs </span>
                 </div>
 
-                <div id="profile" class="hover" data-option="profile" on-click="handleMenu"
+                <div title="profile"  id="profile" class="hover" data-option="profile" on-click="handleMenu"
                      hidden$="{{computeProfile(isLogged, userText)}}">
                     <i class="fa fa-user"></i>
                     <span class="option-text"> profile </span>
                 </div>
 
-                <div id="logout" class="hover" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
+                <div title="logout"  id="logout" class="hover" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
                     <i class="fa fa-sign-out"></i>
                     <span class="option-text"> logout </span>
                 </div>
 
-                <div id="login" class="hover" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="log in"  id="login" class="hover" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-sign-in"></i>
                     <span class="option-text"> log in </span>
                 </div>
-                <div id="signup" class="hover" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="sign up"  id="signup" class="hover" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> sign up </span>
                 </div>
@@ -361,7 +361,7 @@
             this.fire("login");
         },
         sessionFinished: function (e) {
-
+            this.userData = null;
             this.showJobs = false;
             this.selectedOption = 'home';
             this.isLogged = false;
