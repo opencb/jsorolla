@@ -27,14 +27,15 @@
             padding: 0;
             text-transform: none;
             box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
-            background-color: inherit;
+            /*background-color: inherit;*/
+            background-color: var(--dark-primary-color);
+            color:var(--text-primary-color);
         }
 
         #tools {
             position: absolute;
             top: 60px;
             width: 100%;
-            background-color: #FAFAFA;
         }
 
         #left > div,
@@ -109,13 +110,13 @@
 
         <div class="main horizontal layout">
             <div id="left" class="horizontal layout start-justified">
-                <div class="hover" data-option="home" on-click="handleMenu">
+                <div on-click="handleMenu">
                     <content select=".menu-button"></content>
                 </div>
-                <div class="hover" data-option="home" on-click="handleMenu">
+                <div data-option="home" on-click="handleMenu">
                     <content select=".icon"></content>
                 </div>
-                <div class="title hover" data-option="home" on-click="handleMenu">
+                <div class="title" data-option="home" on-click="handleMenu">
                     <content select=".title"></content>
                 </div>
                 <div id="description" class="description">
@@ -136,34 +137,34 @@
                 </div>
 
                 <div hidden$="{{!allowBrowse}}">
-                    <div title="Upload"  id="projects" class="hover" data-option="projects" on-click="handleMenu"
+                    <div title="Upload" id="projects" data-option="projects" on-click="handleMenu"
                          hidden$="{{!isLogged}}">
                         <span class="option-text"> upload </span>
                     </div>
                 </div>
 
-                <div title="jobs"  id="jobs" class="hover" data-option="jobs" on-click="handleJobClick"
+                <div title="jobs" id="jobs"  data-option="jobs" on-click="handleJobClick"
                      hidden$="{{computeJobs(isLogged, allowJobs)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> jobs </span>
                 </div>
 
-                <div title="profile"  id="profile" class="hover" data-option="profile" on-click="handleMenu"
+                <div title="profile" id="profile" data-option="profile" on-click="handleMenu"
                      hidden$="{{computeProfile(isLogged, userText)}}">
                     <i class="fa fa-user"></i>
                     <span class="option-text"> profile </span>
                 </div>
 
-                <div title="logout"  id="logout" class="hover" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
+                <div title="logout" id="logout" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
                     <i class="fa fa-sign-out"></i>
                     <span class="option-text"> logout </span>
                 </div>
 
-                <div title="log in"  id="login" class="hover" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="log in" id="login"  data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-sign-in"></i>
                     <span class="option-text"> log in </span>
                 </div>
-                <div title="sign up"  id="signup" class="hover" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="sign up" id="signup" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> sign up </span>
                 </div>

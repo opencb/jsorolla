@@ -32,6 +32,9 @@
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
+
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
         }
 
         :host[movable] > .header {
@@ -111,8 +114,14 @@
         }
 
         .container {
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
             position: relative;
             height: calc(100% - 64px);
+        }
+        .footer{
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
         }
 
     </style>

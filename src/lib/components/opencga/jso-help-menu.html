@@ -7,6 +7,9 @@
             text-align: center;
             margin-right: 5px;
             margin-left: 5px;
+            background-color: var(--dark-primary-color);
+            color: var(--text-primary-color);
+            cursor:default;
         }
 
         .text {
@@ -21,7 +24,7 @@
             opacity: 0;
             transition: all 0.25s;
             right: 0;
-            padding: 10px 15px;
+            padding: 10px 10px;
             text-transform: none;
             line-height: 25px;
             box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.3);
@@ -37,16 +40,24 @@
         }
 
         .menu > ::content a {
+            padding:2px 5px;
             display: block;
             text-decoration: none;
+            color: var(--text-primary-color);
         }
+
+        .menu > ::content a:hover {
+            background-color: var(--accent-color);
+            cursor:pointer;
+        }
+
     </style>
     <template>
         <div class="text" tabindex="-1">
             <i class="fa fa-question-circle"></i>
         </div>
         <div class="menu">
-            <content class=".link"></content>
+            <content></content>
         </div>
     </template>
 </dom-module>
