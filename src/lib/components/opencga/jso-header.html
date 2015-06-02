@@ -86,6 +86,11 @@
             }
         }
 
+        #user{
+            color:var(--accent-color);
+            font-weight: normal;
+        }
+
     </style>
     <template>
         <div id="tools">
@@ -132,7 +137,7 @@
                 </div>
             </div>
             <div id="right" hidden$="{{!allowLogin}}" class="horizontal layout end-justified">
-                <div id="user" class="color-1" hidden$="{{!isLogged}}">
+                <div id="user" hidden$="{{!isLogged}}">
                     <span class="option-text">{{userText}}</span>
                 </div>
 

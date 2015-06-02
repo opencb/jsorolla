@@ -119,7 +119,8 @@
             position: relative;
             height: calc(100% - 64px);
         }
-        .footer{
+
+        .footer {
             background-color: var(--light-primary-color);
             color: var(--primary-text-color);
         }
@@ -200,20 +201,21 @@
                 moved: {
                     type: Boolean,
                     value: false
+                },
+                hidden: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    observer: 'hiddenChanged'
                 }
             },
-            attributeChanged: function (attrName, old, neo) {
-                console.log("attr changed");
+            hiddenChanged: function (neo, old) {
                 // check if is not hidden
-                if (attrName == 'hidden' && neo == null) {
+                if (neo == false) {
                     if (this.modal) {
-                        console.log("attr hidden changed");
                         this._center();
                     }
                 }
-                if (attrName == 'hidden') {
-                    this.fire('hidden', this.hidden);
-                }
+                this.fire('hidden', this.hidden);
             },
             hostAttributes: {
                 'class': 'vertical layout flex'

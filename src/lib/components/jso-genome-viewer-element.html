@@ -117,18 +117,21 @@
                     type: Number,
                     value: 800
                 },
+                hidden: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    observer: 'hiddenChanged'
+                }
+            },
+            hiddenChanged: function (neo, old) {
+                if (neo == false && this.genomeViewer == null) {
+                    this.createGenomeViewer();
+                    this.genomeViewer.draw();
+                    this.genomeViewer.toggleAutoHeight(true);
+                }
             },
             created: function () {
                 var me = this;
-                var observer = new MutationObserver(function (mutations) {
-                    if (!this.hasAttribute('hidden') && this.genomeViewer == null) {
-                        this.createGenomeViewer();
-                        this.genomeViewer.draw();
-                        this.genomeViewer.toggleAutoHeight(true);
-                    }
-                }.bind(this));
-                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
-
                 window.addEventListener("resize", function (e) {
                     me.genomeViewer.setWidth(me.getBoundingClientRect().width);
                 });
