@@ -864,27 +864,28 @@ GenomeViewer.prototype = {
     _speciesChangeHandler: function (event) {
         //Relaunch
         //this.trigger('species:change', event);
+        this._updateSpecies(event.species);
 
-        this.species = event.species;
+        var c = this.chromosomes[Object.keys(this.chromosomes)[0]];
+        var region = new Region({
+            chromosome: c.name,
+            start: Math.round(c.size / 2),
+            end: Math.round(c.size / 2)
+        });
+        this.setRegion(region);
+    },
+    _updateSpecies:function(species){
+        this.species = species;
         this.chromosomes = this.getChromosomes();
         this.species.chromosomes = this.chromosomes;
 
-        this.overviewTrackListPanel.setSpecies(event.species);
-        this.trackListPanel.setSpecies(event.species);
-        this.chromosomePanel.setSpecies(event.species);
-        this.karyotypePanel.setSpecies(event.species);
-        this.navigationBar.setSpecies(event.species);
-
-        this.setRegion(event.species.region);
+        this.overviewTrackListPanel.setSpecies(species);
+        this.trackListPanel.setSpecies(species);
+        this.chromosomePanel.setSpecies(species);
+        this.karyotypePanel.setSpecies(species);
+        this.navigationBar.setSpecies(species);
     },
-
-    /*****************/
-    /*****************/
-    /*****************/
-    /*****************/
-    /** API METHODS **/
-    /*****************/
-    setSpeciesByTaxonomy: function (taxonomyCode) {
+    _getSpeciesByTaxonomy: function (taxonomyCode) {
         //find species object
         var speciesObject = null;
         for (var i = 0; i < this.availableSpecies.items.length; i++) {
@@ -897,13 +898,28 @@ GenomeViewer.prototype = {
                 }
             }
         }
-        if (speciesObject != null) {
-            this._speciesChangeHandler({species: speciesObject});
+        return speciesObject;
+    },
+
+    /*****************/
+    /*****************/
+    /*****************/
+    /*****************/
+    /** API METHODS **/
+    /*****************/
+    setSpeciesByTaxonomy: function (taxonomyCode) {
+        var species = this._getSpeciesByTaxonomy(taxonomyCode);
+        if (species != null) {
+            this._speciesChangeHandler({species: species});
         } else {
             console.log("Species taxonomy not found on availableSpecies.")
         }
     },
-    setRegion: function (region) {
+    setRegion: function (region, taxonomy) {
+        if(taxonomy != null){
+            var species = this._getSpeciesByTaxonomy(taxonomy);
+            this._updateSpecies(species);
+        }
         return this._regionChangeHandler({region: new Region(region)});
     },
     moveRegion: function (disp) {
