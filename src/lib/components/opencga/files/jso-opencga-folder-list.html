@@ -147,6 +147,7 @@
         },
         handleFolderCreated: function (e) {
             this.$.createFolderModal.setAttribute('hidden', '');
+            this.fire("folder-created");
         },
         handleDeleteFile: function (e) {
             this._deleteFile();
@@ -155,6 +156,7 @@
             this._indexFile();
         },
         handleFileClick: function (e) {
+
             this.selected = e.currentTarget.file;
             var sel = this.querySelector("jso-opencga-folder-list-item[selected]");
             if (sel) {

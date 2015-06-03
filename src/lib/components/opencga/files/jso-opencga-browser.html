@@ -15,7 +15,7 @@
             /*right: 0;*/
             /*margin: 0px auto 0px auto;*/
 
-            height:100%;
+            height: 100%;
 
             transition: all 0.2s;
             background-color: inherit;
@@ -174,6 +174,7 @@
                         on-fileselect="handleFileSelect"
                         on-openfolder="handleOpenFolder"
                         on-back="handleBackFolder"
+                        on-folder-created="refreshFolderFiles"
                         study="{{selectedStudy.study}}"
                         folder="{{folder}}"
                         files="{{files}}">
@@ -190,14 +191,15 @@
 
         <jso-panel modal movable closable hidden id="uploadFilePanel">
             <div class="header">
-                <i class="fa fa-cloud-upload"></i> &nbsp; xxUpload file
+                <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
             </div>
             <jso-opencga-upload-file
                     class="container" id="uploadFile"
                     on-file-uploaded="handleFileUploaded"
                     projects="{{projects}}"
+                    selected-project="{{selectedProject.project}}"
                     selected-study="{{selectedStudy.study}}"
-                    selected-folder="{{selectedFile}}"
+                    selected-folder="{{folder}}"
                     bioformats="{{bioformats}}"
 
                     ></jso-opencga-upload-file>
@@ -278,19 +280,19 @@
             }
         },
         projectsChanged: function (neo, old) {
-            var me = this;
-            if (this.selectedProject == null) {
-                if (neo && neo[0]) {
+//            var me = this;
+//            if (this.selectedProject == null) {
+//                if (neo && neo[0]) {
 //                    this.selectedProject = neo[0];
 //                    if (this.selectedStudy == null) {
 //                        if (this.selectedProject.studies[0]) {
 //                            this.selectedStudy = this.selectedProject.studies[0];
 //                        }
 //                    }
-                }
-            } else {
-                this._showStudyFolder();
-            }
+//                }
+//            } else {
+//                this._showStudyFolder();
+//            }
         },
         selectedStudyChanged: function (neo, old) {
             if (old) old.selected = false;
@@ -317,6 +319,14 @@
             var me = this;
             this.folder = e.detail;
             this.push('folders', this.folder);
+            this.refreshFolderFiles();
+//            this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
+//                me.files = files;
+//                console.log(files);
+//            });
+        },
+        refreshFolderFiles: function () {
+            var me = this;
             this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
                 me.files = files;
                 console.log(files);
@@ -332,21 +342,22 @@
             while (this.folder !== this.folders[this.folders.length - 1]) {
                 this.pop('folders');
             }
-
-            this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
-                me.files = files;
-                console.log(files);
-            });
+            this.refreshFolderFiles();
+//            this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
+//                me.files = files;
+//                console.log(files);
+//            });
         },
         handleBackFolder: function (e) {
             var me = this;
             this.pop('folders');
             if (this.folders.length > 0) {
                 this.set('folder', this.folders[this.folders.length - 1]);
-                this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
-                    me.files = files;
-                    console.log(files);
-                });
+                this.refreshFolderFiles();
+//                this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
+//                    me.files = files;
+//                    console.log(files);
+//                });
             } else {
                 this._showStudyFolder();
             }
@@ -375,6 +386,11 @@
         },
 
         handleFileUploaded: function (e) {
+            var me = this;
+            me._getFilesInFolder(me.selectedStudy.study.id, me.folder.id, function (files) {
+                me.files = files;
+                console.log(files);
+            });
             this.$.uploadFilePanel.setAttribute('hidden', '');
         },
         handleProjectCreated: function (e) {
@@ -382,6 +398,9 @@
         },
         handleStudyCreated: function (e) {
             this.$.createStudyPanel.setAttribute('hidden', '');
+        },
+        handleLoading: function (e) {
+            this.fire("loading")
         },
 
 

@@ -54,13 +54,20 @@
     </style>
     <template>
         <div>
-            <div>
+            <div hidden$="{{!showSelectStudy}}">
                 <label class="jso">Studies:</label>
                 <jso-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
                 </jso-study-select>
             </div>
             <br>
 
+            <div hidden$="{{showSelectStudy}}">
+                <label class="jso">File path:</label>
+
+                <div>
+                    /<span>{{selectedProject.name}}</span>/<span>{{selectedStudy.name}}</span>/<span>{{selectedFolder.name}}</span>
+                </div>
+            </div>
             <div hidden$="{{!showbioformats}}">
                 <label class="jso">Bioformat:</label>
                 <jso-bioformat id="bioformatSelect"
@@ -109,12 +116,18 @@
                 type: Array,
                 notify: true
             },
+            selectedProject: {
+                type: Object,
+                observer: "selectedProjectChanged"
+            },
             selectedStudy: {
                 type: Object,
+                value: null,
                 observer: "selectedStudyChanged"
             },
             selectedFolder: {
-                type: Object
+                type: Object,
+                observer: "selectedFolderChanged"
             },
             disableIndex: {
                 type: Boolean,
@@ -140,6 +153,10 @@
             showbioformats: {
                 type: Boolean,
                 value: false
+            },
+            showSelectStudy: {
+                type: Boolean,
+                value: true
             }
         },
         ready: function (e) {
@@ -163,7 +180,7 @@
         handleForm: function () {
             var me = this;
             if (this.uploading == false) {
-                if (this.$.studySelect.selectedStudy == null) {
+                if (this.selectedStudy == null) {
                     alert("Please select a study");
                     return;
                 }
@@ -183,7 +200,7 @@
                         fileName: this.fileName,
                         userId: Cookies("bioinfo_user"),
                         sid: Cookies("bioinfo_sid"),
-                        studyId:this.$.studySelect.selectedStudy.id,
+                        studyId: this.selectedStudy.id,
                         relativeFilePath: folder + this.fileName,
                         fileFormat: 'PLAIN',
                         bioFormat: this.selectedBioformat,
@@ -212,7 +229,19 @@
         percentProgressChanged: function (neo, old) {
             this.$.progressBar.style.width = neo + '%';
         },
-        
+        selectedProjectChanged: function (neo, old) {
+        },
+        selectedStudyChanged: function (neo, old) {
+            this.fileName = "None";
+            if (this.selectedStudy == null)
+                this.showSelectStudy = true;
+            else
+                this.showSelectStudy = false;
+        },
+        selectedFolderChanged: function (neo, old) {
+            this.fileName = "None";
+        },
+
         _indexFile: function (file) {
             console.log(file.id);
             if (!this.disableIndex) {
