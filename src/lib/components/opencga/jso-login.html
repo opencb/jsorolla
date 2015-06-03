@@ -13,7 +13,8 @@
             width: 500px;
             transition: all 0.2s;
             box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
-            background-color: inherit;
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
         }
 
         .title {
@@ -23,6 +24,7 @@
 
         .icon {
             font-size: 50px;
+            color: var(--dark-primary-color);
         }
 
         .message {
@@ -32,6 +34,7 @@
         .shortcut{
             text-align: right;
             cursor: pointer;
+            color: var(--dark-primary-color);
         }
 
         .shortcut:hover {
@@ -43,7 +46,7 @@
             <div>
                 Log in
             </div>
-            <div class="icon color-2">
+            <div class="icon">
                 <i class="fa fa-sign-in"></i>
             </div>
         </div>
@@ -51,12 +54,12 @@
             <label class="jso">User</label>
             <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <div class="shortcut color-2" on-click="handleSignup">Create new user...</div>
+            <div class="shortcut" on-click="handleSignup">Create new user...</div>
             <br>
             <label class="jso">Password</label>
             <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <div class="shortcut color-2" on-click="handleRemember">Remember password...</div>
+            <div class="shortcut" on-click="handleRemember">Remember password...</div>
             <br>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleForm">Log in</div>

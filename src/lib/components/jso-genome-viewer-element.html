@@ -32,7 +32,7 @@
 <script src="../data-source/file-data-source.js"></script>
 
 <script src="../../genome-viewer/navigation-bar.js"></script>
-<script src="../../genome-viewer/chr-panel.js"></script>
+<script src="../../genome-viewer/chromosome-panel.js"></script>
 <script src="../../genome-viewer/karyotype-panel.js"></script>
 <script src="../../genome-viewer/status-bar.js"></script>
 
@@ -70,11 +70,10 @@
 <script src="../widgets/feature/info/vcf-variant-info-widget.js"></script>
 
 <script src="../../genome-viewer/genome-viewer.js"></script>
-
+<link rel="stylesheet" href="../../../styles/css/style.css">
+<link rel="stylesheet" href="../../../bower_components/fontawesome/css/font-awesome.css">
 
 <dom-module id="jso-genome-viewer-element">
-    <link rel="stylesheet" href="../../../styles/css/style.css">
-    <link rel="stylesheet" href="../../../bower_components/fontawesome/css/font-awesome.css">
     <style>
         :host {
             display: block;
@@ -118,18 +117,21 @@
                     type: Number,
                     value: 800
                 },
+                hidden: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    observer: 'hiddenChanged'
+                }
+            },
+            hiddenChanged: function (neo, old) {
+                if (neo == false && this.genomeViewer == null) {
+                    this.createGenomeViewer();
+                    this.genomeViewer.draw();
+                    this.genomeViewer.toggleAutoHeight(true);
+                }
             },
             created: function () {
                 var me = this;
-                var observer = new MutationObserver(function (mutations) {
-                    if (!this.hasAttribute('hidden') && this.genomeViewer == null) {
-                        this.createGenomeViewer();
-                        this.genomeViewer.draw();
-                        this.genomeViewer.toggleAutoHeight(true);
-                    }
-                }.bind(this));
-                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
-
                 window.addEventListener("resize", function (e) {
                     me.genomeViewer.setWidth(me.getBoundingClientRect().width);
                 });

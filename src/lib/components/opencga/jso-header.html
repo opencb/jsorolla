@@ -20,7 +20,6 @@
 
         .main {
             position: relative;
-            min-width: 970px;
             height: 60px;
             line-height: 60px;
             font-size: 18px;
@@ -28,14 +27,15 @@
             padding: 0;
             text-transform: none;
             box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
-            background-color: inherit;
+            /*background-color: inherit;*/
+            background-color: var(--dark-primary-color);
+            color:var(--text-primary-color);
         }
 
         #tools {
             position: absolute;
             top: 60px;
             width: 100%;
-            background-color: #FAFAFA;
         }
 
         #left > div,
@@ -44,10 +44,6 @@
             text-align: center;
             padding: 0 5px;
             cursor: pointer;
-        }
-
-        div.icon {
-            margin-left: 10px;
         }
 
         div.title {
@@ -73,6 +69,28 @@
             right: 0px;
             top: 0px;
         }
+
+        @media (max-width: 1100px) {
+            .option-text {
+                display: none;
+            }
+
+            div.title {
+                font-size: 24px;
+            }
+
+            div.description {
+                font-size: 14px;
+                padding-left: 5px;
+                padding-bottom: 5px;
+            }
+        }
+
+        #user{
+            color:var(--accent-color);
+            font-weight: normal;
+        }
+
     </style>
     <template>
         <div id="tools">
@@ -97,10 +115,13 @@
 
         <div class="main horizontal layout">
             <div id="left" class="horizontal layout start-justified">
-                <div class="icon hover" data-option="home" on-click="handleMenu">
+                <div on-click="handleMenu">
+                    <content select=".menu-button"></content>
+                </div>
+                <div data-option="home" on-click="handleMenu">
                     <content select=".icon"></content>
                 </div>
-                <div class="title hover" data-option="home" on-click="handleMenu">
+                <div class="title" data-option="home" on-click="handleMenu">
                     <content select=".title"></content>
                 </div>
                 <div id="description" class="description">
@@ -116,37 +137,41 @@
                 </div>
             </div>
             <div id="right" hidden$="{{!allowLogin}}" class="horizontal layout end-justified">
-                <div id="user" class="color-1" hidden$="{{!isLogged}}">{{userText}}</div>
+                <div id="user" hidden$="{{!isLogged}}">
+                    <span class="option-text">{{userText}}</span>
+                </div>
 
                 <div hidden$="{{!allowBrowse}}">
-                    <div id="projects" class="hover" data-option="projects" on-click="handleMenu"
+                    <div title="Upload" id="projects" data-option="projects" on-click="handleMenu"
                          hidden$="{{!isLogged}}">
-                        <i class="fa fa-cloud-upload"></i>&nbsp;Upload
+                        <span class="option-text"> upload </span>
                     </div>
                 </div>
 
-                <div id="jobs" class="hover" data-option="jobs" on-click="handleJobClick"
+                <div title="jobs" id="jobs"  data-option="jobs" on-click="handleJobClick"
                      hidden$="{{computeJobs(isLogged, allowJobs)}}">
                     <i class="fa fa-pencil-square-o"></i>
-                    &nbsp;jobs
+                    <span class="option-text"> jobs </span>
                 </div>
 
-                <div id="profile" class="hover" data-option="profile" on-click="handleMenu"
+                <div title="profile" id="profile" data-option="profile" on-click="handleMenu"
                      hidden$="{{computeProfile(isLogged, userText)}}">
-                    <i class="fa fa-user"></i>&nbsp;profile
+                    <i class="fa fa-user"></i>
+                    <span class="option-text"> profile </span>
                 </div>
 
-                <div id="logout" class="hover" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
-                    <i class="fa fa-sign-out"></i>&nbsp;logout
+                <div title="logout" id="logout" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
+                    <i class="fa fa-sign-out"></i>
+                    <span class="option-text"> logout </span>
                 </div>
 
-                <div id="login" class="hover" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="log in" id="login"  data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-sign-in"></i>
-                    &nbsp;log in
+                    <span class="option-text"> log in </span>
                 </div>
-                <div id="signup" class="hover" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="sign up" id="signup" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-pencil-square-o"></i>
-                    &nbsp;sign up
+                    <span class="option-text"> sign up </span>
                 </div>
                 <div>
                     <content select=".helpmenu"></content>
@@ -342,7 +367,7 @@
             this.fire("login");
         },
         sessionFinished: function (e) {
-
+            this.userData = null;
             this.showJobs = false;
             this.selectedOption = 'home';
             this.isLogged = false;

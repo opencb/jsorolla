@@ -48,6 +48,9 @@
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
+
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
         }
 
         :host[movable] > .header {
@@ -77,12 +80,12 @@
 
         .header > .headeractions > .collapsible:after {
             font-family: FontAwesome;
-            content: '\f102';
+            content: '\f106';
         }
 
         :host[collapsed] > .header > .headeractions > .collapsible:after {
             font-family: FontAwesome;
-            content: '\f103';
+            content: '\f107';
         }
 
         .header > .headeractions > .pin:after {
@@ -127,8 +130,15 @@
         }
 
         .container {
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
             position: relative;
             height: calc(100% - 64px);
+        }
+
+        .footer {
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
         }
 
     </style>
@@ -211,22 +221,27 @@
                     type: Boolean,
                     value: false
                 },
+
                 loading: {
                     type: Boolean,
                     value: false
+                },
+                hidden: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    observer: 'hiddenChanged'
+
                 }
 
             },
-            attributeChanged: function (attrName, old, neo) {
-                if (attrName == 'hidden') {
-                    this.fire('hidden', this.hidden);
-                }
+            hiddenChanged: function (neo, old) {
                 // check if is not hidden
-                if (attrName == 'hidden' && neo == null) {
+                if (neo == false) {
                     if (this.modal) {
                         this._center();
                     }
                 }
+                this.fire('hidden', this.hidden);
             },
             hostAttributes: {
                 'class': 'vertical layout flex'

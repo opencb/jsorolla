@@ -450,6 +450,7 @@ ul.ocb-app-menu > li:hover {
 .ocb-gv-track-title-histogram {
     margin-right: 10px;
 }
+
 .ocb-gv-track-title-toggle {
     margin-right: 5px;
 }
@@ -606,7 +607,7 @@ CONTROLS
 }
 
 .ocb-ctrl-text {
-    border-color:transparent;
+    border-color: transparent;
     background-color: transparent;
 }
 
@@ -700,11 +701,25 @@ ul.ocb-context ul {
     left: 0;
     top: 100%;
 }
-div.ocb-dropdown ul[data-upward]{
-    top:inherit;
-    bottom:100%;
+
+div.ocb-dropdown ul[data-right] {
+    right: 0;
+    left: auto;
+}
+
+div.ocb-dropdown ul[data-upward] {
+    top: inherit;
+    bottom: 100%;
     margin-bottom: 2px;
     left: 0;
+}
+
+div.ocb-dropdown ul[data-upward][data-right] {
+    top: inherit;
+    bottom: 100%;
+    margin-bottom: 2px;
+    left: auto;
+    right: 0;
 }
 
 div.ocb-dropdown ul ul {
@@ -729,7 +744,6 @@ ul.ocb-context li[data-divider] {
     overflow: hidden;
     background-color: #DEDEDE;
 }
-
 
 div.ocb-dropdown ul li[data-sub]:after,
 ul.ocb-context li[data-sub]:after {
@@ -757,7 +771,6 @@ ul.ocb-context li[data-text]:hover {
     background-color: inherit;
     color: inherit;
 }
-
 
 div.ocb-dropdown > div:focus + ul,
 div.ocb-dropdown > div:focus + ul li:hover > ul {
