@@ -1,5 +1,5 @@
-<link rel="import" href="../jso-study-select.html">
-<link rel="import" href="../jso-bioformat.html">
+<link rel="import" href="jso-opencga-study-select.html">
+<link rel="import" href="jso-opencga-bioformat.html">
 <dom-module id="jso-opencga-upload-file">
     <style>
         :host {
@@ -56,10 +56,10 @@
         <div>
             <div hidden$="{{!showSelectStudy}}">
                 <label class="jso">Studies:</label>
-                <jso-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
-                </jso-study-select>
+                <jso-opencga-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
+                </jso-opencga-study-select>
+                <br>
             </div>
-            <br>
 
             <div hidden$="{{showSelectStudy}}">
                 <label class="jso">File path:</label>
@@ -67,11 +67,12 @@
                 <div>
                     /<span>{{selectedProject.name}}</span>/<span>{{selectedStudy.name}}</span>/<span>{{selectedFolder.name}}</span>
                 </div>
+                <br>
             </div>
-            <div hidden$="{{!showbioformats}}">
+            <div hidden$="{{showBioformat(bioformats)}}">
                 <label class="jso">Bioformat:</label>
-                <jso-bioformat id="bioformatSelect"
-                               bioformats="{{bioformats}}"></jso-bioformat>
+                <jso-opencga-bioformat id="bioformatSelect"
+                                       bioformats="{{bioformats}}"></jso-opencga-bioformat>
             </div>
         </div>
         <br>

@@ -1,7 +1,7 @@
-<link rel="import" href="jso-login.html">
-<link rel="import" href="jso-signup.html">
-<link rel="import" href="jso-profile.html">
-<link rel="import" href="jso-remember.html">
+<link rel="import" href="jso-opencga-login.html">
+<link rel="import" href="jso-opencga-signup.html">
+<link rel="import" href="jso-opencga-profile.html">
+<link rel="import" href="jso-opencga-remember.html">
 <!--
 
 <link rel="import" href="jso-job-list.html">
@@ -9,7 +9,7 @@
 
 -->
 
-<dom-module id="jso-header">
+<dom-module id="jso-opencga-header">
     <style>
         :host {
             position: relative;
@@ -94,23 +94,23 @@
     </style>
     <template>
         <div id="tools">
-            <jso-login id="jsoLogin"
+            <jso-opencga-login id="jsoLogin"
                        menu-option="login"
                        on-login="handleLogin"
                        on-remember="handleRemember"
                        on-signup="handleSignup">
-            </jso-login>
-            <jso-signup id="jsoSignup"
+            </jso-opencga-login>
+            <jso-opencga-signup id="jsoSignup"
                         on-login="handleLogin"
                         menu-option="signup">
-            </jso-signup>
+            </jso-opencga-signup>
 
-            <jso-profile id="jsoProfile"
+            <jso-opencga-profile id="jsoProfile"
                          menu-option="profile">
-            </jso-profile>
+            </jso-opencga-profile>
 
-            <jso-remember menu-option="remember">
-            </jso-remember>
+            <jso-opencga-remember menu-option="remember">
+            </jso-opencga-remember>
         </div>
 
         <div class="main horizontal layout">
@@ -204,7 +204,7 @@
 
 <script>
     Polymer({
-        is: "jso-header",
+        is: "jso-opencga-header",
         properties: {
             checkTimeInterval: {
                 type: Number,
