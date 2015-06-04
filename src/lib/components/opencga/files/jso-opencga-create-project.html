@@ -10,28 +10,22 @@
 
     </style>
     <template>
-        <form id="form">
-            <label class="jso">Project name:</label>
-            <input class="jso" type="text" value={{name::input}} placeholder="New project" required
-                   pattern="^[\w ]+$">
-            <br>
-
-            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Create</div>
+        <form id="form"  onsubmit="return false">
+            <jso-opencga-input-text
+                    id="input"
+                    label="Pepe name:"
+                    placeholder="New project"
+                    tooltip="Please, use only the requested format: letter, numbers, spaces or underscore"
+                    pattern="^[\w ]+$"
+                    required>
+            </jso-opencga-input-text>
+            <input class="jso-btn jso-btn-shdw" type="submit" value="Create" on-click="handleForm">
         </form>
     </template>
 </dom-module>
 <script>
     Polymer({
         is: "jso-opencga-create-project",
-        properties: {
-            projects: {
-                type: Array,
-                notify: true
-            },
-            name: {
-                type: String,
-            }
-        },
         handleForm: function () {
             var me = this;
             if (this.$.form.checkValidity()) {
@@ -39,8 +33,8 @@
                     query: {
                         userId: Cookies('bioinfo_user'),
                         sid: Cookies('bioinfo_sid'),
-                        name: this.name,
-                        alias: this.name.replace(/ /gi, ''),
+                        name: this.$.input.value,
+                        alias: this.$.input.value.replace(/ /gi, ''),
                         description: '',
                         organization: ''
                     },
@@ -49,7 +43,7 @@
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
 //                                me.message = 'Project created sucessfully.';
-                                me.name = "";
+                                me.$.input.name = "";
                                 me.fire('need-refresh');
                                 me.fire('project-created');
                             } else {
@@ -62,6 +56,9 @@
                     }
                 });
             }
+//            else{
+//                this.$.input.message = this.$.input.$.input.validationMessage;
+//            }
         }
     });
 </script>

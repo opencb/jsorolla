@@ -75,7 +75,7 @@ select.jso {
     content: '\f107';
 }
 
-div.jso-btn,
+.jso-btn,
 select.jso,
 input.jso[type=text],
 input.jso[type=email],
@@ -116,13 +116,13 @@ input.jso[type=color] {
     padding: 0px;
 }
 
-div.jso-btn:hover {
+.jso-btn:hover {
     cursor: pointer;
     background-color: #ebebeb;
     /*border-color: #66afe9;*/
 }
 
-div.jso-btn.jso-btn-shdw {
+.jso-btn.jso-btn-shdw {
     border: 1px solid #ddd;
     background-color: #FFFFFF;
     text-align: center;
@@ -130,22 +130,22 @@ div.jso-btn.jso-btn-shdw {
     transition: background-color 0.15s;
 }
 
-div.jso-btn.jso-btn-big {
+.jso-btn.jso-btn-big {
     height: 50px;
     line-height: 50px;
     padding: 0px 50px;
 }
 
-div.jso-btn:hover {
+.jso-btn:hover {
     background-color: #f5f5f5;
     /*background-color: #ebeef3;*/
 }
 
-div.jso-btn:active {
+.jso-btn:active {
     background-color: #ebebeb;
 }
 
-div.jso-btn[data-checked=true],
+.jso-btn[data-checked=true],
 label.jso-btn > input[type=radio]:checked + span,
 label.jso-btn > input[type=checkbox]:checked + span {
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);

@@ -18,7 +18,7 @@
 
         <br>
 
-        <form id="form">
+        <form id="form" onsubmit="return false" >
 
             <div>
                 <label class="jso">Study type</label>
@@ -48,12 +48,20 @@
                 </label>
             </div>
             <br>
-            <label class="jso">Study name:</label>
-            <input class="jso" type="text" value={{name::input}} placeholder="New study" required
-                   pattern="[a-zA-Z0-9]+">
-            <br>
+            <jso-opencga-input-text
+                    id="input"
+                    label="Study name:"
+                    placeholder="New study"
+                    tooltip="Please, use only the requested format: letter, numbers, spaces or underscore"
+                    pattern="^[\w ]+$"
+                    required>
+            </jso-opencga-input-text>
 
-            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Create</div>
+            <!--<label class="jso">Study name:</label>-->
+            <!--<input class="jso" type="text" value={{name::input}} placeholder="New study" required-->
+                   <!--pattern="[a-zA-Z0-9]+">-->
+            <br>
+            <input class="jso-btn jso-btn-shdw" type="submit" value="Create" on-click="handleForm">
         </form>
     </template>
 
@@ -82,8 +90,8 @@
                 OpencgaManager.studies.create({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        name: this.name,
-                        alias: this.name.replace(/ /gi, ''),
+                        name: this.$.input.value,
+                        alias: this.$.input.value.replace(/ /gi, ''),
                         description: '',
                         organization: '',
                         type: this.querySelector('input[name="type"]:checked').value,

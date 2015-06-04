@@ -1,0 +1,52 @@
+<dom-module id="jso-opencga-button-tooltip">
+    <style>
+        :host{
+            cursor: pointer;
+        }
+        .tooltip {
+            display: inline;
+            position: relative;
+        }
+
+        .tooltip:hover:after {
+            background: rgba(0, 0, 0, .8);
+            box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
+            bottom: 100%;
+            color: #fff;
+            content: attr(data-title);
+            left: 0;
+            padding: 10px 15px;
+            position: absolute;
+            z-index: 98;
+            width: 220px;
+        }
+
+        .tooltip:hover:before {
+            /*border: solid;*/
+            /*border-color: rgba(0, 0, 0, .8) transparent;*/
+            /*border-width: 6px 6px 0 6px;*/
+            /*bottom: 20px;*/
+            /*content: "";*/
+            /*left: 0;*/
+            /*position: absolute;*/
+            /*z-index: 99;*/
+        }
+
+    </style>
+    <template>
+
+        <span data-title$="{{message}}" class="tooltip"><i class="fa fa-info"></i></span>
+
+        <!--pattern="^[\w ]+$">-->
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-button-tooltip",
+        properties: {
+            message: {
+                type: String
+            }
+        }
+    });
+</script>
