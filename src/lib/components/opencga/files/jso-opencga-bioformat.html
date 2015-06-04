@@ -36,173 +36,126 @@
     </style>
     <template>
 
+        <template is="dom-repeat" items="{{bioformats}}">
+            <template is="dom-if" if="{{item.title}}">
+                <div class="zeroLevel"><span>{{item.title}}</span></div>
+            </template>
+            <template is="dom-if" if="{{item.key}}">
+                <div class="thirdLevel">
+                    <label class="jso-control">
+                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="{{item.value}}">
+                        <span>{{item.key}}</span>
+                    </label>
+                </div>
+            </template>
+        </template>
 
-        <div class="zeroLevel">
-            Microarray Expression
-            <div class="firstLevel">One channel
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX">
-                        <span>Affymetrix</span>
-                    </label>
-                </div>
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT">
-                        <span>Agilent</span>
-                    </label>
-                </div>
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX">
-                        <span>Genepix</span>
-                    </label>
-                </div>
-            </div>
-            <div class="firstLevel">Two channels
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT">
-                        <span>Agilent</span>
-                    </label>
-                </div>
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX">
-                        <span>Genepix</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="zeroLevel">Data matrix
-            <div class="firstLevel">
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="DATAMATRIX_EXPRESSION">
-                        <span>Expression</span>
-                    </label>
-                </div>
+        <!--<div class="zeroLevel">-->
+            <!--Microarray Expression-->
+            <!--<div class="firstLevel">One channel-->
                 <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="DATAMATRIX_SNP">-->
-                <!--<span>SNP</span>-->
-                <!--</label>-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX">-->
+                        <!--<span>Affymetrix</span>-->
+                    <!--</label>-->
                 <!--</div>-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT">-->
+                        <!--<span>Agilent</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX">-->
+                        <!--<span>Genepix</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="firstLevel">Two channels-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT">-->
+                        <!--<span>Agilent</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX">-->
+                        <!--<span>Genepix</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="zeroLevel">Data matrix-->
+            <!--<div class="firstLevel">-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="DATAMATRIX_EXPRESSION">-->
+                        <!--<span>Expression</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="zeroLevel">ID list-->
+            <!--<div class="firstLevel">-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="IDLIST">-->
+                        <!--<span>Id</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="IDLIST_RANKED">-->
+                        <!--<span>Ranked</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="zeroLevel">Annotation-->
+            <!--<div class="firstLevel">-->
+                <!--<div class="thirdLevel">-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="ANNOTATION_GENEVSANNOTATION">-->
+                        <!--<span>Gene vs annotation</span>-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="zeroLevel">Other-->
+            <!--<div class="firstLevel">-->
 
-            </div>
-        </div>
-        <div class="zeroLevel">ID list
-            <div class="firstLevel">
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="IDLIST">
-                        <span>Id</span>
-                    </label>
-                </div>
                 <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="IDLIST_GENE">-->
-                <!--<span>Gene</span>-->
-                <!--</label>-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="OTHER_INTERACTION">-->
+                        <!--<span>Interaction</span>-->
+                    <!--</label>-->
                 <!--</div>-->
                 <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="IDLIST_TRANSCRIPT">-->
-                <!--<span>Transcript</span>-->
-                <!--</label>-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="OTHER_GENOTYPE">-->
+                        <!--<span>PED_MAP zipped</span>-->
+                    <!--</label>-->
                 <!--</div>-->
                 <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="IDLIST_PROTEIN">-->
-                <!--<span>Protein</span>-->
-                <!--</label>-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="OTHER_PED">-->
+                        <!--<span>PED</span>-->
+                    <!--</label>-->
                 <!--</div>-->
                 <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="IDLIST_SNP">-->
-                <!--<span>SNP</span>-->
-                <!--</label>-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="VARIANT">-->
+                        <!--<span>VCF 4.0</span>-->
+                    <!--</label>-->
+                    <!--<label class="jso-control">-->
+                        <!--<input type="radio" name="bioformat" on-change="handleRadioChange" value="ALIGNMENT">-->
+                        <!--<span>Alignment</span>-->
+                    <!--</label>-->
                 <!--</div>-->
-                <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="IDLIST_FUNCTIONALTERMS">-->
-                <!--<span>Functional terms</span>-->
-                <!--</label>-->
-                <!--</div>-->
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="IDLIST_RANKED">
-                        <span>Ranked</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="zeroLevel">Annotation
-            <div class="firstLevel">
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="ANNOTATION_GENEVSANNOTATION">
-                        <span>Gene vs annotation</span>
-                    </label>
-                </div>
-                <!--<div class="thirdLevel">
-<label class="control">
-               <input type="radio" name="bioformat" on-change="handleRadioChange"value="idlist_extendedannotation">Extended annotation
-                <span></span>
-</label>
-</div>-->
-            </div>
-        </div>
-        <div class="zeroLevel">Other
-            <div class="firstLevel">
-                <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="OTHER_NEWICK">-->
-                <!--<span>Newick</span>-->
-                <!--</label>-->
-                <!--</div>-->
-                <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="OTHER_BLAST">-->
-                <!--<span>Blast</span>-->
-                <!--</label>-->
-                <!--</div>-->
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="OTHER_INTERACTION">
-                        <span>Interaction</span>
-                    </label>
-                </div>
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="OTHER_GENOTYPE">
-                        <span>PED_MAP zipped</span>
-                    </label>
-                </div>
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="OTHER_PED">
-                        <span>PED</span>
-                    </label>
-                </div>
-                <!--<div class="thirdLevel">-->
-                <!--<label class="control">-->
-                <!--<input type="radio" name="bioformat" on-change="handleRadioChange"value="OTHER_PLINK">-->
-                <!--<span>Plink association</span>-->
-                <!--</label>-->
-                <!--</div>-->
-                <div class="thirdLevel">
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="VARIANT">
-                        <span>VCF 4.0</span>
-                    </label>
-                    <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="ALIGNMENT">
-                        <span>Alignment</span>
-                    </label>
-                </div>
-            </div>
-        </div>
+            <!--</div>-->
+        <!--</div>-->
     </template>
 
 </dom-module>
@@ -213,6 +166,10 @@
             bioformats: {
                 type: Array,
                 observer: 'selectedBioformatChanged'
+            },
+            hideBioformats:{
+                type: Boolean,
+                value: false
             },
             selectedBioformat: {
                 type: String,

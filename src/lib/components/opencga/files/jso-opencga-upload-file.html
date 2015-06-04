@@ -69,7 +69,7 @@
                 </div>
                 <br>
             </div>
-            <div hidden$="{{showBioformat(bioformats)}}">
+            <div hidden$="{{hideBioformats}}">
                 <label class="jso">Bioformat:</label>
                 <jso-opencga-bioformat id="bioformatSelect"
                                        bioformats="{{bioformats}}"></jso-opencga-bioformat>
@@ -151,7 +151,7 @@
                 type: String,
                 value: ''
             },
-            showbioformats: {
+            hideBioformats: {
                 type: Boolean,
                 value: false
             },
@@ -166,6 +166,20 @@
             }
             if (this.bioformats.length == 1)
                 this.selectedBioformat = this.bioformats[0];
+
+            /*** Check number of bioformats in order to show the bioformat chooser ***/
+            this.checkBioformats();
+        },
+        checkBioformats: function(){
+            var numberOfBioformats = 0;
+            for (var i = 0; i < this.bioformats.length; i++) {
+                var format = this.bioformats[i];
+                if(format.key)
+                    numberOfBioformats++;
+            }
+            if(numberOfBioformats == 1)
+                this.hideBioformats = true;
+
         },
         handleBrowseClick: function (e) {
             if (this.uploading == false) {
