@@ -36,11 +36,11 @@
 
     </style>
     <template>
-        <template is="dom-repeat" items="{{projects}}">
-            <div class="project-item" on-click="handleProjectClick">{{item.name}}</div>
-            <template is="dom-repeat" items="{{item.studies}}">
-                <div class="study-item" on-click="handleStudyClick" data-id$="{{item.id}}">
-                    <span>{{item.name}}</span>
+        <template is="dom-repeat" items="{{projects}}" as="project">
+            <div class="project-item" on-click="handleProjectClick">{{project.name}}</div>
+            <template is="dom-repeat" items="{{project.studies}}" as="study">
+                <div class="study-item" on-click="handleStudyClick">
+                    <span>{{study.name}}</span>
                 </div>
             </template>
         </template>
@@ -57,12 +57,14 @@
             },
             selectedStudy: {
                 type: Object,
+//                notify:true,
                 observer: 'selectedStudyChanged'
             }
         },
         handleStudyClick: function (e) {
+            this.selectedStudy = e.model.study;
+
             this._cleanStudiesSelection();
-            this.selectedStudy = e.currentTarget.dataset;
             e.currentTarget.setAttribute('data-checked', '')
         },
         projectsChanged: function (neo, old) {

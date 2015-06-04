@@ -174,7 +174,7 @@
                         on-fileselect="handleFileSelect"
                         on-openfolder="handleOpenFolder"
                         on-back="handleBackFolder"
-                        on-folder-created="refreshFolderFiles"
+                        on-need-refresh="refreshFolderFiles"
                         study="{{selectedStudy.study}}"
                         folder="{{folder}}"
                         files="{{files}}">
@@ -321,10 +321,6 @@
             this.folder = e.detail;
             this.push('folders', this.folder);
             this.refreshFolderFiles();
-//            this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
-//                me.files = files;
-//                console.log(files);
-//            });
         },
         refreshFolderFiles: function () {
             var me = this;
@@ -344,10 +340,6 @@
                 this.pop('folders');
             }
             this.refreshFolderFiles();
-//            this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
-//                me.files = files;
-//                console.log(files);
-//            });
         },
         handleBackFolder: function (e) {
             var me = this;
@@ -355,10 +347,6 @@
             if (this.folders.length > 0) {
                 this.set('folder', this.folders[this.folders.length - 1]);
                 this.refreshFolderFiles();
-//                this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
-//                    me.files = files;
-//                    console.log(files);
-//                });
             } else {
                 this._showStudyFolder();
             }
@@ -387,11 +375,7 @@
         },
 
         handleFileUploaded: function (e) {
-            var me = this;
-            me._getFilesInFolder(me.selectedStudy.study.id, me.folder.id, function (files) {
-                me.files = files;
-                console.log(files);
-            });
+            this.refreshFolderFiles();
             this.$.uploadFilePanel.setAttribute('hidden', '');
         },
         handleProjectCreated: function (e) {
@@ -453,14 +437,21 @@
         _getFilesInFolder: function (studyId, folderId, callback) {
             var me = this;
             var files;
+
+            var bfList = [];
+            for (var i = 0; i < this.bioformats.length; i++) {
+                var bf = this.bioformats[i];
+                bfList.push(bf.value);
+            }
+
             OpencgaManager.files.list({
                 id: folderId,
                 query: {
                     sid: Cookies('bioinfo_sid'),
 //                    status:'READY,STAGED,MISSING',
-//                    status: 'READY',
-//                    bioformat: me.bioformats.join(',') + ',NONE',
-//                    type: 'FILE,FOLDER',
+                    status: 'READY',
+                    bioformat: bfList.join(',') + ',NONE',
+                    type: 'FILE,FOLDER',
                     studyId: studyId
                 },
                 request: {
@@ -482,13 +473,19 @@
             });
         },
         _filterFiles: function (files) {
+            var bfList = [];
+            for (var i = 0; i < this.bioformats.length; i++) {
+                var bf = this.bioformats[i];
+                bfList.push(bf.value);
+            }
+
             files.sort(function (a, b) {
                 return b.creationDate.localeCompare(a.creationDate);
             });
             var filesFiltered = [];
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
-                if (file.type == 'FILE' && this.bioformats.indexOf(file.bioformat) == -1) {
+                if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
                     continue;
                 }
                 if (Utils.endsWith(file.name, '.snappy')) {

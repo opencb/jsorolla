@@ -99,9 +99,11 @@
             <div id="progressBar" class="uploadprogress"></div>
             <div class="uploadtext">
                 <i class="fa fa-spinner fa-spin"></i>
-                <span>{{percentProgress}}</span> % <span>{{message}}</span>
+                <span>{{percentProgress}}</span> %
             </div>
+            <br>
         </div>
+        <span>{{message}}</span>
     </template>
 
 </dom-module>
@@ -164,21 +166,25 @@
             if (this.bioformats.length == 0) {
                 console.log("No bioformats selected")
             }
-            if (this.bioformats.length == 1)
-                this.selectedBioformat = this.bioformats[0];
+
 
             /*** Check number of bioformats in order to show the bioformat chooser ***/
             this.checkBioformats();
         },
-        checkBioformats: function(){
+        checkBioformats: function () {
             var numberOfBioformats = 0;
+            var bioformatIdx;
             for (var i = 0; i < this.bioformats.length; i++) {
                 var format = this.bioformats[i];
-                if(format.key)
+                if (format.key) {
                     numberOfBioformats++;
+                    bioformatIdx = i;
+                }
             }
-            if(numberOfBioformats == 1)
+            if (numberOfBioformats == 1) {
                 this.hideBioformats = true;
+                this.selectedBioformat = this.bioformats[bioformatIdx].value;
+            }
 
         },
         handleBrowseClick: function (e) {
@@ -195,11 +201,26 @@
         handleForm: function () {
             var me = this;
             if (this.uploading == false) {
-                if (this.selectedStudy == null) {
+                var selStudy;
+                if (this.$.studySelect.selectedStudy != null) {
+                    selStudy = this.$.studySelect.selectedStudy;
+                }
+                if (this.selectedStudy != null) {
+                    selStudy = this.selectedStudy;
+                }
+                if (selStudy == null) {
                     alert("Please select a study");
                     return;
                 }
-                if (this.selectedBioformat == '') {
+
+                var selBioformat;
+                if (this.$.bioformatSelect.selectedBioformat != null) {
+                    selBioformat = this.$.bioformatSelect.selectedBioformat;
+                }
+                if (this.selectedBioformat != null) {
+                    selBioformat = this.selectedBiormat;
+                }
+                if (selBioformat == null) {
                     alert("Please select a bioformat");
                     return;
                 }
@@ -215,10 +236,10 @@
                         fileName: this.fileName,
                         userId: Cookies("bioinfo_user"),
                         sid: Cookies("bioinfo_sid"),
-                        studyId: this.selectedStudy.id,
+                        studyId: selStudy.id,
                         relativeFilePath: folder + this.fileName,
                         fileFormat: 'PLAIN',
-                        bioFormat: this.selectedBioformat,
+                        bioFormat: selBioformat.value,
                         description: '',
                         callbackProgress: function (chunk, total, response) {
                             me.percentProgress = Math.round((chunk.id / total) * 100);
@@ -226,12 +247,20 @@
                                 me.percentProgress = 100;
                                 me.uploading = false;
                                 me.message = 'Done';
+                                me.$.fileInput.value = null;
+                                me.fileName = '';
                                 me.fire('need-refresh');
                                 me.fire('file-uploaded');
 
                                 var uploadedFile = response.response[0].result[0];
 //                                me._indexFile(uploadedFile);
                             }
+                        },
+                        error: function (msg) {
+                            me.$.fileInput.value = null;
+                            me.fileName = '';
+                            me.uploading = false;
+                            me.message = msg;
                         }
                     };
                     OpencgaManager.files.upload2(config);

@@ -147,7 +147,6 @@
         },
         handleFolderCreated: function (e) {
             this.$.createFolderModal.setAttribute('hidden', '');
-            this.fire("folder-created");
         },
         handleDeleteFile: function (e) {
             this._deleteFile();
@@ -220,6 +219,7 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 console.log("delete");
                                 console.log(response);
+
                                 me.fire('need-refresh');
                             } else {
                                 console.log(response.response[0].errorMsg);

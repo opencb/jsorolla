@@ -3,9 +3,6 @@
         :host {
             box-sizing: border-box;
             display: block;
-            background-color: #FFF;
-            overflow-y: auto;
-            border: 1px solid #d3d3d3;
             padding: 5px;
         }
 
@@ -36,15 +33,15 @@
     </style>
     <template>
 
-        <template is="dom-repeat" items="{{bioformats}}">
-            <template is="dom-if" if="{{item.title}}">
-                <div class="zeroLevel"><span>{{item.title}}</span></div>
+        <template is="dom-repeat" items="{{bioformats}}" as="bioformat">
+            <template is="dom-if" if="{{!bioformat.value}}">
+                <div class="zeroLevel"><span>{{bioformat.text}}</span></div>
             </template>
-            <template is="dom-if" if="{{item.key}}">
+            <template is="dom-if" if="{{bioformat.value}}">
                 <div class="thirdLevel">
                     <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="{{item.value}}">
-                        <span>{{item.key}}</span>
+                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="{{bioformat.value}}">
+                        <span>{{bioformat.text}}</span>
                     </label>
                 </div>
             </template>
@@ -172,10 +169,7 @@
                 value: false
             },
             selectedBioformat: {
-                type: String,
-                notify: true,
-                reflectToAttribute: true,
-                value: ''
+                type: Object
             }
         },
         selectedBioformatChanged: function (neo, old) {
@@ -195,7 +189,7 @@
             }
         },
         handleRadioChange: function (e) {
-            this.set('selectedBioformat', e.currentTarget.value);
+            this.set('selectedBioformat', e.model.bioformat);
         },
         getSelected: function () {
             return this.selectedBioformat;

@@ -215,14 +215,41 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'files', 'upload');
         },
         upload2: function (args) {
-            var url = OpencgaManager._url({
+            /** Check if exists a file with the same name **/
+            OpencgaManager.files.search({
                 query: {
-                    sid: args.sid
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: args.studyId,
+                    path: args.relativeFilePath
                 },
-                request: {}
-            }, 'files', 'upload');
-            args.url = url;
-            OpencgaManager._uploadFile(args);
+                request: {
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            if (response.response[0].result.length == 0) {
+
+                                /** No file found with the same name -> start upload **/
+                                var url = OpencgaManager._url({
+                                    query: {
+                                        sid: args.sid
+                                    },
+                                    request: {}
+                                }, 'files', 'upload');
+                                args.url = url;
+                                OpencgaManager._uploadFile(args);
+
+
+                            } else {
+                                args.error('File already exists');
+                            }
+                        } else {
+                            args.error(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        args.error('Server error, try again later.');
+                    }
+                }
+            });
         }
 
     },
