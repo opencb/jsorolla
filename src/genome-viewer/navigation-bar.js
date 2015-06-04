@@ -384,17 +384,17 @@ NavigationBar.prototype = {
         }
 
         //find species object
-        var list = [];
-        for (var i = 0; i < this.availableSpecies.items.length; i++) {
-            for (var j = 0; j < this.availableSpecies.items[i].items.length; j++) {
-                var species = this.availableSpecies.items[i].items[j];
-                if (species.text === this.species.text) {
-                    list = species.chromosomes;
-                    break;
-                }
-            }
+        //var list = [];
+        //for (var i = 0; i < this.availableSpecies.items.length; i++) {
+        //    for (var j = 0; j < this.availableSpecies.items[i].items.length; j++) {
+        //        var species = this.availableSpecies.items[i].items[j];
+        //        if (species.text === this.species.text) {
+        //            list = species.chromosomes;
+        //            break;
+        //        }
+        //    }
 
-        }
+        //}
         //for (var i in this.availableSpecies.items) {
         //    for (var j in this.availableSpecies.items[i].items) {
         //        var species = this.availableSpecies.items[i].items[j];
@@ -405,10 +405,13 @@ NavigationBar.prototype = {
         //    }
         //}
 
-        this.currentChromosomeList = list;
-        for (var i = 0; i < list.length; i++) {
+        var list = [];
+        for(var chr in this.species.chromosomes){
+            list.push(chr);
+
+
             var menuEntry = document.createElement('li');
-            menuEntry.textContent = list[i];
+            menuEntry.textContent = chr;
             this.els.chromosomesMenu.appendChild(menuEntry);
 
             menuEntry.addEventListener('click', function () {
@@ -421,6 +424,9 @@ NavigationBar.prototype = {
             });
 
         }
+        this.currentChromosomeList = list;
+
+
         //for (var i in list) {
         //    var menuEntry = document.createElement('li');
         //    menuEntry.textContent = list[i];
@@ -470,9 +476,6 @@ NavigationBar.prototype = {
             ul.appendChild(menuEntry);
 
             menuEntry.addEventListener('click', function () {
-                _this.species = species;
-                _this.els.speciesText.textContent = this.textContent;
-                _this._setChromosomeMenu();
                 _this.trigger('species:change', {species: species, sender: _this});
             });
         };
@@ -564,6 +567,12 @@ NavigationBar.prototype = {
         this.region.load(region);
         this.els.chromosomesText.textContent = this.region.chromosome;
         this.els.regionField.value = this.region.toString()
+    },
+
+    setSpecies:function(species){
+        this.species = species;
+        this.els.speciesText.textContent = this.species.text;
+        this._setChromosomeMenu();
     },
 
     setWidth: function (width) {
