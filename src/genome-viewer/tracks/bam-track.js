@@ -122,7 +122,8 @@ BamTrack.prototype.render = function (targetId) {
             maxLabelRegionSize: _this.maxLabelRegionSize,
             width: _this.width,
             pixelPosition: _this.pixelPosition,
-            region: _this.region
+            region: _this.region,
+            trackListPanel:_this.trackListPanel
         });
         _this.updateHeight();
     });

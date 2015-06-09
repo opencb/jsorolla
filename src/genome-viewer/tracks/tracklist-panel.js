@@ -671,6 +671,8 @@ TrackListPanel.prototype = {
         track.set('region', this.visualRegion);
         track.set('width', this.width);
 
+        track.set('trackListPanel', this);
+
         // Track must be initialized after we have created
         // de DIV element in order to create the elements in the DOM
         if (!track.rendered) {

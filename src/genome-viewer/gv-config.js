@@ -191,7 +191,7 @@ FEATURE_TYPES = {
     _getSimpleKeys: function (f) {
         var s = '';
         for (key in f) {
-            if(key == 'start' || key == 'end'){
+            if (key == 'start' || key == 'end') {
                 continue;
             }
             if (_.isNumber(f[key]) || _.isString(f[key])) {
@@ -622,11 +622,17 @@ FEATURE_TYPES = {
             return "bam  " + f.chromosome + ":" + f.start + "-" + f.end;
         },
         tooltipTitle: function (f) {
-            return FEATURE_TYPES.formatTitle(f.featureType) + ' - <span class="ok">' + f.name + '</span>';
+            return 'Alignment' + ' - <span class="ok">' + f.name + '</span>';
         },
         tooltipText: function (f) {
             f.strand = FEATURE_TYPES.bam.strand(f);
-            var one = 'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
+            var cigar = '';
+            for (var i = 0; i < f.differences.length; i++) {
+                var d = f.differences[i];
+                cigar += d.length + d.op
+            }
+
+            var one = 'cigar:&nbsp;<span class="ssel">' + cigar + '</span><br>' +
                 'insert size:&nbsp;<span class="ssel">' + f.inferredInsertSize + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) + '<br>' +
                 this.explainFlags(f.flags);
@@ -666,7 +672,7 @@ FEATURE_TYPES = {
             return (parseInt(f.flags) & (0x8)) == 0 ? false : true;
         },
         infoWidgetId: "id",
-        height: 8,
+        height: 13,
         histogramColor: "grey"
     },
     das: {
