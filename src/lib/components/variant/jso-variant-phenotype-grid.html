@@ -157,7 +157,7 @@
             this.$.clinvarTable.currentPage = 1;
 
             if (neo) {
-                var variant = neo.chr + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
 //                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
                     version: 'v3',
@@ -175,6 +175,7 @@
                             var dataClinvar = [];
 
                             var clinicalData = response.response[0].result[0].clinicalData;
+                            console.log(clinicalData)
 
                             if (clinicalData.Cosmic != null) {
                                 for (var i = 0; i < clinicalData.Cosmic.length; i++) {

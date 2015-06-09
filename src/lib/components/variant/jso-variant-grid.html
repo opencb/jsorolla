@@ -46,7 +46,7 @@
                 title: "Variant",
                 width: 100,
                 formula: function (row) {
-                    return row.chr + ":" + row.start;
+                    return row.chromosome + ":" + row.start;
                 }
             }, {
                 name: 'alleles',
@@ -143,13 +143,13 @@
                     parseTotal: this._parseTotal,
                     file: this.file
                 };
+
             }
         },
         _parse: function (response) {
             var me = this;
             var file = this.file;
             var data = response.response[0].result;
-
             console.log(data);
             var fileId = file.attributes.variantSource.fileId;
             var studyId = file.attributes.variantSource.studyId;
