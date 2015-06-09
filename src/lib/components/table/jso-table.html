@@ -347,7 +347,6 @@
         observers: ["dataChanged(data.splices)", "viewDataChanged(viewData.splices)"],
         /* OBSERVERS */
         dataChanged: function (neo, old) {
-
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 delete row._filtered;
@@ -386,7 +385,14 @@
                 var from = (this.currentPage - 1) * this.pageSize;
                 var to = from + this.pageSize;
 
-                this.set('viewData', filteredRows.slice(from, to));
+
+                if (this.request) {
+                    this.checkRemote();
+                } else {
+                    this.set('viewData', filteredRows.slice(from, to));
+                }
+
+
             } else {
 
                 var viewData = [];
@@ -423,6 +429,9 @@
             }
         },
         handleNextClick: function () {
+            console.log(this.currentPage);
+            console.log(this.pageCount);
+
             if (this.currentPage < this.pageCount) {
                 this.currentPage++;
             }
@@ -431,7 +440,7 @@
             this.currentPage = this.pageCount;
         },
 
-        currentPageChanged: function () {
+        currentPageChanged: function (neo, old) {
             this.currentPage = this.currentPage ? parseInt(this.currentPage) : 0;
             this.currentPage = this.currentPage < 1 ? 1 : this.currentPage;
             this.currentPage = this.pageCount > 0 && this.currentPage > this.pageCount ? this.pageCount : this.currentPage;
@@ -464,14 +473,15 @@
 
         enableRemoteChanged: function (neo, old) {
             if (this.request) {
-//                this.checkRemote();
+                this.checkRemote();
             }
         },
         requestChanged: function (neo, old) {
+
             if (this.currentPage != 1) {
                 this.currentPage = 1;
             } else if (this.request) {
-//                this.checkRemote();
+                this.checkRemote();
             }
         },
 
@@ -493,8 +503,9 @@
             var me = this;
             if (this.enableRemote) {
                 this._callRemote(function (resp) {
-//                    me.totalItems = me.request.parseTotal(resp);
-//                    me.viewData = me.request.parse(resp);
+                    me.itemCount = me.request.parseTotal(resp);
+                    me.pageCount = Math.ceil(me.itemCount / me.pageSize);
+                    me.viewData = me.request.parse(resp);
                 });
             } else {
 //                ...
@@ -882,6 +893,8 @@
 
             var me = this;
             var el = document.createElement('div');
+
+
             el.classList.add('table-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
             if (isNaN(column.width)) {
                 el.classList.add('flex');
@@ -931,6 +944,12 @@
 
                 el.innerHTML = value != null ? value : defValue;
             }
+
+//            var toolTip = document.createElement('jso-opencga-button-tooltip');
+//            toolTip.set("message","Manuelete");
+//            el.appendChild(toolTip);
+//
+//            el.style.overflow = "auto";
             rowEl.appendChild(el);
         },
         _deepValue: function (obj, path) {
