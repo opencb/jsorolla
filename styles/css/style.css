@@ -2,10 +2,10 @@ html.ocb, body.ocb {
     font-family: 'Lato', 'Roboto', 'Helvetica Neue', Helvetica, Arial, 'sans-serif' !important;
 }
 
-.hidden {
-    display: none !important;
-    visibility: hidden !important
-}
+/*.hidden {*/
+/*display: none !important;*/
+/*visibility: hidden !important*/
+/*}*/
 
 .unselectable {
     user-select: none;
@@ -546,6 +546,15 @@ ul.ocb-app-menu > li:hover {
     background-image: linear-gradient(to bottom, #ffffff, #eeeeee);
     background-image: -webkit-linear-gradient(top, #ffffff, #eeeeee);
     background-repeat: repeat-x;
+}
+
+.ocb-codon {
+    display: none;
+}
+
+.ocb-coding:hover .ocb-codon {
+    display: inherit;
+    cursor:pointer;
 }
 
 /**/

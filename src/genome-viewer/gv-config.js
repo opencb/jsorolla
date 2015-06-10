@@ -58,6 +58,33 @@ FEATURE_CONFIG = {
     }
 
 };
+
+CODON_CONFIG = {
+    '': {text: '', color: 'transparent'},
+    'R': {text: 'Arg', color: '#7BB8E7'},
+    'H': {text: 'His', color: '#7BB8E7'},
+    'K': {text: 'Lys', color: '#7BB8E7'},
+    'D': {text: 'Asp', color: '#FE6193'},
+    'E': {text: 'Glu', color: '#FE6193'},
+
+    'A': {text: 'Ala', color: '#B5D8EE'},
+    'F': {text: 'Phe', color: '#B5D8EE'},
+    'L': {text: 'Leu', color: '#B5D8EE'},
+    'M': {text: 'Met', color: '#B5D8EE'},
+    'I': {text: 'Ile', color: '#B5D8EE'},
+    'W': {text: 'Trp', color: '#B5D8EE'},
+    'P': {text: 'Pro', color: '#B5D8EE'},
+    'V': {text: 'Val', color: '#B5D8EE'},
+    
+    'C': {text: 'Cys', color: '#B9D8EF'},
+    'G': {text: 'Gly', color: '#B9D8EF'},
+    'N': {text: 'Asn', color: '#B9D8EF'},
+    'Q': {text: 'Gln', color: '#B9D8EF'},
+    'S': {text: 'Ser', color: '#B9D8EF'},
+    'T': {text: 'Thr', color: '#B9D8EF'},
+    'Y': {text: 'Tyr', color: '#B9D8EF'}
+};
+
 FEATURE_OPTIONS = {
     gene: [
         {

@@ -65,7 +65,7 @@ GeneRenderer.prototype.render = function (features, args) {
         var width = length * args.pixelBase;
 
 
-//        var svgLabelWidth = _this.getLabelWidth(label, args);
+        // var svgLabelWidth = _this.getLabelWidth(label, args);
         var svgLabelWidth = label.length * 6.4;
 
         //calculate x to draw svg rect
@@ -140,9 +140,9 @@ GeneRenderer.prototype.render = function (features, args) {
 
                 $(featureGroup).qtip({
                     content: {text: tooltipText, title: tooltipTitle},
-//                    position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                    // position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                    style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: {delay: 300},
                     hide: {delay: 300}
                 });
@@ -173,8 +173,8 @@ GeneRenderer.prototype.render = function (features, args) {
                         var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(transcript) : _this.tooltipText;
                         var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(transcript) : _this.infoWidgetId;
 
-                        //se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
-//                        var svgLabelWidth = _this.getLabelWidth(label, args);
+                        //  se resta el trozo del final del gen hasta el principio del transcrito y se le suma el texto del transcrito
+                        // var svgLabelWidth = _this.getLabelWidth(label, args);
                         var svgLabelWidth = label.length * 6.4;
                         var maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + svgLabelWidth);
 
@@ -201,7 +201,6 @@ GeneRenderer.prototype.render = function (features, args) {
                         var text = SVG.addChild(transcriptGroup, 'text', {
                             'x': transcriptX,
                             'y': checkTextY,
-                            'opacity': null,
                             'fill': 'black',
                             'cursor': 'pointer',
                             'class': _this.fontClass
@@ -211,20 +210,30 @@ GeneRenderer.prototype.render = function (features, args) {
 
                         $(transcriptGroup).qtip({
                             content: {text: tooltipText, title: tooltipTitle},
-//                            position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                            // position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                             position: {target: "mouse", adjust: {x: 25, y: 15}},
-                            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                            style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                             show: {delay: 300},
                             hide: {delay: 300}
                         });
                         transcriptGroup.addEventListener('click', function (e) {
                             var query = this.getAttribute('data-widget-id');
                             var idx = this.getAttribute("data-transcript-idx");
-                            _this.trigger('feature:click', {query: query, feature: feature.transcripts[idx], featureType: 'transcript', clickEvent: event});
+                            _this.trigger('feature:click', {
+                                query: query,
+                                feature: feature.transcripts[idx],
+                                featureType: 'transcript',
+                                clickEvent: event
+                            });
                         });
 
+                        if (transcript.id == "ENST00000380250") {
+                            //debugger
+                        }
+
+
                         //paint exons
-                        for (var e = 0, lene = feature.transcripts[i].exons.length; e < lene; e++) {/* loop over exons*/
+                        for (var e = 0, lene = feature.transcripts[i].exons.length; e < lene; e++) {
                             var exon = feature.transcripts[i].exons[e];
                             var exonStart = parseInt(exon.start);
                             var exonEnd = parseInt(exon.end);
@@ -242,18 +251,21 @@ GeneRenderer.prototype.render = function (features, args) {
                             var tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(exon, transcript) : _this.tooltipText;
                             var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(exon) : _this.infoWidgetId;
 
-                            var exonGroup = SVG.addChild(args.svgCanvasFeatures, "g");
+                            var exonGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
+                                "class": "ocb-coding"
+                            });
 
                             $(exonGroup).qtip({
                                 content: {text: tooltipText, title: tooltipTitle},
-//                                position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
+                                // position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
                                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                                style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                                 show: {delay: 300},
                                 hide: {delay: 300}
                             });
 
-                            var eRect = SVG.addChild(exonGroup, "rect", {//paint exons in white without coding region
+                            // Paint exons in white without coding region
+                            var eRect = SVG.addChild(exonGroup, "rect", {
                                 "i": i,
                                 "x": exonX,
                                 "y": checkRowY - 1,
@@ -264,34 +276,11 @@ GeneRenderer.prototype.render = function (features, args) {
                                 "fill": "white",
                                 "cursor": "pointer"
                             });
-                            //XXX now paint coding region
-                            var codingStart = 0;
-                            var codingEnd = 0;
-                            // 5'-UTR
-                            if (transcript.genomicCodingStart > exonStart && transcript.genomicCodingStart < exonEnd) {
-                                codingStart = parseInt(transcript.genomicCodingStart);
-                                codingEnd = exonEnd;
-                            } else {
-                                // 3'-UTR
-                                if (transcript.genomicCodingEnd > exonStart && transcript.genomicCodingEnd < exonEnd) {
-                                    codingStart = exonStart;
-                                    codingEnd = parseInt(transcript.genomicCodingEnd);
-                                } else
-                                // all exon is transcribed
-                                if (transcript.genomicCodingStart < exonStart && transcript.genomicCodingEnd > exonEnd) {
-                                    codingStart = exonStart;
-                                    codingEnd = exonEnd;
-                                }
-//									else{
-//										if(exonEnd < transcript.genomicCodingStart){
-//
-//									}
-                            }
-                            var coding = codingEnd - codingStart;
-                            var codingX = args.pixelPosition + middle - ((args.position - codingStart) * args.pixelBase);
-                            var codingWidth = (coding + 1) * ( args.pixelBase);
 
-                            if (coding > 0) {
+                            var codingLength = exon.genomicCodingEnd - exon.genomicCodingStart;
+                            var codingX = args.pixelPosition + middle - ((args.position - exon.genomicCodingStart) * args.pixelBase);
+                            var codingWidth = (codingLength + 1) * (args.pixelBase);
+                            if (codingLength > 0) {
                                 var cRect = SVG.addChild(exonGroup, "rect", {
                                     "i": i,
                                     "x": codingX,
@@ -303,25 +292,43 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "fill": transcriptColor,
                                     "cursor": "pointer"
                                 });
-                                //XXX draw phase only at zoom 100, where this.pixelBase=10
-                                for (var p = 0, lenp = 3 - exon.phase; p < lenp && Math.round(args.pixelBase) == 10 && exon.phase != -1 && exon.phase != null; p++) {//==10 for max zoom only
-                                    SVG.addChild(exonGroup, "rect", {
-                                        "i": i,
-                                        "x": codingX + (p * 10),
+                                var cdsLen = Math.floor((exon.cdsEnd - exon.cdsStart) / 3);
+                                var proteinString = transcript.proteinSequence.substring(exon.cdsStart - 1, cdsLen);
+                                for (var j = 0; j < cdsLen; j++) {
+                                    var codonRect = SVG.addChild(exonGroup, "rect", {
+                                        "x": codingX + (args.pixelBase * j * 3),
                                         "y": checkRowY - 1,
-                                        "width": args.pixelBase,
+                                        "width": (args.pixelBase * 3),
                                         "height": height,
-                                        "stroke": color,
-                                        "stroke-width": 1,
-                                        "fill": 'white',
-                                        "cursor": "pointer"
+                                        "fill": CODON_CONFIG[proteinString.charAt(j)].color,
+                                        "class": 'ocb-codon'
                                     });
+                                    var codonText = SVG.addChild(exonGroup, "text", {
+                                        "x": codingX + (args.pixelBase * j * 3) + args.pixelBase / 3,
+                                        "y": checkRowY - height,
+                                        "width": (args.pixelBase * 3),
+                                        "class": 'ocb-font-ubuntumono ocb-font-size-16 ocb-codon'
+                                    });
+                                    codonText.textContent = CODON_CONFIG[proteinString.charAt(j)].text;
                                 }
+                                // Draw phase only at zoom 100, where this.pixelBase < 11
+                                //if (args.pixelBase < 11 && exon.phase != null && exon.phase != -1) {
+                                //    for (var p = 0, lenp = 3 - exon.phase; p < lenp; p++) {
+                                //        SVG.addChild(exonGroup, "rect", {
+                                //            "i": i,
+                                //            "x": codingX + (p * args.pixelBase),
+                                //            "y": checkRowY - 1,
+                                //            "width": args.pixelBase,
+                                //            "height": height,
+                                //            "stroke": color,
+                                //            "stroke-width": 1,
+                                //            "fill": 'white',
+                                //            "cursor": "pointer"
+                                //        });
+                                //    }
+                                //}
                             }
-
-
                         }
-
                         checkRowY += rowHeight;
                         checkTextY += rowHeight;
                     }

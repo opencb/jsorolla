@@ -641,7 +641,7 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
         var difference = differences[i];
 
         switch (difference.op) {
-            //M 0 alignment match (can be a sequence match or mismatch)
+            // M 0 alignment match (can be a sequence match or mismatch)
             // I 1 insertion to the reference
             // D 2 deletion from the reference
             // N 3 skipped region from the reference
