@@ -517,13 +517,13 @@
                 if (this.$.go_cc.checked) {
                     query["go-cc"] = "";
                     query["go-cc-min-num-genes"] = this.$.ccOptions.getMinNumGenes().value;
-                    query["go-cc-max-num-genes"] = this.$.ccOptions.getMinNumGenes().value;
+                    query["go-cc-max-num-genes"] = this.$.ccOptions.getMaxNumGenes().value;
                     query["go-cc-propagation"] = this.$.ccOptions.getGOPropagationValue();
                 }
                 if (this.$.go_mf.checked) {
                     query["go-mf"] = "";
                     query["go-mf-min-num-genes"] = this.$.mfOptions.getMinNumGenes().value;
-                    query["go-mf-max-num-genes"] = this.$.mfOptions.getMinNumGenes().value;
+                    query["go-mf-max-num-genes"] = this.$.mfOptions.getMaxNumGenes().value;
                     query["go-mf-propagation"] = this.$.mfOptions.getGOPropagationValue();
                 }
                 if (this.$.go_slim.checked) {
