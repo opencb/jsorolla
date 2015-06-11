@@ -227,10 +227,6 @@ GeneRenderer.prototype.render = function (features, args) {
                             });
                         });
 
-                        if (transcript.id == "ENST00000380250") {
-                            //debugger
-                        }
-
 
                         //paint exons
                         for (var e = 0, lene = feature.transcripts[i].exons.length; e < lene; e++) {
@@ -292,19 +288,25 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "fill": transcriptColor,
                                     "cursor": "pointer"
                                 });
-                                var cdsLen = Math.floor((exon.cdsEnd - exon.cdsStart) / 3);
-                                var proteinString = transcript.proteinSequence.substring(exon.cdsStart - 1, cdsLen);
-                                for (var j = 0; j < cdsLen; j++) {
+
+                                if (transcript.id == "ENST00000380250") {
+                                    debugger
+                                }
+                                var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart/3) - 1, Math.floor(exon.cdsEnd/3) - 1);
+                                var proteinPhaseOffset = codingX - (((3-exon.phase)%3) * args.pixelBase);
+                                for (var j = 0; j < proteinString.length; j++) {
                                     var codonRect = SVG.addChild(exonGroup, "rect", {
-                                        "x": codingX + (args.pixelBase * j * 3),
+                                        "x": proteinPhaseOffset + (args.pixelBase * 3 * j ),
                                         "y": checkRowY - 1,
                                         "width": (args.pixelBase * 3),
                                         "height": height,
+                                        'stroke': '#3B0B0B',
+                                        'stroke-width': 0.5,
                                         "fill": CODON_CONFIG[proteinString.charAt(j)].color,
                                         "class": 'ocb-codon'
                                     });
                                     var codonText = SVG.addChild(exonGroup, "text", {
-                                        "x": codingX + (args.pixelBase * j * 3) + args.pixelBase / 3,
+                                        "x": proteinPhaseOffset + (args.pixelBase * j * 3) + args.pixelBase / 3,
                                         "y": checkRowY - height,
                                         "width": (args.pixelBase * 3),
                                         "class": 'ocb-font-ubuntumono ocb-font-size-16 ocb-codon'
