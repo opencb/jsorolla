@@ -30,6 +30,10 @@ function FeatureRenderer(args) {
     this.fontClass = 'ocb-font-roboto ocb-font-size-11';
     this.toolTipfontClass = 'ocb-tooltip-font';
 
+    if (args == null) {
+        _.extend(this, FEATURE_TYPES.undefined);
+    }
+
     if (_.isObject(args)) {
         _.extend(this, args);
     }
@@ -42,15 +46,15 @@ FeatureRenderer.prototype.render = function (features, args) {
     var _this = this;
     var draw = function (feature, svgGroup) {
 
-        if (typeof feature.featureType === 'undefined') {
-            feature.featureType = args.featureType;
+        if (typeof feature.featureType != null) {
+            _.extend(_this, FEATURE_TYPES[feature.featureType]);
         }
-        //check feature class
-        if (feature.featureClass != null) {//regulatory
-            _.extend(_this, FEATURE_TYPES[feature.featureClass]);
-        } else if (feature.source != null) {//clinical
-            _.extend(_this, FEATURE_TYPES[feature.source]);
-        }
+        ////check feature class
+        //if (feature.featureClass != null) {//regulatory
+        //    _.extend(_this, FEATURE_TYPES[feature.featureClass]);
+        //} else if (feature.source != null) {//clinical
+        //    _.extend(_this, FEATURE_TYPES[feature.source]);
+        //}
 
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;

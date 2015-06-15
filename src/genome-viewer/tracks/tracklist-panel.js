@@ -813,6 +813,7 @@ TrackListPanel.prototype = {
         }
         // first hide the track
         this.hideTrack(track);
+        track.remove();
 
         var index = this.getTrackIndex(track);
         // remove track from list and hash data

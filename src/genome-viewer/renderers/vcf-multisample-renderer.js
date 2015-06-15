@@ -93,6 +93,7 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
         var ys = 1; // y
         var yi = 6; //y increment
         var yi2 = 10; //y increment
+        debugger
         for (var i = 0, leni = feature.samples.length; i < leni; i++) {
             args.renderedArea[ys] = new FeatureBinarySearchTree();
             args.renderedArea[ys].add({start: xs, end: xe});

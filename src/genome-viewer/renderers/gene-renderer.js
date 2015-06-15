@@ -288,31 +288,33 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "fill": transcriptColor,
                                     "cursor": "pointer"
                                 });
+                                // if(transcript.id == 'ENST00000380152'){
+                                //     debugger
+                                // }
+                                if (args.pixelBase > 9.5) {
+                                    var proteinString = transcript.proteinSequence.substring(Math.floor((exon.cdsStart - 1) / 3), Math.floor((exon.cdsEnd - 1) / 3));
+                                    var proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * args.pixelBase);
+                                    for (var j = 0; j < proteinString.length; j++) {
+                                        var codonRect = SVG.addChild(exonGroup, "rect", {
+                                            "x": proteinPhaseOffset + (args.pixelBase * 3 * j ),
+                                            "y": checkRowY - 1,
+                                            "width": (args.pixelBase * 3),
+                                            "height": height,
+                                            'stroke': '#3B0B0B',
+                                            'stroke-width': 0.5,
+                                            "fill": CODON_CONFIG[proteinString.charAt(j)].color,
+                                            "class": 'ocb-codon'
+                                        });
+                                        var codonText = SVG.addChild(exonGroup, "text", {
+                                            "x": proteinPhaseOffset + (args.pixelBase * j * 3) + args.pixelBase / 3,
+                                            "y": checkRowY - 3,
+                                            "width": (args.pixelBase * 3),
+                                            "class": 'ocb-font-ubuntumono ocb-font-size-16 ocb-codon'
+                                        });
+                                        codonText.textContent = CODON_CONFIG[proteinString.charAt(j)].text;
+                                    }
+                                }
 
-                                if (transcript.id == "ENST00000380250") {
-                                    debugger
-                                }
-                                var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart/3) - 1, Math.floor(exon.cdsEnd/3) - 1);
-                                var proteinPhaseOffset = codingX - (((3-exon.phase)%3) * args.pixelBase);
-                                for (var j = 0; j < proteinString.length; j++) {
-                                    var codonRect = SVG.addChild(exonGroup, "rect", {
-                                        "x": proteinPhaseOffset + (args.pixelBase * 3 * j ),
-                                        "y": checkRowY - 1,
-                                        "width": (args.pixelBase * 3),
-                                        "height": height,
-                                        'stroke': '#3B0B0B',
-                                        'stroke-width': 0.5,
-                                        "fill": CODON_CONFIG[proteinString.charAt(j)].color,
-                                        "class": 'ocb-codon'
-                                    });
-                                    var codonText = SVG.addChild(exonGroup, "text", {
-                                        "x": proteinPhaseOffset + (args.pixelBase * j * 3) + args.pixelBase / 3,
-                                        "y": checkRowY - height,
-                                        "width": (args.pixelBase * 3),
-                                        "class": 'ocb-font-ubuntumono ocb-font-size-16 ocb-codon'
-                                    });
-                                    codonText.textContent = CODON_CONFIG[proteinString.charAt(j)].text;
-                                }
                                 // Draw phase only at zoom 100, where this.pixelBase < 11
                                 //if (args.pixelBase < 11 && exon.phase != null && exon.phase != -1) {
                                 //    for (var p = 0, lenp = 3 - exon.phase; p < lenp; p++) {

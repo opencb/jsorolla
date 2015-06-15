@@ -103,7 +103,7 @@ OpencgaAdapter.prototype = {
                 params['histogram'] = (dataType == 'histogram');
                 params['process_differences'] = false;
 
-                OpencgaManager.files.fetch({
+                OpencgaManager.files[_this.category]({
                     id: categoriesName,
                     query: params,
                     request: {
