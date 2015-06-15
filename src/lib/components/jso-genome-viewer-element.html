@@ -82,7 +82,7 @@
             width: 100%;
             z-index: 0;
             overflow-x: hidden;
-            overflow-y: scroll;
+            overflow-y: hidden;
         }
 
         #gv {
@@ -143,9 +143,9 @@
                     this.addOverviewTracks();
                 } else {
 
-                    var w = this.width;
-                    if (w == null) {
-                        w = this.getBoundingClientRect().width;
+                    var w = this.getBoundingClientRect().width;
+                    if (w == 0) {
+                        w = this.width;
                     }
 
                     this.genomeViewer = new GenomeViewer({

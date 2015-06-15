@@ -99,7 +99,7 @@
                 width: 100,
                 defaultValue: '.'
             }, {
-                name: 'phastcons',
+                name: 'phastCons',
                 title: 'PhastCons',
                 width: 100,
                 defaultValue: '.'
@@ -245,6 +245,12 @@
                             genesAux[xref.id] = true;
                         }
 
+                    }
+                }
+                if(variant.annotation.conservedRegionScores != null){
+                    for (var j = 0; j < variant.annotation.conservedRegionScores.length; j++) {
+                        var cons = variant.annotation.conservedRegionScores[j];
+                        variant[cons.source] = cons.score;
                     }
                 }
 
