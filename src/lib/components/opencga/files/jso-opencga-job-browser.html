@@ -95,9 +95,10 @@
 
         <div id="main" class="flex">
             <div id="mainmenu">
-                <template is="dom-repeat" items="{{projects}}">
+                <template is="dom-repeat" items="{{projects}}" filter="isHidden">
                     <jso-opencga-project-tree on-click="handleProjectTreeClick"
-                                              project="{{item}}">
+                                              project="{{item}}"
+                                              >
                     </jso-opencga-project-tree>
                 </template>
             </div>
@@ -222,7 +223,7 @@
         _getJobs: function (studyId) {
             var me = this;
 
-            OpencgaManager.studies.job({
+            OpencgaManager.studies.jobs({
                 id: studyId,
                 query: {
                     sid: Cookies('bioinfo_sid')
@@ -254,6 +255,13 @@
                 }
             });
 
+        },
+         isHidden: function(project){
+            if(this.showHidden){
+                return true;
+            }else{
+                return project.name.charAt(0) != ".";
+            }
         }
 
     });

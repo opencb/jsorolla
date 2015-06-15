@@ -144,20 +144,25 @@
             <div id="mainmenu">
                 <div id="mainmenubar" class="horizontal layout">
                     <div class="bar horizontal layout flex">
+                     <template is="dom-if" if="{{!disableNewProject}}">
                         <div class="jso-btn jso-btn-shdw"
                              on-click="handleCreateProject">
                             <i class="fa fa-briefcase"></i> +
                         </div>
+                    </template>
+                     <template is="dom-if" if="{{!disableNewStudy}}">
+                    
                         <div class="jso-btn jso-btn-shdw"
                              on-click="handleCreateStudy">
                             <i class="fa fa-book"></i> +
                         </div>
+                        </template>
                     </div>
                     <div class="bar horizontal layout">
                     </div>
                 </div>
                 <div id="mainmenucontent">
-                    <template is="dom-repeat" items="{{projects}}">
+                    <template is="dom-repeat" items="{{projects}}" filter="isHidden">
                         <jso-opencga-project-tree on-clickstudy="handleStudyClick"
                                                   project="{{item}}">
                         </jso-opencga-project-tree>
@@ -173,7 +178,8 @@
                         on-need-refresh="refreshFolderFiles"
                         study="{{selectedStudy.study}}"
                         folder="{{folder}}"
-                        files="{{files}}">
+                        files="{{files}}"
+                        >
                 </jso-opencga-folder-list>
             </div>
             <!--<div id="maininfo">-->
@@ -274,7 +280,23 @@
             bioformats: {
                 type: Array,
                 notify: true
+            },
+            showHidden:{
+                type:Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            disableNewProject:{
+                type:Boolean,
+                value:false,
+                reflectToAttribute: true
+            },
+            disableNewStudy:{
+                type:Boolean,
+                value:false,
+                reflectToAttribute: true
             }
+
         },
         projectsChanged: function (neo, old) {
 //            var me = this;
@@ -486,6 +508,13 @@
                 filesFiltered.push(file);
             }
             return filesFiltered;
+        },
+        isHidden: function(project){
+            if(this.showHidden){
+                return true;
+            }else{
+                return project.name.charAt(0) != ".";
+            }
         }
     });
 </script>
