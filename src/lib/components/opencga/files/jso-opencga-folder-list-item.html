@@ -29,11 +29,17 @@
             width: 120px;
         }
 
-        .status {
+         #status {
             color: #444;
             width: 120px;
             text-transform: capitalize;
         }
+
+        .fa-cog{
+            color:red;
+        }
+
+
     </style>
     <template>
         <div class="horizontal layout" >
@@ -42,7 +48,7 @@
                 <div class="name flex">{{file.name}}</div>
             </div>
             <div class="creationDate">{{computeDate(file)}}</div>
-            <div class="status">
+            <div id="status">
                 <i class$="{{computeStatusIcon(file)}}"></i>
                 <span>{{computeStatus(file)}}</span>
             </div>
@@ -74,7 +80,8 @@
         computeStatusIcon: function (file) {
             var iconMap = {
                 "INDEXING": 'fa fa-cog fa-spin',
-                "READY": 'fa fa-check'
+                "READY": 'fa fa-check',
+                "NONE":'fa fa-check'
             };
             if(file.index){
                 return iconMap[file.index.status];

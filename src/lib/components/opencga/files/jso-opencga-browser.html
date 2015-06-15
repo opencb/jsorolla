@@ -120,10 +120,9 @@
             padding: 20px 30px;
         }
 
-        .upload-btn {
-            color: darkred;
+        .bar > div {
+            margin-right: 5px;
         }
-
     </style>
     <template>
         <div id="topbar" class="horizontal layout">
@@ -144,13 +143,7 @@
         <div id="main" class="flex">
             <div id="mainmenu">
                 <div id="mainmenubar" class="horizontal layout">
-                    <div class="horizontal layout flex">
-                        <div class="jso-btn jso-btn-shdw upload-btn"
-                             on-click="handleUploadFile">
-                            <i class="fa fa-cloud-upload"></i> Upload
-                        </div>
-                    </div>
-                    <div class="horizontal layout">
+                    <div class="bar horizontal layout flex">
                         <div class="jso-btn jso-btn-shdw"
                              on-click="handleCreateProject">
                             <i class="fa fa-briefcase"></i> +
@@ -159,6 +152,8 @@
                              on-click="handleCreateStudy">
                             <i class="fa fa-book"></i> +
                         </div>
+                    </div>
+                    <div class="bar horizontal layout">
                     </div>
                 </div>
                 <div id="mainmenucontent">
@@ -173,6 +168,7 @@
                 <jso-opencga-folder-list
                         on-fileselect="handleFileSelect"
                         on-openfolder="handleOpenFolder"
+                        on-upload-file="handleUploadFile"
                         on-back="handleBackFolder"
                         on-need-refresh="refreshFolderFiles"
                         study="{{selectedStudy.study}}"
@@ -353,36 +349,24 @@
         },
 
         handleUploadFile: function (e) {
-            if (this.$.uploadFilePanel.hasAttribute('hidden')) {
-                this.$.uploadFilePanel.removeAttribute('hidden');
-            } else {
-                this.$.uploadFilePanel.setAttribute('hidden', '');
-            }
+            this.$.uploadFilePanel.hidden = !this.$.uploadFilePanel.hidden;
         },
         handleCreateProject: function (e) {
-            if (this.$.createProjectPanel.hasAttribute('hidden')) {
-                this.$.createProjectPanel.removeAttribute('hidden');
-            } else {
-                this.$.createProjectPanel.setAttribute('hidden', '');
-            }
+            this.$.createProjectPanel.hidden = !this.$.createProjectPanel.hidden;
         },
         handleCreateStudy: function (e) {
-            if (this.$.createStudyPanel.hasAttribute('hidden')) {
-                this.$.createStudyPanel.removeAttribute('hidden');
-            } else {
-                this.$.createStudyPanel.setAttribute('hidden', '');
-            }
+            this.$.createStudyPanel.hidden = !this.$.createProjectPanel.hidden;
         },
 
         handleFileUploaded: function (e) {
             this.refreshFolderFiles();
-            this.$.uploadFilePanel.setAttribute('hidden', '');
+            this.$.uploadFilePanel.hidden = true;
         },
         handleProjectCreated: function (e) {
-            this.$.createProjectPanel.setAttribute('hidden', '');
+            this.$.createProjectPanel.hidden = true;
         },
         handleStudyCreated: function (e) {
-            this.$.createStudyPanel.setAttribute('hidden', '');
+            this.$.createStudyPanel.hidden = true;
         },
         handleLoading: function (e) {
             this.fire("loading")
@@ -485,6 +469,9 @@
             var filesFiltered = [];
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
+                if (file.name.charAt(0) == '.') {
+                    continue;
+                }
                 if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
                     continue;
                 }

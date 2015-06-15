@@ -85,7 +85,7 @@
 var OpencgaManager = {
 //    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080/opencga/rest' : OPENCGA_HOST,
-    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v3' : OPENCGA_VERSION,
+    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v1' : OPENCGA_VERSION,
 
     users: {
         login: function (args) {
@@ -98,7 +98,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'users', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'users', 'modify');
+            return OpencgaManager._doRequest(args, 'users', 'update');
         },
         updateEmail: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'change-email');
@@ -125,7 +125,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'projects', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'projects', 'modify');
+            return OpencgaManager._doRequest(args, 'projects', 'update');
         },
         create: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'create');
@@ -146,7 +146,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'studies', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'studies', 'modify');
+            return OpencgaManager._doRequest(args, 'studies', 'update');
         },
         create: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'create');
@@ -157,8 +157,8 @@ var OpencgaManager = {
         analysis: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'analysis');
         },
-        job: function (args) {
-            return OpencgaManager._doRequest(args, 'studies', 'job');
+        jobs: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'jobs');
         }
     },
 
@@ -168,6 +168,12 @@ var OpencgaManager = {
         },
         fetch: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'fetch');
+        },
+        alignments: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'alignments');
+        },
+        variants: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'variants');
         },
         read: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
@@ -205,8 +211,8 @@ var OpencgaManager = {
         downloadExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download-example');
         },
-        modify: function (args) {
-            return OpencgaManager._doRequest(args, 'files', 'modify');
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'update');
         },
         download: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download');
@@ -255,10 +261,10 @@ var OpencgaManager = {
     },
     jobs: {
         create: function (args) {
-            return OpencgaManager._doRequest(args, 'job', 'create');
+            return OpencgaManager._doRequest(args, 'jobs', 'create');
         },
         delete: function (args) {
-            return OpencgaManager._doRequest(args, 'job', 'delete');
+            return OpencgaManager._doRequest(args, 'jobs', 'delete');
         }
     },
     util: {
@@ -288,7 +294,7 @@ var OpencgaManager = {
             id = '/' + args.id;
         }
 
-        var url = host + '/' + api + id + '/' + action;
+        var url = host + '/webservices/rest/'+ version + '/' + api + id + '/' + action;
         url = Utils.addQueryParamtersToUrl(args.query, url);
         return url;
     },

@@ -54,15 +54,29 @@
             background-color: #fafafa;
             padding: 20px 30px;
         }
+
+        .upload-btn {
+            color: var(--default-primary-color);
+        }
+
+        .bar > div {
+            margin-right: 5px;
+        }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
-            <div class="horizontal layout flex">
+            <div class="bar horizontal layout flex">
                 <div class="jso-btn jso-btn-shdw"
                      hidden$="{{checkBack(folder)}}"
                      on-click="handleBack">
                     <i class="fa fa-arrow-left"></i>
                 </div>
+
+                <div class="jso-btn jso-btn-shdw upload-btn"
+                     on-click="handleUploadFile">
+                    <i class="fa fa-cloud-upload"></i> Upload
+                </div>
+
                 <div class="jso-btn jso-btn-shdw"
                      hidden$="{{checkFolder(folder)}}"
                      on-click="handleCreateFolder">
@@ -73,7 +87,6 @@
                      on-click="handleDeleteFile">
                     <i class="fa fa-trash"></i>
                 </div>
-
             </div>
             <div class="horizontal layout">
 
@@ -137,6 +150,9 @@
             study: {
                 type: Object
             }
+        },
+        handleUploadFile: function (e) {
+            this.fire('upload-file');
         },
         handleCreateFolder: function (e) {
             if (this.$.createFolderModal.hasAttribute('hidden')) {
@@ -233,18 +249,21 @@
             }
         },
         _indexFile: function () {
+            var me = this;
             if (this.selected) {
                 OpencgaManager.files.index({
                     id: this.selected.id,
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        storageEngine: "mongodb"
+                        storageEngine: "mongodb",
+                        
                     },
                     request: {
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 console.log("index");
                                 console.log(response);
+                                me.fire('need-refresh');
                             } else {
                                 console.log(response.response[0].errorMsg);
                             }
