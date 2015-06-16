@@ -34,19 +34,29 @@ function SequenceRenderer(args){
 };
 
 
-SequenceRenderer.prototype.render = function(features, args) {
+SequenceRenderer.prototype.render = function(chunks, args) {
+    for (var i = 0; i < chunks.length; i++) {
+        this._paintSequenceChunk(chunks[i], args);
+    }
+};
 
-    console.time("Sequence render "+features.items.sequence.length);
+
+SequenceRenderer.prototype._paintSequenceChunk = function(chunk, args) {
+
+    /* Time */
+    var timeId = new Region(chunk).toString();
+    console.time("Sequence render "+timeId);
+    /**/
+
     var middle = args.width/2;
 
-    var start = features.items.start;
-    var seqStart = features.items.start;
-    var seqString = features.items.sequence;
+    var start = chunk.start;
+    var seqStart = chunk.start;
+    var seqString = chunk.sequence;
 
     for ( var i = 0; i < seqString.length; i++) {
         var x = args.pixelPosition+middle-((args.position-start)*args.pixelBase);
         start++;
-
         var text = SVG.addChild(args.svgCanvasFeatures,"text",{
             'x':x+1,
             'y':12,
@@ -63,7 +73,10 @@ SequenceRenderer.prototype.render = function(features, args) {
         });
     }
 
-    console.timeEnd("Sequence render "+features.items.sequence.length);
 //    this.trackSvgLayout.setNucleotidPosition(this.position);
+
+    /* Time */
+    console.timeEnd("Sequence render "+timeId);
+    /**/
 
 };

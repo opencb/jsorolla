@@ -73,14 +73,15 @@ var Utils = {
         if (url.indexOf("?") != -1) {
             chr = "&";
         }
-        var query = "";
-        for (var key in paramsWS) {
-            if (paramsWS[key] != null)
-                query += key + "=" + paramsWS[key].toString() + "&";
-        }
+        var query = Utils.queryString(paramsWS);
         if (query != "")
-            query = chr + query.substring(0, query.length - 1);
+            query = chr + query;
         return url + query;
+    },
+    queryString: function (obj) {
+        return Object.keys(obj).map(function (key) {
+            return key + '=' + obj[key];
+        }).join('&');
     },
     randomColor: function () {
         var color = "";

@@ -31,7 +31,7 @@ function FeatureRenderer(args) {
     this.toolTipfontClass = 'ocb-tooltip-font';
 
     if (args == null) {
-        _.extend(this, FEATURE_TYPES.undefined);
+        args = FEATURE_TYPES.undefined;
     }
 
     if (_.isObject(args)) {
@@ -46,7 +46,7 @@ FeatureRenderer.prototype.render = function (features, args) {
     var _this = this;
     var draw = function (feature, svgGroup) {
 
-        if (typeof feature.featureType != null) {
+        if (feature.featureType) {
             _.extend(_this, FEATURE_TYPES[feature.featureType]);
         }
         ////check feature class

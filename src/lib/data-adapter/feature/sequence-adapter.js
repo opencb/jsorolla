@@ -19,6 +19,11 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * DEPRECATED
+ * */
+
+
 function SequenceAdapter(args) {
 
     _.extend(this, Backbone.Events);
