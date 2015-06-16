@@ -176,7 +176,7 @@ BamRenderer.prototype.render = function (response, args) {
         });
 
 
-        args.trackListPanel.on('mousePosition:change',function (e) {
+        args.trackListPanel.on('mousePosition:change', function (e) {
             var pos = e.mousePos - parseInt(chunk.start);
             //if(coverageList[pos]!=null){
             var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>' +
@@ -248,7 +248,7 @@ BamRenderer.prototype.render = function (response, args) {
                 var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
                 var points = {
                     "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width) + "," + rowY + " " + (x + width) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height),
-                    "Forward": (x-1) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + (x-1) + "," + (rowY + height)
+                    "Forward": (x - 1) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + (x - 1) + "," + (rowY + height)
                 }
                 var poly = SVG.addChild(featureGroup, "polygon", {
                     "points": points[strand],
@@ -291,23 +291,37 @@ BamRenderer.prototype.render = function (response, args) {
                     //    "fill": variantColor
                     //});
                     /*USING SVG TEXT AND TSPAN*/
-                    var refString = sequenceDataAdapter.getNucleotidsByRegion({chromosome:args.region.chromosome, start:start, end:end});
-                    featureGroup.appendChild(BamRenderer.drawBamDifferences(refString, differences, args.pixelBase, x, rowY + height));
+                    // TODO TEST WHEN ALIGNMENT INDEX
+                    console.log("REMEMBER TO CHECK THIS WHEN ALIGNMENT INDEX WEBSERVICE WORKS");
+                    debugger
+                    sequenceDataAdapter.getData({
+                        chromosome: args.region.chromosome,
+                        start: start,
+                        end: end,
+                        done: function () {
+                            debugger
+                            featureGroup.appendChild(BamRenderer.drawBamDifferences(refString, differences, args.pixelBase, x, rowY + height));
+                            $(featureGroup).qtip({
+                                content: {text: tooltipText, title: tooltipTitle},
+                                position: {target: "mouse", adjust: {x: 25, y: 15}},
+                                style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                                show: 'mouseenter',
+                                hide: 'mousedown mouseup mouseleave'
+                            });
+
+                            $(featureGroup).click(function (event) {
+                                console.log(feature);
+                                _this.trigger('feature:click', {
+                                    query: feature[infoWidgetId],
+                                    feature: feature,
+                                    featureType: feature.featureType,
+                                    clickEvent: event
+                                })
+                            });
+                        }
+                    });
                 }
-                $(featureGroup).qtip({
-                    content: {text: tooltipText, title: tooltipTitle},
-                    position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
-                    show: 'mouseenter',
-                    hide: 'mousedown mouseup mouseleave'
-                });
 
-
-               $(featureGroup).click(function (event) {
-                   console.log(feature);
-                   _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event})
-//                    _this.showInfoWidget({query: feature[settings.infoWidgetId], feature: feature, featureType: feature.featureType, adapter: _this.trackData.adapter});
-               });
                 break;
             }
             rowY += rowHeight;
@@ -501,7 +515,6 @@ BamRenderer.prototype.render = function (response, args) {
 };
 
 BamRenderer.genBamVariants = function (differences, size, mainX, y) {
-
     var s = size / 6;
     var d = "";
     for (var i = 0; i < differences.length; i++) {
@@ -634,7 +647,7 @@ BamRenderer.genBamVariants = function (differences, size, mainX, y) {
 BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, y) {
     var text = SVG.create("text", {
         "x": mainX,
-        "y": y-2,
+        "y": y - 2,
         "class": 'ocb-font-ubuntumono ocb-font-size-15'
     });
     for (var i = 0; i < differences.length; i++) {
@@ -652,14 +665,14 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
             // X 8 sequence mismatch
 
             case "I" :
-                var x = mainX + (size * difference.pos) - size/2;
+                var x = mainX + (size * difference.pos) - size / 2;
                 var t = SVG.addChild(text, "tspan", {
                     "x": x,
-                    "font-weight":'bold',
+                    "font-weight": 'bold',
                     "textLength": size
                 });
                 t.textContent = '·';
-                 $(t).qtip({
+                $(t).qtip({
                     content: {text: difference.seq, title: 'Insertion'},
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
                     style: {classes: this.toolTipfontClass + ' qtip-dark qtip-shadow'}
@@ -670,7 +683,7 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
                 for (var j = 0; j < difference.length; j++) {
                     var t = SVG.addChild(text, "tspan", {
                         "x": x,
-                        "font-weight":'bold',
+                        "font-weight": 'bold',
                         "textLength": size
                     });
                     t.textContent = '—';
@@ -682,7 +695,7 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
                 for (var j = 0; j < difference.length; j++) {
                     var t = SVG.addChild(text, "tspan", {
                         "x": x,
-                        "fill":"#888",
+                        "fill": "#888",
                         "textLength": size
                     });
                     t.textContent = '—';
@@ -719,8 +732,8 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
                 var x = mainX + (size * difference.pos);
                 for (var j = 0; j < difference.length; j++) {
                     var char = difference.seq[j];
-                    var refPos = difference.pos+j;
-                    if(char != refString.charAt(refPos)){
+                    var refPos = difference.pos + j;
+                    if (char != refString.charAt(refPos)) {
                         var t = SVG.addChild(text, "tspan", {
                             "x": x,
                             "fill": SEQUENCE_COLORS[char],

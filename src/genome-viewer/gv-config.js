@@ -227,6 +227,12 @@ FEATURE_TYPES = {
         if (f.name) tokens.push(f.name);
         return tokens.join(' - ');
     },
+    getLabelCommons: function (f) {
+        var tokens = [];
+        if (f.id) tokens.push(f.id);
+        if (f.name) tokens.push(f.name);
+        return tokens.join(' - ');
+    },
     _getSimpleKeys: function (f) {
         var s = '';
         for (key in f) {
@@ -361,7 +367,7 @@ FEATURE_TYPES = {
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
+            return 'SNP' + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
@@ -713,9 +719,7 @@ FEATURE_TYPES = {
     },
     'TF_binding_site': {
         label: function (f) {
-            var str = "";
-            str += f.chromosome + ":" + f.start + "-" + f.end;
-            return str;
+            return FEATURE_TYPES.getLabelCommons(f);
         },
         tooltipTitle: function (f) {
             return FEATURE_TYPES.getTipTitleCommons(f);
@@ -730,9 +734,7 @@ FEATURE_TYPES = {
     },
     'mirna_target': {
         label: function (f) {
-            var str = "";
-            str += f.chromosome + ":" + f.start + "-" + f.end;
-            return str;
+            return FEATURE_TYPES.getLabelCommons(f);
         },
         tooltipTitle: function (f) {
             return FEATURE_TYPES.getTipTitleCommons(f);
