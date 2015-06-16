@@ -57,9 +57,9 @@ SequenceAdapter.prototype.getData = function (args) {
     region.end = (region.end > 300000000) ? 300000000 : region.end;
 
     //clean when the new position is too far from current
-    // if (region.start < this.start[chromosome] - 5000 || region.end > this.end[chromosome] + 5000) {
-    //     this.clearData();
-    // }
+    if (region.start < this.start[chromosome] - 5000 || region.end > this.end[chromosome] + 5000) {
+        this.clearData();
+    }
 
     var params = {};
     _.extend(params, this.params);

@@ -61,28 +61,33 @@ FEATURE_CONFIG = {
 
 CODON_CONFIG = {
     '': {text: '', color: 'transparent'},
-    'R': {text: 'Arg', color: '#7BB8E7'},
-    'H': {text: 'His', color: '#7BB8E7'},
-    'K': {text: 'Lys', color: '#7BB8E7'},
-    'D': {text: 'Asp', color: '#FE6193'},
-    'E': {text: 'Glu', color: '#FE6193'},
+    'R': {text: 'Arg', color: '#BBBFE0'},
+    'H': {text: 'His', color: '#BBBFE0'},
+    'K': {text: 'Lys', color: '#BBBFE0'},
 
-    'A': {text: 'Ala', color: '#B5D8EE'},
-    'F': {text: 'Phe', color: '#B5D8EE'},
-    'L': {text: 'Leu', color: '#B5D8EE'},
-    'M': {text: 'Met', color: '#B5D8EE'},
-    'I': {text: 'Ile', color: '#B5D8EE'},
-    'W': {text: 'Trp', color: '#B5D8EE'},
-    'P': {text: 'Pro', color: '#B5D8EE'},
-    'V': {text: 'Val', color: '#B5D8EE'},
-    
-    'C': {text: 'Cys', color: '#B9D8EF'},
-    'G': {text: 'Gly', color: '#B9D8EF'},
-    'N': {text: 'Asn', color: '#B9D8EF'},
-    'Q': {text: 'Gln', color: '#B9D8EF'},
-    'S': {text: 'Ser', color: '#B9D8EF'},
-    'T': {text: 'Thr', color: '#B9D8EF'},
-    'Y': {text: 'Tyr', color: '#B9D8EF'}
+    'D': {text: 'Asp', color: '#F8B7D3'},
+    'E': {text: 'Glu', color: '#F8B7D3'},
+
+    'F': {text: 'Phe', color: '#FFE75F'},
+    'L': {text: 'Leu', color: '#FFE75F'},
+    'I': {text: 'Ile', color: '#FFE75F'},
+    'M': {text: 'Met', color: '#FFE75F'},
+    'V': {text: 'Val', color: '#FFE75F'},
+    'P': {text: 'Pro', color: '#FFE75F'},
+    'A': {text: 'Ala', color: '#FFE75F'},
+    'W': {text: 'Trp', color: '#FFE75F'},
+    'G': {text: 'Gly', color: '#FFE75F'},
+
+
+    'T': {text: 'Thr', color: '#B3DEC0'},
+    'S': {text: 'Ser', color: '#B3DEC0'},
+    'Y': {text: 'Tyr', color: '#B3DEC0'},
+    'Q': {text: 'Gln', color: '#B3DEC0'},
+    'N': {text: 'Asn', color: '#B3DEC0'},
+    'C': {text: 'Cys', color: '#B3DEC0'},
+
+    'X': {text: ' X ', color: '#f0f0f0'},
+    '*': {text: ' * ', color: '#DDDDDD'}
 };
 
 FEATURE_OPTIONS = {
@@ -215,6 +220,13 @@ FEATURE_TYPES = {
             'strand:&nbsp;<span style="font-weight: bold">' + strand + '</span><br>' +
             'length:&nbsp;<span style="font-weight: bold; color:#005fdb">' + (f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
     },
+    getTipTitleCommons: function (f) {
+        var tokens = [];
+        if (f.featureType) tokens.push(f.featureType);
+        if (f.id) tokens.push(f.id);
+        if (f.name) tokens.push(f.name);
+        return tokens.join(' - ');
+    },
     _getSimpleKeys: function (f) {
         var s = '';
         for (key in f) {
@@ -239,17 +251,15 @@ FEATURE_TYPES = {
             return str;
         },
         tooltipTitle: function (f) {
-            return " ";
+            return FEATURE_TYPES.getTipTitleCommons(f);
         },
         tooltipText: function (f) {
-            return " ";
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
         },
-        color: function (f) {
-            return "grey";
-        },
+        color: "#aaa",
         infoWidgetId: "id",
-        height: 10
-//		histogramColor:"lightblue"
+        height: 10,
+        histogramColor: "lightgray"
     },
     gene: {
         label: function (f) {
@@ -282,34 +292,6 @@ FEATURE_TYPES = {
         height: 4,
         histogramColor: "lightblue"
     },
-//	geneorange:{
-//		getLabel: function(f){
-//			var str = "";
-//			str+= (f.strand < 0) ? "<" : "";
-//			str+= " "+f.name+" ";
-//			str+= (f.strand > 0) ? ">" : "";
-//			str+= " ["+f.biotype+"]";
-//			return str;
-//		},
-//		getTipTitle: function(f){
-//			return FEATURE_TYPES.formatTitle(f.featureType) +
-//			' - <span class="ok">'+f.name+'</span>';
-//		},
-//		getTipText: function(f){
-//			var color = GENE_BIOTYPE_COLORS[f.biotype];
-//			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.id+'</span><br>'+
-//			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
-//			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
-//			FEATURE_TYPES.getTipCommons(f)+
-//			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
-//		},
-//		getColor: function(f){
-//			return GENE_BIOTYPE_COLORS[f.biotype];
-//		},
-//		infoWidgetId: "id",
-//		height:4,
-//		histogramColor:"lightblue"
-//	},
     transcript: {
         label: function (f) {
             var name = (f.name != null) ? f.name : f.id;
@@ -370,7 +352,7 @@ FEATURE_TYPES = {
             return "black";
         },
         infoWidgetId: "id",
-        height: 5,
+        height: 7,
         histogramColor: "lightblue"
     },
     snp: {
@@ -729,100 +711,39 @@ FEATURE_TYPES = {
             }
         }
     },
-
-    "Histone": {
+    'TF_binding_site': {
         label: function (f) {
             var str = "";
             str += f.chromosome + ":" + f.start + "-" + f.end;
             return str;
         },
         tooltipTitle: function (f) {
-            return "Histone";
+            return FEATURE_TYPES.getTipTitleCommons(f);
         },
         tooltipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
         },
-        color: function (f) {
-            return "#d7e961";
-        },
+        color: "#58f3f0",
         infoWidgetId: "id",
-        height: 10
+        height: 10,
+        histogramColor: "lightgray"
     },
-    "Open Chromatin": {
+    'mirna_target': {
         label: function (f) {
             var str = "";
             str += f.chromosome + ":" + f.start + "-" + f.end;
             return str;
         },
         tooltipTitle: function (f) {
-            return "Open Chromatin";
+            return FEATURE_TYPES.getTipTitleCommons(f);
         },
         tooltipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
         },
-        color: function (f) {
-            return "#7361e9";
-        },
+        color: "#8af688",
         infoWidgetId: "id",
-        height: 10
-//		histogramColor:"lightblue"
-    },
-    "Polymerase": {
-        label: function (f) {
-            var str = "";
-            str += f.chromosome + ":" + f.start + "-" + f.end;
-            return str;
-        },
-        tooltipTitle: function (f) {
-            return "Polymerase";
-        },
-        tooltipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
-        },
-        color: function (f) {
-            return "#ffc04d";
-        },
-        infoWidgetId: "id",
-        height: 10
-//		histogramColor:"lightblue"
-    },
-    "Transcription Factor": {
-        label: function (f) {
-            var str = "";
-            str += f.chromosome + ":" + f.start + "-" + f.end;
-            return str;
-        },
-        tooltipTitle: function (f) {
-            return "Transcription Factor";
-        },
-        tooltipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
-        },
-        color: function (f) {
-            return "#ff748c";
-        },
-        infoWidgetId: "id",
-        height: 10
-//		histogramColor:"lightblue"
-    },
-    "microRNA": {
-        label: function (f) {
-            var str = "";
-            str += f.chromosome + ":" + f.start + "-" + f.end;
-            return str;
-        },
-        tooltipTitle: function (f) {
-            return "microRNA";
-        },
-        tooltipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f) + '<br>' + FEATURE_TYPES._getSimpleKeys(f);
-        },
-        color: function (f) {
-            return "#74f5ff";
-        },
-        infoWidgetId: "id",
-        height: 10
-//		histogramColor:"lightblue"
+        height: 10,
+        histogramColor: "lightgray"
     }
 };
 

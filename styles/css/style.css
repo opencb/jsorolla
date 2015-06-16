@@ -2,10 +2,10 @@ html.ocb, body.ocb {
     font-family: 'Lato', 'Roboto', 'Helvetica Neue', Helvetica, Arial, 'sans-serif' !important;
 }
 
-/*.hidden {*/
-/*display: none !important;*/
-/*visibility: hidden !important*/
-/*}*/
+.hidden {
+    display: none !important;
+    visibility: hidden !important
+}
 
 .unselectable {
     user-select: none;

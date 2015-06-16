@@ -83,12 +83,12 @@ var CellBaseManager = {
             version: version
         };
 
-        var params = {
-            of: 'json'
-        };
+        //var params = {
+        //    of: 'json'
+        //};
 
         _.extend(config, args);
-        _.extend(config.params, params);
+        //_.extend(config.params, params);
 
         var query = '';
         if(typeof config.query !== 'undefined' && config.query != null){

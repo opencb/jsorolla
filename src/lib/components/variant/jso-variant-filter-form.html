@@ -96,7 +96,7 @@
                         <div class="segregation segregationValue flex">. / .</div>
                     </div>
                     <div id="segregation" class="vertical layout">
-                        <template is="dom-repeat" items="{{samples}}">
+                        <template is="dom-repeat" items="{{samplesView}}">
                             <div class="horizontal layout">
                                 <div class="segregation sampleName">{{item}}</div>
                                 <label class="jso-control flex">
@@ -137,13 +137,13 @@
                     </textarea>
 
 
-                    <jso-cellbase-search-field style="margin-top:5px;" placeholder="Search gene"
-                                               on-featureselected="handleFeatureSelected"></jso-cellbase-search-field>
+                    <!--<jso-cellbase-search-field style="margin-top:5px;" placeholder="Search gene"-->
+                    <!--on-featureselected="handleFeatureSelected"></jso-cellbase-search-field>-->
 
-                    <label class="jso" style="margin-top:5px;">Bed File</label>
+                    <!--<label class="jso" style="margin-top:5px;">Bed File</label>-->
 
-                    <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick">{{fileName}}</div>
-                    <input type="file" hidden id="fileInput" on-change="handleInputChange">
+                    <!--<div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick">{{fileName}}</div>-->
+                    <!--<input type="file" hidden id="fileInput" on-change="handleInputChange">-->
 
                 </div>
             </div>
@@ -174,12 +174,12 @@
                     <div class="horizontal layout">
                         <label class="jso">SIFT</label>
                         <select name="sift_op" id="sift_op">
-                            <option value="==">==</option>
-                            <option value="!=">!=</option>
+                            <!--<option value="==">==</option>-->
+                            <!--<option value="!=">!=</option>-->
                             <option value="<" selected><</option>
-                            <option value="<="><=</option>
+                            <!--<option value="<="><=</option>-->
                             <option value=">">></option>
-                            <option value=">=">>=</option>
+                            <!--<option value=">=">>=</option>-->
                         </select>
                         <input type="text" id="sift" name="sift" flex/>
                     </div>
@@ -187,12 +187,12 @@
                     <div class="horizontal layout">
                         <label class="jso">Polyphen</label>
                         <select name="polyphen_op" id="polyphen_op">
-                            <option value="==">==</option>
-                            <option value="!=">!=</option>
+                            <!--<option value="==">==</option>-->
+                            <!--<option value="!=">!=</option>-->
                             <option value="<" selected><</option>
-                            <option value="<="><=</option>
+                            <!--<option value="<="><=</option>-->
                             <option value=">">></option>
-                            <option value=">=">>=</option>
+                            <!--<option value=">=">>=</option>-->
                         </select>
                         <input type="text" id="polyphen" name="polyphen" flex/>
                     </div>
@@ -208,27 +208,27 @@
                     <div class="horizontal layout">
                         <label class="jso">phyloP</label>
                         <select name="phylop_op" id="phylop_op">
-                            <option value="==">==</option>
-                            <option value="!=">!=</option>
+                            <!--<option value="==">==</option>-->
+                            <!--<option value="!=">!=</option>-->
                             <option value="<" selected><</option>
-                            <option value="<="><=</option>
+                            <!--<option value="<="><=</option>-->
                             <option value=">">></option>
-                            <option value=">=">>=</option>
+                            <!--<option value=">=">>=</option>-->
                         </select>
-                        <input type="text" flex/>
+                        <input type="text" id="phylop" name="phylop" flex/>
                     </div>
 
                     <div class="horizontal layout">
                         <label class="jso">PhastCons</label>
                         <select name="phastcons_op" id="phastcons_op">
-                            <option value="==">==</option>
-                            <option value="!=">!=</option>
+                            <!--<option value="==">==</option>-->
+                            <!--<option value="!=">!=</option>-->
                             <option value="<" selected><</option>
-                            <option value="<="><=</option>
+                            <!--<option value="<="><=</option>-->
                             <option value=">">></option>
-                            <option value=">=">>=</option>
+                            <!--<option value=">=">>=</option>-->
                         </select>
-                        <input type="text" flex/>
+                        <input type="text" id="phastcons" name="phastcons" flex/>
                     </div>
                 </div>
             </div>
@@ -321,17 +321,18 @@
                 observer: 'fileChanged'
             },
             samples: {
+                type: Object,
+                notify: true,
+                value: function () {
+                    return {}
+                }
+
+            },
+            samplesView: {
                 type: Array,
                 notify: true,
-                observe: 'samplesChanged',
                 value: function () {
-                    return [];
-                }
-            },
-            samplesPosition: {
-                type: Array,
-                value: function () {
-                    return {};
+                    return []
                 }
             },
             regionValue: {
@@ -358,10 +359,14 @@
         },
         fileChanged: function (neo, old) {
             if (neo) {
-                this.samples = this.file.attributes.variantSource.samples;
-                this.samplesPosition = this.file.attributes.variantSource.samplesPosition;
-//                this.clearForm();
-//                this.submitForm();
+                var samplesPosition = this.file.attributes.variantSource.samplesPosition;
+                for (var sample in  samplesPosition) {
+                    this.samples[sample] = this.file.sampleIds[samplesPosition[sample]];
+//                    this.samplesView.push(sample);
+                    this.push('samplesView', sample);
+                }
+//                debugger
+//                this.set("samplesView", this.samplesView.slice())
             }
         },
         handleFeatureSelected: function (e) {
@@ -379,8 +384,8 @@
         },
         clearForm: function () {
             /* samples */
-            for (var i = 0; i < this.samples.length; i++) {
-                var sample = this.samples[i];
+
+            for (var sample in this.samples) {
                 var els = this.$.segregation.querySelectorAll("input[name='" + sample + "']:checked");
                 for (var j = 0; j < els.length; j++) {
                     var el = els[j];
@@ -427,8 +432,7 @@
             // Genotypes
             var genotypes = [];
 
-            for (var i = 0; i < this.samples.length; i++) {
-                var sample = this.samples[i];
+            for (var sample in  this.samples) {
                 var els = this.$.segregation.querySelectorAll("input[name='" + sample + "']:checked");
                 var gtValues = [];
                 for (var j = 0; j < els.length; j++) {
@@ -436,7 +440,7 @@
                     gtValues.push(el.value);
                 }
                 if (gtValues.length > 0) {
-                    var aux = this.samplesPosition[sample] + ":" + gtValues.join(",");
+                    var aux = this.samples[sample] + ":" + gtValues.join(",");
                     genotypes.push(aux);
                 }
             }
@@ -460,12 +464,31 @@
             // Protein Substitution Scores
             var sift = parseFloat(this.$.sift.value);
             var polyphen = parseFloat(this.$.polyphen.value);
+            var phylop = parseFloat(this.$.phylop.value);
+            var phastcons = parseFloat(this.$.phastcons.value);
+
             if (sift) {
+                sift = this.$.sift_op.value + parseFloat(this.$.sift.value);
                 query.sift = sift;
             }
             if (polyphen) {
+                polyphen = this.$.polyphen_op.value + parseFloat(this.$.polyphen.value);
                 query.polyphen = polyphen;
             }
+            if (phylop || phastcons) {
+                // protein_substitution
+//                query.conserved_region=phylop:<0.2
+                query.conserved_region = "";
+                if (phylop) {
+                    query.conserved_region = "phylop:" + this.$.phylop_op.value + parseFloat(this.$.phylop.value);
+                }
+                if (phylop && phastcons)
+                    query.conserved_region += ",";
+                if (phastcons) {
+                    query.conserved_region += "phastCons:" + this.$.phastcons_op.value + parseFloat(this.$.phastcons.value);
+                }
+            }
+
 
             var regionQuery = regions.join(",");
             query.region = regionQuery;
@@ -483,7 +506,7 @@
             query.sid = Cookies("bioinfo_sid");
 
             //TODO fsalavert: fix
-            query.sessionId = Cookies("bioinfo_sid");
+//            query.sessionId = Cookies("bioinfo_sid");
 
             var url = OpencgaManager.files.fetch({
                 id: this.file.id,
