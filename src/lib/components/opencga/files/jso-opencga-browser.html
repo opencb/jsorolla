@@ -144,18 +144,18 @@
             <div id="mainmenu">
                 <div id="mainmenubar" class="horizontal layout">
                     <div class="bar horizontal layout flex">
-                     <template is="dom-if" if="{{!disableNewProject}}">
-                        <div class="jso-btn jso-btn-shdw"
-                             on-click="handleCreateProject">
-                            <i class="fa fa-briefcase"></i> +
-                        </div>
-                    </template>
-                     <template is="dom-if" if="{{!disableNewStudy}}">
-                    
-                        <div class="jso-btn jso-btn-shdw"
-                             on-click="handleCreateStudy">
-                            <i class="fa fa-book"></i> +
-                        </div>
+                        <template is="dom-if" if="{{!disableNewProject}}">
+                            <div class="jso-btn jso-btn-shdw"
+                                 on-click="handleCreateProject">
+                                <i class="fa fa-briefcase"></i> +
+                            </div>
+                        </template>
+                        <template is="dom-if" if="{{!disableNewStudy}}">
+
+                            <div class="jso-btn jso-btn-shdw"
+                                 on-click="handleCreateStudy">
+                                <i class="fa fa-book"></i> +
+                            </div>
                         </template>
                     </div>
                     <div class="bar horizontal layout">
@@ -281,22 +281,21 @@
                 type: Array,
                 notify: true
             },
-            showHidden:{
-                type:Boolean,
+            showHidden: {
+                type: Boolean,
                 value: false,
                 reflectToAttribute: true
             },
-            disableNewProject:{
-                type:Boolean,
-                value:false,
+            disableNewProject: {
+                type: Boolean,
+                value: false,
                 reflectToAttribute: true
             },
-            disableNewStudy:{
-                type:Boolean,
-                value:false,
+            disableNewStudy: {
+                type: Boolean,
+                value: false,
                 reflectToAttribute: true
             }
-
         },
         projectsChanged: function (neo, old) {
 //            var me = this;
@@ -312,6 +311,16 @@
 //            } else {
 //                this._showStudyFolder();
 //            }
+            this.async(function () {
+                if (this.selectedProject == null) {
+                    var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
+                    this.set('selectedProject', el);
+                }
+                if (this.selectedStudy == null) {
+                    var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
+                    this.set('selectedStudy', el);
+                }
+            }, 100);
         },
         selectedStudyChanged: function (neo, old) {
             if (old) old.selected = false;
@@ -321,15 +330,15 @@
                 this.files = [];
             }
             this.selectedFile = null;
+            this._showStudyFolder();
         },
         selectedProjectChanged: function (neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;
         },
         handleStudyClick: function (e) {
-            this.selectedProject = e.currentTarget;
+            this.set('selectedProject', e.currentTarget);
             this.set('selectedStudy', e.currentTarget.selectedStudy);
-            this._showStudyFolder();
         },
         handleFileSelect: function (e) {
             this.selectedFile = e.detail;
@@ -509,10 +518,10 @@
             }
             return filesFiltered;
         },
-        isHidden: function(project){
-            if(this.showHidden){
+        isHidden: function (project) {
+            if (this.showHidden) {
                 return true;
-            }else{
+            } else {
                 return project.name.charAt(0) != ".";
             }
         }
