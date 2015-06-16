@@ -64,6 +64,10 @@
             font-family: 'FontAwesome';
             content: '\f107';
         }
+        .table-header-field.sort-up > .name:after {
+            font-family: 'FontAwesome';
+            content: '\f106';
+        }
 
         .table-header-field > .name {
             box-sizing: border-box;
@@ -772,19 +776,44 @@
         },
         handleHeaderFieldClick: function (e) {
             var els = this.querySelectorAll('.table-header-field');
-            for (var i = 0; i < els.length; i++) {
-                var el = els[i];
-                el.classList.remove('sort-down');
-            }
-
+            
             var column = e.currentTarget._column;
             var sortedData = this.data.slice(0);
 
-            sortedData.sort(function (a, b) {
-                return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
-            });
+
+            if(e.currentTarget.classList.contains("sort-down")){
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    el.classList.remove('sort-down');
+                    el.classList.remove('sort-up');
+                }
+
+                sortedData.sort(function (b, a) {
+                    if(!isNaN(b[column.name]) && !isNaN(a[column.name])){
+                        return a[column.name] - b[column.name];
+
+                    }else{
+                        return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
+                    }
+                });
+                e.currentTarget.classList.add('sort-up');
+            }else{
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    el.classList.remove('sort-down');
+                    el.classList.remove('sort-up');
+                }
+                sortedData.sort(function (a, b) {
+                    if(!isNaN(b[column.name]) && !isNaN(a[column.name])){
+                        return a[column.name] - b[column.name];
+                    }else{
+                        return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
+                    }
+                });
+                e.currentTarget.classList.add('sort-down');
+            }
+
             this.data = sortedData;
-            e.currentTarget.classList.add('sort-down');
         },
         _getPos: function (row) {
             for (var i = 0; i < this.viewData.length; i++) {

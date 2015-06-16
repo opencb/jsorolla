@@ -104,7 +104,7 @@
             </div>
             <div id="maincontent">
                 <jso-opencga-job-list
-                        on-fileselect="handleFileSelect"
+                        on-jobselect="handleJobSelect"
                         study="{{selectedStudy.study}}"
                         jobs="{{jobs}}">
                 </jso-opencga-job-list>
@@ -112,12 +112,7 @@
             </div>
         </div>
 
-        <div id="botbar" class="horizontal layout end-justified">
-            <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selectedFile)}}"
-                 on-click="handleOnClickIndex">
-                <i class="fa fa-cog"></i>&nbsp;Index
-            </div>
-        </div>
+        <div id="botbar" class="horizontal layout end-justified"></div>
     </template>
 
 </dom-module>
@@ -140,7 +135,7 @@
                 notify: true,
                 observer: 'selectedStudyChanged'
             },
-            selectedFile: {
+            selectedJob: {
                 type: Object,
                 notify: true,
                 value: function () {
@@ -161,15 +156,6 @@
                     return [];
                 }
             }
-        },
-        handleHiddenIndex: function (selectedFile) {
-            if (selectedFile == null) {
-                return true;
-            }
-            return selectedFile.index != null;
-        },
-        handleOnClickIndex: function (e) {
-            alert("Index File: " + this.selectedFile.name)
         },
         projectsChanged: function (neo, old) {
 //            if (this.selectedProject == null) {
@@ -199,7 +185,7 @@
             } else {
                 this.jobs = [];
             }
-            this.selectedFile = null;
+            this.selectedJob = null;
         },
         selectedProjectChanged: function (neo, old) {
             if (old) old.selected = false;
@@ -209,8 +195,8 @@
             this.selectedProject = e.currentTarget;
             this.selectedStudy = e.currentTarget.selectedStudy;
         },
-        handleFileSelect: function (e) {
-            this.selectedFile = e.detail;
+        handleJobSelect: function (e) {
+            this.selectedJob = e.detail;
         },
 
         /* Private methods */
