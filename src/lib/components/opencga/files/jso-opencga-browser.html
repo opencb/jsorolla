@@ -312,11 +312,12 @@
 //                this._showStudyFolder();
 //            }
             this.async(function () {
+
                 if (this.selectedProject == null) {
                     var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
                     this.set('selectedProject', el);
                 }
-                if (this.selectedStudy == null) {
+                if (this.selectedProject != null && this.selectedStudy == null) {
                     var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
                     this.set('selectedStudy', el);
                 }
