@@ -64,6 +64,7 @@
             font-family: 'FontAwesome';
             content: '\f107';
         }
+
         .table-header-field.sort-up > .name:after {
             font-family: 'FontAwesome';
             content: '\f106';
@@ -311,6 +312,11 @@
                 }
             },
             enableSelect: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            disableTooltip: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
@@ -776,12 +782,12 @@
         },
         handleHeaderFieldClick: function (e) {
             var els = this.querySelectorAll('.table-header-field');
-            
+
             var column = e.currentTarget._column;
             var sortedData = this.data.slice(0);
 
 
-            if(e.currentTarget.classList.contains("sort-down")){
+            if (e.currentTarget.classList.contains("sort-down")) {
                 for (var i = 0; i < els.length; i++) {
                     var el = els[i];
                     el.classList.remove('sort-down');
@@ -789,24 +795,24 @@
                 }
 
                 sortedData.sort(function (b, a) {
-                    if(!isNaN(b[column.name]) && !isNaN(a[column.name])){
+                    if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
                         return a[column.name] - b[column.name];
 
-                    }else{
+                    } else {
                         return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
                     }
                 });
                 e.currentTarget.classList.add('sort-up');
-            }else{
+            } else {
                 for (var i = 0; i < els.length; i++) {
                     var el = els[i];
                     el.classList.remove('sort-down');
                     el.classList.remove('sort-up');
                 }
                 sortedData.sort(function (a, b) {
-                    if(!isNaN(b[column.name]) && !isNaN(a[column.name])){
+                    if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
                         return a[column.name] - b[column.name];
-                    }else{
+                    } else {
                         return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
                     }
                 });
@@ -973,12 +979,11 @@
 
                 el.innerHTML = value != null ? value : defValue;
             }
-
-//            var toolTip = document.createElement('jso-opencga-button-tooltip');
-//            toolTip.set("message","Manuelete");
-//            el.appendChild(toolTip);
-//
-//            el.style.overflow = "auto";
+            if (!me.disableTooltip) {
+                if (value == null)
+                    value = ""
+                el.setAttribute("title", value);
+            }
             rowEl.appendChild(el);
         },
         _deepValue: function (obj, path) {

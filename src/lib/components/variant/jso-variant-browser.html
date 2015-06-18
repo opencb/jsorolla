@@ -152,12 +152,13 @@
                 console.log(newValue);
             },
             handleDataGridSelected: function (oldValue, newValue) {
+
                 var me = this;
-                var reg = newValue.chr + ":" + newValue.start + "-" + newValue.end;
+                var reg = newValue.chromosome + ":" + newValue.start + "-" + newValue.end;
                 var region = new Region(reg);
 
                 // update Effect
-                var variant = newValue.chr + ":" + newValue.start + ":" + newValue.reference + ":" + newValue.alternate;
+                var variant = newValue.chromosome + ":" + newValue.start + ":" + newValue.reference + ":" + newValue.alternate;
                 this.variantEffect = variant;
                 this.$.jsoVariantStats.stats = newValue.sourceEntries[me.studyId + "_" + me.fileId].stats;
 
