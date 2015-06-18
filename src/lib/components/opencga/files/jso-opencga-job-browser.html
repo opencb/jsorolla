@@ -7,15 +7,23 @@
             position: relative;
             box-sizing: border-box;
 
+            /*left: 0;*/
+            /*right: 0;*/
+            /*margin: 0px auto 0px auto;*/
+
+            height: 100%;
+
             transition: all 0.2s;
             background-color: inherit;
-            width: 100%;
+            width: 600px;
+            height: 400px;
         }
 
         #topbar,
         #botbar {
             box-sizing: border-box;
             height: 30px;
+            padding: 3px 7px;
             line-height: 30px;
         }
 
@@ -35,17 +43,30 @@
         #mainmenu {
             position: absolute;
             box-sizing: border-box;
-            width: 150px;
+            width: 175px;
             height: 100%;
-            overflow-y: auto;
+
             border-right: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #mainmenubar {
+            box-sizing: border-box;
+            background-color: rgba(125, 125, 125, 0.1);
+            padding: 3px 7px;
+            height: 30px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #mainmenucontent {
+            height: calc(100% - 30px);
+            overflow-y: auto;
         }
 
         #maincontent {
             position: absolute;
-            left: 150px;
+            left: 175px;
             top: 0;
-            width: calc(100% - 150px);
+            width: calc(100% - 175px);
             height: 100%;
             white-space: nowrap;
         }
@@ -64,11 +85,16 @@
 
         #breadcrums {
             box-sizing: border-box;
-            padding-left: 10px;
+            padding-left: 5px;
+            line-height: 23px;
         }
 
-        #breadcrums > span:hover {
+        #breadcrums > span.clickable:hover {
             cursor: pointer;
+            text-decoration: underline;
+        }
+
+        #breadcrums > .projectbread {
         }
 
         /*#breadcrums > span:not(:last-of-type)::after {*/
@@ -81,6 +107,9 @@
             height: 100%;
         }
 
+        .bar > div {
+            margin-right: 5px;
+        }
     </style>
     <template>
         <div id="topbar" class="horizontal layout">
@@ -95,12 +124,13 @@
 
         <div id="main" class="flex">
             <div id="mainmenu">
-                <template is="dom-repeat" items="{{projects}}" filter="isHidden">
-                    <jso-opencga-project-tree on-click="handleProjectTreeClick"
-                                              project="{{item}}"
-                                              >
-                    </jso-opencga-project-tree>
-                </template>
+                <div id="mainmenucontent">
+                    <template is="dom-repeat" items="{{projects}}" filter="isHidden">
+                        <jso-opencga-project-tree on-clickstudy="handleProjectTreeClick"
+                                                  project="{{item}}">
+                        </jso-opencga-project-tree>
+                    </template>
+                </div>
             </div>
             <div id="maincontent">
                 <jso-opencga-job-list
@@ -108,10 +138,23 @@
                         study="{{selectedStudy.study}}"
                         jobs="{{jobs}}">
                 </jso-opencga-job-list>
-
+                <!--                <jso-opencga-folder-list
+                                       on-fileselect="handleFileSelect"
+                                       on-openfolder="handleOpenFolder"
+                                       on-upload-file="handleUploadFile"
+                                       on-back="handleBackFolder"
+                                       on-need-refresh="refreshFolderFiles"
+                                       on-previewfile="handlePreviewFile"
+                                       study="{{selectedStudy.study}}"
+                                       folder="{{folder}}"
+                                       files="{{files}}"
+                                       >
+                               </jso-opencga-folder-list> -->
             </div>
-        </div>
+            <!--<div id="maininfo">-->
 
+            <!--</div>-->
+        </div>
         <div id="botbar" class="horizontal layout end-justified"></div>
     </template>
 
@@ -158,42 +201,38 @@
             }
         },
         projectsChanged: function (neo, old) {
-//            if (this.selectedProject == null) {
-//                if (neo && neo[0]) {
-//                    var studyId;
-//
-//                    for (var i = 0; i < neo.length; i++) {
-//                        var pr = neo[i];
-//
-//                        if (pr.name !== ".meta" && pr.studies.length > 0) {
-//                            this._getJobs(pr.studies[0].id);
-//
-//
-//                        }
-//                    }
-//                }
-//            }
+            this.async(function () {
+                if (this.selectedProject == null) {
+                    var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
+                    this.set('selectedProject', el);
+                }
+                if (this.selectedProject != null && this.selectedStudy == null) {
+                    var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
+                    this.set('selectedStudy', el);
+                }
+                if (this.selectedStudy) {
+                    this.refreshJobs();
+                }
+            }, 100);
         },
         selectedStudyChanged: function (neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;
 
             var me = this;
-            if (neo) {
-
-                me._getJobs(this.selectedStudy.study.id);
-            } else {
+            if (!neo) {
                 this.jobs = [];
             }
             this.selectedJob = null;
+            this.refreshJobs();
         },
         selectedProjectChanged: function (neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;
         },
         handleProjectTreeClick: function (e) {
-            this.selectedProject = e.currentTarget;
-            this.selectedStudy = e.currentTarget.selectedStudy;
+            this.set('selectedProject', e.currentTarget);
+            this.set('selectedStudy', e.currentTarget.selectedStudy);
         },
         handleJobSelect: function (e) {
             this.selectedJob = e.detail;
@@ -205,6 +244,9 @@
                 return false;
             }
             return true;
+        },
+        refreshJobs: function () {
+            this.jobs = this._getJobs(this.selectedStudy.study.id);
         },
         _getJobs: function (studyId) {
             var me = this;
@@ -242,10 +284,10 @@
             });
 
         },
-         isHidden: function(project){
-            if(this.showHidden){
+        isHidden: function (project) {
+            if (this.showHidden) {
                 return true;
-            }else{
+            } else {
                 return project.name.charAt(0) != ".";
             }
         }
