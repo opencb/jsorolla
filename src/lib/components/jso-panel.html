@@ -54,6 +54,11 @@
             color: var(--text-primary-color);
         }
 
+        :host[light-header] > .header {
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
+        }
+
         :host[movable] > .header {
             cursor: move;
         }
@@ -222,9 +227,13 @@
                     type: Boolean,
                     value: false
                 },
-
                 loading: {
                     type: Boolean,
+                    value: false
+                },
+                lightHeader: {
+                    type: Boolean,
+                    reflectToAttribute: true,
                     value: false
                 },
                 hidden: {
@@ -233,7 +242,6 @@
                     observer: 'hiddenChanged'
 
                 }
-
             },
             hiddenChanged: function (neo, old) {
                 // check if is not hidden
