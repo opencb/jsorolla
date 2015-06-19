@@ -64,7 +64,7 @@ CellBaseAdapter.prototype = {
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /** 2 category check **/
-        var categories = [this.category + this.subCategory + this.resource + Utils.queryString(this.params)];
+        var categories = [this.category + this.subCategory + this.resource + Utils.queryString(params)];
 
         /** 3 dataType check **/
         var dataType = args.dataType;

@@ -301,7 +301,6 @@
                 this.genomeViewer.addTrack(geneTrack);
 
 
-
                 var renderer = new FeatureRenderer(FEATURE_TYPES.snp);
                 renderer.on('feature:click', function (e) {
                     new SnpInfoWidget(null, me.genomeViewer.species).draw(e);
