@@ -509,29 +509,6 @@ TrackListPanel.prototype = {
     setWidth: function (width) {
         console.log(width);
         this.width = width - 18;
-        var mid = this.width / 2;
-        this._setPixelBase();
-
-
-        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase + 2});
-        $(this.mouseLine).css({'width': this.pixelBase});
-
-        this.trigger('trackWidth:change', {width: this.width, sender: this})
-
-        this._setTextPosition();
-
-        if (this.showRegionOverviewBox) {
-            var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
-            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
-            $(this.regionOverviewBoxLeft).css({
-                'width': regionOverviewDarkBoxWidth
-            });
-            $(this.regionOverviewBoxRight).css({
-                'left': (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
-                'width': regionOverviewDarkBoxWidth
-            });
-        }
-
     },
 
     highlight: function (event) {
@@ -559,16 +536,30 @@ TrackListPanel.prototype = {
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
         var _this = this;
+        var mid = this.width / 2;
         this.region.load(region);
         this.visualRegion.load(region);
         this._setPixelBase();
         //get pixelbase by Region
 
 
-        $(this.centerLine).css({'width': this.pixelBase + 2});
-        $(this.mouseLine).css({'width': this.pixelBase + 2});
+        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase});
+        $(this.mouseLine).css({'width': this.pixelBase});
 
         this._setTextPosition();
+
+        if (this.showRegionOverviewBox) {
+            var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
+            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
+            $(this.regionOverviewBoxLeft).css({
+                'width': regionOverviewDarkBoxWidth
+            });
+            $(this.regionOverviewBoxRight).css({
+                'left': (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
+                'width': regionOverviewDarkBoxWidth
+            });
+        }
+
 
         this.trigger('window:size', {windowSize: this.windowSize});
 
@@ -695,6 +686,7 @@ TrackListPanel.prototype = {
 
 
         track.set('trackRegion:change', function (event) {
+            track.setWidth(_this.width);
             track.set('pixelBase', _this.pixelBase);
             track.set('region', event.region);
             track.draw();
@@ -708,11 +700,11 @@ TrackListPanel.prototype = {
         });
 
 
-        track.set('trackWidth:change', function (event) {
-            track.setWidth(event.width);
-            track.set('pixelBase', _this.pixelBase);
-            track.draw();
-        });
+        //track.set('trackWidth:change', function (event) {
+        //    track.setWidth(event.width);
+        //    track.set('pixelBase', _this.pixelBase);
+        //    track.draw();
+        //});
 
 
         track.set('trackFeature:highlight', function (event) {
@@ -762,7 +754,7 @@ TrackListPanel.prototype = {
 //        this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on('trackRegion:change', track.get('trackRegion:change'));
         this.on('trackRegion:move', track.get('trackRegion:move'));
-        this.on('trackWidth:change', track.get('trackWidth:change'));
+        //this.on('trackWidth:change', track.get('trackWidth:change'));
         this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
 
 //        track.on('track:ready', function () {
@@ -832,7 +824,7 @@ TrackListPanel.prototype = {
 //        this.off('trackSpecies:change', track.get('trackSpecies:change'));
         this.off('trackRegion:change', track.get('trackRegion:change'));
         this.off('trackRegion:move', track.get('trackRegion:move'));
-        this.off('trackWidth:change', track.set('trackWidth:change'));
+        //this.off('trackWidth:change', track.set('trackWidth:change'));
         this.off('trackFeature:highlight', track.get('trackFeature:highlight'));
 
         this.refreshTracksDom();
