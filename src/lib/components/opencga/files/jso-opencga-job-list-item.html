@@ -155,6 +155,7 @@
         },
         handleDeleteJob: function(e){
             var jobId = e.currentTarget.dataJob;
+            e.stopPropagation();
 
             if(confirm("Are you sure?")){
                 var aux = OpencgaManager.jobs.delete({
