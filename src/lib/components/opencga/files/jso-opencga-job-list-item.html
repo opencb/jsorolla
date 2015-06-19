@@ -81,16 +81,15 @@
                     <span style="white-space: nowrap">{{job.name}}</span>
                 </div>
                 <div>{{computeToolName(job)}}</div>
-
                 <div>
                     <span class="capitalize {{job.status}}">{{computeStatus(job)}}</span>
                     <span class="date">{{computeDate(job)}}</span>
                 </div>
             </div>
             <div vertical layout class="bar" on-click="{{handleBarClick}}">
-                <!--<template if="{{jobItem.status != 'RUNNING' }}">-->
-                <!--<font-awesome icon="times" on-click="{{handleDeleteJob}}"></font-awesome>-->
-                <!--</template>-->
+                <template is="dom-if" if="{{!isRunning(job)}}">
+                    <i class="fa fa-trash-o" on-click="handleDeleteJob" data-job="{{job.id}}"></i>
+                </template>
             </div>
         </div>
 
@@ -150,7 +149,30 @@
         handleVisits: function (job) {
             return job.visits > 0
                     ;
+        },
+        isRunning: function(job){
+            return job.status == "RUNNING";
+        },
+        handleDeleteJob: function(e){
+            var jobId = e.currentTarget.dataJob;
+            e.stopPropagation();
 
+            if(confirm("Are you sure?")){
+                var aux = OpencgaManager.jobs.delete({
+                    id: jobId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+                           
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
         }
     });
 </script>

@@ -153,26 +153,29 @@
                 </div>
                 <div class="jso-formcontent vertical layout">
 
-                    <div>
-                        <label class="jso">1000G</label>
+                    <div class="">
+                        <label class="jso">1000 Genomes</label>
                         <input type="text"/>
                     </div>
 
-                    <div>
-                        <label class="jso">EVS</label>
+                    <div class="">
+                        <label class="jso">Exome Variant Server</label>
                         <input type="text"/>
                     </div>
                 </div>
             </div>
 
             <div class="jso-formbox">
+
                 <div class="jso-formtitle">
                     Protein Substitution Scores
                 </div>
+
                 <div class="jso-formcontent vertical layout">
 
-                    <div class="horizontal layout">
-                        <label class="jso">SIFT</label>
+                    <label class="jso">SIFT</label>
+
+                    <div>
                         <select name="sift_op" id="sift_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
@@ -181,11 +184,11 @@
                             <option value=">">></option>
                             <!--<option value=">=">>=</option>-->
                         </select>
-                        <input type="text" id="sift" name="sift" flex/>
-                    </div>
+                        <input type="text" id="sift" name="sift"/>
 
-                    <div class="horizontal layout">
                         <label class="jso">Polyphen</label>
+                    </div>
+                    <div>
                         <select name="polyphen_op" id="polyphen_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
@@ -194,19 +197,22 @@
                             <option value=">">></option>
                             <!--<option value=">=">>=</option>-->
                         </select>
-                        <input type="text" id="polyphen" name="polyphen" flex/>
+                        <input type="text" id="polyphen" name="polyphen"/>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="jso-formbox">
-                <div class="jso-formtitle">
-                    Conservation
-                </div>
-                <div class="jso-formcontent vertical layout">
+        <div class="jso-formbox">
+            <div class="jso-formtitle">
+                Conservation
+            </div>
+            <div class="jso-formcontent vertical layout">
 
-                    <div class="horizontal layout">
-                        <label class="jso">phyloP</label>
+                <div>
+                    <label class="jso">PhyloP</label>
+
+                    <div>
                         <select name="phylop_op" id="phylop_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
@@ -217,9 +223,11 @@
                         </select>
                         <input type="text" id="phylop" name="phylop" flex/>
                     </div>
+                </div>
 
-                    <div class="horizontal layout">
-                        <label class="jso">PhastCons</label>
+                <div>
+                    <label class="jso">PhastCons</label>
+                    <div>
                         <select name="phastcons_op" id="phastcons_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
@@ -232,72 +240,73 @@
                     </div>
                 </div>
             </div>
+        </div>
 
 
-            <div class="jso-formbox">
-                <div class="jso-formtitle">
-                    Consequence Type
+        <div class="jso-formbox">
+            <div class="jso-formtitle">
+                Consequence Type
+            </div>
+            <div id="consequenceTypes" class="jso-formcontent">
+                <template is="dom-repeat" items="{{consequenceTypes}}">
+                    <label class="jso-control">
+                        <input value="{{item.value}}" type="checkbox" name="consequence_type">
+                        <span>{{item.name}}</span>
+                    </label>
+                </template>
+                <div class="input_container vertical layout">
                 </div>
-                <div id="consequenceTypes" class="jso-formcontent">
-                    <template is="dom-repeat" items="{{consequenceTypes}}">
-                        <label class="jso-control">
-                            <input value="{{item.value}}" type="checkbox" name="consequence_type">
-                            <span>{{item.name}}</span>
-                        </label>
-                    </template>
-                    <div class="input_container vertical layout">
-                    </div>
-                </div>
-
-
             </div>
 
 
-            <!-- OLD COMMENTED -->
+        </div>
 
-            <!--<div class="form_block positionBlock">-->
-            <!--<div id="headerTitle">Position</div>-->
-            <!--<div class="input_container" vertical layout>-->
-            <!--<label class="input_label">Chromosomal Location</label>-->
-            <!--<textarea id="region" name="region" placeholder="1:1-1000000,2:1-1000000"-->
-            <!--value="{{ regionValue }}" rows="3"-->
-            <!--required?="{{ (regionValue == '') }}">-->
-            <!--</textarea>-->
-            <!--</div>-->
-            <!--&lt;!&ndash;<div class="input_container" vertical layout>&ndash;&gt;-->
-            <!--&lt;!&ndash;<label class="input_label">SNP id</label>&ndash;&gt;-->
-            <!--&lt;!&ndash;<textarea id="region" name="region" value="{{ regionValue }}" rows="3"&ndash;&gt;-->
-            <!--&lt;!&ndash;required?="{{ (regionValue == '') }}">&ndash;&gt;-->
-            <!--&lt;!&ndash;</textarea>&ndash;&gt;-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-            <!--<div class="input_container" vertical layout>-->
-            <!--<label class="input_label">Gene</label>-->
-            <!--<textarea id="gene" name="gene" placeholder="BRCA2,PPL"-->
-            <!--value="{{ geneValue }}" rows="3"-->
-            <!--required?="{{ (geneValue == '') }}"></textarea>-->
 
-            <!--<div horizontal layout class="searchGene" end-justified>-->
-            <!--<input id="searchField" list="searchDataList" placeholder="Search gene" type="text"-->
-            <!--style="width: 90px;">-->
-            <!--<datalist id="searchDataList"></datalist>-->
-            <!--<div id="quickSearchButton" class="button" style="border-left: none;">-->
-            <!--<font-awesome icon="search"></font-awesome>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<div class="input_container" vertical layout>-->
-            <!--<label class="input_label">Bed File</label>-->
+        <!-- OLD COMMENTED -->
 
-            <!--<div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>-->
-            <!--<input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">-->
-            <!--</div>-->
-            <!--</div>-->
+        <!--<div class="form_block positionBlock">-->
+        <!--<div id="headerTitle">Position</div>-->
+        <!--<div class="input_container" vertical layout>-->
+        <!--<label class="input_label">Chromosomal Location</label>-->
+        <!--<textarea id="region" name="region" placeholder="1:1-1000000,2:1-1000000"-->
+        <!--value="{{ regionValue }}" rows="3"-->
+        <!--required?="{{ (regionValue == '') }}">-->
+        <!--</textarea>-->
+        <!--</div>-->
+        <!--&lt;!&ndash;<div class="input_container" vertical layout>&ndash;&gt;-->
+        <!--&lt;!&ndash;<label class="input_label">SNP id</label>&ndash;&gt;-->
+        <!--&lt;!&ndash;<textarea id="region" name="region" value="{{ regionValue }}" rows="3"&ndash;&gt;-->
+        <!--&lt;!&ndash;required?="{{ (regionValue == '') }}">&ndash;&gt;-->
+        <!--&lt;!&ndash;</textarea>&ndash;&gt;-->
+        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--<div class="input_container" vertical layout>-->
+        <!--<label class="input_label">Gene</label>-->
+        <!--<textarea id="gene" name="gene" placeholder="BRCA2,PPL"-->
+        <!--value="{{ geneValue }}" rows="3"-->
+        <!--required?="{{ (geneValue == '') }}"></textarea>-->
 
-            <!--<div class="form_block">-->
-            <!--<div id="headerTitle">Consequence Type</div>-->
-            <!--<div id="consequenceTypes" class="input_container" vertical layout>-->
-            <!--</div>-->
-            <!--</div>-->
+        <!--<div horizontal layout class="searchGene" end-justified>-->
+        <!--<input id="searchField" list="searchDataList" placeholder="Search gene" type="text"-->
+        <!--style="width: 90px;">-->
+        <!--<datalist id="searchDataList"></datalist>-->
+        <!--<div id="quickSearchButton" class="button" style="border-left: none;">-->
+        <!--<font-awesome icon="search"></font-awesome>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="input_container" vertical layout>-->
+        <!--<label class="input_label">Bed File</label>-->
+
+        <!--<div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>-->
+        <!--<input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">-->
+        <!--</div>-->
+        <!--</div>-->
+
+        <!--<div class="form_block">-->
+        <!--<div id="headerTitle">Consequence Type</div>-->
+        <!--<div id="consequenceTypes" class="input_container" vertical layout>-->
+        <!--</div>-->
+        <!--</div>-->
 
         </div>
     </template>
@@ -359,13 +368,52 @@
         },
         fileChanged: function (neo, old) {
             if (neo) {
-                var samplesPosition = this.file.attributes.variantSource.samplesPosition;
-                for (var sample in  samplesPosition) {
-                    this.samples[sample] = this.file.sampleIds[samplesPosition[sample]];
-//                    this.samplesView.push(sample);
-                    this.push('samplesView', sample);
-                }
-//                debugger
+                var me = this;
+                //http://bioinfoint.hpc.cam.ac.uk/opencga/webservices/rest/v1/samples/search?sid=zdBAYiHWhAPcu7EXD8UI&id=16,17,18,19&studyId=11
+                OpencgaManager.samples.search({
+                    query: {
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: this.file.attributes.variantSource.studyId,
+                        id: this.file.sampleIds.join()
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                if (response.response[0].result.length > 0) {
+                                    for (var i = 0; i < response.response[0].result.length; i++) {
+                                        var sample = response.response[0].result[i];
+                                        me.samples[sample.name] = sample.id;
+
+                                    }
+                                    /** for correct viz **/
+                                    var samplesPosition = me.file.attributes.variantSource.samplesPosition;
+                                    for (var sample in  samplesPosition) {
+                                        me.push('samplesView', sample);
+                                    }
+                                }
+                                else {
+                                    alert("There has been an unexpected error, please contact BierApp crew");
+                                }
+
+                            } else {
+                                alert(response.error);
+                            }
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+
+
+//                var samplesPosition = this.file.attributes.variantSource.samplesPosition;
+//                for (var sample in  samplesPosition) {
+//                    this.samples[sample] = this.file.sampleIds[samplesPosition[sample]];
+//                    debugger
+////                    this.samplesView.push(sample);
+//                    this.push('samplesView', sample);
+//                }
+////                debugger
 //                this.set("samplesView", this.samplesView.slice())
             }
         },
@@ -386,7 +434,7 @@
             /* samples */
 
             for (var sample in this.samples) {
-                var els = this.$.segregation.querySelectorAll("input[name='" + sample + "']:checked");
+                var els = this.$.segregation.querySelectorAll("input[name='" + sample.name + "']:checked");
                 for (var j = 0; j < els.length; j++) {
                     var el = els[j];
                     el.checked = false;
@@ -398,6 +446,8 @@
                 var el = els[i];
                 el.checked = false;
             }
+            debugger
+            var els = this.$.consequenceTypes.querySelectorAll("textarea");
         },
         submitForm: function () {
             var query = {};

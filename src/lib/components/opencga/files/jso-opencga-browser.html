@@ -123,6 +123,17 @@
         .bar > div {
             margin-right: 5px;
         }
+
+        #filePreview .container{
+            width: 800px;
+            height: 600px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .wrapped-text {
+            white-space: pre-wrap;
+        }
     </style>
     <template>
         <div id="topbar" class="horizontal layout">
@@ -176,6 +187,7 @@
                         on-upload-file="handleUploadFile"
                         on-back="handleBackFolder"
                         on-need-refresh="refreshFolderFiles"
+                        on-previewfile="handlePreviewFile"
                         study="{{selectedStudy.study}}"
                         folder="{{folder}}"
                         files="{{files}}"
@@ -230,6 +242,15 @@
                         on-study-created="handleStudyCreated"
                         projects="{{projects}}"
                         ></jso-opencga-create-study>
+            </div>
+        </jso-panel>
+
+        <jso-panel modal closable hidden id="filePreview">
+            <div class="header">
+                <i class="fa fa-book"></i> File Preview
+            </div>
+            <div class="container">
+                <code class="wrapped-text">{{contentData}}</code>
             </div>
         </jso-panel>
 
@@ -295,6 +316,10 @@
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
+            },
+            contentData: {
+                type:String,
+                value: ""
             }
         },
         projectsChanged: function (neo, old) {
@@ -320,6 +345,9 @@
                 if (this.selectedProject != null && this.selectedStudy == null) {
                     var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
                     this.set('selectedStudy', el);
+                }
+                if(this.folder && this.selectedStudy){
+                    this.refreshFolderFiles();
                 }
             }, 100);
         },
@@ -525,6 +553,36 @@
             } else {
                 return project.name.charAt(0) != ".";
             }
+        },
+        handlePreviewFile: function(e){
+            var file = e.detail;
+
+            var data;
+            OpencgaManager.files.content({
+                            id: file.id,
+                            query: {
+                                sid: Cookies('bioinfo_sid'),
+                                limit:100
+                            },
+                            request: {
+                                async: false,
+                                success: function (response) {
+                                    data = response;
+                                },
+                                error: function () {
+
+                                }
+                            }
+                        });
+
+
+            if(data){
+
+                this.contentData = data;
+                this.$.filePreview.hidden = false;
+            }
+
+
         }
     });
 </script>

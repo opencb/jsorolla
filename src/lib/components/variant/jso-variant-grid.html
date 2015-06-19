@@ -17,7 +17,7 @@
         <!--<div class="title">-->
         <!--Variant Browser-->
         <!--</div>-->
-        <jso-table id="table" enable-paging enable-remote selectable request="{{request}}"
+        <jso-table id="table" enable-paging enable-remote enable-select request="{{request}}"
                    on-rowclick="handleRowClick"></jso-table>
     </template>
 
@@ -76,32 +76,32 @@
             {
                 name: 'genes',
                 title: 'Genes',
-                width: 100,
+//                width: 100,
                 defaultValue: '.'
             }, {
                 name: 'ct',
                 title: 'Conseq. Type',
-                width: 100
+//                width: 100
             }, {
                 name: 'sift',
                 title: 'SIFT',
-                width: 100,
-                defaultValue: '.'
+                width: 70,
+                defaultValue: '.',
             }, {
                 name: 'polyphen',
                 title: 'Polyphen',
-                width: 100,
+                width: 70,
                 defaultValue: '.'
             },
             {
                 name: 'phylop',
                 title: 'phyloP',
-                width: 100,
+                width: 70,
                 defaultValue: '.'
             }, {
                 name: 'phastCons',
                 title: 'PhastCons',
-                width: 100,
+                width: 70,
                 defaultValue: '.'
             },
             {
@@ -250,7 +250,7 @@
                 if(variant.annotation.conservedRegionScores != null){
                     for (var j = 0; j < variant.annotation.conservedRegionScores.length; j++) {
                         var cons = variant.annotation.conservedRegionScores[j];
-                        variant[cons.source] = cons.score;
+                        variant[cons.source] = Utils.formatNumber(cons.score);
                     }
                 }
 

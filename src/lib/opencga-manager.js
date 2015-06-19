@@ -267,6 +267,11 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'jobs', 'delete');
         }
     },
+    samples: {
+        search: function (args) {
+            return OpencgaManager._doRequest(args, 'samples', 'search');
+        }
+    },
     util: {
         proxy: function (args) {
             return OpencgaManager._doRequest(args, 'util', 'proxy');

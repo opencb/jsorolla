@@ -83,7 +83,6 @@
             {
                 name: "so",
                 title: "Conseq. type",
-                cellTemplate: 'seqOntologyTemplate',
                 formula: function (row) {
                     var aux = {};
                     if (row.soName && row.soAccession) {
@@ -91,7 +90,7 @@
                         aux.soName = row.soName;
                         aux.soAccession = row.soAccession;
                     }
-                    return aux;
+                    return aux.soName;
                 }
             },
             {
@@ -119,11 +118,11 @@
                 title: "cds Position"
             },
             {
-                name: "aPosition",
+                name: "aaPosition",
                 title: "AA Position"
             },
             {
-                name: "aChange",
+                name: "aaChange",
                 title: "AA Change"
             },
             {
@@ -137,11 +136,11 @@
                         for (var i = 0; i < pss.length; i++) {
                             var elem = pss[i];
                             if (elem.source == "Sift") {
-                                return elem;
+                                return elem.score;
                             }
                         }
                     }
-                    return {};
+                    return "";
                 }
             },
             {
@@ -153,11 +152,11 @@
                         for (var i = 0; i < pss.length; i++) {
                             var elem = pss[i];
                             if (elem.source == "Polyphen") {
-                                return elem;
+                                return elem.score;
                             }
                         }
                     }
-                    return {};
+                    return "";
                 }
             }
         ],
@@ -166,7 +165,7 @@
             var me = this;
             this.$.table.currentPage = 1;
             if (neo) {
-                var variant = neo.chr + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                var variant = neo.chromosome+ ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
 //                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
                     version: 'v3',
