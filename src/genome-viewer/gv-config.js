@@ -342,17 +342,18 @@ FEATURE_TYPES = {
             return FEATURE_TYPES.formatTitle('Exon') + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (e, t) {
-            var ename = (e.name != null) ? e.name : e.id;
-            var tname = (t.name != null) ? t.name : t.id;
-            var color = GENE_BIOTYPE_COLORS[t.biotype];
-            return 'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
-                'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
-                'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
-                'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
-                'transcript start-end:&nbsp;<span class="emph">' + t.start + '-' + t.end + '</span><br>' +
-                'exon start-end:&nbsp;<span class="emph">' + e.start + '-' + e.end + '</span><br>' +
-                'strand:&nbsp;<span class="emph">' + t.strand + '</span><br>' +
-                'length:&nbsp;<span class="info">' + (e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+            return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
+            //var ename = (e.name != null) ? e.name : e.id;
+            //var tname = (t.name != null) ? t.name : t.id;
+            //var color = GENE_BIOTYPE_COLORS[t.biotype];
+            //return 'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
+            //    'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
+            //    'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
+            //    'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
+            //    'transcript start-end:&nbsp;<span class="emph">' + t.start + '-' + t.end + '</span><br>' +
+            //    'exon start-end:&nbsp;<span class="emph">' + e.start + '-' + e.end + '</span><br>' +
+            //    'strand:&nbsp;<span class="emph">' + t.strand + '</span><br>' +
+            //    'length:&nbsp;<span class="info">' + (e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
         },
         color: function (f) {
             return "black";

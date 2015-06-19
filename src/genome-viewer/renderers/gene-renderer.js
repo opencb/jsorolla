@@ -248,7 +248,8 @@ GeneRenderer.prototype.render = function (features, args) {
                             var infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(exon) : _this.infoWidgetId;
 
                             var exonGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-                                "class": "ocb-coding"
+                                "class": "ocb-coding",
+                                "data-id": exon.id
                             });
 
                             $(exonGroup).qtip({
@@ -259,6 +260,10 @@ GeneRenderer.prototype.render = function (features, args) {
                                 show: {delay: 300},
                                 hide: {delay: 300}
                             });
+                            exonGroup.addEventListener('click', function (e) {
+                                console.log(this.dataset.id);
+                            });
+
 
                             // Paint exons in white without coding region
                             var eRect = SVG.addChild(exonGroup, "rect", {
@@ -275,6 +280,7 @@ GeneRenderer.prototype.render = function (features, args) {
 
                             var codingLength = exon.genomicCodingEnd - exon.genomicCodingStart;
                             var codingX = args.pixelPosition + middle - ((args.position - exon.genomicCodingStart) * args.pixelBase);
+                            var codingReverseX = args.pixelPosition + middle - ((args.position - exon.genomicCodingEnd) * args.pixelBase);
                             var codingWidth = (codingLength + 1) * (args.pixelBase);
                             if (codingLength > 0) {
                                 var cRect = SVG.addChild(exonGroup, "rect", {
@@ -288,15 +294,24 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "fill": transcriptColor,
                                     "cursor": "pointer"
                                 });
-                                // if(transcript.id == 'ENST00000380152'){
-                                //     debugger
-                                // }
+                                //if (transcript.id == 'ENST00000396573') {
+                                //    if (transcript.id == 'ENST00000380152') {
+                                    //debugger
+                                //}
                                 if (args.pixelBase > 9.5) {
-                                    var proteinString = transcript.proteinSequence.substring(Math.floor((exon.cdsStart - 1) / 3), Math.floor((exon.cdsEnd - 1) / 3));
-                                    var proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * args.pixelBase);
+                                    if (exon.strand == '+') {
+                                        var proteinString = transcript.proteinSequence.substring(Math.floor((exon.cdsStart - 1) / 3), Math.floor((exon.cdsEnd - 1) / 3));
+                                        var proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * args.pixelBase);
+                                        var sign = 1;
+
+                                    } else if (exon.strand == '-') {
+                                        var proteinString = transcript.proteinSequence.substring(Math.floor((exon.cdsStart) / 3), Math.ceil((exon.cdsEnd ) / 3));
+                                        var proteinPhaseOffset = codingReverseX - (args.pixelBase * 2) - (exon.phase * args.pixelBase);
+                                        var sign = -1;
+                                    }
                                     for (var j = 0; j < proteinString.length; j++) {
                                         var codonRect = SVG.addChild(exonGroup, "rect", {
-                                            "x": proteinPhaseOffset + (args.pixelBase * 3 * j ),
+                                            "x": proteinPhaseOffset + (sign * args.pixelBase * 3 * j ),
                                             "y": checkRowY - 1,
                                             "width": (args.pixelBase * 3),
                                             "height": height,
@@ -306,7 +321,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                             "class": 'ocb-codon'
                                         });
                                         var codonText = SVG.addChild(exonGroup, "text", {
-                                            "x": proteinPhaseOffset + (args.pixelBase * j * 3) + args.pixelBase / 3,
+                                            "x": proteinPhaseOffset + (sign * args.pixelBase * j * 3) + args.pixelBase / 3,
                                             "y": checkRowY - 3,
                                             "width": (args.pixelBase * 3),
                                             "class": 'ocb-font-ubuntumono ocb-font-size-16 ocb-codon'
