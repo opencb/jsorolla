@@ -294,18 +294,14 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "fill": transcriptColor,
                                     "cursor": "pointer"
                                 });
-                                //if (transcript.id == 'ENST00000396573') {
-                                //    if (transcript.id == 'ENST00000380152') {
-                                    //debugger
-                                //}
                                 if (args.pixelBase > 9.5) {
                                     if (exon.strand == '+') {
-                                        var proteinString = transcript.proteinSequence.substring(Math.floor((exon.cdsStart - 1) / 3), Math.floor((exon.cdsEnd - 1) / 3));
+                                        var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.floor(exon.cdsEnd / 3));
                                         var proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * args.pixelBase);
                                         var sign = 1;
 
                                     } else if (exon.strand == '-') {
-                                        var proteinString = transcript.proteinSequence.substring(Math.floor((exon.cdsStart) / 3), Math.ceil((exon.cdsEnd ) / 3));
+                                        var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.ceil(exon.cdsEnd / 3));
                                         var proteinPhaseOffset = codingReverseX - (args.pixelBase * 2) - (exon.phase * args.pixelBase);
                                         var sign = -1;
                                     }
