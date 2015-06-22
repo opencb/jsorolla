@@ -170,9 +170,9 @@
             this.$.createFolderModal.setAttribute('hidden', '');
         },
         handleDeleteFile: function (e) {
-            if(confirm("Are you sure?")){
+            if (confirm("Are you sure?")) {
                 this._deleteFile();
-        
+
             }
         },
         handleIndexFile: function (e) {
@@ -192,14 +192,14 @@
             var file = e.currentTarget.file;
             if (file.type == 'FOLDER') {
                 this.fire('openfolder', file);
-            }else if(file.type == "FILE"){
-                this.fire('previewfile',file);
-            }            
+            } else if (file.type == "FILE") {
+                this.fire('previewfile', file);
+            }
 
         },
-        handlePreviewFile: function(e){
-            if(this.selected){
-                this.fire('previewfile',this.selected);
+        handlePreviewFile: function (e) {
+            if (this.selected) {
+                this.fire('previewfile', this.selected);
             }
         },
         handleBack: function () {
@@ -275,7 +275,7 @@
                     query: {
                         sid: Cookies('bioinfo_sid'),
                         storageEngine: "mongodb",
-                        
+
                     },
                     request: {
                         success: function (response) {
