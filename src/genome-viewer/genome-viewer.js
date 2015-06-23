@@ -863,7 +863,7 @@ GenomeViewer.prototype = {
     },
     _speciesChangeHandler: function (event) {
         //Relaunch
-        //this.trigger('species:change', event);
+        this.trigger('species:change', event);
         this._updateSpecies(event.species);
 
         var c = this.chromosomes[Object.keys(this.chromosomes)[0]];

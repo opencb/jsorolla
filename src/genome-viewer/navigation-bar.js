@@ -91,50 +91,52 @@ NavigationBar.prototype = {
 
 
         var HTML = '' +
-            '<div style="margin-right: 5px;" id="leftSideButton" class="ocb-ctrl"><i class="fa fa-navicon"></i></div>' +
+            '<div title="Restore previous region" style="margin-right: 5px;" id="leftSideButton" class="ocb-ctrl"><i class="fa fa-navicon"></i></div>' +
             '<div id="restoreDefaultRegionButton" class="ocb-ctrl"><i class="fa fa-repeat"></i></div>' +
 
-            '<div class="ocb-dropdown" style="margin-left: 5px">' +
+            '<div title="Region history" class="ocb-dropdown" style="margin-left: 5px">' +
             '   <div tabindex="-1" id="regionHistoryButton" class="ocb-ctrl"><i class="fa fa-history"></i> <i class="fa fa-caret-down"></i></div>' +
             '   <ul id="regionHistoryMenu"></ul>' +
             '</div>' +
 
-            '<div class="ocb-dropdown" style="margin-left: 5px">' +
+            '<div title="Species menu" class="ocb-dropdown" style="margin-left: 5px">' +
             '   <div tabindex="-1" id="speciesButton" class="ocb-ctrl"><span id="speciesText"></span> <i class="fa fa-caret-down"></i></div>' +
             '   <ul id="speciesMenu"></ul>' +
             '</div>' +
 
-            '<div class="ocb-dropdown" style="margin-left: 5px">' +
+            '<div title="Chromosomes menu" class="ocb-dropdown" style="margin-left: 5px">' +
             '   <div tabindex="-1" id="chromosomesButton" class="ocb-ctrl"><span id="chromosomesText"></span> <i class="fa fa-caret-down"></i></div>' +
             '   <ul id="chromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>' +
             '</div>' +
 
             '<div style="margin-left: 5px; float: left; " >' +
-            '   <label class="ocb-ctrl" id="karyotypeButtonLabel"><input id="karyotypeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-karyotype"></span></span></label>' +
-            '   <label class="ocb-ctrl" id="chromosomeButtonLabel"><input id="chromosomeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-chromosome"></span></span></label>' +
-            '   <label class="ocb-ctrl" id="regionButtonLabel"><input id="regionButton" type="checkbox"><span><span class="ocb-icon ocb-icon-region"></span></span></label>' +
+            '   <label title="Toggle karyotype panel" class="ocb-ctrl" id="karyotypeButtonLabel"><input id="karyotypeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-karyotype"></span></span></label>' +
+            '   <label title="Toggle chromosome panel" class="ocb-ctrl" id="chromosomeButtonLabel"><input id="chromosomeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-chromosome"></span></span></label>' +
+            '   <label title="Toggle overview panel" class="ocb-ctrl" id="regionButtonLabel"><input id="regionButton" type="checkbox"><span><span class="ocb-icon ocb-icon-region"></span></span></label>' +
             '</div>' +
 
 
             '<div id="zoomControl" style="float:left;">' +
-            '<div id="zoomMinButton" class="ocb-ctrl" style="margin-left: 5px;border-right: none;">0</div>' +
-            '<div id="zoomOutButton" class="ocb-ctrl"><span class="fa fa-minus"></span></div>' +
+            '<div title="Minimum window size" id="zoomMinButton" class="ocb-ctrl" style="margin-left: 5px;border-right: none;">Min</div>' +
+            '<div title="Decrease window size" id="zoomOutButton" class="ocb-ctrl"><span class="fa fa-minus"></span></div>' +
             '<div id="progressBarCont" class="ocb-zoom-bar">' +
-            '   <div id="progressBar" style="width: ' + this.zoom + '%"></div>' +
+            '   <div id="progressBar" class="back"></div>' +
+            '   <div id="progressBar" class="rect" style="width: ' + this.zoom + '%"></div>' +
+            '   <div id="progressBarBall" class="ball" style="left: ' + this.zoom + '%"></div>' +
             '</div>' +
-            '<div id="zoomInButton" class="ocb-ctrl" style="border-right: none;"><span class="fa fa-plus"></span></div>' +
-            '<div id="zoomMaxButton" class="ocb-ctrl">100</div>' +
-            '</div>' +
-
-
-            '<div id="windowSizeControl" style="float:left;">' +
-            '<div class="ocb-ctrl-label" style="border-right: none;margin-left: 5px;">Window size:</div>' +
-            '<input id="windowSizeField" class="ocb-ctrl"  type="text" style="width: 60px;">' +
+            '<div title="Increase window size" id="zoomInButton" class="ocb-ctrl" style="border-right: none;"><span class="fa fa-plus"></span></div>' +
+            '<div title="Maximum window size" id="zoomMaxButton" class="ocb-ctrl">Max</div>' +
             '</div>' +
 
 
-            '<div id="positionControl" style="float:left;">' +
-            '<div class="ocb-ctrl-label" id="regionLabel" style="border-right: none;margin-left: 5px;transition:all 0.5s">Position:</div>' +
+            '<div title="Window size (Nucleotides)" id="windowSizeControl" style="float:left;margin-left: 5px;">' +
+                //'<div class="ocb-ctrl-label" style="border-right: none;">Window size:</div>' +
+            '<input id="windowSizeField" class="ocb-ctrl"  type="text" style="width: 70px;">' +
+            '</div>' +
+
+
+            '<div title="Position" id="positionControl" style="float:left;margin-left: 5px">' +
+                //'<div class="ocb-ctrl-label" id="regionLabel" style="border-right: none;margin-left: 5px;transition:all 0.5s">Position:</div>' +
             '<input id="regionField" class="ocb-ctrl" placeholder="1:10000-20000" type="text" style="width: 170px;">' +
             '<div id="goButton" class="ocb-ctrl" style="border-left: none;">Go!</div>' +
             '</div>' +
@@ -238,11 +240,28 @@ NavigationBar.prototype = {
         this.els.zoomMinButton.addEventListener('click', function () {
             _this._handleZoomSlider(0);
         });
+
+
+
+        var zoomBarMove = function (e) {
+            var progressBarCont = _this.els.progressBarCont;
+            var br = progressBarCont.getBoundingClientRect();
+            var offsetX = e.clientX - br.left;
+            var zoom = 100 / parseInt(getComputedStyle(progressBarCont).width) * offsetX;
+            if (zoom > 0 && zoom < 100) {
+                _this.els.progressBarBall.style.left = zoom + '%';
+            }
+        };
         this.els.progressBarCont.addEventListener('click', function (e) {
             var br = this.getBoundingClientRect();
             var offsetX = e.clientX - br.left;
             var zoom = 100 / parseInt(getComputedStyle(this).width) * offsetX;
             _this._handleZoomSlider(zoom);
+
+            this.removeEventListener('mousemove', zoomBarMove);
+        });
+        this.els.progressBarBall.addEventListener('mousedown', function (e) {
+            _this.els.progressBarCont.addEventListener('mousemove', zoomBarMove);
         });
 
         this.els.regionField.value = this.region.toString();
@@ -406,7 +425,7 @@ NavigationBar.prototype = {
         //}
 
         var list = [];
-        for(var chr in this.species.chromosomes){
+        for (var chr in this.species.chromosomes) {
             list.push(chr);
 
 
@@ -516,15 +535,15 @@ NavigationBar.prototype = {
     },
 
     _handleZoomOutButton: function () {
-        this._handleZoomSlider(Math.max(0, this.zoom - 1));
+        this._handleZoomSlider(Math.max(0, this.zoom - 5));
     },
     _handleZoomSlider: function (value) {
         var _this = this;
-        if (!this.zoomChanging) {
-            this.zoomChanging = true;
+        if (!_this.zoomChanging) {
+            _this.zoomChanging = true;
             /**/
-            this.zoom = value;
-            this.trigger('zoom:change', {zoom: this.zoom, sender: this});
+            _this.zoom = 5 * (Math.round(value / 5));
+            _this.trigger('zoom:change', {zoom: _this.zoom, sender: _this});
             /**/
             setTimeout(function () {
                 _this.zoomChanging = false;
@@ -532,7 +551,7 @@ NavigationBar.prototype = {
         }
     },
     _handleZoomInButton: function () {
-        this._handleZoomSlider(Math.min(100, this.zoom + 1));
+        this._handleZoomSlider(Math.min(100, this.zoom + 5));
     },
 
     _handleMoveRegion: function (positions) {
@@ -569,7 +588,7 @@ NavigationBar.prototype = {
         this.els.regionField.value = this.region.toString()
     },
 
-    setSpecies:function(species){
+    setSpecies: function (species) {
         this.species = species;
         this.els.speciesText.textContent = this.species.text;
         this._setChromosomeMenu();
@@ -598,6 +617,7 @@ NavigationBar.prototype = {
         this.els.windowSizeField.value = this.region.length();
         this.els.regionField.classList.remove('error');
         this.els.progressBar.style.width = this.zoom + '%';
+        this.els.progressBarBall.style.left = this.zoom + '%';
     }
 
 }

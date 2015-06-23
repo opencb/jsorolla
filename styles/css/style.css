@@ -554,7 +554,7 @@ ul.ocb-app-menu > li:hover {
 
 .ocb-coding:hover .ocb-codon {
     display: inherit;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 /**/
@@ -790,20 +790,42 @@ div.ocb-dropdown > div:focus + ul li:hover > ul {
 .ocb-zoom-bar {
     position: relative;
     float: left;
-    width: 120px;
+    width: 100px;
     height: 23px;
     box-sizing: border-box;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-    background-color: #FFFFFF;
+    /*border-top: 1px solid #ccc;*/
+    /*border-bottom: 1px solid #ccc;*/
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
-.ocb-zoom-bar > div {
+.ocb-zoom-bar > div.back {
+    position: absolute;
+    background-color: #aaa;
+    box-sizing: border-box;
+    height: 5px;
+    top: 8px;
+    width: 100%;
+}
+
+.ocb-zoom-bar > div.rect {
+    position: absolute;
     background-color: #2F65F4;
     /*background-color: #DCDCDC;*/
     box-sizing: border-box;
-    height: 100%;
-    transition: all 0.2s;
+    height: 5px;
+    top: 8px;
+    transition: all 0.1s;
+}
+
+.ocb-zoom-bar > div.ball {
+    position: absolute;
+    background-color: #2046aa;
+    top: 3px;
+    margin-left: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
 }
 
 /*
