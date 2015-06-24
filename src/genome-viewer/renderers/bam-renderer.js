@@ -291,34 +291,10 @@ BamRenderer.prototype.render = function (response, args) {
 
                 //PROCESS differences
                 if (differences != null && args.regionSize < 400) {
-                    //var	t = SVG.addChild(featureGroup,"text",{
-                    //"x":x+1,
-                    //"y":rowY+settings.height-1,
-                    //"fill":"darkred",
-                    //"textLength":width,
-                    //"cursor": "pointer"
-                    //});
-                    //t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
-                    //t.textContent = diff;
-                    //readEls.push(t);
-
-
-                    /*CUSTOM FONT RENDER*/
-                    //var path = SVG.addChild(featureGroup, "path", {
-                    //    "d": BamRenderer.genBamVariants(differences, args.pixelBase, x, rowY),
-                    //    "fill": variantColor
-                    //});
-                    /*USING SVG TEXT AND TSPAN*/
-                    // TODO TEST WHEN ALIGNMENT INDEX
-                    console.log("REMEMBER TO CHECK THIS WHEN ALIGNMENT INDEX WEBSERVICE WORKS");
                     var region = new Region({chromosome: args.region.chromosome, start: start, end: end});
-                    if (feature.name == "r003" && feature.strand == "Reverse") {
-                        debugger
-                    }
                     sequenceDataAdapter.getData({
                         region: region,
                         done: function (event) {
-                            //console.log(feature)
                             var referenceString = BamRenderer._getReferenceString(event.items, region);
                             featureGroup.appendChild(BamRenderer.drawBamDifferences(referenceString, differences, args.pixelBase, x, rowY + height));
                         }
@@ -517,7 +493,11 @@ BamRenderer.prototype.render = function (response, args) {
     console.timeEnd("BamRender " + response.params.resource);
 };
 
+/**
+ * @Deprecated
+ * **/
 BamRenderer.genBamVariants = function (differences, size, mainX, y) {
+
     var s = size / 6;
     var d = "";
     for (var i = 0; i < differences.length; i++) {
