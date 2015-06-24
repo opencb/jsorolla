@@ -29,7 +29,7 @@ var CellBaseManager = {
         var urlConfig = _.omit(args, ['success', 'error', 'async']);
 
         var url = CellBaseManager.url(urlConfig);
-        if(typeof url === 'undefined'){
+        if (typeof url === 'undefined') {
             return;
         }
         console.log(url);
@@ -41,14 +41,14 @@ var CellBaseManager = {
             dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
             async: async,
             success: function (data, textStatus, jqXHR) {
-                if($.isPlainObject(data) || $.isArray(data)){
+                if ($.isPlainObject(data) || $.isArray(data)) {
 //                    data.params = args.params;
 //                    data.resource = args.resource;
 //                    data.category = args.category;
 //                    data.subCategory = args.subCategory;
                     if (_.isFunction(success)) success(data);
                     d = data;
-                }else{
+                } else {
                     console.log('Cellbase returned a non json object or list, please check the url.');
                     console.log(url);
                     console.log(data)
@@ -66,13 +66,13 @@ var CellBaseManager = {
         if (!$.isPlainObject(args.params)) args.params = {};
 
         var version = this.version;
-        if(typeof args.version !== 'undefined' && args.version != null){
+        if (typeof args.version !== 'undefined' && args.version != null) {
             version = args.version
         }
 
         var host = this.host;
         if (typeof args.host !== 'undefined' && args.host != null) {
-            host =  args.host;
+            host = args.host;
         }
 
         delete args.host;
@@ -91,7 +91,7 @@ var CellBaseManager = {
         //_.extend(config.params, params);
 
         var query = '';
-        if(typeof config.query !== 'undefined' && config.query != null){
+        if (typeof config.query !== 'undefined' && config.query != null) {
             if ($.isArray(config.query)) {
                 config.query = config.query.toString();
             }
@@ -100,6 +100,7 @@ var CellBaseManager = {
 
         //species can be the species code(String) or an object with text attribute
         if ($.isPlainObject(config.species)) {
+            config.params["assembly"] = config.species.assembly;
             config.species = Utils.getSpeciesCode(config.species.text);
         }
 
