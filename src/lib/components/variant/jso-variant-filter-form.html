@@ -380,6 +380,7 @@
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 if (response.response[0].result.length > 0) {
+                                    me.samplesView = [];
                                     for (var i = 0; i < response.response[0].result.length; i++) {
                                         var sample = response.response[0].result[i];
                                         me.samples[sample.name] = sample.id;
@@ -446,7 +447,6 @@
                 var el = els[i];
                 el.checked = false;
             }
-            debugger
             var els = this.$.consequenceTypes.querySelectorAll("textarea");
         },
         submitForm: function () {
@@ -557,7 +557,6 @@
 
             //TODO fsalavert: fix
 //            query.sessionId = Cookies("bioinfo_sid");
-
             var url = OpencgaManager.files.fetch({
                 id: this.file.id,
                 query: query,

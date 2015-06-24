@@ -180,7 +180,8 @@
                     var poly = -1;
                     var polyDesc = "";
 
-
+                    var auxSift = [];
+                    var auxPoly = [];
                     for (var j = 0; j < variant.annotation.consequenceTypes.length; j++) {
                         var ct = variant.annotation.consequenceTypes[j];
                         var soTerms = ct.soTerms;
@@ -194,47 +195,53 @@
 
 
                         if (ct.proteinSubstitutionScores != null && ct.proteinSubstitutionScores.length > 0) {
-                            var auxSift = null;
-                            var auxPoly = null;
-                            for (var k = 0, l = ct.proteinSubstitutionScores.length; k < l; k++) {
 
+                            for (var k = 0, l = ct.proteinSubstitutionScores.length; k < l; k++) {
                                 var pss = ct.proteinSubstitutionScores[k];
                                 switch (pss.source) {
                                     case 'Sift':
-                                        auxSift = pss;
+//                                        auxSift = pss;
+                                        auxSift.push(pss.score);
                                         break;
                                     case 'Polyphen':
-                                        auxPoly = pss;
+                                        auxPoly.push(pss.score);
+//                                        auxPoly = pss;
                                         break;
                                 }
                             }
 
-                            if (auxPoly != null && auxSift != null) {
-                                if (auxPoly.score > poly) {
-                                    sif = auxSift.score;
-                                    poly = auxPoly.score;
-
-                                    sifDesc = auxSift.description;
-                                    polyDesc = auxPoly.description;
-                                }
-                            }
+//                            if (auxPoly != null && auxSift != null) {
+//                                if (auxPoly > poly) {
+//                                    sif = auxSift;
+//                                    poly = auxPoly;
+//
+//                                    sifDesc = auxSift.description;
+//                                    polyDesc = auxPoly.description;
+//                                }
+//                            }
                         }
 
                     }
-                    if (sif != -1 && poly != -1) {
+//                    variant.sift = auxSift.join();
+//                    variant.polyphen = auxPoly.join();
+                    variant.sift = auxSift[0];
+                    variant.polyphen = auxPoly[0];
 
-                        if (sifDesc) {
-                            variant.sift = sif + " (" + sifDesc + ")";
-                        } else {
-                            variant.sift = sif;
-                        }
 
-                        if (polyDesc) {
-                            variant.polyphen = poly + " (" + polyDesc + ")";
-                        } else {
-                            variant.polyphen = poly;
-                        }
-                    }
+//                    if (sif != -1 && poly != -1) {
+//
+//                        if (sifDesc) {
+//                            variant.sift = sif + " (" + sifDesc + ")";
+//                        } else {
+//                            variant.sift = sif;
+//                        }
+//
+//                        if (polyDesc) {
+//                            variant.polyphen = poly + " (" + polyDesc + ")";
+//                        } else {
+//                            variant.polyphen = poly;
+//                        }
+//                    }
                 }
 
                 if (variant.annotation.xrefs != null) {
@@ -247,7 +254,7 @@
 
                     }
                 }
-                if(variant.annotation.conservedRegionScores != null){
+                if (variant.annotation.conservedRegionScores != null) {
                     for (var j = 0; j < variant.annotation.conservedRegionScores.length; j++) {
                         var cons = variant.annotation.conservedRegionScores[j];
                         variant[cons.source] = Utils.formatNumber(cons.score);
