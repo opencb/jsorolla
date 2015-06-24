@@ -529,20 +529,20 @@
             var filesFiltered = [];
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
-                if (file.name.charAt(0) == '.') {
-                    continue;
-                }
-                if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
-                    continue;
-                }
-                if (Utils.endsWith(file.name, '.snappy')) {
-                    continue;
-                }
-                if (file.bioformat == 'ALIGNMENT'
-                        && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
-                ) {
-                    continue;
-                }
+//                if (file.name.charAt(0) == '.') {
+//                    continue;
+//                }
+//                if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
+//                    continue;
+//                }
+//                if (Utils.endsWith(file.name, '.snappy')) {
+//                    continue;
+//                }
+//                if (file.bioformat == 'ALIGNMENT'
+//                        && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
+//                ) {
+//                    continue;
+//                }
                 filesFiltered.push(file);
             }
             return filesFiltered;

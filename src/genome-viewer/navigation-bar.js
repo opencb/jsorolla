@@ -263,6 +263,10 @@ NavigationBar.prototype = {
         this.els.progressBarBall.addEventListener('mousedown', function (e) {
             _this.els.progressBarCont.addEventListener('mousemove', zoomBarMove);
         });
+        this.els.progressBarBall.addEventListener('mouseleave', function (e) {
+            _this.els.progressBarCont.removeEventListener('mousemove', zoomBarMove);
+            _this.els.progressBarBall.style.left = _this.zoom + '%';
+        });
 
         this.els.regionField.value = this.region.toString();
         this.els.regionField.addEventListener('keyup', function (event) {
@@ -577,7 +581,7 @@ NavigationBar.prototype = {
     setRegion: function (region, zoom) {
         this.region.load(region);
         if (zoom) {
-            this.zoom = zoom;
+            this.zoom = 5 * (Math.round(zoom / 5));
         }
         this.updateRegionControls();
         this._addRegionHistoryMenuItem(region);
