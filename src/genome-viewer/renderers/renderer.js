@@ -31,9 +31,9 @@ Renderer.prototype = {
 
     },
 
-    getFeatureX: function (feature, args) {//returns svg feature x value from feature genomic position
+    getFeatureX: function (start, args) {//returns svg feature x value from feature genomic position
         var middle = args.width / 2;
-        var x = args.pixelPosition + middle - ((args.position - feature.start) * args.pixelBase);
+        var x = args.pixelPosition + middle - ((args.position - start) * args.pixelBase);
         return x;
     },
 

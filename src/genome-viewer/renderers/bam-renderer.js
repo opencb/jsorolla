@@ -223,7 +223,7 @@ BamRenderer.prototype.render = function (response, args) {
         //transform to pixel position
         var width = length * args.pixelBase;
         //calculate x to draw svg rect
-        var x = _this.getFeatureX(feature, args);
+        var x = _this.getFeatureX(start, args);
 //		try{
 //			var maxWidth = Math.max(width, /*settings.getLabel(feature).length*8*/0); //XXX cuidado : text.getComputedTextLength()
 //		}catch(e){
@@ -256,6 +256,24 @@ BamRenderer.prototype.render = function (response, args) {
                     "stroke-width": 1,
                     "fill": color,
                     "cursor": "pointer"
+                });
+
+                $(featureGroup).qtip({
+                    content: {text: tooltipText, title: tooltipTitle},
+                    position: {target: "mouse", adjust: {x: 25, y: 15}},
+                    style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                    show: 'mouseenter',
+                    hide: 'mousedown mouseup mouseleave'
+                });
+
+                featureGroup.addEventListener('click', function (event) {
+                    console.log(feature);
+                    _this.trigger('feature:click', {
+                        query: feature[infoWidgetId],
+                        feature: feature,
+                        featureType: feature.featureType,
+                        clickEvent: event
+                    })
                 });
 
                 //var rect = SVG.addChild(featureGroup,"rect",{
@@ -293,31 +311,16 @@ BamRenderer.prototype.render = function (response, args) {
                     /*USING SVG TEXT AND TSPAN*/
                     // TODO TEST WHEN ALIGNMENT INDEX
                     console.log("REMEMBER TO CHECK THIS WHEN ALIGNMENT INDEX WEBSERVICE WORKS");
-                    debugger
+                    var region = new Region({chromosome: args.region.chromosome, start: start, end: end});
+                    if (feature.name == "r003" && feature.strand == "Reverse") {
+                        debugger
+                    }
                     sequenceDataAdapter.getData({
-                        chromosome: args.region.chromosome,
-                        start: start,
-                        end: end,
-                        done: function () {
-                            debugger
-                            featureGroup.appendChild(BamRenderer.drawBamDifferences(refString, differences, args.pixelBase, x, rowY + height));
-                            $(featureGroup).qtip({
-                                content: {text: tooltipText, title: tooltipTitle},
-                                position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
-                                show: 'mouseenter',
-                                hide: 'mousedown mouseup mouseleave'
-                            });
-
-                            $(featureGroup).click(function (event) {
-                                console.log(feature);
-                                _this.trigger('feature:click', {
-                                    query: feature[infoWidgetId],
-                                    feature: feature,
-                                    featureType: feature.featureType,
-                                    clickEvent: event
-                                })
-                            });
+                        region: region,
+                        done: function (event) {
+                            //console.log(feature)
+                            var referenceString = BamRenderer._getReferenceString(event.items, region);
+                            featureGroup.appendChild(BamRenderer.drawBamDifferences(referenceString, differences, args.pixelBase, x, rowY + height));
                         }
                     });
                 }
@@ -733,6 +736,7 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
                 for (var j = 0; j < difference.length; j++) {
                     var char = difference.seq[j];
                     var refPos = difference.pos + j;
+                    console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
                     if (char != refString.charAt(refPos)) {
                         var t = SVG.addChild(text, "tspan", {
                             "x": x,
@@ -749,4 +753,30 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
     }
 
     return text;
+};
+
+BamRenderer._getReferenceString = function (chunks, region) {
+    var sequenceItems = [];
+    var chunk;
+    for (var i = 0; i < chunks.length; i++) {
+        chunk = chunks[i];
+        for (var j = 0; j < chunk.value.length; j++) {
+            sequenceItems.push(chunk.value[j]);
+        }
+    }
+    sequenceItems.sort(function (a, b) {
+        return a.start - b.start;
+    });
+    var aux = [];
+    var s = sequenceItems[0].start;
+    var e = sequenceItems[sequenceItems.length - 1].end;
+    for (var i = 0; i < sequenceItems.length; i++) {
+        aux.push(sequenceItems[i].sequence);
+    }
+    var str = aux.join("");
+    var i1 = region.start - s;
+    var i2 = i1 + region.length();
+    var substr = str.substring(i1, i2);
+
+    return substr;
 };

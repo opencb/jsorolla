@@ -21,8 +21,8 @@
 
 ConservedRenderer.prototype = new Renderer({});
 
-function ConservedRenderer(args){
-    Renderer.call(this,args);
+function ConservedRenderer(args) {
+    Renderer.call(this, args);
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
@@ -32,35 +32,34 @@ function ConservedRenderer(args){
 
 };
 
+ConservedRenderer.prototype.render = function (chunks, args) {
+    for (var i = 0; i < chunks.length; i++) {
+        this._paintChunk(chunks[i], args);
+    }
+};
 
-ConservedRenderer.prototype.render = function(features, args) {
-    var middle = args.width/2;
-    var multiplier = 20;
+ConservedRenderer.prototype._paintChunk = function (chunk, args) {
+    var middle = args.width / 2;
+    var multiplier = 15;
     var histogramHeight = 75;
     var points = '';
     var width = args.pixelBase;
 
-    var firstFeature = features[0];
-    var x = args.pixelPosition+middle-((args.position-parseInt(firstFeature.start))*args.pixelBase);
-    points = (x+(width/2))+','+histogramHeight+' ';
+    var x = args.pixelPosition + middle - ((args.position - parseInt(chunk.start)) * args.pixelBase);
 
-    for ( var i = 0, len = features.length; i < len; i++) {
-        var feature = features[i];
-        feature.start = parseInt(feature.start);
-        feature.end = parseInt(feature.end);
-
-        for ( var j = 0, len = feature.values; j < len; j++) {
-            var value = feature.values[j];
-            var height = value*multiplier;
-            var s = start+j;
-            var x = args.pixelPosition+middle-((args.position-s)*args.pixelBase);
-            points += (x+(width/2))+","+(histogramHeight - height)+" ";
-        }
+    for (var i = 0, len = chunk.values.length; i < len; i++) {
+        var value = chunk.values[i];
+        var height = value * multiplier;
+        var s = chunk.start + i;
+        var x = args.pixelPosition + middle - ((args.position - s) * args.pixelBase);
+        points += (x) + "," + 0 + " ";
+        points += (x) + "," + (histogramHeight - height) + " ";
+        points += (x + width) + "," + (histogramHeight - height) + " ";
+        points += (x + width) + "," + 0 + " ";
     }
-    points += (x+(width/2))+","+(histogramHeight)+" ";
 
-    var pol = SVG.addChild(args.svgCanvasFeatures,"polyline",{
-        "points":points,
+    var pol = SVG.addChild(args.svgCanvasFeatures, "polyline", {
+        "points": points,
         "stroke": "#000000",
         "stroke-width": 0.2,
         "fill": 'salmon',
@@ -69,3 +68,4 @@ ConservedRenderer.prototype.render = function(features, args) {
 
 
 };
+

@@ -341,7 +341,7 @@ AlignmentRenderer.prototype._drawSingleRead = function (feature, args) {
     //transform to pixel position
     var width = length * args.pixelBase;
     //calculate x to draw svg rect
-    var x = _this.getFeatureX(feature, args);
+    var x = _this.getFeatureX(start, args);
 //		try{
 //			var maxWidth = Math.max(width, /*settings.getLabel(feature).length*8*/0); //XXX cuidado : text.getComputedTextLength()
 //		}catch(e){
