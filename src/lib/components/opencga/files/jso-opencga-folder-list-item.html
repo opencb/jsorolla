@@ -29,20 +29,20 @@
             width: 120px;
         }
 
-         #status {
+        #status {
             color: #444;
             width: 120px;
             text-transform: capitalize;
         }
 
-        .fa-cog{
-            color:var(--default-primary-color);
+        .fa-cog {
+            color: var(--default-primary-color);
         }
 
 
     </style>
     <template>
-        <div class="horizontal layout" >
+        <div class="horizontal layout">
             <div class="horizontal layout flex">
                 <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
                 <div class="name flex">{{file.name}}</div>
@@ -62,9 +62,11 @@
             file: {
                 type: Object,
                 notify: true
+            },
+            indexableBioFormats: {
+                type: Array,
+                value: ['VARIANT', 'ALIGNMENT']
             }
-        },
-        created: function(){
         },
         computeDate: function (file) {
             var date = new Date(Date.parse(Utils.parseDate(file.creationDate)));
@@ -81,21 +83,18 @@
             var iconMap = {
                 "INDEXING": 'fa fa-cog fa-spin',
                 "READY": 'fa fa-check',
-                "NONE":'fa fa-check'
+                "NONE": 'fa fa-check'
             };
-            if(file.index){
+            if (file.index) {
                 return iconMap[file.index.status];
             }
             return '';
         },
         computeStatus: function (file) {
-            if (file.type == 'FOLDER') {
-                return '--';
-            }
-            if (file.index) {
+            if (file.index && this.indexableBioFormats.indexOf(file.bioformat) != -1) {
                 return file.index.status;
             }
-            return 'Not indexed';
+            return '--';
         }
     });
 </script>
