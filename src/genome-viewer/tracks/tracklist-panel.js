@@ -367,7 +367,7 @@ TrackListPanel.prototype = {
                                 _this.trigger('region:move', {region: _this.region, disp: disp, sender: _this});
                                 _this.trigger('trackRegion:move', {region: _this.region, disp: disp, sender: _this});
                                 lastX = newX;
-                                _this.setNucleotidPosition(p);
+                                //_this.setNucleotidPosition(p);
                             }
                         }
                     });
@@ -981,7 +981,7 @@ TrackListPanel.prototype = {
         //if multiple, returns the first found
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
-            if (track instanceof SequenceTrack) {
+            if (track.renderer instanceof SequenceRenderer) {
                 return track;
             }
         }
@@ -1000,13 +1000,11 @@ TrackListPanel.prototype = {
 
     getSequenceNucleotid: function (position) {
         var seqTrack = this.getSequenceTrack();
-        if (seqTrack != null && this.visualRegion.length() <= seqTrack.visibleRegionSize) {
-            var nt = seqTrack.dataAdapter.getNucleotidByPosition({
-                start: position,
-                end: position,
-                chromosome: this.region.chromosome
-            })
-            return nt;
+        if (seqTrack) {
+            var el = seqTrack.svgCanvasFeatures.querySelector('text[data-pos="' + position + '"]');
+            if (el) {
+                return el.textContent;
+            }
         }
         return '';
     },

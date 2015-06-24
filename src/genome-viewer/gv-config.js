@@ -731,7 +731,7 @@ FEATURE_TYPES = {
         color: "#58f3f0",
         infoWidgetId: "id",
         height: 10,
-        histogramColor: "lightgray"
+        histogramColor: "#58f3f0"
     },
     'mirna_target': {
         label: function (f) {
@@ -746,7 +746,52 @@ FEATURE_TYPES = {
         color: "#8af688",
         infoWidgetId: "id",
         height: 10,
-        histogramColor: "lightgray"
+        histogramColor: "#8af688"
+    },
+    'Histone': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.getTipTitleCommons(f);
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#7a91c7",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "#7a91c7"
+    },
+    'Polymerase': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.getTipTitleCommons(f);
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#44c2d4",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "#44c2d4"
+    },
+    'Open Chromatin': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.getTipTitleCommons(f);
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#ba56b8",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "#ba56b8"
     }
 };
 

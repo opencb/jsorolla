@@ -742,7 +742,7 @@ GenomeViewer.prototype = {
 
 //      zoom = Math.log(REGIONLENGTH/mrl) / Math.log(zlm);
         var zoom = Math.log(regionLength / minRegionLength) / Math.log(zoomLevelMultiplier);
-        return 100 - zoom;
+        return 100 - Math.round(zoom);
     },
     /*****************/
     /*****************/
