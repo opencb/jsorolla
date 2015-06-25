@@ -426,6 +426,14 @@ var Utils = {
     },
     clone: function (obj) {
         return JSON.parse(JSON.stringify(obj));
+    },
+    deleteIndexedDB: function () {
+        window.indexedDB.webkitGetDatabaseNames().onsuccess = function (sender, args) {
+            var r = sender.target.result;
+            for (var i in r) {
+                indexedDB.deleteDatabase(r[i]);
+            }
+        };
     }
 
 };
