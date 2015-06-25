@@ -20,7 +20,7 @@
  */
 
 var CellBaseManager = {
-    host: (typeof CELLBASE_HOST === 'undefined') ? 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest' : CELLBASE_HOST,
+    host: (typeof CELLBASE_HOST === 'undefined') ? 'http://bioinfo.hpc.cam.ac.uk/cellbase' : CELLBASE_HOST,
     version: 'v3',
     get: function (args) {
         var success = args.success;
@@ -38,7 +38,7 @@ var CellBaseManager = {
         $.ajax({
             type: "GET",
             url: url,
-            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
+            dataType: 'json',
             async: async,
             success: function (data, textStatus, jqXHR) {
                 if ($.isPlainObject(data) || $.isArray(data)) {
@@ -104,7 +104,7 @@ var CellBaseManager = {
             config.species = Utils.getSpeciesCode(config.species.text);
         }
 
-        var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
+        var url = config.host + '/webservices/rest/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
         url = Utils.addQueryParamtersToUrl(config.params, url);
         return url;
     }
