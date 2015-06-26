@@ -100,36 +100,34 @@ GeneTrack.prototype.initializeDom = function (targetId) {
 };
 
 GeneTrack.prototype.render = function (targetId) {
-    var _this = this;
-
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
+};
 
-    this.dataAdapter.on('data:ready', function (event) {
-        var features;
-        if (event.dataType == 'histogram') {
-            _this.renderer = _this.histogramRenderer;
-            features = event.items;
-        } else {
-            _this.renderer = _this.defaultRenderer;
-            features = _this.getFeaturesToRenderByChunk(event);
-        }
-        _this.renderer.render(features, {
-            svgCanvasFeatures: _this.svgCanvasFeatures,
-            renderedArea: _this.renderedArea,
-            pixelBase: _this.pixelBase,
-            position: _this.region.center(),
-            regionSize: _this.region.length(),
-            maxLabelRegionSize: _this.maxLabelRegionSize,
-            width: _this.width,
-            pixelPosition: _this.pixelPosition
+GeneTrack.prototype.getDataHandler = function (event) {
+    var features;
+    if (event.dataType == 'histogram') {
+        this.renderer = this.histogramRenderer;
+        features = event.items;
+    } else {
+        this.renderer = this.defaultRenderer;
+        features = this.getFeaturesToRenderByChunk(event);
+    }
+    this.renderer.render(features, {
+        svgCanvasFeatures: this.svgCanvasFeatures,
+        renderedArea: this.renderedArea,
+        pixelBase: this.pixelBase,
+        position: this.region.center(),
+        regionSize: this.region.length(),
+        maxLabelRegionSize: this.maxLabelRegionSize,
+        width: this.width,
+        pixelPosition: this.pixelPosition
 
-        });
-        _this.updateHeight();
     });
+    this.updateHeight();
 };
 
 GeneTrack.prototype.updateTranscriptParams = function () {
@@ -178,7 +176,8 @@ GeneTrack.prototype.draw = function () {
                 interval: this.interval,
                 exclude: this.exclude
             },
-            done: function () {
+            done: function (event) {
+                _this.getDataHandler(event);
                 _this.setLoading(false);
             }
         });
@@ -187,7 +186,7 @@ GeneTrack.prototype.draw = function () {
     } else {
 //        this.invalidZoomText.setAttribute("visibility", "visible");
     }
-    _this.updateHeight();
+    this.updateHeight();
 };
 
 
@@ -239,8 +238,8 @@ GeneTrack.prototype.move = function (disp) {
                     interval: this.interval,
                     exclude: this.exclude
                 },
-                done: function () {
-
+                done: function (event) {
+                    _this.getDataHandler(event);
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -262,8 +261,8 @@ GeneTrack.prototype.move = function (disp) {
                     interval: this.interval,
                     exclude: this.exclude
                 },
-                done: function () {
-
+                done: function (event) {
+                    _this.getDataHandler(event);
                 }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);

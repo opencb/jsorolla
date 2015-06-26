@@ -34,7 +34,7 @@ function GenomeViewer(args) {
     this.width;
     this.height;
 
-    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
     this.cellBaseVersion = 'v3';
 
     this.quickSearchResultFn;
@@ -742,7 +742,7 @@ GenomeViewer.prototype = {
 
 //      zoom = Math.log(REGIONLENGTH/mrl) / Math.log(zlm);
         var zoom = Math.log(regionLength / minRegionLength) / Math.log(zoomLevelMultiplier);
-        return 100 - zoom;
+        return 100 - Math.round(zoom);
     },
     /*****************/
     /*****************/

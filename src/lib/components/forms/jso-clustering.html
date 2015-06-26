@@ -1,47 +1,32 @@
-<dom-module id="jso-clustering" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-clustering" >
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+        input[type="text"]:disabled {
+            background: #dddddd;
+        }
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #666;
-            }
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-            .message {
-                margin-top: 20px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-            input[type="text"]:disabled {
-                background: #dddddd;
-            }
-        </style>
         <div class="jso-tooltitle">
             <div>
                 Clustering
@@ -68,7 +53,7 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}"
+                    <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}"
                                                 bioformat="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
@@ -134,7 +119,7 @@
                    <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
                     <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
-                    <textarea value="{{description}}" required></textarea>
+                    <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
@@ -149,11 +134,66 @@
     </template>
     <script>
         Polymer({
+            is: "jso-clustering",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                selectedOption: {
+                    type: String
+                },
+                selectedStudy: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                studies: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                contentFile:{
+                    type: String,
+                    value: ""
+
+                },
+                paprobar:{
+                    type: String
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "DATAMATRIX_EXPRESSION",
+                            value: "DATAMATRIX_EXPRESSION"
+                        }
+                    ]
+                },
+                sample_kvalue: {
+                    type: Number,
+                    value: 5
+                },
+                gene_kvalue: {
+                    type: Number,
+                    value: 15
+                }
+            },
             created: function () {
                 this.toolName = "clustering";
-
-                this.sample_kvalue = 5;
-                this.gene_kvalue = 15;
             },
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
@@ -180,13 +220,13 @@
                         this.$.gene_clustering.checked = false;
 
 
-                    var radios = this.shadowRoot.querySelectorAll('input[name="method"]');
+                    var radios = this.querySelectorAll('input[name="method"]');
                     for (var i = 0; i < radios.length; i++) {
                         var radio = radios[i];
                         if (radio.value == this.args.method)
                             radio.checked = true;
                     }
-                    var radios = this.shadowRoot.querySelectorAll('input[name="distance"]');
+                    var radios = this.querySelectorAll('input[name="distance"]');
                     for (var i = 0; i < radios.length; i++) {
                         var radio = radios[i];
                         if (radio.value == this.args.distance)
@@ -219,7 +259,7 @@
                     dataset: this.$.inputFile.selectedFile.id,
                     method: this.$.methodDiv.querySelector('input[name="method"]:checked').value,
                     distance: this.$.distanceDiv.querySelector('input[name="distance"]:checked').value
-                }
+                };
                 if (this.$.sample_clustering.checked) {
                     query["sample-clustering"] = true;
                 }
@@ -342,4 +382,4 @@
 
         });
     </script>
-</polymer-element>
+</dom-module>

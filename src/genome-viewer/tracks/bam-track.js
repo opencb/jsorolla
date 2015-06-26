@@ -94,40 +94,39 @@ BamTrack.prototype.initializeDom = function (targetId) {
 };
 
 BamTrack.prototype.render = function (targetId) {
-    var _this = this;
-
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
-
-    this.dataAdapter.on('data:ready', function (event) {
-        var features;
-        if (event.dataType == 'histogram') {
-            _this.renderer = _this.histogramRenderer;
-            features = event.items;
-        } else {
-            _this.renderer = _this.defaultRenderer;
-            features = _this._removeDisplayedChunks(event);
-            //features = _this.getFeaturesToRenderByChunk(event);
-        }
-        _this.renderer.render(features, {
-            svgCanvasFeatures: _this.svgCanvasFeatures,
-            featureTypes: _this.featureTypes,
-            renderedArea: _this.renderedArea,
-            pixelBase: _this.pixelBase,
-            position: _this.region.center(),
-            regionSize: _this.region.length(),
-            maxLabelRegionSize: _this.maxLabelRegionSize,
-            width: _this.width,
-            pixelPosition: _this.pixelPosition,
-            region: _this.region,
-            trackListPanel:_this.trackListPanel
-        });
-        _this.updateHeight();
-    });
 };
+
+BamTrack.prototype.getDataHandler = function (event) {
+    var features;
+    if (event.dataType == 'histogram') {
+        this.renderer = this.histogramRenderer;
+        features = event.items;
+    } else {
+        this.renderer = this.defaultRenderer;
+        features = this._removeDisplayedChunks(event);
+        //features = this.getFeaturesToRenderByChunk(event);
+    }
+    this.renderer.render(features, {
+        svgCanvasFeatures: this.svgCanvasFeatures,
+        featureTypes: this.featureTypes,
+        renderedArea: this.renderedArea,
+        pixelBase: this.pixelBase,
+        position: this.region.center(),
+        regionSize: this.region.length(),
+        maxLabelRegionSize: this.maxLabelRegionSize,
+        width: this.width,
+        pixelPosition: this.pixelPosition,
+        region: this.region,
+        trackListPanel: this.trackListPanel
+    });
+    this.updateHeight();
+};
+
 
 BamTrack.prototype.draw = function () {
     var _this = this;
@@ -159,7 +158,8 @@ BamTrack.prototype.draw = function () {
                 histogramMax: this.histogramMax,
                 interval: this.interval
             },
-            done: function () {
+            done: function (event) {
+                _this.getDataHandler(event);
                 _this.setLoading(false);
             }
         });
@@ -206,7 +206,9 @@ BamTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval
                 },
-                done: function () {}
+                done: function (event) {
+                    _this.getDataHandler(event);
+                }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
         }
@@ -225,7 +227,9 @@ BamTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval
                 },
-                done: function () {}
+                done: function (event) {
+                    _this.getDataHandler(event);
+                }
             });
             this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
         }

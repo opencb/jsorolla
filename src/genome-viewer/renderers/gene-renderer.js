@@ -69,7 +69,7 @@ GeneRenderer.prototype.render = function (features, args) {
         var svgLabelWidth = label.length * 6.4;
 
         //calculate x to draw svg rect
-        var x = _this.getFeatureX(feature, args);
+        var x = _this.getFeatureX(start, args);
 
         var maxWidth = Math.max(width, 2);
         var textHeight = 0;
@@ -161,7 +161,7 @@ GeneRenderer.prototype.render = function (features, args) {
                             args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
                         }
                         var transcript = feature.transcripts[i];
-                        var transcriptX = _this.getFeatureX(transcript, args);
+                        var transcriptX = _this.getFeatureX(transcript.start, args);
                         var transcriptWidth = (transcript.end - transcript.start + 1) * ( args.pixelBase);
 
                         //get type settings object

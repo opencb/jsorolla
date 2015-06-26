@@ -1,14 +1,14 @@
-<dom-module id="jso-fatigo-options" attributes="propagation">
-    <template>
-        <style>
-            .body {
-                display: inline-block;
-                margin: 5px;
-                border: 1px solid #d3d3d3;
-                padding: 5px
-            }
+<dom-module id="jso-fatigo-options">
+    <style>
+        .body {
+            display: inline-block;
+            margin: 5px;
+            border: 1px solid #d3d3d3;
+            padding: 5px
+        }
 
-        </style>
+    </style>
+    <template>
         <div class="body">
             <div hidden?="{{!propagation}}">
                 <div style="font-weight: bold; margin: 2px">Options:</div>
@@ -27,8 +27,14 @@
     </template>
     <script>
         Polymer({
+            is: "jso-fatigo-options",
+            properties: {
+                propagation: {
+                    type: Boolean,
+                    value: true
+                }
+            },
             created: function () {
-                this.propagation = true;
             },
             getGOPropagationValue: function () {
                 if (this.$.go_propagation.checked)
@@ -45,4 +51,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

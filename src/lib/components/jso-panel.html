@@ -45,7 +45,8 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
-        .header {
+        #header {
+            position: relative;
             text-transform: capitalize;
             -moz-user-select: -moz-none;
             -khtml-user-select: none;
@@ -57,47 +58,46 @@
             color: var(--text-primary-color);
         }
 
-        :host[light-header] > .header {
+        :host[light-header] > #header {
             background-color: var(--light-primary-color);
             color: var(--primary-text-color);
         }
 
-        :host[movable] > .header {
+        :host[movable] > #header {
             cursor: move;
         }
 
-        .header > .headeractions > * {
+        #header > .headeractions > * {
             box-sizing: border-box;
             padding: 0 5px;
             border: 1px solid transparent;
-            line-height: 21px;
             cursor: pointer;
         }
 
-        .header > .headeractions > *[data-checked] {
+        #header > .headeractions > *[data-checked] {
             background-color: rgba(0, 0, 0, 0.20);
         }
 
-        .header > .headeractions > *:hover {
+        #header > .headeractions > *:hover {
             background-color: rgba(0, 0, 0, 0.20);
         }
 
-        .header > .headeractions > .closable:after {
+        #header > .headeractions > .closable:after {
             font-family: FontAwesome;
             content: '\f00d';
         }
 
-        .header > .headeractions > .collapsible:after {
+        #header > .headeractions > .collapsible:after {
             font-family: FontAwesome;
             content: '\f106';
         }
 
-        :host[collapsed] > .header > .headeractions > .collapsible:after {
+        :host[collapsed] > #header > .headeractions > .collapsible:after {
             font-family: FontAwesome;
             content: '\f107';
         }
 
-        .header > .headeractions > .pin:after {
+        #header > .headeractions > .pin:after {
             font-family: FontAwesome;
             content: '\f08d';
         }
@@ -111,11 +111,11 @@
             content: '\f066';
         }
 
-        .header, .container {
+        #header, .container, ::content .footer {
             position: relative;
         }
 
-        .header,
+        #header,
         ::content .footer {
             /*background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);*/
             /*background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);*/
@@ -124,12 +124,13 @@
             box-sizing: border-box;
             padding: 4px 5px 4px 12px;
             height: 32px;
-            line-height: 21px;
         }
 
         ::content .footer {
             border-top: 1px solid #d4d4d4;
-            background-color: #EDEDED;
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
+            padding: 4px 5px 4px 5px;
         }
 
         ::content .footer > div,
@@ -145,11 +146,6 @@
             height: calc(100% - 64px);
         }
 
-        .footer {
-            background-color: var(--light-primary-color);
-            color: var(--primary-text-color);
-        }
-
     </style>
     <template>
 
@@ -160,10 +156,10 @@
              on-dblclick="handleHeaderDblclick"
              on-mousedown="handleHeaderMouseDown"
              on-mouseup="handleHeaderMouseUp">
-            <div class="flex">
+            <div class="horizontal layout flex center">
                 <content select=".header"></content>
             </div>
-            <div class="headeractions horizontal layout end-justified" on-mousedown="handleActionsMouseDown">
+            <div class="headeractions horizontal layout center end-justified" on-mousedown="handleActionsMouseDown">
                 <div hidden$="{{!expandible}}" class="expandible" on-click="handleExpandAction"></div>
                 <div hidden$="{{isPinHidden(movable,moved,modal)}}" class="pin" on-click="handlePinAction"></div>
                 <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction"></div>

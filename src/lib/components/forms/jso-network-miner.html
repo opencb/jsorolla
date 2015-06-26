@@ -149,7 +149,7 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Species</div>
                 <div class="jso-formcontent">
-                    <div class="select" style="width:200px;">
+                    <div class="jso-select" style="width:200px;">
                         <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
                             <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
                             <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="dme">Drosophila melanogaster</option>
@@ -226,7 +226,7 @@
                    <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
                     <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
-                    <textarea value="{{description}}" required></textarea>
+                    <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
@@ -528,4 +528,4 @@
 <!--}-->
 <!--});-->
 <!--</script>-->
-<!--</polymer-element>-->
+<!--</dom-module>-->

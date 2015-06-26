@@ -136,7 +136,7 @@ Track.prototype = {
     },
     setSpecies: function (species) {
         this.species = species;
-        this.dataAdapter.species = this.species
+        this.dataAdapter.setSpecies(this.species);
     },
 
     setWidth: function (width) {

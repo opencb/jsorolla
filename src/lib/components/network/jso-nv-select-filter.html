@@ -289,7 +289,7 @@
                 this.numberMatch = e.currentTarget.dataset.name;
             },
             handleCreateFilter: function () {
-                var attributeName = this.shadowRoot.querySelector('#filterAttributeSelect').value;
+                var attributeName = this.querySelector('#filterAttributeSelect').value;
 
                 var match;
                 if (this.attributeType == 'string') {
@@ -434,4 +434,4 @@
 
         });
     </script>
-</polymer-element>
+</dom-module>

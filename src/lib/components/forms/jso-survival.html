@@ -19,11 +19,6 @@
 
             }
 
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #666;
-            }
 
             .icon {
                 color: #445D76;
@@ -129,7 +124,7 @@
                    <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
                     <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
-                    <textarea value="{{description}}" required></textarea>
+                    <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
@@ -188,7 +183,7 @@
                     alert("Sorry: Censored class and time class can't be the same.");
                     return;
                 }
-                this.correction = this.shadowRoot.querySelector('input[name="correction"]:checked').value;
+                this.correction = this.querySelector('input[name="correction"]:checked').value;
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.projects[0].studies[0].id,
@@ -336,4 +331,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

@@ -65,7 +65,7 @@ FeatureClusterRenderer.prototype.render = function (features, args) {
         var width = (feature.end - feature.start);
 
         width = width * args.pixelBase;
-        var x = _this.getFeatureX(feature, args);
+        var x = _this.getFeatureX(feature.start, args);
 
         if (feature.features_count == null) {
 //            var height = Math.log(features[i].absolute);

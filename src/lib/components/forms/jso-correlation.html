@@ -1,4 +1,4 @@
-<dom-module id="jso-correlation" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-correlation" >
     <template>
         <style>
             :host {
@@ -19,11 +19,6 @@
 
             }
 
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #666;
-            }
 
             .icon {
                 color: #445D76;
@@ -125,7 +120,7 @@
                    <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
                     <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
-                    <textarea value="{{description}}" required></textarea>
+                    <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
@@ -163,14 +158,14 @@
                     this.$.inputFile.selectedFile = this.args.list1;
                 if (this.args.inputFile !== undefined)
                     this.$.inputFile.selectedFile = this.args.inputFile;
-                var radios = this.shadowRoot.querySelectorAll("input[name='correction']");
+                var radios = this.querySelectorAll("input[name='correction']");
                 for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
                     if (radio.value == this.args.method)
                         radio.checked = true;
                 }
 
-                var radios = this.shadowRoot.querySelectorAll("input[name='test']")
+                var radios = this.querySelectorAll("input[name='test']")
                 for (var i = 0; i < radios.length; i++) {
                     var radio = radios[i];
                     if (radio.value == this.args.method)
@@ -205,7 +200,7 @@
                     return;
                 }
                 this.test = this.$.testDiv.querySelector('input[name="test"]:checked').value;
-                this.correction = this.shadowRoot.querySelector('input[name="correction"]:checked').value
+                this.correction = this.querySelector('input[name="correction"]:checked').value
                 var query = {
                     sid: Cookies("bioinfo_sid"),
                     studyId: this.projects[0].studies[0].id,
@@ -344,4 +339,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

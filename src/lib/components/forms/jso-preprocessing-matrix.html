@@ -1,4 +1,4 @@
-<dom-module id="jso-preprocessing-matrix" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-preprocessing-matrix" >
     <template>
         <style>
             :host {
@@ -19,11 +19,6 @@
 
             }
 
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #666;
-            }
 
             .icon {
                 color: #445D76;
@@ -208,7 +203,7 @@
                    <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
                     <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
-                    <textarea value="{{description}}" required></textarea>
+                    <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
@@ -241,13 +236,13 @@
                     this.$.inputFile.selectedFile = this.args.inputFile;
 //                this.$.inputFile2.selectedFile = this.args.list2;
 
-                    var radios = this.shadowRoot.querySelectorAll('input[name="merge_replicates"]');
+                    var radios = this.querySelectorAll('input[name="merge_replicates"]');
                     for (var i = 0; i < radios.length; i++) {
                         var radio = radios[i];
                         if (radio.value == this.args.merge_replicates)
                             radio.checked = true;
                     }
-                    var radios = this.shadowRoot.querySelectorAll('input[name="impute_missing"]');
+                    var radios = this.querySelectorAll('input[name="impute_missing"]');
                     for (var i = 0; i < radios.length; i++) {
                         var radio = radios[i];
                         if (radio.value == this.args.impute_missing)
@@ -258,7 +253,7 @@
             launchJob: function () {
                 var me = this;
 
-                if (!utils.basicValidationForm()) {
+                if (!Utils.basicValidationForm()()) {
                     return;
                 }
                 var query = {
@@ -271,19 +266,19 @@
                     description: this.description
                 };
                 if (this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value != "none")
-                    query["logarithm-base"] = this.shadowRoot.querySelector('input[name="logarithm_base"]:checked').value;
+                    query["logarithm-base"] = this.querySelector('input[name="logarithm_base"]:checked').value;
 
                 if (this.shadowRoot.querySelector('input[name="exp"]:checked').value != "none")
-                    query["exp"] = this.shadowRoot.querySelector('input[name="exp"]:checked').value;
+                    query["exp"] = this.querySelector('input[name="exp"]:checked').value;
 
                 if (this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value != "none")
-                    query["merge-replicates"] = this.shadowRoot.querySelector('input[name="merge_replicates"]:checked').value;
+                    query["merge-replicates"] = this.querySelector('input[name="merge_replicates"]:checked').value;
 
                 if (this.$.filter_missing.value != "")
                     query["filter-missing"] = this.$.filter_missing.value;
 
                 if (this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value != "none") {
-                    query["impute-missing"] = this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value;
+                    query["impute-missing"] = this.querySelector('input[name="impute_missing"]:checked').value;
                     if (this.shadowRoot.querySelector('input[name="impute_missing"]:checked').value == "knn")
                         query["kvalue"] = this.$.kvalue.value;
                 }
@@ -297,7 +292,7 @@
                     }
                 }
 //                if (this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value != "none") {
-//                    query["convert-ids"] = this.shadowRoot.querySelector('input[name="convert_ids"]:checked').value;
+//                    query["convert-ids"] = this.querySelector('input[name="convert_ids"]:checked').value;
 //                    query["species"] = this.$.species.value;
 //                    query["merge-replicates"] = this.$.merge_replicates.value;
 //                }
@@ -402,4 +397,4 @@
 
         });
     </script>
-</polymer-element>
+</dom-module>

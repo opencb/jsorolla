@@ -204,7 +204,7 @@
 
             },
             bioformatChanged: function () {
-                var radios = this.shadowRoot.querySelectorAll('input[name="bioformat"]');
+                var radios = this.querySelectorAll('input[name="bioformat"]');
                 var bioformatsArray = this.bioformat.split(",");
 
                 /** disable all **/
@@ -226,7 +226,7 @@
             },
             getSelected: function () {
                 var bioformat = "";
-                var radioButton = this.shadowRoot.querySelector('input[name="bioformat"]:checked');
+                var radioButton = this.querySelector('input[name="bioformat"]:checked');
                 if (radioButton == null)
                     bioformat = "";
                 else
@@ -237,4 +237,4 @@
 
         });
     </script>
-</polymer-element>
+</dom-module>

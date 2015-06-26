@@ -9,13 +9,7 @@
 
         }
 
-        .title {
-            text-align: center;
-            font-size: 25px;
-            color: #666;
-        }
-
-        .icon {
+       .icon {
             color: #445D76;
             font-size: 50px;
         }
@@ -189,9 +183,6 @@
                     value: ""
 
                 },
-                paprobar:{
-                    type: String
-                },
                 jobName: {
                     type: String,
                     value: "Job name"
@@ -248,7 +239,7 @@
                         this.$.inputFile.selectedFile = this.args.list1;
                     if (this.args.inputFile !== undefined)
                         this.$.inputFile.selectedFile = this.args.inputFile;
-                    var radios = this.shadowRoot.querySelectorAll('input[name="correction"]');
+                    var radios = this.querySelectorAll('input[name="correction"]');
                     for (var i = 0; i < radios.length; i++) {
                         var radio = radios[i];
                         if (radio.value == this.args.method)
@@ -329,7 +320,7 @@
                 }
 
 
-                if (!utils.basicValidationForm()) {
+                if (!Utils.basicValidationForm(this)) {
                     return;
                 }
                 var query = {

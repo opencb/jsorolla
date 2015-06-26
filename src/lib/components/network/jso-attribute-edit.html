@@ -178,7 +178,7 @@
                             <label style="margin-top:10px;">Delete attribute</label>
 
                             <div horizontal layout>
-                                <div class="select" flex>
+                                <div class="jso-select" flex>
                                     <select id="selectDelete">
                                         <template repeat="{{column in attributeManager.columns}}">
                                             <template if="{{column.name != 'id'}}">
@@ -502,7 +502,7 @@
                 this.numberMatch = e.currentTarget.dataset.name;
             },
             handleCreateFilter: function () {
-                var attributeName = this.shadowRoot.querySelector('#filterAttributeSelect').value;
+                var attributeName = this.querySelector('#filterAttributeSelect').value;
 
                 var match;
                 if (this.attributeType == 'string') {
@@ -652,4 +652,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

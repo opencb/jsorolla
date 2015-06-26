@@ -19,11 +19,6 @@
 
             }
 
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #666;
-            }
 
             .icon {
                 color: #445D76;
@@ -79,7 +74,7 @@
                 <div class="jso-formcontent">
                     <div id="methodDiv">
                         Human genome version:
-                        <div class="select" style="margin-bottom: 2px">
+                        <div class="jso-select" style="margin-bottom: 2px">
                             <select name="gver" id="gver" type="text" value="none">
                                 <option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>
                                 <option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>
@@ -87,7 +82,7 @@
                         </div>
                         <br/>
                         Query region:
-                        <div class="select" style="margin-bottom: 2px">
+                        <div class="jso-select" style="margin-bottom: 2px">
                             <select name="query" id="query" type="text" value="none" on-change="{{queryChange}}">
                                 <option name="query_genes" id="query_genes" value="genes" selected="selected">All protein coding genes</option>
                                 <option name="query_custom" id="query_custom" value="custom">Custom region</option>
@@ -142,7 +137,7 @@
                    <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
                     <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
-                    <textarea value="{{description}}" required></textarea>
+                    <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
             <div class="botbar" horizontal layout center-justified>
@@ -277,4 +272,4 @@
 //            }
         });
     </script>
-</polymer-element>
+</dom-module>

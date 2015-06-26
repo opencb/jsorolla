@@ -116,7 +116,7 @@
                 this.showBioformat = !this.showBioformat;
             },
             handleModifyBioformat: function (e) {
-                var bioformat = this.shadowRoot.querySelector("#uploadBioformat").getSelected();
+                var bioformat = this.querySelector("#uploadBioformat").getSelected();
                 if (bioformat == "") {
                     alert("No bioformat selected. Please select a bioformat");
                     return;
@@ -153,4 +153,4 @@
 
         });
     </script>
-</polymer-element>
+</dom-module>

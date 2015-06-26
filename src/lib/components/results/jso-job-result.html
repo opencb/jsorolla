@@ -187,7 +187,7 @@
                 this.resultXML = null;
                 this.error = false;
                 this.loading = true;
-//                this.output = this.shadowRoot.querySelector("#output");
+//                this.output = this.querySelector("#output");
                 this.output = this.$.output;
                 while (this.output.firstChild) {
                     this.output.removeChild(this.output.firstChild);
@@ -1456,4 +1456,4 @@
 
         })
     </script>
-</polymer-element>
+</dom-module>

@@ -1,4 +1,4 @@
-<dom-module id="jso-edit" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-edit" >
     <template>
         <style>
             /*:host {*/
@@ -172,7 +172,7 @@
             },
             handleSave: function () {
                 this.messageSave = "Saving...";
-                var strHeader = this.shadowRoot.querySelector('#classEdit').parseTable();
+                var strHeader = this.querySelector('#classEdit').parseTable();
                 if (strHeader == "error") {
                     this.messageSave = "";
                     alert("Sorry, you have empty fields. Please fill them.")
@@ -211,4 +211,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>
