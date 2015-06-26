@@ -1,0 +1,178 @@
+<dom-module id="jso-opencga-job-list-item">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 3px;
+            margin: 2px 2px 0 2px;
+            border: 1px solid transparent;
+
+            /*width: 200px;*/
+        }
+
+        :host(:hover) {
+            border-color: #d3d3d3;
+            background-color: #f5f5f5;
+        }
+
+        :host[selected] {
+            background-color: #ccc;
+        }
+
+        .job {
+
+        }
+
+        .capitalize {
+            text-transform: capitalize;
+        }
+
+        .PREPARED {
+            color: #ff8c00;
+        }
+
+        .ERROR {
+            color: #b30000;
+        }
+
+        .QUEUED {
+            color: #ff8c00;
+        }
+
+        .RUNNING {
+            color: #298c63;
+        }
+
+        .DONE {
+            color: #0068cc;
+        }
+
+        .READY {
+            color: #0068cc;
+
+        }
+
+        .date {
+            color: #696969;
+            font-size: 0.9em;
+        }
+
+        .bar {
+            width: 15px;
+        }
+
+        .bar > * {
+            margin: 1px;
+            color: #d3d3d3;
+        }
+
+        .bar > *:hover {
+            color: #000;
+            cursor: pointer;
+        }
+    </style>
+    <template>
+        <div horizontal layout>
+            <div flex id="job">
+                <!--<div flex id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">-->
+                <div>
+                    <i class$="{{computeStatusIcon(job)}}"></i>
+                    <span style="white-space: nowrap">{{job.name}}</span>
+                </div>
+                <div>{{computeToolName(job)}}</div>
+                <div>
+                    <span class="capitalize {{job.status}}">{{computeStatus(job)}}</span>
+                    <span class="date">{{computeDate(job)}}</span>
+                </div>
+            </div>
+            <div vertical layout class="bar" on-click="{{handleBarClick}}">
+                <template is="dom-if" if="{{!isRunning(job)}}">
+                    <i class="fa fa-trash-o" on-click="handleDeleteJob" data-job="{{job.id}}"></i>
+                </template>
+            </div>
+        </div>
+
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-job-list-item",
+        properties: {
+            job: {
+                type: Object,
+                notify: true
+            },
+            visitsHidden: {
+                type: Boolean,
+                value: false
+            }
+        },
+        created: function () {
+        },
+        computeDate: function (job) {
+            return Utils.parseDate(job.date);
+        },
+        computeIcon: function (job) {
+            var iconMap = {
+                "READY": 'check fa fa-check',
+                "FILE": 'fa fa-file-o'
+            };
+            return iconMap[job.status];
+        },
+        computeStatusIcon: function (job) {
+
+            var iconMap = {
+                "READY": 'READY fa fa-check',
+                "ERROR": 'ERROR fa fa-times',
+                "QUEUED": 'QUEUED fa fa-clock-o',
+                "RUNNING": 'RUNNING fa fa-circle-o-notch fa-spin',
+            };
+            return iconMap[job.status];
+        },
+        computeStatus: function (job) {
+            if (job.status === "DONE") {
+                return "Finishing";
+            }
+            return job.status.toLowerCase();
+        },
+        computeToolName: function (job) {
+            if (job.toolName.toLowerCase() == "pathiways") {
+                return "PATHiVAR";
+            }
+            return job.toolName;
+        },
+        handleBarClick: function (e) {
+            e.stopPropagation();
+        },
+        handleVisits: function (job) {
+            return job.visits > 0
+                    ;
+        },
+        isRunning: function(job){
+            return job.status == "RUNNING";
+        },
+        handleDeleteJob: function(e){
+            var jobId = e.currentTarget.dataJob;
+            e.stopPropagation();
+
+            if(confirm("Are you sure?")){
+                var aux = OpencgaManager.jobs.delete({
+                    id: jobId,
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function (response) {
+                           
+                        },
+                        error: function () {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>

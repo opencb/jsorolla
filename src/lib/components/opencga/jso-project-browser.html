@@ -10,7 +10,7 @@
 <link rel="import" href="jso-file-info.html">
 
 
-<polymer-element name="jso-project-browser"
+<dom-module id="jso-project-browser"
                  attributes="userData selectedProject selectedStudy selectedFolder studies selectionMode bioformat">
     <template>
         <style>
@@ -168,7 +168,7 @@
                 </template>
             </div>
             <div id="topleftbar">
-                <div class="button action" data-checked="{{showInfo}}" on-click="{{handleShowInfo}}">
+                <div class="jso-btn jso-btn-shdw" data-checked="{{showInfo}}" on-click="{{handleShowInfo}}">
                     <font-awesome icon="info"></font-awesome>
                 </div>
             </div>
@@ -204,15 +204,15 @@
                     <div flex horizontal layout style="text-overflow: ellipsis">
                         <template if="{{bioformat != ''}}">
                             <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Data-types">
-                                <font-awesome icon="question-circle"></font-awesome>
+                                <i class="fa fa-question-circle"></i>
                             </a>
 
                             <div class="text">Accepted bioformats:{{bioformatText}}</div>
                         </template>
                     </div>
                     <div horizontal layout end-justified>
-                        <div class="button action" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
-                        <div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK
+                        <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="{{handleCancel}}">Cancel</div>
+                        <div class="jso-btn jso-btn-shdw" style="width: 100px;margin-left: 10px;" on-click="{{handleOk}}">OK
                         </div>
                     </div>
                 </div>
@@ -547,7 +547,7 @@
     </script>
 </polymer-element>
 
-<polymer-element name="jso-project-browser-folder-list" attributes="folder files study bioformat selectionMode selectedFile">
+<dom-module id="jso-project-browser-folder-list" attributes="folder files study bioformat selectionMode selectedFile">
     <template>
         <style>
             :host {
@@ -619,23 +619,23 @@
                         <!--Upload-->
                     </div>
                 </template>
-                <div class="button action" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
+                <div class="jso-btn jso-btn-shdw" on-click="{{handleCreateFolder}}" data-checked="{{!hideCreateFolder}}">
                     <font-awesome icon="folder-o"></font-awesome>
                     +
                 </div>
                 <!--<template if="{{ selectedFile != null }">-->
-                    <div class="button action" on-click="{{handleDeleteFile}}">
+                    <div class="jso-btn jso-btn-shdw" on-click="{{handleDeleteFile}}">
                         <font-awesome icon="trash"></font-awesome>
                     </div>
                 <!--</template>-->
                 <template if="{{ selectedFile != null && selectedFile.type == 'FILE' }}">
-                    <div class="button action" on-click="{{handleDownloadFile}}">
-                        <font-awesome icon="download"></font-awesome>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile">
+                        <i class="fa fa-download"></i>
                     </div>
                 </template>
                 <template
                         if="{{ selectedFile != null && selectionMode != 'folder' && selectedFile.bioformat == 'VARIANT' }}">
-                    <div class="button action" on-click="{{handleIndexFile}}" title="Index file">
+                    <div class="jso-btn jso-btn-shdw" on-click="{{handleIndexFile}}" title="Index file">
                         <font-awesome icon="cog"></font-awesome>
                     </div>
                 </template>
@@ -643,7 +643,7 @@
             <!--<input type="text" flex placeholder="filter">-->
             <div>
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Upload-your-data">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
         </div>

@@ -29,9 +29,13 @@ function CellBaseAdapter(args) {
     _.extend(this, args);
 
     this.on(this.handlers);
+
+    var host = this.host || CellBaseManager.host;
+    var cacheId = host + (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, '');
+
     this.cacheConfig = {
-        cacheId: (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, ''),
-//        subCacheId: this.resource + this.params.exclude,
+        cacheId: cacheId,
+        //subCacheId: this.resource + this.params.keys(),
         chunkSize: 3000
     };
     _.extend(this.cacheConfig, args.cacheConfig);
@@ -60,8 +64,7 @@ CellBaseAdapter.prototype = {
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /** 2 category check **/
-        //TODO define category
-        var categories = [this.resource + this.params.exclude];
+        var categories = [this.category + this.subCategory + this.resource + Utils.queryString(params)];
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -70,7 +73,7 @@ CellBaseAdapter.prototype = {
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = args.params.interval? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
+        var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }

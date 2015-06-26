@@ -1,4 +1,4 @@
-<polymer-element name="jso-job-info-widget" attributes="jobItem">
+<dom-module id="jso-job-info-widget" attributes="jobItem">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -40,22 +40,22 @@
             <div class="data">
 
                 <div class="message" horizontal="" layout="">
-                    <label>Name </label>
+                    <label class="jso">Name </label>
 
                     <div class="messageValue"> {{jobItem.name }}</div>
                 </div>
                 <div class="message" horizontal="" layout="">
-                    <label>Description </label>
+                    <label class="jso">Description </label>
 
                     <div class="messageValue"> {{jobItem.description }}</div>
                 </div>
                 <div class="message" horizontal="" layout="">
-                    <label>Tool </label>
+                    <label class="jso">Tool </label>
 
                     <div class="messageValue"> {{jobItem.toolName }}</div>
                 </div>
                 <div class="message" horizontal="" layout="">
-                    <label>Output folder </label>
+                    <label class="jso">Output folder </label>
 
                     <div class="messageValue"> {{jobItem.outDirPath }}</div>
                 </div>

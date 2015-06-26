@@ -1,66 +1,92 @@
-<polymer-element name="jso-class-viewer" attributes="contentFile childrenDisplay variableTypes childrenSelectNumber">
+<dom-module id="jso-class-viewer">
+    <style>
+        :host {
+        }
+
+        select {
+            margin: 2px;
+        }
+
+        #childrenSelect {
+            /*border: solid 1px #ccc;*/
+        }
+    </style>
     <template>
-        <style>
-            :host {
-            }
-
-            select {
-                margin: 2px;
-            }
-
-            #childrenSelect {
-                /*border: solid 1px #ccc;*/
-            }
-        </style>
         <!--<select name="class_name" id="class_name" class="fc-combobox" type="text" value="none">-->
         <!--<option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>-->
         <!--</select>-->
         <div id="jsoClassViewerId">
-            <div horizontal layout>
+            <div class="horizontal layout">
                 <div>
                     <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit-your-data">
-                        <font-awesome icon="question-circle"></font-awesome>
+                        <i class="fa fa-question-circle"></i>
                     </a>
                 </div>
                 <div class="text" >
                 Variables: &nbsp;
                 </div>
-                <div id="mainSelect" class="select">
+                <div id="mainSelect" class="jso-select">
                     <!--<select id="selectClass" on-change="{{selectChange}}">-->
                     <select id="selectClass">
                         <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
                     </select>
                 </div>
                 <template if="{{loading}}">
-                    <font-awesome icon="spinner" animation="spin" style="margin-left: 5px;"></font-awesome> loading variables...
+                    <i class="fa fa-spinner" icon="spinner" animation="spin" style="margin-left: 5px;"></i> loading variables...
                 </template>
             </div>
             <br>
 
-            <div id="childrenSelect">
+            <div class="horizontal layout" id="childrenSelect">
             </div>
         </div>
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.dataClass;
-                /** loaded is a variable to know if this component has create all the necessary elements**/
-//                this.loadedMainSelect = false;
-//                this.loadedChildrenSelect = false;
+            is: "jso-class-viewer",
+            properties:{
+                contentFile:{
+                    type: String,
+                    observer: 'contentFileChanged'
+                },
+                childrenDisplay:{
+                    type: Boolean,
+                    value: true
+                },
+                variableTypes:{
+                    type: String,
+                    value: "CATEGORICAL,NUMERIC,STRING"
+                },
+                childrenSelectNumber:{
+                    type: Number,
+                    value: -1
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
+                }
 
-                /** childrenDisplay is an attributes that indicates if we want a the children (another selects)  of the main select **/
-                this.childrenDisplay = true;
 
-                /** variableTypes is the type of variables that we want to display **/
-                this.variableTypes = "CATEGORICAL,NUMERIC,STRING";
-
-                /** number of childrensSelect **/
-                this.childrenSelectNumber = -1;
-
-                this.loading = false;
             },
-            contentFileChanged: function (oldV, newV) {
+            paprobarChanged: function(){
+                debugger
+            },
+            created: function () {
+//                this.dataClass;
+//                /** loaded is a variable to know if this component has create all the necessary elements**/
+//
+//                /** childrenDisplay is an attributes that indicates if we want a the children (another selects)  of the main select **/
+//                this.childrenDisplay = true;
+//
+//                /** variableTypes is the type of variables that we want to display **/
+//                this.variableTypes = "CATEGORICAL,NUMERIC,STRING";
+//
+//                /** number of childrensSelect **/
+//                this.childrenSelectNumber = -1;
+
+//                this.loading = false;
+            },
+            contentFileChanged: function (newV, oldV) {
                 this.loading = true;
                 var me = this;
                 if (this.childrenDisplay) {
@@ -190,4 +216,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

@@ -34,7 +34,7 @@ function GenomeViewer(args) {
     this.width;
     this.height;
 
-    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     this.quickSearchResultFn;
@@ -60,9 +60,7 @@ function GenomeViewer(args) {
         collapsed: false,
         collapsible: true
     };
-    this.navigationBarConfig = {
-
-    };
+    this.navigationBarConfig = {};
     this.drawStatusBar = true;
     this.resizable = true;
     this.sidePanel = true;//enable or disable sidePanel at construction
@@ -74,13 +72,25 @@ function GenomeViewer(args) {
             {
                 "text": "Vertebrates",
                 "items": [
-                    {"text": "Homo sapiens", "assembly": "GRCh37.p10", "region": {"chromosome": "13", "start": 32889611, "end": 32889611}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"},
-                    {"text": "Mus musculus", "assembly": "GRCm38.p1", "region": {"chromosome": "1", "start": 18422009, "end": 18422009}, "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"], "url": "ftp://ftp.ensembl.org/pub/release-71/"}
+                    {
+                        "text": "Homo sapiens",
+                        "assembly": "GRCh37.p10",
+                        "region": {"chromosome": "13", "start": 32889611, "end": 32889611},
+                        "url": "ftp://ftp.ensembl.org/pub/release-71/"
+                    },
+                    {
+                        "text": "Mus musculus",
+                        "assembly": "GRCm38.p1",
+                        "region": {"chromosome": "1", "start": 18422009, "end": 18422009},
+                        "url": "ftp://ftp.ensembl.org/pub/release-71/"
+                    }
                 ]
             }
         ]
     };
     this.species = this.availableSpecies.items[0].items[0];
+
+
     this.zoom;
 
     this.chromosomes;
@@ -88,6 +98,9 @@ function GenomeViewer(args) {
 
     //set instantiation args, must be last
     _.extend(this, args);
+
+    this.chromosomes = this.getChromosomes();
+    this.species.chromosomes = this.chromosomes;
 
     this.defaultRegion = new Region(this.region);
 
@@ -167,32 +180,30 @@ GenomeViewer.prototype = {
         /****************************/
 
 
-        this.chromosomes = this.getChromosomes();
-
         this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.zoom = this._calculateZoomByRegion(this.region);
 
-        // Resize
-        if (this.resizable) {
-            $(window).resize(function (event) {
-                if (event.target == window) {
-                    if (!_this.resizing) {//avoid multiple resize events
-                        _this.resizing = true;
-                        _this.setWidth($(_this.targetDiv).width());
-                        setTimeout(function () {
-                            _this.resizing = false;
-                        }, 400);
-                    }
-                }
-            });
-//            $(this.targetDiv).resizable({
-//                handles: 'e',
-//                ghost: true,
-//                stop: function (event, ui) {
-//                    _this._setWidth($(_this.targetDiv).width());
+//        // Resize
+//        if (this.resizable) {
+//            $(window).resize(function (event) {
+//                if (event.target == window) {
+//                    if (!_this.resizing) {//avoid multiple resize events
+//                        _this.resizing = true;
+//                        _this.setWidth($(_this.targetDiv).width());
+//                        setTimeout(function () {
+//                            _this.resizing = false;
+//                        }, 400);
+//                    }
 //                }
 //            });
-        }
+////            $(this.targetDiv).resizable({
+////                handles: 'e',
+////                ghost: true,
+////                stop: function (event, ui) {
+////                    _this._setWidth($(_this.targetDiv).width());
+////                }
+////            });
+//        }
 
         /* Navigation Bar */
         if (this.drawNavigationBar) {
@@ -235,10 +246,10 @@ GenomeViewer.prototype = {
                 $(_this.targetDiv).width(event.width);
             }
         });
-        this.on('species:change', function (event) {
-            _this.species = event.species;
-            _this.chromosomes = _this.getChromosomes();
-        });
+        //this.on('species:change', function (event) {
+        //    _this.species = event.species;
+        //    _this.chromosomes = _this.getChromosomes();
+        //});
 
         $("html").bind('keydown.genomeViewer', function (e) {
             switch (e.keyCode) {
@@ -303,7 +314,11 @@ GenomeViewer.prototype = {
                 resource: 'all',
                 async: false,
                 success: function (data) {
-                    chromosomes = saveChromosomes(data.response.result.chromosomes);
+                    chromosomes = saveChromosomes(data.response[0].result[0].chromosomes);
+                    for (var i = 0; i < chromosomes.length; i++) {
+                        var chr = chromosomes[i];
+                        debugger
+                    }
                 },
                 error: function (data) {
                     console.log('Could not get chromosome list');
@@ -598,7 +613,7 @@ GenomeViewer.prototype = {
 
         trackListPanel.draw();
 
-        return  trackListPanel;
+        return trackListPanel;
     },
 
     _createTrackListPanel: function (target) {
@@ -646,7 +661,7 @@ GenomeViewer.prototype = {
 
         trackListPanel.draw();
 
-        return  trackListPanel;
+        return trackListPanel;
     },
 
     _createStatusBar: function (target) {
@@ -669,7 +684,7 @@ GenomeViewer.prototype = {
         });
 
         statusBar.draw();
-        return  statusBar;
+        return statusBar;
     },
 
 
@@ -849,13 +864,41 @@ GenomeViewer.prototype = {
     _speciesChangeHandler: function (event) {
         //Relaunch
         this.trigger('species:change', event);
+        this._updateSpecies(event.species);
 
-        this.overviewTrackListPanel.setSpecies(event.species);
-        this.trackListPanel.setSpecies(event.species);
-        this.chromosomePanel.setSpecies(event.species);
-        this.karyotypePanel.setSpecies(event.species);
+        var c = this.chromosomes[Object.keys(this.chromosomes)[0]];
+        var region = new Region({
+            chromosome: c.name,
+            start: Math.round(c.size / 2),
+            end: Math.round(c.size / 2)
+        });
+        this.setRegion(region);
+    },
+    _updateSpecies: function (species) {
+        this.species = species;
+        this.chromosomes = this.getChromosomes();
+        this.species.chromosomes = this.chromosomes;
 
-        this.setRegion(event.species.region);
+        this.overviewTrackListPanel.setSpecies(species);
+        this.trackListPanel.setSpecies(species);
+        this.chromosomePanel.setSpecies(species);
+        this.karyotypePanel.setSpecies(species);
+        this.navigationBar.setSpecies(species);
+    },
+    _getSpeciesByTaxonomy: function (taxonomyCode) {
+        //find species object
+        var speciesObject = null;
+        for (var i = 0; i < this.availableSpecies.items.length; i++) {
+            for (var j = 0; j < this.availableSpecies.items[i].items.length; j++) {
+                var species = this.availableSpecies.items[i].items[j];
+                var taxonomy = Utils.getSpeciesCode(species.text);
+                if (taxonomy === taxonomyCode) {
+                    speciesObject = species;
+                    break;
+                }
+            }
+        }
+        return speciesObject;
     },
 
     /*****************/
@@ -864,7 +907,19 @@ GenomeViewer.prototype = {
     /*****************/
     /** API METHODS **/
     /*****************/
-    setRegion: function (region) {
+    setSpeciesByTaxonomy: function (taxonomyCode) {
+        var species = this._getSpeciesByTaxonomy(taxonomyCode);
+        if (species != null) {
+            this._speciesChangeHandler({species: species});
+        } else {
+            console.log("Species taxonomy not found on availableSpecies.")
+        }
+    },
+    setRegion: function (region, taxonomy) {
+        if (taxonomy != null) {
+            var species = this._getSpeciesByTaxonomy(taxonomy);
+            this._updateSpecies(species);
+        }
         return this._regionChangeHandler({region: new Region(region)});
     },
     moveRegion: function (disp) {
@@ -873,7 +928,23 @@ GenomeViewer.prototype = {
         this.trigger('region:move', {region: this.region, disp: -disp, sender: this});
     },
     setWidth: function (width) {
-        this.trigger('width:change', {width: width});
+        var newRegion = new Region(this.region);
+        var newLength = width * this.region.length() / this.width;
+        var centerPosition = this.region.center();
+        var aux = Math.ceil((newLength / 2) - 1);
+        newRegion.start = Math.floor(centerPosition - aux);
+        newRegion.end = Math.floor(centerPosition + aux);
+
+        this.width = width;
+        this.navigationBar.setWidth(width);
+        this.chromosomePanel.setWidth(width);
+        this.karyotypePanel.setWidth(width);
+        this.trackListPanel.setWidth(width);
+        this.overviewTrackListPanel.setWidth(width);
+
+        this._regionChangeHandler({
+            region: newRegion
+        });
     },
     setZoom: function (zoom) {
         zoom = Math.min(100, zoom);

@@ -1,4 +1,4 @@
-<polymer-element name="jso-clustering" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-clustering" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <style>
             :host {
@@ -42,11 +42,11 @@
                 background: #dddddd;
             }
         </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 Clustering
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Clustering">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -54,95 +54,93 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"> fibroblasts k-means clustering</div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="fibroblasts.txt" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1"> fibroblasts k-means clustering</div>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="fibroblasts.txt" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
 
 
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}"
+                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select type of clustering: samples and/or genes</div>
-                <div class="formcontent">
-                    <label class="control">
-                        <input name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select type of clustering: samples and/or genes</div>
+                <div class="jso-formcontent">
+                    <label class="jso-control">
+                        <input class="jso"name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox"
                                value="true" checked="checked" on-click="{{clusteringTypeClick}}">
                         <span>Clustering of samples</span></label>
-                    <label class="control">
-                        <input name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true"
+                    <label class="jso-control">
+                        <input class="jso"name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true"
                                on-click="{{clusteringTypeClick}}">
                         <span>Clustering of genes</span></label>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select method</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select method</div>
+                <div class="jso-formcontent">
                     <div id="methodDiv" vertical layout>
-                        <label class="control">
-                            <input id="method_1" name="method" class="fc-radioitem" type="radio" value="upgma"
+                        <label class="jso-control">
+                            <input class="jso"id="method_1" name="method" class="fc-radioitem" type="radio" value="upgma"
                                    checked="checked" on-click="{{methodClick}}"> <span>UPGMA </span></label>
-                        <label class="control">
-                            <input id="method_2" name="method" class="fc-radioitem" type="radio" value="sota"
+                        <label class="jso-control">
+                            <input class="jso"id="method_2" name="method" class="fc-radioitem" type="radio" value="sota"
                                    on-click="{{methodClick}}"><span> SOTA </span></label>
-                        <label class="control">
-                            <input id="method_3" name="method" class="fc-radioitem" type="radio" value="kmeans"
+                        <label class="jso-control">
+                            <input class="jso"id="method_3" name="method" class="fc-radioitem" type="radio" value="kmeans"
                                    on-click="{{methodClick}}"> <span>K-means </span></label>
                     </div>
-                    <label>Number of sample-clusters (k-value)</label>
-                    <input name="sample_kvalue" id="sample_kvalue" class="fc-int fc-text" type="text"
+                    <label class="jso">Number of sample-clusters (k-value)</label>
+                    <input class="jso"name="sample_kvalue" id="sample_kvalue" class="fc-int fc-text" type="text"
                            value="{{sample_kvalue}}" disabled="true" style="width: 50px">
-                    <label>Number of gene-clusters (k-value)</label>
-                    <input name="gene_kvalue" id="gene_kvalue" class="fc-int fc-text" type="text"
+                    <label class="jso">Number of gene-clusters (k-value)</label>
+                    <input class="jso"name="gene_kvalue" id="gene_kvalue" class="fc-int fc-text" type="text"
                            value="{{gene_kvalue}}" disabled="true" style="width: 50px">
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select distance</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select distance</div>
+                <div class="jso-formcontent">
                     <div id="distanceDiv" vertical layout>
-                        <label class="control">
-                            <input id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean"
+                        <label class="jso-control">
+                            <input class="jso"id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean"
                                    checked="checked"><span>Euclidean (normal)</span></label>
-                        <label class="control">
-                            <input id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square">
+                        <label class="jso-control">
+                            <input class="jso"id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square">
                             <span>Euclidean (square)</span></label>
-                        <label class="control">
-                            <input id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman">
+                        <label class="jso-control">
+                            <input class="jso"id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman">
                             <span>Correlation coeff. (Spearman)</span></label>
-                        <label class="control">
-                            <input id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">
+                        <label class="jso-control">
+                            <input class="jso"id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">
                             <span>Pearson correlation coeff.</span></label>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -152,10 +150,8 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "clustering";
-                this.list1UploadMsg = "Select file...";
-                this.description = "Job description..."
+
                 this.sample_kvalue = 5;
                 this.gene_kvalue = 15;
             },
@@ -215,9 +211,9 @@
 
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
                     description: this.description,
                     dataset: this.$.inputFile.selectedFile.id,
@@ -268,7 +264,7 @@
             loadExample1: function (e) {
                 this.jobName = "fibroblasts k-means clustering";
                 this.description = "Non-hierarchical clustering - K-means demo";
-                this.$.inputFile.selectedFile = {id: "example_fibroblasts.txt", path: "fibroblasts.txt", type: "FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_fibroblasts.txt", path: "fibroblasts.txt", type: "FILE"});
                 this.$.sample_clustering.checked = true;
                 this.$.gene_clustering.checked = true;
                 this.$.gene_clustering.checked = true;

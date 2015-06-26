@@ -19,6 +19,10 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+* DEPRECATED
+* */
+
 SequenceTrack.prototype = new Track({});
 
 function SequenceTrack(args) {

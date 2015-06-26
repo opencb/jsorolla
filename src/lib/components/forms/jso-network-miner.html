@@ -1,4 +1,4 @@
-<polymer-element name="jso-network-miner" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+<dom-module id="jso-network-miner" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <style>
             :host {
@@ -32,11 +32,11 @@
             }
         </style>
 
-        <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
+        <div class="jso-tooltitle" hidden?="{{hideTitle == 'true'}}">
             <div flex>
                 Network Miner
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Gene%20Set%20Network%20Enrichment%20(Network%20Miner)?">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -45,74 +45,74 @@
         </div>
 
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent" horizontal layout>
-                    <!--<div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Genome-Wide Association Study in Bipolar Disorder</div>-->
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent" horizontal layout>
+                    <!--<div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">Genome-Wide Association Study in Bipolar Disorder</div>-->
                     <div vertical layout>
                         <div horizontal layout >
-                            <div class="button action" on-click="{{loadExample1}}" style="width: 340px">Essential genes in cancer cell line K562
+                            <div class="jso-btn jso-btn-shdw" on-click="loadExample1" style="width: 340px">Essential genes in cancer cell line K562
                             </div>
-                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="K562.txt">
-                                <font-awesome icon="download"></font-awesome>
+                            <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="K562.txt">
+                                <i class="fa fa-download"></i>
                             </div>
                         </div>
                         <div horizontal layout style="margin-top:5px">
-                            <div class="button action" on-click="{{loadExample2}}" style="width: 340px">Essential genes in cancer cell line
+                            <div class="jso-btn jso-btn-shdw" on-click="{{loadExample2}}" style="width: 340px">Essential genes in cancer cell line
                                 JURKAT
                             </div>
-                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="JURKAT.txt">
-                                <font-awesome icon="download"></font-awesome>
+                            <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="JURKAT.txt">
+                                <i class="fa fa-download"></i>
                             </div>
                         </div>
                     </div>
                     <div vertical layout>
                         <div style="margin-left:5px" horizontal layout>
 
-                            <div class="button action" on-click="{{loadExample4}}" style="width: 340px">Genes Down-regulated in Fanconi Anemia
+                            <div class="jso-btn jso-btn-shdw" on-click="{{loadExample4}}" style="width: 340px">Genes Down-regulated in Fanconi Anemia
                             </div>
-                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="FA-differentialExpression-statistic.txt">
-                                <font-awesome icon="download"></font-awesome>
+                            <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="FA-differentialExpression-statistic.txt">
+                                <i class="fa fa-download"></i>
                             </div>
                         </div>
                         <div style="margin-top:5px;margin-left:5px" horizontal layout>
 
-                            <div class="button action" on-click="{{loadExample5}}" style="width: 340px">Genome-Wide Association Study in Bipolar Disorder
+                            <div class="jso-btn jso-btn-shdw" on-click="{{loadExample5}}" style="width: 340px">Genome-Wide Association Study in Bipolar Disorder
                             </div>
-                            <div class="button action" on-click="{{handleDownloadFile}}" data-example="example.zip">
-                                <font-awesome icon="download"></font-awesome>
+                            <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="example.zip">
+                                <i class="fa fa-download"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 allowTextArea="false"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
                                                 bioformat="IDLIST,IDLIST_RANKED"
                                                 networkViewer="{{networkViewer}}"
-                            ></jso-project-browser-window>
+                            ></jso-opencga-browser-window>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select your seed list (optional)</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your seed list (optional)</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 allowTextArea="true"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
                                                 bioformat="IDLIST"
                                                 networkViewer="{{networkViewer}}"
-                            ></jso-project-browser-window>
+                            ></jso-opencga-browser-window>
                 </div>
             </div>
 
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">List nature</div>-->
-            <!--<div class="formcontent">-->
+            <!--<div class="jso-formbox">-->
+            <!--<div class="jso-formtitle">List nature</div>-->
+            <!--<div class="jso-formcontent">-->
 
             <!--<select name="listTags" id="listTags" class="fc-combobox" type="text" value="gene">-->
             <!--<option name="listTags_1" id="listTags_1" class="fc-combobox-item" value="gene" selected="selected">Gene</option>-->
@@ -124,20 +124,20 @@
             <!--</div>-->
 
 
-            <div class="formbox">
-                <div class="formtitle">List nature</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">List nature</div>
+                <div class="jso-formcontent">
                     <div id="typeDiv">
-                        <label class="control">
-                            <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcript">
+                        <label class="jso-control">
+                            <input class="jso"id="type_1" name="type" class="fc-radioitem" type="radio" value="transcript">
                             <span>Transcripts</span>
                         </label>
-                        <label class="control">
-                            <input id="type_2" name="type" class="fc-radioitem" type="radio" value="protein" checked>
+                        <label class="jso-control">
+                            <input class="jso"id="type_2" name="type" class="fc-radioitem" type="radio" value="protein" checked>
                             <span>Proteins</span>
                         </label>
-                        <label class="control">
-                            <input id="type_3" name="type" class="fc-radioitem" type="radio" value="gene">
+                        <label class="jso-control">
+                            <input class="jso"id="type_3" name="type" class="fc-radioitem" type="radio" value="gene">
                             <span>Genes</span>
                         </label>
 
@@ -146,9 +146,9 @@
             </div>
 
 
-            <div class="formbox">
-                <div class="formtitle">Species</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Species</div>
+                <div class="jso-formcontent">
                     <div class="select" style="width:200px;">
                         <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
                             <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="ath">Arabidopsis thaliana</option>
@@ -162,55 +162,55 @@
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select interactome confidence</div>
-                <div id="groupDiv" class="formcontent" vertical layout>
-                    <label class="control">
-                        <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select interactome confidence</div>
+                <div id="groupDiv" class="jso-formcontent" vertical layout>
+                    <label class="jso-control">
+                        <input class="jso"id="group_1" name="group" class="fc-radioitem" type="radio" value="all">
                         <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
                     </label>
-                    <label class="control">
-                        <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
+                    <label class="jso-control">
+                        <input class="jso"id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
                         <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
                     </label>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Sort ranked list</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Sort ranked list</div>
+                <div class="jso-formcontent">
                     <div id="orderDiv">
-                        <label class="control">
-                            <input id="order_1" name="order" class="fc-radioitem" type="radio" value="ascending" checked="checked">
+                        <label class="jso-control">
+                            <input class="jso"id="order_1" name="order" class="fc-radioitem" type="radio" value="ascending" checked="checked">
                             <span> Ascending </span>
                         </label>
-                        <label class="control">
-                            <input id="order_2" name="order" class="fc-radioitem" type="radio" value="descending">
+                        <label class="jso-control">
+                            <input class="jso"id="order_2" name="order" class="fc-radioitem" type="radio" value="descending">
                             <span>Descending</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Allow one external intermediate in the subnetwork</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Allow one external intermediate in the subnetwork</div>
+                <div class="jso-formcontent">
                     <div id="intermediateDiv">
-                        <label class="control">
-                            <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
+                        <label class="jso-control">
+                            <input class="jso"id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
                             <span> Yes </span>
                         </label>
-                        <label class="control">
-                            <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
+                        <label class="jso-control">
+                            <input class="jso"id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
                             <span> No </span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Allow one external intermediate in the subnetwork</div>-->
-            <!--<div class="formcontent">-->
+            <!--<div class="jso-formbox">-->
+            <!--<div class="jso-formtitle">Allow one external intermediate in the subnetwork</div>-->
+            <!--<div class="jso-formcontent">-->
             <!--<select name="intermediate" id="intermediate" class="fc-combobox" type="text" value="0">-->
             <!--<option name="intermediate_1" id="intermediate_1" class="fc-combobox-item" value="0"-->
             <!--selected="selected">0-->
@@ -219,21 +219,20 @@
             <!--</select>-->
             <!--</div>-->
             <!--</div>-->
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -298,12 +297,12 @@
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
                     name: this.jobName,
                     description: this.description,
 //                    list: this.$.inputFile.selectedFile.id,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
                     intermediate: this.$.intermediateDiv.querySelector('input[name="intermediate"]:checked').value,
@@ -374,8 +373,8 @@
 
                 this.jobName = "Essential genes in cancer cell line K562";
                 this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (K562.txt).";
-//                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
-                this.$.inputFile.selectedFile = {id: "example_K562.txt", path: "K562.txt", type: "FILE"};
+//                this.$.inputFile.setSelectedFile({id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_K562.txt", path: "K562.txt", type: "FILE"});
                 this.$.type_3.checked = true;
                 this.$.interactome.value = "hsa";
                 this.$.group_2.checked = true;
@@ -389,8 +388,8 @@
 
                 this.jobName = "Essential genes in cancer cell line JURKAT";
                 this.description = "This data comes form a recent study of the gene essentiality in different cancer cells (Luo et al. 2008). Here, genes are ranked according the RIGER, which accounts gene essentiality (JURKAT.txt).";
-//                this.$.inputFile.selectedFile = {id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
-                this.$.inputFile.selectedFile = {id: "example_JURKAT.txt", path: "JURKAT.txt", type: "FILE"};
+//                this.$.inputFile.setSelectedFile({id: "example_K562_symbol.txt", path: "K562_symbol.txt", type:"FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_JURKAT.txt", path: "JURKAT.txt", type: "FILE"});
                 this.$.type_3.checked = true;
                 this.$.interactome.value = "hsa";
                 this.$.group_2.checked = true;
@@ -404,7 +403,7 @@
 
                 this.jobName = "Genes Up-regulated in Fanconi Anemia";
                 this.description = "Expression data comes form a recent study of the gene expression in Fanconi Anemia (Vanderwerf et al. 2009; GEO:GSE16334).  Differential gene expression of control versus case samples was carried out using the Limma option in Differential expression analysis. Here, genes are ranked according the statistic (FA-differentialExpression-statistic.txt).";
-                this.$.inputFile.selectedFile = {
+                this.$.inputFile.setSelectedFile({
                     id: "example_FA-differentialExpression-statistic.txt",
                     path: "FA-differentialExpression-statistic.txt",
                     type: "FILE"
@@ -422,7 +421,7 @@
 
                 this.jobName = "Genes Down-regulated in Fanconi Anemia";
                 this.description = "Expression data comes form a recent study of the gene expression in Fanconi Anemia (Vanderwerf et al. 2009; GEO:GSE16334).  Differential gene expression of control versus case samples was carried out using the Limma option in Differential expression analysis. Here, genes are ranked according the statistic (FA-differentialExpression-statistic.txt).";
-                this.$.inputFile.selectedFile = {
+                this.$.inputFile.setSelectedFile({
                     id: "example_FA-differentialExpression-statistic.txt",
                     path: "FA-differentialExpression-statistic.txt",
                     type: "FILE"
@@ -440,7 +439,7 @@
 
                 this.jobName = "Genome-Wide Association Study in Bipolar Disorder";
                 this.description = "Genotypic data comes from the Wellcome Trust Case Control Consortium. GWAS was performed using the basic association test of Plink toolset. Here, genes were ranked acording the adjusted p-value (BD-GWASplink.txt). Moreover, genes previously associated with Bipolar Disorder obtained from Uniprot database are used as seed genes (BD-associatedgenesUniprot.txt).";
-                this.$.inputFile.selectedFile = {
+                this.$.inputFile.setSelectedFile({
                     id: "example_BD-GWASplink_top.txt",
                     path: "BD-GWASplink_top.txt",
                     type: "FILE"
@@ -506,7 +505,7 @@
             },
         });
     </script>
-</polymer-element>
+</dom-module>
 <!--<polymer-element name="jso-opencga-list-item" attributes="item">-->
 <!--<template>-->
 <!--<link rel="stylesheet" href="../jso-style.css">-->

@@ -1,4 +1,4 @@
-<polymer-element name="jso-go-viewer" attributes="content rootNode jobResult">
+<dom-module id="jso-go-viewer" attributes="content rootNode jobResult">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div horizontal layout>
-                <label>
+                <label class="jso">
                     {{saveMessage}}
                 </label>
                 <template if="{{saveMessageOk}}">
@@ -42,9 +42,9 @@
                 id="networkViewer"
                 lite="true"
                 ></jso-network-viewer>
-        <label>Legend: Colored nodes represent significant results: red for GOs overrepresented and blue for GOs underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs</label>
+        <label class="jso">Legend: Colored nodes represent significant results: red for GOs overrepresented and blue for GOs underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs</label>
         <br>
-        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+        <label class="jso">You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
             <font-awesome icon="arrows"></font-awesome>
         </label>
         <br>

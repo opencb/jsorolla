@@ -1,4 +1,4 @@
-<polymer-element name="jso-prediction" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-prediction" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <style>
             :host {
@@ -39,11 +39,11 @@
             /*}*/
 
         </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 Class prediction
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Class%20prediction">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -51,65 +51,65 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">A leukemia data example</div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="data_train_leukemia.txt" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">A leukemia data example</div>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="data_train_leukemia.txt" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
 
 
-            <div class="formbox">
-                <div class="formtitle">Select train data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select train data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-ok="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
                     <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" on-main-select="{{loadedMainSelect}}" childrenDisplay="false"></jso-class-viewer>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select test data (Optional)</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select test data (Optional)</div>
+                <div class="jso-formcontent">
                     Test data (expression matrix)
-                    <jso-project-browser-window id="testInputFile" studies="{{studies}}"
+                    <jso-opencga-browser-window id="testInputFile" studies="{{studies}}"
                                                 selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Algorithms</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Algorithms</div>
+                <div class="jso-formcontent">
                     <div id="algorithmsDiv" vertical layout>
-                        <label class="control">
-                            <input name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked">
+                        <label class="jso-control">
+                            <input class="jso"name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked">
                             <span>SVM</span></label>
-                        <label class="control">
-                            <input name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> <span>KNN </span></label>
-                        <label class="control">
+                        <label class="jso-control">
+                            <input class="jso"name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> <span>KNN </span></label>
+                        <label class="jso-control">
 
-                            <input name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true">
+                            <input class="jso"name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true">
                             <span>Random forest</span></label>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Error estimation</div>
-                <div class="formcontent" vertical layout>
-                    <label>Validations</label>
-                    <label class="control">
-                        <input id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Error estimation</div>
+                <div class="jso-formcontent" vertical layout>
+                    <label class="jso">Validations</label>
+                    <label class="jso-control">
+                        <input class="jso"id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo"
                                on-click="{{errorStimationClick}}"><span>Leave-one-out</span></label>
-                    <label class="control">
-                        <input id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold"
+                    <label class="jso-control">
+                        <input class="jso"id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold"
                                on-click="{{errorStimationClick}}" checked="checked"><span>KFold</span></label>
 
                     <div id="kfoldProp">
-                        <label>repeats</label>
+                        <label class="jso">repeats</label>
 
                         <div class="select">
                             <select name="repeats" id="repeats" class="fc-combobox" type="text" value="10">
@@ -123,7 +123,7 @@
                             </select>
                         </div>
                         <br>
-                        <label>folds</label>
+                        <label class="jso">folds</label>
 
                         <div class="select">
                             <select name="folds" id="folds" class="fc-combobox" type="text" value="5">
@@ -139,42 +139,41 @@
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Gene subset selection</div>
-                <div class="formcontent">
-                    <label>Subset selection method</label><br>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Gene subset selection</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Subset selection method</label><br>
 
                     <div id="featureSelectionDiv" vertical layout>
-                        <label class="control">
-                            <input id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio"
+                        <label class="jso-control">
+                            <input class="jso"id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio"
                                    value="cfs"><span>Correlation-based
                         Feature Selection (CFS)</span></label>
-                        <label class="control">
-                            <input id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio"
+                        <label class="jso-control">
+                            <input class="jso"id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio"
                                    value="pca"><span>Principal
                         Component Analysis (PCA)</span></label>
-                        <label class="control">
-                            <input id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio"
+                        <label class="jso-control">
+                            <input class="jso"id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio"
                                    value="none" checked="checked"><span> None</span></label>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -184,7 +183,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "class-prediction";
                 this.description = "Job description";
             },
@@ -266,9 +264,9 @@
                 this.random_forest = this.$.random_forest.checked;
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
                     description: this.description,
                     dataset: this.$.inputFile.selectedFile.id,
@@ -319,7 +317,7 @@
                 this.jobName = "A leukemia data example";
                 this.description = "A leukemia train dataset";
                 this.newFolderName = "pred_" + Math.floor((Math.random() * 100) + 1);
-                this.$.inputFile.selectedFile = {
+                this.$.inputFile.setSelectedFile({
                     id: "example_data_train_leukemia.txt",
                     path: "data_train_leukemia.txt",
                     type: "FILE"

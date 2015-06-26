@@ -37,7 +37,7 @@ Region.prototype = {
         if (_.isString(obj)) {
             return this.parse(obj);
         }
-        this.chromosome = obj.chromosome || this.chromosome;
+        this.chromosome = this._checkChromosomeAlias(obj) || this.chromosome;
 
         if (typeof obj.position !== 'undefined') {
             obj.start = parseInt(obj.position);
@@ -81,13 +81,13 @@ Region.prototype = {
 
         var withoutBrackets = str;
         if (pattern2.test(str)) {
-            withoutBrackets = str.slice(1, str.length-1);
+            withoutBrackets = str.slice(1, str.length - 1);
         }
 
         var regions = [];
         if (pattern.test(withoutBrackets)) {
             var splitRegions = withoutBrackets.split(",");
-            for ( var i = 0; i < splitRegions.length; i++) {
+            for (var i = 0; i < splitRegions.length; i++) {
                 regions.push(new Region(splitRegions[i]));
             }
         }
@@ -117,7 +117,17 @@ Region.prototype = {
             str = this.chromosome + ":" + this.start + "-" + this.end;
         }
         return str;
+    },
+
+    _checkChromosomeAlias: function (obj) {
+        for (var i = 0; i < Region.chromosomeAlias.length; i++) {
+            var alias = Region.chromosomeAlias[i];
+            if(alias in obj){
+                return obj[alias];
+            }
+        }
     }
 };
 
+Region.chromosomeAlias = ['chromosome','sequenceName'];
 

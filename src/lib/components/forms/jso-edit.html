@@ -1,4 +1,4 @@
-<polymer-element name="jso-edit" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-edit" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <style>
             /*:host {*/
@@ -73,30 +73,30 @@
 
         </style>
 
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 Attribute editor
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
 
             </div>
         </div>
         <br>
 
-        <div class="formbox">
-            <div class="formtitle">Select your data</div>
-            <div class="formcontent">
-                <jso-project-browser-window
+        <div class="jso-formbox">
+            <div class="jso-formtitle">Select your data</div>
+            <div class="jso-formcontent">
+                <jso-opencga-browser-window
                         id="inputFile"
                         studies="{{studies}}"
                         selectedStudy="{{selectedStudy}}"
                         selectionMode="file" ,
-                        bioformat="DATAMATRIX_EXPRESSION"
+                        bioformat="{{bioformats}}"
                         on-ok="{{handleBrowseSelect}}"
                         on-close="{{handleClose}}">
 
-                </jso-project-browser-window>
+                </jso-opencga-browser-window>
             </div>
         </div>
 
@@ -107,16 +107,16 @@
             </div>
         </div>
         <div hidden?="{{!onOk}}">
-            <div class="formbox">
-                <div class="formtitle">Edit attributes</div>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Edit attributes</div>
                 <div class="formcontent fit">
                     <jso-class-edit id="classEdit" contentFile="{{contentFile}}"></jso-class-edit>
                 </div>
             </div>
             <div horizontal layout end-justified style="margin-top: 10px;">
                 <div>{{messageSave}}</div>
-                <div class="button action" on-click="{{handleSave}}">Save attributes</div>
-                <div class="button action" on-click="{{resetChanges}}">Reset changes</div>
+                <div class="jso-btn jso-btn-shdw" on-click="{{handleSave}}">Save attributes</div>
+                <div class="jso-btn jso-btn-shdw" on-click="{{resetChanges}}">Reset changes</div>
             </div>
         </div>
     </template>

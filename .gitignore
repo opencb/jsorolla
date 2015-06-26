@@ -3,6 +3,7 @@ build/
 *node_modules/
 bower_components/
 grunt/
+bower_components/
 
 ## IntelliJ
 *.iml

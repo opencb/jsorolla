@@ -85,7 +85,7 @@
 var OpencgaManager = {
 //    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080/opencga/rest' : OPENCGA_HOST,
-    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v3' : OPENCGA_VERSION,
+    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v1' : OPENCGA_VERSION,
 
     users: {
         login: function (args) {
@@ -98,7 +98,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'users', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'users', 'modify');
+            return OpencgaManager._doRequest(args, 'users', 'update');
         },
         updateEmail: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'change-email');
@@ -125,7 +125,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'projects', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'projects', 'modify');
+            return OpencgaManager._doRequest(args, 'projects', 'update');
         },
         create: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'create');
@@ -146,7 +146,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'studies', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'studies', 'modify');
+            return OpencgaManager._doRequest(args, 'studies', 'update');
         },
         create: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'create');
@@ -157,8 +157,8 @@ var OpencgaManager = {
         analysis: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'analysis');
         },
-        job: function (args) {
-            return OpencgaManager._doRequest(args, 'studies', 'job');
+        jobs: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'jobs');
         }
     },
 
@@ -168,6 +168,12 @@ var OpencgaManager = {
         },
         fetch: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'fetch');
+        },
+        alignments: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'alignments');
+        },
+        variants: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'variants');
         },
         read: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
@@ -205,24 +211,65 @@ var OpencgaManager = {
         downloadExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download-example');
         },
-        modify: function (args) {
-            return OpencgaManager._doRequest(args, 'files', 'modify');
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'update');
         },
         download: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download');
         },
         upload: function (args) {
-            //chunked upload only
             return OpencgaManager._doRequest(args, 'files', 'upload');
+        },
+        upload2: function (args) {
+            /** Check if exists a file with the same name **/
+            OpencgaManager.files.search({
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: args.studyId,
+                    path: args.relativeFilePath
+                },
+                request: {
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            if (response.response[0].result.length == 0) {
+
+                                /** No file found with the same name -> start upload **/
+                                var url = OpencgaManager._url({
+                                    query: {
+                                        sid: args.sid
+                                    },
+                                    request: {}
+                                }, 'files', 'upload');
+                                args.url = url;
+                                OpencgaManager._uploadFile(args);
+
+
+                            } else {
+                                args.error('File already exists');
+                            }
+                        } else {
+                            args.error(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        args.error('Server error, try again later.');
+                    }
+                }
+            });
         }
 
     },
     jobs: {
         create: function (args) {
-            return OpencgaManager._doRequest(args, 'job', 'create');
+            return OpencgaManager._doRequest(args, 'jobs', 'create');
         },
         delete: function (args) {
-            return OpencgaManager._doRequest(args, 'job', 'delete');
+            return OpencgaManager._doRequest(args, 'jobs', 'delete');
+        }
+    },
+    samples: {
+        search: function (args) {
+            return OpencgaManager._doRequest(args, 'samples', 'search');
         }
     },
     util: {
@@ -252,7 +299,7 @@ var OpencgaManager = {
             id = '/' + args.id;
         }
 
-        var url = host + '/' + api + id + '/' + action;
+        var url = host + '/webservices/rest/'+ version + '/' + api + id + '/' + action;
         url = Utils.addQueryParamtersToUrl(args.query, url);
         return url;
     },
@@ -289,7 +336,136 @@ var OpencgaManager = {
             return url;
         }
     },
+    _uploadFile: function (args) {
+        var url = args.url;
+        var inputFile = args.inputFile;
+        var fileName = args.fileName;
+        var userId = args.userId;
+        var studyId = args.studyId;
+        var relativeFilePath = args.relativeFilePath;
+        var fileFormat = args.fileFormat;
+        var bioFormat = args.bioFormat;
+        var description = args.description;
+        var callbackProgress = args.callbackProgress;
 
+        /**/
+        var resume = true;
+        var resumeInfo = {};
+        var chunkMap = {};
+        var chunkId = 0;
+        var blob = inputFile;
+        var BYTES_PER_CHUNK = 2 * 1024 * 1024;
+        var SIZE = blob.size;
+        var NUM_CHUNKS = Math.max(Math.ceil(SIZE / BYTES_PER_CHUNK), 1);
+        var start;
+        var end;
+
+
+        var getResumeInfo = function (formData) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, false);//false = sync call
+            xhr.send(formData);
+            var response = JSON.parse(xhr.responseText);
+            return response.response[0];
+        };
+        var checkChunk = function (id, size, resumeInfo) {
+            if (typeof resumeInfo[id] === 'undefined') {
+                return false;
+            } else if (resumeInfo[id].size != size /*|| resumeInfo[id].hash != hash*/) {
+                return false;
+            }
+            return true;
+        };
+        var processChunk = function (c) {
+            var chunkBlob = blob.slice(c.start, c.end);
+
+            if (checkChunk(c.id, chunkBlob.size, resumeInfo) == false) {
+                var formData = new FormData();
+                formData.append('chunk_content', chunkBlob);
+                formData.append('chunk_id', c.id);
+                formData.append('chunk_size', chunkBlob.size);
+                /*formData.append('chunk_hash', hash);*/
+                formData.append("filename", fileName);
+                formData.append('userId', userId);
+                formData.append('studyId', studyId);
+                formData.append('relativeFilePath', relativeFilePath);
+                /*formData.append('chunk_gzip', );*/
+                if (c.last) {
+                    formData.append("last_chunk", true);
+                    formData.append("total_size", SIZE);
+                    formData.append("fileFormat", fileFormat);
+                    formData.append("bioFormat", bioFormat);
+                    formData.append("description", description);
+                }
+                uploadChunk(formData, c, function (chunkResponse) {
+                    callbackProgress(c, NUM_CHUNKS, chunkResponse);
+                    if (!c.last) {
+                        processChunk(chunkMap[(c.id + 1)]);
+                    } else {
+
+                    }
+                });
+            } else {
+                callbackProgress(c, NUM_CHUNKS);
+                if (!c.last) {
+                    processChunk(chunkMap[(c.id + 1)]);
+                } else {
+
+                }
+            }
+
+        };
+        var uploadChunk = function (formData, chunk, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.onload = function (e) {
+                chunk.done = true;
+                console.log("chunk done");
+                callback(JSON.parse(xhr.responseText));
+            };
+            xhr.send(formData);
+        };
+
+        /**/
+        /**/
+
+        if (resume) {
+            var resumeFormData = new FormData();
+            resumeFormData.append('resume_upload', resume);
+            resumeFormData.append('filename', fileName);
+            resumeFormData.append('userId', userId);
+            resumeFormData.append('studyId', studyId);
+            resumeFormData.append('relativeFilePath', relativeFilePath);
+            resumeInfo = getResumeInfo(resumeFormData);
+        }
+
+        start = 0;
+        end = BYTES_PER_CHUNK;
+        while (start < SIZE) {
+            var last = false;
+            if (chunkId == (NUM_CHUNKS - 1)) {
+                last = true;
+            }
+            chunkMap[chunkId] = {
+                id: chunkId,
+                start: start,
+                end: end,
+                done: false,
+                last: last
+            };
+            start = end;
+            end = start + BYTES_PER_CHUNK;
+            chunkId++;
+        }
+        processChunk(chunkMap[0]);
+
+    },
+
+
+    /**/
+    /**/
+    /**/
+    /**/
     /**/
     /**/
     /**/

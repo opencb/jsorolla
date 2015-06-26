@@ -1,0 +1,150 @@
+<dom-module id="jso-opencga-profile">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            padding: 30px 100px;
+
+            left: 0;
+            right: 0;
+            margin: 0px auto 0px auto;
+
+            width: 500px;
+            transition: all 0.2s;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+        }
+
+        .icon {
+            font-size: 50px;
+            color: var(--dark-primary-color);
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        #formEmail {
+            margin-top: 40px;;
+        }
+    </style>
+    <template>
+        <div class="title">
+            <div>
+                User profile
+            </div>
+            <div class="icon">
+                <i class="fa fa-user"></i>
+            </div>
+        </div>
+        <form id="formPassword">
+            <label class="jso">Old password</label>
+            <input class="jso" type="password" value="{{oldpassword::input}}" required pattern="[a-zA-Z0-9]+">
+            <br>
+            <label class="jso">New password</label>
+            <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
+            <label class="jso">Check password</label>
+            <input class="jso" type="password" value="{{passwordCheck::input}}" required pattern="[a-zA-Z0-9]+">
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleChangePasswordForm">Change password</div>
+        </form>
+
+        <form id="formEmail">
+            <label class="jso">New e-mail</label>
+            <input class="jso" type="email" value="{{email::input}}" required>
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleChangeEmailForm">Change e-mail</div>
+        </form>
+
+        <div class="message">{{message}}</div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-profile",
+        properties: {
+            email: {
+                type: String,
+                value: ''
+            },
+            oldpassword: {
+                type: String,
+                value: ''
+            },
+            password: {
+                type: String,
+                value: ''
+            },
+            passwordCheck: {
+                type: String,
+                value: ''
+            },
+            message: {
+                type: String,
+                value: ''
+            }
+        },
+        handleChangePasswordForm: function (e) {
+            var me = this;
+            this.message = '';
+
+            if (this.$.formPassword.checkValidity() && (this.password === this.passwordCheck)) {
+                OpencgaManager.users.updatePassword({
+                    id: Cookies('bioinfo_user'),
+                    query: {
+                        password: CryptoJS.SHA1(this.oldpassword).toString(),
+                        npassword: CryptoJS.SHA1(this.password).toString(),
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.message = 'Password updated';
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            }
+        },
+        handleChangeEmailForm: function (e) {
+            var me = this;
+            this.message = '';
+
+            if (this.$.formEmail.checkValidity()) {
+                OpencgaManager.users.updateEmail({
+                    id: Cookies('bioinfo_user'),
+                    query: {
+                        nemail: this.email,
+                        sid: Cookies('bioinfo_sid')
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.message = 'E-mail updated';
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>

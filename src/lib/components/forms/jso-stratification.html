@@ -1,4 +1,4 @@
-<polymer-element name="jso-stratification" attributes="userData selectedOption selectedStudy studies">
+<dom-module id="jso-stratification" attributes="userData selectedOption selectedStudy studies">
     <template>
         <style>
             :host {
@@ -48,7 +48,7 @@
                 background: #dddddd;
             }
         </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 Genotype stratification
             </div>
@@ -57,50 +57,49 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Load example 1</div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">Load example 1</div>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}" bioformat="OTHER_GENOTYPE"></jso-project-browser-window>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}" bioformat="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select options</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select options</div>
+                <div class="jso-formcontent">
                     <div id="optionsDiv">
-                        <input name="ibs_test" id="ibs_test" class="fc-checkbox" type="checkbox" value="true">Check if there are group differences in this metric with respect to a
+                        <input class="jso"name="ibs_test" id="ibs_test" class="fc-checkbox" type="checkbox" value="true">Check if there are group differences in this metric with respect to a
                         binary
                         phenotype<br>
-                        <label>Pairwise population concordance (PPC)</label><input name="ppc" id="ppc" class="fc-decimal fc-text" type="text" value="{{ppc}}"><br>
-                        <label>Maximum cluster size (enter 0 to not apply)</label><input name="mc" id="mc" class="fc-int fc-text" type="text" value="{{mc}}">
+                        <label class="jso">Pairwise population concordance (PPC)</label><input class="jso"name="ppc" id="ppc" class="fc-decimal fc-text" type="text" value="{{ppc}}"><br>
+                        <label class="jso">Maximum cluster size (enter 0 to not apply)</label><input class="jso"name="mc" id="mc" class="fc-int fc-text" type="text" value="{{mc}}">
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                    <jso-opencga-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                                                selectionMode="folder" showBrowser="false"></jso-opencga-browser-window>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
 <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">                     <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">                     <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>        </form>
@@ -109,7 +108,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "stratification";
                 this.description = "Job description..."
                 this.ppc = 0.0001;
@@ -132,9 +130,9 @@
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
                     description: this.description,
                     "zip-file": this.$.inputFile.selectedFile.id,

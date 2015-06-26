@@ -1,0 +1,138 @@
+<dom-module id="jso-opencga-login">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            padding: 30px 100px;
+
+            left: 0;
+            right: 0;
+            margin: 0px auto 0px auto;
+
+            width: 500px;
+            transition: all 0.2s;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+        }
+
+        .icon {
+            font-size: 50px;
+            color: var(--dark-primary-color);
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        .shortcut{
+            text-align: right;
+            cursor: pointer;
+            color: var(--dark-primary-color);
+        }
+
+        .shortcut:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <template>
+        <div class="title">
+            <div>
+                Sign in
+            </div>
+            <div class="icon">
+                <i class="fa fa-sign-in"></i>
+            </div>
+        </div>
+        <form id="form" vertical layout on-keypress="handleFormKey">
+            <label class="jso">User</label>
+            <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
+
+            <div class="shortcut" on-click="handleSignup">Create new user...</div>
+            <br>
+            <label class="jso">Password</label>
+            <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
+
+            <div class="shortcut" on-click="handleRemember">Remember password...</div>
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Log in</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+        is: "jso-opencga-login",
+        properties: {
+            user: {
+                type: String,
+                value: ''
+            },
+            password: {
+                type: String,
+                value: ''
+            },
+            message: {
+                type: String,
+                value: ''
+            }
+        },
+        handleFormKey: function (e) {
+            if (e.which == 13) {
+                this.handleForm();
+            }
+        },
+        handleRemember: function (e) {
+            this.fire("remember", {});
+        },
+        handleSignup: function (e) {
+            this.fire("signup", {});
+        },
+        handleForm: function (e) {
+            this.message = '';
+            if (this.$.form.checkValidity()) {
+                this._login();
+            }
+        },
+        _login: function () {
+            var me = this;
+            console.log(this.user)
+            console.log(this.password)
+
+            OpencgaManager.users.login({
+                id: this.user,
+                query: {
+                    password: CryptoJS.SHA1(this.password).toString()
+                },
+                request: {
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                            Cookies.set('bioinfo_user', response.response[0].result[0].userId);
+                            me.fire('login', {status: true});
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                            //Delete all cookies
+                            Cookies.expire('bioinfo_sid');
+                            Cookies.expire('bioinfo_user');
+                        }
+                        me.user = null;
+                        me.password = null;
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            });
+        }
+    });
+</script>

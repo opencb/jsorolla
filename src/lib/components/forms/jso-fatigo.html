@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatigo" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+<dom-module id="jso-fatigo" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <style>
             :host {
@@ -65,11 +65,11 @@
                 width: 150px;
             }
         </style>
-        <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
+        <div class="jso-tooltitle" hidden?="{{hideTitle == 'true'}}">
             <div flex>
                 Fatigo
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Single%20Enrichment">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -77,42 +77,42 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1"
                          style="width:150px;">motor vs apoptosis
                     </div>
-                    <div class="button action" on-click="{{handleDownloadFile}}"data-example="example.zip"  style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile"data-example="example.zip"  style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Define your comparison</div>
-                <div class="formcontent">
-                    <label class="control">
-                        <input type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Define your comparison</div>
+                <div class="jso-formcontent">
+                    <label class="jso-control">
+                        <input class="jso"type="radio" name="comparisonRadio" value="list2list" on-click="{{comparisonChange}}"
                                checked>
                         <span>Id list vs Id list</span>
                     </label>
-                    <label class="control">
-                        <input type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}"
+                    <label class="jso-control">
+                        <input class="jso"type="radio" name="comparisonRadio" value="list2genome" on-click="{{comparisonChange}}"
                                 >
                         <span>Id List vs Rest of genome</span>
                     </label>
-                    <label class="control">
-                        <input type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">
+                    <label class="jso-control">
+                        <input class="jso"type="radio" name="comparisonRadio" value="list2rest" on-click="{{comparisonChange}}">
                         <span>Id List vs Rest of ids contained in your annotations (complementary list)</span>
                     </label>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window
                             id="inputFile"
                             studies="{{studies}}"
                             selectedStudy="{{selectedStudy}}"
@@ -121,28 +121,28 @@
                             on-file-select="{{handleFileSelect}}"
                             bioformat="IDLIST,IDLIST_RANKED"
                             networkViewer="{{networkViewer}}"
-                            ></jso-project-browser-window>
+                            ></jso-opencga-browser-window>
                 </div>
             </div>
 
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Select your data(List 2)</div>-->
-            <!--<div class="formcontent">-->
+            <!--<div class="jso-formbox">-->
+            <!--<div class="jso-formtitle">Select your data(List 2)</div>-->
+            <!--<div class="jso-formcontent">-->
             <!---->
             <!--</div>-->
             <!--</div>-->
-            <div class="formbox">
-                <div class="formtitle">List 2</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">List 2</div>
+                <div class="jso-formcontent">
                     <div id="option1">
-                        <jso-project-browser-window id="inputFile2" studies="{{studies}}"
+                        <jso-opencga-browser-window id="inputFile2" studies="{{studies}}"
                                                     selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file"
                                                     on-file-select="{{handleFileSelect}}"
                                                     allowTextArea="true"
                                                     bioformat="IDLIST,IDLIST_RANKED"
                                                     networkViewer="{{networkViewer}}"
-                                ></jso-project-browser-window>
+                                ></jso-opencga-browser-window>
                     </div>
                     <div id="option2" hidden>
                         <span>Rest of the genome</span>
@@ -153,10 +153,10 @@
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Options</div>
-                <div id="options" class="formcontent" vertical layout>
-                    <label>Fisher exact test</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Options</div>
+                <div id="options" class="jso-formcontent" vertical layout>
+                    <label class="jso">Fisher exact test</label>
 
                     <div class="select" style="width: 200px">
                         <select name="fisher" id="fisher" class="fc-combobox" type="text" value="" >
@@ -172,7 +172,7 @@
                             </option>
                         </select>
                     </div>
-                    <label>Remove duplicates</label>
+                    <label class="jso">Remove duplicates</label>
 
                     <div class="select" style="width: 200px">
                         <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
@@ -192,9 +192,9 @@
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Databases</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Databases</div>
+                <div class="jso-formcontent">
                     <div id="databases">
                         <div class="select">
                             <select name="species" id="species" class="fc-combobox" type="text" value="none"
@@ -232,12 +232,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_bp" id="go_bp" type="checkbox" value="gobp">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_bp" id="go_bp" type="checkbox" value="gobp">
                                     <span>GO biological process</span>
                                 </label>
 
-                                <div id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show
+                                <div id="bpOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{bpOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -246,12 +246,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_mf" id="go_mf" type="checkbox" value="gomf">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_mf" id="go_mf" type="checkbox" value="gomf">
                                     <span>GO molecular function</span>
                                 </label>
 
-                                <div id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show
+                                <div id="mfOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{mfOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -259,12 +259,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_cc" id="go_cc" type="checkbox" value="gocc">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_cc" id="go_cc" type="checkbox" value="gocc">
                                     <span>GO cellular component</span>
                                 </label>
 
-                                <div id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show
+                                <div id="ccOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{ccOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -272,13 +272,13 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_slim" id="go_slim" type="checkbox" value="go-slim">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_slim" id="go_slim" type="checkbox" value="go-slim">
                                     <span>GOSlim GOA</span>
                                 </label>
 
 
-                                <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show
+                                <div id="go_slimOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{slimOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -287,12 +287,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="interpro" id="interpro" type="checkbox" value="interpro">
+                                <label class="jso-control">
+                                    <input class="jso"name="interpro" id="interpro" type="checkbox" value="interpro">
                                     <span>Interpro</span>
                                 </label>
 
-                                <div id="interproOptionsButton" class="button action"
+                                <div id="interproOptionsButton" class="jso-btn jso-btn-shdw"
                                      on-click="{{interproOptionsFunction}}">Show options...
                                 </div>
                             </div>
@@ -301,12 +301,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="recon" id="recon" type="checkbox" value="recon">
+                                <label class="jso-control">
+                                    <input class="jso"name="recon" id="recon" type="checkbox" value="recon">
                                     <span>Genome-Scale Metabolic Network</span>
                                 </label>
 
-                                <div id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show
+                                <div id="reconOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{reconOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -319,39 +319,38 @@
                     </div>
                     <div id="your_annotations_div">
                         <div horizontal layout>
-                            <label class="control">
-                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
+                            <label class="jso-control">
+                                <input class="jso"name="your_annotations" id="your_annotations" type="checkbox" value="">
                                 <span>Your annotations</span>
 
                             </label>
                         </div>
                         <div style="margin-left: 30px">
-                            <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                            <jso-opencga-browser-window id="annotationsFile" studies="{{studies}}"
                                                         selectedStudy="{{selectedStudy}}"
                                                         selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                        bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
+                                                        bioformat="ANNOTATION_GENEVSANNOTATION"></jso-opencga-browser-window>
                         </div>
                     </div>
                 </div>
 
             </div>
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
                     <br>
-                    <label>Job name</label>
-                    <input type="text" id="jobName" value="{{jobName}}" required>
-                    <label>Description</label>
+                    <label class="jso">Job name</label>
+                    <input class="jso"type="text" id="jobName" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -362,7 +361,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "fatigo";
                 this.description = "Description";
 
@@ -456,11 +454,11 @@
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
                     name: this.jobName,
                     description: this.description,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
 //                    list1: "",
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
@@ -586,7 +584,7 @@
                 this.go_bp = "gobp";
                 this.go_bp_propagation = "propagate";
                 this.go_bp_min_num_genes = 5;
-                this.$.inputFile.selectedFile = {id: "example_example.motor", path: "example.motor", type: "FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_example.motor", path: "example.motor", type: "FILE"});
                 this.$.inputFile2.selectedFile = {id: "example_example.apoptosis", path: "example.apoptosis"};
                 this.annotations = "none";
                 this.fisher = "two-tailed";

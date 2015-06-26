@@ -1,4 +1,4 @@
-<polymer-element name="jso-rnaseq-norm" attributes="userData selectedOption selectedStudy studies">
+<dom-module id="jso-rnaseq-norm" attributes="userData selectedOption selectedStudy studies">
     <template>
         <style>
             :host {
@@ -36,11 +36,11 @@
 
 
         </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 RNA Seq Normalize
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/RNA-Seq-Normalization">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -48,70 +48,69 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">
                         Normalization example
                     </div>
                     <!--<a href="http://test.babelomics.org/opencga/rest/files/download-example?toolName=rnaseq-norm&fileName=example.zip" >-->
-                        <!--&lt;!&ndash;<font-awesome icon="download"></font-awesome>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<i class="fa fa-download"></i>&ndash;&gt;-->
                         <!--hola-->
                     <!--</a>-->
                     <!--<br>-->
 <!--<a download="w3logo.txt" href="http://test.babelomics.org/opencga/rest/files/download-example?toolName=rnaseq-norm&fileName=download.zip" >xx</a>-->
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="example.zip" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="example.zip" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select gene length file</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="glFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_RANKED"></jso-project-browser-window>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select gene length file</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window id="glFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="IDLIST_RANKED"></jso-opencga-browser-window>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Normalization method</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Normalization method</div>
+                <div class="jso-formcontent">
                     <div id="methodDiv" vertical layout>
-                        <label class="control">
-                            <input id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">
+                        <label class="jso-control">
+                            <input class="jso"id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">
                             <span>Choose automatically the normalization method</span>
                         </label>
-                        <label class="control">
-                            <input id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}"><span>Choose manually the normalization method</span></label>
+                        <label class="jso-control">
+                            <input class="jso"id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}"><span>Choose manually the normalization method</span></label>
                         <label class="control" style="margin-left: 20px">
-                            <input id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}"><span>TMM</span></label>
+                            <input class="jso"id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}"><span>TMM</span></label>
                         <label class="control" style="margin-left: 20px">
-                            <input id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}"><span>RPKM</span></label>
+                            <input class="jso"id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}"><span>RPKM</span></label>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -121,7 +120,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "rnaseq-norm";
                 this.description = "Job info..."
             },
@@ -141,15 +139,15 @@
             },
             launchJob: function () {
                 var me = this;
-                var utils = new FormUtils(this);
-                if (!utils.basicValidationForm()) {
+
+                if (!Utils.basicValidationForm()) {
                     return;
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
                     description: this.description,
                     "datafile": this.$.inputFile.selectedFile.id,
@@ -186,8 +184,8 @@
             loadExample1: function (e) {
                 this.jobName = "rna_norm";
                 this.description = "just_an_rna_example";
-                this.$.inputFile.selectedFile = {id: "example_normalization.txt", path: "normalization.txt", type: "FILE"};
-                this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_normalization.txt", path: "normalization.txt", type: "FILE"});
+                this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"});
                 this.$.chooseMan.checked = true;
                 this.chooseClicked();
                 this.$.tmm.checked = true;

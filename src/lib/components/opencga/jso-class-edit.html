@@ -1,4 +1,4 @@
-<polymer-element name="jso-class-edit" attributes="contentFile">
+<dom-module id="jso-class-edit" attributes="contentFile">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -146,11 +146,11 @@
                 <div class="customPager" horizontal layout>
                     <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}
                     </div>
-                    <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                    <div class="jso-btn jso-btn-shdw" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
                         &lt;</div>
                     <div class="text"> {{table.page}} of {{table.lastPage}}
                     </div>
-                    <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                    <div class="jso-btn jso-btn-shdw" disabled?="{{table.page>=table.lastPage}}"
                          on-click="{{moveToNextPage}}">&gt;
                     </div>
                 </div>

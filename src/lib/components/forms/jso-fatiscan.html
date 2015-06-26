@@ -1,4 +1,4 @@
-<polymer-element name="jso-fatiscan" attributes="userData selectedOption selectedStudy studies args">
+<dom-module id="jso-fatiscan" attributes="userData selectedOption selectedStudy studies args">
     <template>
         <style>
             :host {
@@ -56,11 +56,11 @@
                 width: 150px;
             }
         </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 Logistic Model
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Gene%20Set%20Enrichment">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -68,44 +68,44 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display: inline-block" on-click="{{loadExample1}}">Fluorouridine dataset</div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="fluorouridine.txt" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display: inline-block" on-click="loadExample1">Fluorouridine dataset</div>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="fluorouridine.txt" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
 
             <div>
-                <div class="formbox">
-                    <div class="formtitle">Select your data</div>
-                    <div class="formcontent">
-                        <jso-project-browser-window id="inputFile" studies="{{studies}}"
+                <div class="jso-formbox">
+                    <div class="jso-formtitle">Select your data</div>
+                    <div class="jso-formcontent">
+                        <jso-opencga-browser-window id="inputFile" studies="{{studies}}"
                                                     selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file"
                                                     allowTextArea="false"
                                                     on-file-select="{{handleFileSelect}}"
-                                                    bioformat="IDLIST_RANKED"></jso-project-browser-window>
+                                                    bioformat="IDLIST_RANKED"></jso-opencga-browser-window>
                         <br>
 
-                        <label class="control">
-                            <input name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">
+                        <label class="jso-control">
+                            <input class="jso"name="remove_duplicates" id="remove_duplicates" class="fc-checkbox" type="checkbox" value="true">
                             <span>Remove duplicates</span>
                         </label>
                     </div>
                 </div>
             </div>
-            <!--<div class="formbox">-->
-                <!--<div class="formtitle">Method</div>-->
-                <!--<div class="formcontent">-->
+            <!--<div class="jso-formbox">-->
+                <!--<div class="jso-formtitle">Method</div>-->
+                <!--<div class="jso-formcontent">-->
                     <!--Logistic model method used.-->
                 <!--</div>-->
             <!--</div>-->
-            <div class="formbox">
-                <div class="formtitle">Databases</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Databases</div>
+                <div class="jso-formcontent">
                     <div id="databases">
                         <div class="select">
                             <select name="species" id="species" class="fc-combobox" type="text" value="none"
@@ -145,12 +145,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_bp" id="go_bp" type="checkbox" value="gobp">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_bp" id="go_bp" type="checkbox" value="gobp">
                                     <span>GO biological process</span>
                                 </label>
 
-                                <div id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show
+                                <div id="bpOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{bpOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -159,12 +159,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_mf" id="go_mf" type="checkbox" value="gomf">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_mf" id="go_mf" type="checkbox" value="gomf">
                                     <span>GO molecular function</span>
                                 </label>
 
-                                <div id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show
+                                <div id="mfOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{mfOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -172,12 +172,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_cc" id="go_cc" type="checkbox" value="gocc">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_cc" id="go_cc" type="checkbox" value="gocc">
                                     <span>GO cellular component</span>
                                 </label>
 
-                                <div id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show
+                                <div id="ccOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{ccOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -185,13 +185,13 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="go_slim" id="go_slim" type="checkbox" value="go-slim">
+                                <label class="jso-control">
+                                    <input class="jso"name="go_slim" id="go_slim" type="checkbox" value="go-slim">
                                     <span>GOSlim GOA</span>
                                 </label>
 
 
-                                <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show
+                                <div id="go_slimOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{slimOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -200,12 +200,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="interpro" id="interpro" type="checkbox" value="interpro">
+                                <label class="jso-control">
+                                    <input class="jso"name="interpro" id="interpro" type="checkbox" value="interpro">
                                     <span>Interpro</span>
                                 </label>
 
-                                <div id="interproOptionsButton" class="button action"
+                                <div id="interproOptionsButton" class="jso-btn jso-btn-shdw"
                                      on-click="{{interproOptionsFunction}}">Show options...
                                 </div>
                             </div>
@@ -214,12 +214,12 @@
                             <br>
 
                             <div horizontal layout>
-                                <label class="control">
-                                    <input name="recon" id="recon" type="checkbox" value="recon">
+                                <label class="jso-control">
+                                    <input class="jso"name="recon" id="recon" type="checkbox" value="recon">
                                     <span>Genome-Scale Metabolic Network</span>
                                 </label>
 
-                                <div id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show
+                                <div id="reconOptionsButton" class="jso-btn jso-btn-shdw" on-click="{{reconOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -230,36 +230,35 @@
 
                         </div>
                         <div horizontal layout>
-                            <label class="control">
-                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
+                            <label class="jso-control">
+                                <input class="jso"name="your_annotations" id="your_annotations" type="checkbox" value="">
                                 <span>Your annotations</span>
 
                             </label>
                         </div>
                     </div>
                     <div style="margin-left: 30px">
-                        <jso-project-browser-window id="annotationsFile" studies="{{studies}}"
+                        <jso-opencga-browser-window id="annotationsFile" studies="{{studies}}"
                                                     selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                    bioformat="ANNOTATION_GENEVSANNOTATION"></jso-project-browser-window>
+                                                    bioformat="ANNOTATION_GENEVSANNOTATION"></jso-opencga-browser-window>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -269,7 +268,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "fatiscan";
                 this.description = "Job description...";
                 this.method = "logistic"; // logistic model
@@ -289,11 +287,11 @@
                 Utils.argsParser(this, this.args);
                 /** temporal hack **/
                 if (this.$.inputFile.selectedFile === undefined)
-                    this.$.inputFile.selectedFile = this.args.ranked_list;
+                    this.$.inputFile.setSelectedFile =this.args.ranked_list;
             },
             launchJob: function () {
                 var me = this;
-                var utils = new FormUtils(this);
+
 //                if (!utils.basicValidationForm()) {
 //                    return;
 //                }
@@ -307,12 +305,12 @@
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
                     name: this.jobName,
                     description: this.description,
 //                    "ranked-list": this.$.inputFile.selectedFile.id,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     method: this.method,
                     duplicates: this.$.remove_duplicates.checked,
                     species: this.$.species.value
@@ -403,7 +401,7 @@
             loadExample1: function (e) {
                 this.jobName = "fluorouridine_dataset";
                 this.description = "fluorouridine_dataset";
-                this.$.inputFile.selectedFile = {
+                this.$.inputFile.setSelectedFile({
                     id: "example_fluorouridine.txt",
                     path: "fluorouridine.txt",
                     type: "FILE"

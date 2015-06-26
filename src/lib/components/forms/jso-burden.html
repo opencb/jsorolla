@@ -1,4 +1,4 @@
-<polymer-element name="jso-burden" attributes="userData selectedOption selectedStudy studies">
+<dom-module id="jso-burden" attributes="userData selectedOption selectedStudy studies">
     <template>
         <style>
             :host {
@@ -39,11 +39,11 @@
             /*}*/
 
         </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 Burden
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Burden%20test">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -52,31 +52,31 @@
         </div>
         <form id="form">
 
-            <!--<div class="formbox">-->
-            <!--<div class="formtitle">Examples</div>-->
-            <!--<div class="formcontent">-->
-            <!--<div class="button action" style="display:inline-block" on-click="{{loadExample1}}">TCGA BRCA example</div>-->
+            <!--<div class="jso-formbox">-->
+            <!--<div class="jso-formtitle">Examples</div>-->
+            <!--<div class="jso-formcontent">-->
+            <!--<div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">TCGA BRCA example</div>-->
             <!--</div>-->
             <!--</div>-->
 
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
                     VCF
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="VARIANT"></jso-project-browser-window>
+                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="VARIANT"></jso-opencga-browser-window>
                 </div>
-                <div class="formcontent">
+                <div class="jso-formcontent">
                     Pedigree
-                    <jso-project-browser-window id="pedData" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="OTHER_PED"></jso-project-browser-window>
+                    <jso-opencga-browser-window id="pedData" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="OTHER_PED"></jso-opencga-browser-window>
                 </div>
 
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Regions</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Regions</div>
+                <div class="jso-formcontent">
                     <div id="methodDiv">
                         Human genome version:
                         <div class="select" style="margin-bottom: 2px">
@@ -95,13 +95,13 @@
                             </select>
 
                         </div>
-                        <div hidden id="customRegionDiv"><input type="text" id="customQuery" style="width: 180px;" placeholder="17:41196312-41277500"></div>
+                        <div hidden id="customRegionDiv"><input class="jso"type="text" id="customQuery" style="width: 180px;" placeholder="17:41196312-41277500"></div>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Statistical parameters</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Statistical parameters</div>
+                <div class="jso-formcontent">
                     <div id="methodDiv">
                         Rare allele frequency threshold:
                         <div class="select">
@@ -135,20 +135,19 @@
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -158,7 +157,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "burden";
                 this.description = "Job info..."
             },
@@ -183,9 +181,9 @@
                 ;
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
                     description: this.description,
                     vcf: this.$.inputFile.selectedFile.id,
@@ -228,7 +226,7 @@
 //            loadExample1: function (e) {
 //                this.jobName = "TCGA BRCA";
 //                this.description = "BRCA cancer set from TCGA";
-//                this.$.inputFile.selectedFile = {id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"};
+//                this.$.inputFile.setSelectedFile({id: "example_mini2.vcf", path: "mini2.vcf", type: "FILE"});
 //                this.$.gver.value = "hg19"
 //                this.$.estimator.value = "median"
 //                var exampleFolder = "tcga_brca_example"

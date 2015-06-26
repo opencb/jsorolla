@@ -1,0 +1,74 @@
+<link rel="import" href="jso-opencga-browser.html">
+
+<dom-module id="jso-opencga-browser-window">
+    <style>
+
+    </style>
+    <template>
+        <div class="jso-btn jso-btn-shdw" style="display:inline-block; margin-right: 4px" on-click="handleToggleBrowser">Select your data</div>
+        <label class="jso">{{selectedFile.path}}</label>
+        <i class="fa fa-close" style="margin-left: 8px" hidden$="{{hideSelectedFile}}" on-click="handleCancel"></i>
+        <jso-panel id="browserPanel" modal movable closable hidden>
+            <div class="header">Browse data</div>
+            <jso-opencga-browser
+                    id="browser"
+                    class="container"
+                    bioformats="{{bioformats}}"
+                    projects="{{projects}}"
+                    on-need-refresh="handleUserNeedRefresh"
+                    on-ok="handleOk"
+                    on-cancel="handleCancel"
+                    >
+            </jso-opencga-browser>
+        </jso-panel>
+    </template>
+    <script>
+        Polymer({
+            is: "jso-opencga-browser-window",
+            properties: {
+
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: function () {
+                        return []
+                    }
+                },
+                hideSelectedFile: {
+                    type: Boolean,
+                    value: true
+                }
+            },
+            hideSelectedFile: function () {
+
+            },
+            handleToggleBrowser: function () {
+                this.$.browserPanel.hidden = !this.$.browserPanel.hidden;
+            },
+            handleOk: function () {
+                this.selectedFile = this.$.browser.selectedFile;
+                this.$.browserPanel.hidden = true;
+                this.hideSelectedFile = false;
+
+            },
+            handleCancel: function () {
+//                this.$.browser.selectedFile
+                this.selectedFile = undefined;
+                this.hideSelectedFile = true;
+                this.$.browserPanel.hidden = true;
+            },
+            setSelectedFile: function(f){
+                this.selectedFile = f;
+            },
+            getSelectedFile: function(){
+                return this.selectedFile;
+            }
+        })
+    </script>
+</dom-module>

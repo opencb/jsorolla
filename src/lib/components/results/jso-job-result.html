@@ -1,4 +1,4 @@
-<polymer-element name="jso-job-result" attributes="jobItem selectedOption networkViewer">
+<dom-module id="jso-job-result" attributes="jobItem selectedOption networkViewer">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -151,10 +151,10 @@
                     You can also download the example file.
                     <br>
                     For detailed information you can download the log file:
-                    <div class="file"><label>Log output file:</label>
+                    <div class="file"><label class="jso">Log output file:</label>
                         <a href="{{logOutputFile}}" download="log_output.txt">log_output.txt</a>
                     </div>
-                    <div class="file"><label>Log error file:</label>
+                    <div class="file"><label class="jso">Log error file:</label>
                         <a href="{{logErrorFile}}" download="log_error.txt">log_error.txt</a>
                     </div>
                     If error persist, please contact babelomics crew at babelomics@cipf.es

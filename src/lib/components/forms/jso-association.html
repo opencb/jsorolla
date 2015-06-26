@@ -1,55 +1,42 @@
-<polymer-element name="jso-association" attributes="userData selectedOption selectedStudy studies">
+<dom-module id="jso-association">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+            z-index: 50000;
+            margin: 0px auto 0px auto;
+
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        input[type="text"]:disabled {
+            background: #dddddd;
+        }
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-            .title {
-                text-align: center;
-                font-size: 25px;
-                color: #666;
-            }
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-
-
-            .message {
-                margin-top: 20px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-
-            input[type="text"]:disabled {
-                background: #dddddd;
-            }
-        </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 Association analysis
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20SNP%20Association%20Analysis">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -57,69 +44,68 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">Association analysis: chi-square test</div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="association.zip" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">Association analysis: chi-square test</div>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="association.zip" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
 
 
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="OTHER_GENOTYPE"></jso-project-browser-window>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}"
+                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select the association test</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select the association test</div>
+                <div class="jso-formcontent">
                     <div id="testDiv" flex layout vertical>
-                        <label class="control">
-                            <input id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc"
+                        <label class="jso-control">
+                            <input class="jso"id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc"
                                    checked="checked">
                             <span>Chi-square case/control association test</span>
                         </label>
-                        <label class="control">
-                            <input id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher"><span>Fisher's exact
+                        <label class="jso-control">
+                            <input class="jso"id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher"><span>Fisher's exact
                         test (allelic association)</span></label>
-                        <label class="control">
-                            <input id="test_3" name="test" class="fc-radioitem" type="radio" value="linear"><span>Linear</span></label>
-                        <label class="control">
-                            <input id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic"><span>Logistic</span></label>
-                        <label class="control">
-                            <input id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt"><span>TDT (only for
+                        <label class="jso-control">
+                            <input class="jso"id="test_3" name="test" class="fc-radioitem" type="radio" value="linear"><span>Linear</span></label>
+                        <label class="jso-control">
+                            <input class="jso"id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic"><span>Logistic</span></label>
+                        <label class="jso-control">
+                            <input class="jso"id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt"><span>TDT (only for
                         family-based analysis)</span></label>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Minor allele frequency</div>
-                <div class="formcontent">
-                    <label>Select MAF value</label><input name="maf" id="maf" class="fc-int fc-text" type="text"
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Minor allele frequency</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Select MAF value</label><input class="jso"class="jso" name="maf" id="maf" class="fc-int fc-text" type="text"
                                                           value="{{maf}}" style="width:50px;" required>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
-                    <textarea value="{{description}}" required></textarea>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label>
+                    <input class="jso" type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
+                    <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -128,12 +114,54 @@
     </template>
     <script>
         Polymer({
+            is: "jso-association",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                selectedOption: {
+                    type: String
+                },
+                selectedStudy: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                studies: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                maf: {
+                    type: Number,
+                    value: 0.02
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "PED_MAP zipped",
+                            value: "OTHER_GENOTYPE"
+                        }
+                    ]
+                }
+            },
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "association";
-                this.list1UploadMsg = "Select file...";
-                this.description = "Job description..."
-                this.maf = 0.02;
             },
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
@@ -145,7 +173,6 @@
             },
             launchJob: function () {
                 var me = this;
-                var utils = new FormUtils(this);
                 if (!Utils.basicValidationForm(this)) {
                     return;
                 }
@@ -155,9 +182,9 @@
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
                     description: this.description,
                     "zip-file": this.$.inputFile.selectedFile.id,
@@ -188,7 +215,7 @@
             loadExample1: function (e) {
                 this.jobName = "Association analysis: chi-square test";
                 this.description = "description...";
-                this.$.inputFile.selectedFile = {id: "example_association.zip", path: "association.zip", type: "FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_association.zip", path: "association.zip", type: "FILE"});
                 this.maf = 0.02;
                 this.$.test_1.checked = true;
 //                var exampleFolder = "assoc_chi_square";
@@ -240,4 +267,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Network Viewer</title>
+
+    <!--Web Components-->
+    <script src="../../bower_components/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="jso-network-viewer.html">
+
+    <style>
+        html {
+            background-color: #435f7a;
+        }
+
+        html, body {
+            position: relative;
+            margin: 0px;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<jso-network-viewer hideBar="true" hideToolBar="true" hideEditionBar="true" hideStatusBar="true"></jso-network-viewer>
+
+<script>
+    var networkViewer;
+    window.addEventListener('polymer-ready', function () {
+        networkViewer = document.body.querySelector('jso-network-viewer');
+    });
+</script>
+
+</body>
+</html>

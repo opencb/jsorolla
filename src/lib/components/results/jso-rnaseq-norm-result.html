@@ -1,4 +1,4 @@
-<polymer-element name="jso-rnaseq-norm-result" attributes="jobItem">
+<dom-module id="jso-rnaseq-norm-result" attributes="jobItem">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -91,20 +91,20 @@
                     <div class="headerTitle">Input parameters</div>
                     <div class="data">
                         <div class="message" horizontal="" layout="">
-                            <label>Data file</label>
+                            <label class="jso">Data file</label>
 
                             <div class="messageValue">{{dataFile}}</div>
                         </div>
                         <template if="{{glFile!=''}}">
                             <div class="message" horizontal="" layout="">
-                                <label>Gene length file</label>
+                                <label class="jso">Gene length file</label>
 
                                 <div class="messageValue">{{glFile}}</div>
                             </div>
                         </template>
                         <template if="{{significativeResults == 'true'}}">
                             <div class="message" horizontal="" layout="">
-                                <label>Method</label>
+                                <label class="jso">Method</label>
 
 
                                 <div class="messageValue">{{method}}</div>
@@ -124,10 +124,10 @@
                             You can also download the example file.
                             <br>
                             For more detailed information you can download the log file:
-                            <div class="file"><label>Log output file:</label>
+                            <div class="file"><label class="jso">Log output file:</label>
                                 <a href="{{logOutputFile}}" target="_blank">log_output.txt</a>
                             </div>
-                            <div class="file"><label>Log error file:</label>
+                            <div class="file"><label class="jso">Log error file:</label>
                                 <a href="{{logErrorFile}}" target="_blank">log_error.txt</a>
                             </div>
                             If error persist, please contact babelomics crew at babelomics@cipf.es
@@ -160,7 +160,7 @@
                                     <img src="{{boxplot_afterNorm}}">
                                 </div>
                             </div>
-                            <div class="file"><label>File</label>
+                            <div class="file"><label class="jso">File</label>
                                 <a href="{{normalizedFileUrl}}" download="normalized_results.txt">normalized_results.txt</a>
                             </div>
                             <template if="{{loadingTable}}">

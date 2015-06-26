@@ -1,4 +1,4 @@
-<polymer-element name="jso-file-info" attributes="file">
+<dom-module id="jso-file-info" attributes="file">
     <template>
         <style>
             :host {
@@ -61,17 +61,17 @@
                 File info
             </div>
             <div class="item_info" flex vertical layout>
-                <label>Name:</label><span>{{file.name}}</span>
+                <label class="jso">Name:</label><span>{{file.name}}</span>
             </div>
             <!--<div class="item_info" flex vertical layout>-->
-                <!--<label>Format:</label><span>{{file.format}}</span>-->
+                <!--<label class="jso">Format:</label><span>{{file.format}}</span>-->
             <!--</div>-->
 
             <!--<div class="item_info" flex vertical layout>-->
-                <!--<label>Type:</label><span>{{file.type}}</span>-->
+                <!--<label class="jso">Type:</label><span>{{file.type}}</span>-->
             <!--</div>-->
             <div class="item_info" vertical layout>
-                <label>Bioformat:
+                <label class="jso">Bioformat:
                     <template if="{{file.type=='FILE'}}">
                         <font-awesome class="edit" icon="pencil" on-click="{{handleShowBioformat}}"></font-awesome>
                     </template>
@@ -82,11 +82,11 @@
                 <div id="showBioformat">
 
                     <jso-bioformat id="uploadBioformat"></jso-bioformat>
-                    <!--<div class="button action" style="width: 100px;margin-left: 10px;" on-click="{{handleModifyBioformat}}">Modify-->
+                    <!--<div class="jso-btn jso-btn-shdw" style="width: 100px;margin-left: 10px;" on-click="{{handleModifyBioformat}}">Modify-->
                     <!--</div>-->
                 </div>
                 <div horizontal layout end-justified>
-                    <div class="button action" style="width: 100px;margin-left: 10px;margin-right: 10px" on-click="{{handleModifyBioformat}}">Modify
+                    <div class="jso-btn jso-btn-shdw" style="width: 100px;margin-left: 10px;margin-right: 10px" on-click="{{handleModifyBioformat}}">Modify
                     </div>
                 </div>
                 <!--<div id="message">{{message}}</div>-->

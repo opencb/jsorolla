@@ -1,4 +1,4 @@
-<polymer-element name="jso-protein-viewer" attributes="nodes speciesSelection nodeSelection jobResult">
+<dom-module id="jso-protein-viewer" attributes="nodes speciesSelection nodeSelection jobResult">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -16,7 +16,7 @@
         <div id="networkWidget">
             <template if="{{speciesSelection == ''}}">
                 <div style="margin-bottom: 5px">
-                    <label>Species:</label> <div class="select">
+                    <label class="jso">Species:</label> <div class="select">
                         <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
                             <template repeat="{{spe in species}}">
                                 <option value="{{spe.value}}">
@@ -30,14 +30,14 @@
             <template if="{{nodeSelection == true}}">
 
                 <div style="margin-bottom: 5px" flex horizontal layout>
-                    <label>Select number of nodes in the top list of the differential expression result</label>
+                    <label class="jso">Select number of nodes in the top list of the differential expression result</label>
                     <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesTop}}">
                 </div>
                 <div style="margin-bottom: 5px" flex horizontal layout>
-                    <label>Select number of nodes in the bottom list of the differential expression result</label>
+                    <label class="jso">Select number of nodes in the bottom list of the differential expression result</label>
                     <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesBottom}}">
                 </div>
-                <div class="button action"
+                <div class="jso-btn jso-btn-shdw"
                      style="width: 110px; margin-top: 5px; margin-bottom: 5px; "
                      on-click="{{nodesChanged}}">Draw network
                 </div>
@@ -49,16 +49,16 @@
                 <div>
                     <input type="text" value="{{sessionName}}">
                 </div>
-                <div class="button action" style="margin-left:5px" on-click="{{handleSaveSessionToCellMaps}}">
+                <div class="jso-btn jso-btn-shdw" style="margin-left:5px" on-click="{{handleSaveSessionToCellMaps}}">
                     Save network as Cell Maps session
                 </div>
             </div>
             <div horizontal layout>
-                <label>
+                <label class="jso">
                     {{saveMessage}}
                 </label>
                 <template if="{{saveMessageOk}}">
-                    <div class="button action" on-click="{{handleOpenCellMapsSessionManager}}">
+                    <div class="jso-btn jso-btn-shdw" on-click="{{handleOpenCellMapsSessionManager}}">
                         Open Cell Maps session Manager
                     </div>
                 </template>
@@ -68,7 +68,7 @@
 
         <jso-network-viewer id="networkViewer" lite="true"></jso-network-viewer>
         </div>
-        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+        <label class="jso">You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
             <font-awesome icon="arrows"></font-awesome>
         </label>
 

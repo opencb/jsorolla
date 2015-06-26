@@ -99,7 +99,7 @@
             <div class="formbox">
                 <div class="formtitle">Examples</div>
                 <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}"
+                    <div class="button action" style="display:inline-block" on-click="loadExample1"
                          style="width:150px;">Example 1
                     </div>
                 </div>
@@ -179,7 +179,7 @@
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
                     <font-awesome icon="rocket"></font-awesome>
                     &nbsp; Launch job
                 </div>
@@ -219,11 +219,11 @@
 
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
                     name: this.jobName,
                     description: this.description,
-                    outdir: this.$.outdir.selectedFile.id
+                    outdir: this.$.outdir.getSelectedFile().id
                 };
 
                 if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
@@ -274,7 +274,7 @@
                 this.go_bp = "gobp";
                 this.go_bp_propagation = "propagate";
                 this.go_bp_min_num_genes = 5;
-                this.$.inputFile.selectedFile = {id: "example_example.motor", path: "example.motor", type: "FILE"};
+                this.$.inputFile.selectedFile = {id: "example_example.motor", path: "example.motor", type: "FILE"});
                 this.$.inputFile2.selectedFile = {id: "example_example.apoptosis", path: "example.apoptosis"};
                 this.annotations = "none";
                 this.go_bp_nannot_domain = "genome";

@@ -20,7 +20,7 @@
  */
 
 var CellBaseManager = {
-    host: (typeof CELLBASE_HOST === 'undefined') ? 'https://www.ebi.ac.uk/cellbase/webservices/rest' : CELLBASE_HOST,
+    host: (typeof CELLBASE_HOST === 'undefined') ? 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest' : CELLBASE_HOST,
     version: 'v3',
     get: function (args) {
         var success = args.success;
@@ -83,12 +83,12 @@ var CellBaseManager = {
             version: version
         };
 
-        var params = {
-            of: 'json'
-        };
+        //var params = {
+        //    of: 'json'
+        //};
 
         _.extend(config, args);
-        _.extend(config.params, params);
+        //_.extend(config.params, params);
 
         var query = '';
         if(typeof config.query !== 'undefined' && config.query != null){

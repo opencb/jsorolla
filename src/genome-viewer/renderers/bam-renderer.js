@@ -41,6 +41,7 @@ function BamRenderer(args) {
 BamRenderer.prototype.render = function (response, args) {
     var _this = this;
 
+    var sequenceDataAdapter = args.trackListPanel.getSequenceTrack().dataAdapter;
 
     //CHECK VISUALIZATON MODE
     if (_.isUndefined(response.params)) {
@@ -65,7 +66,7 @@ BamRenderer.prototype.render = function (response, args) {
     //Prevent browser context menu
     $(args.svgCanvasFeatures).contextmenu(function (e) {
         console.log("click derecho")
-        e.preventDefault();
+        //e.preventDefault();
     });
 
     console.time("BamRender " + response.params.resource);
@@ -169,23 +170,23 @@ BamRenderer.prototype.render = function (response, args) {
         $(dummyRect).qtip({
             content: " ",
             position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-            style: { width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'},
+            style: {width: true, classes: _this.toolTipfontClass + ' ui-tooltip-shadow'},
             show: {delay: 300},
             hide: {delay: 300}
         });
 
 
-//        args.trackSvgLayout.onMousePosition.addEventListener(function (sender, obj) {
-//            var pos = obj.mousePos - parseInt(chunk.start);
-//            //if(coverageList[pos]!=null){
-//            var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>' +
-//                '<span style="color:green">A</span>: <span class="ssel">' + chunk.coverage.a[pos] + '</span><br>' +
-//                '<span style="color:blue">C</span>: <span class="ssel">' + chunk.coverage.c[pos] + '</span><br>' +
-//                '<span style="color:darkgoldenrod">G</span>: <span class="ssel">' + chunk.coverage.g[pos] + '</span><br>' +
-//                '<span style="color:red">T</span>: <span class="ssel">' + chunk.coverage.t[pos] + '</span><br>';
-//            $(dummyRect).qtip('option', 'content.text', str);
-//            //}
-//        });
+        args.trackListPanel.on('mousePosition:change', function (e) {
+            var pos = e.mousePos - parseInt(chunk.start);
+            //if(coverageList[pos]!=null){
+            var str = 'depth: <span class="ssel">' + coverageList[pos] + '</span><br>' +
+                '<span style="color:green">A</span>: <span class="ssel">' + chunk.coverage.a[pos] + '</span><br>' +
+                '<span style="color:blue">C</span>: <span class="ssel">' + chunk.coverage.c[pos] + '</span><br>' +
+                '<span style="color:darkgoldenrod">G</span>: <span class="ssel">' + chunk.coverage.g[pos] + '</span><br>' +
+                '<span style="color:red">T</span>: <span class="ssel">' + chunk.coverage.t[pos] + '</span><br>';
+            $(dummyRect).qtip('option', 'content.text', str);
+            //}
+        });
     };
 
     var drawSingleRead = function (feature) {
@@ -193,8 +194,11 @@ BamRenderer.prototype.render = function (response, args) {
         //var end = feature.end;
         var start = feature.unclippedStart;
         var end = feature.unclippedEnd;
+        if (feature.end == 0) {
+            end = start + feature.length - 1;
+        }
         var length = (end - start) + 1;
-        var diff = feature.diff;
+        var differences = feature.differences;
 
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature, args.region.chromosome) : _this.color;
@@ -226,8 +230,13 @@ BamRenderer.prototype.render = function (response, args) {
 //			var maxWidth = 72;
 //		}
         maxWidth = width;
+        //if(length <0){
+        //    debugger
+        //}
+        console.log(length + ' in px: ' + width);
 
-        var rowHeight = 12;
+
+        var rowHeight = 16;
         var rowY = 70;
 //		var textY = 12+settings.height;
         while (true) {
@@ -238,12 +247,12 @@ BamRenderer.prototype.render = function (response, args) {
             if (enc) {
                 var featureGroup = SVG.addChild(bamReadGroup, "g", {'feature_id': feature.name});
                 var points = {
-                    "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width - 5) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height),
-                    "Forward": x + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + x + "," + (rowY + height)
+                    "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width) + "," + rowY + " " + (x + width) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height),
+                    "Forward": (x - 1) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + (x - 1) + "," + (rowY + height)
                 }
                 var poly = SVG.addChild(featureGroup, "polygon", {
                     "points": points[strand],
-                    "stroke": strokeColor,
+                    "stroke": color,
                     "stroke-width": 1,
                     "fill": color,
                     "cursor": "pointer"
@@ -262,7 +271,8 @@ BamRenderer.prototype.render = function (response, args) {
                 //});
                 //readEls.push(rect);
 
-                if (diff != null && args.regionSize < 400) {
+                //PROCESS differences
+                if (differences != null && args.regionSize < 400) {
                     //var	t = SVG.addChild(featureGroup,"text",{
                     //"x":x+1,
                     //"y":rowY+settings.height-1,
@@ -273,25 +283,45 @@ BamRenderer.prototype.render = function (response, args) {
                     //t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
                     //t.textContent = diff;
                     //readEls.push(t);
-                    var path = SVG.addChild(featureGroup, "path", {
-                        "d": Utils.genBamVariants(diff, args.pixelBase, x, rowY),
-                        "fill": variantColor
+
+
+                    /*CUSTOM FONT RENDER*/
+                    //var path = SVG.addChild(featureGroup, "path", {
+                    //    "d": BamRenderer.genBamVariants(differences, args.pixelBase, x, rowY),
+                    //    "fill": variantColor
+                    //});
+                    /*USING SVG TEXT AND TSPAN*/
+                    // TODO TEST WHEN ALIGNMENT INDEX
+                    console.log("REMEMBER TO CHECK THIS WHEN ALIGNMENT INDEX WEBSERVICE WORKS");
+                    debugger
+                    sequenceDataAdapter.getData({
+                        chromosome: args.region.chromosome,
+                        start: start,
+                        end: end,
+                        done: function () {
+                            debugger
+                            featureGroup.appendChild(BamRenderer.drawBamDifferences(refString, differences, args.pixelBase, x, rowY + height));
+                            $(featureGroup).qtip({
+                                content: {text: tooltipText, title: tooltipTitle},
+                                position: {target: "mouse", adjust: {x: 25, y: 15}},
+                                style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                                show: 'mouseenter',
+                                hide: 'mousedown mouseup mouseleave'
+                            });
+
+                            $(featureGroup).click(function (event) {
+                                console.log(feature);
+                                _this.trigger('feature:click', {
+                                    query: feature[infoWidgetId],
+                                    feature: feature,
+                                    featureType: feature.featureType,
+                                    clickEvent: event
+                                })
+                            });
+                        }
                     });
                 }
-                $(featureGroup).qtip({
-                    content: {text: tooltipText, title: tooltipTitle},
-                    position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    style: { width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
-                    show: 'click',
-                    hide: 'click mouseleave'
-                });
 
-
-//                $(featureGroup).click(function (event) {
-//                    console.log(feature);
-//                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: feature.featureType, clickEvent: event})
-////                    _this.showInfoWidget({query: feature[settings.infoWidgetId], feature: feature, featureType: feature.featureType, adapter: _this.trackData.adapter});
-//                });
                 break;
             }
             rowY += rowHeight;
@@ -412,24 +442,34 @@ BamRenderer.prototype.render = function (response, args) {
                 $(readEls).qtip({
                     content: {text: readSettings.getTipText(read), title: readSettings.getTipTitle(read)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                    style: { width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                    style: {width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });
                 $(readEls).click(function (event) {
                     console.log(read);
-                    _this.showInfoWidget({query: read[readSettings.infoWidgetId], feature: read, featureType: read.featureType, adapter: _this.trackData.adapter});
+                    _this.showInfoWidget({
+                        query: read[readSettings.infoWidgetId],
+                        feature: read,
+                        featureType: read.featureType,
+                        adapter: _this.trackData.adapter
+                    });
                 });
                 $(mateEls).qtip({
                     content: {text: mateSettings.getTipText(mate), title: mateSettings.getTipTitle(mate)},
                     position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                    style: { width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
+                    style: {width: 280, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'click',
                     hide: 'click mouseleave'
                 });
                 $(mateEls).click(function (event) {
                     console.log(mate);
-                    _this.showInfoWidget({query: mate[mateSettings.infoWidgetId], feature: mate, featureType: mate.featureType, adapter: _this.trackData.adapter});
+                    _this.showInfoWidget({
+                        query: mate[mateSettings.infoWidgetId],
+                        feature: mate,
+                        featureType: mate.featureType,
+                        adapter: _this.trackData.adapter
+                    });
                 });
                 break;
             }
@@ -440,21 +480,21 @@ BamRenderer.prototype.render = function (response, args) {
 
     var drawChunk = function (chunk) {
         drawCoverage(chunk.value);
-        var readList = chunk.value.reads;
-        for (var i = 0, li = readList.length; i < li; i++) {
-            var read = readList[i];
+        var alignments = chunk.value.alignments;
+        for (var i = 0, li = alignments.length; i < li; i++) {
+            var alignment = alignments[i];
             if (viewAsPairs) {
-                var nextRead = readList[i + 1];
+                var nextRead = alignments[i + 1];
                 if (nextRead != null) {
-                    if (read.name == nextRead.name) {
-                        drawPairedReads(read, nextRead);
+                    if (alignment.name == nextRead.name) {
+                        drawPairedReads(alignment, nextRead);
                         i++;
                     } else {
-                        drawSingleRead(read);
+                        drawSingleRead(alignment);
                     }
                 }
             } else {
-                drawSingleRead(read);
+                drawSingleRead(alignment);
             }
         }
     };
@@ -472,4 +512,241 @@ BamRenderer.prototype.render = function (response, args) {
 //        this.setHeight(200);
     }
     console.timeEnd("BamRender " + response.params.resource);
+};
+
+BamRenderer.genBamVariants = function (differences, size, mainX, y) {
+    var s = size / 6;
+    var d = "";
+    for (var i = 0; i < differences.length; i++) {
+        var difference = differences[i];
+
+        switch (difference.op) {
+            case "S" :
+                var x = mainX + (size * difference.pos);
+                for (var j = 0; j < difference.length; j++) {
+                    var char = difference.seq[j];
+                    switch (char) {
+                        case "A" :
+                            d += "M" + ((2.5 * s) + x) + "," + (y) +
+                                "l-" + (2.5 * s) + "," + (6 * s) +
+                                "l" + s + ",0" +
+                                "l" + (0.875 * s) + ",-" + (2 * s) +
+                                "l" + (2.250 * s) + ",0" +
+                                "l" + (0.875 * s) + "," + (2 * s) +
+                                "l" + s + ",0" +
+                                "l-" + (2.5 * s) + ",-" + (6 * s) +
+                                "l-" + (0.5 * s) + ",0" +
+                                "l0," + s +
+                                "l" + (0.75 * s) + "," + (2 * s) +
+                                "l-" + (1.5 * s) + ",0" +
+                                "l" + (0.75 * s) + ",-" + (2 * s) +
+                                "l0,-" + s +
+                                " ";
+                            break;
+                        case "T" :
+                            d += "M" + ((0.5 * s) + x) + "," + (y) +
+                                "l0," + s +
+                                "l" + (2 * s) + ",0" +
+                                "l0," + (5 * s) +
+                                "l" + s + ",0" +
+                                "l0,-" + (5 * s) +
+                                "l" + (2 * s) + ",0" +
+                                "l0,-" + s +
+                                " ";
+                            break;
+                        case "C" :
+                            d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
+                                "l-" + (2 * s) + ",0" +
+                                "l-" + (1.5 * s) + "," + (0.5 * s) +
+                                "l-" + (0.5 * s) + "," + (1.5 * s) +
+                                "l0," + (2 * s) +
+                                "l" + (0.5 * s) + "," + (1.5 * s) +
+                                "l" + (1.5 * s) + "," + (0.5 * s) +
+                                "l" + (2 * s) + ",0" +
+                                "l0,-" + s +
+                                "l-" + (2 * s) + ",0" +
+                                "l-" + (0.75 * s) + ",-" + (0.25 * s) +
+                                "l-" + (0.25 * s) + ",-" + (0.75 * s) +
+                                "l0,-" + (2 * s) +
+                                "l" + (0.25 * s) + ",-" + (0.75 * s) +
+                                "l" + (0.75 * s) + ",-" + (0.25 * s) +
+                                "l" + (2 * s) + ",0" +
+                                " ";
+                            break;
+                        case "G" :
+                            d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
+                                "l-" + (2 * s) + ",0" +
+                                "l-" + (1.5 * s) + "," + (0.5 * s) +
+                                "l-" + (0.5 * s) + "," + (1.5 * s) +
+                                "l0," + (2 * s) +
+                                "l" + (0.5 * s) + "," + (1.5 * s) +
+                                "l" + (1.5 * s) + "," + (0.5 * s) +
+                                "l" + (2 * s) + ",0" +
+                                "l0,-" + (3 * s) +
+                                "l-" + (s) + ",0" +
+                                "l0," + (2 * s) +
+                                "l-" + (s) + ",0" +
+                                "l-" + (0.75 * s) + ",-" + (0.25 * s) +
+                                "l-" + (0.25 * s) + ",-" + (0.75 * s) +
+                                "l0,-" + (2 * s) +
+                                "l" + (0.25 * s) + ",-" + (0.75 * s) +
+                                "l" + (0.75 * s) + ",-" + (0.25 * s) +
+                                "l" + (2 * s) + ",0" +
+                                " ";
+//                d += "M" + ((5 * s) + x) + "," + ((0 * s) + y) +
+//                    "l-" + (2 * s) + ",0" +
+//                    "l-" + (2 * s) + "," + (2 * s) +
+//                    "l0," + (2 * s) +
+//                    "l" + (2 * s) + "," + (2 * s) +
+//                    "l" + (2 * s) + ",0" +
+//                    "l0,-" + (3 * s) +
+//                    "l-" + (1 * s) + ",0" +
+//                    "l0," + (2 * s) +
+//                    "l-" + (0.5 * s) + ",0" +
+//                    "l-" + (1.5 * s) + ",-" + (1.5 * s) +
+//                    "l0,-" + (1 * s) +
+//                    "l" + (1.5 * s) + ",-" + (1.5 * s) +
+//                    "l" + (1.5 * s) + ",0" +
+//                    " ";
+                            break;
+                        case "N" :
+                            d += "M" + ((0.5 * s) + x) + "," + ((0 * s) + y) +
+                                "l0," + (6 * s) +
+                                "l" + s + ",0" +
+                                "l0,-" + (4.5 * s) +
+                                "l" + (3 * s) + "," + (4.5 * s) +
+                                "l" + s + ",0" +
+                                "l0,-" + (6 * s) +
+                                "l-" + s + ",0" +
+                                "l0," + (4.5 * s) +
+                                "l-" + (3 * s) + ",-" + (4.5 * s) +
+                                " ";
+                            break;
+                        case "d" :
+                            d += "M" + ((0 * s) + x) + "," + ((2.5 * s) + y) +
+                                "l" + (6 * s) + ",0" +
+                                "l0," + (s) +
+                                "l-" + (6 * s) + ",0" +
+                                "l0,-" + (s) +
+                                " ";
+                            break;
+                        default:
+                            d += "M0,0";
+                            break;
+                    }
+                    x += size;
+                }
+                break;
+        }
+
+    }
+
+    return d;
+};
+
+BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, y) {
+    var text = SVG.create("text", {
+        "x": mainX,
+        "y": y - 2,
+        "class": 'ocb-font-ubuntumono ocb-font-size-15'
+    });
+    for (var i = 0; i < differences.length; i++) {
+        var difference = differences[i];
+
+        switch (difference.op) {
+            // M 0 alignment match (can be a sequence match or mismatch)
+            // I 1 insertion to the reference
+            // D 2 deletion from the reference
+            // N 3 skipped region from the reference
+            // S 4 soft clipping (clipped sequences present in SEQ)
+            // H 5 hard clipping (clipped sequences NOT present in SEQ)
+            //P 6 padding (silent deletion from padded reference)
+            //= 7 sequence match
+            // X 8 sequence mismatch
+
+            case "I" :
+                var x = mainX + (size * difference.pos) - size / 2;
+                var t = SVG.addChild(text, "tspan", {
+                    "x": x,
+                    "font-weight": 'bold',
+                    "textLength": size
+                });
+                t.textContent = '·';
+                $(t).qtip({
+                    content: {text: difference.seq, title: 'Insertion'},
+                    position: {target: "mouse", adjust: {x: 25, y: 15}},
+                    style: {classes: this.toolTipfontClass + ' qtip-dark qtip-shadow'}
+                });
+                break;
+            case "D" :
+                var x = mainX + (size * difference.pos);
+                for (var j = 0; j < difference.length; j++) {
+                    var t = SVG.addChild(text, "tspan", {
+                        "x": x,
+                        "font-weight": 'bold',
+                        "textLength": size
+                    });
+                    t.textContent = '—';
+                    x += size;
+                }
+                break;
+            case "N" :
+                var x = mainX + (size * difference.pos);
+                for (var j = 0; j < difference.length; j++) {
+                    var t = SVG.addChild(text, "tspan", {
+                        "x": x,
+                        "fill": "#888",
+                        "textLength": size
+                    });
+                    t.textContent = '—';
+                    x += size;
+                }
+                break;
+            case "S" :
+                var x = mainX + (size * difference.pos);
+                for (var j = 0; j < difference.length; j++) {
+                    var char = difference.seq[j];
+                    var t = SVG.addChild(text, "tspan", {
+                        "x": x,
+                        "fill": "#aaa",
+                        "textLength": size
+                    });
+                    t.textContent = char;
+                    x += size;
+                }
+                break;
+            case "H" :
+                var x = mainX + (size * difference.pos);
+                for (var j = 0; j < difference.length; j++) {
+                    var t = SVG.addChild(text, "tspan", {
+                        "x": x,
+                        "fill": "#aaa",
+                        "textLength": size
+                    });
+                    t.textContent = 'H';
+                    x += size;
+                }
+                break;
+            case "X" :
+            case "M" :
+                var x = mainX + (size * difference.pos);
+                for (var j = 0; j < difference.length; j++) {
+                    var char = difference.seq[j];
+                    var refPos = difference.pos + j;
+                    if (char != refString.charAt(refPos)) {
+                        var t = SVG.addChild(text, "tspan", {
+                            "x": x,
+                            "fill": SEQUENCE_COLORS[char],
+                            "textLength": size
+                        });
+                        t.textContent = char;
+                    }
+                    x += size;
+                }
+                break;
+        }
+
+    }
+
+    return text;
 };

@@ -1,4 +1,4 @@
-<polymer-element name="jso-association-result" attributes="files">
+<dom-module id="jso-association-result" attributes="files">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -60,7 +60,7 @@
 
             <h3>Manhattan plot</h3>
 
-            <div class="file"><label>File</label>
+            <div class="file"><label class="jso">File</label>
                 <a href="{{manhattanPlot}}" download="manhattan_plot.png">manhattan_plot.png</a>
             </div>
             <img src="{{manhattanPlot}}">
@@ -68,7 +68,7 @@
             <div id="topHitsDiv" hidden?="{{!topHitsResult}}">
                 <h3>Top Hits</h3>
 
-                <div class="file"><label>File</label>
+                <div class="file"><label class="jso">File</label>
                     <a href="{{topHitsUrl}}" target="_blank">top_hits.txt</a>
                 </div>
                 <jso-generic-table selected="{{selected}}" id="topHitsTable"></jso-generic-table>
@@ -76,7 +76,7 @@
             <h3 hidden?="{{topHitsResult}}">Top Hits</h3>
 
             <div hidden?="{{topHitsResult}}">
-                <label>There is no <strong>top hit</strong> results.</label>
+                <label class="jso">There is no <strong>top hit</strong> results.</label>
             </div>
             <jso-genome-viewer-element id="genomeViewer"></jso-genome-viewer-element>
             <h3>Files</h3>

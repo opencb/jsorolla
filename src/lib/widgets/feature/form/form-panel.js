@@ -30,6 +30,7 @@ function FormPanel(args) {
     this.title;
     this.collapsible = false;
     this.titleCollapse = false;
+    this.submitButtonId = 'submit-btn';
     this.submitButtonText = 'Search';
     this.clearButtonText = 'Clear';
     this.barItems = [];
@@ -113,11 +114,12 @@ FormPanel.prototype = {
                 tooltip: this.clearButtonText,
                 handler: function () {
                     _this.clear();
-                    Utils.msg('Clear', 'Sucessfully');
+                    Utils.msg('Clear', 'Successful');
                 }
             },
             {
                 xtype: 'button',
+                id:this.submitButtonId,
                 text: this.submitButtonText,
                 tooltip: this.submitButtonText,
                 formBind: true,
@@ -158,13 +160,13 @@ FormPanel.prototype = {
                 break;
             case 'vbox':
                 this.filtersPanel = Ext.create('Ext.container.Container', {
-                    margin: '20 0 0 0',
+                    margin: '5 0 0 0',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
                     },
                     defaults: {
-                        margin: '20 0 0 0'
+                        margin: '5 0 0 0'
                     }
                 });
                 break;

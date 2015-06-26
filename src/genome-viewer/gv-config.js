@@ -58,6 +58,38 @@ FEATURE_CONFIG = {
     }
 
 };
+
+CODON_CONFIG = {
+    '': {text: '', color: 'transparent'},
+    'R': {text: 'Arg', color: '#BBBFE0'},
+    'H': {text: 'His', color: '#BBBFE0'},
+    'K': {text: 'Lys', color: '#BBBFE0'},
+
+    'D': {text: 'Asp', color: '#F8B7D3'},
+    'E': {text: 'Glu', color: '#F8B7D3'},
+
+    'F': {text: 'Phe', color: '#FFE75F'},
+    'L': {text: 'Leu', color: '#FFE75F'},
+    'I': {text: 'Ile', color: '#FFE75F'},
+    'M': {text: 'Met', color: '#FFE75F'},
+    'V': {text: 'Val', color: '#FFE75F'},
+    'P': {text: 'Pro', color: '#FFE75F'},
+    'A': {text: 'Ala', color: '#FFE75F'},
+    'W': {text: 'Trp', color: '#FFE75F'},
+    'G': {text: 'Gly', color: '#FFE75F'},
+
+
+    'T': {text: 'Thr', color: '#B3DEC0'},
+    'S': {text: 'Ser', color: '#B3DEC0'},
+    'Y': {text: 'Tyr', color: '#B3DEC0'},
+    'Q': {text: 'Gln', color: '#B3DEC0'},
+    'N': {text: 'Asn', color: '#B3DEC0'},
+    'C': {text: 'Cys', color: '#B3DEC0'},
+
+    'X': {text: ' X ', color: '#f0f0f0'},
+    '*': {text: ' * ', color: '#DDDDDD'}
+};
+
 FEATURE_OPTIONS = {
     gene: [
         {
@@ -176,7 +208,7 @@ FEATURE_TYPES = {
     //methods
     formatTitle: function (str) {
         var s = str;
-        if(str){
+        if (str) {
             str.replace(/_/gi, " ");
             s = s.charAt(0).toUpperCase() + s.slice(1);
         }
@@ -184,9 +216,34 @@ FEATURE_TYPES = {
     },
     getTipCommons: function (f) {
         var strand = (f.strand != null) ? f.strand : "NA";
-        return 'start-end:&nbsp;<span class="emph">' + f.start + '-' + f.end + '</span><br>' +
-            'strand:&nbsp;<span class="emph">' + strand + '</span><br>' +
-            'length:&nbsp;<span class="info">' + (f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+        return 'start-end:&nbsp;<span style="font-weight: bold">' + f.start + '-' + f.end + '</span><br>' +
+            'strand:&nbsp;<span style="font-weight: bold">' + strand + '</span><br>' +
+            'length:&nbsp;<span style="font-weight: bold; color:#005fdb">' + (f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+    },
+    getTipTitleCommons: function (f) {
+        var tokens = [];
+        if (f.featureType) tokens.push(f.featureType);
+        if (f.id) tokens.push(f.id);
+        if (f.name) tokens.push(f.name);
+        return tokens.join(' - ');
+    },
+    getLabelCommons: function (f) {
+        var tokens = [];
+        if (f.id) tokens.push(f.id);
+        if (f.name) tokens.push(f.name);
+        return tokens.join(' - ');
+    },
+    _getSimpleKeys: function (f) {
+        var s = '';
+        for (key in f) {
+            if (key == 'start' || key == 'end') {
+                continue;
+            }
+            if (_.isNumber(f[key]) || _.isString(f[key])) {
+                s += key + ':&nbsp;<span style="font-weight: bold">' + f[key] + '</span><br>'
+            }
+        }
+        return s
     },
 
     //items
@@ -200,17 +257,15 @@ FEATURE_TYPES = {
             return str;
         },
         tooltipTitle: function (f) {
-            return " ";
+            return FEATURE_TYPES.getTipTitleCommons(f);
         },
         tooltipText: function (f) {
-            return " ";
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
         },
-        color: function (f) {
-            return "grey";
-        },
-//		infoWidgetId: "id",
-        height: 10
-//		histogramColor:"lightblue"
+        color: "#aaa",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "lightgray"
     },
     gene: {
         label: function (f) {
@@ -226,11 +281,11 @@ FEATURE_TYPES = {
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return FEATURE_TYPES.formatTitle('Gene') +' - <span class="ok">' + name + '</span>';
+            return FEATURE_TYPES.formatTitle('Gene') + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             var color = GENE_BIOTYPE_COLORS[f.biotype];
-            return    'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
+            return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
                 'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) +
                 'source:&nbsp;<span class="ssel">' + f.source + '</span><br><br>' +
@@ -243,34 +298,6 @@ FEATURE_TYPES = {
         height: 4,
         histogramColor: "lightblue"
     },
-//	geneorange:{
-//		getLabel: function(f){
-//			var str = "";
-//			str+= (f.strand < 0) ? "<" : "";
-//			str+= " "+f.name+" ";
-//			str+= (f.strand > 0) ? ">" : "";
-//			str+= " ["+f.biotype+"]";
-//			return str;
-//		},
-//		getTipTitle: function(f){
-//			return FEATURE_TYPES.formatTitle(f.featureType) +
-//			' - <span class="ok">'+f.name+'</span>';
-//		},
-//		getTipText: function(f){
-//			var color = GENE_BIOTYPE_COLORS[f.biotype];
-//			return	'Ensembl&nbsp;ID:&nbsp;<span class="ssel">'+f.id+'</span><br>'+
-//			'biotype:&nbsp;<span class="emph" style="color:'+color+';">'+f.biotype+'</span><br>'+
-//			'description:&nbsp;<span class="emph">'+f.description+'</span><br>'+
-//			FEATURE_TYPES.getTipCommons(f)+
-//			'source:&nbsp;<span class="ssel">'+f.source+'</span><br>';
-//		},
-//		getColor: function(f){
-//			return GENE_BIOTYPE_COLORS[f.biotype];
-//		},
-//		infoWidgetId: "id",
-//		height:4,
-//		histogramColor:"lightblue"
-//	},
     transcript: {
         label: function (f) {
             var name = (f.name != null) ? f.name : f.id;
@@ -290,7 +317,7 @@ FEATURE_TYPES = {
         },
         tooltipText: function (f) {
             var color = GENE_BIOTYPE_COLORS[f.biotype];
-            return    'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
+            return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
                 'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
                 'description:&nbsp;<span class="emph">' + f.description + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
@@ -315,23 +342,24 @@ FEATURE_TYPES = {
             return FEATURE_TYPES.formatTitle('Exon') + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (e, t) {
-            var ename = (e.name != null) ? e.name : e.id;
-            var tname = (t.name != null) ? t.name : t.id;
-            var color = GENE_BIOTYPE_COLORS[t.biotype];
-            return    'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
-                'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
-                'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
-                'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
-                'transcript start-end:&nbsp;<span class="emph">' + t.start + '-' + t.end + '</span><br>' +
-                'exon start-end:&nbsp;<span class="emph">' + e.start + '-' + e.end + '</span><br>' +
-                'strand:&nbsp;<span class="emph">' + t.strand + '</span><br>' +
-                'length:&nbsp;<span class="info">' + (e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
+            return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
+            //var ename = (e.name != null) ? e.name : e.id;
+            //var tname = (t.name != null) ? t.name : t.id;
+            //var color = GENE_BIOTYPE_COLORS[t.biotype];
+            //return 'transcript name:&nbsp;<span class="ssel">' + t.name + '</span><br>' +
+            //    'transcript Ensembl&nbsp;ID:&nbsp;<span class="ssel">' + t.id + '</span><br>' +
+            //    'transcript biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + t.biotype + '</span><br>' +
+            //    'transcript description:&nbsp;<span class="emph">' + t.description + '</span><br>' +
+            //    'transcript start-end:&nbsp;<span class="emph">' + t.start + '-' + t.end + '</span><br>' +
+            //    'exon start-end:&nbsp;<span class="emph">' + e.start + '-' + e.end + '</span><br>' +
+            //    'strand:&nbsp;<span class="emph">' + t.strand + '</span><br>' +
+            //    'length:&nbsp;<span class="info">' + (e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '</span><br>';
         },
         color: function (f) {
             return "black";
         },
         infoWidgetId: "id",
-        height: 5,
+        height: 7,
         histogramColor: "lightblue"
     },
     snp: {
@@ -340,7 +368,7 @@ FEATURE_TYPES = {
         },
         tooltipTitle: function (f) {
             var name = (f.name != null) ? f.name : f.id;
-            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
+            return 'SNP' + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
             return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
@@ -355,26 +383,6 @@ FEATURE_TYPES = {
         infoWidgetId: "id",
         height: 8,
         histogramColor: "orange"
-    },
-    mutation: {
-        label: function (f) {
-            return ('name' in f) ? f.name : f.id;
-        },
-        tooltipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return f.featureType.toUpperCase() + ' - <span class="ok">' + name + '</span>';
-        },
-        tooltipText: function (f) {
-            return   FEATURE_TYPES.getTipCommons(f) +
-                '';
-
-        },
-        color: function (f) {
-            return 'limegreen'
-        },
-        infoWidgetId: "id",
-        height: 8,
-        histogramColor: "limegreen"
     },
     file: {
         getLabel: function (f) {
@@ -439,7 +447,7 @@ FEATURE_TYPES = {
                 'filter:&nbsp;<span class="emph">' + f.filter + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
         },
-        getColor: function (f) {
+        color: function (f) {
             return "black";
         },
         infoWidgetId: "id",
@@ -501,16 +509,16 @@ FEATURE_TYPES = {
         histogramColor: "gray"
     },
     gff2: {
-        getLabel: function (f) {
+        label: function (f) {
             var str = "";
             str += f.label;
             return str;
         },
-        getTipTitle: function (f) {
+        tooltipTitle: function (f) {
             return f.featureType.toUpperCase() +
                 ' - <span class="ok">' + f.label + '</span>';
         },
-        getTipText: function (f) {
+        tooltipText: function (f) {
             return 'score:&nbsp;<span class="emph">' + f.score + '</span><br>' +
                 'frame:&nbsp;<span class="emph">' + f.frame + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f);
@@ -627,14 +635,20 @@ FEATURE_TYPES = {
             return summary;
         },
         label: function (f) {
-            return  "bam  " + f.chromosome + ":" + f.start + "-" + f.end;
+            return "bam  " + f.chromosome + ":" + f.start + "-" + f.end;
         },
         tooltipTitle: function (f) {
-            return FEATURE_TYPES.formatTitle(f.featureType) + ' - <span class="ok">' + f.name + '</span>';
+            return 'Alignment' + ' - <span class="ok">' + f.name + '</span>';
         },
         tooltipText: function (f) {
             f.strand = FEATURE_TYPES.bam.strand(f);
-            var one = 'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
+            var cigar = '';
+            for (var i = 0; i < f.differences.length; i++) {
+                var d = f.differences[i];
+                cigar += d.length + d.op
+            }
+
+            var one = 'cigar:&nbsp;<span class="ssel">' + cigar + '</span><br>' +
                 'insert size:&nbsp;<span class="ssel">' + f.inferredInsertSize + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) + '<br>' +
                 this.explainFlags(f.flags);
@@ -674,7 +688,7 @@ FEATURE_TYPES = {
             return (parseInt(f.flags) & (0x8)) == 0 ? false : true;
         },
         infoWidgetId: "id",
-        height: 8,
+        height: 13,
         histogramColor: "grey"
     },
     das: {
@@ -703,6 +717,36 @@ FEATURE_TYPES = {
                 console.log(e)
             }
         }
+    },
+    'TF_binding_site': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.getTipTitleCommons(f);
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#58f3f0",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "lightgray"
+    },
+    'mirna_target': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return FEATURE_TYPES.getTipTitleCommons(f);
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#8af688",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "lightgray"
     }
 };
 

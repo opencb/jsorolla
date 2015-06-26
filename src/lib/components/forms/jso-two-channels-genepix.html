@@ -1,4 +1,4 @@
-<polymer-element name="jso-two-channels-genepix" attributes="userData selectedOption selectedStudy studies">
+<dom-module id="jso-two-channels-genepix" attributes="userData selectedOption selectedStudy studies">
     <template>
         <style>
             :host {
@@ -39,11 +39,11 @@
             /*}*/
 
         </style>
-        <div class="tooltitle">
+        <div class="jso-tooltitle">
             <div>
                 GenePix two-channels normalization
                 <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Tutorial%20Genepix%20Two%20Colors%20Microarray%20Normalization">
-                    <font-awesome icon="question-circle"></font-awesome>
+                    <i class="fa fa-question-circle"></i>
                 </a>
             </div>
             <div class="icon">
@@ -51,28 +51,27 @@
             </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">genepix two-channels normalization</div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="twocolor_genepix_expression.zip" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">genepix two-channels normalization</div>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="twocolor_genepix_expression.zip" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Select your data</div>
-                <div class="formcontent">
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX"></jso-project-browser-window>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your data</div>
+                <div class="jso-formcontent">
+                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}"
+                                                bioformat="MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX"></jso-opencga-browser-window>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Analysis</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Analysis</div>
+                <div class="jso-formcontent">
                     Background correction:
                     <div class="select">
                         <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
@@ -138,35 +137,34 @@
                         </select>
                     </div>
                     <br/>
-                    <label class="control">
-                        <input name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true"
+                    <label class="jso-control">
+                        <input class="jso"name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true"
                                checked="checked">
 
                         <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span></label>
                     <br>
-                    <label class="control">
-                        <input name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox"
+                    <label class="jso-control">
+                        <input class="jso"name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox"
                                value="true">
                         <span>Check if flagged spots will have a missing (NA) normalized value and A-value as well</span></label>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label> <input type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                    <br><jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window><br>
+                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
             </div>
             </div>
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -176,7 +174,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "genepix-expression-two-colors-normalization";
                 this.list1UploadMsg = "Select file...";
                 this.compressed_file_tags = "microarray,expression,two-channels,genepix";
@@ -195,9 +192,9 @@
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
                     description: this.description,
                     "compressed-file": this.$.inputFile.selectedFile.id,
@@ -236,7 +233,7 @@
                 this.$.flags_as_missing.checked = false;
                 this.$.ba_normalization.value = "quantiles";
                 this.$.wa_normalization.value = "printtiploess";
-                this.$.inputFile.selectedFile = {
+                this.$.inputFile.setSelectedFile({
                     id: "example_twocolor_genepix_expression.zip",
                     path: "twocolor_genepix_expression.zip",
                     type: "FILE"

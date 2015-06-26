@@ -1,8 +1,6 @@
 <polymer-element name="jso-attribute-render-number-table"
                  attributes="displayProperty attributeManager defaultValue visualSet allowListParse">
     <template>
-        <link rel="stylesheet" href="../../jso-style.css">
-        <link rel="stylesheet" href="../../jso-panel.css">
         <link rel="stylesheet" href="../../core-list-table.css">
         <style>
             :host {
@@ -166,11 +164,16 @@
         Polymer({
             created: function () {
                 this.isReady = false;
+
+                this.clean();
+            },
+            clean: function () {
                 this.attributeName = '';
                 this.attributeType = 'discrete';
                 this.attributeParse = 'string';
 
                 this.uniqueData = [];
+                this.uniqueMatches = {};
             },
             ready: function () {
                 var me = this;
@@ -228,7 +231,21 @@
                 this.displayProperty = '';
             },
             handleOk: function () {
-                this._updateVisualSet();
+                var uniqueMatches = {};
+                for (var i = 0; i < this.uniqueData.length; i++) {
+                    var data = this.uniqueData[i];
+                    uniqueMatches[data.attribute] = data.render;
+                }
+                this.uniqueMatches = uniqueMatches;
+                this.visualSet = {
+                    attribute: this.attributeName,
+                    displayProperty: this.displayProperty,
+                    type: this.attributeType,
+                    matches: this.uniqueMatches,
+                    parse: this.attributeParse,
+                    points: this.points,
+                    enabled: true
+                };
                 this.fire('ok', {displayProperty: this.getAttribute("id")});
                 this.handleClose();
 

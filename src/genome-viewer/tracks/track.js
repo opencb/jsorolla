@@ -98,6 +98,9 @@ Track.prototype = {
 
         }
     },
+    remove: function () {
+        $(this.div).remove();
+    },
     hideContent: function () {
         this.contentVisible = false;
         this.contentDiv.classList.add('hidden');

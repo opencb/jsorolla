@@ -1,4 +1,4 @@
-<polymer-element name="jso-diffexpr-table" attributes="content contentDataset files test">
+<dom-module id="jso-diffexpr-table" attributes="content contentDataset files test">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -11,7 +11,7 @@
         </style>
 
         <template if="{{!loading && data.length>0}}">
-            <div class="file"><label>Significative table</label>
+            <div class="file"><label class="jso">Significative table</label>
                 <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
                 <sortable-table class="sortable-table-class" id="diffexpr-table"
                                 data="{{data}}"
@@ -81,7 +81,7 @@
             </div>
         </template>
         <template if="{{!loading && data.length == 0}}">
-            <label>No significative results found</label>
+            <label class="jso">No significative results found</label>
         </template>
         <template if="{{loading}}">
             <div>

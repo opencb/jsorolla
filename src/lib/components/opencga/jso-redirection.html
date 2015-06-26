@@ -1,4 +1,4 @@
-<polymer-element name="jso-redirection" attributes="args titleRed fileName fileUrl buttonLabel buttonWidth">
+<dom-module id="jso-redirection" attributes="args titleRed fileName fileUrl buttonLabel buttonWidth">
     <template>
         <style>
 
@@ -9,9 +9,9 @@
 
         <!--<i class="fa fa-chevron-circle-right"></i>-->
 
-        <div class="file"><label>{{titleRed}}</label>
+        <div class="file"><label class="jso">{{titleRed}}</label>
             <a href="{{fileUrl}}" download="{{fileName}}">{{fileName}}</a>
-            <div id="buttonDiv" class="button action" on-click="{{sendTo}}" >
+            <div id="buttonDiv" class="jso-btn jso-btn-shdw" on-click="{{sendTo}}" >
                 <font-awesome icon="chevron-circle-right"></font-awesome>
                 {{buttonLabel}}
             </div>

@@ -19,6 +19,11 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * DEPRECATED
+ * */
+
+
 function SequenceAdapter(args) {
 
     _.extend(this, Backbone.Events);
@@ -147,7 +152,7 @@ SequenceAdapter.prototype._processSequenceQuery = function (data, throwNotify) {
         var queryEnd = parseInt(splitDash[1]);
 
         var queryId = queryResponse.id;
-        var seqResponse = queryResponse.result;
+        var seqResponse = queryResponse.result[0];
 
 
         var chromosome = seqResponse.chromosome;
@@ -215,6 +220,37 @@ SequenceAdapter.prototype.getNucleotidByPosition = function (args) {
         }
         if (this.sequence[chromosome] != null) {
             var referenceSubStr = this.sequence[chromosome].substr((args.start - this.start[chromosome]), 1);
+            return referenceSubStr;
+        } else {
+            console.log("SequenceRender: this.sequence[chromosome] is undefined");
+            return "";
+        }
+    }
+};
+SequenceAdapter.prototype.getNucleotidsByRegion = function (args) {
+    var region = new Region(args);
+    var _this = this;
+    if (args.start > 0 && args.end > 0) {
+        var queryString = this._getSequenceQuery(args);
+
+        var chromosome = args.chromosome;
+
+        if (queryString != "") {
+            var data = CellBaseManager.get({
+                host: this.host,
+                version: this.version,
+                species: this.species,
+                category: this.category,
+                subCategory: this.subCategory,
+                query: queryString,
+                resource: this.resource,
+                params: this.params,
+                async: false
+            });
+            _this._processSequenceQuery(data);
+        }
+        if (this.sequence[chromosome] != null) {
+            var referenceSubStr = this.sequence[chromosome].substr((args.start - this.start[chromosome]), region.length());
             return referenceSubStr;
         } else {
             console.log("SequenceRender: this.sequence[chromosome] is undefined");

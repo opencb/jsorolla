@@ -1,4 +1,4 @@
-<polymer-element name="jso-interactome-viewer" attributes="content intermediates seedList jobResult">
+<dom-module id="jso-interactome-viewer" attributes="content intermediates seedList jobResult">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -24,7 +24,7 @@
                 </div>
             </div>
             <div horizontal layout>
-                <label>
+                <label class="jso">
                     {{saveMessage}}
                 </label>
                 <template if="{{saveMessageOk}}">
@@ -39,13 +39,13 @@
                 id="viewer"
                 lite="true"
                 ></jso-network-viewer>
-        <label>Legend: nodes from your list are rounded and coloured in dark grey, whereas the external nodes added as intermediate are squares with light grey color.
+        <label class="jso">Legend: nodes from your list are rounded and coloured in dark grey, whereas the external nodes added as intermediate are squares with light grey color.
             <template if="{{seedListExists}}">
             Nodes in ellipse shape are from the seed list.
             </template>
         </label>
         <br>
-        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+        <label class="jso">You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
             <font-awesome icon="arrows"></font-awesome>
         </label>
 

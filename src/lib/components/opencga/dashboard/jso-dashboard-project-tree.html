@@ -1,0 +1,112 @@
+<dom-module id="jso-dashboard-project-tree">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .main {
+            border: 1px solid transparent;
+        }
+
+        .study {
+            padding: 2px 2px 2px 18px;
+            border: 1px solid transparent;
+        }
+
+        .folder:before {
+            display: block;
+            width: 25px;
+            text-align: center;
+            font-family: FontAwesome;
+            content: '\f114';
+        }
+
+        .project:before {
+            display: inline-block;
+            width: 25px;
+            text-align: center;
+            font-family: FontAwesome;
+            content: '\f07b';
+        }
+
+        .arrow:before {
+            display: block;
+            width: 15px;
+            text-align: center;
+            font-family: FontAwesome;
+            content: '\f0da';
+        }
+
+        .arrow[open]:before {
+            content: '\f0d7';
+        }
+
+        .arrow[empty]:before {
+            content: '\00a0';
+        }
+
+        .project, .arrow {
+            padding: 2px;
+        }
+    </style>
+    <template>
+        <div class="main jso-color-main-1h horizontal layout " selected$="{{isSelected(selected, project)}}">
+            <div class="arrow" empty$="isProjectEmpty(project)" open$="{{open}}"
+                 on-click="handleArrowClick"></div>
+            <div class="project flex" on-click="handleSelectProject">{{project.name}}</div>
+        </div>
+        <div hidden$="{{!open}}">
+            <template is="x-repeat" items="{{project.studies}}">
+                <div class="study jso-color-main-1h horizontal layout"
+                     selected$="{{isSelected(selected, item)}}"
+                     on-click="handleSelectStudy">
+                    <div class="arrow" empty></div>
+                    <div class="folder"></div>
+                    <div class="name"> {{item.name}}</div>
+                </div>
+            </template>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-dashboard-project-tree",
+        properties: {
+            project: {
+                type: Object
+            },
+            selected: {
+                type: Object
+            },
+            open: {
+                type: Boolean,
+                value: true
+            }
+        },
+
+
+        isSelected: function (selected, project) {
+            return selected.item == project;
+        },
+        isProjectEmpty: function (project) {
+            return project.studies.length == 0;
+        },
+        ready: function () {
+        },
+        handleSelectProject: function (e) {
+            this.selected = {type: 'project', item: this.project};
+        },
+        handleSelectStudy: function (e) {
+            debugger
+            this.selected = {type: 'study', item: e.target.templateInstance.model.study, project: this.project};
+        },
+        handleArrowClick: function (e) {
+            if (this.project.studies.length != 0) {
+                this.open = !this.open;
+            }
+        }
+    });
+</script>

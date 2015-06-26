@@ -1,4 +1,4 @@
-<polymer-element name="jso-snow" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+<dom-module id="jso-snow" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
     <template>
         <style>
             :host {
@@ -36,11 +36,11 @@
         </style>
 
 
-        <div class="tooltitle" hidden?="{{hideTitle == 'true'}}">
+        <div class="jso-tooltitle" hidden?="{{hideTitle == 'true'}}">
                 <div flex>
                     Snow
                     <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/network-enrichment-(snow)">
-                        <font-awesome icon="question-circle"></font-awesome>
+                        <i class="fa fa-question-circle"></i>
                     </a>
                 </div>
                 <div class="icon">
@@ -48,85 +48,85 @@
                 </div>
         </div>
         <form id="form">
-            <div class="formbox">
-                <div class="formtitle">Examples</div>
-                <div class="formcontent">
-                    <div class="button action" style="display:inline-block" on-click="{{loadExample1}}">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Examples</div>
+                <div class="jso-formcontent">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">
                         Downregulated in fibroblasts from old individuals, compared to young
                     </div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="oldage_dn.txt" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="oldage_dn.txt" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                     <br>
-                    <div class="button action" style="display:inline-block;margin-top:5px;" on-click="{{loadExample2}}">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block;margin-top:5px;" on-click="{{loadExample2}}">
                         Upregulated by induction of exogenous BRCA1 in EcR-293 cells
                     </div>
-                    <div class="button action" on-click="{{handleDownloadFile}}" data-example="brca1_overexp_up.txt" style="display:inline-block">
-                        <font-awesome icon="download"></font-awesome>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="brca1_overexp_up.txt" style="display:inline-block">
+                        <i class="fa fa-download"></i>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Define your input data</div>
-                <div class="formcontent">
-                    <label class="control">
-                        <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Define your input data</div>
+                <div class="jso-formcontent">
+                    <label class="jso-control">
+                        <input class="jso"id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">
                         <span>One list</span>
                     </label>
-                    <label class="control">
-                        <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="{{modeChanged}}">
+                    <label class="jso-control">
+                        <input class="jso"id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="{{modeChanged}}">
                         <span>Comparing two lists</span>
                     </label>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select your input files</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select your input files</div>
+                <div class="jso-formcontent">
                     List 1:
-                    <jso-project-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file"
                                                 allowTextArea="true"
                                                 on-file-select="{{handleFileSelect}}"
                                                 bioformat="IDLIST"
                                                 networkViewer="{{networkViewer}}"
-                            ></jso-project-browser-window>
+                            ></jso-opencga-browser-window>
                     <div id="list2Div" hidden>
                         <br>
                         List 2:
-                        <jso-project-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
+                        <jso-opencga-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file"
                                                     allowTextArea="true"
                                                     on-file-select="{{handleFileSelect}}"
                                                     bioformat="IDLIST"
                                                     networkViewer="{{networkViewer}}"
-                                ></jso-project-browser-window>
+                                ></jso-opencga-browser-window>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">List nature</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">List nature</div>
+                <div class="jso-formcontent">
                     <div id="typeDiv">
-                        <label class="control">
-                            <input id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">
+                        <label class="jso-control">
+                            <input class="jso"id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">
                             <span>Transcripts</span>
                         </label>
-                        <label class="control">
-                            <input id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>
+                        <label class="jso-control">
+                            <input class="jso"id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>
                             <span>Proteins</span>
                         </label>
-                        <label class="control">
-                            <input id="type_3" name="type" class="fc-radioitem" type="radio" value="genes">
+                        <label class="jso-control">
+                            <input class="jso"id="type_3" name="type" class="fc-radioitem" type="radio" value="genes">
                             <span>Genes</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Species</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Species</div>
+                <div class="jso-formcontent">
                     <div id="interactomeDiv">
                         <div class="select" style="width:200px;">
                             <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
@@ -142,68 +142,67 @@
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Select interactome confidence</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Select interactome confidence</div>
+                <div class="jso-formcontent">
                     <div id="groupDiv" vertical layout>
-                        <label class="control">
-                            <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
+                        <label class="jso-control">
+                            <input class="jso"id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
                             <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
                         </label>
-                        <label class="control">
-                            <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
+                        <label class="jso-control">
+                            <input class="jso"id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
                             <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
                         </label>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Side for statistical tests</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Side for statistical tests</div>
+                <div class="jso-formcontent">
                     <div id="sideDiv">
-                        <label class="control">
-                            <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">
+                        <label class="jso-control">
+                            <input class="jso"id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">
                             <span>Greater</span>
                         </label>
-                        <label class="control">
-                            <input id="side_2" name="side" class="fc-radioitem" type="radio" value="less">
+                        <label class="jso-control">
+                            <input class="jso"id="side_2" name="side" class="fc-radioitem" type="radio" value="less">
                             <span>Less</span>
                         </label>
                     </div>
                 </div>
             </div>
-            <div class="formbox">
-                <div class="formtitle">Allow one external intermediate in the subnetwork</div>
-                <div class="formcontent">
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Allow one external intermediate in the subnetwork</div>
+                <div class="jso-formcontent">
                     <div id="intermediateDiv">
-                        <label class="control">
-                            <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
+                        <label class="jso-control">
+                            <input class="jso"id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
                             <span>Yes</span>
                         </label>
-                        <label class="control">
-                            <input id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
+                        <label class="jso-control">
+                            <input class="jso"id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
                             <span>No</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="formbox">
-                <div class="formtitle">Job information</div>
-                <div class="formcontent">
-                    <label>Output folder</label>
-                    <jso-project-browser-window id="outdir" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="folder" selectedFolder="analysis" showBrowser="false"></jso-project-browser-window>
-                    <label>Job name</label>
-                    <input type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
-                    <label>Description</label>
+            <div class="jso-formbox">
+                <div class="jso-formtitle">Job information</div>
+                <div class="jso-formcontent">
+                    <label class="jso">Output folder</label>
+                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <label class="jso">Job name</label>
+                    <input class="jso"type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
+                    <label class="jso">Description</label>
                     <textarea value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="button action big" on-click="{{handleForm}}">
-                    <font-awesome icon="rocket"></font-awesome>
+                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                    <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
             </div>
@@ -213,7 +212,6 @@
     <script>
         Polymer({
             created: function () {
-                this.jobName = 'JobName';
                 this.toolName = "snow";
                 this.message = '';
                 this.description = "";
@@ -259,12 +257,12 @@
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
-                    studyId: this.selectedStudy.id,
+                    studyId: this.projects[0].studies[0].id,
                     toolId: this.toolName,
                     name: this.jobName,
                     description: this.description,
 //                    list1: this.$.inputFile.selectedFile.id,
-                    outdir: this.$.outdir.selectedFile.id,
+                    outdir: this.$.outdir.getSelectedFile().id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
                     intermediate: this.$.intermediateDiv.querySelector('input[name="intermediate"]:checked').value,
@@ -336,7 +334,7 @@
                 this.message = '';
                 this.jobName = "Downregulated";
                 this.description = "Downregulated in fibroblasts from old individuals, compared to young";
-                this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"});
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;
                 this.$.side_1.checked = true;
@@ -352,7 +350,7 @@
                 this.message = '';
                 this.jobName = "Upregulated by induction of exogenous BRCA1 in EcR-293 cells";
                 this.description = "";
-                this.$.inputFile.selectedFile = {id: "example_brca1_overexp_up.txt", path: "brca1_overexp_up.txt", type: "FILE"};
+                this.$.inputFile.setSelectedFile({id: "example_brca1_overexp_up.txt", path: "brca1_overexp_up.txt", type: "FILE"});
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;
                 this.$.side_1.checked = true;

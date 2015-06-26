@@ -1,4 +1,4 @@
-<polymer-element name="jso-attribute-edit" extends="jso-window" attributes="selectedMenu attributeManager type">
+<dom-module id="jso-attribute-edit" extends="jso-window" attributes="selectedMenu attributeManager type">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -145,9 +145,9 @@
                 <div id="left" vertical layout>
 
                     <div class="formbox fit">
-                        <div class="formtitle">Edit</div>
-                        <div class="formcontent" vertical layout>
-                            <label>Edit attribute for selected {{type}}s</label>
+                        <div class="jso-formtitle">Edit</div>
+                        <div class="jso-formcontent" vertical layout>
+                            <label class="jso">Edit attribute for selected {{type}}s</label>
 
                             <div vertical layout>
                                 <div class="select">
@@ -193,7 +193,7 @@
                     </div>
 
                     <div class="formbox fit" style="border-top-width:1px" flex>
-                        <div class="formtitle" horizontal layout>
+                        <div class="jso-formtitle" horizontal layout>
                             <div flex>Filters</div>
                             <div class="actions" horizontal layout>
                                 <div data-checked?="{{filterSelectedOption == 'add'}}">
@@ -209,7 +209,7 @@
                             </div>
                         </div>
 
-                        <div class="formcontent" vertical layout>
+                        <div class="jso-formcontent" vertical layout>
 
                             <template if="{{filterSelectedOption == 'view'}}">
                                 <div class="selbox" style="height: 280px;">
@@ -235,7 +235,7 @@
                             </template>
 
                             <template if="{{filterSelectedOption == 'add'}}">
-                                <label>Attribute:</label>
+                                <label class="jso">Attribute:</label>
 
                                 <div class="select">
                                     <select id="filterAttributeSelect">
@@ -246,7 +246,7 @@
                                 </div>
 
 
-                                <label>Data type:</label>
+                                <label class="jso">Data type:</label>
 
                                 <div class="selbox">
                                     <div flex class="selitem" data-checked="{{attributeType == 'string'}}"
@@ -258,7 +258,7 @@
                                 </div>
 
                                 <template if="{{attributeType == 'string'}}">
-                                    <label>String matching:</label>
+                                    <label class="jso">String matching:</label>
 
                                     <div class="selbox" style="height: 122px;">
                                         <div flex class="selitem" data-checked="{{stringMatch == 'exact'}}"
@@ -274,7 +274,7 @@
                                 </template>
 
                                 <template if="{{attributeType == 'number'}}">
-                                    <label>Number matching:</label>
+                                    <label class="jso">Number matching:</label>
 
                                     <div class="selbox">
                                         <div flex class="selitem" data-checked="{{numberMatch == 'equals'}}"
@@ -304,7 +304,7 @@
                                     <div flex>
                                         <input type="text" value="{{queryString}}" placeholder="Query string">
                                     </div>
-                                    <div class="button action" on-click="{{handleCreateFilter}}">
+                                    <div class="jso-btn jso-btn-shdw" on-click="{{handleCreateFilter}}">
                                         Add filter
                                     </div>
                                 </div>
@@ -316,11 +316,11 @@
                 </div>
                 <div flex vertical layout>
                     <div class="bar" horizontal layout>
-                        <div class="button action" on-click="{{handleSelectAll}}">Select all</div>
-                        <div class="button action" on-click="{{handleDeselectAll}}">Deselect all</div>
+                        <div class="jso-btn jso-btn-shdw" on-click="{{handleSelectAll}}">Select all</div>
+                        <div class="jso-btn jso-btn-shdw" on-click="{{handleDeselectAll}}">Deselect all</div>
 
                         <div flex>
-                            <label class="control">
+                            <label class="jso-control">
                                 <input type="checkbox" checked?="{{ showSelected }}" on-change="{{handleShowSelected}}">
                                 <span title="Switch view beetwen all nodes or selected nodes">Show only selected</span>
                             </label>
@@ -346,10 +346,10 @@
                     </div>
                     <div class="customPager" horizontal layout>
                         <div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>
-                        <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
+                        <div class="jso-btn jso-btn-shdw" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">
                             &lt;</div>
                         <div class="text"> {{table.page}} of {{table.lastPage}}</div>
-                        <div class="button action" disabled?="{{table.page>=table.lastPage}}"
+                        <div class="jso-btn jso-btn-shdw" disabled?="{{table.page>=table.lastPage}}"
                              on-click="{{moveToNextPage}}">&gt;</div>
                     </div>
                 </div>

@@ -28,7 +28,7 @@ function ChromosomePanel(args) {
 
     this.target;
     this.autoRender = true;
-    this.cellBaseHost = 'https://www.ebi.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
     this.cellBaseVersion = 'v3';
 
     this.pixelBase;
@@ -177,7 +177,7 @@ ChromosomePanel.prototype = {
             resource: 'info',
             async: false,
             success: function (data) {
-                _this.data = data.response[0].result.chromosomes;
+                _this.data = data.response[0].result[0].chromosomes[0];
                 _this.data.cytobands.sort(function (a, b) {
                     return (a.start - b.start);
                 });

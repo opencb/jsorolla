@@ -1,119 +1,221 @@
-<polymer-element name="jso-variant-phenotype-grid" attributes="variant">
+<dom-module id="jso-variant-phenotype-grid">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+
+        jso-table {
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        label.jso {
+            display: block;
+            margin-left: 10px;
+            font-size: 15px;
+        }
+    </style>
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                background-color: white;
-            }
-
-        </style>
-
-        <div hidden?="{{dataCosmic.length == 0}}">
-            <span>Cosmic</span>
-            <sortable-table id="cosmicGrid"
-                            class="bootstrap"
-                            footerTemplate="defaultPager"
-                            pageSize="10"
-                            page="{{page}}"
-                            loading="true"
-                            data="{{dataCosmic}}">
-            </sortable-table>
+        <label class="jso">Cosmic:</label>
+        <jso-table id="cosmicTable" hidden$="{{isCosmicEmpty}}"></jso-table>
+        <div hidden$="{{!isCosmicEmpty}}" style="padding:20px 50px;">
+            No results found.
         </div>
-        <div hidden?="{{dataGwas.length == 0}}">
-            <span>Gwas</span>
-            <sortable-table id="gwasGrid"
-                            class="bootstrap"
-                            footerTemplate="defaultPager"
-                            pageSize="10"
-                            page="{{page}}"
-                            loading="true"
-                            data="{{dataGwas}}">
-            </sortable-table>
+        <br>
+        <label class="jso">GWAS:</label>
+        <jso-table id="gwasTable" hidden$="{{isGwasEmpty}}"></jso-table>
+        <div hidden$="{{!isGwasEmpty}}" style="padding:20px 50px;">
+            No results found.
         </div>
-        <div hidden?="{{dataClinvar.length == 0}}">
-            <span>
-                Clinvar
-            </span>
-            <sortable-table id="clinvarGrid"
-                            class="bootstrap"
-                            footerTemplate="defaultPager"
-                            pageSize="10"
-                            page="{{page}}"
-                            loading="true"
-                            data="{{dataClinvar}}">
-            </sortable-table>
+        <br>
+        <label class="jso">Clinvar:</label>
+        <jso-table id="clinvarTable" hidden$="{{isClinvarEmpty}}"></jso-table>
+        <div hidden$="{{!isClinvarEmpty}}" style="padding:20px 50px;">
+            No results found.
         </div>
-
     </template>
-    <script>
-        Polymer({
-            variant: null,
-            data: null,
-            page: 1,
-            created: function () {
-                this.data = [];
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-variant-phenotype-grid',
+        properties: {
+            row: {
+                type: Object,
+                observer: 'rowChanged'
             },
-            ready: function () {
-
+            isCosmicEmpty: {
+                value: false,
+                type: Boolean
             },
-            variantChanged: function (oldValue, newValue) {
-                var me = this;
-
-                this.page = 1;
-                this.dataCosmic = [];
-                this.dataGwas = [];
-                this.dataClinvar = [];
-
-                if (newValue != '') {
-                    CellBaseManager.get({
-                        host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
-                        version: 'v3',
-                        species: 'hsapiens',
-                        category: 'genomic',
-                        subCategory: 'variant',
-                        resource: 'full_annotation',
-//                        query: newValue,
-                        query: '19:45411941:T:C',
-                        async: false,
-                        success: function (response) {
-                            try {
-
-                                var clinicalData = response.response[0].result[0].clinicalData;
-
-                                if (clinicalData.Cosmic != null) {
-                                    for (var i = 0; i < clinicalData.Cosmic.length; i++) {
-                                        var cosmic = clinicalData.Cosmic[i];
-                                        me.dataCosmic.push(cosmic);
-                                    }
-                                }
-                                if (clinicalData.Gwas != null) {
-                                    for (var i = 0; i < clinicalData.Gwas.length; i++) {
-                                        var gwas = clinicalData.Gwas[i];
-                                        me.dataGwas.push(gwas);
-                                    }
-                                }
-                                if (clinicalData.Clinvar != null) {
-                                    for (var i = 0; i < clinicalData.Clinvar.length; i++) {
-                                        var clinvar = clinicalData.Clinvar[i];
-                                        me.dataClinvar.push(clinvar);
-                                    }
-                                }
-
-                                me.$.cosmicGrid.dataSize = me.dataCosmic.length;
-
-                            } catch (e) {
-                                console.log(e);
-                                me.dataCosmic = [];
-                                me.dataGwas = [];
-                                me.dataCinvar = [];
-                            }
-                        }
-                    });
-                }
+            isGwasEmpty: {
+                value: false,
+                type: Boolean
+            },
+            isClinvarEmpty: {
+                value: false,
+                type: Boolean
             }
-        });
-    </script>
-</polymer-element>
+        },
+        ready: function () {
+            this.$.cosmicTable.columns = this._cosmicColumns;
+            this.$.gwasTable.columns = this._gwasColumns;
+            this.$.clinvarTable.columns = this._clinvarColumns;
+        },
+        _cosmicColumns: [
+            {
+                name: "geneName",
+                title: "Gene name"
+            },
+            {
+                name: "histologySubtype",
+                title: "Histology subtype"
+            },
+            {
+                name: "mutationID",
+                title: "Mutation ID"
+            },
+            {
+                name: "mutationSomaticStatus",
+                title: "Muutation somatic status"
+            },
+            {
+                name: "primaryHistology",
+                title: "Primary histology"
+            },
+            {
+                name: "primarySite",
+                title: "Primary site"
+            },
+            {
+                name: "sampleSource",
+                title: "Sample source"
+            },
+            {
+                name: "siteSubtype",
+                title: "Site subtype"
+            },
+            {
+                name: "tumourOrigin",
+                title: "Tumour origin"
+            }
+        ],
+        _gwasColumns: [
+            {
+                name: "reportedGenes",
+                title: "R eported genes"
+            },
+            {
+                name: "riskAlleleFrequency",
+                title: "Risk allele frequency",
+            },
+            {
+                name: "snpIdCurrent",
+                title: "snp ID current"
+            },
+            {
+                name: "traits",
+                title: "Traits",
+//                formula: function (row) {
+//                    return row.traits.join(', ');
+//                }
+            }
+        ],
+        _clinvarColumns: [
+            {
+                name: "acc",
+                title: "Accession"
+            },
+            {
+                name: "clinicalSignificance",
+                title: "Clinical significance"
+            },
+            {
+                name: "geneName",
+                title: "Gene name",
+//                formula: function (row) {
+//                    return row.geneName.join(', ');
+//                }
+            },
+            {
+                name: "reviewStatus",
+                title: "Review status"
+            },
+            {
+                name: "traits",
+                title: "Traits",
+//                formula: function (row) {
+//                    return row.traits.join(', ');
+//                }
+            }
+        ],
+        rowChanged: function (neo, old) {
+            var me = this;
+
+            this.$.cosmicTable.currentPage = 1;
+            this.$.gwasTable.currentPage = 1;
+            this.$.clinvarTable.currentPage = 1;
+
+            if (neo) {
+                var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                CellBaseManager.get({
+//                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                    version: 'v3',
+                    species: 'hsapiens',
+                    category: 'genomic',
+                    subCategory: 'variant',
+                    resource: 'full_annotation',
+                    query: variant,
+//                    query: '19:45411941:T:C',
+                    async: false,
+                    success: function (response) {
+                        try {
+                            var dataCosmic = [];
+                            var dataGwas = [];
+                            var dataClinvar = [];
+
+                            var clinicalData = response.response[0].result[0].clinicalData;
+                            console.log(clinicalData)
+
+                            if (clinicalData.Cosmic != null) {
+                                for (var i = 0; i < clinicalData.Cosmic.length; i++) {
+                                    var cosmic = clinicalData.Cosmic[i];
+                                    dataCosmic.push(cosmic);
+                                }
+                            }
+                            if (clinicalData.Gwas != null) {
+                                for (var i = 0; i < clinicalData.Gwas.length; i++) {
+                                    var gwas = clinicalData.Gwas[i];
+                                    dataGwas.push(gwas);
+                                }
+                            }
+                            if (clinicalData.Clinvar != null) {
+                                for (var i = 0; i < clinicalData.Clinvar.length; i++) {
+                                    var clinvar = clinicalData.Clinvar[i];
+                                    dataClinvar.push(clinvar);
+                                }
+                            }
+                            me.$.cosmicTable.data = dataCosmic;
+                            me.$.gwasTable.data = dataGwas;
+                            me.$.clinvarTable.data = dataClinvar;
+
+                            me.isCosmicEmpty = (me.$.cosmicTable.data.length > 0) ? false : true;
+                            me.isGwasEmpty = (me.$.gwasTable.data.length > 0) ? false : true;
+                            me.isClinvarEmpty = (me.$.clinvarTable.data.length > 0) ? false : true;
+
+                        } catch (e) {
+                            console.log(e);
+                            me.$.cosmicTable.data = [];
+                            me.$.gwasTable.data = [];
+                            me.$.clinvarTable.data = [];
+
+                            me.isCosmicEmpty = true;
+                            me.isGwasEmpty = true;
+                            me.isClinvarEmpty = true;
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>

@@ -23,21 +23,30 @@ function OpencgaAdapter(args) {
 
     _.extend(this, Backbone.Events);
 
-//    this.sid = "RNk4P0ttFGHyqLA3YGS8";
-
     _.extend(this, args);
 
     this.on(this.handlers);
 
+    this.cacheConfig = {
+        cacheId: 'opencga' + this.resource.id,
+//        subCacheId: this.resource + this.params.exclude,
+        chunkSize: 3000
+    };
+    _.extend(this.cacheConfig, args.cacheConfig);
+
     this.cache = new FeatureChunkCache(this.cacheConfig);
-    this.minChunkSize = 200;
+    this.debug = false;
 }
 
 OpencgaAdapter.prototype = {
     getData: function (args) {
         var _this = this;
-
         args.webServiceCallCount = 0;
+
+        var params = {};
+//                    histogram: (dataType == 'histogram')
+        _.extend(params, this.params);
+        _.extend(params, args.params);
 
         /** 1 region check **/
         var region = args.region;
@@ -47,8 +56,10 @@ OpencgaAdapter.prototype = {
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
+
         /** 2 category check **/
-        var categories = args.categories;   // in this adapter each category is each file
+        //TODO define category
+        var categories = this.resource.id.toString().split(',');   // in this adapter each category is each file
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -57,26 +68,10 @@ OpencgaAdapter.prototype = {
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.defaultChunkSize;
-        if (chunkSize % this.minChunkSize != 0) {
-            chunkSize = Math.round(chunkSize / this.minChunkSize) * this.minChunkSize;  // round to this.minChunkSize multiple.
+        var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
+        if (this.debug) {
+            console.log(chunkSize);
         }
-        if (chunkSize <= 0) {
-            chunkSize = this.minChunkSize;
-        }
-
-        /* TODO remove??????
-         var params = {
-         species: Utils.getSpeciesCode(this.species.text)
-         };
-         _.extend(params, this.params);
-         _.extend(params, args.params);
-
-         two levels of cache. In this adapter, default are: resource and subResource
-         this.cacheConfig.cacheId = this.resource;
-         this.cacheConfig.subCacheId = this.subResource;
-         var combinedCacheId = _this.cacheConfig.cacheId + "_" + _this.cacheConfig.subCacheId;
-         */
 
         /**
          * Get the uncached regions (uncachedRegions) and cached chunks (cachedChunks).
@@ -95,28 +90,22 @@ OpencgaAdapter.prototype = {
             /**
              * Process uncached regions
              */
-            // assumption: every sample has the same uncached regions.
-            var queriesList;
-            if (dataType == "histogram") {
-                queriesList = [region];
-            } else {
-                queriesList = _this._groupQueries(uncachedRegions[category]);
-            }
-//            var queriesList = uncachedRegions[category];
+            // TODO check if OpenCGA allows multiple regions
+            var queriesList = _this._groupQueries(uncachedRegions[category]);
 
+            // TODO check how to manage multiple regions and multiple files ids
             for (var i = 0; i < queriesList.length; i++) {
                 args.webServiceCallCount++;
                 var queryRegion = queriesList[i];
 
-                OpencgaManager.files.fetch({
+                params['region'] = queryRegion.toString();
+                params['interval'] = chunkSize;
+                params['histogram'] = (dataType == 'histogram');
+                params['process_differences'] = false;
+
+                OpencgaManager.files[_this.category]({
                     id: categoriesName,
-                    query: {
-                        sid: _this.sid, //TODO add sid to queryParams; resolved isn't it?
-                        region: queryRegion.toString(),
-                        interval: chunkSize,
-                        histogram: (dataType == 'histogram'),
-                        process_differences: false
-                    },
+                    query: params,
                     request: {
                         success: function (response) {
                             _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
@@ -132,23 +121,22 @@ OpencgaAdapter.prototype = {
             /**
              * Process Cached chunks
              */
-            for (var k = 0; k < categories.length; k++) {
-                if (cachedChunks[categories[k]].length > 0) {
-                    var decryptedChunks = _this._decryptChunks(cachedChunks[categories[k]], "mypassword");
-                    if (args.webServiceCallCount === 0) {   // in case no webserviceCalls were made
-                        args.done();
-                    }
-                    args.dataReady({items: decryptedChunks, dataType: dataType, chunkSize: chunkSize, sender: _this, category: categories[k]});
+            if (cachedChunks[category].length > 0) {
+                if (args.webServiceCallCount === 0) {
+                    args.done();
                 }
+                _this.trigger('data:ready', {items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
+//                args.dataReady({items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
             }
         });
     },
 
     _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
         args.webServiceCallCount--;
-//        var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
-//        console.time(timeId);
-//        /** time log **/
+
+        var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
+        console.time(timeId);
+        /** time log **/
 
         if (categories.length != data.response.length) {
             console.log("ERROR: requested " + categories.length + "samples, but response has " + data.response.length);
@@ -157,27 +145,28 @@ OpencgaAdapter.prototype = {
         }
 
         if (data.response[0] && data.response[0].result[0]) {
-            var inferredChunkSize = data.response[0].result[0].end - data.response[0].result[0].start +1;
+            var inferredChunkSize = data.response[0].result[0].end - data.response[0].result[0].start + 1;
             if (inferredChunkSize != chunkSize) {
                 console.log("code smell: chunkSize requested: " + chunkSize + ", but obtained: " + inferredChunkSize);
 //                chunkSize = inferredChunkSize;
             }
         }
-//        debugger
 
         for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample? in variant too?
             var queryResult = data.response[i];
             var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
+            //if (items.length > 0) {
+            //    // if (data.encoded) {decrypt }
+            //    args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this, category: categories[i]});
+            //}
+            //var decryptedChunks = this._decryptChunks(items, "mypassword");
             if (items.length > 0) {
-                // if (data.encoded) {decrypt }
-                args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this, category: categories[i]});
+                this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
             }
         }
 
-//        var decryptedChunks = this._decryptChunks(items, "mypassword");
-
-//        /** time log **/
-//        console.timeEnd(timeId);
+        /** time log **/
+        console.timeEnd(timeId);
 
         if (args.webServiceCallCount === 0) {
             args.done();
@@ -229,7 +218,7 @@ OpencgaAdapter.prototype = {
 
                 if (keyToPair[key] == undefined) {
                     keyToPair[key] = chunks.length;
-                    regions.push(new Region({chromosome:variation.chromosome, start: chunkId*chunkSize, end: (chunkId+1)*chunkSize-1}));
+                    regions.push(new Region({chromosome: variation.chromosome, start: chunkId * chunkSize, end: (chunkId + 1) * chunkSize - 1}));
                     chunks.push([]);
                 }
                 chunks[keyToPair[key]].push(variation);

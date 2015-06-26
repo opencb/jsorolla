@@ -1,4 +1,4 @@
-<polymer-element name="jso-rnaseq-diffexpr-result" attributes="jobItem">
+<dom-module id="jso-rnaseq-diffexpr-result" attributes="jobItem">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -91,24 +91,24 @@
                         <div class="headerTitle">Input parameters</div>
                         <div class="data">
                             <div class="message" horizontal="" layout="">
-                                <label>Data file</label>
+                                <label class="jso">Data file</label>
 
                                 <div class="messageValue">{{dataFile}}</div>
                             </div>
                             <template if="{{method != ''}}">
                                 <div class="message" horizontal="" layout="">
-                                    <label>Method</label>
+                                    <label class="jso">Method</label>
 
                                     <div class="messageValue">{{method}}</div>
                                 </div>
                             </template>
                             <div class="message" horizontal="" layout="">
-                                <label>Multiple-test correction</label>
+                                <label class="jso">Multiple-test correction</label>
 
                                 <div class="messageValue">{{pvmet}}</div>
                             </div>
                             <div class="message" horizontal="" layout="">
-                                <label>P value</label>
+                                <label class="jso">P value</label>
 
                                 <div class="messageValue">{{pval}}</div>
                             </div>
@@ -124,10 +124,10 @@
                                 You can also download the example file.
                                 <br>
                                 For detailed information you can download the log file:
-                                <div class="file"><label>Log output file:</label>
+                                <div class="file"><label class="jso">Log output file:</label>
                                     <a href="{{logOutputFile}}" target="_blank">log_output.txt</a>
                                 </div>
-                                <div class="file"><label>Log error file:</label>
+                                <div class="file"><label class="jso">Log error file:</label>
                                     <a href="{{logErrorFile}}" target="_blank">log_error.txt</a>
                                 </div>
                                 If error persist, please contact babelomics crew at babelomics@cipf.es
@@ -145,7 +145,7 @@
                                 <template if="{{significative}}">
                                     <h3>Significative file</h3>
 
-                                    <div class="file"><label>File</label>
+                                    <div class="file"><label class="jso">File</label>
                                         <a href="{{fileUrl}}" target="_blank">diffexp_Sig_results.txt</a>
                                     </div>
 
@@ -241,7 +241,7 @@
                                 <template if="{{!significative}}">
                                     <h3>No significative results</h3>
                                     There is no significative results, but you can download all the results:
-                                    <div class="file"><label>File</label>
+                                    <div class="file"><label class="jso">File</label>
                                         <a href="{{diffexp_results_url}}">diffexp_All_results.txt</a>
                                     </div>
                                 </template>

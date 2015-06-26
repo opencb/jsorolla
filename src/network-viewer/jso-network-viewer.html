@@ -1,3 +1,32 @@
+<link href='../../styles/fonts/fonts.css' rel='stylesheet' type='text/css'>
+
+<link rel="stylesheet" href="../lib/components/jso-style.css">
+<link rel="stylesheet" href="../lib/components/jso-panel.css">
+<link rel="stylesheet" href="../lib/components/jso-form.css">
+<link rel="stylesheet" href="../lib/components/jso-dropdown.css">
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer-fontawesome/polymer-fontawesome.html">
+<link rel="import" href="../../bower_components/sortable-table/sortable-table.html">
+<link rel="import" href="../../bower_components/core-list/core-list.html">
+
+<script src="../../bower_components/d3/d3.min.js"></script>
+<script src="../../bower_components/pako/dist/pako.min.js"></script>
+
+<script src="../../bower_components/js-xlsx/dist/jszip.js"></script>
+<script src="../../bower_components/js-xlsx/dist/xlsx.min.js"></script>
+
+<script src="../../bower_components/cookies-js/dist/cookies.min.js"></script>
+<script src="../../bower_components/crypto-js-evanvosberg/core.js"></script>
+<script src="../../bower_components/crypto-js-evanvosberg/sha1.js"></script>
+<script src="../../bower_components/highcharts-release/adapters/standalone-framework.js"></script>
+<script src="../../bower_components/highcharts-release/highcharts.js"></script>
+<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+
+<script src="../../bower_components/underscore/underscore-min.js"></script>
+<script src="../../bower_components/backbone/backbone.js"></script>
+
+
 <link rel="import" href="jso-nv-bar.html">
 <link rel="import" href="jso-nv-edition-bar.html">
 <link rel="import" href="jso-nv-tool-bar.html">
@@ -61,12 +90,10 @@
 
 
 <script src="../lib/cellbase-manager.js"></script>
-
-<script src="../../bower_components/d3/d3.min.js"></script>
-<script src="../../bower_components/pako/dist/pako.min.js"></script>
+<script src="../lib/opencga-manager.js"></script>
 
 <polymer-element name="jso-network-viewer"
-                 attributes="hideBar hideToolBar hideEditionBar userData selectedStudy studies jsoHeader lite">
+                 attributes="hideBar hideToolBar hideEditionBar hideStatusBar userData selectedStudy studies jsoHeader lite">
     <template>
         <style>
             :host {
@@ -74,6 +101,9 @@
                 position: relative;
                 height: 100%;
                 background-color: #FFFFFF;
+                font-size: 13px;
+                font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, 'sans-serif' !important;
+                height: 100%;
             }
 
             .left-side {
@@ -242,11 +272,12 @@
 
                 ></jso-nv-layout>
 
-        <jso-nv-status-bar networkViewer="{{}}">
+        <jso-nv-status-bar hidden?="{{hideStatusBar == 'true'}}" networkViewer="{{}}">
         </jso-nv-status-bar>
 
         <div class="right-side">
             <jso-attribute-node-render
+                    hidden
                     id="nodeRender"
                     attributeManager="{{vAttr}}"
                     defaults="{{vertexDefaults}}"
@@ -270,6 +301,7 @@
             </jso-attribute-node-render>
 
             <jso-attribute-edge-render
+                    hidden
                     id="edgeRender"
                     attributeManager="{{eAttr}}"
                     defaults="{{edgeDefaults}}"
@@ -461,7 +493,8 @@
             <li data-text>
                 <div class="attr-context" vertical layout>
                     <template repeat="{{ attr in _lastContextVertexAttributes }}">
-                        <div data-text><span class="attrkey">{{ attr.key }}:</span> <span class="attrvalue">{{ attr.value }}</span></div>
+                        <div data-text><span class="attrkey">{{ attr.key }}:</span> <span class="attrvalue">{{ attr.value }}</span>
+                        </div>
                     </template>
                 </div>
             </li>
@@ -482,6 +515,8 @@
 
                 this.mode = "select";
                 this.scale;
+
+                this.saveInProgress = false;
             },
             ready: function () {
                 var me = this;
@@ -493,6 +528,20 @@
                 });
             },
             domReady: function () {
+                var h = 126;
+                if (this.hideBar == 'true') {
+                    h -= 30;
+                }
+                if (this.hideToolBar == 'true') {
+                    h -= 32;
+                }
+                if (this.hideEditionBar == 'true') {
+                    h -= 32;
+                }
+                if (this.hideStatusBar == 'true') {
+                    h -= 28;
+                }
+                this.$.networkLayout.style.height = "calc(100% - " + h + "px)";
 
             },
             _init: function () {
@@ -560,6 +609,15 @@
                     color: null,
                     size: null
                 };
+                if (this.$) {
+                    var key;
+                    for (key in this.vertexVisualSets) {
+                        this.$.nodeRender.$[key].clean();
+                    }
+                    for (key in this.edgeVisualSets) {
+                        this.$.edgeRender.$[key].clean();
+                    }
+                }
 
                 this.graph = new Graph();
                 this.vAttr = new AttributeManagerMemory();
@@ -581,6 +639,21 @@
                     type: "string",
                     cellTemplate: "inputTemplate"
                 });
+
+//                this.vAttr.addColumn({
+//                    defaultValue: "",
+//                    name: "x",
+//                    title: "x",
+//                    type: "string",
+//                    cellTemplate: "inputTemplate"
+//                });
+//                this.vAttr.addColumn({
+//                    defaultValue: "",
+//                    name: "y",
+//                    title: "y",
+//                    type: "string",
+//                    cellTemplate: "inputTemplate"
+//                });
 
                 this.eAttr.addColumn({
                     defaultValue: "",
@@ -608,8 +681,8 @@
             },
             startOver: function () {
                 this.deleteLocalStorage();
-                this.setGraph(new Graph());
                 this._init();
+                this.setGraph(new Graph());
                 this.saveLocalStorage();
             },
             loadLocalStorage: function () {
@@ -626,8 +699,14 @@
                 return false;
             },
             saveLocalStorage: function () {
-                localStorage.setItem(this.serializeKey, pako.gzip(JSON.stringify(this), {to: 'string'}));
-                console.log('saved');
+                if (this.saveInProgress == false) {
+                    this.saveInProgress = true;
+                    localStorage.setItem(this.serializeKey, pako.gzip(JSON.stringify(this), {to: 'string'}));
+                    console.log('saved');
+                    this.saveInProgress = false;
+                } else {
+                    console.log("Save is already in progress");
+                }
             },
             deleteLocalStorage: function () {
                 //OLD keys
@@ -670,18 +749,19 @@
                 this.center.y = o.center.y;
                 this.vertexDefaults = o.vertexDefaults;
                 this.edgeDefaults = o.edgeDefaults;
+
                 this.vertexVisualSets = o.vertexVisualSets;
                 this.edgeVisualSets = o.edgeVisualSets;
 
                 var graph = new Graph();
                 graph.fromJSON(o.graph);
                 this.setGraph(graph);
-//
+
                 this.vAttr = new AttributeManagerMemory();
                 this.eAttr = new AttributeManagerMemory();
+                this._createAttrColumns();
                 this.vAttr.fromJSON(o.vAttr);
                 this.eAttr.fromJSON(o.eAttr);
-
 
                 this.saveLocalStorage();
 
@@ -689,6 +769,13 @@
                 this.setEdgeDefaultLabelAttribute(this.edgeDefaults.labelAttribute);
                 this.$.networkLayout.addBackgroundImages(this.backgroundImages);
                 this.zoom = o.zoom;
+
+//                for (var i = 0; i < this.graph.vertices.length; i++) {
+//                    var vertex = this.graph.vertices[i];
+//                    var row = this.vAttr.getRow(vertex.id);
+//                    row.x = vertex.position.x;
+//                    row.y = vertex.position.y;
+//                }
             },
             toJSON: function () {
                 return {
@@ -947,7 +1034,8 @@
             /* Observers */
             observe: {
                 'vAttr.selected': 'handleVertexSelected',
-                'eAttr.selected': 'handleEdgeSelected'
+                'eAttr.selected': 'handleEdgeSelected',
+                'vAttr.data': 'handleDataChanged'
             },
             handleVertexSelected: function (oldValue, newValue) {
                 //Set all not selected
@@ -975,8 +1063,12 @@
                     edge.renderer.select();
                 }
             },
-
-
+            handleDataChanged: function (oldValue, newValue) {
+//                for (var i = 0; i < this.vAttr.data.length; i++) {
+//                    var row = this.vAttr.data[i];
+//                    this.setVertexCoords(row.id, parseFloat(row.x), parseFloat(row.y));
+//                }
+            },
             /* Bar Handlers*/
             handleNetworkEditMenu: function (e) {
                 this.$.networkEdit.removeAttribute('hidden');
@@ -1178,7 +1270,6 @@
                     this.selectedMenu = "reactome-fi-microarray";
                 }
             },
-
 
             /**/
             handleImportSif: function (e) {
@@ -1584,6 +1675,8 @@
                     var vertex = this.graph.getVertexById(row.id);
                     vertex.position.x += dispX;
                     vertex.position.y += dispY;
+//                    row.x = vertex.position.x;
+//                    row.y = vertex.position.y;
                     vertex.renderer.move();
                     this._updateEdgeCoords(vertex);
                 }
@@ -1620,8 +1713,11 @@
             },
             setVertexCoords: function (vertexId, x, y) {
                 var vertex = this.graph.getVertexById(vertexId);
+                var row = this.vAttr.getRow(vertexId);
                 vertex.position.x = x;
                 vertex.position.y = y;
+//                row.x = vertex.position.x;
+//                row.y = vertex.position.y;
                 vertex.renderer.move();
                 this._updateEdgeCoords(vertex);
             },
@@ -1741,7 +1837,9 @@
                 if (added) {
                     this.vAttr.addRow({
                         'id': vertex.id,
-                        'name': vertex.id
+                        'name': vertex.id,
+                        'x': vertex.position.x,
+                        'y': vertex.position.y
                     });
                     vertex.render({
                         target: this.$.networkLayout.$.scaleFrontGroup
@@ -1888,11 +1986,7 @@
                             end: function (verticesArray) {
                                 for (var i = 0, l = verticesArray.length; i < l; i++) {
                                     var v = verticesArray[i];
-                                    var vertex = me.graph.getVertexById(v.id);
-                                    vertex.position.x = v.x;
-                                    vertex.position.y = v.y;
-                                    vertex.renderer.move();
-                                    me._updateEdgeCoords(vertex);
+                                    me.setVertexCoords(v.id, v.x, v.y);
                                 }
                             }
                         });
@@ -1906,11 +2000,7 @@
                             end: function (verticesArray) {
                                 for (var i = 0, l = verticesArray.length; i < l; i++) {
                                     var v = verticesArray[i];
-                                    var vertex = me.graph.getVertexById(v.id);
-                                    vertex.position.x = v.x;
-                                    vertex.position.y = v.y;
-                                    vertex.renderer.move();
-                                    me._updateEdgeCoords(vertex);
+                                    me.setVertexCoords(v.id, v.x, v.y);
                                 }
                             }
                         });
@@ -1925,14 +2015,7 @@
                                 end: function (verticesArray) {
                                     for (var i = 0, l = verticesArray.length; i < l; i++) {
                                         var v = verticesArray[i];
-//                                        var vertex = me.graph.getVertexById(v.id);
-                                        var vertex = me.graph.getVertexById(v.name);
-                                        vertex.position.x = -v.x + (width);
-                                        vertex.position.y = v.y + 50;
-//                                        vertex.position.x = v.x;
-//                                        vertex.position.y = v.y;
-                                        vertex.renderer.move();
-                                        me._updateEdgeCoords(vertex);
+                                        me.setVertexCoords(v.name, -v.x + (width), v.y + 50);
                                     }
                                 }
                             });
@@ -2044,7 +2127,9 @@
                     var vertex = vertices[i];
                     this.vAttr.addRow({
                         'id': vertex.id,
-                        'name': vertex.id
+                        'name': vertex.id,
+                        'x': vertex.position.x,
+                        'y': vertex.position.y
                     });
 //                    vertex.setRenderer(new CircosVertexRenderer(this.vertexDefaults));
                     vertex.render({
@@ -2085,6 +2170,7 @@
                         }
                     }
                 }
+//                this.handleDataChanged();
                 this.handleVertexDefaultXAttribute();
                 this.handleVertexDefaultYAttribute();
             },
@@ -2141,6 +2227,54 @@
                         }
                     })
                 }
+            },
+            loadSif: function (sifString) {
+                var graph;
+                var adapter = new SIFNetworkDataAdapter({
+                    async: false,
+                    dataSource: new StringDataSource(sifString),
+                    handlers: {
+                        'data:load': function (event) {
+                            graph = event.graph;
+                        },
+                        'error:parse': function (event) {
+                            console.log(event)
+                        }
+                    }
+                });
+                this.setGraph(graph);
+            },
+            loadNodeAttributes: function (attrString) {
+                var attributeManager;
+                varadapter = new AttributeNetworkDataAdapter({
+                    async: false,
+                    dataSource: new StringDataSource(attrString),
+                    handlers: {
+                        'data:load': function (event) {
+                            attributeManager = event.attributeManager;
+                        },
+                        'error:parse': function (event) {
+                            console.log(event)
+                        }
+                    }
+                });
+                this.importVertexAttributeManager(attributeManager);
+            },
+            loadEdgeAttributes: function (attrString) {
+                var attributeManager;
+                varadapter = new AttributeNetworkDataAdapter({
+                    async: false,
+                    dataSource: new StringDataSource(attrString),
+                    handlers: {
+                        'data:load': function (event) {
+                            attributeManager = event.attributeManager;
+                        },
+                        'error:parse': function (event) {
+                            console.log(event)
+                        }
+                    }
+                });
+                this.importEdgeAttributeManager(attributeManager);
             }
         });
     </script>

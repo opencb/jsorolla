@@ -74,15 +74,18 @@ function CheckBrowser(appName){
 		}
 		break;
 	default:
-		if(Ext.chromeVersion>=14){
+		if(Ext.chromeVersion>=40){
 			browserOk = true;
 		}
 		if(Ext.safariVersion>=5){
 			browserOk = true;
 		}
-        if(Ext.isIE10>=5){
-            browserOk = true;
-        }
+		if(Ext.firefoxVersion>=37){
+			browserOk = true;
+		}
+		if(Ext.operaVersion>=29){
+			browserOk = true;
+		}
 	}
 //if(Ext.operaVersion<=0){
 //	browserOk = true;

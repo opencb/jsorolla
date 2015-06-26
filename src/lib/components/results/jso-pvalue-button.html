@@ -1,4 +1,4 @@
-<polymer-element name="jso-pvalue-button" attributes="pvalue">
+<dom-module id="jso-pvalue-button" attributes="pvalue">
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
@@ -13,7 +13,7 @@
             <div class="level-0">
                 <div class="children">
                     <div class="level-1" horizontal layout>
-                        <label>Select p-value: </label>
+                        <label class="jso">Select p-value: </label>
                         <div horizontal="" layout="">
                             <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">
                                 0.1
