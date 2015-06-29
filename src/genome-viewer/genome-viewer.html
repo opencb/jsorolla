@@ -173,8 +173,7 @@ var run = function () {
     };
     var species = availableSpecies.items[0].items[0];
 
-//    var CELLBASE_HOST = 'https://wwwdev.ebi.ac.uk/cellbase/webservices/rest';
-    var CELLBASE_HOST = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
+    var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
     /*
      *  For development purpose only
      */
@@ -241,28 +240,31 @@ var run = function () {
 
     tracks = [];
 
-    this.sequence = new SequenceTrack({
-//        title: 'Sequence',
-        height: 30,
+    this.sequence = new FeatureTrack({
+        title: 'Sequence',
+        height: 25,
         visibleRegionSize: 200,
 
         renderer: new SequenceRenderer(),
-
-        dataAdapter: new SequenceAdapter({
+        dataAdapter: new CellBaseAdapter({
             category: "genomic",
             subCategory: "region",
             resource: "sequence",
-            species: genomeViewer.species
+            params: {},
+            species: genomeViewer.species,
+            cacheConfig: {
+                chunkSize: 100
+            }
         })
     });
-
     tracks.push(this.sequence);
+
     this.gene = new GeneTrack({
         title: 'Gene',
         minHistogramRegionSize: 20000000,
         maxLabelRegionSize: 10000000,
         minTranscriptRegionSize: 200000,
-        height: 140,
+        height: 100,
 
         renderer: new GeneRenderer({
             handlers: {
@@ -278,10 +280,10 @@ var run = function () {
             resource: "gene",
             species: genomeViewer.species,
             params: {
-                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence,chunkIds'
+                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
             },
             cacheConfig: {
-                defaultChunkSize: 100000
+                chunkSize: 100000
             }
         })
     });
@@ -313,7 +315,7 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                defaultChunkSize: 100000
+                chunkSize: 100000
             }
         })
     });
@@ -323,9 +325,9 @@ var run = function () {
     this.snp = new FeatureTrack({
         title: 'SNP',
         featureType: 'SNP',
-        minHistogramRegionSize: 10000,
+        minHistogramRegionSize: 12000,
         maxLabelRegionSize: 3000,
-        height: 100,
+        height: 120,
 
         renderer: new FeatureRenderer(FEATURE_TYPES.snp),
 
@@ -338,7 +340,7 @@ var run = function () {
             },
             species: genomeViewer.species,
             cacheConfig: {
-                defaultChunkSize: 10000
+                chunkSize: 10000
             }
         })
     });
