@@ -510,7 +510,6 @@
                     studyId: studyId
                 },
                 request: {
-                    async: true,
                     success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             files = me._filterFiles(response.response[0].result);

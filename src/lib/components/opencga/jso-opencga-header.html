@@ -381,6 +381,10 @@
             this.fire("logout");
         },
         getUserInfo: function (force) {
+            /** Temporal hack until lastActivity is updated **/
+            force = true;
+            /** end hack **/
+
             var me = this;
             var lastActivity = null;
             if (force != true) {

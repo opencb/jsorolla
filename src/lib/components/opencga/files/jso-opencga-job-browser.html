@@ -247,7 +247,7 @@
             return true;
         },
         refreshJobs: function () {
-            this.jobs = this._getJobs(this.selectedStudy.study.id);
+            this._getJobs(this.selectedStudy.study.id);
         },
         _getJobs: function (studyId) {
             var me = this;
@@ -258,7 +258,6 @@
                     sid: Cookies('bioinfo_sid')
                 },
                 request: {
-                    async: true,
                     success: function (response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {

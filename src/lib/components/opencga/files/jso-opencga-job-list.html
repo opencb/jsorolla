@@ -40,7 +40,7 @@
         <div id="header" class="horizontal layout">
         </div>
         <div id="content">
-            <template is="dom-repeat" items="{{jobs}}" filter="checkFilters" observe="status">
+            <template is="dom-repeat" items="{{jobs}}" filter="checkFilters" observe="status" sort="compareJob">
                 <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect">
                 </jso-opencga-job-list-item>
             </template>
@@ -88,6 +88,9 @@
         checkFilters: function (item) {
             return true;
 //            return item.bioformat == "VARIANT";
+        },
+        compareJob: function(a,b){
+            return b.date - a.date;
         }
     });
 </script>
