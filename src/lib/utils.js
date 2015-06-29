@@ -79,9 +79,13 @@ var Utils = {
         return url + query;
     },
     queryString: function (obj) {
-        return Object.keys(obj).map(function (key) {
-            return key + '=' + obj[key];
-        }).join('&');
+        var items = [];
+        for (var key in obj) {
+            if (obj[key] != null && obj[key] != undefined) {
+                items.push(key + '=' + obj[key]);
+            }
+        }
+        return items.join('&');
     },
     randomColor: function () {
         var color = "";
