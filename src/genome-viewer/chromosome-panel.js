@@ -28,7 +28,7 @@ function ChromosomePanel(args) {
 
     this.target;
     this.autoRender = true;
-    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
     this.cellBaseVersion = 'v3';
 
     this.pixelBase;
@@ -560,5 +560,8 @@ ChromosomePanel.prototype = {
         }
 
         this.updateRegionControls();
+    },
+    setCellBaseHost: function (host) {
+        this.cellBaseHost = host;
     }
-}
+};

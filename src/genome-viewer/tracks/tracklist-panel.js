@@ -661,6 +661,7 @@ TrackListPanel.prototype = {
         track.set('pixelBase', this.pixelBase);
         track.set('region', this.visualRegion);
         track.set('width', this.width);
+        7
 
         track.set('trackListPanel', this);
 
@@ -1013,5 +1014,16 @@ TrackListPanel.prototype = {
         var base = this.getSequenceNucleotid(position);
         this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
         this.positionNucleotidDiv.textContent = base;
+    },
+
+    setCellBaseHost: function (host) {
+        this.cellBaseHost = host;
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            if (track.dataAdapter instanceof CellBaseAdapter) {
+                track.dataAdapter.setHost(this.cellBaseHost);
+            }
+        }
     }
+
 };
