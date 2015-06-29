@@ -37,6 +37,10 @@ CellBaseAdapter.prototype = {
         this.species = species;
         this.configureCache();
     },
+    setHost: function (host) {
+        this.configureCache();
+        this.host = host;
+    },
     configureCache: function () {
         var host = this.host || CellBaseManager.host;
         var cacheId = host + (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, '');
@@ -54,7 +58,7 @@ CellBaseAdapter.prototype = {
         var _this = this;
 
         var params = {};
-//                    histogram: (dataType == 'histogram')
+        //histogram: (dataType == 'histogram')
         _.extend(params, this.params);
         _.extend(params, args.params);
 

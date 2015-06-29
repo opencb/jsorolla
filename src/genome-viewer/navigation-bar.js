@@ -31,7 +31,7 @@ function NavigationBar(args) {
     this.target;
     this.autoRender = true;
 
-    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
     this.cellBaseVersion = 'v3';
 
     this.species = 'Homo sapiens';
@@ -622,6 +622,9 @@ NavigationBar.prototype = {
         this.els.regionField.classList.remove('error');
         this.els.progressBar.style.width = this.zoom + '%';
         this.els.progressBarBall.style.left = this.zoom + '%';
+    },
+    setCellBaseHost: function (host) {
+        this.cellBaseHost = host;
     }
 
 }

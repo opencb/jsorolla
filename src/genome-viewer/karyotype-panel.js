@@ -28,7 +28,7 @@ function KaryotypePanel(args) {
     this.autoRender = true;
     this.id = Utils.genId('KaryotypePanel');
 
-    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
     this.cellBaseVersion = 'v3';
 
     this.pixelBase;
@@ -407,5 +407,10 @@ KaryotypePanel.prototype = {
 
     unmark: function () {
         $(this.markGroup).empty();
+    },
+
+    setCellBaseHost: function (host) {
+        this.cellBaseHost = host;
     }
+
 }

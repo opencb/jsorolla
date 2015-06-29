@@ -117,6 +117,7 @@ function GenomeViewer(args) {
 
     this.rendered = false;
     if (this.autoRender) {
+
         this.render();
     }
 }
@@ -957,6 +958,20 @@ GenomeViewer.prototype = {
         var zoom = this.zoom + zoomToIncrease;
         this.setZoom(zoom);
     },
+    setCellBaseHost: function (host) {
+        if (host != this.cellBaseHost) {
+            this.cellBaseHost = host;
+            this.navigationBar.setCellBaseHost(this.cellBaseHost);
+            this.chromosomePanel.setCellBaseHost(this.cellBaseHost);
+            this.karyotypePanel.setCellBaseHost(this.cellBaseHost);
+            this.trackListPanel.setCellBaseHost(this.cellBaseHost);
+            this.overviewTrackListPanel.setCellBaseHost(this.cellBaseHost);
+
+            this._updateSpecies(this.species);
+            this.setRegion(new Region(this.region));
+        }
+    },
+
     /*****************/
     /*****************/
     getSVGCanvasWidth: function () {
