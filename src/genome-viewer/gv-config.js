@@ -624,7 +624,7 @@ FEATURE_TYPES = {
             }
         }
     },
-    bam: {
+    alignment: {
         explainFlags: function (flags) {
             var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags : <span class="ssel">' + flags + '</span></div>';
             for (var i = 0; i < SAM_FLAGS.length; i++) {
@@ -635,13 +635,13 @@ FEATURE_TYPES = {
             return summary;
         },
         label: function (f) {
-            return "bam  " + f.chromosome + ":" + f.start + "-" + f.end;
+            return "Alignment  " + f.chromosome + ":" + f.start + "-" + f.end;
         },
         tooltipTitle: function (f) {
             return 'Alignment' + ' - <span class="ok">' + f.name + '</span>';
         },
         tooltipText: function (f) {
-            f.strand = FEATURE_TYPES.bam.strand(f);
+            f.strand = FEATURE_TYPES.alignment.strand(f);
             var cigar = '';
             for (var i = 0; i < f.differences.length; i++) {
                 var d = f.differences[i];
