@@ -391,7 +391,6 @@
             var me = this;
             this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
                 me.files = files;
-                console.log(files);
             });
         },
         handleStudyBreadcrum: function (e) {
@@ -461,7 +460,6 @@
                 me.folder = folder;
                 me._getFilesInFolder(me.selectedStudy.study.id, me.folder.id, function (files) {
                     me.files = files;
-                    console.log(files);
                 });
             });
         },
@@ -478,7 +476,6 @@
                 request: {
                     async: true,
                     success: function (response) {
-                        console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             folder = response.response[0].result[0];
                             callback(folder);
@@ -515,7 +512,6 @@
                 request: {
                     async: true,
                     success: function (response) {
-                        console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             files = me._filterFiles(response.response[0].result);
 //                            files = response.response[0].result;

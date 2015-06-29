@@ -1,0 +1,46 @@
+<dom-module id="jso-job-launched">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+            margin: 0px auto 0px auto;
+
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+
+    </style>
+    <template>
+        <div class="jso-tooltitle">
+            <div>
+                Job launched
+            </div>
+            <!--<div class="icon">-->
+            <!--&lt;!&ndash;<font-awesome icon="magic"></font-awesome>&ndash;&gt;-->
+            <!--</div>-->
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            is: "jso-job-launched"
+        })
+    </script>
+</dom-module>
