@@ -55,7 +55,7 @@
 
         </style>
 
-        <div class="panel" vertical layout>
+        <div class="panel"class="vertical layout">
             <template if="{{loading}}">
                 <div class="loading" style="margin: 5px;">
                     <font-awesome icon="spinner" animation="spin"></font-awesome>
@@ -68,7 +68,7 @@
             <!--<div class="text headerclose" on-click="{{handleClose}}"></div>-->
             <!--</div>-->
             <!--</div>-->
-            <div class="container" flex vertical layout>
+            <div class="container" flexclass="vertical layout">
                 <div class="customPager" horizontal layout>
                     <div class="text">{{table.dataSize}} job{{table.dataSize != 1 ? 's' : ''}}</div>
                     <div class="button action" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">

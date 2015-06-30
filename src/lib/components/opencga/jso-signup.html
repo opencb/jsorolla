@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+        <form id="form"class="vertical layout" on-keypress="{{handleFormKey}}">
             <label class="jso">User ID <span style="font-size: 12px">(Only letters and numbers are permitted)</span></label> <input type="text" id="user" value="{{user}}" required pattern="[a-zA-Z0-9]+">
             <!--<label class="jso">Name</label> <input type="text" id="name" value="{{name}}" required>-->
             <label class="jso">e-mail<span style="font-size: 12px">(format: user@example.com)</span></label> <input type="email" id="email" value="{{email}}" required>

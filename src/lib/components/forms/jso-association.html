@@ -59,27 +59,27 @@
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
                     <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}"
-                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
+                                                bioformats="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select the association test</div>
                 <div class="jso-formcontent">
-                    <div id="testDiv" flex layout vertical>
+                    <div id="testDiv" class="layout vertical">
                         <label class="jso-control">
-                            <input class="jso"id="test_1" name="test" class="fc-radioitem" type="radio" value="assoc"
+                            <input class="jso"id="test_1" name="test"  type="radio" value="assoc"
                                    checked="checked">
                             <span>Chi-square case/control association test</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="test_2" name="test" class="fc-radioitem" type="radio" value="fisher"><span>Fisher's exact
+                            <input class="jso"id="test_2" name="test"  type="radio" value="fisher"><span>Fisher's exact
                         test (allelic association)</span></label>
                         <label class="jso-control">
-                            <input class="jso"id="test_3" name="test" class="fc-radioitem" type="radio" value="linear"><span>Linear</span></label>
+                            <input class="jso"id="test_3" name="test"  type="radio" value="linear"><span>Linear</span></label>
                         <label class="jso-control">
-                            <input class="jso"id="test_4" name="test" class="fc-radioitem" type="radio" value="logistic"><span>Logistic</span></label>
+                            <input class="jso"id="test_4" name="test"  type="radio" value="logistic"><span>Logistic</span></label>
                         <label class="jso-control">
-                            <input class="jso"id="test_5" name="test" class="fc-radioitem" type="radio" value="tdt"><span>TDT (only for
+                            <input class="jso"id="test_5" name="test"  type="radio" value="tdt"><span>TDT (only for
                         family-based analysis)</span></label>
                     </div>
                 </div>
@@ -193,24 +193,7 @@
                 };
 
 
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this,query);
             },
             loadExample1: function (e) {
                 this.jobName = "Association analysis: chi-square test";

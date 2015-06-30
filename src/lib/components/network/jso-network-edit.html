@@ -85,7 +85,7 @@
                 background-color: #A9A9A9;
             }
         </style>
-        <div class="panel panel-shadow" id="panel" vertical layout>
+        <div class="panel panel-shadow" id="panel"class="vertical layout">
             <div id="header" class="header" horizontal layout
                  on-mousedown="{{handleHeaderMouseDown}}"
                  on-mouseup="{{handleHeaderMouseUp}}">
@@ -96,7 +96,7 @@
                 </div>
             </div>
             <div class="container" flex horizontal layout>
-                <div id="left" vertical layout>
+                <div id="left"class="vertical layout">
                     <div horizontal layout>
                         <div flex class="button action"
                              on-click="{{handleView}}"
@@ -150,7 +150,7 @@
                         </div>
                     </template>
                 </div>
-                <div flex vertical layout>
+                <div flexclass="vertical layout">
                     <div class="tablewrap" flex horizontal layout on-wheel="{{handleScroll}}">
                         <sortable-table id="table" class="table" flex
                                         data="{{view == 'edge' ? networkViewer.eAttr.data : networkViewer.vAttr.data }}"

@@ -65,7 +65,7 @@
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
                     <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}"
-                                                bioformat="VARIANT"></jso-opencga-browser-window>
+                                                bioformats="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
 
@@ -159,24 +159,7 @@
                     gt: this.$.gt.value
                 };
 
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this,query);
             },
             loadExample1: function (e) {
                 this.jobName = "TCGA BRCA";

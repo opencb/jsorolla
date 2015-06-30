@@ -1,39 +1,38 @@
 <dom-module id="jso-two-channels-agilent" attributes="userData selectedOption selectedStudy studies">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+            z-index: 50000;
+            margin: 0px auto 0px auto;
+
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-            .message {
-                margin-top: 20px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-        </style>
         <div class="jso-tooltitle">
             <div>
                 Agilent two-channels normalization
@@ -59,54 +58,62 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}"
-                                                bioformat="MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT"></jso-opencga-browser-window>
+                    <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}"
+                            ></jso-opencga-browser-window>
                 </div>
             </div>
 
             <div class="jso-formbox">
                 <div class="jso-formtitle">Analysis</div>
                 <div class="jso-formcontent">
-                    Background correction:
-                    <div class="select">
-                        <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
-                            <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp" selected="selected">normexp</option>
-                            <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="half">half</option>
-                            <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="subtract">subtract</option>
-                            <option name="bg_correction_4" id="bg_correction_4" class="fc-combobox-item" value="minimum">minimum</option>
-                            <option name="bg_correction_5" id="bg_correction_5" class="fc-combobox-item" value="movingmin">movingmin</option>
-                            <option name="bg_correction_6" id="bg_correction_6" class="fc-combobox-item" value="edwards">edwards</option>
-                            <option name="bg_correction_7" id="bg_correction_7" class="fc-combobox-item" value="rma">rma</option>
-                            <option name="bg_correction_8" id="bg_correction_8" class="fc-combobox-item" value="none">none</option>
-                        </select>
+                    <div class="horizontal layout">
+                        <label>Background correction:</label>
+                        <div class="jso-select" style="width: 100px">
+                            <select name="bg_correction" id="bg_correction" class="fc-combobox" type="text" value="normexp">
+                                <option name="bg_correction_1" id="bg_correction_1" class="fc-combobox-item" value="normexp" selected="selected">normexp</option>
+                                <option name="bg_correction_2" id="bg_correction_2" class="fc-combobox-item" value="half">half</option>
+                                <option name="bg_correction_3" id="bg_correction_3" class="fc-combobox-item" value="subtract">subtract</option>
+                                <option name="bg_correction_4" id="bg_correction_4" class="fc-combobox-item" value="minimum">minimum</option>
+                                <option name="bg_correction_5" id="bg_correction_5" class="fc-combobox-item" value="movingmin">movingmin</option>
+                                <option name="bg_correction_6" id="bg_correction_6" class="fc-combobox-item" value="edwards">edwards</option>
+                                <option name="bg_correction_7" id="bg_correction_7" class="fc-combobox-item" value="rma">rma</option>
+                                <option name="bg_correction_8" id="bg_correction_8" class="fc-combobox-item" value="none">none</option>
+                            </select>
+                        </div>
                     </div>
                     <br/>
-                    Within arrays normalization:
-                    <div class="select">
-                        <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text" value="loess">
-                            <option name="wa_normalization_1" id="wa_normalization_1" class="fc-combobox-item" value="loess" selected="selected">loess</option>
-                            <option name="wa_normalization_2" id="wa_normalization_2" class="fc-combobox-item" value="median">median</option>
-                            <option name="wa_normalization_3" id="wa_normalization_3" class="fc-combobox-item" value="none">none</option>
-                        </select>
+
+                    <div class="horizontal layout">
+                        <label>Within arrays normalization:</label>
+                        <div class="jso-select" style="width: 100px">
+                            <select name="wa_normalization" id="wa_normalization" class="fc-combobox" type="text" value="loess">
+                                <option name="wa_normalization_1" id="wa_normalization_1" class="fc-combobox-item" value="loess" selected="selected">loess</option>
+                                <option name="wa_normalization_2" id="wa_normalization_2" class="fc-combobox-item" value="median">median</option>
+                                <option name="wa_normalization_3" id="wa_normalization_3" class="fc-combobox-item" value="none">none</option>
+                            </select>
+                        </div>
                     </div>
                     <br/>
-                    Between arrays normalization
-                    <div class="select">
-                        <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
-                            <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item" value="quantiles" selected="selected">quantiles</option>
-                            <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item" value="scale">scale</option>
-                            <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="vsn">vsn</option>
-                            <option name="ba_normalization_4" id="ba_normalization_4" class="fc-combobox-item" value="none">none</option>
-                        </select>
+
+                    <div class="horizontal layout">
+                        <label>Between arrays normalization</label>
+                        <div class="jso-select" style="width: 100px">
+                            <select name="ba_normalization" id="ba_normalization" class="fc-combobox" type="text" value="quantiles">
+                                <option name="ba_normalization_1" id="ba_normalization_1" class="fc-combobox-item" value="quantiles" selected="selected">quantiles</option>
+                                <option name="ba_normalization_2" id="ba_normalization_2" class="fc-combobox-item" value="scale">scale</option>
+                                <option name="ba_normalization_3" id="ba_normalization_3" class="fc-combobox-item" value="vsn">vsn</option>
+                                <option name="ba_normalization_4" id="ba_normalization_4" class="fc-combobox-item" value="none">none</option>
+                            </select>
+                        </div>
                     </div>
                     <br/>
                     <label class="jso-control">
-                        <input class="jso"name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true" checked="checked">
+                        <input class="jso" name="flags_no_fitted" id="flags_no_fitted" class="fc-checkbox" type="checkbox" value="true" checked="checked">
                         <span>Check if flagged spots will not be used in the fitting of the parameters of the normalization steps</span>
                     </label>
                     <br>
                     <label class="jso-control">
-                        <input class="jso"name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox" value="true">
+                        <input class="jso" name="flags_as_missing" id="flags_as_missing" class="fc-checkbox" type="checkbox" value="true">
                         <span>Check if flagged spots will have a missing (NA) normalized value and A-value as well</span></label>
                 </div>
             </div>
@@ -114,15 +121,17 @@
                 <div class="jso-formtitle">Job information</div>
                 <div class="jso-formcontent">
                     <label class="jso">Output folder</label>
-                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
-                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <br>
+                    <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>
+                    <br>
+                    <label class="jso">Job name</label> <input class="jso" type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
                     <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
                     <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
@@ -132,11 +141,43 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.toolName = "agilent-expression-two-colors-normalization";
-                this.list1UploadMsg = "Select file...";
-                this.description = "Job info...";
-                this.compressed_file_tags = "microarray,expression,two-channels,agilent";
+            is: "jso-two-channels-agilent",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT",
+                            value: "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT"
+                        }
+                    ]
+                },
+                toolName: {
+                    type: String,
+                    value: "agilent-expression-two-colors-normalization"
+                },
+                compressed_file_tags: {
+                    type: String,
+                    value: "microarray,expression,two-channels,agilent"
+                }
             },
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
@@ -167,24 +208,7 @@
 
                 if (this.$.flags_no_fitted.checked) query["flags-no-fitted"] = "";
                 if (this.$.flags_as_missing.checked) query["flags-as-missing"] = "";
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this, query);
             },
             loadExample1: function (e) {
                 this.jobName = "agilent two channels normalization example";

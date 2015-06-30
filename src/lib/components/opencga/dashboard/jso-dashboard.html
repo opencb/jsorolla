@@ -254,7 +254,7 @@
         <!--</template>-->
         <!--</div>-->
 
-        <!--<div id="actions" vertical layout reverse>-->
+        <!--<div id="actions"class="vertical layout" reverse>-->
         <!--<div id="upload-button" class="round-button jso-shadow"-->
         <!--title="Upload file"-->
         <!--on-click="{{handleUploadVariantFile}}">-->
@@ -482,7 +482,7 @@
             }
         },
         handleViewMode: function (e) {
-            var cards = this.shadowRoot.querySelectorAll('jso-dashboard-study-card');
+            var cards = this.querySelectorAll('jso-dashboard-study-card');
             if (this.view == 'compact') {
                 this.view = '';
                 for (var i = 0; i < cards.length; i++) {

@@ -70,11 +70,11 @@
                 <div class="jso-formtitle">Define your input data</div>
                 <div class="jso-formcontent">
                     <label class="jso-control">
-                        <input class="jso"id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">
+                        <input class="jso"id="mode_1" name="mode"  type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">
                         <span>One list</span>
                     </label>
                     <label class="jso-control">
-                        <input class="jso"id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="{{modeChanged}}">
+                        <input class="jso"id="mode_2" name="mode"  type="radio" value="two_list" on-click="{{modeChanged}}">
                         <span>Comparing two lists</span>
                     </label>
                 </div>
@@ -86,7 +86,7 @@
                     <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file"
                                                 allowTextArea="true"
-                                                on-file-select="{{handleFileSelect}}"
+                                                on-file-select="handleFileSelect"
                                                 bioformat="IDLIST"
                                                 networkViewer="{{networkViewer}}"
                             ></jso-opencga-browser-window>
@@ -96,7 +96,7 @@
                         <jso-opencga-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file"
                                                     allowTextArea="true"
-                                                    on-file-select="{{handleFileSelect}}"
+                                                    on-file-select="handleFileSelect"
                                                     bioformat="IDLIST"
                                                     networkViewer="{{networkViewer}}"
                                 ></jso-opencga-browser-window>
@@ -109,15 +109,15 @@
                 <div class="jso-formcontent">
                     <div id="typeDiv">
                         <label class="jso-control">
-                            <input class="jso"id="type_1" name="type" class="fc-radioitem" type="radio" value="transcripts">
+                            <input class="jso"id="type_1" name="type"  type="radio" value="transcripts">
                             <span>Transcripts</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="type_2" name="type" class="fc-radioitem" type="radio" value="proteins" checked>
+                            <input class="jso"id="type_2" name="type"  type="radio" value="proteins" checked>
                             <span>Proteins</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="type_3" name="type" class="fc-radioitem" type="radio" value="genes">
+                            <input class="jso"id="type_3" name="type"  type="radio" value="genes">
                             <span>Genes</span>
                         </label>
                     </div>
@@ -145,13 +145,13 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select interactome confidence</div>
                 <div class="jso-formcontent">
-                    <div id="groupDiv" vertical layout>
+                    <div id="groupDiv"class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
+                            <input class="jso"id="group_1" name="group"  type="radio" value="all" checked="checked">
                             <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
+                            <input class="jso"id="group_2" name="group"  type="radio" value="curated" checked="checked">
                             <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
                         </label>
                     </div>
@@ -162,11 +162,11 @@
                 <div class="jso-formcontent">
                     <div id="sideDiv">
                         <label class="jso-control">
-                            <input class="jso"id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">
+                            <input class="jso"id="side_1" name="side"  type="radio" value="greater" checked="checked">
                             <span>Greater</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="side_2" name="side" class="fc-radioitem" type="radio" value="less">
+                            <input class="jso"id="side_2" name="side"  type="radio" value="less">
                             <span>Less</span>
                         </label>
                     </div>
@@ -177,11 +177,11 @@
                 <div class="jso-formcontent">
                     <div id="intermediateDiv">
                         <label class="jso-control">
-                            <input class="jso"id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
+                            <input class="jso"id="intermediate_2" name="intermediate"  type="radio" value="1" checked="checked">
                             <span>Yes</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
+                            <input class="jso"id="intermediate_1" name="intermediate"  type="radio" value="0">
                             <span>No</span>
                         </label>
                     </div>

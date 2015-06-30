@@ -54,7 +54,7 @@
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
                     <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}"
-                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
+                                                bioformats="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
             <div class="jso-formbox">
@@ -62,11 +62,11 @@
                 <div class="jso-formcontent">
                     <label class="jso-control">
                         <input class="jso"name="sample_clustering" id="sample_clustering" class="fc-checkbox" type="checkbox"
-                               value="true" checked="checked" on-click="{{clusteringTypeClick}}">
+                               value="true" checked="checked" on-click="clusteringTypeClick">
                         <span>Clustering of samples</span></label>
                     <label class="jso-control">
                         <input class="jso"name="gene_clustering" id="gene_clustering" class="fc-checkbox" type="checkbox" value="true"
-                               on-click="{{clusteringTypeClick}}">
+                               on-click="clusteringTypeClick">
                         <span>Clustering of genes</span></label>
                 </div>
             </div>
@@ -74,16 +74,18 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select method</div>
                 <div class="jso-formcontent">
-                    <div id="methodDiv" vertical layout>
+                    <div id="methodDiv"class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"id="method_1" name="method" class="fc-radioitem" type="radio" value="upgma"
-                                   checked="checked" on-click="{{methodClick}}"> <span>UPGMA </span></label>
+                            <input class="jso"id="method_1" name="method"  type="radio" value="upgma"
+                                   checked="checked" on-click="methodClick"> <span>UPGMA </span></label>
+                        <br>
                         <label class="jso-control">
-                            <input class="jso"id="method_2" name="method" class="fc-radioitem" type="radio" value="sota"
-                                   on-click="{{methodClick}}"><span> SOTA </span></label>
+                            <input class="jso"id="method_2" name="method"  type="radio" value="sota"
+                                   on-click="methodClick"><span> SOTA </span></label>
+                        <br>
                         <label class="jso-control">
-                            <input class="jso"id="method_3" name="method" class="fc-radioitem" type="radio" value="kmeans"
-                                   on-click="{{methodClick}}"> <span>K-means </span></label>
+                            <input class="jso"id="method_3" name="method"  type="radio" value="kmeans"
+                                   on-click="methodClick"> <span>K-means </span></label>
                     </div>
                     <label class="jso">Number of sample-clusters (k-value)</label>
                     <input class="jso"name="sample_kvalue" id="sample_kvalue" class="fc-int fc-text" type="text"
@@ -96,18 +98,21 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select distance</div>
                 <div class="jso-formcontent">
-                    <div id="distanceDiv" vertical layout>
+                    <div id="distanceDiv"class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"id="distance_1" name="distance" class="fc-radioitem" type="radio" value="euclidean"
+                            <input class="jso"id="distance_1" name="distance"  type="radio" value="euclidean"
                                    checked="checked"><span>Euclidean (normal)</span></label>
+                        <br>
                         <label class="jso-control">
-                            <input class="jso"id="distance_2" name="distance" class="fc-radioitem" type="radio" value="square">
+                            <input class="jso"id="distance_2" name="distance"  type="radio" value="square">
                             <span>Euclidean (square)</span></label>
+                        <br>
                         <label class="jso-control">
-                            <input class="jso"id="distance_3" name="distance" class="fc-radioitem" type="radio" value="spearman">
+                            <input class="jso"id="distance_3" name="distance"  type="radio" value="spearman">
                             <span>Correlation coeff. (Spearman)</span></label>
+                        <br>
                         <label class="jso-control">
-                            <input class="jso"id="distance_4" name="distance" class="fc-radioitem" type="radio" value="pearson">
+                            <input class="jso"id="distance_4" name="distance"  type="radio" value="pearson">
                             <span>Pearson correlation coeff.</span></label>
                     </div>
                 </div>
@@ -282,24 +287,7 @@
                     query["gene-kvalue"] = this.$.gene_kvalue.value;
                 }
 
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this,query);
             },
             loadExample1: function (e) {
                 this.jobName = "fibroblasts k-means clustering";

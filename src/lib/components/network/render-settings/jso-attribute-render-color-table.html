@@ -86,7 +86,7 @@
                 </div>
             </div>
             <div class="container" horizontal layout>
-                <div id="left" vertical layout>
+                <div id="left"class="vertical layout">
 
                     <label>Attribute name</label>
 
@@ -128,7 +128,7 @@
                     </template>
 
                 </div>
-                <div vertical layout flex>
+                <divclass="vertical layout" flex>
 
                     <label hidden?="{{attributeType != 'continuous'}}">Continous mapping</label>
 
@@ -142,7 +142,7 @@
                             <label style="width: 60px;text-align: right">Gradient</label>
                         </div>
                         <div flex horizontal layout style="margin-bottom:5px;">
-                            <div flex vertical layout>
+                            <div flexclass="vertical layout">
                                 <template repeat="{{point, index in points}}">
                                     <jso-attribute-render-color-point
                                             point="{{point}}" points="{{points}}" controlType="{{controlType}}"

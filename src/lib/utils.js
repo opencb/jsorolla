@@ -28,6 +28,28 @@ var Utils = {
             return x ? x < 0 ? -1 : 1 : 0;
         }
     },
+    createJob: function (scope, query) {
+        OpencgaManager.jobs.create({
+            query: query,
+            request: {
+                //method: 'POST',
+                success: function (response) {
+                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                        var userId = response.response[0].result[0].id;
+                        scope.message = userId + ' created';
+                        scope.fire("joblaunched", {
+                            option: "joblaunched"
+                        });
+                    } else {
+                        scope.message = response.response[0].errorMsg;
+                    }
+                },
+                error: function () {
+                    scope.message = 'Server error, try again later.';
+                }
+            }
+        })
+    },
     //Methods
     formatNumber: function (position) {
         return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");

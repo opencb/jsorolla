@@ -86,7 +86,7 @@
                                                     selectedStudy="{{selectedStudy}}"
                                                     selectionMode="file"
                                                     allowTextArea="false"
-                                                    on-file-select="{{handleFileSelect}}"
+                                                    on-file-select="handleFileSelect"
                                                     bioformat="IDLIST_RANKED"></jso-opencga-browser-window>
                         <br>
 
@@ -240,7 +240,7 @@
                     <div style="margin-left: 30px">
                         <jso-opencga-browser-window id="annotationsFile" studies="{{studies}}"
                                                     selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                    selectionMode="file" on-file-select="handleFileSelect"
                                                     bioformat="ANNOTATION_GENEVSANNOTATION"></jso-opencga-browser-window>
                     </div>
                 </div>
@@ -379,24 +379,7 @@
                         query["annotations"] = this.$.annotationsFile.selectedFile.id;
                     }
                 }
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this,query);
             },
             loadExample1: function (e) {
                 this.jobName = "fluorouridine_dataset";
@@ -405,7 +388,7 @@
                     id: "example_fluorouridine.txt",
                     path: "fluorouridine.txt",
                     type: "FILE"
-                };
+                });
                 this.$.remove_duplicates.checked = false;
                 this.$.species.value = "hsa";
                 this.$.go_bp.checked = true;

@@ -3,7 +3,7 @@
 
     Note 1: panel-shadow class is optional
 
-    <div class="panel panel-shadow" vertical layout>
+    <div class="panel panel-shadow"class="vertical layout">
         <div class="header" horizontal layout>
             <div>Header text</div>
             <div class="headeractions" horizontal layout end-justified flex>

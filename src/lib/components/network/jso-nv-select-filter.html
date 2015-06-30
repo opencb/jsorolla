@@ -57,7 +57,7 @@
                 color: #666;
             }
         </style>
-        <div class="panel panel-shadow" id="panel" vertical layout>
+        <div class="panel panel-shadow" id="panel"class="vertical layout">
             <div id="header" class="header" horizontal layout
                  on-mousedown="{{handleHeaderMouseDown}}"
                  on-mouseup="{{handleHeaderMouseUp}}">
@@ -68,7 +68,7 @@
                 </div>
             </div>
             <div class="container" horizontal layout>
-                <div id="left" vertical layout>
+                <div id="left"class="vertical layout">
 
                     <label>Filter attribute:</label>
 
@@ -137,7 +137,7 @@
 
                     <label>Create filter:</label>
 
-                    <div vertical layout>
+                    <divclass="vertical layout">
                         <div>
                             <input type="text" value="{{queryString}}" placeholder="Insert value">
                         </div>
@@ -147,7 +147,7 @@
                     </div>
 
                 </div>
-                <div id="right" vertical layout flex>
+                <div id="right"class="vertical layout" flex>
 
                     <label>Current filters:</label>
 
@@ -157,7 +157,7 @@
                         </template>
                         <template repeat="{{filter, filterIndex in filters}}">
                             <div flex class="selitem" horizontal layout>
-                                <div flex vertical layout>
+                                <div flexclass="vertical layout">
                                     <div>
                                         <span class="light">Attribute:</span>
                                         {{filter.attributeName}}

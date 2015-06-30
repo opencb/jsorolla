@@ -1,36 +1,35 @@
-<dom-module id="jso-rnaseq-norm" attributes="userData selectedOption selectedStudy studies">
+<dom-module id="jso-rnaseq-norm">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+            z-index: 50000;
+            margin: 0px auto 0px auto;
+
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-            .message {
-                margin-top: 20px;
-            }
-
-
-        </style>
         <div class="jso-tooltitle">
             <div>
                 RNA Seq Normalize
@@ -50,11 +49,11 @@
                         Normalization example
                     </div>
                     <!--<a href="http://test.babelomics.org/opencga/rest/files/download-example?toolName=rnaseq-norm&fileName=example.zip" >-->
-                        <!--&lt;!&ndash;<i class="fa fa-download"></i>&ndash;&gt;-->
-                        <!--hola-->
+                    <!--&lt;!&ndash;<i class="fa fa-download"></i>&ndash;&gt;-->
+                    <!--hola-->
                     <!--</a>-->
                     <!--<br>-->
-<!--<a download="w3logo.txt" href="http://test.babelomics.org/opencga/rest/files/download-example?toolName=rnaseq-norm&fileName=download.zip" >xx</a>-->
+                    <!--<a download="w3logo.txt" href="http://test.babelomics.org/opencga/rest/files/download-example?toolName=rnaseq-norm&fileName=download.zip" >xx</a>-->
                     <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="example.zip" style="display:inline-block">
                         <i class="fa fa-download"></i>
                     </div>
@@ -63,33 +62,37 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
+                    <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}" on-ok="handleFileSelect"></jso-opencga-browser-window>
                 </div>
             </div>
 
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select gene length file</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window id="glFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="IDLIST_RANKED"></jso-opencga-browser-window>
+                    <jso-opencga-browser-window id="glFile" projects="{{projects}}" bioformats="{{bioformatsGL}}" on-ok="handleFileSelect"></jso-opencga-browser-window>
+
                 </div>
             </div>
 
             <div class="jso-formbox">
                 <div class="jso-formtitle">Normalization method</div>
                 <div class="jso-formcontent">
-                    <div id="methodDiv" vertical layout>
+                    <div id="methodDiv"class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="{{chooseClicked}}">
+                            <input class="jso" id="chooseAuto" name="chooseMethod" type="radio" value="Auto" checked="checked" on-click="chooseClicked">
                             <span>Choose automatically the normalization method</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="{{chooseClicked}}"><span>Choose manually the normalization method</span></label>
-                        <label class="control" style="margin-left: 20px">
-                            <input class="jso"id="tmm" name="method" type="radio" value="TMM" disabled on-click="{{radioTestClicked}}"><span>TMM</span></label>
-                        <label class="control" style="margin-left: 20px">
-                            <input class="jso"id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="{{radioTestClicked}}"><span>RPKM</span></label>
+                            <input class="jso" id="chooseMan" name="chooseMethod" type="radio" value="Manual" on-click="chooseClicked"><span>Choose manually the normalization method</span>
+                        </label>
+                        <div  style="margin-left: 20px">
+                            <label class="jso-control">
+                                <input class="jso" id="tmm" name="method" type="radio" value="TMM" disabled on-click="radioTestClicked"><span>TMM</span>
+                            </label>
+                            <label class="jso-control">
+                                <input class="jso" id="rpkm" name="method" type="radio" value="RPKM" disabled on-click="radioTestClicked"><span>RPKM</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -97,14 +100,16 @@
                 <div class="jso-formtitle">Job information</div>
                 <div class="jso-formcontent">
                     <label class="jso">Output folder</label>
-                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
-                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <br>
+                    <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>
+                    <br>
+                    <label class="jso">Job name</label> <input class="jso" type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
                     <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
             <div class="botbar" horizontal layout center-justified>
-                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
                     <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
@@ -114,15 +119,51 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.toolName = "rnaseq-norm";
-                this.description = "Job info..."
+            is: "jso-rnaseq-norm",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "DATAMATRIX_EXPRESSION",
+                            value: "DATAMATRIX_EXPRESSION"
+                        }
+                    ]
+                },
+                bioformatsGL: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "IDLIST_RANKED",
+                            value: "IDLIST_RANKED"
+                        }
+                    ]
+                },
+                toolName: {
+                    type: String,
+                    value: "rnaseq-norm"
+                }
             },
-//            handleDownloadFile: function (e) {
-//                var dataset = e.currentTarget.dataset;
-//                dataset.param1
-//                Utils.downloadExampleFile(this.toolName,"example.zip");
-//            },
+
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
@@ -135,7 +176,7 @@
             launchJob: function () {
                 var me = this;
 
-                if (!Utils.basicValidationForm()) {
+                if (!Utils.basicValidationForm(this)) {
                     return;
                 }
                 var query = {
@@ -144,7 +185,6 @@
                     toolId: this.toolName,
                     outdir: this.$.outdir.getSelectedFile().id,
                     name: this.jobName,
-                    description: this.description,
                     "datafile": this.$.inputFile.selectedFile.id,
                     description: this.description
                 };
@@ -157,30 +197,14 @@
                 if (this.$.glFile.selectedFile !== undefined && this.$.glFile.selectedFile.type == "FILE")
                     query["glfile"] = this.$.glFile.selectedFile.id;
 
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this, query);
+
             },
             loadExample1: function (e) {
                 this.jobName = "rna_norm";
                 this.description = "just_an_rna_example";
                 this.$.inputFile.setSelectedFile({id: "example_normalization.txt", path: "normalization.txt", type: "FILE"});
-                this.$.glFile.selectedFile = {id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"});
+                this.$.glFile.setSelectedFile({id: "example_gene_length.txt", path: "gene_length.txt", type: "FILE"});
                 this.$.chooseMan.checked = true;
                 this.chooseClicked();
                 this.$.tmm.checked = true;

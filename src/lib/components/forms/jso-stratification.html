@@ -65,7 +65,7 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}" bioformat="{{bioformats}}"></jso-opencga-browser-window>
+                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}" bioformats="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
 
@@ -137,24 +137,7 @@
                 };
                 if (this.$.ibs_test.checked)
                     query["ibs-test"] = "";
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this,query);
             },
             loadExample1: function (e) {
 //            this.jobName = "Association analysis: chi-square test";

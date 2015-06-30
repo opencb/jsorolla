@@ -49,7 +49,7 @@
                 <div class="jso-formtitle">Examples</div>
                 <div class="jso-formcontent" horizontal layout>
                     <!--<div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">Genome-Wide Association Study in Bipolar Disorder</div>-->
-                    <div vertical layout>
+                    <divclass="vertical layout">
                         <div horizontal layout >
                             <div class="jso-btn jso-btn-shdw" on-click="loadExample1" style="width: 340px">Essential genes in cancer cell line K562
                             </div>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                     </div>
-                    <div vertical layout>
+                    <divclass="vertical layout">
                         <div style="margin-left:5px" horizontal layout>
 
                             <div class="jso-btn jso-btn-shdw" on-click="{{loadExample4}}" style="width: 340px">Genes Down-regulated in Fanconi Anemia
@@ -92,7 +92,7 @@
                 <div class="jso-formcontent">
                     <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 allowTextArea="false"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                selectionMode="file" on-file-select="handleFileSelect"
                                                 bioformat="IDLIST,IDLIST_RANKED"
                                                 networkViewer="{{networkViewer}}"
                             ></jso-opencga-browser-window>
@@ -103,7 +103,7 @@
                 <div class="jso-formcontent">
                     <jso-opencga-browser-window id="seedList" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
                                                 allowTextArea="true"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                selectionMode="file" on-file-select="handleFileSelect"
                                                 bioformat="IDLIST"
                                                 networkViewer="{{networkViewer}}"
                             ></jso-opencga-browser-window>
@@ -129,15 +129,15 @@
                 <div class="jso-formcontent">
                     <div id="typeDiv">
                         <label class="jso-control">
-                            <input class="jso"id="type_1" name="type" class="fc-radioitem" type="radio" value="transcript">
+                            <input class="jso"id="type_1" name="type"  type="radio" value="transcript">
                             <span>Transcripts</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="type_2" name="type" class="fc-radioitem" type="radio" value="protein" checked>
+                            <input class="jso"id="type_2" name="type"  type="radio" value="protein" checked>
                             <span>Proteins</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="type_3" name="type" class="fc-radioitem" type="radio" value="gene">
+                            <input class="jso"id="type_3" name="type"  type="radio" value="gene">
                             <span>Genes</span>
                         </label>
 
@@ -164,13 +164,13 @@
 
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select interactome confidence</div>
-                <div id="groupDiv" class="jso-formcontent" vertical layout>
+                <div id="groupDiv" class="jso-formcontent vertical layout">
                     <label class="jso-control">
-                        <input class="jso"id="group_1" name="group" class="fc-radioitem" type="radio" value="all">
+                        <input class="jso"id="group_1" name="group"  type="radio" value="all">
                         <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
                     </label>
                     <label class="jso-control">
-                        <input class="jso"id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
+                        <input class="jso"id="group_2" name="group"  type="radio" value="curated" checked="checked">
                         <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
                     </label>
                 </div>
@@ -181,11 +181,11 @@
                 <div class="jso-formcontent">
                     <div id="orderDiv">
                         <label class="jso-control">
-                            <input class="jso"id="order_1" name="order" class="fc-radioitem" type="radio" value="ascending" checked="checked">
+                            <input class="jso"id="order_1" name="order"  type="radio" value="ascending" checked="checked">
                             <span> Ascending </span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="order_2" name="order" class="fc-radioitem" type="radio" value="descending">
+                            <input class="jso"id="order_2" name="order"  type="radio" value="descending">
                             <span>Descending</span>
                         </label>
                     </div>
@@ -197,11 +197,11 @@
                 <div class="jso-formcontent">
                     <div id="intermediateDiv">
                         <label class="jso-control">
-                            <input class="jso"id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
+                            <input class="jso"id="intermediate_2" name="intermediate"  type="radio" value="1" checked="checked">
                             <span> Yes </span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="intermediate_1" name="intermediate" class="fc-radioitem" type="radio" value="0">
+                            <input class="jso"id="intermediate_1" name="intermediate"  type="radio" value="0">
                             <span> No </span>
                         </label>
                     </div>
@@ -407,7 +407,7 @@
                     id: "example_FA-differentialExpression-statistic.txt",
                     path: "FA-differentialExpression-statistic.txt",
                     type: "FILE"
-                };
+                });
                 this.$.type_3.checked = true;
                 this.$.interactome.value = "hsa";
                 this.$.group_1.checked = true;
@@ -425,7 +425,7 @@
                     id: "example_FA-differentialExpression-statistic.txt",
                     path: "FA-differentialExpression-statistic.txt",
                     type: "FILE"
-                };
+                });
                 this.$.type_3.checked = true;
                 this.$.interactome.value = "hsa";
                 this.$.group_1.checked = true;
@@ -443,12 +443,12 @@
                     id: "example_BD-GWASplink_top.txt",
                     path: "BD-GWASplink_top.txt",
                     type: "FILE"
-                };
+                });
                 this.$.seedList.selectedFile = {
                     id: "example_BD-associatedgenesUniprot.txt",
                     path: "BD-associatedgenesUniprot.txt",
                     type: "FILE"
-                };
+                });
                 this.$.type_3.checked = true;
                 this.$.interactome.value = "hsa";
                 this.$.group_2.checked = true;

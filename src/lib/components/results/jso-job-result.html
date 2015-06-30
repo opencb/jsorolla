@@ -1,137 +1,135 @@
-<dom-module id="jso-job-result" attributes="jobItem selectedOption networkViewer">
+<dom-module id="jso-job-result">
+    <link rel="stylesheet" href="../sortable-table.css">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            /*padding: 20px 40px;*/
+
+            z-index: 50000;
+            margin: 0px auto 0px auto;
+
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+        }
+
+        .level > .level {
+            margin-left: 5px;
+        }
+
+        .output {
+            margin: 10px;
+            /*width: 1000px;*/
+            background-color: white;
+            border-radius: 5px;
+            padding: 0 20px 0 20px;
+        }
+
+        .data {
+            margin-left: 20px;
+        }
+
+        .level-0 {
+            /*border: 1px solid grey;*/
+            padding: 20px;
+
+        }
+
+        .level-0 > .headerTitle {
+            font-size: 15pt;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .level-1 {
+            margin: 20px 20px 20px 40px;
+        }
+
+        .level-0 > .children > .level-1 > .headerTitle {
+            font-size: 13pt;
+            font-weight: bold;
+            /*background-color: blue;*/
+        }
+
+
+        .level-2 {
+            margin: 20px 20px 20px 40px;
+        }
+
+        .level-2 > .headerTitle {
+            font-size: 12pt;
+            /*background-color: blue;*/
+        }
+
+        .message > label {
+            margin-right: 10px;
+        }
+
+        .message > label:after {
+            content: ':';
+        }
+
+        .message > .messageValue {
+            font-size: 9pt;
+            font-weight: bold;
+            font-style: italic;
+            color: #55f;
+            line-height: 21px;
+        }
+
+        .file > label {
+            margin-right: 10px;
+        }
+
+        .file > a {
+            font-size: 9pt;
+            font-weight: bold;
+            font-style: italic;
+            color: #55f;
+        }
+
+        .image {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: red !important;
+        }
+
+        .loading {
+            font-size: 25px;
+            margin: 20px 50px;
+        }
+
+        sortable-table {
+            border: 1px solid #d3d3d3;
+            max-width: 1000px;
+            margin-top: 10px;
+        }
+
+        .close {
+            margin: 5px 10px 0 0;
+            color: #aaa;
+            font-size: 20px;
+        }
+
+        .close:hover {
+            color: #ffad76;
+        }
+
+    </style>
     <template>
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                /*padding: 20px 40px;*/
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-            }
-
-            .level > .level {
-                margin-left: 5px;
-            }
-
-            .output {
-                margin: 10px;
-                /*width: 1000px;*/
-                background-color: white;
-                border-radius: 5px;
-                padding: 0 20px 0 20px;
-            }
-
-            .data {
-                margin-left: 20px;
-            }
-
-            .level-0 {
-                /*border: 1px solid grey;*/
-                padding: 20px;
-
-            }
-
-            .level-0 > .headerTitle {
-                font-size: 15pt;
-                font-weight: bold;
-                padding: 5px;
-            }
-
-            .level-1 {
-                margin: 20px 20px 20px 40px;
-            }
-
-            .level-1 > .headerTitle {
-                font-size: 13pt;
-                font-weight: bold;
-                /*background-color: blue;*/
-            }
-
-            .level-2 {
-                margin: 20px 20px 20px 40px;
-            }
-
-            .level-2 > .headerTitle {
-                font-size: 12pt;
-                /*background-color: blue;*/
-            }
-
-            sortable-table {
-                max-width: 1000px;
-                margin-top: 10px;
-            }
-
-            .message > label {
-                margin-right: 10px;
-            }
-
-            .message > label:after {
-                content: ':';
-            }
-
-            .message > .messageValue {
-                font-size: 9pt;
-                font-weight: bold;
-                font-style: italic;
-                color: #55f;
-                line-height: 21px;
-            }
-
-            .file > label {
-                margin-right: 10px;
-            }
-
-            .file > a {
-                font-size: 9pt;
-                font-weight: bold;
-                font-style: italic;
-                color: #55f;
-            }
-
-            .image {
-                margin-top: 20px;
-            }
-
-            .error {
-                color: red !important;
-            }
-
-            .loading {
-                font-size: 25px;
-                margin: 20px 50px;
-            }
-
-            sortable-table {
-                border: 1px solid #d3d3d3;
-            }
-
-            .close {
-                margin: 5px 10px 0 0;
-                color: #aaa;
-                font-size: 20px;
-            }
-
-            .close:hover {
-                color: #ffad76;
-            }
-
-        </style>
-        <div horizontal layout end-justified>
+        <div class="horizontal layout end-justified">
             <div class="close" on-click="{{handleClose}}">
                 <font-awesome icon="times"></font-awesome>
             </div>
         </div>
-        <template if="{{loading}}">
+        <template is="dom-if" if="{{loading}}">
             <div class="loading">
-                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                <i class="fa fa-spinner"></i>
                 Loading results...
             </div>
         </template>
@@ -142,7 +140,7 @@
 
         </div>
 
-        <template if="{{error}}">
+        <template is="dom-if" if="{{error}}">
             <div class="level-0">
                 <div class="headerTitle">There was an unexpected error:</div>
                 <div class="data">
@@ -166,15 +164,40 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.createdElements = {};
-                this.selectedOption = "";
-                this.pvalue = 0.05;
-                this.error = false;
-                this.logErrorFile = "";
+            is: "jso-job-result",
+            properties: {
+                jobItem:{
+                    type: Object,
+                    observer: 'jobItemChanged'
+                },
+                createdElements: {
+                    type: Object
+                },
+                pvalue:{
+                    type: Number,
+                    value: 0.05
+                },
+                error:{
+                    type: Boolean,
+                    value: false
+                },
+                logErrorFile:{
+                    type: String,
+                    value: ""
+                }
 
             },
-            jobItemChanged: function (oldV, newV) {
+//            created: function () {
+//                this.createdElements = {};
+//                this.selectedOption = "";
+//                this.pvalue = 0.05;
+//                this.error = false;
+//                this.logErrorFile = "";
+//
+//            },
+            created: function(){
+            },
+            jobItemChanged: function (newV, oldV) {
                 var me = this;
                 this.relaunchArgs = {
                     tool: this.jobItem.toolName
@@ -230,7 +253,7 @@
                 var fileId = null;
                 for (var result in this.filesList) {
                     if (this.filesList[result].name == fileName) {
-                        fileId = this.filesList[result].id
+                        fileId = this.filesList[result].id;
                         break;
                     }
                 }
@@ -561,7 +584,7 @@
                         if (notRenderElement) {
                             break;
                         }
-                        res.classList.add("message");
+                        res.classList.add("message","horizontal","layout");
 
                         var label = document.createElement("label");
                         label.innerHTML = element.title;

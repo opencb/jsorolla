@@ -1,39 +1,38 @@
-<dom-module id="jso-prediction" >
+<dom-module id="jso-prediction">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+            z-index: 50000;
+            margin: 0px auto 0px auto;
+
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-            .message {
-                margin-top: 20px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-        </style>
         <div class="jso-tooltitle">
             <div>
                 Class prediction
@@ -60,10 +59,9 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select train data</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-ok="{{handleFileSelect}}"
-                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
-                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" on-main-select="{{loadedMainSelect}}" childrenDisplay="false"></jso-class-viewer>
+                    <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}" on-ok="handleFileSelect"></jso-opencga-browser-window>
+                    <jso-class-viewer id="jsoClassViewer" content-file="{{contentFile}}" on-main-select="loadedMainSelect" on-children-select="loadedChildrenSelect"
+                                      childrenDisplay="false"></jso-class-viewer>
                 </div>
             </div>
             <div class="jso-formbox">
@@ -72,36 +70,36 @@
                     Test data (expression matrix)
                     <jso-opencga-browser-window id="testInputFile" studies="{{studies}}"
                                                 selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file" on-file-select="{{handleFileSelect}}"
-                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
+                                                selectionMode="file" on-file-select="handleFileSelect"
+                                                bioformats="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
             <div class="jso-formbox">
                 <div class="jso-formtitle">Algorithms</div>
                 <div class="jso-formcontent">
-                    <div id="algorithmsDiv" vertical layout>
+                    <div id="algorithmsDiv" class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked">
+                            <input class="jso" name="svm" id="svm" class="fc-checkbox" type="checkbox" value="true" checked="checked">
                             <span>SVM</span></label>
                         <label class="jso-control">
-                            <input class="jso"name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> <span>KNN </span></label>
+                            <input class="jso" name="knn" id="knn" class="fc-checkbox" type="checkbox" value="true"> <span>KNN </span></label>
                         <label class="jso-control">
 
-                            <input class="jso"name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true">
+                            <input class="jso" name="random_forest" id="random_forest" class="fc-checkbox" type="checkbox" value="true">
                             <span>Random forest</span></label>
                     </div>
                 </div>
             </div>
             <div class="jso-formbox">
                 <div class="jso-formtitle">Error estimation</div>
-                <div class="jso-formcontent" vertical layout>
+                <div class="jso-formcontent vertical layout">
                     <label class="jso">Validations</label>
                     <label class="jso-control">
-                        <input class="jso"id="validation_1" name="validation" class="fc-radioitem" type="radio" value="loo"
-                               on-click="{{errorStimationClick}}"><span>Leave-one-out</span></label>
+                        <input class="jso" id="validation_1" name="validation" type="radio" value="loo"
+                               on-click="errorStimationClick"><span>Leave-one-out</span></label>
                     <label class="jso-control">
-                        <input class="jso"id="validation_2" name="validation" class="fc-radioitem" type="radio" value="kfold"
-                               on-click="{{errorStimationClick}}" checked="checked"><span>KFold</span></label>
+                        <input class="jso" id="validation_2" name="validation" type="radio" value="kfold"
+                               on-click="errorStimationClick" checked="checked"><span>KFold</span></label>
 
                     <div id="kfoldProp">
                         <label class="jso">repeats</label>
@@ -139,17 +137,17 @@
                 <div class="jso-formcontent">
                     <label class="jso">Subset selection method</label><br>
 
-                    <div id="featureSelectionDiv" vertical layout>
+                    <div id="featureSelectionDiv" class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"id="feature_selection_1" name="feature_selection" class="fc-radioitem" type="radio"
+                            <input class="jso" id="feature_selection_1" name="feature_selection" type="radio"
                                    value="cfs"><span>Correlation-based
                         Feature Selection (CFS)</span></label>
                         <label class="jso-control">
-                            <input class="jso"id="feature_selection_2" name="feature_selection" class="fc-radioitem" type="radio"
+                            <input class="jso" id="feature_selection_2" name="feature_selection" type="radio"
                                    value="pca"><span>Principal
                         Component Analysis (PCA)</span></label>
                         <label class="jso-control">
-                            <input class="jso"id="feature_selection_3" name="feature_selection" class="fc-radioitem" type="radio"
+                            <input class="jso" id="feature_selection_3" name="feature_selection" type="radio"
                                    value="none" checked="checked"><span> None</span></label>
                     </div>
                 </div>
@@ -159,15 +157,17 @@
                 <div class="jso-formtitle">Job information</div>
                 <div class="jso-formcontent">
                     <label class="jso">Output folder</label>
-                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
-                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <br>
+                    <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>
+                    <br>
+                    <label class="jso">Job name</label> <input class="jso" type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
                     <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
                     <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
@@ -177,10 +177,58 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.toolName = "class-prediction";
-                this.description = "Job description";
+            is: "jso-prediction",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                selectedOption: {
+                    type: String
+                },
+                selectedStudy: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                studies: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                contentFile: {
+                    type: String,
+                    value: ""
+
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "DATAMATRIX_EXPRESSION",
+                            value: "DATAMATRIX_EXPRESSION"
+                        }
+                    ]
+                },
+                toolName: {
+                    type: String,
+                    value: "class-prediction"
+                }
             },
+
             argsChanged: function () {
                 if (this.toolName == this.args.tool) {
                     this.message = '';
@@ -289,24 +337,7 @@
                     query["repeats"] = this.$.repeats.value;
                     query["folds"] = this.$.folds.value;
                 }
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this,query);
             },
             loadExample1: function (e) {
                 this.jobName = "A leukemia data example";
@@ -316,7 +347,7 @@
                     id: "example_data_train_leukemia.txt",
                     path: "data_train_leukemia.txt",
                     type: "FILE"
-                };
+                });
                 this.$.knn.checked = true;
                 this.$.svm.checked = false;
                 this.$.random_forest.checked = false;

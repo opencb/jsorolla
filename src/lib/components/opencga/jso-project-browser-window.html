@@ -90,7 +90,7 @@
                                  on-ok="{{selectHandler}}"
                                  bioformat="{{bioformat}}"
                                  on-cancel="{{handleCancel}}"
-                                 on-file-select="{{handleFileSelect}}"
+                                 on-file-select="handleFileSelect"
 
                     >
             </jso-project-browser>
@@ -132,7 +132,7 @@
                 this.showBrowser = false;
                 this.textAreaValue = "";
                 if(this.selectedFolder !== undefined) {
-//                    this.shadowRoot.querySelector("#jsoProjectBrowser").studiesChanged(null, null);
+//                    this.querySelector("#jsoProjectBrowser").studiesChanged(null, null);
                     this.selectedFile = {
                         path: this.selectedFolder,
                         id: this.selectedFolder
@@ -145,7 +145,7 @@
                 this.showBrowser = !this.showBrowser;
             },
             selectHandler: function (e) {
-//                console.log(this.shadowRoot.querySelector("#jsoProjectBrowser"))
+//                console.log(this.querySelector("#jsoProjectBrowser"))
                 this.showBrowser = false;
                 this.selectedFile = e.detail.file;
             },

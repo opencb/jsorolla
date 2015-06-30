@@ -54,7 +54,7 @@
 
                     <!--<jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"-->
                     <!--selectionMode="file" on-ok="{{handleFileSelect}}"-->
-                    <!--bioformat="{{bioformats}}"></jso-opencga-browser-window>-->
+                    <!--bioformats="{{bioformats}}"></jso-opencga-browser-window>-->
                 </div>
             </div>
 
@@ -75,13 +75,13 @@
                         </label>
                         <hr>
                         <label class="jso-control">
-                            <input class="jso" id="two_rg_1" name="two_rg" class="fc-radioitem" type="radio" value="t" checked="checked" disabled
+                            <input class="jso" id="two_rg_1" name="two_rg"  type="radio" value="t" checked="checked" disabled
                                    on-click="{{radioTestClicked}}"><span>T-test</span></label>
                         <label class="jso-control">
-                            <input class="jso" id="two_rg_2" name="two_rg" class="fc-radioitem" type="radio" value="limma" disabled
+                            <input class="jso" id="two_rg_2" name="two_rg"  type="radio" value="limma" disabled
                                    on-click="{{radioTestClicked}}"><span>Limma</span></label>
                         <label class="jso-control">
-                            <input class="jso" id="two_rg_3" name="two_rg" class="fc-radioitem" type="radio" value="fold_change" disabled
+                            <input class="jso" id="two_rg_3" name="two_rg"  type="radio" value="fold_change" disabled
                                    on-click="{{radioTestClicked}}"><span>Fold-change</span></label>
 
                         <div id="fold_change_div" hidden>
@@ -102,20 +102,20 @@
             <div id="multiple_test_correction_div">
                 <div class="jso-formbox">
                     <div class="jso-formtitle">Select multiple-test correction</div>
-                    <div class="jso-formcontent" vertical layout>
+                    <div class="jso-formcontent vertical layout">
 
                         <label class="jso-control">
-                            <input class="jso" id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked"><span>Benjamini
+                            <input class="jso" id="correction_1" name="correction"  type="radio" value="fdr" checked="checked"><span>Benjamini
                             and Hochberg (BH), FDR </span></label>
                         <label class="jso-control">
-                            <input class="jso" id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"><span> Benjamini and
+                            <input class="jso" id="correction_2" name="correction"  type="radio" value="by"><span> Benjamini and
                                 Yekutieli (BY) </span></label>
                         <label class="jso-control">
-                            <input class="jso" id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg"><span>Hochberg </span></label>
+                            <input class="jso" id="correction_3" name="correction"  type="radio" value="hochberg"><span>Hochberg </span></label>
                         <label class="jso-control">
-                            <input class="jso" id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm"><span>Holm </span></label>
+                            <input class="jso" id="correction_4" name="correction"  type="radio" value="holm"><span>Holm </span></label>
                         <label class="jso-control">
-                            <input class="jso" id="correction_5" name="correction" class="fc-radioitem" type="radio"
+                            <input class="jso" id="correction_5" name="correction"  type="radio"
                                    value="bonferroni"><span>Bonferroni</span></label>
                     </div>
                 </div>
@@ -204,23 +204,11 @@
                 p_value:{
                     type: Number,
                     value: 0.05
+                },
+                toolName: {
+                    type: String,
+                    value: "class-comparison"
                 }
-            },
-            created: function () {
-                this.toolName = "class-comparison";
-//                this.description = "Job description.";
-
-//                /** Tool input parameters **/
-//                this.class_name = "";
-//                this.class_values = "";
-//                this.correction = "";
-//                this.dataset = "";
-//                this.fold_change_value = "";
-//                this.outdir = "";
-//                this.p_value = 0.05;
-//                this.species = "";
-//                this.test = "";
-
             },
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
@@ -345,24 +333,7 @@
                     }
                     query["p-value"] = this.$.p_value.value;
                 }
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this,query);
             },
             loadExample1: function (e) {
                 this.jobName = "Differential expression - Class comparison demo (correlation.txt)";

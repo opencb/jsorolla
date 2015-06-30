@@ -59,7 +59,7 @@
                 </div>
             </div>
             <div class="container" horizontal layout>
-                <div id="left" vertical layout>
+                <div id="left"class="vertical layout">
 
                     <label>Attribute name</label>
 
@@ -101,7 +101,7 @@
                     </template>
 
                 </div>
-                <div vertical layout flex>
+                <divclass="vertical layout" flex>
                     <label hidden?="{{attributeType != 'continuous'}}">Continous mapping</label>
 
                     <div hidden?="{{attributeType != 'continuous'}}">
@@ -112,7 +112,7 @@
 
                             <div style="width: 10px;"></div>
                         </div>
-                        <div flex vertical layout style="margin-bottom:5px;">
+                        <div flexclass="vertical layout" style="margin-bottom:5px;">
                             <template repeat="{{point, index in points}}">
                                 <jso-attribute-render-number-point
                                         point="{{point}}" points="{{points}}" controlType="{{controlType}}"

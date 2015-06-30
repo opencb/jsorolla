@@ -1,39 +1,39 @@
 <dom-module id="jso-rnaseq-diffexpr" attributes="userData selectedOption selectedStudy studies">
+
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+            z-index: 50000;
+            margin: 0px auto 0px auto;
+
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-            .message {
-                margin-top: 20px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-        </style>
         <div class="jso-tooltitle">
             <div>
                 RNA-Seq differential expression
@@ -59,25 +59,25 @@
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
                     <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-ok="{{handleFileSelect}}"
-                                                bioformat="{{bioformats}}"></jso-opencga-browser-window>
+                                                bioformats="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
 
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select the class to analyse</div>
                 <div class="jso-formcontent">
-                    <!--<jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"-->
+                    <!--<jso-class-viewer id="jsoClassViewer" content-file="{{contentFile}}" loadedMainSelect="{{loadedMainSelect}}"-->
                     <!--loadedChildrenSelect="{{loadedChildrenSelect}}" changedChildrenSelect="{{changedChildrenSelect}}"-->
                     <!--childrenSelectNumber="2"></jso-class-viewer>-->
-                    <jso-class-viewer id="jsoClassViewer" contentFile="{{contentFile}}" on-main-select="{{loadedMainSelect}}"
-                                      on-children-select="{{loadedChildrenSelect}}" childrenSelectNumber="2"></jso-class-viewer>
+                    <jso-class-viewer id="jsoClassViewer" content-file="{{contentFile}}" on-main-select="loadedMainSelect"
+                                      on-children-select="loadedChildrenSelect" childrenSelectNumber="2"></jso-class-viewer>
                 </div>
             </div>
 
             <!--<div class="jso-formbox">-->
             <!--<div class="jso-formtitle">Select experimental design file</div>-->
             <!--<div class="jso-formcontent">-->
-            <!--<jso-opencga-browser-window id="edFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="{{handleFileSelect}}"-->
+            <!--<jso-opencga-browser-window id="edFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="handleFileSelect"-->
             <!--bioformat=""></jso-opencga-browser-window>-->
             <!--</div>-->
             <!--</div>-->
@@ -85,33 +85,33 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Normalization method</div>
                 <div class="jso-formcontent">
-                    <div id="methodDiv" vertical layout>
+                    <div id="methodDiv" class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"id="none" name="method" type="radio" value="NONE" checked="checked" on-click="{{radioTestClicked}}"><span>None</span></label>
+                            <input class="jso" id="none" name="method" type="radio" value="NONE" checked="checked" on-click="{{radioTestClicked}}"><span>None</span></label>
                         <label class="jso-control">
-                            <input class="jso"id="tmm" name="method" type="radio" value="TMM" checked="checked" on-click="{{radioTestClicked}}"><span>TMM<span></label>
+                            <input class="jso" id="tmm" name="method" type="radio" value="TMM" checked="checked" on-click="{{radioTestClicked}}"><span>TMM<span></label>
                         <label class="jso-control">
-                            <input class="jso"id="quan" name="method" type="radio" value="QUAN" on-click="{{radioTestClicked}}"><span>QUAN</span></label>
+                            <input class="jso" id="quan" name="method" type="radio" value="QUAN" on-click="{{radioTestClicked}}"><span>QUAN</span></label>
                     </div>
                 </div>
             </div>
             <div id="multiple_test_correction_div">
                 <div class="jso-formbox">
                     <div class="jso-formtitle">Select multiple-test correction</div>
-                    <div class="jso-formcontent" vertical layout>
+                    <div class="jso-formcontent vertical layout">
 
                         <label class="jso-control">
-                            <input class="jso"id="correction_1" name="correction" class="fc-radioitem" type="radio" value="fdr" checked="checked"><span>Benjamini
+                            <input class="jso" id="correction_1" name="correction" type="radio" value="fdr" checked="checked"><span>Benjamini
                             and Hochberg (BH), FDR </span></label>
                         <label class="jso-control">
-                            <input class="jso"id="correction_2" name="correction" class="fc-radioitem" type="radio" value="by"><span> Benjamini and
+                            <input class="jso" id="correction_2" name="correction" type="radio" value="by"><span> Benjamini and
                                 Yekutieli (BY) </span></label>
                         <label class="jso-control">
-                            <input class="jso"id="correction_3" name="correction" class="fc-radioitem" type="radio" value="hochberg"><span>Hochberg </span></label>
+                            <input class="jso" id="correction_3" name="correction" type="radio" value="hochberg"><span>Hochberg </span></label>
                         <label class="jso-control">
-                            <input class="jso"id="correction_4" name="correction" class="fc-radioitem" type="radio" value="holm"><span>Holm </span></label>
+                            <input class="jso" id="correction_4" name="correction" type="radio" value="holm"><span>Holm </span></label>
                         <label class="jso-control">
-                            <input class="jso"id="correction_5" name="correction" class="fc-radioitem" type="radio"
+                            <input class="jso" id="correction_5" name="correction" type="radio"
                                    value="bonferroni"><span>Bonferroni</span></label>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
                     <div class="jso-formtitle">Select adjusted p-value</div>
                     <div class="jso-formcontent">
                         <label class="jso">Adj. p-value (0.0-1.0)</label>
-                        <input class="jso"name="p_value" id="p_value" class="fc-decimal fc-text" type="text" value="{{p_value}}" style="width: 40px">
+                        <input class="jso" name="p_value" id="p_value" class="fc-decimal fc-text" type="text" value="{{p_value}}" style="width: 40px">
                     </div>
                 </div>
             </div>
@@ -129,14 +129,16 @@
                 <div class="jso-formtitle">Job information</div>
                 <div class="jso-formcontent">
                     <label class="jso">Output folder</label>
-                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
-                    <label class="jso">Job name</label> <input class="jso"type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
+                    <br>
+                    <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>
+                    <br>
+                    <label class="jso">Job name</label> <input class="jso" type="text" id="jobName" style="width:180px;" value="{{jobName}}" required>
                     <label class="jso">Description</label>
                     <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
             <div class="botbar" horizontal layout center-justified>
-                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
                     <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
@@ -146,10 +148,60 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.toolName = "rnaseq-diffexpr";
-                this.description = "Job info..."
-                this.p_value = 0.05;
+            is: "jso-rnaseq-diffexpr",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                selectedOption: {
+                    type: String
+                },
+                selectedStudy: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                studies: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                contentFile: {
+                    type: String,
+                    value: ""
+
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "DATAMATRIX_EXPRESSION",
+                            value: "DATAMATRIX_EXPRESSION"
+                        }
+                    ]
+                },
+                p_value: {
+                    type: Number,
+                    value: 0.05
+                },
+                toolName: {
+                    type: String,
+                    value: "rnaseq-diffexpr"
+                }
             },
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
@@ -249,24 +301,7 @@
                 var method = this.$.methodDiv.querySelector('input[name="method"]:checked').value;
                 if (method != "NONE")
                     query["norm"] = method;
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this, query);
             },
             loadExample1: function (e) {
                 this.$.jsoClassViewer.loading = true;

@@ -39,25 +39,25 @@
             <div class="headerTitle">Job information</div>
             <div class="data">
 
-                <div class="message" horizontal="" layout="">
+                <div class="message horizontal layout">
                     <label class="jso">Name </label>
 
-                    <div class="messageValue"> {{jobItem.name }}</div>
+                    <div class="messageValue">{{jobItem.name }}</div>
                 </div>
-                <div class="message" horizontal="" layout="">
+                <div class="message horizontal layout">
                     <label class="jso">Description </label>
 
-                    <div class="messageValue"> {{jobItem.description }}</div>
+                    <div class="messageValue">{{jobItem.description }}</div>
                 </div>
-                <div class="message" horizontal="" layout="">
+                <div class="message horizontal layout">
                     <label class="jso">Tool </label>
 
-                    <div class="messageValue"> {{jobItem.toolName }}</div>
+                    <div class="messageValue">{{jobItem.toolName}}</div>
                 </div>
-                <div class="message" horizontal="" layout="">
+                <div class="message horizontal layout">
                     <label class="jso">Output folder </label>
 
-                    <div class="messageValue"> {{jobItem.outDirPath }}</div>
+                    <div class="messageValue">{{outdirpath}}</div>
                 </div>
             </div>
             <div class="children"></div>
@@ -66,6 +66,18 @@
     </template>
     <script>
         Polymer({
+            is: "jso-job-info-widget",
+            properties: {
+                jobItem: {
+                    type: Object,
+                    observer: "jobItemChanged"
+                },
+                outdirpath: {
+                    type: String,
+                    value: ""
+                }
+
+            },
             created: function () {
 
             },
@@ -82,7 +94,7 @@
                     request: {
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.jobItem.outDirPath = STUDY_NAME+"/"+response.response[0].result[0].path;
+                                me.outdirpath = STUDY_NAME + "/" + response.response[0].result[0].path;
                             } else {
                                 console.log(response.response[0].errorMsg);
                             }

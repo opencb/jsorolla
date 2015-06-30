@@ -1,39 +1,38 @@
 <dom-module id="jso-one-channel-genepix" attributes="userData selectedOption selectedStudy studies">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 40px;
+
+            z-index: 50000;
+            margin: 0px auto 0px auto;
+
+            width: 80%;
+            min-width: 800px;
+            border: 1px solid #c6d0da;
+            transition: all 0.2s;
+            box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
+            background-color: #FFFFFF;
+
+        }
+
+        .icon {
+            color: #445D76;
+            font-size: 50px;
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+
+        /*jso-file-browser {*/
+        /*width: 70%;*/
+        /*}*/
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-            .message {
-                margin-top: 20px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-        </style>
         <div class="jso-tooltitle">
             <div>
                 GenePix one-channel normalization
@@ -58,8 +57,8 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window projects="{{projects}}" bioformats="{{bioformats}}"
-                                                bioformat="MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX"></jso-opencga-browser-window>
+                    <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}"
+                                                ></jso-opencga-browser-window>
                 </div>
             </div>
 
@@ -118,11 +117,43 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.toolName = "genepix-expression-one-color-normalization";
-
-                this.compressed_file_tags = "microarray,expression,one-channel,genepix";
-
+            is: "jso-one-channel-genepix",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
+                            value: "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX"
+                        }
+                    ]
+                },
+                toolName: {
+                    type: String,
+                    value: "genepix-expression-one-color-normalization"
+                },
+                compressed_file_tags:{
+                    type: String,
+                    value: "microarray,expression,one-channel,genepix"
+                }
             },
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
@@ -152,24 +183,7 @@
 
                 if (this.$.flags_no_fitted.checked) query["flags-no-fitted"] = "";
                 if (this.$.flags_as_missing.checked) query["flags-as-missing"] = "";
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
-                            }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
-                        }
-                    }
-                })
+                Utils.createJob(this, query);
             },
             loadExample1: function (e) {
                 this.jobName = "genepix one-color normalization";

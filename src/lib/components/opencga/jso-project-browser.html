@@ -492,7 +492,7 @@
                 this.selectedStudy = null;
             },
             handleModifyBioformat: function (e) {
-                if (this.shadowRoot.querySelector("#uploadBioformat").getSelected() == "") {
+                if (this.querySelector("#uploadBioformat").getSelected() == "") {
                     alert("No bioformat selected. Please select a bioformat");
                     return;
                 }
@@ -501,7 +501,7 @@
                     id: this.selectedFile.id,
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        bioformat: this.shadowRoot.querySelector("#uploadBioformat").getSelected()
+                        bioformat: this.querySelector("#uploadBioformat").getSelected()
                     },
                     request: {
                         async: false,
