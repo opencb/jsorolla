@@ -14,7 +14,6 @@
 <script src="../cache/bam-cache.js"></script>
 
 <script src="../data-adapter/feature/cellbase-adapter.js"></script>
-<script src="../data-adapter/feature/sequence-adapter.js"></script>
 <script src="../data-adapter/feature/opencga-adapter.js"></script>
 <script src="../data-adapter/feature/ensembl-adapter.js"></script>
 
@@ -39,19 +38,17 @@
 <script src="../../genome-viewer/tracks/tracklist-panel.js"></script>
 <script src="../../genome-viewer/tracks/track.js"></script>
 <script src="../../genome-viewer/tracks/feature-track.js"></script>
-<script src="../../genome-viewer/tracks/sequence-track.js"></script>
 <script src="../../genome-viewer/tracks/gene-track.js"></script>
-<script src="../../genome-viewer/tracks/bam-track.js"></script>
 <script src="../../genome-viewer/tracks/alignment-track.js"></script>
 
 
 <script src="../../genome-viewer/renderers/renderer.js"></script>
 <script src="../../genome-viewer/renderers/feature-renderer.js"></script>
 <script src="../../genome-viewer/renderers/sequence-renderer.js"></script>
+<script src="../../genome-viewer/renderers/conserved-renderer.js"></script>
 <script src="../../genome-viewer/renderers/feature-cluster-renderer.js"></script>
 <script src="../../genome-viewer/renderers/histogram-renderer.js"></script>
 <script src="../../genome-viewer/renderers/gene-renderer.js"></script>
-<script src="../../genome-viewer/renderers/bam-renderer.js"></script>
 <script src="../../genome-viewer/renderers/vcf-multisample-renderer.js"></script>
 <script src="../../genome-viewer/renderers/alignment-renderer.js"></script>
 
@@ -237,7 +234,7 @@
                         },
                         species: this.genomeViewer.species,
                         cacheConfig: {
-                            defaultChunkSize: 100000
+                            chunkSize: 100000
                         }
                     })
                 });

@@ -79,9 +79,13 @@ var Utils = {
         return url + query;
     },
     queryString: function (obj) {
-        return Object.keys(obj).map(function (key) {
-            return key + '=' + obj[key];
-        }).join('&');
+        var items = [];
+        for (var key in obj) {
+            if (obj[key] != null && obj[key] != undefined) {
+                items.push(key + '=' + obj[key]);
+            }
+        }
+        return items.join('&');
     },
     randomColor: function () {
         var color = "";
@@ -426,6 +430,14 @@ var Utils = {
     },
     clone: function (obj) {
         return JSON.parse(JSON.stringify(obj));
+    },
+    deleteIndexedDB: function () {
+        window.indexedDB.webkitGetDatabaseNames().onsuccess = function (sender, args) {
+            var r = sender.target.result;
+            for (var i in r) {
+                indexedDB.deleteDatabase(r[i]);
+            }
+        };
     }
 
 };

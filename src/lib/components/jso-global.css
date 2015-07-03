@@ -51,7 +51,7 @@ label.jso-btn > input[type=checkbox] {
     display: none;
 }
 
-select.jso {
+.jso-select select {
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
@@ -59,24 +59,49 @@ select.jso {
     background: transparent;
 }
 
-input.jso,
-select.jso {
+input.jso {
     width: 100%;
 }
 
+.jso-select {
+    position: relative;
+    display: inline-block;
+}
+
+.jso-select select {
+    box-sizing: content-box;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    -webkit-appearance: none;
+    -moz-appearance: radio-container;
+    appearance: none;
+}
+
+.jso-select select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+}
+
+.jso-select select::-ms-expand {
+    display: none;
+}
+
 .jso-select:after {
+    -ms-display: none;
     position: absolute;
     box-sizing: border-box;
-    top: 6px;
-    right: 8px;
+    right: 7px;
+    top: 0;
     color: inherit;
     font-family: FontAwesome;
-    /*content: '\f0d7';*/
     content: '\f107';
+    pointer-events: none;
 }
 
 .jso-btn,
-select.jso,
+.jso-select,
 input.jso[type=text],
 input.jso[type=email],
 input.jso[type=password],
@@ -97,15 +122,6 @@ label.jso-btn > input[type=checkbox] + span {
     font-family: inherit;
     color: inherit;
     height: 23px;
-}
-
-.jso-select {
-    position: relative;
-    display: inline-block;
-}
-
-.jso-select > select {
-    padding-right: 15px;
 }
 
 input.jso[type=number] {

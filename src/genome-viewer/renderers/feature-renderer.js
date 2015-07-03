@@ -49,6 +49,9 @@ FeatureRenderer.prototype.render = function (features, args) {
         if (feature.featureType) {
             _.extend(_this, FEATURE_TYPES[feature.featureType]);
         }
+        if (feature.featureClass) {
+            _.extend(_this, FEATURE_TYPES[feature.featureClass]);
+        }
         ////check feature class
         //if (feature.featureClass != null) {//regulatory
         //    _.extend(_this, FEATURE_TYPES[feature.featureClass]);
@@ -80,7 +83,7 @@ FeatureRenderer.prototype.render = function (features, args) {
         var svgLabelWidth = label.length * 6.4;
 
         //calculate x to draw svg rect
-        var x = _this.getFeatureX(feature, args);
+        var x = _this.getFeatureX(start, args);
 
         var maxWidth = Math.max(width, 2);
         var textHeight = 0;

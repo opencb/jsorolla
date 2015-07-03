@@ -64,7 +64,7 @@ VcfMultisampleRenderer.prototype.render = function (features, args) {
         var svgLabelWidth = _this.getLabelWidth(label, args);
 
         //calculate x to draw svg rect
-        var x = _this.getFeatureX(feature, args);
+        var x = _this.getFeatureX(start, args);
 
         var maxWidth = Math.max(width, 2);
         var textHeight = 0;

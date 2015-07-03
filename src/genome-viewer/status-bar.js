@@ -53,7 +53,13 @@ StatusBar.prototype = {
         $(this.div).append(this.leftDiv);
         $(this.div).append(this.rightDiv);
 
-        this.mousePositionEl = $('<span id="' + this.id + 'position">&nbsp;</span>')[0];
+        this.mousePositionEl = $('<span id="' + this.id + 'position"></span>')[0];
+        this.mousePositionBase = document.createElement('span');
+        this.mousePositionBase.style.marginRight = '5px';
+        this.mousePositionRegion = document.createElement('span');
+        this.mousePositionEl.appendChild(this.mousePositionBase);
+        this.mousePositionEl.appendChild(this.mousePositionRegion);
+
         this.versionEl = $('<span id="' + this.id + 'version">' + this.version + '</span>')[0];
         $(this.rightDiv).append(this.mousePositionEl);
         $(this.leftDiv).append(this.versionEl);
@@ -74,7 +80,10 @@ StatusBar.prototype = {
         $(this.mousePositionEl).html(Utils.formatNumber(event.region.center()));
     },
     setMousePosition: function (event) {
-        $(this.mousePositionEl).html(event.baseHtml + ' ' + this.region.chromosome + ':' + Utils.formatNumber(event.mousePos));
+        this.mousePositionBase.style.color = SEQUENCE_COLORS[event.base];
+        this.mousePositionBase.textContent = event.base;
+
+        this.mousePositionRegion.textContent = this.region.chromosome + ':' + Utils.formatNumber(event.mousePos);
     }
 
 }
