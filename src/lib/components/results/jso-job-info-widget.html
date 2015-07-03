@@ -1,40 +1,40 @@
 <dom-module id="jso-job-info-widget" attributes="jobItem">
+    <link rel="stylesheet" href="../sortable-table.css">
+    <style>
+        .data {
+            margin-left: 20px;
+        }
+
+        .level-0 {
+            /*border: 1px solid grey;*/
+            padding: 20px;
+
+        }
+
+        .level-0 > .headerTitle {
+            font-size: 15pt;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .message > label {
+            margin-right: 10px;
+        }
+
+        .message > label:after {
+            content: ':';
+        }
+
+        .message > .messageValue {
+            font-size: 9pt;
+            font-weight: bold;
+            font-style: italic;
+            color: #55f;
+            line-height: 21px;
+
+        }
+    </style>
     <template>
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            .data {
-                margin-left: 20px;
-            }
-
-            .level-0 {
-                /*border: 1px solid grey;*/
-                padding: 20px;
-
-            }
-
-            .level-0 > .headerTitle {
-                font-size: 15pt;
-                font-weight: bold;
-                padding: 5px;
-            }
-
-            .message > label {
-                margin-right: 10px;
-            }
-
-            .message > label:after {
-                content: ':';
-            }
-
-            .message > .messageValue {
-                font-size: 9pt;
-                font-weight: bold;
-                font-style: italic;
-                color: #55f;
-                line-height: 21px;
-
-            }
-        </style>
         <div class="level-0">
             <div class="headerTitle">Job information</div>
             <div class="data">
@@ -79,7 +79,6 @@
 
             },
             created: function () {
-
             },
             jobItemChanged: function () {
                 this.getFileInfo(this.jobItem.outDirId);

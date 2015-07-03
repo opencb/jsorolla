@@ -1,51 +1,15 @@
-<dom-module id="jso-snow" attributes="hideTitle userData selectedOption selectedStudy studies args networkViewer">
+<dom-module id="jso-snow">
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-
-            .message {
-                margin-top: 20px;
-            }
-
-            .inputListTextArea {
-                width: 300px;
-                height: 50px;
-            }
-
-            label {
-                display: block;
-            }
-
-        </style>
-
-
         <div class="jso-tooltitle" hidden?="{{hideTitle == 'true'}}">
-                <div flex>
-                    Snow
-                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/network-enrichment-(snow)">
-                        <i class="fa fa-question-circle"></i>
-                    </a>
-                </div>
-                <div class="icon">
-                    <!--<font-awesome icon="magic"></font-awesome>-->
-                </div>
+            <div flex>
+                Snow
+                <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/network-enrichment-(snow)">
+                    <i class="fa fa-question-circle"></i>
+                </a>
+            </div>
+            <div class="icon">
+                <!--<font-awesome icon="magic"></font-awesome>-->
+            </div>
         </div>
         <form id="form">
             <div class="jso-formbox">
@@ -58,7 +22,8 @@
                         <i class="fa fa-download"></i>
                     </div>
                     <br>
-                    <div class="jso-btn jso-btn-shdw" style="display:inline-block;margin-top:5px;" on-click="{{loadExample2}}">
+
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block;margin-top:5px;" on-click="loadExample2">
                         Upregulated by induction of exogenous BRCA1 in EcR-293 cells
                     </div>
                     <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="brca1_overexp_up.txt" style="display:inline-block">
@@ -70,11 +35,11 @@
                 <div class="jso-formtitle">Define your input data</div>
                 <div class="jso-formcontent">
                     <label class="jso-control">
-                        <input class="jso"id="mode_1" name="mode"  type="radio" value="one_list" checked="checked" on-click="{{modeChanged}}">
+                        <input class="jso" id="mode_1" name="mode" type="radio" value="one_list" checked="checked" on-click="modeChanged">
                         <span>One list</span>
                     </label>
                     <label class="jso-control">
-                        <input class="jso"id="mode_2" name="mode"  type="radio" value="two_list" on-click="{{modeChanged}}">
+                        <input class="jso" id="mode_2" name="mode" type="radio" value="two_list" on-click="modeChanged">
                         <span>Comparing two lists</span>
                     </label>
                 </div>
@@ -83,23 +48,11 @@
                 <div class="jso-formtitle">Select your input files</div>
                 <div class="jso-formcontent">
                     List 1:
-                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                selectionMode="file"
-                                                allowTextArea="true"
-                                                on-file-select="handleFileSelect"
-                                                bioformat="IDLIST"
-                                                networkViewer="{{networkViewer}}"
-                            ></jso-opencga-browser-window>
+                    <jso-opencga-browser-window id="inputFile" bioformats="{{bioformats}}" ></jso-opencga-browser-window>
                     <div id="list2Div" hidden>
                         <br>
                         List 2:
-                        <jso-opencga-browser-window id="inputFile2" studies="{{studies}}" selectedStudy="{{selectedStudy}}"
-                                                    selectionMode="file"
-                                                    allowTextArea="true"
-                                                    on-file-select="handleFileSelect"
-                                                    bioformat="IDLIST"
-                                                    networkViewer="{{networkViewer}}"
-                                ></jso-opencga-browser-window>
+                        <jso-opencga-browser-window id="inputFile2" bioformats="{{bioformats}}" ></jso-opencga-browser-window>
                     </div>
                 </div>
             </div>
@@ -109,15 +62,15 @@
                 <div class="jso-formcontent">
                     <div id="typeDiv">
                         <label class="jso-control">
-                            <input class="jso"id="type_1" name="type"  type="radio" value="transcripts">
+                            <input class="jso" id="type_1" name="type" type="radio" value="transcripts">
                             <span>Transcripts</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="type_2" name="type"  type="radio" value="proteins" checked>
+                            <input class="jso" id="type_2" name="type" type="radio" value="proteins" checked>
                             <span>Proteins</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="type_3" name="type"  type="radio" value="genes">
+                            <input class="jso" id="type_3" name="type" type="radio" value="genes">
                             <span>Genes</span>
                         </label>
                     </div>
@@ -145,13 +98,13 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select interactome confidence</div>
                 <div class="jso-formcontent">
-                    <div id="groupDiv"class="vertical layout">
+                    <div id="groupDiv" class="vertical layout">
                         <label class="jso-control">
-                            <input class="jso"id="group_1" name="group"  type="radio" value="all" checked="checked">
+                            <input class="jso" id="group_1" name="group" type="radio" value="all" checked="checked">
                             <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="group_2" name="group"  type="radio" value="curated" checked="checked">
+                            <input class="jso" id="group_2" name="group" type="radio" value="curated" checked="checked">
                             <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
                         </label>
                     </div>
@@ -162,11 +115,11 @@
                 <div class="jso-formcontent">
                     <div id="sideDiv">
                         <label class="jso-control">
-                            <input class="jso"id="side_1" name="side"  type="radio" value="greater" checked="checked">
+                            <input class="jso" id="side_1" name="side" type="radio" value="greater" checked="checked">
                             <span>Greater</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="side_2" name="side"  type="radio" value="less">
+                            <input class="jso" id="side_2" name="side" type="radio" value="less">
                             <span>Less</span>
                         </label>
                     </div>
@@ -177,11 +130,11 @@
                 <div class="jso-formcontent">
                     <div id="intermediateDiv">
                         <label class="jso-control">
-                            <input class="jso"id="intermediate_2" name="intermediate"  type="radio" value="1" checked="checked">
+                            <input class="jso" id="intermediate_2" name="intermediate" type="radio" value="1" checked="checked">
                             <span>Yes</span>
                         </label>
                         <label class="jso-control">
-                            <input class="jso"id="intermediate_1" name="intermediate"  type="radio" value="0">
+                            <input class="jso" id="intermediate_1" name="intermediate" type="radio" value="0">
                             <span>No</span>
                         </label>
                     </div>
@@ -192,16 +145,18 @@
                 <div class="jso-formtitle">Job information</div>
                 <div class="jso-formcontent">
                     <label class="jso">Output folder</label>
-                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>                     <br>
+                    <br>
+                    <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>
+                    <br>
                     <label class="jso">Job name</label>
-                    <input class="jso"type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
+                    <input class="jso" type="text" id="jobName" value="{{jobName}}" required style="width:150px;">
                     <label class="jso">Description</label>
                     <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" horizontal layout center-justified>
-                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
                     <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
@@ -211,14 +166,64 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.toolName = "snow";
-                this.message = '';
-                this.description = "";
+            is: "jso-snow",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                selectedOption: {
+                    type: String
+                },
+                selectedStudy: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                studies: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                contentFile: {
+                    type: String,
+                    value: ""
 
-                /** Default values **/
-                this.type = "genes";
-                this.randoms = 500;
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "IDLIST",
+                            value: "IDLIST"
+                        }
+                    ]
+                },
+                toolName: {
+                    type: String,
+                    value: "snow"
+                },
+                type: {
+                    type: String,
+                    value: "genes"
+                },
+                randoms: {
+                    type: Number,
+                    value: 500
+                }
             },
             argsChanged: function () {
                 if (this.toolName == this.args.tool) {
@@ -274,28 +279,28 @@
                     images: "",
                     json: 1
                 };
-                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                if (this.$.inputFile.selectedFile === undefined /* && this.$.inputFile.textAreaValue == ""*/) {
                     alert("Sorry. No input selected. Please select a file or write something in the text area");
                     return;
                 }
                 if (this.$.inputFile.selectedFile !== undefined) {
                     query["list1"] = this.$.inputFile.selectedFile.id;
                 }
-                if (this.$.inputFile.textAreaValue != "") {
-                    query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
-                }
+//                if (this.$.inputFile.textAreaValue != "") {
+//                    query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
+//                }
 
                 if (this.$.mode_2.checked) {
-                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
+                    if (this.$.inputFile2.selectedFile === undefined /*&& this.$.inputFile2.textAreaValue == ""*/) {
                         alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
                         return;
                     }
                     if (this.$.inputFile2.selectedFile !== undefined) {
                         query["list2"] = this.$.inputFile2.selectedFile.id;
                     }
-                    if (this.$.inputFile2.textAreaValue != "") {
-                        query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
-                    }
+//                    if (this.$.inputFile2.textAreaValue != "") {
+//                        query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
+//                    }
                 }
                 OpencgaManager.jobs.create({
                     query: query,
@@ -305,23 +310,26 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var userId = response.response[0].result[0].id;
                                 me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
+                                me.selectedOption = "jobLaunched";
+                                me.fire("joblaunched", {
+                                    option: "joblaunched"
+                                });
                             } else {
                                 me.message = response.response[0].errorMsg;
                             }
                         },
                         error: function () {
                             var lng1, lng2 = 0;
-                            if (query["list1-text"] !== undefined){
+                            if (query["list1-text"] !== undefined) {
                                 lng1 = query["list1-text"].split(",").length;
                             }
-                            if (query["list2-text"] !== undefined){
+                            if (query["list2-text"] !== undefined) {
                                 lng2 = query["list2-text"].split(",").length;
                             }
                             var lng = lng1 + lng2;
-                            if(lng > 0){
+                            if (lng > 0) {
                                 alert("Sorry, too many inputs ids, the size is limited due to browser restrictions. \n " +
-                                "Please upload a file with your ids in order to run the analysis. ");
+                                        "Please upload a file with your ids in order to run the analysis. ");
                                 return;
 
                             }

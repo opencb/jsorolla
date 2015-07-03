@@ -14,9 +14,9 @@
             }
         </style>
         <div id="networkWidget">
-            <template if="{{speciesSelection == ''}}">
+            <template is="dom-if" if="{{speciesSelection == ''}}">
                 <div style="margin-bottom: 5px">
-                    <label class="jso">Species:</label> <div class="select">
+                    <label class="jso">Species:</label> <div class="jso-select" style="width:100px">
                         <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
                             <template repeat="{{spe in species}}">
                                 <option value="{{spe.value}}">
@@ -27,7 +27,7 @@
                     </div>
                 </div>
             </template>
-            <template if="{{nodeSelection == true}}">
+            <template is="dom-if" if="{{nodeSelection == true}}">
 
                 <div style="margin-bottom: 5px" flex horizontal layout>
                     <label class="jso">Select number of nodes in the top list of the differential expression result</label>
@@ -44,7 +44,7 @@
             </template>
         </div>
 
-        <template if="{{jobResult.networkViewer}}">
+        <template is="dom-if" if="{{jobResult.networkViewer}}">
             <div horizontal layout>
                 <div>
                     <input type="text" value="{{sessionName}}">
@@ -57,7 +57,7 @@
                 <label class="jso">
                     {{saveMessage}}
                 </label>
-                <template if="{{saveMessageOk}}">
+                <template is="dom-if" if="{{saveMessageOk}}">
                     <div class="jso-btn jso-btn-shdw" on-click="{{handleOpenCellMapsSessionManager}}">
                         Open Cell Maps session Manager
                     </div>

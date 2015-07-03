@@ -81,7 +81,7 @@
                     <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1"
                          style="width:150px;">motor vs apoptosis
                     </div>
-                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile"data-example="example.zip"  style="display:inline-block">
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="example.zip" style="display:inline-block">
                         <i class="fa fa-download"></i>
                     </div>
                 </div>
@@ -110,18 +110,18 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
-                     <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}" on-ok="handleFileSelect"></jso-opencga-browser-window>
+                    <jso-opencga-browser-window id="inputFile" projects="{{projects}}" bioformats="{{bioformats}}" on-ok="handleFileSelect"></jso-opencga-browser-window>
 
                     <!--<jso-opencga-browser-window-->
-                            <!--id="inputFile"-->
-                            <!--studies="{{studies}}"-->
-                            <!--selectedStudy="{{selectedStudy}}"-->
-                            <!--selectionMode="file"-->
-                            <!--allowTextArea="true"-->
-                            <!--on-file-select="handleFileSelect"-->
-                            <!--bioformat="IDLIST,IDLIST_RANKED"-->
-                            <!--networkViewer="{{networkViewer}}"-->
-                            <!--</jso-opencga-browser-window>-->
+                    <!--id="inputFile"-->
+                    <!--studies="{{studies}}"-->
+                    <!--selectedStudy="{{selectedStudy}}"-->
+                    <!--selectionMode="file"-->
+                    <!--allowTextArea="true"-->
+                    <!--on-file-select="handleFileSelect"-->
+                    <!--bioformat="IDLIST,IDLIST_RANKED"-->
+                    <!--networkViewer="{{networkViewer}}"-->
+                    <!--</jso-opencga-browser-window>-->
                 </div>
             </div>
 
@@ -138,13 +138,13 @@
                         <jso-opencga-browser-window id="inputFile2" projects="{{projects}}" bioformats="{{bioformats}}" on-ok="handleFileSelect"></jso-opencga-browser-window>
 
                         <!--<jso-opencga-browser-window id="inputFile2" studies="{{studies}}"-->
-                                                    <!--selectedStudy="{{selectedStudy}}"-->
-                                                    <!--selectionMode="file"-->
-                                                    <!--on-file-select="handleFileSelect"-->
-                                                    <!--allowTextArea="true"-->
-                                                    <!--bioformat="IDLIST,IDLIST_RANKED"-->
-                                                    <!--networkViewer="{{networkViewer}}"-->
-                                <!--</jso-opencga-browser-window> -->
+                        <!--selectedStudy="{{selectedStudy}}"-->
+                        <!--selectionMode="file"-->
+                        <!--on-file-select="handleFileSelect"-->
+                        <!--allowTextArea="true"-->
+                        <!--bioformat="IDLIST,IDLIST_RANKED"-->
+                        <!--networkViewer="{{networkViewer}}"-->
+                        <!--</jso-opencga-browser-window> -->
                     </div>
                     <div id="option2" hidden>
                         <span>Rest of the genome</span>
@@ -161,8 +161,8 @@
                     <label class="jso">Fisher exact test</label>
 
                     <div class="jso-select" style="width: 200px">
-                        <select name="fisher" id="fisher" class="fc-combobox" type="text" value="" >
-                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed" >Two
+                        <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
+                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two
                                 tailed
                             </option>
                             <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
@@ -235,7 +235,7 @@
 
                             <div class="horizontal layout">
                                 <label class="jso-control">
-                                    <input class="jso"name="go_bp" id="go_bp" type="checkbox" value="gobp">
+                                    <input class="jso" name="go_bp" id="go_bp" type="checkbox" value="gobp">
                                     <span>GO biological process</span>
                                 </label>
 
@@ -249,7 +249,7 @@
 
                             <div class="horizontal layout">
                                 <label class="jso-control">
-                                    <input class="jso"name="go_mf" id="go_mf" type="checkbox" value="gomf">
+                                    <input class="jso" name="go_mf" id="go_mf" type="checkbox" value="gomf">
                                     <span>GO molecular function</span>
                                 </label>
 
@@ -262,7 +262,7 @@
 
                             <div class="horizontal layout">
                                 <label class="jso-control">
-                                    <input class="jso"name="go_cc" id="go_cc" type="checkbox" value="gocc">
+                                    <input class="jso" name="go_cc" id="go_cc" type="checkbox" value="gocc">
                                     <span>GO cellular component</span>
                                 </label>
 
@@ -275,7 +275,7 @@
 
                             <div class="horizontal layout">
                                 <label class="jso-control">
-                                    <input class="jso"name="go_slim" id="go_slim" type="checkbox" value="go-slim">
+                                    <input class="jso" name="go_slim" id="go_slim" type="checkbox" value="go-slim">
                                     <span>GOSlim GOA</span>
                                 </label>
 
@@ -290,7 +290,7 @@
 
                             <div class="horizontal layout">
                                 <label class="jso-control">
-                                    <input class="jso"name="interpro" id="interpro" type="checkbox" value="interpro">
+                                    <input class="jso" name="interpro" id="interpro" type="checkbox" value="interpro">
                                     <span>Interpro</span>
                                 </label>
 
@@ -304,7 +304,7 @@
 
                             <div class="horizontal layout">
                                 <label class="jso-control">
-                                    <input class="jso"name="recon" id="recon" type="checkbox" value="recon">
+                                    <input class="jso" name="recon" id="recon" type="checkbox" value="recon">
                                     <span>Genome-Scale Metabolic Network</span>
                                 </label>
 
@@ -322,17 +322,18 @@
                     <div id="your_annotations_div">
                         <div class="horizontal layout">
                             <label class="jso-control">
-                                <input class="jso"name="your_annotations" id="your_annotations" type="checkbox" value="">
+                                <input class="jso" name="your_annotations" id="your_annotations" type="checkbox" value="">
                                 <span>Your annotations</span>
 
                             </label>
                         </div>
                         <div style="margin-left: 30px">
                             <!--<jso-opencga-browser-window id="annotationsFile" studies="{{studies}}"-->
-                                                        <!--selectedStudy="{{selectedStudy}}"-->
-                                                        <!--selectionMode="file" on-file-select="handleFileSelect"-->
-                                                        <!--bioformat="ANNOTATION_GENEVSANNOTATION"></jso-opencga-browser-window>-->
-                            <jso-opencga-browser-window id="annotationsFile" projects="{{projects}}" bioformats="{{bioformatsAnnotation}}" on-ok="handleFileSelect"></jso-opencga-browser-window>
+                            <!--selectedStudy="{{selectedStudy}}"-->
+                            <!--selectionMode="file" on-file-select="handleFileSelect"-->
+                            <!--bioformat="ANNOTATION_GENEVSANNOTATION"></jso-opencga-browser-window>-->
+                            <jso-opencga-browser-window id="annotationsFile" projects="{{projects}}" bioformats="{{bioformatsAnnotation}}"
+                                                        on-ok="handleFileSelect"></jso-opencga-browser-window>
 
                         </div>
                     </div>
@@ -343,17 +344,19 @@
                 <div class="jso-formtitle">Job information</div>
                 <div class="jso-formcontent">
                     <label class="jso">Output folder</label>
-                   <br>                     <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>  <br>
+                    <br>
+                    <jso-opencga-browser-window id="outdir" projects="{{projects}}"></jso-opencga-browser-window>
+                    <br>
                     <br>
                     <label class="jso">Job name</label>
-                    <input class="jso"type="text" id="jobName" value="{{jobName}}" required>
+                    <input class="jso" type="text" id="jobName" value="{{jobName}}" required>
                     <label class="jso">Description</label>
                     <textarea class="jso" value="{{description}}" required></textarea>
                 </div>
             </div>
 
             <div class="botbar" class="horizontal layout" center-justified>
-                <div class="jso-btn jso-btn-shdw jso-btn-big"  on-click="handleForm">
+                <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
                     <i class="fa fa-rocket"></i>
                     &nbsp; Launch job
                 </div>
@@ -387,7 +390,7 @@
                         return []
                     }
                 },
-                contentFile:{
+                contentFile: {
                     type: String,
                     value: ""
 
@@ -410,7 +413,7 @@
                         },
                         {
                             text: "IDLIST_RANKED",
-                            value:"IDLIST_RANKED"
+                            value: "IDLIST_RANKED"
                         }
                     ]
                 },
@@ -424,14 +427,14 @@
                         }
                     ]
                 },
-                p_value:{
+                p_value: {
                     type: Number,
                     value: 0.05
+                },
+                toolName:{
+                    type: String,
+                    value: "fatigo"
                 }
-            },
-            created: function () {
-                this.toolName = "fatigo";
-
             },
             handleDownloadFile: function (e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
@@ -537,7 +540,7 @@
                     alert("Sorry. No input selected. Please select a file or write something in the text area");
                     return;
                 }
-                if (this.$.inputFile.textAreaValue  != null && this.$.inputFile.textAreaValue != "") {
+                if (this.$.inputFile.textAreaValue != null && this.$.inputFile.textAreaValue != "") {
                     query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
                 }
                 else if (this.$.inputFile.selectedFile !== undefined) {
@@ -553,7 +556,7 @@
                     if (this.$.inputFile2.selectedFile !== undefined) {
                         query["list2"] = this.$.inputFile2.selectedFile.id;
                     }
-                    if (this.$.inputFile2.textAreaValue  != null && this.$.inputFile2.textAreaValue != "") {
+                    if (this.$.inputFile2.textAreaValue != null && this.$.inputFile2.textAreaValue != "") {
                         query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
                     }
                 }
@@ -615,23 +618,26 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var userId = response.response[0].result[0].id;
                                 me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
+                                me.selectedOption = "jobLaunched";
+                                me.fire("joblaunched", {
+                                    option: "joblaunched"
+                                });
                             } else {
                                 me.message = response.response[0].errorMsg;
                             }
                         },
                         error: function () {
                             var lng1, lng2 = 0;
-                            if (query["list1-text"] !== undefined){
+                            if (query["list1-text"] !== undefined) {
                                 lng1 = query["list1-text"].split(",").length;
                             }
-                            if (query["list2-text"] !== undefined){
+                            if (query["list2-text"] !== undefined) {
                                 lng2 = query["list2-text"].split(",").length;
                             }
                             var lng = lng1 + lng2;
-                            if(lng > 0){
+                            if (lng > 0) {
                                 alert("Sorry, too many inputs ids, the size is limited due to browser restrictions. \n " +
-                                "Please upload a file with your ids in order to run the analysis. ");
+                                        "Please upload a file with your ids in order to run the analysis. ");
                                 return;
 
                             }

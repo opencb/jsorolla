@@ -55,7 +55,7 @@
             }
         </style>
 
-        <template if="{{file != null && file.name != '.'}}">
+        <template is="dom-if" if="{{file != null && file.name != '.'}}">
             <div style="margin-left: 5px;margin-top: 5px; font-weight: bold;">
                 <font-awesome icon="{{iconMap[file.type]}}"></font-awesome>
                 File info
@@ -72,13 +72,13 @@
             <!--</div>-->
             <div class="item_info"class="vertical layout">
                 <label class="jso">Bioformat:
-                    <template if="{{file.type=='FILE'}}">
+                    <template is="dom-if" if="{{file.type=='FILE'}}">
                         <font-awesome class="edit" icon="pencil" on-click="{{handleShowBioformat}}"></font-awesome>
                     </template>
                 </label>
                 <span>{{bioformatText}}</span>
             </div>
-            <template if="{{showBioformat}}">
+            <template is="dom-if" if="{{showBioformat}}">
                 <div id="showBioformat">
 
                     <jso-bioformat id="uploadBioformat"></jso-bioformat>

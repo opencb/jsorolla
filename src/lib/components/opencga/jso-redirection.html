@@ -1,9 +1,5 @@
-<dom-module id="jso-redirection" attributes="args titleRed fileName fileUrl buttonLabel buttonWidth">
+<dom-module id="jso-redirection" >
     <template>
-        <style>
-
-
-        </style>
 
         <!--<font-awesome icon="cloud-upload"></font-awesome>Upload-->
 
@@ -11,9 +7,10 @@
 
         <div class="file"><label class="jso">{{titleRed}}</label>
             <a href="{{fileUrl}}" download="{{fileName}}">{{fileName}}</a>
-            <div id="buttonDiv" class="jso-btn jso-btn-shdw" on-click="{{sendTo}}" >
+
+            <div id="buttonDiv" class="jso-btn jso-btn-shdw" on-click="{{sendTo}}">
                 <font-awesome icon="chevron-circle-right"></font-awesome>
-                {{buttonLabel}}
+                <span>{{buttonLabel}}</span>
             </div>
             <br>
         </div>
@@ -21,19 +18,32 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.titleRed = "";
-                this.fileUrl = "";
-                this.fileName = "";
-                this.buttonLabel = "";
-                this.buttonWidth = "400px";
-
-
+            is: "jso-redirection",
+            properties: {
+                args: {
+                    type: Object
+                },
+                titleRed: {
+                    type: String
+                },
+                fileUrl: {
+                    type: String
+                },
+                fileName: {
+                    type: String
+                },
+                buttonLabel: {
+                    type: String
+                },
+                buttonWidth: {
+                    type: String,
+                    value: "400px"
+                }
             },
-            ready: function(){
+            ready: function () {
                 this.$.buttonDiv.style.width = this.buttonWidth;
             },
-            sendTo: function() {
+            sendTo: function () {
                 this.fire("redirection", {
                     tool: this.args.tool,
                     args: this.args

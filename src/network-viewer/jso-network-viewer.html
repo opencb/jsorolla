@@ -402,29 +402,29 @@
 
 
             <!--Menu file-->
-            <template if="{{selectedMenu == 'import-sif'}}">
+            <template is="dom-if" if="{{selectedMenu == 'import-sif'}}">
                 <jso-sif-network-file-open
                         selectedMenu="{{selectedMenu}}"
                         on-graph="{{handleImportSif}}">
                 </jso-sif-network-file-open>
             </template>
 
-            <template if="{{selectedMenu == 'import-text'}}">
+            <template is="dom-if" if="{{selectedMenu == 'import-text'}}">
                 <jso-text-network-file-open
                         selectedMenu="{{selectedMenu}}"
                         on-graph="{{handleImportText}}">
                 </jso-text-network-file-open>
             </template>
-            <template if="{{selectedMenu == 'import-xlsx'}}">
+            <template is="dom-if" if="{{selectedMenu == 'import-xlsx'}}">
                 <jso-xlsx-network-file-open selectedMenu="{{selectedMenu}}" on-graph="{{handleImportXlsx}}">
                 </jso-xlsx-network-file-open>
             </template>
-            <template if="{{selectedMenu == 'import-node-attributes'}}">
+            <template is="dom-if" if="{{selectedMenu == 'import-node-attributes'}}">
                 <jso-attribute-network-file-open selectedMenu="{{selectedMenu}}" on-open="{{handleImportNodeAttr}}"
                                                  type="node">
                 </jso-attribute-network-file-open>
             </template>
-            <template if="{{selectedMenu == 'import-edge-attributes'}}">
+            <template is="dom-if" if="{{selectedMenu == 'import-edge-attributes'}}">
                 <jso-attribute-network-file-open selectedMenu="{{selectedMenu}}" on-open="{{handleImportEdgeAttr}}"
                                                  type="edge">
                 </jso-attribute-network-file-open>
@@ -433,7 +433,7 @@
         </div>
 
 
-        <template if="{{selectedMenu == 'networkminer'}}">
+        <template is="dom-if" if="{{selectedMenu == 'networkminer'}}">
             <jso-nv-network-miner
                     selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
@@ -443,7 +443,7 @@
                     >
             </jso-nv-network-miner>
         </template>
-        <template if="{{selectedMenu == 'snow'}}">
+        <template is="dom-if" if="{{selectedMenu == 'snow'}}">
             <jso-nv-snow
                     selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
@@ -453,7 +453,7 @@
                     >
             </jso-nv-snow>
         </template>
-        <template if="{{selectedMenu == 'fatigo'}}">
+        <template is="dom-if" if="{{selectedMenu == 'fatigo'}}">
             <jso-nv-fatigo
                     selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"
@@ -463,7 +463,7 @@
                     >
             </jso-nv-fatigo>
         </template>
-        <template if="{{selectedMenu == 'reactome-fi-microarray'}}">
+        <template is="dom-if" if="{{selectedMenu == 'reactome-fi-microarray'}}">
             <jso-nv-reactome-fi
                     selectedOption="{{selectedMenu}}"
                     userData="{{userData}}"

@@ -14,7 +14,7 @@
 
 
         </style>
-        <template if="{{jobResult.networkViewer}}">
+        <template is="dom-if" if="{{jobResult.networkViewer}}">
             <div horizontal layout>
                 <div>
                     <input type="text" value="{{sessionName}}">
@@ -27,7 +27,7 @@
                 <label class="jso">
                     {{saveMessage}}
                 </label>
-                <template if="{{saveMessageOk}}">
+                <template is="dom-if" if="{{saveMessageOk}}">
                     <div class="button action" on-click="{{handleOpenCellMapsSessionManager}}">
                         Open Cell Maps session Manager
                     </div>
@@ -40,7 +40,7 @@
                 lite="true"
                 ></jso-network-viewer>
         <label class="jso">Legend: nodes from your list are rounded and coloured in dark grey, whereas the external nodes added as intermediate are squares with light grey color.
-            <template if="{{seedListExists}}">
+            <template is="dom-if" if="{{seedListExists}}">
             Nodes in ellipse shape are from the seed list.
             </template>
         </label>

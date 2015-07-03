@@ -149,8 +149,8 @@
                         <div class="jso-formcontent vertical layout">
                             <label class="jso">Edit attribute for selected {{type}}s</label>
 
-                            <divclass="vertical layout">
-                                <div class="select">
+                            <div class="vertical layout">
+                                <div class="jso-select" style="width:100px">
                                     <select id="selectEdit">
                                         <template repeat="{{column in attributeManager.columns}}">
                                             <template if="{{column.name != 'id'}}">
@@ -237,7 +237,7 @@
                             <template if="{{filterSelectedOption == 'add'}}">
                                 <label class="jso">Attribute:</label>
 
-                                <div class="select">
+                                <div class="jso-select" style="width:100px">
                                     <select id="filterAttributeSelect">
                                         <template repeat="{{column in attributeManager.columns}}">
                                             <option value="{{column.name}}">{{column.title}}</option>

@@ -1,41 +1,5 @@
-<dom-module id="jso-oncodriveclust" attributes="userData selectedOption selectedStudy studies">
+<dom-module id="jso-oncodriveclust" >
     <template>
-        <link rel="stylesheet" href="../jso-style.css">
-        <link rel="stylesheet" href="../jso-form.css">
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                padding: 15px 40px;
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                width: 80%;
-                min-width: 800px;
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-
-            }
-
-
-            .icon {
-                color: #445D76;
-                font-size: 50px;
-            }
-
-            .message {
-                margin-top: 20px;
-            }
-
-            /*jso-file-browser {*/
-            /*width: 70%;*/
-            /*}*/
-
-        </style>
         <div class="jso-tooltitle">
             <div>
                 OncodriveClust
@@ -62,8 +26,7 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your data</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-browser-window id="inputFile" studies="{{studies}}" selectedStudy="{{selectedStudy}}" selectionMode="file" on-file-select="handleFileSelect"
-                                                bioformats="{{bioformats}}"></jso-opencga-browser-window>
+                    <jso-opencga-browser-window id="inputFile"  bioformats="{{bioformats}}"></jso-opencga-browser-window>
                 </div>
             </div>
 
@@ -72,7 +35,7 @@
                 <div class="jso-formcontent">
                     <div id="methodDiv">
                         <!--Human genome version:-->
-                        <!--<div class="select">-->
+                        <!--<div class="jso-select" style="width:100px">-->
                             <!--<select name="gver" id="gver" type="text" value="none">-->
                                 <!--<option name="gver_hg19" id="gver_hg19" value="hg19" selected="selected">GRCh37</option>-->
                                 <!--<option name="gver_hg20" id="gver_hg20" value="hg20">GRCh38</option>-->
@@ -80,7 +43,7 @@
                         <!--</div>-->
                         <!--<br/>-->
                         Minimum number of mutations per gene:
-                        <div class="select">
+                        <div class="jso-select" style="width:100px">
                             <select name="gt" id="gt" type="text" value="none">
                                 <option name="gt1" id="gt1" value="1">1</option>
                                 <option name="gt3" id="gt3" value="3" selected="selected">3</option>
@@ -112,9 +75,56 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.toolName = "oncodriveclust";
-                this.description = "Job info..."
+            is: "jso-oncodriveclust",
+            properties: {
+                userData: {
+                    type: Object
+                },
+                selectedOption: {
+                    type: String
+                },
+                selectedStudy: {
+                    type: Object
+                },
+                projects: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                studies: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                contentFile: {
+                    type: String,
+                    value: ""
+
+                },
+                jobName: {
+                    type: String,
+                    value: "Job name"
+                },
+                description: {
+                    type: String,
+                    value: "Decription"
+                },
+                bioformats: {
+                    type: Array,
+                    notify: true,
+                    value: [
+                        {
+                            text: "VARIANT",
+                            value: "VARIANT"
+                        }
+                    ]
+                },
+                toolName: {
+                    type: String,
+                    value: "oncodriveclust"
+                }
             },
             handleForm: function () {
                 var me = this;

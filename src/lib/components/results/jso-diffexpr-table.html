@@ -1,16 +1,6 @@
 <dom-module id="jso-diffexpr-table" attributes="content contentDataset files test">
     <template>
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-
-
-            .sortable-table-class {
-                border: 1px solid #d3d3d3;
-                width: 1000px;
-            }
-        </style>
-
-        <template if="{{!loading && data.length>0}}">
+        <template is="dom-if" if="{{loadSignificativeTable(loading,data)}}">
             <div class="file"><label class="jso">Significative table</label>
                 <a href="{{significativeTableUrl}}" target="_blank">{{significativeTable.name}}</a>
                 <sortable-table class="sortable-table-class" id="diffexpr-table"
@@ -33,46 +23,46 @@
 
                 <div id="redirection" style="margin-left: 20px">
                     <h3>Single enrichment analysis</h3>
-                    <template if="{{topNumber>0}}">
-                        <jso-redirection titleRed="Top list vs Genome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
+                    <template is="dom-if" if="{{topNumber>0}}">
+                        <jso-redirection title-red="Top list vs Genome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
                                          buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{topListFileUrlSeaArgs}}" id=""></jso-redirection>
                     </template>
-                    <template if="{{bottomNumber>0}}">
+                    <template is="dom-if" if="{{bottomNumber>0}}">
 
-                        <jso-redirection titleRed="Bottom list vs Genome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
+                        <jso-redirection title-red="Bottom list vs Genome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
                                          buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{bottomListFileUrlSeaArgs}}" id=""></jso-redirection>
                     </template>
-                    <template if="{{topNumber>0 && bottomNumber > 0}}">
-                        <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
+                    <template is="dom-if" if="{{topNumber>0 && bottomNumber > 0}}">
+                        <jso-redirection title-red="Comparison top list vs bottom list" fileName="" fileUrl=""
                                          buttonLabel="Send to Single enrichment" buttonWidth="200px" args="{{sendTopVsBottomSeaArgs}}" id=""></jso-redirection>
                     </template>
 
                     <h3>Gene set enrichment analysis</h3>
-                    <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                    <jso-redirection title-red="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
                                      buttonLabel="Send to Gene set enrichment" buttonWidth="200px" args="{{rankedListFileArgs}}" id=""></jso-redirection>
 
                     <h3>Network enrichment analysis</h3>
-                    <template if="{{topNumber>0}}">
-                        <jso-redirection titleRed="Top list vs Interactome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
+                    <template is="dom-if" if="{{topNumber>0}}">
+                        <jso-redirection title-red="Top list vs Interactome" fileName="{{topListFile.name}}" fileUrl="{{topListFileUrl}}"
                                          buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{topListFileUrlNeaArgs}}" id=""></jso-redirection>
                     </template>
-                    <template if="{{bottomNumber>0}}">
+                    <template is="dom-if" if="{{bottomNumber>0}}">
 
-                        <jso-redirection titleRed="Bottom list vs Interactome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
+                        <jso-redirection title-red="Bottom list vs Interactome" fileName="{{bottomListFile.name}}" fileUrl="{{bottomListFileUrl}}"
                                          buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{bottomListFileUrlNeaArgs}}" id=""></jso-redirection>
                     </template>
-                    <template if="{{topNumber>0 && bottomNumber > 0}}">
-                        <jso-redirection titleRed="Comparison top list vs bottom list" fileName="" fileUrl=""
+                    <template is="dom-if" if="{{topNumber>0 && bottomNumber > 0}}">
+                        <jso-redirection title-red="Comparison top list vs bottom list" fileName="" fileUrl=""
                                          buttonLabel="Send to Network enrichment" buttonWidth="200px" args="{{sendTopVsBottomNeaArgs}}" id=""></jso-redirection>
                     </template>
 
                     <h3>Network set enrichment analysis</h3>
-                    <jso-redirection titleRed="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
+                    <jso-redirection title-red="Ranked list" fileName="{{rankedListFile.name}}" fileUrl="{{rankedListFileUrl}}"
                                      buttonLabel="Send to Network set enrichment" buttonWidth="300px" args="{{rankedListFileNseaArgs}}" id=""></jso-redirection>
 
                     <h3>Clustering</h3>
 
-                    <jso-redirection titleRed="Dataset containing the significative values" fileName="{{significativeFile.name}}" fileUrl="{{significativeFileUrl}}"
+                    <jso-redirection title-red="Dataset containing the significative values" fileName="{{significativeFile.name}}" fileUrl="{{significativeFileUrl}}"
                                      buttonLabel="Send to clustering" buttonWidth="200px" args="{{sendClusteringArgs}}" id=""></jso-redirection>
 
                 </div>
@@ -80,10 +70,10 @@
 
             </div>
         </template>
-        <template if="{{!loading && data.length == 0}}">
+        <template is="dom-if" if="{{!loading && data.length == 0}}">
             <label class="jso">No significative results found</label>
         </template>
-        <template if="{{loading}}">
+        <template is="dom-if" if="{{loading}}">
             <div>
                 <font-awesome icon="spinner" animation="spin"></font-awesome>
                 Loading elements...
@@ -111,6 +101,9 @@
                 /** variable that contemplates the vizutalitation for the dataset**/
                 this.largeDataset = false;
 
+            },
+            loadSignificativeTable: function(loading, data){
+                return !loading && data.length>0;
             },
             contentDatasetChanged: function () {
                 var data = this.content.split("\n");

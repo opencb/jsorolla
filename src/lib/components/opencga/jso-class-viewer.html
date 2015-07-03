@@ -31,7 +31,7 @@
                         <option name="class_name_1" id="class_name_1" class="fc-combobox-item" value="none" selected="selected">Select option</option>
                     </select>
                 </div>
-                <template if="{{loading}}">
+                <template is="dom-if" if="{{loading}}">
                     <i class="fa fa-spinner" icon="spinner" animation="spin" style="margin-left: 5px;"></i> loading variables...
                 </template>
             </div>

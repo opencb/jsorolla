@@ -92,8 +92,8 @@
                     <span class="date">{{computeDate()}}</span>
                 </div>
             </div>
-            <divclass="vertical layout" class="bar" on-click="{{handleBarClick}}">
-                <template if="{{jobItem.status != 'RUNNING' }}">
+            <div class="vertical layout" class="bar" on-click="{{handleBarClick}}">
+                <template is="dom-if" if="{{jobItem.status != 'RUNNING' }}">
                     <font-awesome icon="times" on-click="{{handleDeleteJob}}"></font-awesome>
                 </template>
             </div>

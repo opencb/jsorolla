@@ -74,13 +74,13 @@
             }
 
         </style>
-        <template if="{{loading}}">
+        <template is="dom-if" if="{{loading}}">
             <div class="loading">
                 <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
                 Loading result...
             </div>
         </template>
-        <template if="{{!loading}}">
+        <template is="dom-if" if="{{!loading}}">
             <div id="output" class="output">
                 <h1> RNASeq Differential expression</h1>
 
@@ -95,7 +95,7 @@
 
                                 <div class="messageValue">{{dataFile}}</div>
                             </div>
-                            <template if="{{method != ''}}">
+                            <template is="dom-if" if="{{method != ''}}">
                                 <div class="message" class="horizontal layout">
                                     <label class="jso">Method</label>
 
@@ -116,7 +116,7 @@
                     </div>
 
                     <div class="level-0">
-                        <template if="{{error}}">
+                        <template is="dom-if" if="{{error}}">
                             <div class="headerTitle">No results</div>
                             <div class="data">
                                 This is maybe due to incorrect input. For more info about proper inputs, refer to the
@@ -134,7 +134,7 @@
                             </div>
                         </template>
 
-                        <template if="{{!error}}">
+                        <template is="dom-if" if="{{!error}}">
                             <div class="headerTitle">Significative results</div>
                             <div class="data">
 
@@ -142,14 +142,14 @@
                                 <img src="{{voom_MDS}}">
                                 <img src="{{voom_mean_var}}">
 
-                                <template if="{{significative}}">
+                                <template is="dom-if" if="{{significative}}">
                                     <h3>Significative file</h3>
 
                                     <div class="file"><label class="jso">File</label>
                                         <a href="{{fileUrl}}" target="_blank">diffexp_Sig_results.txt</a>
                                     </div>
 
-                                    <template if="{{loadingTable}}">
+                                    <template is="dom-if" if="{{loadingTable}}">
                                         <div>
                                             <font-awesome icon="spinner" animation="spin"></font-awesome>
                                             Loading table...
@@ -174,27 +174,27 @@
 
                                     <div style="margin-left: 20px">
                                         <h4>Single enrichment analysis</h4>
-                                        <jso-redirection titleRed="Top list vs Genome" fileName="diffexp_toplist_results.txt"
+                                        <jso-redirection title-red="Top list vs Genome" fileName="diffexp_toplist_results.txt"
                                                          fileUrl="{{diffexp_toplist_results_url}}"
                                                          buttonLabel="Send to Single enrichment" buttonWidth="200px"
                                                          args="{{diffexp_toplist_results_sea_args}}" id="">
 
                                         </jso-redirection>
 
-                                        <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                        <jso-redirection title-red="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
                                                          fileUrl="{{diffexp_bottomlist_results_url}}"
                                                          buttonLabel="Send to Single enrichment" buttonWidth="200px"
                                                          args="{{diffexp_bottomlist_results_sea_args}}" id="">
 
                                         </jso-redirection>
-                                        <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                        <jso-redirection title-red="Top list vs Bottom list" fileName="" fileUrl=""
                                                          buttonLabel="Send to Single enrichment" buttonWidth="200px"
                                                          args="{{toplist_vs_bottomlist_sea_args}}" id="">
 
                                         </jso-redirection>
 
                                         <h4>Gene set enrichment analysis</h4>
-                                        <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                        <jso-redirection title-red="T statistic results" fileName="diffexp_t_results.txt"
                                                          fileUrl="{{diffexp_t_results_url}}"
                                                          buttonLabel="Send to Gene set enrichment" buttonWidth="200px"
                                                          args="{{diffexp_t_results_gsea_args}}" id="">
@@ -202,26 +202,26 @@
                                         </jso-redirection>
 
                                         <h4>Network enrichment analysis</h4>
-                                        <jso-redirection titleRed="Top list vs Interactome" fileName="diffexp_toplist_results.txt"
+                                        <jso-redirection title-red="Top list vs Interactome" fileName="diffexp_toplist_results.txt"
                                                          fileUrl="{{diffexp_toplist_results_url}}"
                                                          buttonLabel="Send to Network enrichment" buttonWidth="200px"
                                                          args="{{diffexp_toplist_results_nea_args}}" id="">
 
                                         </jso-redirection>
-                                        <jso-redirection titleRed="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
+                                        <jso-redirection title-red="Bottom list vs Genome" fileName="diffexp_bottomlist_results.txt"
                                                          fileUrl="{{diffexp_bottomlist_results_url}}"
                                                          buttonLabel="Send to Network enrichment" buttonWidth="200px"
                                                          args="{{diffexp_bottomlist_results_nea_args}}" id="">
 
                                         </jso-redirection>
-                                        <jso-redirection titleRed="Top list vs Bottom list" fileName="" fileUrl=""
+                                        <jso-redirection title-red="Top list vs Bottom list" fileName="" fileUrl=""
                                                          buttonLabel="Send to Network enrichment" buttonWidth="200px"
                                                          args="{{toplist_vs_bottomlist_nea_args}}" id="">
 
                                         </jso-redirection>
 
                                         <h4>Gene set network enrichment analysis</h4>
-                                        <jso-redirection titleRed="T statistic results" fileName="diffexp_t_results.txt"
+                                        <jso-redirection title-red="T statistic results" fileName="diffexp_t_results.txt"
                                                          fileUrl="{{diffexp_t_results_url}}"
                                                          buttonLabel="Send to Gene set network enrichment" buttonWidth="300px"
                                                          args="{{diffexp_t_results_gsnea_args}}" id="">
@@ -229,7 +229,7 @@
                                         </jso-redirection>
 
                                         <h4>Clustering</h4>
-                                        <jso-redirection titleRed="Significative data results"
+                                        <jso-redirection title-red="Significative data results"
                                                          fileName="diffexp_sigData_results.txt"
                                                          fileUrl="{{diffexp_sigData_results_url}}"
                                                          buttonLabel="Send to Clustering" buttonWidth="200px"
@@ -238,7 +238,7 @@
                                         </jso-redirection>
                                     </div>
                                 </template>
-                                <template if="{{!significative}}">
+                                <template is="dom-if" if="{{!significative}}">
                                     <h3>No significative results</h3>
                                     There is no significative results, but you can download all the results:
                                     <div class="file"><label class="jso">File</label>

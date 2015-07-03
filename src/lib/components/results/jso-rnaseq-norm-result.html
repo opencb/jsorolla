@@ -1,109 +1,109 @@
-<dom-module id="jso-rnaseq-norm-result" attributes="jobItem">
+<dom-module id="jso-rnaseq-norm-result">
+    <link rel="stylesheet" href="../sortable-table.css">
+    <style>
+        :host {
+            display: block;
+            /*position: relative;*/
+            background-color: white;
+        }
+
+        .data {
+            margin-left: 20px;
+        }
+
+        .level-0 {
+            /*border: 1px solid grey;*/
+            padding: 20px;
+
+        }
+
+        .level-0 > .headerTitle {
+            font-size: 15pt;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .message > label {
+            margin-right: 10px;
+        }
+
+        .message > label:after {
+            content: ':';
+        }
+
+        .message > .messageValue {
+            font-size: 9pt;
+            font-weight: bold;
+            font-style: italic;
+            color: #55f;
+            line-height: 21px;
+
+        }
+
+        .file > label {
+            margin-right: 10px;
+        }
+
+        .file > a {
+            font-size: 9pt;
+            font-weight: bold;
+            font-style: italic;
+            color: #55f;
+        }
+
+        sortable-table::shadow thead tr th {
+            /*width: 1000px;*/
+            white-space: inherit;
+            overflow: auto;
+            text-overflow: inherit;
+
+        }
+
+        .output {
+            margin: 10px;
+            /*width: 1000px;*/
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        .loading {
+            font-size: 20px;
+            margin: 20px 50px;
+        }
+    </style>
     <template>
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-                /*position: relative;*/
-                background-color: white;
-            }
 
-            .data {
-                margin-left: 20px;
-            }
-
-            .level-0 {
-                /*border: 1px solid grey;*/
-                padding: 20px;
-
-            }
-
-            .level-0 > .headerTitle {
-                font-size: 15pt;
-                font-weight: bold;
-                padding: 5px;
-            }
-
-            .message > label {
-                margin-right: 10px;
-            }
-
-            .message > label:after {
-                content: ':';
-            }
-
-            .message > .messageValue {
-                font-size: 9pt;
-                font-weight: bold;
-                font-style: italic;
-                color: #55f;
-                line-height: 21px;
-
-            }
-
-            .file > label {
-                margin-right: 10px;
-            }
-
-            .file > a {
-                font-size: 9pt;
-                font-weight: bold;
-                font-style: italic;
-                color: #55f;
-            }
-
-            sortable-table::shadow thead tr th {
-                /*width: 1000px;*/
-                white-space: inherit;
-                overflow: auto;
-                text-overflow: inherit;
-
-            }
-
-            .output {
-                margin: 10px;
-                /*width: 1000px;*/
-                background-color: white;
-                border-radius: 5px;
-                padding: 20px;
-            }
-
-            .loading {
-                font-size: 20px;
-                margin: 20px 50px;
-            }
-        </style>
-
-        <template if="{{significativeResults == 'loading'}}">
+        <template is="dom-if" if="{{computeSignificativeResults(significativeResults)}}">
             <div class="loading">
-                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                <i class="fa fa-spinner" animation="spin" style="margin-right: 5px;"></i>
                 Loading result...
             </div>
         </template>
-        <template if="{{significativeResults != 'loading'}}">
+        <template is="dom-if" if="{{!computeSignificativeResults(significativeResults)}}">
 
             <div class="output">
                 <h1> RNASeq Normalization</h1>
 
-                <jso-job-info-widget jobItem="{{jobItem}}"></jso-job-info-widget>
+                <jso-job-info-widget job-item="{{jobItem}}"></jso-job-info-widget>
 
                 <div class="level-0">
                     <div class="headerTitle">Input parameters</div>
                     <div class="data">
-                        <div class="message" class="horizontal layout">
+                        <div class="message horizontal layout">
                             <label class="jso">Data file</label>
 
                             <div class="messageValue">{{dataFile}}</div>
                         </div>
-                        <template if="{{glFile!=''}}">
-                            <div class="message" class="horizontal layout">
+                        <template is="dom-if" if="{{computeGlFile(glFile)}}">
+                            <div class="message horizontal layout">
                                 <label class="jso">Gene length file</label>
 
                                 <div class="messageValue">{{glFile}}</div>
                             </div>
                         </template>
-                        <template if="{{significativeResults == 'true'}}">
-                            <div class="message" class="horizontal layout">
+                        <template is="dom-if" if="{{computeSignificativeResultsBoolean(significativeResults)}}">
+                            <div class="message horizontal layout">
                                 <label class="jso">Method</label>
 
 
@@ -116,7 +116,7 @@
 
 
                 <div class="level-0">
-                    <template if="{{significativeResults == 'false'}}">
+                    <template is="dom-if" if="{{!computeSignificativeResultsBoolean(significativeResults)}}">
                         <div class="headerTitle">No normalized data results</div>
                         <div class="data">
                             This is maybe due to incorrect input. For more info about proper inputs, refer to the
@@ -134,12 +134,12 @@
 
                         </div>
                     </template>
-                    <template if="{{significativeResults == 'true'}}">
+                    <template is="dom-if" if="{{computeSignificativeResultsBoolean(significativeResults)}}">
 
                         <div class="headerTitle">Normalized data results</div>
                         <div class="data">
-                            <template if="{{glFile!=''}}">
-                                <div flex horizontal layout>
+                            <template is="dom-if" if="{{computeGlFile(glFile)}}">
+                                <div class="horizontal layout">
                                     <div>
                                         <h4>RNA composition before normalization</h4>
                                         <img src="{{RNAComposition_beforeNorm}}">
@@ -150,7 +150,7 @@
                                     </div>
                                 </div>
                             </template>
-                            <div flex horizontal layout>
+                            <div class="horizontal layout">
                                 <div>
                                     <h4>Boxplot expression values before normalization</h4>
                                     <img src="{{boxplot_beforeNorm}}">
@@ -163,7 +163,7 @@
                             <div class="file"><label class="jso">File</label>
                                 <a href="{{normalizedFileUrl}}" download="normalized_results.txt">normalized_results.txt</a>
                             </div>
-                            <template if="{{loadingTable}}">
+                            <template is="dom-if" if="{{loadingTable}}">
                                 <div>
                                     <font-awesome icon="spinner" animation="spin"></font-awesome>
                                     Loading table...
@@ -177,10 +177,10 @@
                                             pageSize="{{pageSize}}"
                                             flex>
                             </sortable-table>
-                            <jso-redirection titleRed=""
-                                             fileName=""
-                                             fileUrl=""
-                                             buttonLabel="Send to edit"
+                            <jso-redirection title-red=""
+                                             file-name=""
+                                             file-url=""
+                                             button-label="Send to edit"
                                              args="{{normalizedFileUrl_args}}" id="">
 
                             </jso-redirection>
@@ -192,17 +192,64 @@
     </template>
     <script>
         Polymer({
+            is: "jso-rnaseq-norm-result",
+            properties: {
+                jobItem: {
+                    type: Object,
+                    observer: 'jobItemChanged'
+                },
+                significativeResults: {
+                    type: String,
+                    value: "loading"
+                },
+                columns: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                data: {
+                    type: Array,
+                    value: function () {
+                        return []
+                    }
+                },
+                dataFile: {
+                    type: String,
+                    value: ""
+                },
+                glFile: {
+                    type: String,
+                    value: ""
+                },
+                loadingTable: {
+                    type: Boolean,
+                    value: true
+                }
+            },
             created: function () {
-                this.significativeResults = "loading";
-                this.columns = [];
-                this.data = [];
-                this.dataFile = "";
-                this.glFile = "";
-
-                this.loadingTable = true;
+//                this.significativeResults = "loading";
+//                this.columns = [];
+//                this.data = [];
+//                this.dataFile = "";
+//                this.glFile = "";
+//
+//                this.loadingTable = true;
+//
+            },
+            computeGlFile: function (glFile) {
+                return glFile != '';
 
             },
-
+            computeSignificativeResults: function (significativeResults) {
+                if (significativeResults == "loading")
+                    return true;
+                if (significativeResults != "loading")
+                    return false;
+            },
+            computeSignificativeResultsBoolean: function(significativeResults){
+                return significativeResults == 'true'
+            },
             parseCommandLine: function () {
                 this.clearFields();
                 var fields = this.jobItem.commandLine.split(" ");

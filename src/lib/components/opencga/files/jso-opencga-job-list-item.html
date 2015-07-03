@@ -86,7 +86,7 @@
                     <span class="date">{{computeDate(job)}}</span>
                 </div>
             </div>
-            <divclass="vertical layout" class="bar" on-click="{{handleBarClick}}">
+            <div class="vertical layout" class="bar" on-click="{{handleBarClick}}">
                 <template is="dom-if" if="{{!isRunning(job)}}">
                     <i class="fa fa-trash-o" on-click="handleDeleteJob" data-job="{{job.id}}"></i>
                 </template>
