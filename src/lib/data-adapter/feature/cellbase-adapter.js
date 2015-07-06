@@ -127,6 +127,9 @@ CellBaseAdapter.prototype = {
 
                             chunks = chunks.concat(responseChunks);
                             if (args.webServiceCallCount === 0) {
+                                chunks.sort(function (a, b) {
+                                    return a.chunkKey.localeCompare(b.chunkKey)
+                                });
                                 args.done({
                                     items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
                                 });

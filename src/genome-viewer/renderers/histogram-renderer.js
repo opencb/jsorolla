@@ -42,7 +42,7 @@ HistogramRenderer.prototype._checkFeatureValue = function (feature) {
 //            var height = Math.log(features[i].absolute);
         if (feature.absolute != 0 && feature.absolute > 0) {
             // take care of feature.absolute==1 counts and set scaled value to 0.2 as log(2) ~= 0.3
-            feature.features_count = Math.max(0.2,Math.log(feature.absolute));
+            feature.features_count = Math.max(0.2, Math.log(feature.absolute));
         } else {
             feature.features_count = 0;
         }
@@ -60,7 +60,7 @@ HistogramRenderer.prototype._checkFeatureValue = function (feature) {
  * updates "this.multiplier" using "histogramMaxFreqValue" and "height"
  * @param args
  */
-HistogramRenderer.prototype.updateScale = function(args) {
+HistogramRenderer.prototype.updateScale = function (args) {
     if (args != null) {
         if (args.height != null) {
             this.histogramHeight = args.height * 0.95;
@@ -75,7 +75,7 @@ HistogramRenderer.prototype.updateScale = function(args) {
 
 HistogramRenderer.prototype.render = function (features, args) {
     var middle = args.width / 2;
-    console.log(middle);
+    //console.log(middle);
     var points = '';
 
     this.updateScale(args);
@@ -88,8 +88,8 @@ HistogramRenderer.prototype.render = function (features, args) {
         this._checkFeatureValue(firstFeature);
         var height = firstFeature.features_count * this.multiplier;
 
-        points = (x - (width / 2)) + ',' + this.histogramHeight + ' ';
-        points += (x - (width / 2)) + ',' + (this.histogramHeight - height) + ' ';
+        points = (x - (width / 2)).toFixed(1) + ',' + this.histogramHeight.toFixed(1) + ' ';
+        points += (x - (width / 2)).toFixed(1) + ',' + (this.histogramHeight - height).toFixed(1) + ' ';
     }
     for (var i = 0, len = features.length; i < len; i++) {
         var feature = features[i].value;
@@ -101,8 +101,7 @@ HistogramRenderer.prototype.render = function (features, args) {
         this._checkFeatureValue(feature);
         var height = feature.features_count * this.multiplier;
 
-        points += (x + (width / 2)) + "," + (this.histogramHeight - height) + " ";
-
+        points += (x + (width / 2)).toFixed(1) + "," + (this.histogramHeight - height).toFixed(1) + " ";
     }
     if (features.length > 0) {
         var lastFeature = features[features.length - 1].value;
@@ -112,8 +111,8 @@ HistogramRenderer.prototype.render = function (features, args) {
         this._checkFeatureValue(lastFeature);
         var height = lastFeature.features_count * this.multiplier;
 
-        points += (x + (width)) + ',' + (this.histogramHeight - height) + ' ';
-        points += (x + (width)) + ',' + this.histogramHeight + ' ';
+        points += (x + (width)).toFixed(1) + ',' + (this.histogramHeight - height).toFixed(1) + ' ';
+        points += (x + (width)).toFixed(1) + ',' + this.histogramHeight.toFixed(1) + ' ';
     }
 
     if (points !== '') {
