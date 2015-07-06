@@ -89,6 +89,7 @@ Track.prototype = {
     show: function () {
         this.visible = true;
         this.div.classList.remove('hidden');
+        this.updateHeight();
     },
     toggle: function () {
         if (this.visible) {
@@ -116,6 +117,7 @@ Track.prototype = {
 
         this.iToggleEl.classList.remove('fa-plus');
         this.iToggleEl.classList.add('fa-minus');
+        this.updateHeight();
     },
     toggleContent: function () {
         if (this.contentVisible) {
