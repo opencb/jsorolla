@@ -1,0 +1,103 @@
+<dom-module id="jso-proteins-3d">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            cursor:move;
+        }
+
+        #menu {
+            heigth: 20px;
+            cursor: default;
+        }
+
+
+        .protein {
+            margin: 2px;
+            padding: 1px 5px;
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
+        }
+
+        .protein:hover {
+            background-color: var(--hover-color);
+        }
+
+        .protein[data-sel] {
+            font-weight: bold;
+            border-bottom: 1px solid var(--accent-color);
+        }
+    </style>
+    <template>
+        <div id="menu" class="horizontal layout">
+            <template is="dom-repeat" items="{{proteins}}" as="protein">
+                <div class="protein" on-click="handleClick" data-sel$="{{isSelected(protein,selected)}}">{{protein.id}}</div>
+            </template>
+        </div>
+
+        <canvas id="canvas"></canvas>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-proteins-3d",
+        properties: {
+            proteins: {
+                type: Array,
+                observer: 'proteinsChanged'
+            },
+            selected: {
+                type: Object
+            }
+        },
+        proteinsChanged: function (neo, old) {
+            if (neo && neo.length > 0) {
+                this.loadProtein(neo[0].id);
+                this.set('selected', neo[0]);
+            }
+        },
+        handleClick: function (e) {
+            this.set('selected', e.model.protein);
+            this.loadProtein(this.selected.id);
+        },
+        isSelected: function (protein, selected) {
+            return protein == selected;
+        },
+        loadProtein: function (pdb_name) {
+
+            ChemDoodle.default_backgroundColor = '#fafafa';
+            ChemDoodle.default_border = '1px solid transparent';
+
+            var pdb = new ChemDoodle.TransformCanvas3D('canvas', 440, 335);
+            if (!pdb.gl) {
+                pdb.emptyMessage = 'Your browser does not support WebGL';
+                pdb.displayMessage();
+            } else {
+                pdb.specs.set3DRepresentation('Ball and Stick');
+                pdb.specs.proteins_ribbonCartoonize = true;
+//                pdb.handle = null;
+//                pdb.timeout = 15;
+//                pdb.startAnimation = ChemDoodle._AnimatorCanvas.prototype.startAnimation;
+//                pdb.stopAnimation = ChemDoodle._AnimatorCanvas.prototype.stopAnimation;
+//                pdb.isRunning = ChemDoodle._AnimatorCanvas.prototype.isRunning;
+//                pdb.dblclick = ChemDoodle.RotatorCanvas.prototype.dblclick;
+//                pdb.nextFrame = function (delta) {
+//                    var matrix = [];
+//                    mat4.identity(matrix);
+//                    var change = delta / 1000;
+//                    var increment = Math.PI / 15;
+//                    mat4.rotate(matrix, increment * change, [1, 0, 0]);
+//                    mat4.rotate(matrix, increment * change, [0, 1, 0]);
+//                    mat4.rotate(matrix, increment * change, [0, 0, 1]);
+//                    mat4.multiply(this.rotationMatrix, matrix);
+//                };
+                $.get('http://www.rcsb.org/pdb/files/' + pdb_name + '.pdb', function (data) {
+                    var mol = ChemDoodle.readPDB(data);
+                    pdb.loadMolecule(mol);
+//                    pdb.startAnimation();
+                });
+            }
+        }
+    });
+</script>

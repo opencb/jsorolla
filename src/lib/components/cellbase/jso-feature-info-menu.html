@@ -1,0 +1,84 @@
+<dom-module id="jso-feature-info-menu">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .project-item {
+            padding: 2px 5px;
+        }
+
+        .project-item:hover {
+            background-color: #eee;
+        }
+
+        .project-item[data-checked] {
+            background-color: #ddd;
+        }
+
+        .section {
+            color: var(--secondary-text-color)
+        }
+
+        .option {
+            margin: 2px;
+            padding: 1px 5px;
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
+            border-top: 1px solid transparent;
+        }
+
+        .option:hover {
+            background-color: var(--hover-color);
+        }
+
+        .option[data-sel] {
+            font-weight: bold;
+            border-bottom: 1px solid var(--accent-color);
+        }
+    </style>
+    <template>
+        <template is="dom-repeat" items="{{options}}" as="entry">
+            <template is="dom-if" if="{{entry.section}}">
+                <div class="section">{{entry.section}}</div>
+            </template>
+            <template is="dom-if" if="{{entry.option}}">
+                <div class="option" on-click="handleOptionClick" data-sel$="{{isSelected(entry,selected)}}">{{entry.option}}</div>
+            </template>
+        </template>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-feature-info-menu",
+        properties: {
+            options: {
+                type: Array,
+                observer: 'optionsChanged'
+            },
+            selected: {
+                type: Object
+            }
+        },
+        optionsChanged: function (neo, old) {
+            if (neo) {
+                for (var i = 0; i < neo.length; i++) {
+                    var entry = neo[i];
+                    if ('option' in entry) {
+                        this.set('selected', entry);
+                        break;
+                    }
+                }
+            }
+        },
+        handleOptionClick: function (e) {
+            this.set('selected', e.model.entry);
+            this.fire('option-click', e.currentTarget.textContent);
+        },
+        isSelected: function (entry, selected) {
+            return entry == selected;
+        }
+    });
+</script>

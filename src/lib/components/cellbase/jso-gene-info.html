@@ -1,0 +1,93 @@
+<dom-module id="jso-gene-info">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #title {
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        #title > * {
+            margin-right: 7px;
+        }
+
+        #name {
+            font-size: 1.3em;
+            color: var(--default-primary-color);
+        }
+
+        #id {
+            font-size: 1.15em;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        label,
+        a:link,
+        a:visited {
+            color: var(--secondary-text-color);
+        }
+    </style>
+    <template>
+
+        <div id="title">
+            <span id="name">{{info.name}}</span>
+            <span id="id">{{info.id}}</span>
+            <a target="_blank" href$="{{ensemblUrl}}"> Ensembl <i class="fa fa-external-link"></i></a>
+            <a target="_blank" href$="{{wikipathwaysUrl}}"> Wikipathways <i class="fa fa-external-link"></i>
+            </a>
+        </div>
+        <div style="margin-top:5px;">
+            <label>Location: </label>
+            <span>{{info.chromosome}}</span> :
+            <span>{{info.start}}</span> -
+            <span>{{info.end}}</span>
+            <br>
+            <label>Strand:</label> <span>{{info.strand}}</span>
+        </div>
+        <div>
+            <label>Biotype:</label>
+            <span>{{info.biotype}}</span>
+        </div>
+        <div>
+            <label>Description: </label>
+            <span>{{info.description}}</span>
+        </div>
+        <div>
+            <label>Source: </label> <span>{{info.source}}</span>
+        </div>
+        <div>
+            <label>Status: </label><span>{{info.status}}</span>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-gene-info",
+        properties: {
+            info: {
+                type: Object
+            },
+            ensemblUrl: {
+                type: String,
+                computed: 'computeEnsemblUrl(info)'
+            },
+            wikipathwaysUrl: {
+                type: String,
+                computed: 'computeWikipathwayslUrl(info)'
+            }
+        },
+        computeEnsemblUrl: function (info) {
+            return "http://www.ensembl.org/Multi/Search/Results?q=" + info.name;
+        },
+        computeWikipathwayslUrl: function (info) {
+            return "http://wikipathways.org//index.php?query=" + info.name + "&title=Special%3ASearchPathways&doSearch=1&sa=Search";
+        }
+
+    });
+</script>

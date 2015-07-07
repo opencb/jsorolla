@@ -1,0 +1,80 @@
+<link rel="import" href="jso-xref-info.html">
+<dom-module id="jso-transcript-xrefs-info">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        #title {
+            border-bottom: 1px solid var(--divider-color);
+            margin-bottom: 5px;
+        }
+
+        #title > * {
+            margin-right: 7px;
+        }
+
+        #name {
+            font-size: 1.3em;
+            color: var(--default-primary-color);
+        }
+
+        #id {
+            font-size: 1.15em;
+        }
+
+        jso-xref-info {
+            padding: 3px 7px;
+        }
+
+        label,
+        a:link,
+        a:visited {
+            color: var(--secondary-text-color)
+        }
+    </style>
+    <template>
+        <div id="title" class="flex">
+            <span id="name">{{transcript.name}}</span>
+            <span id="id">{{transcript.id}}</span>
+            <label><span>{{count}}</span> items</label>
+        </div>
+        <template is="dom-repeat" items="{{transcript.xrefs}}" as="xref" filter="filter">
+            <jso-xref-info xref="{{xref}}"></jso-xref-info>
+        </template>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-transcript-xrefs-info",
+        properties: {
+            transcript: {
+                type: Object,
+                observer: 'transcriptChanged'
+            },
+            count: {
+                type: Number,
+                value: 0
+            },
+            dbname: {
+                type: String
+            }
+        },
+        transcriptChanged: function (neo, old) {
+            if (neo) {
+                this.count = 0;
+            }
+        },
+        filter: function (item) {
+            if (item.dbName == this.dbname) {
+                this.count++;
+                return true;
+            } else {
+                return false;
+            }
+        }
+    });
+</script>

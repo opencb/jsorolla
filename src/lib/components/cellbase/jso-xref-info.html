@@ -1,0 +1,49 @@
+<dom-module id="jso-xref-info">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        label {
+            color: var(--secondary-text-color);
+        }
+
+        a:link {
+            color: var(--dark-primary-color);
+        }
+
+        a:visited {
+            color: var(--default-primary-color);
+        }
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <div><a target="_blank" href$="{{url}}">{{xref.id}}</a></div>
+            <!--<div>{{xref.dbDisplayName}}</div>-->
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-xref-info",
+        properties: {
+            xref: {
+                type: Object,
+
+            },
+            url: {
+                type: String,
+                computed: 'computeUrl(xref)'
+            }
+        },
+        dbs: {
+            go: 'http://amigo.geneontology.org/amigo/term/',
+            interpro: 'http://www.ebi.ac.uk/interpro/entry/',
+        },
+        computeUrl: function (xref) {
+            return this.dbs[xref.dbName] + xref.id;
+        }
+    });
+</script>

@@ -1,0 +1,174 @@
+<link rel="import" href="jso-feature-info-menu.html">
+<link rel="import" href="jso-gene-info.html">
+<link rel="import" href="jso-transcript-info.html">
+<link rel="import" href="jso-transcript-xrefs-info.html">
+<link rel="import" href="jso-proteins-3d.html">
+
+<dom-module id="jso-gene-info-panel">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #panel {
+            width: 600px;
+            height: 400px;
+        }
+
+        #left {
+            box-sizing: border-box;
+            border-right: 1px solid var(--divider-color);
+            padding: 5px;
+            width: 150px;
+        }
+
+        #right {
+            padding: 5px;
+            overflow-y: auto;
+        }
+    </style>
+    <template>
+        <jso-panel closable movable fixed id="panel" on-hidden="handlePanelHidden">
+            <div class="header">
+                <i class="fa fa-info"></i> &nbsp; Gene information
+            </div>
+            <div class="container flex horizontal layout">
+                <jso-feature-info-menu id="left" options="{{options}}"
+                                       on-option-click="handleOption"></jso-feature-info-menu>
+                <div id="right" class="horizontal layout flex">
+                    <jso-gene-info info="{{info}}" option="Information"></jso-gene-info>
+
+                    <div option="Transcripts" hidden>
+                        <template is="dom-repeat" items="{{info.transcripts}}" as="transcript">
+                            <jso-transcript-info transcript="{{transcript}}"></jso-transcript-info>
+                        </template>
+                    </div>
+                    <div option="GO" class="flex" hidden>
+                        <template is="dom-repeat" items="{{info.transcripts}}" as="transcript">
+                            <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="go"></jso-transcript-xrefs-info>
+                        </template>
+                    </div>
+                    <div option="Interpro" class="flex" hidden>
+                        <template is="dom-repeat" items="{{info.transcripts}}" as="transcript">
+                            <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="interpro"></jso-transcript-xrefs-info>
+                        </template>
+                    </div>
+                    <jso-proteins-3d option="3D structure" hidden proteins="{{proteins}}"></jso-proteins-3d>
+                </div>
+            </div>
+        </jso-panel>
+    </template>
+</dom-module>
+<script>
+    JsoGeneInfoPanel = Polymer({
+        is: "jso-gene-info-panel",
+        factoryImpl: function (query, feature, host, species) {
+            this.feature = feature;
+            this.host = host;
+            this.species = species;
+            this.query = query;
+        },
+        properties: {
+            query: {
+                type: String,
+                observer: 'queryChanged'
+            },
+            feature: {
+                type: Object
+            },
+            host: {
+                type: String
+            },
+            species: {
+                type: Object
+            },
+            info: {
+                type: Object
+            },
+            proteins: {
+                type: Array
+            },
+            options: {
+                type: Array,
+                value: [
+                    {section: "Genomic"},
+                    {option: "Information"},
+                    {option: "Transcripts"},
+//                    {option: "Xrefs"},
+                    {section: "Functional information"},
+                    {option: "GO"},
+//                    {option: "Reactome"},
+                    {option: "Interpro"},
+
+//                    {section: "Regulatory"},
+//                    {option: "TFBS"},
+//                    {option: "miRNA targets"},
+
+                    {section: "Protein"},
+//                    {option: "Features"},
+                    {option: "3D structure"}
+                ]
+            },
+            option: {
+                type: String
+            }
+        },
+        handlePanelHidden: function () {
+            this.parentNode.removeChild(this);
+        },
+        queryChanged: function (neo, old) {
+            if (neo) {
+                this.getInfo();
+            }
+        },
+        getInfo: function () {
+            var me = this;
+            CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category: 'feature',
+                subCategory: 'gene',
+                query: this.query,
+                resource: 'info',
+                success: function (response) {
+                    me.set('info', response.response[0].result[0]);
+                    console.log(me.info)
+                },
+                error: function () {
+                    console.log('Server error');
+                }
+            });
+            CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category: 'feature',
+                subCategory: 'id',
+                query: this.query,
+                resource: 'xref',
+                params: {
+                    dbname: 'pdb'
+                },
+                success: function (response) {
+                    me.set('proteins', response.response[0].result);
+                },
+                error: function () {
+                    console.log('Server error');
+                }
+            });
+        },
+        handleOption: function (e) {
+            var option = e.detail;
+            var els = Polymer.dom(this.$.right).querySelectorAll('[option]');
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                if (el.getAttribute('option') == option) {
+                    el.removeAttribute('hidden');
+                } else {
+                    el.setAttribute('hidden', '');
+                }
+            }
+        }
+    });
+</script>
