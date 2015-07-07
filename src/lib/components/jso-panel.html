@@ -16,6 +16,10 @@
             box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
         }
 
+        :host[fixed] {
+            position: fixed;
+        }
+
         #loading {
             width: 100%;
             height: 100%;
@@ -66,7 +70,7 @@
 
         #header > .headeractions > * {
             box-sizing: border-box;
-            padding: 0 5px;
+            padding: 2px 5px;
             border: 1px solid transparent;
             cursor: pointer;
         }
@@ -113,25 +117,20 @@
         }
 
         #header,
-        ::content .footer {
-            /*background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);*/
-            /*background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);*/
-            /*background-repeat: repeat-x;*/
-            /*height: 31px;*/
+        #footer {
             box-sizing: border-box;
             padding: 4px 5px 4px 12px;
             height: 32px;
         }
 
-        ::content .footer {
+        #footer {
             border-top: 1px solid #d4d4d4;
             background-color: var(--light-primary-color);
             color: var(--primary-text-color);
-            padding: 4px 5px 4px 5px;
         }
 
-        ::content .footer > div,
-        ::content .footer > div > div {
+        #footer > div,
+        #footer > div > div {
             margin-right: 2px;
             margin-left: 2px;
         }
@@ -140,6 +139,10 @@
             background-color: var(--light-primary-color);
             color: var(--primary-text-color);
             position: relative;
+            height: calc(100% - 32px);
+        }
+
+        :host[_hasfooter] .container {
             height: calc(100% - 64px);
         }
 
@@ -158,15 +161,21 @@
             </div>
             <div class="headeractions horizontal layout center end-justified" on-mousedown="handleActionsMouseDown">
                 <div hidden$="{{!expandible}}" class="expandible" on-click="handleExpandAction"></div>
-                <div hidden$="{{isPinHidden(movable,moved,modal)}}" class="pin" on-click="handlePinAction"></div>
+                <div hidden$="{{isPinHidden(movable,moved,fixed)}}" class="pin" on-click="handlePinAction"></div>
                 <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction"></div>
                 <div hidden$="{{!closable}}" class="closable" on-click="handleCloseAction"></div>
             </div>
         </div>
-        <div class="container" hidden$="{{isContainerHidden(collapsible, collapsed)}}">
+
+        <div class="container horizontal layout" hidden$="{{isContainerHidden(collapsible, collapsed)}}">
             <content select=".container"></content>
         </div>
-        <content select=".footer"></content>
+
+        <div id="footer" class="horizontal layout flex center"
+             hidden$="{{isFooterHidden(_hasfooter, collapsible, collapsed)}}">
+            <content select=".footer"></content>
+        </div>
+
         <div id="loading" hidden$="{{!loading}}">
             <i id="loading-icon" class="fa fa-circle-o-notch fa-spin"></i>
         </div>
@@ -179,6 +188,11 @@
         Polymer({
             is: "jso-panel",
             properties: {
+                fixed: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
                 closable: {
                     type: Boolean,
                     reflectToAttribute: true,
@@ -221,6 +235,7 @@
                 },
                 moved: {
                     type: Boolean,
+                    reflectToAttribute: true,
                     value: false
                 },
                 loading: {
@@ -237,7 +252,23 @@
                     reflectToAttribute: true,
                     observer: 'hiddenChanged'
 
+                },
+                _hasfooter: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
                 }
+            },
+            hostAttributes: {
+                'class': 'vertical layout flex'
+            },
+            ready: function () {
+                this.async(function () {
+                    if (this.fixed) {
+                        this._center();
+                    }
+                });
+                this._hasfooter = this.$.footer.childElementCount > 0;
             },
             hiddenChanged: function (neo, old) {
                 // check if is not hidden
@@ -248,16 +279,27 @@
                 }
                 this.fire('hidden', this.hidden);
             },
-            hostAttributes: {
-                'class': 'vertical layout flex'
-            },
             isContainerHidden: function (collapsible, collapsed) {
                 if (collapsible && collapsed) {
                     return true;
                 }
                 return false;
             },
-            isPinHidden: function (movable, moved) {
+            isFooterHidden: function (_hasfooter, collapsible, collapsed) {
+                if (_hasfooter) {
+                    if (collapsible && collapsed && _hasfooter) {
+                        return true;
+                    } else {
+                        return false
+                    }
+                } else {
+                    return true;
+                }
+            },
+            isPinHidden: function (movable, moved, fixed) {
+                if(fixed){
+                    return true;
+                }
                 if (this.modal) {
                     return true;
                 }
