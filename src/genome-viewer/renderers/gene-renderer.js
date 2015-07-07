@@ -147,10 +147,15 @@ GeneRenderer.prototype.render = function (features, args) {
                     hide: {delay: 300}
                 });
 
-                $(featureGroup).click(function (event) {
-                    _this.trigger('feature:click', {query: feature[infoWidgetId], feature: feature, featureType: 'gene', clickEvent: event});
-                });
 
+                featureGroup.addEventListener('click', function (e) {
+                    _this.trigger('feature:click', {
+                        query: feature[infoWidgetId],
+                        feature: feature,
+                        featureType: 'gene',
+                        clickEvent: e
+                    });
+                });
 
                 //paint transcripts
                 var checkRowY = rowY + rowHeight;

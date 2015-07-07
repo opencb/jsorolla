@@ -1,64 +1,3 @@
-FEATURE_CONFIG = {
-    gene: {
-        filters: [
-            {
-                name: "biotype",
-                text: "Biotype",
-                values: ["3prime_overlapping_ncrna", "ambiguous_orf", "antisense", "disrupted_domain", "IG_C_gene", "IG_D_gene", "IG_J_gene", "IG_V_gene", "lincRNA", "miRNA", "misc_RNA", "Mt_rRNA", "Mt_tRNA", "ncrna_host", "nonsense_mediated_decay", "non_coding", "non_stop_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript", "protein_coding", "pseudogene", "retained_intron", "retrotransposed", "rRNA", "sense_intronic", "sense_overlapping", "snoRNA", "snRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"],
-                selection: "multi"
-            }
-        ]
-        //options:[
-        //]
-    },
-    snp: {
-        filters: [
-            {
-                name: "consequence_type",
-                text: "Consequence Type",
-                values: ["2KB_upstream_variant", "5KB_upstream_variant", "500B_downstream_variant", "5KB_downstream_variant", "3_prime_UTR_variant", "5_prime_UTR_variant", "coding_sequence_variant", "complex_change_in_transcript", "frameshift_variant", "incomplete_terminal_codon_variant", "inframe_codon_gain", "inframe_codon_loss", "initiator_codon_change", "non_synonymous_codon", "intergenic_variant", "intron_variant", "mature_miRNA_variant", "nc_transcript_variant", "splice_acceptor_variant", "splice_donor_variant", "splice_region_variant", "stop_gained", "stop_lost", "stop_retained_variant", "synonymous_codon"],
-                selection: "multi"
-            }
-        ]
-        //options:[
-        //]
-    },
-    bam: {
-        //filters:[{
-        //name:"view",
-        //text:"View",
-        //values:["view_as_pairs","show_soft-clipped_bases"],
-        //selection:"multi"
-        //}
-        //],
-        options: [
-            {
-                text: "View as pairs",
-                name: "view_as_pairs",
-                type: "checkbox",
-                fetch: true,
-                checked: false
-            },
-            {
-                text: "Show Soft-clipping",
-                name: "show_softclipping",
-                type: "checkbox",
-                fetch: true,
-                checked: false
-            },
-            {
-                text: "Insert size interval",
-                name: "insert_size_interval",
-                type: "doublenumberfield",
-                fetch: false,
-                minValue: 0,
-                maxValue: 0
-            }
-        ]
-    }
-
-};
-
 CODON_CONFIG = {
     '': {text: '', color: 'transparent'},
     'R': {text: 'Arg', color: '#BBBFE0'},
@@ -88,33 +27,6 @@ CODON_CONFIG = {
 
     'X': {text: ' X ', color: '#f0f0f0'},
     '*': {text: ' * ', color: '#DDDDDD'}
-};
-
-FEATURE_OPTIONS = {
-    gene: [
-        {
-            name: "biotype",
-            text: "Biotype",
-            values: ["3prime_overlapping_ncrna", "ambiguous_orf", "antisense", "disrupted_domain", "IG_C_gene", "IG_D_gene", "IG_J_gene", "IG_V_gene", "lincRNA", "miRNA", "misc_RNA", "Mt_rRNA", "Mt_tRNA", "ncrna_host", "nonsense_mediated_decay", "non_coding", "non_stop_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript", "protein_coding", "pseudogene", "retained_intron", "retrotransposed", "rRNA", "sense_intronic", "sense_overlapping", "snoRNA", "snRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"],
-            selection: "multi"
-        }
-    ],
-    snp: [
-        {
-            name: "consequence_type",
-            text: "Consequence Type",
-            values: ["2KB_upstream_variant", "5KB_upstream_variant", "500B_downstream_variant", "5KB_downstream_variant", "3_prime_UTR_variant", "5_prime_UTR_variant", "coding_sequence_variant", "complex_change_in_transcript", "frameshift_variant", "incomplete_terminal_codon_variant", "inframe_codon_gain", "inframe_codon_loss", "initiator_codon_change", "non_synonymous_codon", "intergenic_variant", "intron_variant", "mature_miRNA_variant", "nc_transcript_variant", "splice_acceptor_variant", "splice_donor_variant", "splice_region_variant", "stop_gained", "stop_lost", "stop_retained_variant", "synonymous_codon"],
-            selection: "multi"
-        }
-    ],
-    bam: [
-        {
-            name: "view",
-            text: "View",
-            values: ["view_as_pairs", "show_soft-clipped_bases"],
-            selection: "multi"
-        }
-    ]
 };
 
 GENE_BIOTYPE_COLORS = {
@@ -155,7 +67,6 @@ GENE_BIOTYPE_COLORS = {
     "other": "#000000"
 };
 
-
 SNP_BIOTYPE_COLORS = {
     "2KB_upstream_variant": "#a2b5cd",
     "5KB_upstream_variant": "#a2b5cd",
@@ -185,7 +96,6 @@ SNP_BIOTYPE_COLORS = {
     "other": "#000000"
 };
 
-
 SEQUENCE_COLORS = {A: "#009900", C: "#0000FF", G: "#857A00", T: "#aa0000", N: "#555555"};
 
 SAM_FLAGS = [
@@ -201,7 +111,6 @@ SAM_FLAGS = [
     ["read fails platform/vendor quality checks", 0x200],
     ["read is PCR or optical duplicate", 0x400]
 ];
-
 
 FEATURE_TYPES = {
 
@@ -381,24 +290,6 @@ FEATURE_TYPES = {
             return SNP_BIOTYPE_COLORS[f.displayConsequenceType];
         },
         infoWidgetId: "id",
-        height: 8,
-        histogramColor: "orange"
-    },
-    file: {
-        getLabel: function (f) {
-            var str = "";
-            str += f.label;
-            return str;
-        },
-        getTipTitle: function (f) {
-            return FEATURE_TYPES.formatTitle(f.featureType);
-        },
-        getTipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f);
-        },
-        getColor: function (f) {
-            return "black";
-        },
         height: 8,
         histogramColor: "orange"
     },
@@ -691,33 +582,6 @@ FEATURE_TYPES = {
         height: 13,
         histogramColor: "grey"
     },
-    das: {
-        label: function (f) {
-            var str = "";
-            str += f.id;
-            return str;
-        },
-        tooltipTitle: function (f) {
-            return FEATURE_TYPES.formatTitle(f.featureType) + ('id' in f) ? f.id : '';
-        },
-        tooltipText: function (f) {
-            return FEATURE_TYPES.getTipCommons(f);
-        },
-        color: function (f) {
-            return "lightblue";
-        },
-        height: 8,
-        histogramColor: "orange",
-        infoWidgetId: 'id',
-        handlers: {
-            'feature:mouseover': function (e) {
-                console.log(e)
-            },
-            'feature:click': function (e) {
-                console.log(e)
-            }
-        }
-    },
     'TF_binding_site': {
         label: function (f) {
             return FEATURE_TYPES.getLabelCommons(f);
@@ -792,6 +656,51 @@ FEATURE_TYPES = {
         infoWidgetId: "id",
         height: 10,
         histogramColor: "#ba56b8"
+    },
+    'Clinvar': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return 'Clinvar' + ' - ' + f.clinvarSet.title;
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#d7ff9a",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "#d7ff9a"
+    },
+    'Cosmic': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return 'Cosmic';
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#009aff",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "#009aff"
+    },
+    'GWAS': {
+        label: function (f) {
+            return FEATURE_TYPES.getLabelCommons(f);
+        },
+        tooltipTitle: function (f) {
+            return 'GWAS';
+        },
+        tooltipText: function (f) {
+            return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
+        },
+        color: "#ff6500",
+        infoWidgetId: "id",
+        height: 10,
+        histogramColor: "#ff6500"
     }
 };
 

@@ -46,12 +46,25 @@ FeatureRenderer.prototype.render = function (features, args) {
     var _this = this;
     var draw = function (feature, svgGroup) {
 
-        if (feature.featureType) {
+        if ('featureType' in feature) {
             _.extend(_this, FEATURE_TYPES[feature.featureType]);
         }
-        if (feature.featureClass) {
+        if ('featureClass' in feature) {
             _.extend(_this, FEATURE_TYPES[feature.featureClass]);
         }
+
+        //Temporal fix for clinical
+        if (args.featureType == 'clinical') {
+            if ('clinvarSet' in feature) {
+                _.extend(_this, FEATURE_TYPES['Clinvar'])
+            } else if ('mutationID' in feature) {
+                _.extend(_this, FEATURE_TYPES['Cosmic'])
+            }else{
+                _.extend(_this, FEATURE_TYPES['GWAS'])
+            }
+        }
+
+
         ////check feature class
         //if (feature.featureClass != null) {//regulatory
         //    _.extend(_this, FEATURE_TYPES[feature.featureClass]);
