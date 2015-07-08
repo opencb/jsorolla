@@ -1,0 +1,27 @@
+<dom-module id="jso-mirna-info">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+    </style>
+    <template>
+        <div>
+            <label>Location: </label>
+            <span>{{mirna.chromosome}}</span> :
+            <span>{{mirna.start}}</span> -
+            <span>{{mirna.end}}</span>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-mirna-info",
+        properties: {
+            mirna: {
+                type: Object
+            }
+        }
+    });
+</script>

@@ -1,10 +1,9 @@
 <link rel="import" href="jso-feature-info-menu.html">
 <link rel="import" href="jso-gene-info.html">
 <link rel="import" href="jso-transcript-info.html">
-<link rel="import" href="jso-transcript-xrefs-info.html">
-<link rel="import" href="jso-proteins-3d.html">
+<link rel="import" href="jso-snp-info.html">
 
-<dom-module id="jso-gene-info-panel">
+<dom-module id="jso-snp-info-panel">
     <style>
         :host {
             display: block;
@@ -27,47 +26,31 @@
         #right {
             padding: 5px;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
-        jso-transcript-info {
+        jso-exon-info {
             margin-bottom: 10px;
         }
     </style>
     <template>
         <jso-panel closable movable fixed id="panel" on-hidden="handlePanelHidden">
             <div class="header">
-                <i class="fa fa-info"></i> &nbsp; Gene information
+                <i class="fa fa-info"></i> &nbsp; SNP information
             </div>
             <div class="container flex horizontal layout">
                 <jso-feature-info-menu id="left" options="{{options}}"
                                        on-option-click="handleOption"></jso-feature-info-menu>
                 <div id="right" class="horizontal layout flex">
-                    <jso-gene-info gene="{{gene}}" option="Information"></jso-gene-info>
-
-                    <div option="Transcripts" hidden>
-                        <template is="dom-repeat" items="{{gene.transcripts}}" as="transcript">
-                            <jso-transcript-info transcript="{{transcript}}"></jso-transcript-info>
-                        </template>
-                    </div>
-                    <div option="GO" class="flex" hidden>
-                        <template is="dom-repeat" items="{{gene.transcripts}}" as="transcript">
-                            <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="go"></jso-transcript-xrefs-info>
-                        </template>
-                    </div>
-                    <div option="Interpro" class="flex" hidden>
-                        <template is="dom-repeat" items="{{gene.transcripts}}" as="transcript">
-                            <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="interpro"></jso-transcript-xrefs-info>
-                        </template>
-                    </div>
-                    <jso-proteins-3d option="3D structure" hidden proteins="{{proteins}}"></jso-proteins-3d>
+                    <jso-snp-info snp="{{snp}}" option="Information"></jso-snp-info>
                 </div>
             </div>
         </jso-panel>
     </template>
 </dom-module>
 <script>
-    JsoGeneInfoPanel = Polymer({
-        is: "jso-gene-info-panel",
+    JsoSnpInfoPanel = Polymer({
+        is: "jso-snp-info-panel",
         factoryImpl: function (query, feature, host, species) {
             this.feature = feature;
             this.host = host;
@@ -88,11 +71,8 @@
             species: {
                 type: Object
             },
-            gene: {
+            snp: {
                 type: Object
-            },
-            proteins: {
-                type: Array
             },
             options: {
                 type: Array,
@@ -100,19 +80,11 @@
                     {section: "Genomic"},
                     {option: "Information"},
                     {option: "Transcripts"},
-//                    {option: "Xrefs"},
-                    {section: "Functional information"},
-                    {option: "GO"},
-//                    {option: "Reactome"},
-                    {option: "Interpro"},
+                    {section: "Annotation"},
+                    {option: "Consequence Type"},
+                    {option: "Clinical"} // (antigua "Annotated phenotype" que ahora se leeria de Clinical)
 
-//                    {section: "Regulatory"},
-//                    {option: "TFBS"},
-//                    {option: "miRNA targets"},
 
-                    {section: "Protein"},
-//                    {option: "Features"},
-                    {option: "3D structure"}
                 ]
             },
             option: {
@@ -133,29 +105,12 @@
                 host: this.host,
                 species: this.species,
                 category: 'feature',
-                subCategory: 'gene',
+                subCategory: 'snp',
                 query: this.query,
                 resource: 'info',
                 success: function (response) {
-                    me.set('gene', response.response[0].result[0]);
-                    console.log(me.gene)
-                },
-                error: function () {
-                    console.log('Server error');
-                }
-            });
-            CellBaseManager.get({
-                host: this.host,
-                species: this.species,
-                category: 'feature',
-                subCategory: 'id',
-                query: this.query,
-                resource: 'xref',
-                params: {
-                    dbname: 'pdb'
-                },
-                success: function (response) {
-                    me.set('proteins', response.response[0].result);
+                    me.set('snp', response.response[0].result[0]);
+                    console.log(me.snp)
                 },
                 error: function () {
                     console.log('Server error');

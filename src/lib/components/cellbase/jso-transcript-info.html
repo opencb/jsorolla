@@ -79,7 +79,6 @@
             <label>Status: </label>
             <span>{{transcript.status}}</span>
         </div>
-        <br>
     </template>
 </dom-module>
 <script>
@@ -94,8 +93,8 @@
                 computed: 'computeEnsemblUrl(transcript)'
             }
         },
-        computeEnsemblUrl: function (info) {
-            return "http://www.ensembl.org/Multi/Search/Results?q=" + info.name;
+        computeEnsemblUrl: function (transcript) {
+            return "http://www.ensembl.org/Multi/Search/Results?q=" + transcript.name;
         }
 
     });

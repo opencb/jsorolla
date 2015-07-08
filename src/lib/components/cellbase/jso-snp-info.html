@@ -1,0 +1,66 @@
+<dom-module id="jso-snp-info">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #title {
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        #title > * {
+            margin-right: 7px;
+        }
+
+        #id {
+            font-size: 1.15em;
+            color: var(--default-primary-color);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        label,
+        a:link,
+        a:visited {
+            color: var(--secondary-text-color);
+        }
+    </style>
+    <template>
+        <div id="title">
+            <span id="id">{{snp.id}}</span>
+            <a target="_blank" href$="{{ensemblUrl}}"> Ensembl <i class="fa fa-external-link"></i></a>
+        </div>
+        <div style="margin-top:5px;">
+            <label>Location: </label>
+            <span>{{snp.chromosome}}</span> :
+            <span>{{snp.start}}</span> -
+            <span>{{snp.end}}</span>
+            <br>
+            <label>Strand:</label> <span>{{snp.strand}}</span>
+            <label>Alleles:</label> <span>{{snp.alleleString}}</span>
+            <label>Most severe SO term:</label> <span>{{snp.displayConsequenceType}}</span>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-snp-info",
+        properties: {
+            snp: {
+                type: Object
+            },
+            ensemblUrl: {
+                type: String,
+                computed: 'computeEnsemblUrl(snp)'
+            }
+        },
+        computeEnsemblUrl: function (snp) {
+            return "http://www.ensembl.org/Multi/Search/Results?q=" + snp.id;
+        }
+
+    });
+</script>
