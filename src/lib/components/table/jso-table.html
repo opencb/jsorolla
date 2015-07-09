@@ -3,7 +3,6 @@
         :host {
             display: block;
             position: relative;
-            border: 1px solid rgba(125, 125, 125, 0.4);
             font-size: 13px;
 
             -webkit-user-select: none; /* webkit (safari, chrome) browsers */
@@ -14,7 +13,7 @@
 
         .scrollfix {
             position: absolute;
-            width: 30px;
+            width: 25px;
             height: 100%;
             top: 0;
             right: 0;
@@ -28,6 +27,7 @@
 
         .table-header {
             position: relative;
+            box-sizing: border-box;
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
         }
@@ -62,12 +62,12 @@
 
         .table-header-field.sort-down > .name:after {
             font-family: 'FontAwesome';
-            content: '\f107';
+            content: ' \f107';
         }
 
         .table-header-field.sort-up > .name:after {
             font-family: 'FontAwesome';
-            content: '\f106';
+            content: ' \f106';
         }
 
         .table-header-field > .name {
@@ -89,6 +89,26 @@
 
         div.table-header-field:last-of-type {
             border-right-width: 0;
+        }
+
+        .table-filter {
+            position: relative;
+            box-sizing: border-box;
+            background-color: #F1F3F5;
+            border-bottom: 1px solid #d3d3d3;
+        }
+
+        #filterRow {
+            position: relative;
+            height: 26px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            width: 100%;
+            background-color: inherit;
+        }
+
+        :host[enable-paging] #filterRow {
+            overflow-y: hidden;
         }
 
         .table-pager {
@@ -118,12 +138,17 @@
             box-sizing: border-box;
             overflow-x: auto;
             /*overflow-y: scroll;*/
-            height: calc(100% - 30px);
+            height: calc(100% - 61px);
             background-color: #f8f8f8;
+            overflow-y: scroll;
         }
 
-        .table-body[enable-paging] {
-            overflow-y: scroll;
+        :host[enable-paging] > .table-body {
+            overflow-y: hidden;
+        }
+
+        :host[enable-filter] > .table-body {
+            height: calc(100% - 88px);
         }
 
         .table-row {
@@ -198,8 +223,80 @@
 
         }
 
-        datalist {
-            width: 100px;
+        .select {
+            position: relative;
+            display: inline-block;
+        }
+
+        .select select {
+            box-sizing: content-box;
+            width: 100%;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            -webkit-appearance: none;
+            -moz-appearance: radio-container;
+            appearance: none;
+        }
+
+        .select select:-moz-focusring {
+            color: transparent;
+            text-shadow: 0 0 0 #000;
+        }
+
+        .select select::-ms-expand {
+            display: none;
+        }
+
+        .select:after {
+            -ms-display: none;
+            position: absolute;
+            box-sizing: border-box;
+            right: 7px;
+            top: 0;
+            color: inherit;
+            font-family: FontAwesome;
+            content: '\f107';
+            pointer-events: none;
+        }
+
+        .select,
+        input[type=text] {
+            display: block;
+            position: relative;
+            outline: transparent solid 0px;
+            box-sizing: border-box;
+            line-height: 21px;
+            border: 1px solid #ccc;
+            padding: 0px 5px;
+            background-color: #fff;
+            font-size: inherit;
+            font-family: inherit;
+            color: inherit;
+            height: 23px;
+            margin: 1px;
+        }
+
+        .table-filter-field:last-child > .select,
+        .table-filter-field:last-child > input[type=text] {
+            margin-right: 15px;
+        }
+        :host[enable-paging] .table-filter-field:last-child > .select,
+        :host[enable-paging] .table-filter-field:last-child > input[type=text] {
+            margin-right: 1px;
+        }
+
+        input[type=text] {
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        }
+
+        input[type=text]:-moz-ui-invalid {
+            box-shadow: none;
+        }
+
+        input[type=text]:focus {
+            border-color: #66afe9;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
         }
 
     </style>
@@ -212,13 +309,16 @@
 
         <div class="table-header">
             <div id="header"></div>
+            <div class="scrollfix"></div>
+        </div>
+        <div hidden$="{{!enableFilter}}" class="table-filter">
             <div id="filterRow" hidden$="{{!enableFilter}}"></div>
             <div class="scrollfix"></div>
         </div>
-        <div id="list" class="table-body" enable-paging$="{{!enablePaging}}" on-dragover="allowDrop" on-drop="drop">
+        <div id="list" class="table-body" on-dragover="allowDrop" on-drop="drop">
         </div>
 
-        <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout">
+        <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center">
             <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i></div>
             <div class="jso-btn jso-btn-shdw" on-click="handlePreviousClick"><i class="fa fa-angle-left"></i></div>
             <div class="jso-txt">Page</div>
@@ -352,6 +452,11 @@
             loadingMsg: {
                 type: String,
                 value: 'Loading'
+            },
+            draggable: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false,
             }
         },
         observers: ["dataChanged(data.splices)", "viewDataChanged(viewData.splices)"],
@@ -609,12 +714,18 @@
                     column.type = 'text';
                 }
 
-                var input;
 
                 switch (column.type) {
                     case 'text':
-
-                        input = document.createElement("input");
+                        var input = document.createElement("input");
+                        input.setAttribute("type", "text");
+                        input.setAttribute("placeholder", "filter by" + column.name);
+                        input.classList.add('style-scope', 'jso-table');
+                        if (isNaN(column.width)) {
+                            input.classList.add('flex');
+                        } else {
+                            input.style.width = column.width + "px";
+                        }
                         input._col = column.name;
 
                         input.addEventListener('input', function (e) {
@@ -638,13 +749,24 @@
                                         delete me.filters[input._col];
                                     }
 
-
                                     me._applyFilters();
                                 }
                         );
+                        el.appendChild(input);
                         break;
                     case 'select':
-                        input = document.createElement("select");
+                        var selwrap = document.createElement("div");
+                        selwrap.classList.add('style-scope', 'jso-table', 'select');
+                        if (isNaN(column.width)) {
+                            selwrap.classList.add('flex');
+                        } else {
+                            selwrap.style.width = column.width + "px";
+                        }
+                        var input = document.createElement("select");
+                        input.classList.add('style-scope', 'jso-table');
+                        selwrap.appendChild(input);
+
+
                         input._col = column.name;
 
                         var option = document.createElement("option");
@@ -684,13 +806,13 @@
 
                             me._applyFilters();
                         });
-
+                        el.appendChild(selwrap);
                         break;
                     default:
-                        input = document.createElement("div");
+                        var input = document.createElement("div");
+                        el.appendChild(input);
                         break;
                 }
-                el.appendChild(input);
             }
             rowEl.appendChild(el);
         },
@@ -838,9 +960,11 @@
 
             var id = "idRow_" + this._getPos(rowData);
             el.setAttribute("id", id);
-            el.setAttribute("draggable", "true");
 
-            el.addEventListener('dragstart', this.drag);
+            if (this.draggable) {
+                el.setAttribute("draggable", "true");
+                el.addEventListener('dragstart', this.drag);
+            }
 
             el.addEventListener('click', function (e) {
                 me.fire('rowclick', {row: rowData});

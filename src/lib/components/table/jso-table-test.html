@@ -10,13 +10,18 @@
     <!-- Importing Web Component's Polyfill -->
     <script src="../../../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <link rel="import" href="../../../../bower_components/polymer/polymer.html">
-    <link rel="import" href="../../../../bower_components/layout/layout.html">
+    <link rel="import" href="../../../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
     <script src="../../utils.js"></script>
 
     <link href='../../../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
 
     <!-- Importing Custom Elements -->
     <link rel="import" href="jso-table.html">
+    <style>
+        jso-table {
+            border: 1px solid lightgrey;
+        }
+    </style>
 </head>
 <body>
 
@@ -27,11 +32,23 @@
         title: 'i',
         width: 50
     }];
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 5; i++) {
         var name = Utils.randomString(Utils.getRandomInt(10, 30));
         columns.push({
             name: "col_" + i,
-            title: "col_" + i
+            title: "col_" + i,
+//            width: 100,
+            type: 'text'
+        });
+    }
+    for (var i = 0; i < 5; i++) {
+        var name = Utils.randomString(Utils.getRandomInt(10, 30));
+        columns.push({
+            name: "col_" + i,
+            title: "col_" + i,
+//            width: 50,
+            type: 'select',
+            options: ['a', 'b']
         });
     }
     var column;
@@ -51,8 +68,9 @@
     var table = document.createElement('jso-table');
     table.setAttribute("enable-filter", "");
     table.setAttribute("enable-select", "");
-    // table.setAttribute("enable-paging", "");
-    //        table.style.height = "500px";
+    table.setAttribute("enable-paging", "");
+    table.style.height = "500px";
+    //    table.style.width = "900px";
     table.data = data;
     table.columns = columns;
 
