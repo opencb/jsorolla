@@ -15,7 +15,7 @@
         }
 
         #id {
-            font-size: 1.15em;
+            font-size: 1.30em;
             color: var(--default-primary-color);
         }
 
@@ -28,6 +28,10 @@
         a:visited {
             color: var(--secondary-text-color);
         }
+
+        .ml {
+            margin-left: 15px;
+        }
     </style>
     <template>
         <div id="title">
@@ -39,9 +43,16 @@
             <span>{{snp.chromosome}}</span> :
             <span>{{snp.start}}</span> -
             <span>{{snp.end}}</span>
+            <label class="ml">Strand:</label> <span>{{snp.strand}}</span>
             <br>
-            <label>Strand:</label> <span>{{snp.strand}}</span>
             <label>Alleles:</label> <span>{{snp.alleleString}}</span>
+            <br>
+            <label>Ancestral:</label> <span>{{snp.ancestralAllele}}</span>
+            <br>
+            <label>Reference:</label> <span>{{snp.reference}}</span>
+            <br>
+            <label>Alternate:</label> <span>{{snp.alternate}}</span>
+            <br>
             <label>Most severe SO term:</label> <span>{{snp.displayConsequenceType}}</span>
         </div>
     </template>

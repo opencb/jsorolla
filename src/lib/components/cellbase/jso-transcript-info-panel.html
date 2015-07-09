@@ -4,10 +4,7 @@
 <link rel="import" href="jso-exon-info.html">
 <link rel="import" href="jso-transcript-xrefs-info.html">
 <link rel="import" href="jso-snp-info.html">
-<link rel="import" href="jso-clinical-variant-info.html">
 <link rel="import" href="jso-proteins-3d.html">
-<link rel="import" href="jso-tfbs-info.html">
-<link rel="import" href="jso-mirna-info.html">
 
 <dom-module id="jso-transcript-info-panel">
     <style>
@@ -18,8 +15,8 @@
         }
 
         #panel {
-            width: 600px;
-            height: 400px;
+            width: 700px;
+            height: 420px;
         }
 
         #left {
@@ -30,13 +27,16 @@
         }
 
         #right {
-            padding: 5px;
             overflow-y: auto;
             overflow-x: hidden;
         }
 
         jso-exon-info {
             margin-bottom: 10px;
+        }
+
+        .p5 {
+            padding: 5px;
         }
     </style>
     <template>
@@ -48,39 +48,33 @@
                 <jso-feature-info-menu id="left" options="{{options}}"
                                        on-option-click="handleOption"></jso-feature-info-menu>
                 <div id="right" class="horizontal layout flex">
-                    <jso-transcript-info transcript="{{transcript}}" option="Information"></jso-transcript-info>
-                    <jso-gene-info gene="{{gene}}" option="Gene" hidden></jso-gene-info>
-                    <div option="Exons" class="flex" hidden>
+                    <jso-transcript-info class="p5" transcript="{{transcript}}" option="Information"></jso-transcript-info>
+                    <jso-gene-info class="p5" gene="{{gene}}" option="Gene" hidden></jso-gene-info>
+                    <div option="Exons" class="flex p5" hidden>
                         <template is="dom-repeat" items="{{transcript.exons}}" as="exon">
                             <jso-exon-info exon="{{exon}}"></jso-exon-info>
                         </template>
                     </div>
-                    <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="go" option="GO" class="flex"
+                    <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="go" option="GO" class="flex p5"
                                                hidden></jso-transcript-xrefs-info>
-                    <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="interpro" option="Interpro" class="flex"
+                    <jso-transcript-xrefs-info transcript="{{transcript}}" dbname="interpro" option="Interpro" class="flex p5"
                                                hidden></jso-transcript-xrefs-info>
 
                     <div option="SNPs" class="flex" hidden>
-                        <template is="dom-repeat" items="{{snps}}" as="snp">
-                            <jso-snp-info snp="{{snp}}"></jso-snp-info>
-                        </template>
+                        <jso-table enable-paging enable-filter columns="{{snpcols}}" data="{{snps}}" style="height:388px"></jso-table>
                     </div>
                     <div option="Clinical" class="flex" hidden>
-                        <template is="dom-repeat" items="{{variants}}" as="variant">
-                            <jso-clinical-variant-info variant="{{variant}}"></jso-clinical-variant-info>
-                        </template>
+                        <jso-table enable-paging enable-filter columns="{{variantcols}}" data="{{variants}}"
+                                   style="height:388px"></jso-table>
                     </div>
-
                     <div option="TFBS" class="flex" hidden>
-                        <template is="dom-repeat" items="{{tfbss}}" as="tfbs">
-                            <jso-tfbs-info tfbs="{{tfbs}}"></jso-tfbs-info>
-                        </template>
+                        <jso-table enable-paging enable-filter columns="{{tfbscols}}" data="{{tfbss}}"
+                                   style="height:388px"></jso-table>
                     </div>
 
                     <div option="miRNA Targets" class="flex" hidden>
-                        <template is="dom-repeat" items="{{mirnas}}" as="mirna">
-                            <jso-mirna-info mirna="{{mirna}}"></jso-mirna-info>
-                        </template>
+                        <jso-table enable-paging enable-filter columns="{{mirnacols}}" data="{{mirnas}}"
+                                   style="height:388px"></jso-table>
                     </div>
 
                     <jso-proteins-3d option="3D structure" hidden proteins="{{proteins}}"></jso-proteins-3d>
@@ -121,14 +115,92 @@
             snps: {
                 type: Array
             },
+            snpcols: {
+                type: Array,
+                value: [{
+                    name: 'id',
+                    title: 'Id'
+                }, {
+                    name: 'alleleString',
+                    title: 'Alleles'
+                }, {
+                    name: 'displayConsequenceType',
+                    width: 170,
+                    title: 'SO term'
+                }, {
+                    title: 'Location (strand)',
+                    width: 180,
+                    formula: function (row) {
+                        return new Region(row).toString() + " (" + row.strand + ")";
+                    },
+                    type: 'none'
+                }]
+            },
             variants: {
                 type: Array
+            },
+            variantcols: {
+                type: Array,
+                value: [{
+                    name: 'reference',
+                    title: 'Reference'
+                }, {
+                    name: 'alternate',
+                    title: 'Alternate'
+                }, {
+                    title: 'Location',
+                    width: 180,
+                    formula: function (row) {
+                        return new Region(row).toString();
+                    },
+                    type: 'none'
+                }]
             },
             tfbss: {
                 type: Array
             },
+            tfbscols: {
+                type: Array,
+                value: [{
+                    name: 'name',
+                    title: 'Name'
+                }, {
+                    name: 'cellTypes',
+                    title: 'Cell types'
+                }, {
+                    name: 'score',
+                    title: 'Score'
+                }, {
+                    title: 'Location',
+                    width: 180,
+                    formula: function (row) {
+                        return new Region(row).toString();
+                    },
+                    type: 'none'
+                }]
+            },
             mirnas: {
                 type: Array
+            },
+            mirnacols: {
+                type: Array,
+                value: [{
+                    name: 'name',
+                    title: 'Name'
+                }, {
+                    name: 'score',
+                    title: 'Score'
+                }, {
+                    name: 'source',
+                    title: 'Source'
+                }, {
+                    title: 'Location (strand)',
+                    width: 190,
+                    formula: function (row) {
+                        return new Region(row).toString() + " (" + row.strand + ")";
+                    },
+                    type: 'none'
+                }]
             },
             proteins: {
                 type: Array

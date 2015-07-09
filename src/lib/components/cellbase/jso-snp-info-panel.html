@@ -29,7 +29,7 @@
             overflow-x: hidden;
         }
 
-        jso-exon-info {
+        jso-transcript-info {
             margin-bottom: 10px;
         }
     </style>
@@ -43,6 +43,11 @@
                                        on-option-click="handleOption"></jso-feature-info-menu>
                 <div id="right" class="horizontal layout flex">
                     <jso-snp-info snp="{{snp}}" option="Information"></jso-snp-info>
+                    <div option="Transcripts" hidden>
+                        <template is="dom-repeat" items="{{transcripts}}" as="transcript">
+                            <jso-transcript-info transcript="{{transcript}}"></jso-transcript-info>
+                        </template>
+                    </div>
                 </div>
             </div>
         </jso-panel>
@@ -73,6 +78,9 @@
             },
             snp: {
                 type: Object
+            },
+            transcripts: {
+                type: Array
             },
             options: {
                 type: Array,
@@ -111,6 +119,32 @@
                 success: function (response) {
                     me.set('snp', response.response[0].result[0]);
                     console.log(me.snp)
+                },
+                error: function () {
+                    console.log('Server error');
+                }
+            });
+            CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category: 'genomic',
+                subCategory: 'region',
+                query: new Region(this.feature),
+                resource: 'gene',
+                success: function (response) {
+                    var genes = response.response[0].result;
+                    var transcripts = [];
+                    for (var i = 0; i < genes.length; i++) {
+                        var gene = genes[i];
+                        for (var j = 0; j < gene.transcripts.length; j++) {
+                            var transcript = gene.transcripts[j];
+                            if (me.feature.start <= transcript.end && me.feature.end >= transcript.start) {
+                                transcripts.push(transcript);
+                            }
+                        }
+                    }
+                    me.set('transcripts', transcripts);
+                    console.log(me.transcripts)
                 },
                 error: function () {
                     console.log('Server error');
