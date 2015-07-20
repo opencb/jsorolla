@@ -460,6 +460,21 @@
             }
         },
         observers: ["dataChanged(data.splices)", "viewDataChanged(viewData.splices)"],
+        listeners: {
+            'wheel': 'handleScroll',
+        },
+        /* LISTENERS */
+        handleScroll: function (e) {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                this.handleNextClick();
+            }
+            if (e.deltaY < 0) {
+                this.handlePreviousClick();
+            }
+        },
+
+
         /* OBSERVERS */
         dataChanged: function (neo, old) {
             for (var i = 0; i < this.data.length; i++) {

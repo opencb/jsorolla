@@ -1,0 +1,69 @@
+<link rel="import" href="jso-table-field.html">
+<dom-module id="jso-table-row">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+
+            box-sizing: border-box;
+            cursor: default;
+            background-color: #fff;
+            overflow: hidden;
+            border-bottom: 1px solid #ddd;
+            height: 30px;
+        }
+
+        :host[selected] {
+            background-color: #ccc !important;
+        }
+
+        :host[selected]:hover {
+            background-color: #bbb !important;
+        }
+
+        :host:last-of-type {
+            border-bottom-width: 0;
+        }
+
+        :host:nth-child(2n) {
+            background-color: #fbfbfb;
+        }
+
+        :host:hover {
+            background-color: #eee;
+        }
+    </style>
+    <template>
+        <template is="dom-repeat" items="{{columns}}" as="column">
+            <jso-table-field row="{{row}}" column="{{column}}" class="horizontal layout"></jso-table-field>
+        </template>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-table-row',
+        properties: {
+            columns: {
+                type: Array
+            },
+            row: {
+                type: Object
+            },
+            selected: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            }
+        }
+//        computeSelected: function (bool) {
+//            debugger
+//        },
+//        observers: [
+//            'selectedChanged(row.tableselected)'
+//        ],
+//        selectedChanged: function (selected) {
+//            var v = (selected == true) ? true : false;
+//            this.set('selected', v);
+//        }
+    })
+</script>

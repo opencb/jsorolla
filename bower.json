@@ -17,7 +17,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#1.0.5",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#1.0.2",
-    "fontawesome": "*",
+    "fontawesome": "~4.3.0",
     "cookies-js": "~1.1.0",
     "crypto-js-evanvosberg": "3.1.4",
     "highcharts-release": "~4.0.4",
@@ -28,6 +28,6 @@
     "d3": "~3.5.3",
     "qtip2": "~2.2.1",
     "pako": "~0.2.5",
-    "fontawesome": "~4.3.0"
+    "iron-list": "PolymerElements/iron-list#~1.0.0"
   }
 }
