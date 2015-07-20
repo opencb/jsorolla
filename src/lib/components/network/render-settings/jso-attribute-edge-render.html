@@ -407,8 +407,7 @@
             },
             handleRemoveSet: function (e) {
                 var displayProperty = e.currentTarget.dataset.prop;
-                delete this.visualSets[displayProperty];
-                this.fire(displayProperty.toLowerCase());
+                this.removeVisualSet(displayProperty);
             },
             applyDirect: function (attributeName, displayProperty) {
                 this.displayProperty = displayProperty;
@@ -420,6 +419,14 @@
                 table.handleOk();
 
                 this.displayProperty = null;
+            },
+            applyVisualSet:function (visualSet){
+                this.visualSets[visualSet.displayProperty] = visualSet;
+                this.fire(visualSet.displayProperty)
+            },
+            removeVisualSet:function(displayProperty){
+                delete this.visualSets[displayProperty];
+                this.fire(displayProperty.toLowerCase());
             }
         });
     </script>

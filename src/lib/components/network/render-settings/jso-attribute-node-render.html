@@ -541,6 +541,14 @@
                 table.handleOk();
 
                 this.displayProperty = null;
+            },
+            applyVisualSet:function (visualSet){
+                this.visualSets[visualSet.displayProperty] = visualSet;
+                this.fire(visualSet.displayProperty)
+            },
+            removeVisualSet:function(displayProperty){
+                delete this.visualSets[displayProperty];
+                this.fire(displayProperty.toLowerCase());
             }
         });
     </script>
