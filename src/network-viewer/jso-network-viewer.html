@@ -567,7 +567,6 @@
                 type: Array
             },
             selectedVertices: {
-                notify: true,
                 type: Array
             },
             selectedEdges: {
@@ -584,6 +583,8 @@
 
         ready: function () {
             this.graph = this.$.graph;
+            this.set('selectedVertices', []);
+            this.set('selectedEdges', []);
 
             this._init();
         },
@@ -710,7 +711,8 @@
             vertexColumns.push({
                 name: "id",
                 title: "Id",
-                type: "string",
+                type: "text",
+                editable: false,
                 formula: function (row) {
                     return row.attributes["id"];
                 }
@@ -719,7 +721,7 @@
             vertexColumns.push({
                 name: "name",
                 title: "Name",
-                type: "string",
+                type: "text",
                 formula: function (row) {
                     return row.attributes["name"];
                 }
@@ -741,7 +743,8 @@
             edgeColumns.push({
                 name: "id",
                 title: "Id",
-                type: "string",
+                type: "text",
+                editable: false,
                 formula: function (row) {
                     return row.attributes["id"];
                 }
@@ -749,7 +752,7 @@
             edgeColumns.push({
                 name: "name",
                 title: "Name",
-                type: "string",
+                type: "text",
                 formula: function (row) {
                     return row.attributes["name"];
                 }
@@ -757,7 +760,7 @@
             edgeColumns.push({
                 name: "relation",
                 title: "Relation",
-                type: "string",
+                type: "text",
                 formula: function (row) {
                     return row.attributes["relation"];
                 }

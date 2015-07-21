@@ -276,7 +276,7 @@
                         </label>
                     </div>
                 </div>
-                <div id="tablewrap" class="flex">
+                <!-- <div id="tablewrap" class="flex vertical layout"> -->
 
                     <!--<iron-list items="{{items}}" as="item" id="il">-->
                         <!--<template>-->
@@ -284,7 +284,8 @@
                         <!--</template>-->
                     <!--</iron-list>-->
 
-                    <jso-table id="table" enable-paging enable-select columns="{{columns}}" data="{{items}}" selected="{{selected}}" page-size="16" style="height:540px"></jso-table>
+                    <jso-table id="table" enable-paging enable-select enable-edit columns="{{columns}}" data="{{items}}" selected="{{selected}}" page-size="16" style="height:540px"></jso-table>
+
 
                     <!--<sortable-table id="table" flex-->
                                     <!--data="{{currentData}}"-->
@@ -302,7 +303,7 @@
                     <!--</sortable-table>-->
                     <!--<div class="customPagerScroll"-->
                          <!--style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>-->
-                </div>
+                <!-- </div> -->
                 <!--<div class="customPager" horizontal layout>-->
                     <!--<div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>-->
                     <!--<div class="jso-btn jso-btn-shdw" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">-->
@@ -375,6 +376,15 @@
 //            } else {
 //
             }
+        },
+        computeItem:function(item, column){
+            var value;
+            if (column.formula) {
+                value = column.formula(item);
+            } else {
+                value = item[column.name];
+            }
+            return value;
         },
         createdOFF: function () {
             this.page = 1;
