@@ -1,0 +1,47 @@
+<dom-module id="jso-attribute-render-number-point">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .selbox {
+            box-sizing: border-box;
+            overflow-y: auto;
+            border: 1px solid #d3d3d3;
+            background-color: #FFF;
+        }
+
+        .selitem {
+            padding: 2px 5px;
+        }
+
+        .selitem[data-checked=true] {
+            background-color: #ddd;
+        }
+    </style>
+    <template>
+        <div class="selbox">
+            <div class="selitem flex" data-checked="{{attributeType == 'discrete'}}"
+                 on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Categorical
+            </div>
+            <div  class="selitem flex" data-checked="{{attributeType == 'continuous'}}"
+                 on-mousedown="{{handleAttributeTypeSelect}}" data-name="continuous">Continuous
+            </div>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-network-attribute-list',
+        properties: {
+            columns: {
+                type: Array
+            }
+        },
+        handleRemove: function () {
+            this.splice('points', this.points.indexOf(this.point), 1);
+        }
+    });
+</script>

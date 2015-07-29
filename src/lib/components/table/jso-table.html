@@ -8,9 +8,8 @@
             -moz-user-select: none;
             -khtml-user-select: none;
             -ms-user-select: none;
-            /* IE10+ */
         }
-        
+
         .scrollfix {
             position: absolute;
             width: 25px;
@@ -20,22 +19,22 @@
             background-color: inherit;
             z-index: 1;
         }
-        
+
         :host[enable-paging] .scrollfix {
             display: none;
         }
-        
+
         .table-header {
             position: relative;
             box-sizing: border-box;
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
         }
-        
+
         #header {
             position: relative;
         }
-        
+
         .table-header-row {
             position: relative;
             box-sizing: border-box;
@@ -46,11 +45,11 @@
             width: 100%;
             background-color: inherit;
         }
-        
+
         :host[enable-paging] .table-header-row {
             overflow-y: hidden;
         }
-        
+
         .table-header-field {
             box-sizing: border-box;
             border-right: 1px solid #d3d3d3;
@@ -59,17 +58,17 @@
             /*text-overflow: ellipsis;*/
             cursor: pointer;
         }
-        
+
         .table-header-field.sort-down > .name:after {
             font-family: 'FontAwesome';
             content: ' \f107';
         }
-        
+
         .table-header-field.sort-up > .name:after {
             font-family: 'FontAwesome';
             content: ' \f106';
         }
-        
+
         .table-header-field > .name {
             box-sizing: border-box;
             /*cursor: pointer;*/
@@ -79,25 +78,25 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .table-header-field > .sub {
             box-sizing: border-box;
             /*cursor: pointer;*/
             text-align: center;
             border-top: 1px solid #d3d3d3;
         }
-        
+
         div.table-header-field:last-of-type {
             border-right-width: 0;
         }
-        
+
         .table-filter {
             position: relative;
             box-sizing: border-box;
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
         }
-        
+
         #filterRow {
             position: relative;
             height: 26px;
@@ -106,11 +105,11 @@
             width: 100%;
             background-color: inherit;
         }
-        
+
         :host[enable-paging] #filterRow {
             overflow-y: hidden;
         }
-        
+
         .table-pager {
             position: relative;
             box-sizing: border-box;
@@ -120,11 +119,11 @@
             color: #666;
             padding: 3px;
         }
-        
+
         .table-pager > * {
             margin: 0 1px;
         }
-        
+
         .table-bbar {
             position: relative;
             box-sizing: border-box;
@@ -133,7 +132,7 @@
             color: #666;
             padding: 5px;
         }
-        
+
         .table-body {
             box-sizing: border-box;
             overflow-x: auto;
@@ -142,15 +141,15 @@
             background-color: #f8f8f8;
             overflow-y: scroll;
         }
-        
+
         :host[enable-paging] > .table-body {
             overflow-y: hidden;
         }
-        
+
         :host[enable-filter] > .table-body {
             height: calc(100% - 88px);
         }
-        
+
         .table-row {
             box-sizing: border-box;
             cursor: default;
@@ -159,28 +158,29 @@
             border-bottom: 1px solid #ddd;
             height: 30px;
         }
-        
+
         .table-row.selected {
             background-color: #ccc !important;
         }
-        
+
         .table-row.selected:hover {
             background-color: #bbb !important;
         }
-        
+
         div.table-row:last-of-type {
             border-bottom-width: 0;
         }
-        
+
         .table-row:nth-child(2n) {
             background-color: #fbfbfb;
         }
-        
+
         .table-row:hover {
             background-color: #eee;
         }
-        
+
         .table-field {
+            position: relative;
             box-sizing: border-box;
             text-align: center;
             white-space: nowrap;
@@ -189,11 +189,11 @@
             border-right: 1px solid #d3d3d3;
             float: left;
         }
-        
+
         div.table-field:last-of-type {
             border-right-width: 0;
         }
-        
+
         #loading {
             position: absolute;
             left: 0;
@@ -203,7 +203,7 @@
             background-color: rgba(125, 125, 125, 0.75);
             z-index: 2;
         }
-        
+
         #loading-text {
             position: absolute;
             color: white;
@@ -215,12 +215,12 @@
             /*margin: 0 auto;*/
             /*background-color: rgba(125, 125, 125, 0.5);*/
         }
-        
+
         .select {
             position: relative;
             display: inline-block;
         }
-        
+
         .select select {
             box-sizing: content-box;
             width: 100%;
@@ -231,16 +231,16 @@
             -moz-appearance: radio-container;
             appearance: none;
         }
-        
+
         .select select:-moz-focusring {
             color: transparent;
             text-shadow: 0 0 0 #000;
         }
-        
+
         .select select::-ms-expand {
             display: none;
         }
-        
+
         .select:after {
             -ms-display: none;
             position: absolute;
@@ -252,7 +252,7 @@
             content: '\f107';
             pointer-events: none;
         }
-        
+
         .select,
         input[type=text] {
             display: block;
@@ -269,41 +269,53 @@
             height: 23px;
             margin: 1px;
         }
-        
+
         .table-filter-field:last-child > .select,
         .table-filter-field:last-child > input[type=text] {
             margin-right: 15px;
         }
-        
+
         :host[enable-paging] .table-filter-field:last-child > .select,
         :host[enable-paging] .table-filter-field:last-child > input[type=text] {
             margin-right: 1px;
         }
-        
+
         input[type=text] {
             transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
         }
-        
+
         input[type=text]:-moz-ui-invalid {
             box-shadow: none;
         }
-        
+
         input[type=text]:focus {
             border-color: #66afe9;
             box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
         }
-        
-        .table-field >.select,
+
+        .table-field > .select,
         .table-field > input[type=text] {
-            border: 0px solid transparent;
-            height: 30px;
+            background-color: transparent;
+            border-color: transparent;
+            height: 29px;
+            margin: 0;
         }
 
+        .table-field > input[type=text]:hover {
+            border-color: #ccc;
+        }
+
+        .table-field > input[type=text]:focus {
+            border-color: #66afe9;
+            box-shadow: inset 0 0 3px 1px rgba(102, 175, 233, .5);
+            background-color: #fff;
+        }
     </style>
     <template>
         <div id="loading" hidden$="{{!loading}}">
             <div id="loading-text">
-                <i class="fa fa-spinner fa-pulse"></i><span>{{loadingMsg}}</span>
+                <i class="fa fa-spinner fa-pulse"></i>
+                <span>{{loadingMsg}}</span>
             </div>
         </div>
 
@@ -316,6 +328,7 @@
             <div class="scrollfix"></div>
         </div>
         <div id="list" class="table-body" on-dragover="allowDrop" on-drop="drop">
+
         </div>
 
         <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center">
@@ -340,7 +353,9 @@
             <div class="jso-txt">{{itemCount}}</div>
         </div>
 
-        <div hidden$="{{enablePaging}}" class="table-bbar">Total:<span>{{itemCount}}</span></div>
+        <div hidden$="{{enablePaging}}" class="table-bbar">Total:
+            <span>{{itemCount}}</span>
+        </div>
 
     </template>
 </dom-module>
@@ -351,22 +366,21 @@
             columns: {
                 type: Array,
                 notify: true,
-                observer: 'columnsChanged',
-                value: function() {
+                value: function () {
                     return [];
                 }
             },
             data: {
                 type: Array,
                 notify: true,
-                value: function() {
+                value: function () {
                     return [];
                 }
             },
             viewData: {
                 type: Array,
                 notify: true,
-                value: function() {
+                value: function () {
                     return [];
                 }
             },
@@ -407,7 +421,7 @@
             selected: {
                 type: Array,
                 notify: true,
-                value: function() {
+                value: function () {
                     return [];
                 }
             },
@@ -432,7 +446,7 @@
             },
             filters: {
                 type: Object,
-                value: function() {
+                value: function () {
                     return {};
                 }
             },
@@ -466,14 +480,15 @@
         },
         observers: [
             "dataChanged(data.splices)",
+            "selectedChanged(selected.splices)",
             "viewDataChanged(viewData.splices)",
-            'selectedChanged(selected.splices)',
+            'columnsChanged(columns.splices)',
         ],
         listeners: {
             'wheel': 'handleScroll',
         },
         /* LISTENERS */
-        handleScroll: function(e) {
+        handleScroll: function (e) {
             e.preventDefault();
             if (e.deltaY > 0) {
                 this.handleNextClick();
@@ -482,10 +497,11 @@
                 this.handlePreviousClick();
             }
         },
-        selectedChanged: function(changeRecord) {
+        selectedChanged: function (changeRecord) {
             this._updateSelected();
+            this.fire('selected', this.selected);
         },
-        _updateSelected: function() {
+        _updateSelected: function () {
             var els = Polymer.dom(this.$.list).querySelectorAll('.table-row');
             for (var i = 0; i < els.length; i++) {
                 var el = els[i];
@@ -498,18 +514,18 @@
             }
         },
         /* OBSERVERS */
-        dataChanged: function(neo, old) {
+        dataChanged: function (neo, old) {
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 delete row._filtered;
             }
             this.refreshPagination();
         },
-        refreshPagination: function() {
+        refreshPagination: function () {
             this.currentPage = 1;
             var count = 0;
             if (this.data) {
-                this.data.forEach(function(row) {
+                this.data.forEach(function (row) {
                     if (row._filtered || row._filtered == null) {
                         count++;
                     }
@@ -519,8 +535,8 @@
             this.pageCount = Math.ceil(count / this.pageSize);
             this.filterPage();
         },
-        filterPage: function() {
-            var filteredRows = this.enableFilter ? this.data.filter(function(r) {
+        filterPage: function () {
+            var filteredRows = this.enableFilter ? this.data.filter(function (r) {
                 if (r._filtered == undefined) {
                     return true;
                 }
@@ -544,7 +560,7 @@
                 this.set('viewData', viewData);
             }
         },
-        viewDataChanged: function(neo, old) {
+        viewDataChanged: function (neo, old) {
             while (this.$.list.firstChild) {
                 this.$.list.removeChild(this.$.list.firstChild);
             }
@@ -554,77 +570,80 @@
             }
         },
         // pagination
-        handleFirstClick: function() {
+        handleFirstClick: function () {
             this.currentPage = 1;
         },
-        handlePreviousClick: function() {
+        handlePreviousClick: function () {
             if (this.currentPage > 1) {
                 this.currentPage--;
             }
         },
-        handleNextClick: function() {
-            console.log(this.currentPage);
-            console.log(this.pageCount);
+        handleNextClick: function () {
+            // console.log(this.currentPage);
+            // console.log(this.pageCount);
             if (this.currentPage < this.pageCount) {
                 this.currentPage++;
             }
         },
-        handleLastClick: function() {
+        handleLastClick: function () {
             this.currentPage = this.pageCount;
         },
-        currentPageChanged: function(neo, old) {
+        currentPageChanged: function (neo, old) {
             this.currentPage = this.currentPage ? parseInt(this.currentPage) : 0;
             this.currentPage = this.currentPage < 1 ? 1 : this.currentPage;
             this.currentPage = this.pageCount > 0 && this.currentPage > this.pageCount ? this.pageCount : this.currentPage;
             this.filterPage();
         },
-        pageSizeChanged: function() {
+        pageSizeChanged: function () {
             this.pagesize = parseInt(this.pagesize);
             this.refreshPagination();
         },
-        computePageFirstItem: function(currentPage, pageSize, itemCount) {
+        computePageFirstItem: function (currentPage, pageSize, itemCount) {
             return ((currentPage - 1) * pageSize) + 1;
         },
-        computePageLastItem: function(currentPage, pageSize, itemCount) {
+        computePageLastItem: function (currentPage, pageSize, itemCount) {
             var end = currentPage * pageSize;
             if (itemCount < end) {
                 return itemCount;
             }
             return end;
         },
-        computePageTotal: function(pageSize, itemCount) {
+        computePageTotal: function (pageSize, itemCount) {
             return Math.ceil(itemCount / pageSize);
         },
-        enablePagingChanged: function(neo, old) {
+        enablePagingChanged: function (neo, old) {
             this.refreshPagination();
         },
-        enableRemoteChanged: function(neo, old) {
+        enableRemoteChanged: function (neo, old) {
             if (this.request) {
                 this.checkRemote();
             }
         },
-        requestChanged: function(neo, old) {
+        requestChanged: function (neo, old) {
             if (this.currentPage != 1) {
                 this.currentPage = 1;
             } else if (this.request) {
                 this.checkRemote();
             }
         },
-        columnsChanged: function(neo, old) {
+        columnsChanged: function (neo, old) {
             this.updateColumns();
             this.viewDataChanged();
         },
-        clear: function() {
+        clear: function () {
             this.data = [];
             this.viewData = [];
             this.currentPage = 1;
             this.columns = [];
             //            this.totalItems = 0;
         },
-        checkRemote: function() {
+        refresh: function () {
+            this.dataChanged();
+        },
+        checkRemote: function () {
             var me = this;
             if (this.enableRemote) {
-                this._callRemote(function(resp) {
+                this._callRemote(function (resp) {
                     me.itemCount = me.request.parseTotal(resp);
                     me.pageCount = Math.ceil(me.itemCount / me.pageSize);
                     me.viewData = me.request.parse(resp);
@@ -633,13 +652,13 @@
                 //                ...
             }
         },
-        _callRemote: function(callback) {
+        _callRemote: function (callback) {
             var method = 'GET';
             if (typeof this.request.method !== 'undefined' && this.request.method != null) {
                 method = this.request.method;
             }
             var request = new XMLHttpRequest();
-            request.onload = function() {
+            request.onload = function () {
                 var contentType = this.getResponseHeader('Content-Type');
                 var resp;
                 if (contentType === 'application/json') {
@@ -649,7 +668,7 @@
                 }
                 callback(resp)
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 //                args.request.error(this);
             };
             var url = Utils.addQueryParamtersToUrl({
@@ -660,7 +679,7 @@
             request.send();
             console.log(url)
         },
-        updateColumns: function() {
+        updateColumns: function () {
             var els = this.$.header.querySelectorAll('.table-header-row');
             for (var i = 0; i < els.length; i++) {
                 this.$.header.removeChild(els[i]);
@@ -674,7 +693,7 @@
             }
             this._createFilterRow();
         },
-        _createFilterRow: function() {
+        _createFilterRow: function () {
             var el = document.createElement('div');
             el.classList.add('horizontal', 'layout', 'style-scope', 'jso-table');
             for (var i = 0; i < this.columns.length; i++) {
@@ -683,7 +702,7 @@
             }
             this.$.filterRow.appendChild(el);
         },
-        _createFilterField: function(rowEl, column, rowData) {
+        _createFilterField: function (rowEl, column, rowData) {
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-filter-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -725,7 +744,7 @@
                             input.style.width = column.width + "px";
                         }
                         input._col = column.name;
-                        input.addEventListener('input', function(e) {
+                        input.addEventListener('input', function (e) {
                             var query = this.value;
                             var filter = {}
                             if (input._col in me.filters) {
@@ -768,7 +787,7 @@
                             option.text = optVal;
                             input.appendChild(option);
                         }
-                        input.addEventListener('click', function(e) {
+                        input.addEventListener('click', function (e) {
                             var query = this.value;
                             var filter = {}
                             if (input._col in me.filters) {
@@ -795,7 +814,7 @@
             }
             rowEl.appendChild(el);
         },
-        _applyFilters: function() {
+        _applyFilters: function () {
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 var filtered = true;
@@ -818,7 +837,7 @@
             }
             this.refreshPagination();
         },
-        _processColumn: function(column, x) {
+        _processColumn: function (column, x) {
             if (column.columns && column.columns.length > 0) {
                 for (var i = 0; i < column.columns.length; i++) {
                     var col = column.columns[i];
@@ -834,7 +853,7 @@
                 }
             }
         },
-        _createHeaderRow: function() {
+        _createHeaderRow: function () {
             var el = document.createElement('div');
             el.classList.add('table-header-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
             for (var i = 0; i < this.columns.length; i++) {
@@ -843,10 +862,11 @@
             }
             this.$.header.appendChild(el);
         },
-        _createHeaderField: function(rowEl, column) {
+        _createHeaderField: function (rowEl, column) {
             var me = this;
             var el = document.createElement('div');
-            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table');
+            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table',
+                    ('column-' + column.name));
             if (isNaN(column.width)) {
                 el.classList.add('flex');
             } else {
@@ -870,7 +890,7 @@
             }
             rowEl.appendChild(el);
         },
-        handleHeaderFieldClick: function(e) {
+        handleHeaderFieldClick: function (e) {
             var els = this.querySelectorAll('.table-header-field');
             var column = e.currentTarget._column;
             var sortedData = this.data.slice(0);
@@ -880,7 +900,7 @@
                     el.classList.remove('sort-down');
                     el.classList.remove('sort-up');
                 }
-                sortedData.sort(function(b, a) {
+                sortedData.sort(function (b, a) {
                     if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
                         return a[column.name] - b[column.name];
                     } else {
@@ -894,7 +914,7 @@
                     el.classList.remove('sort-down');
                     el.classList.remove('sort-up');
                 }
-                sortedData.sort(function(a, b) {
+                sortedData.sort(function (a, b) {
                     if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
                         return a[column.name] - b[column.name];
                     } else {
@@ -905,7 +925,7 @@
             }
             this.data = sortedData;
         },
-        _getPos: function(row) {
+        _getPos: function (row) {
             for (var i = 0; i < this.viewData.length; i++) {
                 var elem = this.viewData[i];
                 if (elem === row) {
@@ -914,7 +934,7 @@
             }
             return -1;
         },
-        _createRow: function(rowData) {
+        _createRow: function (rowData) {
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -925,7 +945,7 @@
                 el.setAttribute("draggable", "true");
                 el.addEventListener('dragstart', this.drag);
             }
-            el.addEventListener('click', function(e) {
+            el.addEventListener('click', function (e) {
                 me.fire('rowclick', {
                     row: rowData
                 });
@@ -959,7 +979,7 @@
             }
             this.$.list.appendChild(el);
         },
-        _toggleSelected: function(domElem, rowData) {
+        _toggleSelected: function (domElem, rowData) {
             if (domElem.classList.contains("selected")) {
                 var index = this.selected.indexOf(rowData);
                 if (index >= 0) {
@@ -974,7 +994,7 @@
             }
             this.lastSelectedRow = domElem;
         },
-        _selectRowsBetweenIndexes: function(first, last) {
+        _selectRowsBetweenIndexes: function (first, last) {
             var rows = this.$.list.getElementsByClassName("table-row");
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
@@ -992,7 +1012,7 @@
                 }
             }
         },
-        _clearSelection: function() {
+        _clearSelection: function () {
             var rows = this.$.list.getElementsByClassName("table-row");
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
@@ -1000,7 +1020,7 @@
             }
             this.splice('selected', 0, this.selected.length);
         },
-        _createField: function(rowEl, column, rowData) {
+        _createField: function (rowEl, column, rowData) {
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-field', 'horizontal', 'layout', 'center', 'style-scope', 'jso-table');
@@ -1012,7 +1032,7 @@
             if (column.type === "action") {
                 var remove = document.createElement("i");
                 remove.classList.add("fa", "fa-remove");
-                remove.addEventListener('click', function(e) {
+                remove.addEventListener('click', function (e) {
                     me.fire('removerow', {
                         row: rowData
                     });
@@ -1032,7 +1052,8 @@
             }
             rowEl.appendChild(el);
         },
-        _createTypeField: function(el, column, rowData, isSubCol) {
+        _createTypeField: function (el, column, rowData, isSubCol) {
+            var me = this;
             var defValue = column.defaultValue != null ? column.defaultValue : '';
             var value;
             if (column.formula) {
@@ -1060,14 +1081,16 @@
                             input.style.width = column.width + "px";
                         }
                         input._col = column.name;
-                        input.addEventListener('input', function(e) {
+                        input.addEventListener('blur', function (e) {
                             var val = this.value;
-                            //TODO
+                            rowData.attributes[column.name] = val;
+                            me.fire('update-row', rowData);
                         });
                         input.value = value;
                         el.appendChild(input);
                         break;
                     case 'select':
+                        //TODO check styles
                         el.classList.add('table-field-nopadding');
                         var selwrap = document.createElement("div");
                         selwrap.classList.add('style-scope', 'jso-table', 'select');
@@ -1092,9 +1115,10 @@
                             option.text = optVal;
                             input.appendChild(option);
                         }
-                        input.addEventListener('click', function(e) {
+                        //TODO check
+                        input.addEventListener('click', function (e) {
                             var val = this.value;
-                            //TODO
+                            rowData.attributes[column.name] = val;
                         });
                         input.value = value;
                         el.appendChild(selwrap);
@@ -1115,14 +1139,14 @@
                 el.appendChild(cEl);
             }
         },
-        _deepValue: function(obj, path) {
+        _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 obj = obj[path[i]];
             }
             return obj;
         },
-        contains: function(searchElem, compareFunction) {
-            var cmp = function(a, b) {
+        contains: function (searchElem, compareFunction) {
+            var cmp = function (a, b) {
                 return a === b;
             }
             if (compareFunction && typeof(compareFunction) === "function") {
@@ -1136,21 +1160,22 @@
             }
             return false;
         },
-        setLoading: function(loading) {
+        setLoading: function (loading) {
             this.loading = loading;
         },
-        allowDrop: function(e) {
+        allowDrop: function (e) {
             console.log("drag!!!")
             e.preventDefault();
         },
-        drop: function(e) {
+        drop: function (e) {
             e.preventDefault();
             var data = JSON.parse(e.dataTransfer.getData("rowData"));
             this.push('data', data);
         },
-        drag: function(e) {
+        drag: function (e) {
             e.dataTransfer.setData("rowData", JSON.stringify(e.currentTarget._rowData));
         },
-        handleLoading: function(neo, old) {}
+        handleLoading: function (neo, old) {
+        }
     })
 </script>
