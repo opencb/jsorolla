@@ -4,8 +4,17 @@
     <meta charset="utf-8">
     <title>Network Viewer</title>
 
+    <!--Fonts-->
+    <link href='../../styles/fonts/fonts.css' rel='stylesheet' type='text/css'>
+    <link href='../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+
+    <!--CSS-->
+    <link href='../lib/components/jso-global.css' rel='stylesheet' type='text/css'>
+    <link href='../lib/components/jso-form.css' rel='stylesheet' type='text/css'>
+    <link href='../lib/components/jso-dropdown.css' rel='stylesheet' type='text/css'>
+
     <!--Web Components-->
-    <script src="../../bower_components/webcomponentsjs/webcomponents.js"></script>
+    <script src="../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <link rel="import" href="jso-network-viewer.html">
 
     <style>
@@ -23,13 +32,11 @@
 
 <body>
 
-<jso-network-viewer hideBar="true" hideToolBar="true" hideEditionBar="true" hideStatusBar="true"></jso-network-viewer>
+<!--<jso-network-viewer hide-bar hide-tool-bar hide-edition-bar hide-status-bar></jso-network-viewer>-->
+<jso-network-viewer></jso-network-viewer>
 
 <script>
-    var networkViewer;
-    window.addEventListener('polymer-ready', function () {
-        networkViewer = document.body.querySelector('jso-network-viewer');
-    });
+    var networkViewer = document.body.querySelector('jso-network-viewer');
 </script>
 
 </body>

@@ -4,11 +4,10 @@
             display: block;
             position: relative;
             font-size: 13px;
-
-            -webkit-user-select: none; /* webkit (safari, chrome) browsers */
-            -moz-user-select: none; /* mozilla browsers */
-            -khtml-user-select: none; /* webkit (konqueror) browsers */
-            -ms-user-select: none; /* IE10+ */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -ms-user-select: none;
         }
 
         .scrollfix {
@@ -162,7 +161,6 @@
 
         .table-row.selected {
             background-color: #ccc !important;
-
         }
 
         .table-row.selected:hover {
@@ -182,6 +180,7 @@
         }
 
         .table-field {
+            position: relative;
             box-sizing: border-box;
             text-align: center;
             white-space: nowrap;
@@ -189,7 +188,6 @@
             text-overflow: ellipsis;
             border-right: 1px solid #d3d3d3;
             float: left;
-            padding: 7px 10px;
         }
 
         div.table-field:last-of-type {
@@ -198,29 +196,24 @@
 
         #loading {
             position: absolute;
-
             left: 0;
             top: 0;
             bottom: 0;
             right: 0;
-
             background-color: rgba(125, 125, 125, 0.75);
             z-index: 2;
         }
 
         #loading-text {
             position: absolute;
-
             color: white;
             top: 50%;
             left: calc(50% - 62px);
             font-size: 16pt;
             padding: 20px;
             width: 124px;
-
             /*margin: 0 auto;*/
             /*background-color: rgba(125, 125, 125, 0.5);*/
-
         }
 
         .select {
@@ -281,6 +274,7 @@
         .table-filter-field:last-child > input[type=text] {
             margin-right: 15px;
         }
+
         :host[enable-paging] .table-filter-field:last-child > .select,
         :host[enable-paging] .table-filter-field:last-child > input[type=text] {
             margin-right: 1px;
@@ -299,11 +293,29 @@
             box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
         }
 
+        .table-field > .select,
+        .table-field > input[type=text] {
+            background-color: transparent;
+            border-color: transparent;
+            height: 29px;
+            margin: 0;
+        }
+
+        .table-field > input[type=text]:hover {
+            border-color: #ccc;
+        }
+
+        .table-field > input[type=text]:focus {
+            border-color: #66afe9;
+            box-shadow: inset 0 0 3px 1px rgba(102, 175, 233, .5);
+            background-color: #fff;
+        }
     </style>
     <template>
         <div id="loading" hidden$="{{!loading}}">
             <div id="loading-text">
-                <i class="fa fa-spinner fa-pulse"></i><span>{{loadingMsg}}</span>
+                <i class="fa fa-spinner fa-pulse"></i>
+                <span>{{loadingMsg}}</span>
             </div>
         </div>
 
@@ -316,6 +328,7 @@
             <div class="scrollfix"></div>
         </div>
         <div id="list" class="table-body" on-dragover="allowDrop" on-drop="drop">
+
         </div>
 
         <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center">
@@ -340,7 +353,9 @@
             <div class="jso-txt">{{itemCount}}</div>
         </div>
 
-        <div hidden$="{{enablePaging}}" class="table-bbar">Total:<span>{{itemCount}}</span></div>
+        <div hidden$="{{enablePaging}}" class="table-bbar">Total:
+            <span>{{itemCount}}</span>
+        </div>
 
     </template>
 </dom-module>
@@ -351,7 +366,6 @@
             columns: {
                 type: Array,
                 notify: true,
-                observer: 'columnsChanged',
                 value: function () {
                     return [];
                 }
@@ -457,20 +471,57 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false,
+            },
+            enableEdit: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false,
             }
         },
-        observers: ["dataChanged(data.splices)", "viewDataChanged(viewData.splices)"],
+        observers: [
+            "dataChanged(data.splices)",
+            "selectedChanged(selected.splices)",
+            "viewDataChanged(viewData.splices)",
+            'columnsChanged(columns.splices)',
+        ],
+        listeners: {
+            'wheel': 'handleScroll',
+        },
+        /* LISTENERS */
+        handleScroll: function (e) {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                this.handleNextClick();
+            }
+            if (e.deltaY < 0) {
+                this.handlePreviousClick();
+            }
+        },
+        selectedChanged: function (changeRecord) {
+            this._updateSelected();
+            this.fire('selected', this.selected);
+        },
+        _updateSelected: function () {
+            var els = Polymer.dom(this.$.list).querySelectorAll('.table-row');
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                var index = this.selected.indexOf(el._rowData);
+                if (index >= 0) {
+                    el.classList.add("selected");
+                } else {
+                    el.classList.remove("selected");
+                }
+            }
+        },
         /* OBSERVERS */
         dataChanged: function (neo, old) {
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 delete row._filtered;
             }
-
             this.refreshPagination();
         },
         refreshPagination: function () {
-
             this.currentPage = 1;
             var count = 0;
             if (this.data) {
@@ -482,59 +533,43 @@
             }
             this.itemCount = count;
             this.pageCount = Math.ceil(count / this.pageSize);
-
             this.filterPage();
         },
-
         filterPage: function () {
-
             var filteredRows = this.enableFilter ? this.data.filter(function (r) {
                 if (r._filtered == undefined) {
                     return true;
                 }
                 return r._filtered;
             }) : this.data;
-
             if (this.enablePaging) {
-
                 var from = (this.currentPage - 1) * this.pageSize;
                 var to = from + this.pageSize;
-
-
                 if (this.request) {
                     this.checkRemote();
                 } else {
                     this.set('viewData', filteredRows.slice(from, to));
+                    this._updateSelected();
                 }
-
-
             } else {
-
                 var viewData = [];
-
                 for (var i = 0; filteredRows && i < filteredRows.length; i++) {
                     var row = filteredRows[i];
                     viewData.push(row);
                 }
-
                 this.set('viewData', viewData);
             }
         },
-
         viewDataChanged: function (neo, old) {
             while (this.$.list.firstChild) {
                 this.$.list.removeChild(this.$.list.firstChild);
             }
-
             for (var i = 0; this.viewData && i < this.viewData.length; i++) {
                 var rowData = this.viewData[i];
                 this._createRow(rowData);
             }
         },
-
-
         // pagination
-
         handleFirstClick: function () {
             this.currentPage = 1;
         },
@@ -544,9 +579,8 @@
             }
         },
         handleNextClick: function () {
-            console.log(this.currentPage);
-            console.log(this.pageCount);
-
+            // console.log(this.currentPage);
+            // console.log(this.pageCount);
             if (this.currentPage < this.pageCount) {
                 this.currentPage++;
             }
@@ -554,7 +588,6 @@
         handleLastClick: function () {
             this.currentPage = this.pageCount;
         },
-
         currentPageChanged: function (neo, old) {
             this.currentPage = this.currentPage ? parseInt(this.currentPage) : 0;
             this.currentPage = this.currentPage < 1 ? 1 : this.currentPage;
@@ -565,13 +598,10 @@
             this.pagesize = parseInt(this.pagesize);
             this.refreshPagination();
         },
-
-
         computePageFirstItem: function (currentPage, pageSize, itemCount) {
             return ((currentPage - 1) * pageSize) + 1;
         },
         computePageLastItem: function (currentPage, pageSize, itemCount) {
-
             var end = currentPage * pageSize;
             if (itemCount < end) {
                 return itemCount;
@@ -581,39 +611,35 @@
         computePageTotal: function (pageSize, itemCount) {
             return Math.ceil(itemCount / pageSize);
         },
-
         enablePagingChanged: function (neo, old) {
             this.refreshPagination();
         },
-
         enableRemoteChanged: function (neo, old) {
             if (this.request) {
                 this.checkRemote();
             }
         },
         requestChanged: function (neo, old) {
-
             if (this.currentPage != 1) {
                 this.currentPage = 1;
             } else if (this.request) {
                 this.checkRemote();
             }
         },
-
         columnsChanged: function (neo, old) {
             this.updateColumns();
-
             this.viewDataChanged();
         },
-
         clear: function () {
             this.data = [];
             this.viewData = [];
             this.currentPage = 1;
             this.columns = [];
-//            this.totalItems = 0;
+            //            this.totalItems = 0;
         },
-
+        refresh: function () {
+            this.dataChanged();
+        },
         checkRemote: function () {
             var me = this;
             if (this.enableRemote) {
@@ -623,7 +649,7 @@
                     me.viewData = me.request.parse(resp);
                 });
             } else {
-//                ...
+                //                ...
             }
         },
         _callRemote: function (callback) {
@@ -643,7 +669,7 @@
                 callback(resp)
             };
             request.onerror = function () {
-//                args.request.error(this);
+                //                args.request.error(this);
             };
             var url = Utils.addQueryParamtersToUrl({
                 skip: ((this.currentPage - 1) * this.pageSize),
@@ -658,9 +684,7 @@
             for (var i = 0; i < els.length; i++) {
                 this.$.header.removeChild(els[i]);
             }
-
             this._createHeaderRow();
-
             for (var i = 0; i < this.columns.length; i++) {
                 var x = [];
                 var column = this.columns[i];
@@ -672,7 +696,6 @@
         _createFilterRow: function () {
             var el = document.createElement('div');
             el.classList.add('horizontal', 'layout', 'style-scope', 'jso-table');
-
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
                 this._createFilterField(el, column);
@@ -680,7 +703,6 @@
             this.$.filterRow.appendChild(el);
         },
         _createFilterField: function (rowEl, column, rowData) {
-
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-filter-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -689,32 +711,27 @@
             } else {
                 el.style.width = column.width + "px";
             }
-
-
             if (column.plainColumns.length > 0) {
                 // TODO aaleman: nested columns
-//                for (var i = 0; i < column.plainColumns.length; i++) {
-//
-//                    var cEl = document.createElement('div');
-//                    var c = column.plainColumns[i];
-//                    cEl.style.width = c.width + "px";
-//                    var defValue = c.defaultValue != null ? c.defaultValue : '';
-//                    var value = null;
-//                    if (c.formula) {
-//                        value = c.formula(rowData);
-//                    } else {
-//                        value = this._deepValue(rowData, c.ak);
-//                    }
-//                    cEl.innerHTML = value != null ? value : defValue;
-//                    el.appendChild(cEl);
-//                }
+                //                for (var i = 0; i < column.plainColumns.length; i++) {
+                //
+                //                    var cEl = document.createElement('div');
+                //                    var c = column.plainColumns[i];
+                //                    cEl.style.width = c.width + "px";
+                //                    var defValue = c.defaultValue != null ? c.defaultValue : '';
+                //                    var value = null;
+                //                    if (c.formula) {
+                //                        value = c.formula(rowData);
+                //                    } else {
+                //                        value = this._deepValue(rowData, c.ak);
+                //                    }
+                //                    cEl.innerHTML = value != null ? value : defValue;
+                //                    el.appendChild(cEl);
+                //                }
             } else {
-
                 if (!column.type) {
                     column.type = 'text';
                 }
-
-
                 switch (column.type) {
                     case 'text':
                         var input = document.createElement("input");
@@ -727,31 +744,23 @@
                             input.style.width = column.width + "px";
                         }
                         input._col = column.name;
-
                         input.addEventListener('input', function (e) {
-
-                                    var query = this.value;
-
-                                    var filter = {}
-                                    if (input._col in me.filters) {
-                                        filter = me.filters[input._col];
-                                    }
-
-                                    if (query != "") {
-
-                                        filter.type = 'text';
-                                        filter.colName = input._col;
-                                        filter.query = query;
-                                        filter.func = null;
-                                        me.filters[input._col] = filter;
-
-                                    } else {
-                                        delete me.filters[input._col];
-                                    }
-
-                                    me._applyFilters();
-                                }
-                        );
+                            var query = this.value;
+                            var filter = {}
+                            if (input._col in me.filters) {
+                                filter = me.filters[input._col];
+                            }
+                            if (query != "") {
+                                filter.type = 'text';
+                                filter.colName = input._col;
+                                filter.query = query;
+                                filter.func = null;
+                                me.filters[input._col] = filter;
+                            } else {
+                                delete me.filters[input._col];
+                            }
+                            me._applyFilters();
+                        });
                         el.appendChild(input);
                         break;
                     case 'select':
@@ -765,16 +774,12 @@
                         var input = document.createElement("select");
                         input.classList.add('style-scope', 'jso-table');
                         selwrap.appendChild(input);
-
-
                         input._col = column.name;
-
                         var option = document.createElement("option");
                         var optVal = "";
                         option.value = optVal;
                         option.text = optVal;
                         input.appendChild(option);
-
                         for (var i = 0; i < column.options.length; i++) {
                             option = document.createElement("option");
                             optVal = column.options[i];
@@ -782,28 +787,21 @@
                             option.text = optVal;
                             input.appendChild(option);
                         }
-
                         input.addEventListener('click', function (e) {
                             var query = this.value;
-
                             var filter = {}
                             if (input._col in me.filters) {
                                 filter = me.filters[input._col];
                             }
-
                             if (query != "") {
-
                                 filter.type = 'select';
                                 filter.colName = input._col;
                                 filter.query = query;
                                 filter.func = null;
                                 me.filters[input._col] = filter;
-
                             } else {
                                 delete me.filters[input._col];
                             }
-
-
                             me._applyFilters();
                         });
                         el.appendChild(selwrap);
@@ -820,7 +818,6 @@
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 var filtered = true;
-
                 for (var key in this.filters) {
                     var filter = this.filters[key];
                     var match = false;
@@ -836,14 +833,10 @@
                     }
                     filtered &= match;
                 }
-
                 row._filtered = filtered;
-
             }
-
             this.refreshPagination();
         },
-
         _processColumn: function (column, x) {
             if (column.columns && column.columns.length > 0) {
                 for (var i = 0; i < column.columns.length; i++) {
@@ -863,32 +856,27 @@
         _createHeaderRow: function () {
             var el = document.createElement('div');
             el.classList.add('table-header-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
-
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
                 this._createHeaderField(el, column);
             }
-
             this.$.header.appendChild(el);
         },
         _createHeaderField: function (rowEl, column) {
             var me = this;
-
             var el = document.createElement('div');
-            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table');
+            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table',
+                    ('column-' + column.name));
             if (isNaN(column.width)) {
                 el.classList.add('flex');
             } else {
                 el.style.width = column.width + "px";
             }
-
             el._column = column;
-
             var nameEl = document.createElement('div');
             nameEl.classList.add('name', 'style-scope', 'jso-table');
             nameEl.innerHTML = column.title;
             el.appendChild(nameEl);
-
             if (column.columns && column.columns.length > 0) {
                 var subColumnsEl = document.createElement('div');
                 subColumnsEl.classList.add('sub', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -904,22 +892,17 @@
         },
         handleHeaderFieldClick: function (e) {
             var els = this.querySelectorAll('.table-header-field');
-
             var column = e.currentTarget._column;
             var sortedData = this.data.slice(0);
-
-
             if (e.currentTarget.classList.contains("sort-down")) {
                 for (var i = 0; i < els.length; i++) {
                     var el = els[i];
                     el.classList.remove('sort-down');
                     el.classList.remove('sort-up');
                 }
-
                 sortedData.sort(function (b, a) {
                     if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
                         return a[column.name] - b[column.name];
-
                     } else {
                         return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
                     }
@@ -940,7 +923,6 @@
                 });
                 e.currentTarget.classList.add('sort-down');
             }
-
             this.data = sortedData;
         },
         _getPos: function (row) {
@@ -957,21 +939,18 @@
             var el = document.createElement('div');
             el.classList.add('table-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
             el._rowData = rowData;
-
             var id = "idRow_" + this._getPos(rowData);
             el.setAttribute("id", id);
-
             if (this.draggable) {
                 el.setAttribute("draggable", "true");
                 el.addEventListener('dragstart', this.drag);
             }
-
             el.addEventListener('click', function (e) {
-                me.fire('rowclick', {row: rowData});
+                me.fire('rowclick', {
+                    row: rowData
+                });
                 var currentTarget = e.currentTarget;
-
                 console.log("Position: " + me._getPos(currentTarget._rowData));
-
                 if (me.enableSelect) {
                     if (e.ctrlKey) {
                         me._toggleSelected(currentTarget, rowData);
@@ -981,17 +960,13 @@
                             me._clearSelection();
                             me._toggleSelected(currentTarget, rowData);
                         }
-
                         if (e.shiftKey) {
-
                             var first = me._getPos(me.lastSelectedRow._rowData);
                             var last = me._getPos(currentTarget._rowData);
-
                             if (last < first) {
                                 var tmp = last;
                                 last = first;
                                 first = tmp;
-
                             }
                             me._selectRowsBetweenIndexes(first, last);
                         }
@@ -1004,7 +979,6 @@
             }
             this.$.list.appendChild(el);
         },
-
         _toggleSelected: function (domElem, rowData) {
             if (domElem.classList.contains("selected")) {
                 var index = this.selected.indexOf(rowData);
@@ -1022,12 +996,10 @@
         },
         _selectRowsBetweenIndexes: function (first, last) {
             var rows = this.$.list.getElementsByClassName("table-row");
-
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
                 var pos = this._getPos(obj._rowData);
                 var index = this.selected.indexOf(obj._rowData);
-
                 if (pos >= first && pos <= last) {
                     obj.classList.add("selected");
                     if (index < 0) {
@@ -1049,65 +1021,123 @@
             this.splice('selected', 0, this.selected.length);
         },
         _createField: function (rowEl, column, rowData) {
-
             var me = this;
             var el = document.createElement('div');
-
-
-            el.classList.add('table-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
+            el.classList.add('table-field', 'horizontal', 'layout', 'center', 'style-scope', 'jso-table');
             if (isNaN(column.width)) {
                 el.classList.add('flex');
             } else {
                 el.style.width = column.width + "px";
             }
             if (column.type === "action") {
-
                 var remove = document.createElement("i");
-
                 remove.classList.add("fa", "fa-remove");
                 remove.addEventListener('click', function (e) {
-
-                    me.fire('removerow', {row: rowData});
-
+                    me.fire('removerow', {
+                        row: rowData
+                    });
                     var pos = me._getPos(rowData);
                     if (pos >= 0) {
                         me.splice('data', pos, 1);
                     }
                 });
                 el.appendChild(remove);
-            }
-            else if (column.plainColumns.length > 0) {
+            } else if (column.plainColumns.length > 0) {
                 for (var i = 0; i < column.plainColumns.length; i++) {
-                    var cEl = document.createElement('div');
                     var c = column.plainColumns[i];
-                    cEl.style.width = c.width + "px";
-                    var defValue = c.defaultValue != null ? c.defaultValue : '';
-                    var value = null;
-                    if (c.formula) {
-                        value = c.formula(rowData);
-                    } else {
-                        value = this._deepValue(rowData, c.ak);
-                    }
-                    cEl.innerHTML = value != null ? value : defValue;
-                    el.appendChild(cEl);
+                    this._createTypeField(el, c, rowData, true);
                 }
             } else {
-                var defValue = column.defaultValue != null ? column.defaultValue : '';
-                var value = null;
-
-                if (column.formula) {
-                    value = column.formula(rowData);
+                this._createTypeField(el, column, rowData);
+            }
+            rowEl.appendChild(el);
+        },
+        _createTypeField: function (el, column, rowData, isSubCol) {
+            var me = this;
+            var defValue = column.defaultValue != null ? column.defaultValue : '';
+            var value;
+            if (column.formula) {
+                value = column.formula(rowData);
+            } else {
+                if (isSubCol == true) {
+                    value = this._deepValue(rowData, column.ak);
                 } else {
                     value = rowData[column.name];
                 }
-
-                el.textContent = value != null ? value : defValue;
             }
-            if (!me.disableTooltip) {
-                var tooltipValue =  value == null ? '' : value;
-                el.setAttribute("title", tooltipValue);
+            if (this.enableEdit && column.editable != false) {
+                if (!column.type) {
+                    column.type = 'text';
+                }
+                switch (column.type) {
+                    case 'text':
+                        var input = document.createElement("input");
+                        input.setAttribute("type", "text");
+                        input.setAttribute("placeholder", "");
+                        input.classList.add('style-scope', 'jso-table');
+                        if (isNaN(column.width)) {
+                            input.classList.add('flex');
+                        } else {
+                            input.style.width = column.width + "px";
+                        }
+                        input._col = column.name;
+                        input.addEventListener('blur', function (e) {
+                            var val = this.value;
+                            rowData.attributes[column.name] = val;
+                            me.fire('update-row', rowData);
+                        });
+                        input.value = value;
+                        el.appendChild(input);
+                        break;
+                    case 'select':
+                        //TODO check styles
+                        el.classList.add('table-field-nopadding');
+                        var selwrap = document.createElement("div");
+                        selwrap.classList.add('style-scope', 'jso-table', 'select');
+                        if (isNaN(column.width)) {
+                            selwrap.classList.add('flex');
+                        } else {
+                            selwrap.style.width = column.width + "px";
+                        }
+                        var input = document.createElement("select");
+                        input.classList.add('style-scope', 'jso-table');
+                        selwrap.appendChild(input);
+                        input._col = column.name;
+                        var option = document.createElement("option");
+                        var optVal = "";
+                        option.value = optVal;
+                        option.text = optVal;
+                        input.appendChild(option);
+                        for (var i = 0; i < column.options.length; i++) {
+                            option = document.createElement("option");
+                            optVal = column.options[i];
+                            option.value = optVal;
+                            option.text = optVal;
+                            input.appendChild(option);
+                        }
+                        //TODO check
+                        input.addEventListener('click', function (e) {
+                            var val = this.value;
+                            rowData.attributes[column.name] = val;
+                        });
+                        input.value = value;
+                        el.appendChild(selwrap);
+                        break;
+                }
+            } else {
+                var cEl = document.createElement('div');
+                if (isNaN(column.width)) {
+                    cEl.classList.add('flex');
+                } else {
+                    cEl.style.width = column.width + "px";
+                }
+                cEl.textContent = value != null ? value : defValue;
+                if (!this.disableTooltip) {
+                    var tooltipValue = value == null ? '' : value;
+                    cEl.setAttribute("title", tooltipValue);
+                }
+                el.appendChild(cEl);
             }
-            rowEl.appendChild(el);
         },
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
@@ -1119,11 +1149,9 @@
             var cmp = function (a, b) {
                 return a === b;
             }
-
             if (compareFunction && typeof(compareFunction) === "function") {
                 cmp = compareFunction;
             }
-
             for (var i = 0; i < this.data.length; i++) {
                 var elem = this.data[i];
                 if (cmp(searchElem, elem)) {
@@ -1143,14 +1171,11 @@
             e.preventDefault();
             var data = JSON.parse(e.dataTransfer.getData("rowData"));
             this.push('data', data);
-
         },
         drag: function (e) {
             e.dataTransfer.setData("rowData", JSON.stringify(e.currentTarget._rowData));
-
         },
         handleLoading: function (neo, old) {
-
         }
     })
 </script>

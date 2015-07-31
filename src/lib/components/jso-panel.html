@@ -257,6 +257,10 @@
                     type: Boolean,
                     reflectToAttribute: true,
                     value: false
+                },
+                _firstHidden: {
+                    type: Boolean,
+                    value: false
                 }
             },
             hostAttributes: {
@@ -267,7 +271,7 @@
                     if (this.fixed) {
                         this._center();
                     }
-                });
+                }, 50);
                 this._hasfooter = this.$.footer.childElementCount > 0;
             },
             hiddenChanged: function (neo, old) {
@@ -276,6 +280,10 @@
                     if (this.modal) {
                         this._center();
                     }
+                    if (this.fixed && !this._firstHidden) {
+                        this._center();
+                    }
+                    this._firstHidden = true;
                 }
                 this.fire('hidden', this.hidden);
             },
@@ -297,7 +305,7 @@
                 }
             },
             isPinHidden: function (movable, moved, fixed) {
-                if(fixed){
+                if (fixed) {
                     return true;
                 }
                 if (this.modal) {

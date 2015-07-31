@@ -12,9 +12,12 @@
 */
 .jso-formbox {
     border: 1px solid rgba(125, 125, 125, 0.4);
-    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
     margin: 0 5px 10px 5px;
     background-color: #FFFFFF;
+}
+
+.jso-formbox.jso-shdw {
+    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .jso-formtitle {
@@ -46,12 +49,12 @@
     padding: 8px 10px;
 }
 
-.jso-formbox.fit {
+.jso-formbox.jso-fit {
     margin: 0px;
     border-width: 0;
 }
 
-.jso-formcontent.fit {
+.jso-formcontent.jso-fit {
     padding: 0px;
 }
 
@@ -116,9 +119,11 @@ label.jso-control > input[type=checkbox]:checked + span:before {
 
 label.jso-control > input[type=radio]:disabled + span,
 label.jso-control > input[type=radio]:disabled + span:before {
-    color: rgba(125, 125, 125, 0.25); !important;
+    color: rgba(125, 125, 125, 0.25);
+!important;
 }
 
 input[type=text]:disabled {
-    color: rgba(125, 125, 125, 0.25); !important;
+    color: rgba(125, 125, 125, 0.25);
+!important;
 }

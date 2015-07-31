@@ -25,14 +25,14 @@
 
 */
 
-* /deep/ div.dropdown {
+div.jso-dropdown {
     position: relative;
     display: block;
     color: #333;
     cursor: pointer;
 }
 
-* /deep/ div.dropdown ul {
+div.jso-dropdown ul {
     box-sizing: border-box;
     visibility: hidden;
     opacity: 0;
@@ -51,7 +51,7 @@
     transition: all 0.35s;
 }
 
-* /deep/ ul.context {
+ul.jso-context {
     box-sizing: border-box;
     visibility: hidden;
     opacity: 0;
@@ -68,25 +68,25 @@
     transition: all 0.1s;
 }
 
-* /deep/ div.dropdown ul, ul.context ul {
+div.jso-dropdown ul, ul.jso-context ul {
     left: 0;
     top: 100%;
 }
 
-* /deep/ div.dropdown ul[data-upward] {
+div.jso-dropdown ul[data-upward] {
     top: inherit;
     bottom: 100%;
     margin-bottom: 2px;
     left: 0;
 }
 
-* /deep/ div.dropdown ul ul {
+div.jso-dropdown ul ul {
     top: 0px;
     left: 100%;
 }
 
-* /deep/ div.dropdown ul li,
-* /deep/ ul.context li {
+div.jso-dropdown ul li,
+ul.jso-context li {
     position: relative;
     text-align: left;
     padding: 2px 30px 2px 10px;
@@ -94,8 +94,8 @@
     color: #333;
 }
 
-* /deep/ div.dropdown ul li[data-divider],
-* /deep/ ul.context li[data-divider] {
+div.jso-dropdown ul li[data-divider],
+ul.jso-context li[data-divider] {
     height: 1px;
     margin: 3px 0;
     padding: 0;
@@ -103,8 +103,8 @@
     background-color: #DEDEDE;
 }
 
-* /deep/ div.dropdown ul li[data-sub]:after,
-* /deep/ ul.context li[data-sub]:after {
+div.jso-dropdown ul li[data-sub]:after,
+ul.jso-context li[data-sub]:after {
     font-family: 'FontAwesome';
     content: '\f105'; /* > */
     /*content:'\f0da';*/
@@ -112,37 +112,37 @@
     right: 10px;
 }
 
-* /deep/ div.dropdown ul li.active,
-* /deep/ div.dropdown ul li:active,
-* /deep/ ul.context li:active {
+div.jso-dropdown ul li.active,
+div.jso-dropdown ul li:active,
+ul.jso-context li:active {
     background-color: #DEDEDE;
 }
 
-* /deep/ div.dropdown ul li:hover,
-* /deep/ ul.context li:hover {
+div.jso-dropdown ul li:hover,
+ul.jso-context li:hover {
     background-color: #445D76;
     color: #fff;
 }
 
-* /deep/ div.dropdown ul li[data-text]:hover,
-* /deep/ ul.context li[data-text]:hover {
+div.jso-dropdown ul li[data-text]:hover,
+ul.jso-context li[data-text]:hover {
     background-color: inherit;
     color: inherit;
 }
 
-* /deep/ div.dropdown ul li[data-divider]:hover,
-* /deep/ ul.context li[data-divider]:hover {
+div.jso-dropdown ul li[data-divider]:hover,
+ul.jso-context li[data-divider]:hover {
     background-color: #DEDEDE;
 }
 
-* /deep/ div.dropdown > div.button:focus + ul,
-* /deep/ div.dropdown > div.button:focus + ul li:hover > ul {
+div.jso-dropdown > div.jso-btn:focus + ul,
+div.jso-dropdown > div.jso-btn:focus + ul li:hover > ul {
     visibility: visible;
     opacity: 1;
 }
 
 /* dropdown button combination */
-* /deep/ div.dropdown > div.button::after {
+div.jso-dropdown > div.jso-btn::after {
     font-family: 'FontAwesome';
     content: '\f107';
     float: right;

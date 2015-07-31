@@ -27,6 +27,7 @@ function Vertex(args) {
 
     this.position = new Point();
     this.renderer = new CircosVertexRenderer();
+    this.attributes = {};
 
     //set instantiation args, must be last
     for (var prop in args) {
