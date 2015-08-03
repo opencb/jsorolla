@@ -116,7 +116,8 @@
                 hidden: {
                     type: Boolean,
                     reflectToAttribute: true,
-                    observer: 'hiddenChanged'
+                    observer: 'hiddenChanged',
+                    nofity:true
                 }
             },
             hiddenChanged: function (neo, old) {

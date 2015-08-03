@@ -710,6 +710,7 @@
                 el.classList.add('flex');
             } else {
                 el.style.width = column.width + "px";
+                el.style.minWidth = column.width + "px";
             }
             if (column.plainColumns.length > 0) {
                 // TODO aaleman: nested columns
@@ -774,6 +775,8 @@
                         var input = document.createElement("select");
                         input.classList.add('style-scope', 'jso-table');
                         selwrap.appendChild(input);
+            debugger
+
                         input._col = column.name;
                         var option = document.createElement("option");
                         var optVal = "";
@@ -871,6 +874,7 @@
                 el.classList.add('flex');
             } else {
                 el.style.width = column.width + "px";
+                el.style.minWidth = column.width + "px";
             }
             el._column = column;
             var nameEl = document.createElement('div');
@@ -1028,6 +1032,7 @@
                 el.classList.add('flex');
             } else {
                 el.style.width = column.width + "px";
+                el.style.minWidth = column.width + "px";
             }
             if (column.type === "action") {
                 var remove = document.createElement("i");
@@ -1056,6 +1061,8 @@
             var me = this;
             var defValue = column.defaultValue != null ? column.defaultValue : '';
             var value;
+
+
             if (column.formula) {
                 value = column.formula(rowData);
             } else {
@@ -1136,12 +1143,18 @@
                     var tooltipValue = value == null ? '' : value;
                     cEl.setAttribute("title", tooltipValue);
                 }
+            
+                cEl.classList.add("column-" + column.name); 
                 el.appendChild(cEl);
             }
         },
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
-                obj = obj[path[i]];
+                var auxPath = path[i];
+                if(auxPath === "undefined"){
+                    continue;
+                }
+                obj = auxPath;
             }
             return obj;
         },
