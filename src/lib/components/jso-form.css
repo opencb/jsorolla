@@ -32,18 +32,19 @@
     margin-left: 5px;
 }
 
-.jso-formtitle > .actions > * {
+/*.jso-formtitle > .actions > * {
     margin-left: 5px;
-    color: #888;
+    padding:1px 4px;
+    cursor: pointer;
 }
 
 .jso-formtitle > .actions > *[data-checked] {
-    color: #445D76;
+    background-color: #ddd;
 }
 
 .jso-formtitle > .actions > *:hover {
-    color: #000;
-}
+    background-color: #ccc;
+}*/
 
 .jso-formcontent {
     padding: 8px 10px;

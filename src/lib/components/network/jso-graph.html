@@ -1,10 +1,6 @@
 <script>
     JsoGraph = Polymer({
         is: 'jso-graph',
-//        factoryImpl: function (vertices) {
-//            this.clean();
-//            this.set('vertices', vertices);
-//        },
         properties: {
             vertices: {
                 type: Array,
@@ -25,6 +21,7 @@
             },
             edges: {
                 type: Array,
+                notify: true,
                 value: function () {
                     return []
                 }
@@ -46,34 +43,23 @@
                 }
             },
         },
-//        observers: [
-//            'verticesChanged(vertices.splices)',
-//        ],
-//        verticesChanged: function (changeRecord) {
-//            console.log('graph changed vertices')
-//            if (changeRecord) {
-//                console.log('graph changed vertex record')
-////                changeRecord.indexSplices.forEach(function (s) {
-////                    s.removed.forEach(function (vertex) {
-////
-////                    });
-////
-////                }, this);
-////            } else {
-////
-//            }
-//        },
         clean: function () {
             this.set('numberOfVertices', 0);
             this.set('numberOfEdges', 0);
-
             this.set('vertices', []);
             this.set('edges', []);
-
             this.set('verticesIndex', {});
             this.set('edgesIndex', {});
-
             this.set('edgeDraw', {});
+        },
+        load: function (newGraph) {
+            this.set('numberOfVertices', newGraph.numberOfVertices);
+            this.set('numberOfEdges', newGraph.numberOfEdges);
+            this.set('vertices', newGraph.vertices);
+            this.set('edges', newGraph.edges);
+            this.set('verticesIndex', newGraph.verticesIndex);
+            this.set('edgesIndex', newGraph.edgesIndex);
+            this.set('edgeDraw', newGraph.edgeDraw);
         },
         addEdge: function (edge) {
             if (edge.source == null || edge.target == null) {
@@ -83,19 +69,16 @@
             if (this.containsEdge(edge)) {
                 return false;
             }
-
             this.addVertex(edge.source);
             this.addVertex(edge.target);
             var insertPosition = this.push('edges', edge) - 1;
             this.edgesIndex[edge.id] = insertPosition;
-
             //update source edges
             edge.source.addEdge(edge);
             //update target edges
             if (edge.source !== edge.target) {
                 edge.target.addEdge(edge);
             }
-
             /* count edges between same vertices */
             var stId = edge.source.id + "-" + edge.target.id;
             var tsId = edge.target.id + "-" + edge.source.id;
@@ -108,10 +91,9 @@
             this.edgeDraw[stId]++;
             this.edgeDraw[tsId]++;
             edge.overlapCount = this.edgeDraw[stId];
-//        edge.overlapCount = function () {
-//            return _this.edgeDraw[stId];
-//        };
-
+            //        edge.overlapCount = function () {
+            //            return _this.edgeDraw[stId];
+            //        };
             this.numberOfEdges++;
             return true;
         },
@@ -126,7 +108,6 @@
             // Add the vertex
             var insertPosition = this.push('vertices', vertex) - 1;
             this.verticesIndex[vertex.id] = insertPosition;
-
             this.numberOfVertices++;
             return true;
         },
@@ -138,21 +119,17 @@
             if (!this.containsEdge(edge)) {
                 return false;
             }
-
             //remove edge from vertex
             edge.source.removeEdge(edge);
             edge.target.removeEdge(edge);
-
             /* count edges between same vertices */
             var stId = edge.source.id + "-" + edge.target.id;
             var tsId = edge.target.id + "-" + edge.source.id;
             this.edgeDraw[stId]--;
             this.edgeDraw[tsId]--;
-
             var position = this.edgesIndex[edge.id];
             this.splice('edges', position, 1);
             this.numberOfEdges--;
-
             this._rebuildEdgesIndex();
             return true;
         },
@@ -160,17 +137,14 @@
             for (var i = 0, l = edges.length; i < l; i++) {
                 var edge = edges[i];
                 if (this.containsEdge(edge)) {
-
                     //remove edge from vertex
                     edge.source.removeEdge(edge);
                     edge.target.removeEdge(edge);
-
                     /* count edges between same vertices */
                     var stId = edge.source.id + "-" + edge.target.id;
                     var tsId = edge.target.id + "-" + edge.source.id;
                     this.edgeDraw[stId]--;
                     this.edgeDraw[tsId]--;
-
                     this.edges[this.edgesIndex[edge.id]] = null;
                     this.numberOfEdges--;
                 }
@@ -185,7 +159,6 @@
             if (!this.containsVertex(vertex)) {
                 return false;
             }
-
             for (var i = 0; i < vertex.edges.length; i++) {
                 var edge = vertex.edges[i];
                 // remove edges from source or target
@@ -195,22 +168,17 @@
                 if (edge.target !== vertex) {
                     edge.target.removeEdge(edge);
                 }
-
                 var stId = edge.source.id + "-" + edge.target.id;
                 var tsId = edge.target.id + "-" + edge.source.id;
                 this.edgeDraw[stId]--;
                 this.edgeDraw[tsId]--;
-
                 this.edges[this.edgesIndex[edge.id]] = null;
-
                 this.numberOfEdges--;
             }
             vertex.removeEdges();
-
             var position = this.verticesIndex[vertex.id];
             this.splice('vertices', position, 1);
             this.numberOfVertices--;
-
             this._rebuildEdges();
             this._rebuildVerticesIndex();
             return true;
@@ -219,7 +187,6 @@
             for (var i = 0, l = vertices.length; i < l; i++) {
                 var vertex = vertices[i];
                 if (this.containsVertex(vertex)) {
-
                     for (var j = 0; j < vertex.edges.length; j++) {
                         var edge = vertex.edges[j];
                         // remove edges from source or target
@@ -229,18 +196,14 @@
                         if (edge.target !== vertex) {
                             edge.target.removeEdge(edge);
                         }
-
                         var stId = edge.source.id + "-" + edge.target.id;
                         var tsId = edge.target.id + "-" + edge.source.id;
                         this.edgeDraw[stId]--;
                         this.edgeDraw[tsId]--;
-
                         this.edges[this.edgesIndex[edge.id]] = null;
-
                         this.numberOfEdges--;
                     }
                     vertex.removeEdges();
-
                     this.vertices[this.verticesIndex[vertex.id]] = null;
                     this.numberOfVertices--;
                 }
@@ -284,7 +247,6 @@
                 this.edgesIndex[edge.id] = i;
             }
         },
-
         containsEdge: function (edge) {
             if (typeof this.edgesIndex[edge.id] !== 'undefined') {
                 return true;
@@ -306,8 +268,6 @@
         getEdgeById: function (edgeId) {
             return this.edges[this.edgesIndex[edgeId]];
         },
-
-
         /**/
         getAsSIF: function (separator) {
             if (typeof separator === 'undefined') {
@@ -364,41 +324,37 @@
             return dotText;
         },
         fromJSON: function (json) {
+            //aux graph is used to avoid every node and edge update
+            var auxGraph = new JsoGraph();
             for (var i = 0, l = json.vertices.length; i < l; i++) {
                 var v = json.vertices[i];
                 var vertex = new Vertex({
                     id: v.id,
                     position: new Point(v.position.x, v.position.y, v.position.z),
-                    renderer: new CircosVertexRenderer(v.renderer)
+                    renderer: new CircosVertexRenderer(v.renderer),
+                    attributes: v.attributes
                 });
-                this.addVertex(vertex);
+                auxGraph.addVertex(vertex);
             }
             for (var i = 0, l = json.edges.length; i < l; i++) {
                 var e = json.edges[i];
                 var edge = new Edge({
                     id: e.id,
                     relation: e.relation,
-                    source: this.getVertexById(e.source.id),
-                    target: this.getVertexById(e.target.id),
-                    renderer: new DefaultEdgeRenderer(e.renderer)
+                    source: auxGraph.getVertexById(e.source.id),
+                    target: auxGraph.getVertexById(e.target.id),
+                    renderer: new DefaultEdgeRenderer(e.renderer),
+                    attributes: e.attributes
                 });
-                this.addEdge(edge);
+                auxGraph.addEdge(edge);
             }
+            this.load(auxGraph);
         },
         toJSON: function () {
-            //var vertices = [];
-            //for (var i = 0; i < this.vertices.length; i++) {
-            //    if (typeof this.vertices[i] !== 'undefined') {
-            //        vertices.push(this.vertices[i]);
-            //    }
-            //}
-            //var edges = [];
-            //for (var i = 0; i < this.edges.length; i++) {
-            //    if (typeof this.edges[i] !== 'undefined') {
-            //        edges.push(this.edges[i]);
-            //    }
-            //}
-            return {vertices: this.vertices, edges: this.edges};
+            return {
+                vertices: this.vertices,
+                edges: this.edges
+            };
         }
     });
 </script>

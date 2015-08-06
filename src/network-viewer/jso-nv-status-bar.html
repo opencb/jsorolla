@@ -18,16 +18,16 @@
         <div class="horizontal layout">
             <div class="jso-txt horizontal layout">
                 <div class="grey">Nodes:</div>
-                <span>{{networkViewer.vAttr.data.length}}</span>
+                <span>{{vertices.length}}</span>
             </div>
             <div class="jso-txt horizontal layout">
                 <div class="grey">Edges:</div>
-                <span>{{networkViewer.eAttr.data.length}}</span>
+                <span>{{edges.length}}</span>
             </div>
             <div class="flex"></div>
             <template is="dom-if" if="{{networkViewer.lastLoadedFileName !== ''}}">
                 <div class="text">
-                    <span class="grey">File: </span><span>{{networkViewer.lastLoadedFileName}}</span>
+                    <span class="grey">File: </span><span>{{lastLoadedFileName}}</span>
                 </div>
             </template>
 
@@ -38,9 +38,15 @@
     Polymer({
         is: 'jso-nv-status-bar',
         properties: {
-            networkViewer: {
-                type: Object
-            }
+            lastLoadedFileName: {
+                type: String
+            },
+            vertices: {
+                type: Array
+            },
+            edges: {
+                type: Array
+            },
         },
         created: function () {
 

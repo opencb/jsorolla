@@ -1,10 +1,331 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+<script>
+    JsoAttributeRenderTableBehavior = {
+        properties: {
+            displayProperty: {
+                type: String,
+                notify: true,
+                observer: 'displayPropertyChanged'
+            },
+            defaultValue: {
+                type: String,
+                observer: 'defaultValueChanged'
+            },
+            visualSet: {
+                type: Object,
+                notify: true
+            },
+            items: {
+                type: Array
+            },
+            columns: {
+                type: Array
+            },
+            uniqueItems: {
+                type: Array,
+                value: function () {
+                    return []
+                }
+            },
+            uniqueMatches: {
+                type: Object
+            },
+            points: {
+                type: Array,
+                value: function () {
+                    return [
+                        {value: undefined, render: this.defaultValue},
+                        {value: undefined, render: this.defaultValue}
+                    ]
+                }
+            },
+            selectedColumn: {
+                type: Object,
+                observer: 'selectedColumnChanged'
+            },
+            attributeType: {
+                type: Object,
+            },
+            attributeTypes: {
+                type: Array,
+                value: [{
+                    name: 'categorical',
+                    title: 'Categorical'
+                }, {
+                    name: 'continuous',
+                    title: 'Continuous'
+                }]
+            },
+            attributeParse: {
+                type: Object,
+                observer: 'attributeParseChanged'
+            },
+            attributeParseOptions: {
+                type: Array,
+                value: [{
+                    name: 'string',
+                    title: 'String'
+                }, {
+                    name: 'list',
+                    title: 'List'
+                }]
+            },
+            allowListParse: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
+            },
+            hidden: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: true
+            },
+        },
+        observers: [
+            'itemsChanged(items.splices)'
+        ],
+        displayPropertyChanged: function (neo, old) {
+            if (this.displayProperty == this.id) {
+                this.hidden = false;
+                this.$.panel.hidden = false;
+                this._updateUniqueValues();
+            } else {
+                this.hidden = true;
+                this.$.panel.hidden = true;
+            }
+        },
 
-</body>
-</html>
+
+        itemsChanged: function (neo, old) {
+            this._updateUniqueValues();
+        },
+        selectedColumnChanged: function (neo, old) {
+            this._updateUniqueValues();
+        },
+        attributeParseChanged: function (neo, old) {
+            this._updateUniqueValues();
+        },
+
+        defaultValueChanged: function (neo, old) {
+            this._updateUniqueValues();
+//            for (var i = 0; i < this.uniqueItems.length; i++) {
+//                var item = this.uniqueItems[i];
+//                if (item.render === old) {
+//                    item.render = neo;
+//                }
+//            }
+        },
+
+
+        clean: function () {
+            this.columnSelectBox.selectByIndex(0);
+            this.typeSelectBox.selectByIndex(0);
+            this.parseSelectBox.selectByIndex(0);
+//
+            this.uniqueItems = [];
+            this.uniqueMatches = {};
+        },
+
+        refreshAttributes: function () {
+            this._updateUniqueValues();
+            if (this.visualSet != null) {
+                this._createVisualSet();
+                this.fire('ok', {displayProperty: this.getAttribute("id")});
+            }
+        },
+
+        applyDirect: function (attributeName) {
+            var col;
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                if (column.name == attributeName) {
+                    col = column;
+                    break;
+                }
+            }
+            if (col != null) {
+                this.set('selectedColumn', col);
+                this._updateUniqueValues();
+                this.handleApplyDirect();
+                this.handleOk();
+            }
+        },
+        applyVisualSet: function (visualSet) {
+            var col;
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                if (column.name == visualSet.attribute) {
+                    col = column;
+                    break;
+                }
+            }
+            if (col != null) {
+                this.set('selectedColumn', col);
+                this.set('visualSet', visualSet);
+                this._updateUniqueValues();
+                this.handleOk();
+            }
+        },
+
+
+        isCategoricalType: function (attributeType) {
+            return attributeType.name == 'categorical';
+        },
+        isContinuousType: function (attributeType) {
+            return attributeType.name == 'continuous';
+        },
+        isStringParse: function (attributeParse) {
+            return attributeParse.name == 'string';
+        },
+        isListParse: function (attributeParse) {
+            return attributeParse.name == 'list';
+        },
+
+
+        handleColumnSelect: function (e) {
+            this.set('selectedColumn', e.detail);
+        },
+        handleAttributeTypeSelect: function (e) {
+            this.set('attributeType', e.detail);
+        },
+        handleAttributeParseSelect: function (e) {
+            this.set('attributeParse', e.detail);
+        },
+
+
+        handleClose: function () {
+            this.displayProperty = '';
+        },
+
+        handleOk: function () {
+            this._createVisualSet();
+            this.fire('ok', {displayProperty: this.getAttribute("id")});
+            this.handleClose();
+        },
+        handleAddPoint: function () {
+            this.splice('points', this.points.length - 1, 0, {
+                value: 0, render: this.defaultValue
+            });
+        },
+        handleApplyInterpolation: function () {
+//            this._updateUniqueInterpolatedValues();
+            this._updateUniqueValues();
+        },
+
+        handleApplyDirect: function () {
+            var uniqueItems = [];
+            for (var i = 0; i < this.uniqueItems.length; i++) {
+                var item = this.uniqueItems[i];
+                uniqueItems.push({attribute: item.attribute, render: item.attribute});
+            }
+            this.set('uniqueItems', uniqueItems);
+        },
+
+
+        _createVisualSet: function () {
+            var uniqueMatches = {};
+            for (var i = 0; i < this.uniqueItems.length; i++) {
+                var item = this.uniqueItems[i];
+                uniqueMatches[item.attribute] = item.render;
+            }
+            this.uniqueMatches = uniqueMatches;
+
+            /*Check enabled*/
+            var enabled = true;
+            if (this.visualSet != null) {
+                enabled = this.visualSet.enabled ? true : false;
+            }
+
+            this.set('visualSet', {
+                attribute: this.selectedColumn.name,
+                displayProperty: this.displayProperty,
+                type: this.attributeType.name,
+                matches: this.uniqueMatches,
+                parse: this.attributeParse.name,
+                points: this.points,
+                enabled: enabled
+            });
+        },
+
+        _updateUniqueValues: function () {
+            var me = this;
+            if (this.selectedColumn && this.selectedColumn.name != '') {
+                var uniqueMap = {};
+                var uniqueItems = [];
+                var max;
+                var min;
+
+                var processValue = function (value) {
+                    if (value) {
+                        if (!uniqueMap[value]) {
+                            uniqueMap[value] = true;
+                            var render = me.defaultValue;
+                            if (me.visualSet && me.visualSet.attribute == me.selectedColumn.name) {
+                                if (me.visualSet.matches[value] != null) {
+                                    render = me.visualSet.matches[value];
+                                }
+                            }
+                            uniqueItems.push({attribute: value, render: render});
+                        }
+                        var attribute = parseFloat(value);
+                        if (!isNaN(attribute)) {
+                            if (max == null) {
+                                max = attribute;
+                            }
+                            if (min == null) {
+                                min = attribute;
+                            }
+                            if (attribute >= max) {
+                                max = attribute;
+                            }
+                            if (attribute <= min) {
+                                min = attribute;
+                            }
+                        }
+                    }
+                };
+
+                var attributes, value;
+                if (this.attributeParse.name == "list") {
+                    var splitStr = ",", values;
+                    for (var i = 0, l = this.items.length; i < l; i++) {
+                        attributes = this.items[i].attributes;
+                        value = attributes[this.selectedColumn.name];
+                        if (value == null) {
+                            value = "";
+                        }
+                        values = value.split(splitStr);
+                        for (var j = 0, lj = values.length; j < lj; j++) {
+                            processValue(values[j]);
+                        }
+                    }
+                } else {
+                    for (var i = 0, l = this.items.length; i < l; i++) {
+                        attributes = this.items[i].attributes;
+                        processValue(attributes[this.selectedColumn.name]);
+                    }
+                }
+
+
+                var firstPoint = this.points[0];
+                var lastPoint = this.points[this.points.length - 1];
+
+                if (firstPoint.value == null || firstPoint.value === '') {
+                    this.set('points.0.value', min);
+                }
+                if (lastPoint.value == null || lastPoint.value === '') {
+                    this.set('points.' + (this.points.length - 1) + '.value', max);
+                }
+
+
+                uniqueItems.sort(function (a, b) {
+                    return parseFloat(a.attribute) - parseFloat(b.attribute);
+                });
+                if (this.attributeType.name == 'continuous') {
+                    this._updateUniqueInterpolatedValues(uniqueItems);
+                }
+                this.set('uniqueItems', uniqueItems);
+            }
+        }
+    };
+</script>
+

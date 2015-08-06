@@ -1,239 +1,229 @@
-<polymer-element name="jso-attribute-render-color-table"
-                 attributes="displayProperty attributeManager defaultValue visualSet allowListParse">
+<link rel="import" href="jso-attribute-render-table-behavior.html">
+<dom-module id="jso-attribute-render-color-table">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+
+            top: 0px;
+            right: 320px;
+            width: 500px;
+            transition: all 0.2s;
+        }
+
+        .container {
+            box-sizing: border-box;
+            padding: 5px 8px 8px 8px;
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
+
+        #left {
+            width: 165px;
+            margin-right: 10px;
+        }
+
+        .wrap {
+            border: 1px solid var(--divider-color);
+        }
+
+        iron-list {
+            height: 175px;
+            border-top-width: 0;
+            background-color: #FFFFFF;
+            padding: 1px;
+            overflow-y: scroll;
+        }
+
+        .head {
+            border-bottom: 1px solid var(--divider-color);
+            background-color: var(--hover-color);
+            color: var(--primary-text-color);
+            padding-right: 20px;
+        }
+
+        .row {
+            padding: 1px 2px 1px 4px;
+        }
+
+        .row:nth-child(even) {
+            background-color: var(--light-primary-color);
+        }
+
+        .head-field {
+            padding: 3px 10px;
+            border-right: 1px solid var(--divider-color)
+        }
+
+        div.head-field:last-of-type {
+            border-right: none;
+        }
+
+        #colorLegend {
+            border: 1px solid #aaaaaa;
+            width: 50px;
+            margin-top: 3px;
+        }
+
+        .colorbox {
+            box-sizing: border-box;
+            outline: 0;
+            width: 20px;
+            height: 23px;
+            border: 1px solid #d3d3d3;
+            border-right: 0;
+            margin-left: 0px;
+        }
+
+        jso-color-menu {
+            transition: opacity 0.1s, visibility 0.1s;
+        }
+
+        jso-color-menu[hide=true] {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        jso-color-menu[hide=false] {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
     <template>
-        <link rel="stylesheet" href="../../core-list-table.css">
-        <style>
-            :host {
-                display: block;
-                position: absolute;
-                box-sizing: border-box;
-                background-color: #FFFFFF;
-
-                top: 0px;
-                right: 320px;
-                width: 500px;
-                transition: all 0.2s;
-            }
-
-            .container {
-                box-sizing: border-box;
-                padding: 2px 5px 5px 5px;
-            }
-
-            .footer > * {
-                margin-left: 5px;
-            }
-
-            #left {
-                width: 165px;
-                margin-right: 10px;
-            }
-
-            .selbox {
-                box-sizing: border-box;
-                overflow-y: auto;
-                border: 1px solid #d3d3d3;
-                background-color: #FFF;
-            }
-
-            .selitem {
-                padding: 2px 5px;
-            }
-
-            .selitem[data-checked=true] {
-                background-color: #ddd;
-            }
-
-            core-list {
-                height: 175px;
-                border: 1px solid #d3d3d3;
-                border-top-width: 0;
-                background-color: #FFFFFF;
-            }
-
-            #colorLegend {
-                border: 1px solid #aaaaaa;
-                width: 50px;
-                margin-top: 3px;
-            }
-
-            .colorbox {
-                outline: 0;
-                width: 20px;
-                border: 1px solid #d3d3d3;
-                border-right: 0;
-            }
-
-            jso-color-menu {
-                transition: opacity 0.1s, visibility 0.1s;
-            }
-
-            jso-color-menu[hide=true] {
-                visibility: hidden;
-                opacity: 0;
-            }
-
-            jso-color-menu[hide=false] {
-                visibility: visible;
-                opacity: 1;
-            }
-        </style>
-        <div class="panel panel-shadow">
+        <jso-panel id="panel" closable on-close="handleClose">
             <div class="header">
-                <div class="text">{{displayProperty}} rendering configuration</div>
-                <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerclose" on-click="{{handleClose}}"></div>
-                </div>
+                <span>{{displayProperty}}</span> render configuration
             </div>
-            <div class="container" horizontal layout>
-                <div id="left" vertical layout>
+            <div class="container horizontal layout flex">
+                <div id="left" class="vertical layout">
 
-                    <label>Attribute name</label>
+                    <label class="jso">Attribute name:</label>
+                    <jso-select-box id="columnSelectBox" style="height: 100px;"
+                                    options="{{columns}}"
+                                    on-select="handleColumnSelect">
+                    </jso-select-box>
 
-                    <div class="selbox" style="height: 100px;">
-                        <template repeat="{{column in attributeManager.columns}}">
-                            <div horizontal layout>
-                                <div class="selitem" flex
-                                     data-checked="{{ attributeName == column.name}}"
-                                     data-name="{{column.name}}"
-                                     on-click="{{handleAttributeNameSelect}}">
-                                    {{column.title}}
-                                </div>
-                            </div>
-                        </template>
+
+                    <label class="jso" style="margin-top:8px;">Data type:</label>
+                    <jso-select-box id="typeSelectBox" options="{{attributeTypes}}"
+                                    on-select="handleAttributeTypeSelect">
+                    </jso-select-box>
+
+                    <div hidden$="{{!allowListParse}}">
+                        <label class="jso" style="margin-top:8px;">Parse data as:</label>
+
+                        <jso-select-box id="parseSelectBox" options="{{attributeParseOptions}}"
+                                        on-select="handleAttributeParseSelect">
+                        </jso-select-box>
                     </div>
-
-                    <label style="margin-top:8px;">Data type</label>
-
-                    <div class="selbox">
-                        <div flex class="selitem" data-checked="{{attributeType == 'discrete'}}"
-                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Categorical
-                        </div>
-                        <div flex class="selitem" data-checked="{{attributeType == 'continuous'}}"
-                             on-mousedown="{{handleAttributeTypeSelect}}" data-name="continuous">Continuous
-                        </div>
-                    </div>
-
-                    <template if="{{allowListParse == 'true'}}">
-                        <label style="margin-top:8px;">Parse data as</label>
-
-                        <div class="selbox">
-                            <div flex class="selitem" data-checked="{{attributeParse == 'string'}}"
-                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="string">String
-                            </div>
-                            <div flex class="selitem" data-checked="{{attributeParse == 'list'}}"
-                                 on-mousedown="{{handleAttributeParseSelect}}" data-name="list">List
-                            </div>
-                        </div>
-                    </template>
 
                 </div>
-                <div vertical layout flex>
+                <div class="vertical layout flex">
 
-                    <label hidden?="{{attributeType != 'continuous'}}">Continous mapping</label>
+                    <div hidden$="{{!isContinuousType(attributeType)}}">
 
-                    <div hidden?="{{attributeType != 'continuous'}}">
-                        <div class="button action" on-click="{{handleAddPoint}}"
-                             style="margin:0 3px 3px 0;width:150px;">Add point
+                        <div class="horizontal layout flex">
+                            <label class="jso flex">Attribute value</label>
+                            <label class="jso flex">Render value</label>
+                            <label class="jso" style="width: 60px;text-align: right">Gradient</label>
                         </div>
-                        <div horizontal layout style="margin-bottom:1px;">
-                            <label flex>Attribute value</label>
-                            <label flex>Render value</label>
-                            <label style="width: 60px;text-align: right">Gradient</label>
-                        </div>
-                        <div flex horizontal layout style="margin-bottom:5px;">
-                            <div flex vertical layout>
-                                <template repeat="{{point, index in points}}">
+
+
+                        <div class="flex horizontal layout" style="margin-bottom:5px;">
+                            <div class="flex vertical layout">
+                                <template is="dom-repeat" items="{{points}}" as="point" index-as="index">
                                     <jso-attribute-render-color-point
                                             point="{{point}}" points="{{points}}" controlType="{{controlType}}"
-                                            allowRemove="{{index != 0 && index != points.length -1}}">
+                                            index="{{index}}">
                                     </jso-attribute-render-color-point>
                                 </template>
                             </div>
                             <div style="margin-left:3px" id="colorLegend"></div>
                         </div>
-                        <div class="button action" on-click="{{handleApplyInterpolation}}"
-                             style="margin-bottom:5px;width:150px;">Apply mapping
-                        </div>
-                    </div>
-                    <label>Assign render values to attributes</label>
 
-                    <div>
-                        <div class="table-head" horizontal layout>
-                            <div flex>Attribute value</div>
-                            <div flex>Render value</div>
+
+                        <div class="flex horizontal layout end-justified" style="margin:0  0 5px 0">
+                            <div class="jso-btn jso-btn-shdw">
+                                Max & Min &nbsp; <i class="fa fa-refresh"style="color:#FF6600"></i>
+                            </div>
+                            <div class="flex"></div>
+                            <div class="jso-btn jso-btn-shdw" on-click="handleApplyInterpolation">
+                                Interpolate &nbsp; <i class="fa fa-arrow-down" style="color:#0081c2"></i>
+                            </div>
+                            <div class="flex"></div>
+                            <div class="jso-btn jso-btn-shdw" on-click="handleAddPoint">
+                                Add point &nbsp; <i class="fa fa-plus" style="color:#00AA33"></i>
+                            </div>
                         </div>
-                        <core-list id="list" data="{{uniqueData}}" height="27">
+
+                    </div>
+
+
+                    <label class="jso">Assign render values to attributes:</label>
+
+
+                    <div class="wrap">
+                        <div class="flex horizontal layout head">
+                            <div class="flex head-field">Attribute value</div>
+                            <div class="flex head-field">Render value</div>
+                        </div>
+
+                        <iron-list id="list" items="{{uniqueItems}}" as="uitem">
                             <template>
-                                <div horizontal layout class="table-row">
-                                    <div flex>{{model.attribute}}</div>
-                                    <div tabindex="-1" class="colorbox" style="background-color:{{model.render}};"
-                                         on-click="{{handleChangeFocusInUniqueColor}}"
-                                         on-focusout="{{handleChangeFocusOutUniqueColor}}"
-                                            ></div>
-                                    <input flex type="text" value="{{model.render}}">
+                                <div class="horizontal layout center row">
+                                    <div class="flex">{{uitem.attribute}}</div>
+                                    <div class="flex horizontal layout">
+                                        <div tabindex="-1" class="colorbox" style$="{{_computeBackgroundColor(uitem.render)}}"
+                                             on-click="handleChangeFocusInUniqueColor"
+                                             on-focusout="handleChangeFocusOutUniqueColor"></div>
+                                        <input class="jso flex" type="text" value="{{uitem.render::input}}">
+                                    </div>
                                 </div>
                             </template>
-                        </core-list>
+                        </iron-list>
                     </div>
 
 
-                    <div horizontal layout hidden?="{{attributeType != 'discrete'}}" style="margin-top:8px;">
-                        <label>Edit default</label>
+                    <div class="horizontal layout" hidden$="{{!isCategoricalType(attributeType)}}"
+                         style="margin-top:8px;">
+                        <label class="jso">Edit default:</label>
                         <!--<div class="button action">Select all</div>-->
                         <!--<div class="button action">Deselect all</div>-->
                         <!--<div class="text">Selection:</div>-->
-                        <jso-color-picker flex color="{{defaultValue}}"></jso-color-picker>
+                        <jso-color-picker class="flex" color="{{defaultValue}}"></jso-color-picker>
                     </div>
+
                 </div>
             </div>
-            <div class="footer" horizontal layout end-justified>
-                <div class="button action" on-click="{{handleApplyDirect}}">Use attribute value directly</div>
-                <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
-            </div>
-            <jso-color-menu id="colormenu" hide="{{hideColorMenu}}" flex
-                            on-color-click="{{handleColorMenu}}"></jso-color-menu>
-        </div>
 
+            <div class="footer horizontal layout flex">
+                <div class="jso-btn jso-btn-shdw" on-click="handleApplyDirect">Use attribute value directly</div>
+                <div class="flex"></div>
+                <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleClose">Cancel</div>
+                <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleOk">OK</div>
+            </div>
+        </jso-panel>
+        <jso-color-menu id="colormenu" hidden$="{{hideColorMenu}}" class="flex"
+                        on-color-click="handleColorMenu"></jso-color-menu>
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.isReady = false;
-
-                this.clean();
-
-                /**/
-                this.hideColorMenu = true;
-                this.lastUniqueModel;
+            is: 'jso-attribute-render-color-table',
+            behaviors: [JsoAttributeRenderTableBehavior],
+            properties: {
+                hideColorMenu: {
+                    type: Boolean,
+                    value: true
+                }
             },
-            clean: function () {
-                this.attributeName = '';
-                this.attributeType = 'discrete';
-                this.attributeParse = 'string';
-
-                this.uniqueData = [];
-                this.uniqueMatches = {};
-            },
-            ready: function () {
-                var me = this;
-                this.points = [
-                    {value: 0, render: this.defaultValue},
-                    {value: 0, render: this.defaultValue}
-                ];
-                this.handleApplyInterpolation();
-
-                var observer = new MutationObserver(function (mutations) {
-                    me.$.list.updateSize();
-                }.bind(this));
-                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
-            },
-            domReady: function () {
-                this.isReady = true;
-            },
-            /** Color **/
             handleChangeFocusInUniqueColor: function (e) {
-                this.lastUniqueModel = e.target.templateInstance.model.model;
+                this.lastUniqueModel = e.model.uitem;
+                this.lastColorBox = e.currentTarget;
+
                 this.$.colormenu.style.top = (22 + e.currentTarget.getBoundingClientRect().top) + "px";
                 this.$.colormenu.style.left = e.currentTarget.getBoundingClientRect().left + "px";
                 this.hideColorMenu = !this.hideColorMenu;
@@ -243,195 +233,16 @@
             },
             handleColorMenu: function (e) {
                 this.lastUniqueModel.render = e.detail.color;
+                this.lastColorBox.style.backgroundColor = e.detail.color;
+                this.lastColorBox.nextElementSibling.value = e.detail.color;
+
                 this.hideColorMenu = true;
             },
-
-            defaultValueChanged: function (oldValue, newValue) {
-                for (var i = 0; i < this.uniqueData.length; i++) {
-                    var data = this.uniqueData[i];
-                    if (data.render === oldValue) {
-                        data.render = newValue;
-                    }
-                }
-            },
-            visualSetChanged: function (oldValue, newValue) {
-                console.log(oldValue)
-                console.log(newValue)
-                if (newValue) {
-                    this.attributeType = newValue.type;
-                    this.attributeName = newValue.attribute;
-                    this.attributeParse = newValue.parse;
-                    this.uniqueMatches = newValue.matches;
-                    this.points = newValue.points;
-                } else {
-                    this.attributeType = 'discrete';
-                    this.attributeName = '';
-                    this.attributeParse = 'string';
-                    this.uniqueMatches = {};
-                    this.uniqueData = [];
-                    this.points = [
-                        {value: 0, render: this.defaultValue},
-                        {value: 0, render: this.defaultValue}
-                    ];
-                }
-            },
-            attributeNameChanged: function (oldValue, newValue) {
-                this._updateUniqueValues();
-            },
-            attributeParseChanged: function (oldValue, newValue) {
-                this._updateUniqueValues();
-            },
-            attributeTypeChanged: function (oldValue, newValue) {
-            },
-            /* Observers */
-            observe: {
-                'attributeManager.data': 'handleAttributeManagerChange'
-            },
-            handleAttributeManagerChange: function (oldValue, newValue) {
-                this._updateUniqueValues();
-                if (this.isReady && this.visualSet && this.visualSet.enabled) {
-                    this._updateVisualSet();
-                    this.fire('ok', {displayProperty: this.getAttribute("id")});
-                }
-            },
-            handleClose: function () {
-                this.displayProperty = null;
-            },
-            handleOk: function () {
-                var uniqueMatches = {};
-                for (var i = 0; i < this.uniqueData.length; i++) {
-                    var data = this.uniqueData[i];
-                    uniqueMatches[data.attribute] = data.render;
-                }
-                this.uniqueMatches = uniqueMatches;
-                this.visualSet = {
-                    attribute: this.attributeName,
-                    displayProperty: this.displayProperty,
-                    type: this.attributeType,
-                    matches: this.uniqueMatches,
-                    parse: this.attributeParse,
-                    points: this.points,
-                    enabled: true
-                };
-                this.fire('ok', {displayProperty: this.getAttribute("id")});
-                this.handleClose();
-            },
-            _updateVisualSet: function () {
-                if (this.attributeName != '') {
-                    var uniqueMatches = {};
-                    for (var i = 0; i < this.uniqueData.length; i++) {
-                        var data = this.uniqueData[i];
-                        uniqueMatches[data.attribute] = data.render;
-                    }
-                    this.uniqueMatches = uniqueMatches;
-//                    this.visualSet = {
-//                        attribute: this.attributeName,
-//                        displayProperty: this.getAttribute("id"),
-//                        type: this.attributeType,
-//                        matches: this.uniqueMatches,
-//                        parse: this.attributeParse,
-//                        points: this.points,
-//                        enabled: true
-//                    }
-                    this.visualSet = {
-                        attribute: this.visualSet.attribute,
-                        displayProperty: this.visualSet.displayProperty,
-                        type: this.visualSet.type,
-                        matches: this.uniqueMatches,
-                        parse: this.visualSet.parse,
-                        points: this.visualSet.points,
-                        enabled: this.visualSet.enabled,
-                    }
-                }
-            },
-            handleAttributeNameSelect: function (e) {
-                this.attributeName = e.currentTarget.dataset.name;
-            },
-            handleAttributeTypeSelect: function (e) {
-                this.attributeType = e.currentTarget.dataset.name;
-            },
-            handleAttributeParseSelect: function (e) {
-                this.attributeParse = e.currentTarget.dataset.name;
-            },
-            handleAddPoint: function () {
-                this.points.splice(this.points.length - 1, 0, {
-                    value: 0, render: this.defaultValue
-                });
-            },
-            handleApplyInterpolation: function () {
-                this._updateUniqueInterpolatedValues();
+            _computeBackgroundColor: function (value) {
+                return 'background-color:'+value+';';
             },
 
-            _updateUniqueValues: function () {
-                var me = this;
-                if (this.attributeName != '') {
-                    var uniqueMap = {};
-                    var uniqueData = [];
-                    var max = 0;
-                    var min = 0;
-
-                    var processValue = function (value) {
-                        if (value) {
-                            if (!uniqueMap[value]) {
-                                uniqueMap[value] = true;
-                                var render = me.defaultValue;
-                                if (me.visualSet && me.visualSet.attribute == me.attributeName) {
-                                    if (me.visualSet.matches[value] != null) {
-                                        render = me.visualSet.matches[value];
-                                    }
-                                }
-                                uniqueData.push({attribute: value, render: render});
-                            }
-                            var attribute = parseFloat(value);
-                            if (attribute >= max) {
-                                max = attribute;
-                            }
-                            if (attribute <= min) {
-                                min = attribute;
-                            }
-                        }
-                    };
-
-                    var row, value;
-                    if (this.attributeParse == "list") {
-                        var splitStr = ",", values;
-                        for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
-                            row = this.attributeManager.data[i];
-                            value = row[this.attributeName];
-                            if (value == null) {
-                                value = "";
-                            }
-                            values = value.split(splitStr);
-                            for (var j = 0, lj = values.length; j < lj; j++) {
-                                processValue(values[j]);
-                            }
-                        }
-                    } else {
-                        for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
-                            row = this.attributeManager.data[i];
-                            processValue(row[this.attributeName]);
-                        }
-                    }
-
-                    if (this.points.length == 0) {
-                        this.points.push({value: min, render: this.defaultValue});
-                        this.points.push({value: max, render: this.defaultValue});
-                    } else {
-                        this.points[0].value = min;
-                        this.points[this.points.length - 1].value = max;
-                    }
-
-                    uniqueData.sort(function (a, b) {
-                        return parseFloat(a.attribute) - parseFloat(b.attribute);
-                    });
-                    this.uniqueData = uniqueData;
-                    if (this.attributeType == 'continuous') {
-                        this._updateUniqueInterpolatedValues();
-                    }
-                }
-            },
-
-            _updateUniqueInterpolatedValues: function () {
+            _updateUniqueInterpolatedValues: function (uniqueItems) {
                 this.points.sort(function (a, b) {
                     return parseFloat(a.value) - parseFloat(b.value);
                 });
@@ -449,8 +260,8 @@
                 }
                 this.$.colorLegend.style.background = "linear-gradient(to bottom, " + gradientValues.join(", ") + " )";
 
-                for (var i = 0, l = this.uniqueData.length; i < l; i++) {
-                    var value = parseFloat(this.uniqueData[i].attribute);
+                for (var i = 0, l = uniqueItems.length; i < l; i++) {
+                    var value = parseFloat(uniqueItems[i].attribute);
                     for (var j = 0; j < this.points.length; j++) {
                         var point = this.points[j];
                         var nextPoint = this.points[j + 1];
@@ -465,75 +276,90 @@
                                 if (isNaN(normalizedValue)) {
                                     normalizedValue = 0;
                                 }
-                                this.uniqueData[i].render = interpolator(normalizedValue);
+                                uniqueItems[i].render = interpolator(normalizedValue);
                             }
                         }
                     }
                 }
-            },
-            handleApplyDirect: function () {
-                for (var i = 0; i < this.uniqueData.length; i++) {
-                    var data = this.uniqueData[i];
-                    data.render = data.attribute;
-                }
             }
         });
     </script>
-</polymer-element>
+</dom-module>
 
-<polymer-element name="jso-attribute-render-color-point"
-                 attributes="point points allowRemove">
+
+<dom-module id="jso-attribute-render-color-point">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            margin: 1px 0;
+        }
+
+        .horizontal > * {
+            margin-right: 3px;
+        }
+
+        .horizontal > *:last-child {
+            margin-right: 0px;
+        }
+
+        .text {
+            width: 100px;
+        }
+
+        .remove::after {
+            font-family: FontAwesome;
+            content: '\f00d';
+            color: #c70804;
+        }
+
+        .remove {
+            visibility: hidden
+        }
+
+        .remove[allowRemove] {
+            visibility: inherit;
+        }
+    </style>
     <template>
-        <link rel="stylesheet" href="../../jso-style.css">
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                margin: 1px 0;
-            }
-
-            [horizontal] > * {
-                margin-right: 3px;
-            }
-
-            [horizontal] > *:last-child {
-                margin-right: 0px;
-            }
-
-            .text {
-                width: 100px;
-            }
-
-            .remove::after {
-                font-family: FontAwesome;
-                content: '\f00d';
-                color: #c70804;
-            }
-
-            .remove[allowRemove] {
-                visibility: hidden
-            }
-
-            .remove[allowRemove=true] {
-                visibility: inherit;
-            }
-        </style>
-        <div horizontal layout>
-            <input flex type="number" value="{{point.value}}">
+        <div class=" horizontal layout">
+            <input class="jso flex" type="number" value="{{point.value::input}}">
 
             <!--<input flex type="color" value="{{point.render}}">-->
-            <jso-color-picker flex color="{{point.render}}"></jso-color-picker>
+            <jso-color-picker class="flex" on-color-click="handleColorPicker"></jso-color-picker>
 
-
-            <div class="button action remove" allowRemove="{{allowRemove}}" on-click="{{handleRemove}}"></div>
+            <div class="jso-btn jso-btn-shdw remove" allowRemove$="{{allowRemove}}" on-click="handleRemove"></div>
         </div>
     </template>
-    <script>
-        Polymer({
-            handleRemove: function () {
-                this.points.splice(this.points.indexOf(this.point), 1);
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-attribute-render-color-point',
+        properties: {
+            point: {
+                type: Object,
+                notify: true
+            },
+            points: {
+                type: Array
+            },
+            allowRemove: {
+                type: Boolean,
+                computed: 'computeAllowRemove(index, points)'
+            },
+            index: {
+                type: Number
             }
-        });
-    </script>
-</polymer-element>
+        },
+        handleRemove: function () {
+            this.splice('points', this.points.indexOf(this.point), 1);
+        },
+        computeAllowRemove: function (index, points) {
+            return index != 0 && index != points.length - 1;
+        },
+        handleColorPicker: function (e) {
+            this.set('point.render', e.detail.color)
+        }
+    });
+</script>

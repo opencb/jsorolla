@@ -83,7 +83,8 @@ Vertex.prototype = {
         return {
             id: this.id,
             position: this.position,
-            renderer: this.renderer
+            renderer: this.renderer,
+            attributes: this.attributes
         }
     }
 }

@@ -35,6 +35,7 @@
 
                         <g id="scaleFrontGroup" font-family="Ubuntu Mono"
                            transform$="{{computeTransform(tx,ty,scale)}}">
+                        <!--<g id="scaleFrontGroup" font-family="Ubuntu Mono">-->
                         </g>
                     </svg>
                 </svg>
@@ -86,12 +87,31 @@
                 value: function () {
                     return []
                 }
+            },
+            mx: {
+                type: Number,
+                value: 0
+            },
+            my: {
+                type: Number,
+                value: 0
             }
         },
+        listeners: {
+            'mousemove': 'handleMouseMove',
+        },
+        handleMouseMove: function (e) {
+            var clientRect = this.$.svg.getBoundingClientRect();
+            this.set('mx', (e.clientX - clientRect.left));
+            this.set('my', (e.clientY - clientRect.top));
+//            console.log(this.scale)
+
+//            console.log('mousePos: ' + this.mx + ' - ' + this.my);
+        },
+
         created: function () {
         },
         ready: function () {
-
         },
         computeTransform: function (tx, ty, scale) {
             return 'translate(' + tx + ',' + ty + ') scale(' + scale + ')';
@@ -151,11 +171,42 @@
         },
         zoomChanged: function (neo, old) {
             this.scale = (this.zoom == 0) ? 0.03 : (this.zoom / 25);
-            var clientRect = this.$.svg.getBoundingClientRect();
-            var centerX = clientRect.width / 2;
-            var centerY = clientRect.height / 2;
-            this.tx = this.x + (-centerX * (this.scale - 1));
-            this.ty = this.y + (-centerY * (this.scale - 1));
+//            var clientRect = this.$.svg.getBoundingClientRect();
+////            var centerX = clientRect.width / 2;
+////            var centerY = clientRect.height / 2;
+//
+//
+//            console.log('p: ' + this.mx + ' - ' + this.my);
+            this.tx = 0 + (-(this.mx) * (this.scale - 1));
+            this.ty = 0 + (-(this.my) * (this.scale - 1));
+//            console.log('t: ' + this.tx + ' - ' + this.ty);
+//
+////            this.tx = this.x + (-centerX * (this.scale - 1));
+////            this.ty = this.y + (-centerY * (this.scale - 1));
+//
+//
+////
+//
+//            var g = this.$.svg;
+//            var p = g.createSVGPoint();
+//
+//            p.x = this.mx;
+//            p.y = this.my;
+//
+//            p = p.matrixTransform(g.getCTM().inverse());
+//
+//            // Compute new scale matrix in current mouse position
+//            var k = g.createSVGMatrix().translate(p.x, p.y).scale(this.scale).translate(-p.x, -p.y);
+//
+//            var matrix = g.getCTM().multiply(k);
+//            var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + "," + matrix.d + "," + matrix.e + "," + matrix.f + ")";
+//            this.$.scaleFrontGroup.setAttribute("transform", s);
+//
+//            if (typeof(this.stateTf) == "undefined")
+//                this.stateTf = g.getCTM().inverse();
+//
+//            this.stateTf = this.stateTf.multiply(k.inverse());
+
         },
         mouseDownHandler: function (e) {
             switch (e.which) {

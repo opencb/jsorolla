@@ -1,0 +1,86 @@
+<script>
+    JsoAttributeRenderBehavior = {
+        properties: {
+            items: {
+                type: Array
+            },
+            columns: {
+                type: Array
+            },
+            defaults: {
+                type: Object,
+                notify: true
+            },
+            visualSets: {
+                type: Object,
+                notify: true
+            },
+            displayProperty: {
+                type: String,
+                value: ''
+            },
+        },
+
+        visualSetExists: function (prop) {
+            return (prop != null) ? true : false;
+        },
+        visualSetBtnText: function (attr) {
+            return (attr != null && attr != '') ? attr : 'Select attribute';
+        },
+        isOpen: function (displayProperty, dp) {
+            return displayProperty == dp
+        },
+
+        /*Visual sets*/
+        handleSettingsClick: function (e) {
+            this.set('displayProperty', e.currentTarget.dataset.prop);
+        },
+        handleToggleSet: function (e) {
+            var displayProperty = e.currentTarget.dataset.prop;
+            if (this.visualSets[displayProperty]) {
+                this.set('visualSets.' + displayProperty + '.enabled', !this.visualSets[displayProperty].enabled);
+                this.fire(displayProperty.toLowerCase());
+            }
+        },
+        handleOkSet: function (e) {
+            this.fire(e.detail.displayProperty.toLowerCase());
+        },
+        handleCloseSet: function (e) {
+            this.set('displayProperty', '');
+        },
+        handleRemoveSet: function (e) {
+            var displayProperty = e.currentTarget.dataset.prop;
+            if (this.visualSets[displayProperty]) {
+                this.set('visualSets.' + displayProperty, null);
+                this.fire(displayProperty.toLowerCase());
+            }
+        },
+
+        /* API */
+        applyDirect: function (attributeName, displayProperty) {
+            this.displayProperty = displayProperty;
+
+            var table = this.$[displayProperty];
+            table.applyDirect(attributeName);
+            this.displayProperty = null;
+        },
+        applyVisualSet: function (visualSet) {
+            this.displayProperty = visualSet.displayProperty;
+
+            var table = this.$[visualSet.displayProperty];
+            table.applyVisualSet(visualSet);
+            this.displayProperty = null;
+        },
+        removeVisualSet: function (displayProperty) {
+            delete this.visualSets[displayProperty];
+            this.fire(displayProperty.toLowerCase());
+        },
+        refreshAttributes: function () {
+            for (key in this.visualSets) {
+                if (this.$[key] != null) {
+                    this.$[key].refreshAttributes();
+                }
+            }
+        }
+    };
+</script>

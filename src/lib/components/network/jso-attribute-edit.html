@@ -4,8 +4,7 @@
             display: block;
             box-sizing: border-box;
             background-color: #FFFFFF;
-
-            width: 630px;
+            width: 730px;
             height: 572px;
         }
 
@@ -85,7 +84,6 @@
         .bar > div {
             margin: 0 2px;
         }
-
     </style>
     <template>
         <div id="main" class="flex horizontal layout">
@@ -106,7 +104,8 @@
                             </div>
 
                             <div class="horizontal layout" style="margin-top: 3px;">
-                                <input flex type="text" class="jso" value="{{newValue}}" placeholder="Attribute value">
+                                <input flex type="text" class="jso" value="{{_newValue::input}}"
+                                       placeholder="Attribute value">
 
                                 <div class="jso-btn jso-btn-shdw newvalue" on-click="handleEditApply"></div>
                             </div>
@@ -115,7 +114,8 @@
                         <label class="jso" style="margin-top: 10px;">Add new attribute</label>
 
                         <div class="horizontal layout">
-                            <input flex type="text" class="jso" value="{{newColumnName}}" placeholder="Attribute name">
+                            <input flex type="text" class="jso" value="{{_newColumnName::input}}"
+                                   placeholder="Attribute name">
 
                             <div class="jso-btn jso-btn-shdw newattr" on-click="handleAddApply"></div>
                         </div>
@@ -138,53 +138,53 @@
                 <div class="jso-formbox jso-fit flex" style="border-top-width:1px">
                     <div class="jso-formtitle horizontal layout">
                         <div class="flex">Filters</div>
-                        <div class="actions horizontal layout">
-                            <div data-checked$="{{isAddFilterSelected(_filterSelectedOption)}}">
-                                <i class="fa fa-plus" on-click="handleAddNewFilter"></i>
+                        <div class="horizontal layout">
+                            <div class="jso-btn" data-checked$="{{isAddFilterSelected(_filterSelectedOption)}}"
+                                 on-click="handleAddNewFilter">
+                                <i class="fa fa-plus"></i>
                             </div>
-                            <div data-checked$="{{isViewFilterSelected(_filterSelectedOption)}}">
-                                <i class="fa fa-eye" on-click="handleViewFilters"></i>
+                            <div class="jso-btn" data-checked$="{{isViewFilterSelected(_filterSelectedOption)}}"
+                                 on-click="handleViewFilters">
+                                <i class="fa fa-eye"></i>
                             </div>
                             <template if="{{filters.length > 0}}">
                                 <!--<div on-click="{{handleDeleteFilters}}">Remove all</div>-->
-                                <i class="fa fa-times" hidden$={{!areFilters(_filters)}} on-click="handleDeleteFilters"></i>
+                                <i class="fa fa-times" hidden$={{!_thereAreFilters}} on-click="handleDeleteFilters"></i>
                             </template>
                         </div>
                     </div>
 
                     <div class="jso-formcontent" vertical layout>
 
-                        <template is="dom-if" if="{{isViewFilterSelected(_filterSelectedOption)}}">
-                            <div class="selbox" style="height: 280px;">
-                                <template is="dom-if" if="{{!areFilters(_filters)}}">
-                                    <div class="selitem flex">No filters to show.<br>
-                                        Click
-                                        <i class="fa fa-plus"></i>
-                                        to add a new filter.
-                                    </div>
-                                </template>
-                                <template is="dom-repeat" items="{{_filters}}" as="filter" index-as="filterIndex">
-                                    <div class="selitem flex horizontal layout">
-                                        <div class="flex vertical layout">
-                                            <div>Attribute:
-                                                <span>{{filter.attributeName}}</span>
-                                            </div>
-                                            <div style="text-transform: capitalize">rule:
-                                                <span>{{filter.match}}</span>
-                                                <span>{{filter.attributeType}}</span>
-                                            </div>
-                                            <div>Value:
-                                                <span>{{filter.queryString}}</span>
-                                            </div>
+                        <div hidden$="{{!isViewFilterSelected(_filterSelectedOption)}}" class="selbox"
+                             style="height: 280px;">
+                            <template is="dom-if" if="{{!_thereAreFilters}}">
+                                <div class="selitem flex">No filters to show.
+                                    <br> Click
+                                    <i class="fa fa-plus"></i> to add a new filter.
+                                </div>
+                            </template>
+                            <template is="dom-repeat" items="{{_filters}}" as="filter" index-as="filterIndex">
+                                <div class="selitem flex horizontal layout">
+                                    <div class="flex vertical layout">
+                                        <div>Attribute:
+                                            <span>{{filter.attributeName}}</span>
                                         </div>
-                                        <i class="fa fa-times delete" on-click="handleDeleteFilter"></i>
+                                        <div style="text-transform: capitalize">rule:
+                                            <span>{{filter.match}}</span>
+                                            <span>{{filter.attributeType}}</span>
+                                        </div>
+                                        <div>Value:
+                                            <span>{{filter.queryString}}</span>
+                                        </div>
                                     </div>
-                                </template>
-                            </div>
+                                    <i class="fa fa-times delete" on-click="handleDeleteFilter"></i>
+                                </div>
+                            </template>
+                        </div>
 
-                        </template>
+                        <div hidden$="{{!isAddFilterSelected(_filterSelectedOption)}}">
 
-                        <template is="dom-if" if="{{isAddFilterSelected(_filterSelectedOption)}}">
                             <label class="jso">Attribute:</label>
 
                             <div class="jso-select">
@@ -194,7 +194,6 @@
                                     </template>
                                 </select>
                             </div>
-
 
                             <label class="jso">Data type:</label>
 
@@ -237,8 +236,10 @@
                                     <div class="selitem flex" data-checked$="{{isNumberMatchGreater(_numberMatch)}}"
                                          on-click="handleNumberMatchSelect" data-name="greater">Greater than
                                     </div>
-                                    <div class="selitem flex" data-checked$="{{isNumberMatchGreaterequal(_numberMatch)}}"
-                                         on-click="handleNumberMatchSelect" data-name="greaterequal">Greater than or equal to
+                                    <div class="selitem flex"
+                                         data-checked$="{{isNumberMatchGreaterequal(_numberMatch)}}"
+                                         on-click="handleNumberMatchSelect" data-name="greaterequal">Greater than or
+                                        equal to
                                     </div>
 
                                     <div class="selitem flex" data-checked$="{{isNumberMatchLess(_numberMatch)}}"
@@ -252,17 +253,18 @@
 
                             <div style="margin-top:5px;" class="horizontal layout">
                                 <div class="flex">
-                                    <input type="text" class="jso" value="{{_queryString}}" placeholder="Query string">
+                                    <input type="text" class="jso" value="{{_queryString::input}}"
+                                           placeholder="Query string">
                                 </div>
-                                <div class="jso-btn jso-btn-shdw" on-click="handleCreateFilter">
+                                <div class="jso-btn jso-btn-shdw" style="margin-left:3px;"
+                                     on-click="handleCreateFilter">
                                     Add filter
                                 </div>
                             </div>
-                        </template>
+                        </div>
                     </div>
                 </div>
             </div>
-
 
             <div id="right" class="flex vertical layout">
                 <div class="bar horizontal layout center">
@@ -270,48 +272,17 @@
                     <div class="jso-btn jso-btn-shdw" on-click="handleDeselectAll">Deselect all</div>
 
                     <div class="flex">
-                        <label class="control">
-                            <input type="checkbox" checked$="{{showSelected}}" on-change="{{handleShowSelected}}">
+                        <label class="jso-control">
+                            <input type="checkbox" checked="{{_showSelected::change}}">
                             <span title="Switch view beetwen all nodes or selected nodes">Show only selected</span>
                         </label>
                     </div>
                 </div>
-                <!-- <div id="tablewrap" class="flex vertical layout"> -->
 
-                    <!--<iron-list items="{{items}}" as="item" id="il">-->
-                        <!--<template>-->
-                            <!--<div style="height:30px;">asdf:<span>{{row.name}}</span></div>-->
-                        <!--</template>-->
-                    <!--</iron-list>-->
+                <jso-table id="table" enable-paging enable-select enable-edit columns="{{columns}}"
+                           data="{{_currentItems}}" selected="{{_currentSelected}}" page-size="16"
+                           style="height:540px"></jso-table>
 
-                    <jso-table id="table" enable-paging enable-select enable-edit columns="{{columns}}" data="{{items}}" selected="{{selected}}" page-size="16" style="height:540px"></jso-table>
-
-
-                    <!--<sortable-table id="table" flex-->
-                                    <!--data="{{currentData}}"-->
-                                    <!--columns="{{attributeManager.columns}}"-->
-                                    <!--rowSelection="{{!showSelected}}"-->
-                                    <!--multiselect="{{multiSelect}}"-->
-                                    <!--selected="{{ !showSelected ? attributeManager.selected : [] }}"-->
-                                    <!--page="{{page}}"-->
-                                    <!--pageSize="{{pageSize}}">-->
-                        <!--<template id="inputTemplate">-->
-                            <!--<td class="edit">-->
-                                <!--<input type="text" value="{{row[column.name]}}" on-blur="{{cellEditFinished}}">-->
-                            <!--</td>-->
-                        <!--</template>-->
-                    <!--</sortable-table>-->
-                    <!--<div class="customPagerScroll"-->
-                         <!--style="height:calc(100% / {{table.lastPage}}); top:{{ (table.page-1) / table.lastPage * 100}}%"></div>-->
-                <!-- </div> -->
-                <!--<div class="customPager" horizontal layout>-->
-                    <!--<div class="text">{{table.dataSize}} {{type}}{{table.dataSize != 1 ? 's' : ''}}</div>-->
-                    <!--<div class="jso-btn jso-btn-shdw" disabled?="{{table.page<=1}}" on-click="{{moveToPreviousPage}}">-->
-                        <!--&lt;</div>-->
-                    <!--<div class="text"> {{table.page}} of {{table.lastPage}}</div>-->
-                    <!--<div class="jso-btn jso-btn-shdw" disabled?="{{table.page>=table.lastPage}}"-->
-                         <!--on-click="{{moveToNextPage}}">&gt;</div>-->
-                <!--</div>-->
             </div>
         </div>
     </template>
@@ -329,11 +300,20 @@
             selected: {
                 type: Array
             },
+            _currentItems: {
+                type: Array
+            },
+            _currentSelected: {
+                type: Array
+            },
             _filters: {
                 type: Array,
                 value: function () {
                     return [];
                 }
+            },
+            _thereAreFilters: {
+                type: Boolean
             },
             _filterSelectedOption: {
                 type: String,
@@ -357,27 +337,39 @@
             },
             _showSelected: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: 'showSelectedChanged'
             },
+            _newColumnName: {
+                type: String,
+                value: ''
+            },
+            _newValue: {
+                type: String,
+                value: ''
+            }
         },
         observers: [
             'itemsChanged(items.splices)',
+            'selectedChanged(selected.splices)',
+            '_currentSelectedChanged(_currentSelected.splices)',
+            '_filtersChanged(_filters.splices)'
         ],
         itemsChanged: function (changeRecord) {
-            console.log('attrbute edit items changed')
-            if (changeRecord) {
-                console.log('attrbute edit items changed record')
-//                changeRecord.indexSplices.forEach(function (s) {
-//                    s.removed.forEach(function (vertex) {
-//
-//                    });
-//
-//                }, this);
-//            } else {
-//
-            }
+            this._checkCurrentItems();
         },
-        computeItem:function(item, column){
+        selectedChanged: function (changeRecord) {
+            this._checkCurrentItems();
+        },
+        _filtersChanged: function (changeRecord) {
+            this._thereAreFilters = this._filters.length > 0;
+        },
+        _currentSelectedChanged: function (changeRecord) {
+            this.fire('selectedchange');
+        },
+        computeSelected: function () {
+        },
+        computeItem: function (item, column) {
             var value;
             if (column.formula) {
                 value = column.formula(item);
@@ -386,48 +378,16 @@
             }
             return value;
         },
-        createdOFF: function () {
-            this.page = 1;
-            this.defaultPageSize = 18;
-            this.pageSize = this.defaultPageSize;
-
-
-            this.multiSelect = true;
-
-            this.showSelected = false;
-            this.currentData = [];
-
-//                this.editSelected;
-            this.newColumnName = '';
-            this.newValue = '';
-
-            /*Search*/
-            this.attributeType = 'string';
-            this.stringMatch = 'exact';
-            this.numberMatch = 'equal';
-            this.queryString = '';
-
-            this.filterSelectedOption = 'add'
-        },
-        readyOFF: function () {
-            var me = this;
-            this.table = this.$.table;
-            this.table.cellEditFinished = function (e) {
-                var row = e.target.templateInstance.model.row;
-                me.attributeManager._updateRow(row);
-            }
-        },
-        observeOFF: {
-            "attributeManager.data": "handleDataChanged",
-            "attributeManager.selected": "handleSelectedChanged"
-        },
-
-        areFilters: function (_filters) {
-            return _filters.length > 0;
-        },
-
+        // readyOFF: function () {
+        //     var me = this;
+        //     this.table = this.$.table;
+        //     this.table.cellEditFinished = function (e) {
+        //         var row = e.target.templateInstance.model.row;
+        //         me.attributeManager._updateRow(row);
+        //     }
+        // },
         isColumnEditable: function (column) {
-            return column.name != 'id';
+            return column.editable != false;
         },
         isAddFilterSelected: function (_filterSelectedOption) {
             return _filterSelectedOption == 'add';
@@ -441,7 +401,6 @@
         isAttributeNumber: function (_attributeType) {
             return _attributeType == 'number';
         },
-
         isStringMatchExact: function (_stringMatch) {
             return _stringMatch == 'exact';
         },
@@ -451,7 +410,6 @@
         isStringMatchNotcontains: function (_stringMatch) {
             return _stringMatch == 'notcontains';
         },
-
         isNumberMatchEquals: function (_numberMatch) {
             return _numberMatch == 'equals';
         },
@@ -470,82 +428,104 @@
         isNumberMatchLessequal: function (_numberMatch) {
             return _numberMatch == 'lessequal';
         },
-
-
         showSelectedChanged: function () {
-            this._checkCurrentData();
-        },
-        handleDataChanged: function () {
-            this._checkCurrentData();
+            // if (this.showSelected) {
+            //     this.$.table.currentPage = 1;
+            // }
+            this._checkCurrentItems();
         },
         handleSelectedChanged: function () {
-            this._checkCurrentData();
+            this._checkCurrentItems();
         },
-        _checkCurrentData: function () {
-            if (this.showSelected) {
-                this.currentData = this.attributeManager.selected;
+        _checkCurrentItems: function () {
+            if (this._showSelected) {
+                this.set('_currentItems', this.selected);
+                this.set('_currentSelected', []);
             } else {
-                this.currentData = this.attributeManager.data;
+                this.set('_currentItems', this.items);
+                this.set('_currentSelected', this.selected);
             }
-
             var filteredData = [];
             if (this._filters.length > 0) {
                 for (var i = 0; i < this._filters.length; i++) {
                     var filter = this._filters[i];
-                    filteredData = this._applyFilter(filter, this.currentData, filteredData, i);
+                    filteredData = this._applyFilter(filter, this._currentItems, filteredData, i);
                 }
-                this.currentData = filteredData;
+                this.set('_currentItems', filteredData);
             }
+            this.$.table.refresh();
         },
         handleExpand: function () {
             this.super();
             this.page = 1;
         },
-        handleShowSelected: function () {
-            this.showSelected = !this.showSelected;
-            if (this.showSelected) {
-                this.page = 1;
-            }
-        },
-//            handleEditSelect: function (e) {
-//                if (this.editSelected == e.currentTarget.dataset.name) {
-//                    this.editSelected = null;
-//                } else {
-//                    this.editSelected = e.currentTarget.dataset.name;
-//                }
-//            },
         handleEditApply: function (e) {
-            this.attributeManager.updateRowsColumn(this.attributeManager.selected, this.$.selectEdit.value, this.newValue);
-            this.attributeManager._update();
+            if (this._newValue != '') {
+                var colName = this.$.selectEdit.value;
+                var found = false;
+                for (var i = 0; i < this.columns.length; i++) {
+                    var column = this.columns[i];
+                    if (column.name == colName) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    for (var i = 0; i < this.items.length; i++) {
+                        var item = this.items[i];
+                        item.attributes[colName] = this._newValue;
+                    }
+                    this.$.table.refresh();
+                }
+            }
+            this.fire('update-row');
         },
         handleRemoveApply: function (e) {
             if (confirm('Delete this attribute?')) {
-//                    if (this.editSelected == e.currentTarget.dataset.name) {
-//                        this.editSelected = null;
-//                    }
-
-                this.attributeManager.removeColumnByName(this.$.selectDelete.value);
+                var colName = this.$.selectDelete.value;
+                var colIndex;
+                var found = false;
+                for (var i = 0; i < this.columns.length; i++) {
+                    var column = this.columns[i];
+                    if (column.name == colName) {
+                        found = true;
+                        colIndex = i;
+                        break;
+                    }
+                }
+                if (found) {
+                    this.splice('columns', colIndex, 1)
+                }
             }
         },
         handleAddApply: function (e) {
-            if (this.newColumnName != '') {
-                var added = this.attributeManager.addColumn({
-                    defaultValue: "",
-                    name: this.newColumnName.toLowerCase(),
-                    title: this.newColumnName,
-                    type: "string",
-                    cellTemplate: "inputTemplate"
-                });
-                if (added) {
-                    this.newColumnName = '';
+            if (this._newColumnName != '') {
+                var found = false;
+                for (var i = 0; i < this.columns.length; i++) {
+                    var column = this.columns[i];
+                    if (column.name == this._newColumnName) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    this.push('columns', {
+                        name: this._newColumnName,
+                        title: this._newColumnName,
+                        type: "text",
+                        formula: function (row) {
+                            return row.attributes[this.name];
+                        }
+                    });
+                    this._newColumnName = '';
                 }
             }
         },
         handleSelectAll: function () {
-            this.attributeManager.selectAll();
+            this.fire('selectall')
         },
         handleDeselectAll: function () {
-            this.attributeManager.deselectAll();
+            this.fire('deselectall')
         },
         /* Search */
         handleAttributeNameSelect: function (e) {
@@ -561,23 +541,21 @@
             this._numberMatch = e.currentTarget.dataset.name;
         },
         handleCreateFilter: function () {
-            var attributeName = this.shadowRoot.querySelector('#filterAttributeSelect').value;
-
+            var attributeName = this.$.filterAttributeSelect.value;
             var match;
-            if (this.attributeType == 'string') {
-                match = this.stringMatch;
-            } else if (this.attributeType == 'number') {
-                match = this.numberMatch;
+            if (this._attributeType == 'string') {
+                match = this._stringMatch;
+            } else if (this._attributeType == 'number') {
+                match = this._numberMatch;
             }
-
             var filter = {
                 attributeName: attributeName,
-                queryString: this.queryString,
-                attributeType: this.attributeType,
+                queryString: this._queryString,
+                attributeType: this._attributeType,
                 match: match
             };
-            this._filters.push(filter);
-            this._checkCurrentData();
+            this.push('_filters', filter);
+            this._checkCurrentItems();
             this.handleViewFilters();
         },
         _applyFilter: function (filter, fullData, filteredData, filterIndex) {
@@ -587,7 +565,6 @@
             } else {
                 dataToIterate = filteredData;
             }
-
             if (filter.attributeType == 'string') {
                 switch (filter.match) {
                     case 'exact':
@@ -695,13 +672,13 @@
             }
         },
         handleDeleteFilter: function (e) {
-            var index = e.target.model.filterIndex;
-            this._filters.splice(index, 1);
-            this._checkCurrentData();
+            var index = e.model.filterIndex;
+            this.splice('_filters', index, 1);
+            this._checkCurrentItems();
         },
         handleDeleteFilters: function (e) {
-            this._filters = [];
-            this._checkCurrentData();
+            this.set('_filters', []);
+            this._checkCurrentItems();
         },
         handleViewFilters: function (e) {
             this._filterSelectedOption = 'view';

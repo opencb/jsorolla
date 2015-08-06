@@ -333,6 +333,7 @@
             },
             handleCloseAction: function () {
                 this.hidden = true;
+                this.fire('close');
             },
             handlePinAction: function (e) {
                 this.style.position = '';
@@ -347,9 +348,9 @@
                 if (this.expandible) {
                     this.expanded = !this.expanded;
                     if (this.expanded) {
+                        this.style.position = 'fixed';
                         this.style.width = '100%';
                         this.style.height = '100%';
-                        this.style.position = 'fixed';
                         this.style.top = '0';
                         this.style.left = '0';
                     } else {

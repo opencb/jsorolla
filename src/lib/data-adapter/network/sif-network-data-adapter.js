@@ -26,7 +26,7 @@ function SIFNetworkDataAdapter(args) {
     this.async = true;
 
     this.separator = "\t";
-    this.graph = new Graph();
+    this.graph = new JsoGraph();
 
 
     //set instantiation args, must be last
