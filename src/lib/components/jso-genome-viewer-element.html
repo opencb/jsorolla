@@ -59,12 +59,11 @@
 <script src="../widgets/feature/file/gff-file-widget.js"></script>
 <script src="../widgets/feature/file/bed-file-widget.js"></script>
 
-<script src="../widgets/feature/info/info-widget.js"></script>
-<script src="../widgets/feature/info/gene-info-widget.js"></script>
-<script src="../widgets/feature/info/protein-info-widget.js"></script>
-<script src="../widgets/feature/info/snp-info-widget.js"></script>
-<script src="../widgets/feature/info/transcript-info-widget.js"></script>
-<script src="../widgets/feature/info/vcf-variant-info-widget.js"></script>
+
+<link rel="import" href="../components/cellbase/jso-gene-info-panel.html">
+<link rel="import" href="../components/cellbase/jso-transcript-info-panel.html">
+<link rel="import" href="../components/cellbase/jso-snp-info-panel.html">
+
 
 <script src="../../genome-viewer/genome-viewer.js"></script>
 <link rel="stylesheet" href="../../../styles/css/style.css">
@@ -210,6 +209,8 @@
                 return this.genomeViewer;
             },
             addOverviewTracks: function () {
+                var me = this;
+
                 var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
                 renderer.on({
                     'feature:click': function (event) {
@@ -241,18 +242,20 @@
                 this.genomeViewer.addOverviewTrack(gene);
             },
             addDefaultTracks: function () {
-                var sequenceTrack = new SequenceTrack({
+                var sequenceTrack = new FeatureTrack({
                     title: 'Sequence',
                     height: 25,
                     visibleRegionSize: 200,
-
                     renderer: new SequenceRenderer(),
-
-                    dataAdapter: new SequenceAdapter({
+                    dataAdapter: new CellBaseAdapter({
                         category: "genomic",
                         subCategory: "region",
                         resource: "sequence",
-                        species: this.genomeViewer.species
+                        params: {},
+                        species: this.genomeViewer.species,
+                        cacheConfig: {
+                            chunkSize: 100
+                        }
                     })
                 });
                 this.genomeViewer.addTrack(sequenceTrack);
@@ -264,16 +267,17 @@
                     maxLabelRegionSize: 10000000,
                     minTranscriptRegionSize: 200000,
                     height: 100,
-
                     renderer: new GeneRenderer({
                         handlers: {
                             'feature:click': function (e) {
+                                console.log(e);
+                                console.log(e.feature);
                                 switch (e.featureType) {
                                     case "gene":
-//                                        new GeneInfoWidget(null, this.genomeViewer.species).draw(e);
+                                        me.$.content.appendChild(new JsoGeneInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
                                         break;
                                     case "transcript":
-//                                        new TranscriptInfoWidget(null, this..genomeViewer.species).draw(e);
+                                        me.$.content.appendChild(new JsoTranscriptInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
                                         break;
                                     default:
                                         break;
@@ -281,7 +285,6 @@
                             }
                         }
                     }),
-
                     dataAdapter: new CellBaseAdapter({
                         category: "genomic",
                         subCategory: "region",
@@ -297,21 +300,17 @@
                 });
                 this.genomeViewer.addTrack(geneTrack);
 
-
                 var renderer = new FeatureRenderer(FEATURE_TYPES.snp);
                 renderer.on('feature:click', function (e) {
-                    new SnpInfoWidget(null, me.genomeViewer.species).draw(e);
-
+                    me.$.content.appendChild(new JsoSnpInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
                 });
-                var snpTrack = new FeatureTrack({
+                snpTrack = new FeatureTrack({
                     title: 'SNP',
                     featureType: 'SNP',
                     minHistogramRegionSize: 12000,
                     maxLabelRegionSize: 3000,
                     height: 120,
-
                     renderer: renderer,
-
                     dataAdapter: new CellBaseAdapter({
                         category: "genomic",
                         subCategory: "region",
