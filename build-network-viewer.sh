@@ -1,20 +1,50 @@
 #!/bin/sh
-rm -rf build/network-viewer
-mkdir -p build/network-viewer
+NAME="network-viewer"
+BP=build/$NAME
 
-vulcanize src/network-viewer/jso-network-viewer.html -o build/network-viewer/jso-network-viewer-min.html --strip --csp --inline
+rm -rf $BP
+mkdir -p $BP
+mkdir -p $BP/tmp
+mkdir -p $BP/fonts
+mkdir -p $BP/fontawesome
+mkdir -p $BP/images
 
-cp -r bower_components/fontawesome/fonts build/network-viewer/
-cp -r styles/fonts/*.woff* build/network-viewer/fonts/
-cp -r src/network-viewer/example-files build/network-viewer/
+vulcanize \
+    --inline-scripts \
+    --inline-css \
+    --strip-comments \
+    --exclude "src/network-viewer/nv-theme.html" \
+    src/$NAME/jso-network-viewer-index.html > $BP/tmp/build.html
 
-sed -i 's@../../bower_components/fontawesome/fonts/fontawesome-webfont.@fonts/fontawesome-webfont.@g' build/network-viewer/jso-network-viewer-min.html
-sed -i 's@../../styles/fonts/@fonts/@g' build/network-viewer/jso-network-viewer-min.html
+crisper \
+    --source $BP/tmp/build.html \
+    --html $BP/tmp/index.html \
+    --js $BP/tmp/$NAME.js
+
+rm -rf $BP/tmp/build.html
+
+uglifyjs $BP/tmp/$NAME.js > $BP/tmp/$NAME.min.js
+
+sed -i s@$NAME.js@$NAME.min.js@g $BP/tmp/index.html
 
 
-cp -r bower_components/webcomponentsjs/ build/network-viewer/
-cp src/network-viewer/jso-network-viewer-index.html build/network-viewer/index.html
+#fix paths
+sed -i s@../../styles/fonts/@fonts/@g $BP/tmp/index.html
+cp -r styles/fonts/* $BP/fonts/
 
 
-sed -i 's@../../bower_components/@@g' build/network-viewer/index.html
-sed -i 's@jso-network-viewer.html@jso-network-viewer-min.html@g' build/network-viewer/index.html
+sed -i s@../../bower_components/fontawesome/fonts/@fontawesome/fonts/@g $BP/tmp/index.html
+cp -r bower_components/fontawesome/css $BP/fontawesome/
+cp -r bower_components/fontawesome/fonts $BP/fontawesome/
+## end fix paths
+
+#cp LICENSE $BP/
+#cp README.md $BP/
+
+mv $BP/tmp/index.html $BP/
+mv $BP/tmp/$NAME.js $BP/
+mv $BP/tmp/$NAME.min.js $BP/
+cp -r src/$NAME/nv-theme.html $BP/
+cp -r src/$NAME/example-files $BP/
+
+rm -rf $BP/tmp
