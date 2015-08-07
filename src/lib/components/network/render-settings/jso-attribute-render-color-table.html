@@ -148,7 +148,7 @@
 
                         <div class="flex horizontal layout end-justified" style="margin:0  0 5px 0">
                             <div class="jso-btn jso-btn-shdw">
-                                Max & Min &nbsp; <i class="fa fa-refresh"style="color:#FF6600"></i>
+                                Max & Min &nbsp; <i class="fa fa-refresh" style="color:#FF6600"></i>
                             </div>
                             <div class="flex"></div>
                             <div class="jso-btn jso-btn-shdw" on-click="handleApplyInterpolation">
@@ -177,7 +177,8 @@
                                 <div class="horizontal layout center row">
                                     <div class="flex">{{uitem.attribute}}</div>
                                     <div class="flex horizontal layout">
-                                        <div tabindex="-1" class="colorbox" style$="{{_computeBackgroundColor(uitem.render)}}"
+                                        <div tabindex="-1" class="colorbox"
+                                             style$="{{_computeBackgroundColor(uitem.render)}}"
                                              on-click="handleChangeFocusInUniqueColor"
                                              on-focusout="handleChangeFocusOutUniqueColor"></div>
                                         <input class="jso flex" type="text" value="{{uitem.render::input}}">
@@ -239,7 +240,7 @@
                 this.hideColorMenu = true;
             },
             _computeBackgroundColor: function (value) {
-                return 'background-color:'+value+';';
+                return 'background-color:' + value + ';';
             },
 
             _updateUniqueInterpolatedValues: function (uniqueItems) {
@@ -327,7 +328,8 @@
             <input class="jso flex" type="number" value="{{point.value::input}}">
 
             <!--<input flex type="color" value="{{point.render}}">-->
-            <jso-color-picker class="flex" on-color-click="handleColorPicker"></jso-color-picker>
+            <jso-color-picker id="colorPicker" class="flex" on-color-click="handleColorPicker"
+                              color="{{point.render}}"></jso-color-picker>
 
             <div class="jso-btn jso-btn-shdw remove" allowRemove$="{{allowRemove}}" on-click="handleRemove"></div>
         </div>

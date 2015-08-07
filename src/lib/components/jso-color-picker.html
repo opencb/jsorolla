@@ -102,11 +102,12 @@
             },
             colors: {
                 type: Array,
-                computed:'computeColors(preset)'
+                computed: 'computeColors(preset)'
             },
             color: {
                 type: String,
-                notify:true,
+                notify: true,
+                reflectToAttribute: true,
                 value: ''
             },
             ctitle: {
@@ -150,7 +151,7 @@
         computeColorStyle: function (color) {
             return 'background-color:' + color;
         },
-        computeColors:function(preset){
+        computeColors: function (preset) {
             return this._generateColors(preset);
         },
         _generateColors: function (preset) {

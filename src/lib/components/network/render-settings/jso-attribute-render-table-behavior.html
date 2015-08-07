@@ -12,7 +12,8 @@
             },
             visualSet: {
                 type: Object,
-                notify: true
+                notify: true,
+                observer: 'visualSetChanged'
             },
             items: {
                 type: Array
@@ -114,7 +115,11 @@
 //                }
 //            }
         },
-
+        visualSetChanged: function (neo, old) {
+            if (neo) {
+                this.loadVisualSet();
+            }
+        },
 
         clean: function () {
             if (this.$.columnSelectBox) {
@@ -140,14 +145,7 @@
         },
 
         applyDirect: function (attributeName) {
-            var col;
-            for (var i = 0; i < this.columns.length; i++) {
-                var column = this.columns[i];
-                if (column.name == attributeName) {
-                    col = column;
-                    break;
-                }
-            }
+            var col = this._searchColumnByName(attributeName);
             if (col != null) {
                 this.set('selectedColumn', col);
                 this._updateUniqueValues();
@@ -155,23 +153,38 @@
                 this.handleOk();
             }
         },
+        
+        loadVisualSet: function () {
+            //check if visualset is set for first time programmatically
+            var col = this._searchColumnByName(this.visualSet.attribute);
+            if (col != null && col !== this.selectedColumn) {
+                this.$.columnSelectBox.selectByName(this.visualSet.attribute);
+            }
+            if (this.$.typeSelectBox && this.visualSet.type !== this.attributeType.name) {
+                this.$.typeSelectBox.selectByName(this.visualSet.type);
+                this.set('points', this.visualSet.points);
+            }
+            if (this.$.parseSelectBox && this.visualSet.parse !== this.attributeParse.name) {
+                this.$.parseSelectBox.selectByName(this.visualSet.parse);
+            }
+            this.set('uniqueMatches', this.visualSet.matches);
+        },
+
         applyVisualSet: function (visualSet) {
+            this.set('visualSet', visualSet);
+            this.handleOk();
+        },
+        _searchColumnByName: function (name) {
             var col;
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
-                if (column.name == visualSet.attribute) {
+                if (column.name == name) {
                     col = column;
                     break;
                 }
             }
-            if (col != null) {
-                this.set('selectedColumn', col);
-                this.set('visualSet', visualSet);
-                this._updateUniqueValues();
-                this.handleOk();
-            }
+            return col;
         },
-
 
         isCategoricalType: function (attributeType) {
             return attributeType.name == 'categorical';

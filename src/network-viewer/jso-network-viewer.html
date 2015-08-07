@@ -840,11 +840,6 @@
             this.backgroundColor = o.backgroundColor;
             this.center.x = o.center.x;
             this.center.y = o.center.y;
-            this.vertexDefaults = o.vertexDefaults;
-            this.edgeDefaults = o.edgeDefaults;
-            this.vertexVisualSets = o.vertexVisualSets;
-            this.edgeVisualSets = o.edgeVisualSets;
-
 
 //            var graph = new JsoGraph;
 //            graph.fromJSON(o.graph);
@@ -858,6 +853,12 @@
             var newEdgeColumns = this._getNewColumns(o.edgeColumns, this.edgeColumns);
             this.set('vertexColumns', this.vertexColumns.concat(newVertexColumns));
             this.set('edgeColumns', this.edgeColumns.concat(newEdgeColumns));
+
+            this.vertexDefaults = o.vertexDefaults;
+            this.edgeDefaults = o.edgeDefaults;
+            this.vertexVisualSets = o.vertexVisualSets;
+            this.edgeVisualSets = o.edgeVisualSets;
+
 
             this.refreshGraphView();
 
