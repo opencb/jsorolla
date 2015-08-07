@@ -775,7 +775,7 @@
                         var input = document.createElement("select");
                         input.classList.add('style-scope', 'jso-table');
                         selwrap.appendChild(input);
-            debugger
+                        debugger
 
                         input._col = column.name;
                         var option = document.createElement("option");
@@ -869,7 +869,7 @@
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table',
-                    ('column-' + column.name));
+                    ('column-' + column.name.replace(/\s/g, '_')));
             if (isNaN(column.width)) {
                 el.classList.add('flex');
             } else {
@@ -1143,15 +1143,15 @@
                     var tooltipValue = value == null ? '' : value;
                     cEl.setAttribute("title", tooltipValue);
                 }
-            
-                cEl.classList.add("column-" + column.name); 
+
+                cEl.classList.add('column-' + column.name.replace(/\s/g, '_'));
                 el.appendChild(cEl);
             }
         },
         _deepValue: function (obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 var auxPath = path[i];
-                if(auxPath === "undefined"){
+                if (auxPath === "undefined") {
                     continue;
                 }
                 obj = auxPath;

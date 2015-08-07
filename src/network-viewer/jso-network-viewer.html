@@ -519,6 +519,14 @@
                 type: Boolean,
                 value: false
             },
+            hideNodeRender: {
+                type: Boolean,
+                value: false
+            },
+            hideEdgeRender: {
+                type: Boolean,
+                value: false
+            },
             userData: {
                 type: Object,
             },
@@ -614,6 +622,9 @@
                 }
                 this.$.networkLayout.style.height = "calc(100% - " + h + "px)";
             });
+
+            this.$.nodeRenderPanel.hidden = this.hideNodeRender;
+            this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
 
             this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
@@ -982,11 +993,11 @@
             var margin = 100,
                     midMargin = margin / 2;
             var max, min, c;
-            var row, vertex;
+            var attributes, vertex;
             for (var i = 0; i < this.graph.vertices.length; i++) {
                 vertex = this.graph.vertices[i];
-                row = this.vAttr.getRow(vertex.id);
-                c = parseFloat(row[coordAttr]);
+                attributes = vertex.attributes;
+                c = parseFloat(attributes[coordAttr]);
                 if (!isNaN(c)) {
                     if (!max) {
                         max = c;
@@ -1002,11 +1013,11 @@
             } else {
                 measure = this.$.networkLayout.getBoundingClientRect()[measure] - margin;
             }
-            var row, vertex, c;
+            var attributes, vertex, c;
             for (var i = 0; i < this.graph.vertices.length; i++) {
                 vertex = this.graph.vertices[i];
-                row = this.vAttr.getRow(vertex.id);
-                c = parseFloat(row[coordAttr]);
+                attributes =  vertex.attributes;
+                c = parseFloat(attributes[coordAttr]);
                 c = (c - min) * measure / range;
                 if (invertAxis) {
                     c = measure - c;
@@ -2253,8 +2264,8 @@
             this.set('vertexColumns', this.vertexColumns.concat(newColumns));
 //            this.$.nodeRender.refreshAttributes();
 
-//            this.handleVertexDefaultXAttribute();
-//            this.handleVertexDefaultYAttribute();
+            this.handleVertexDefaultXAttribute();
+            this.handleVertexDefaultYAttribute();
         },
         _getNewColumns: function (newColumns, columns) {
             var found;

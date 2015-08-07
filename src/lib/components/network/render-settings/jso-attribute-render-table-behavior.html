@@ -117,10 +117,16 @@
 
 
         clean: function () {
-            this.columnSelectBox.selectByIndex(0);
-            this.typeSelectBox.selectByIndex(0);
-            this.parseSelectBox.selectByIndex(0);
-//
+            if (this.$.columnSelectBox) {
+                this.$.columnSelectBox.selectByIndex(0);
+            }
+            if (this.$.typeSelectBox) {
+                this.$.typeSelectBox.selectByIndex(0);
+            }
+            if (this.$.parseSelectBox) {
+                this.$.parseSelectBox.selectByIndex(0);
+            }
+
             this.uniqueItems = [];
             this.uniqueMatches = {};
         },
@@ -229,18 +235,26 @@
             }
             this.uniqueMatches = uniqueMatches;
 
-            /*Check enabled*/
+            /*Check*/
             var enabled = true;
             if (this.visualSet != null) {
                 enabled = this.visualSet.enabled ? true : false;
+            }
+            var type = 'categorical';
+            if (this.attributeType != null) {
+                type = this.attributeType.name;
+            }
+            var parse = 'string';
+            if (this.attributeParse != null) {
+                parse = this.attributeParse.name;
             }
 
             this.set('visualSet', {
                 attribute: this.selectedColumn.name,
                 displayProperty: this.displayProperty,
-                type: this.attributeType.name,
+                type: type,
                 matches: this.uniqueMatches,
-                parse: this.attributeParse.name,
+                parse: parse,
                 points: this.points,
                 enabled: enabled
             });
