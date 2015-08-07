@@ -28,6 +28,7 @@
     "d3": "~3.5.3",
     "qtip2": "~2.2.1",
     "pako": "~0.2.5",
-    "iron-list": "PolymerElements/iron-list#~1.0.0"
+    "iron-list": "PolymerElements/iron-list#~1.0.0",
+    "uri.js": "~1.16.0"
   }
 }

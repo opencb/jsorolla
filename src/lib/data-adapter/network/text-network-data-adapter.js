@@ -26,7 +26,7 @@ function TextNetworkDataAdapter(args) {
     this.async = true;
 
     this.separator = /\t/;
-    this.graph = new Graph();
+    this.graph = new JsoGraph();
 
 
     //set instantiation args, must be last
@@ -95,7 +95,7 @@ TextNetworkDataAdapter.prototype.parse = function (data) {
 };
 
 TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetIndex, relationIndex, relationDefaultName) {
-    this.graph = new Graph();
+    this.graph = new JsoGraph();
     this.addedVertex = {};
     this.addedEdges = {};
 

@@ -239,8 +239,7 @@ textarea.jso {
 }
 
 .jso-zoom-bar > div {
-    background-color: #445D76;
-    /*background-color: #DCDCDC;*/
+    background-color: #BBB;
     box-sizing: border-box;
     height: 100%;
     transition: all 0.2s;

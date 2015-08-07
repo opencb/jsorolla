@@ -75,7 +75,8 @@ Edge.prototype = {
             weight: this.weight,
             directed: this.directed,
             relation: this.relation,
-            renderer: this.renderer
+            renderer: this.renderer,
+            attributes: this.attributes
         }
     }
 }

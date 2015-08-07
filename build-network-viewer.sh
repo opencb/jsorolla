@@ -1,20 +1,63 @@
 #!/bin/sh
-rm -rf build/network-viewer
-mkdir -p build/network-viewer
+NAME="network-viewer"
+BP=build/$NAME
 
-vulcanize src/network-viewer/jso-network-viewer.html -o build/network-viewer/jso-network-viewer-min.html --strip --csp --inline
+rm -rf $BP
+mkdir -p $BP
+mkdir -p $BP/tmp
+mkdir -p $BP/fonts
+mkdir -p $BP/fontawesome
+#mkdir -p $BP/images
+mkdir -p $BP/css
 
-cp -r bower_components/fontawesome/fonts build/network-viewer/
-cp -r styles/fonts/*.woff* build/network-viewer/fonts/
-cp -r src/network-viewer/example-files build/network-viewer/
+vulcanize \
+    --inline-scripts \
+    --inline-css \
+    --strip-comments \
+    --exclude "src/network-viewer/nv-theme.html" \
+    src/$NAME/jso-network-viewer.html > $BP/tmp/build.html
 
-sed -i 's@../../bower_components/fontawesome/fonts/fontawesome-webfont.@fonts/fontawesome-webfont.@g' build/network-viewer/jso-network-viewer-min.html
-sed -i 's@../../styles/fonts/@fonts/@g' build/network-viewer/jso-network-viewer-min.html
+crisper \
+    --source $BP/tmp/build.html \
+    --html $BP/tmp/jso-network-viewer.html \
+    --js $BP/tmp/$NAME.js
+
+rm -rf $BP/tmp/build.html
+
+uglifyjs $BP/tmp/$NAME.js > $BP/tmp/$NAME.min.js
+
+sed -i s@$NAME.js@$NAME.min.js@g $BP/tmp/jso-network-viewer.html
 
 
-cp -r bower_components/webcomponentsjs/ build/network-viewer/
-cp src/network-viewer/jso-network-viewer-index.html build/network-viewer/index.html
+#cp LICENSE $BP/
+#cp README.md $BP/
+
+mv $BP/tmp/jso-network-viewer.html $BP/
+mv $BP/tmp/$NAME.js $BP/
+mv $BP/tmp/$NAME.min.js $BP/
+cp -r src/$NAME/nv-theme.html $BP/
+cp -r src/$NAME/example-files $BP/
+cp -r src/$NAME/jso-network-viewer-index.html $BP/index.html
+
+#
+# fix index.html paths
+#
+sed -i s@../../styles/@@g $BP/index.html
+cp -r styles/fonts/* $BP/fonts/
+
+sed -i s@../../bower_components/@@g $BP/index.html
+cp -r bower_components/fontawesome/css $BP/fontawesome/
+cp -r bower_components/fontawesome/fonts $BP/fontawesome/
+
+sed -i s@../lib/components/@css/@g $BP/index.html
+cp -r src/lib/components/jso-global.css $BP/css/
+cp -r src/lib/components/jso-form.css $BP/css/
+cp -r src/lib/components/jso-dropdown.css $BP/css/
 
 
-sed -i 's@../../bower_components/@@g' build/network-viewer/index.html
-sed -i 's@jso-network-viewer.html@jso-network-viewer-min.html@g' build/network-viewer/index.html
+sed -i s@../../bower_components/@@g $BP/index.html
+cp -r bower_components/webcomponentsjs $BP/
+## end fix paths
+
+
+rm -rf $BP/tmp

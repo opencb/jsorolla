@@ -4,7 +4,8 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         def: {
             name: 'genome-viewer',
-            build: 'build/<%= pkg.version %>/<%= def.name %>'
+            build: 'build/<%= pkg.version %>/<%= def.name %>',
+            vendorbuild: '<%= def.build %>/vendor'
         },
         concat: {
             options: {
@@ -47,12 +48,14 @@ module.exports = function (grunt) {
         copy: {
             dist: {
                 files: [
-                    {   expand: true, cwd: './', src: ['vendor/underscore-min.js'], dest: '<%= def.build %>' },
-                    {   expand: true, cwd: './', src: ['vendor/backbone-min.js'], dest: '<%= def.build %>' },
-                    {   expand: true, cwd: './', src: ['vendor/font-awesome/**'], dest: '<%= def.build %>' },
-                    {   expand: true, cwd: './', src: ['vendor/jquery.min.js'], dest: '<%= def.build %>' },
-                    {   expand: true, cwd: './', src: ['vendor/jquery.qtip.min.css'], dest: '<%= def.build %>' },
-                    {   expand: true, cwd: './', src: ['vendor/jquery.qtip.min.js'], dest: '<%= def.build %>' },
+
+                    {   expand: true, cwd: './bower_components', src: ['underscore/underscore-min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['backbone/backbone.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['fontawesome/**'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['jquery/dist/jquery.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['qtip2/jquery.qtip.min.css'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['qtip2/jquery.qtip.min.js'], dest: '<%= def.vendorbuild %>' },
+                    {   expand: true, cwd: './bower_components', src: ['uri.js/src/URI.min.js'], dest: '<%= def.vendorbuild %>' },
                     {   expand: true, cwd: './', src: ['styles/**'], dest: '<%= def.build %>/' }, // includes files in path and its subdirs
                     {   expand: true, cwd: './src/<%= def.name %>/', src: ['gv-config.js'], dest: '<%= def.build %>/' }
                 ]

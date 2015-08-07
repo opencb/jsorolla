@@ -25,7 +25,7 @@ function XLSXNetworkDataAdapter(args) {
     this.dataSource;
     this.async = true;
 
-    this.graph = new Graph();
+    this.graph = new JsoGraph();
     this.xlsx;
 
     //set instantiation args, must be last

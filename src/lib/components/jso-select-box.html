@@ -1,47 +1,79 @@
-<dom-module id="jso-attribute-render-number-point">
+<dom-module id="jso-select-box">
     <style>
         :host {
             display: block;
             position: relative;
             box-sizing: border-box;
-        }
-
-        .selbox {
-            box-sizing: border-box;
             overflow-y: auto;
-            border: 1px solid #d3d3d3;
+            border: 1px solid var(--divider-color);
             background-color: #FFF;
         }
 
-        .selitem {
+        .item {
             padding: 2px 5px;
+            cursor: pointer;
         }
 
-        .selitem[data-checked=true] {
+        .item[data-checked] {
             background-color: #ddd;
         }
     </style>
     <template>
-        <div class="selbox">
-            <div class="selitem flex" data-checked="{{attributeType == 'discrete'}}"
-                 on-mousedown="{{handleAttributeTypeSelect}}" data-name="discrete">Categorical
+        <template is="dom-repeat" items="{{options}}" as="option">
+            <div class="item flex"
+                 data-checked$="{{isSelected(selected, option)}}"
+                 on-mousedown="handleSelect">
+                <span>{{option.title}}</span>
             </div>
-            <div  class="selitem flex" data-checked="{{attributeType == 'continuous'}}"
-                 on-mousedown="{{handleAttributeTypeSelect}}" data-name="continuous">Continuous
-            </div>
-        </div>
+        </template>
     </template>
 </dom-module>
 <script>
     Polymer({
-        is: 'jso-network-attribute-list',
+        is: 'jso-select-box',
         properties: {
-            columns: {
-                type: Array
+            options: {
+                type: Array,
+                observer: 'optionsChanged'
+            },
+            selected: {
+                type: Object
+            },
+            selectFirst: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: true
             }
         },
-        handleRemove: function () {
-            this.splice('points', this.points.indexOf(this.point), 1);
+        optionsChanged: function () {
+            this.set('selected', this.options[0]);
+            this.fire('select', this.selected);
+        },
+        handleSelect: function (e) {
+            this.set('selected', e.model.option);
+            this.fire('select', this.selected);
+        },
+        isSelected: function (selected, current) {
+            return selected == current;
+        },
+        selectByIndex: function (index) {
+            if (this.options[index] != null) {
+                this.set('selected', this.options[index]);
+                this.fire('select', this.selected);
+            }
+        },
+        selectByName: function (name) {
+            var index = -1;
+            for (var i = 0; i < this.options.length; i++) {
+                var option = this.options[i];
+                if(option.name == name){
+                    index = i;
+                    break;
+                }
+            }
+            if(index > -1){
+                this.selectByIndex(index);
+            }
         }
     });
 </script>
