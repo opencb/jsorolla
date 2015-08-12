@@ -71,6 +71,7 @@ FeatureTrack.prototype.updateHeight = function () {
     if (this.resizable) {
         if (this.autoHeight == false) {
             $(this.contentDiv).css({'height': this.height});
+            this.main.setAttribute('height', this.height);
         } else if (this.autoHeight == true) {
             var x = this.pixelPosition;
             var width = this.width;
