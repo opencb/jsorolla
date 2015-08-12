@@ -692,7 +692,6 @@
             for (var i = 0; i < els.length; i++) {
                 this.$.headerRow.removeChild(els[i]);
             }
-            this._createHeaderRow();
 
             var totalColWidth = 0;
             for (var i = 0; i < this.columns.length; i++) {
@@ -706,6 +705,7 @@
                 this._processColumn(column, x);
                 column.plainColumns = x;
             }
+            this._createHeaderRow();
             this._createFilterRow();
 
 
