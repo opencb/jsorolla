@@ -33,17 +33,18 @@ function CellBaseAdapter(args) {
 }
 
 CellBaseAdapter.prototype = {
-    setSpecies: function (species) {
+    setSpecies: function(species) {
         this.species = species;
         this.configureCache();
     },
-    setHost: function (host) {
+    setHost: function(host) {
         this.configureCache();
         this.host = host;
     },
-    configureCache: function () {
+    configureCache: function() {
         var host = this.host || CellBaseManager.host;
-        var cacheId = host + (this.species.text + this.species.assembly).replace(/[/_().\ -]/g, '');
+        var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
+        var cacheId = host + speciesString;
         if (!this.cacheConfig) {
             this.cacheConfig = {
                 //    //subCacheId: this.resource + this.params.keys(),
@@ -54,7 +55,7 @@ CellBaseAdapter.prototype = {
         this.cache = new FeatureChunkCache(this.cacheConfig);
     },
 
-    getData: function (args) {
+    getData: function(args) {
         var _this = this;
 
         var params = {};
@@ -91,7 +92,7 @@ CellBaseAdapter.prototype = {
          * by the Cache TODO????
          * Cached chunks will be returned by the args.dataReady Callback.
          */
-        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
+        this.cache.get(region, categories, dataType, chunkSize, function(cachedChunks, uncachedRegions) {
 
             var category = categories[0];
             var categoriesName = "";
@@ -121,13 +122,13 @@ CellBaseAdapter.prototype = {
                         query: queryRegion.toString(),
                         resource: _this.resource,
                         params: params,
-                        success: function (response) {
+                        success: function(response) {
                             var responseChunks = _this._cellbaseSuccess(response, categories, dataType, chunkSize);
                             args.webServiceCallCount--;
 
                             chunks = chunks.concat(responseChunks);
                             if (args.webServiceCallCount === 0) {
-                                chunks.sort(function (a, b) {
+                                chunks.sort(function(a, b) {
                                     return a.chunkKey.localeCompare(b.chunkKey)
                                 });
                                 args.done({
@@ -135,7 +136,7 @@ CellBaseAdapter.prototype = {
                                 });
                             }
                         },
-                        error: function () {
+                        error: function() {
                             console.log('Server error');
                             args.done();
                         }
@@ -151,7 +152,7 @@ CellBaseAdapter.prototype = {
         });
     },
 
-    _cellbaseSuccess: function (data, categories, dataType, chunkSize) {
+    _cellbaseSuccess: function(data, categories, dataType, chunkSize) {
         var timeId = Utils.randomString(4) + this.resource + " save";
         console.time(timeId);
         /** time log **/
@@ -185,7 +186,7 @@ CellBaseAdapter.prototype = {
      * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
-    _groupQueries: function (uncachedRegions) {
+    _groupQueries: function(uncachedRegions) {
         var groupSize = 50;
         var queriesLists = [];
         while (uncachedRegions.length > 0) {

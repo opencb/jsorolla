@@ -86,7 +86,7 @@ function NavigationBar(args) {
 
 NavigationBar.prototype = {
 
-    render: function () {
+    render: function() {
         var _this = this;
 
 
@@ -197,15 +197,15 @@ NavigationBar.prototype = {
 
         /*** ***/
 
-        this.els.menuButton.addEventListener('click', function (e) {
+        this.els.menuButton.addEventListener('click', function(e) {
             _this.trigger('menuButton:click', {clickEvent: e, sender: {}})
         });
 
-        this.els.leftSideButton.addEventListener('click', function (e) {
+        this.els.leftSideButton.addEventListener('click', function(e) {
             _this.trigger('leftSideButton:click', {clickEvent: e, sender: {}})
         });
 
-        this.els.restoreDefaultRegionButton.addEventListener('click', function (e) {
+        this.els.restoreDefaultRegionButton.addEventListener('click', function(e) {
             _this.trigger('restoreDefaultRegion:click', {clickEvent: e, sender: {}})
         });
 
@@ -214,36 +214,35 @@ NavigationBar.prototype = {
         this._setChromosomeMenu();
         this._setSpeciesMenu();
         this.els.chromosomesText.textContent = this.region.chromosome;
-        this.els.speciesText.textContent = this.species.text;
+        this.els.speciesText.textContent = this.species.scientificName;
 
 
-        this.els.karyotypeButton.addEventListener('click', function () {
+        this.els.karyotypeButton.addEventListener('click', function() {
             _this.trigger('karyotype-button:change', {selected: this.checked, sender: _this});
         });
-        this.els.chromosomeButton.addEventListener('click', function () {
+        this.els.chromosomeButton.addEventListener('click', function() {
             _this.trigger('chromosome-button:change', {selected: this.checked, sender: _this});
         });
-        this.els.regionButton.addEventListener('click', function () {
+        this.els.regionButton.addEventListener('click', function() {
             _this.trigger('region-button:change', {selected: this.checked, sender: _this});
         });
 
 
-        this.els.zoomOutButton.addEventListener('click', function () {
+        this.els.zoomOutButton.addEventListener('click', function() {
             _this._handleZoomOutButton();
         });
-        this.els.zoomInButton.addEventListener('click', function () {
+        this.els.zoomInButton.addEventListener('click', function() {
             _this._handleZoomInButton();
         });
-        this.els.zoomMaxButton.addEventListener('click', function () {
+        this.els.zoomMaxButton.addEventListener('click', function() {
             _this._handleZoomSlider(100);
         });
-        this.els.zoomMinButton.addEventListener('click', function () {
+        this.els.zoomMinButton.addEventListener('click', function() {
             _this._handleZoomSlider(0);
         });
 
 
-
-        var zoomBarMove = function (e) {
+        var zoomBarMove = function(e) {
             var progressBarCont = _this.els.progressBarCont;
             var br = progressBarCont.getBoundingClientRect();
             var offsetX = e.clientX - br.left;
@@ -252,7 +251,7 @@ NavigationBar.prototype = {
                 _this.els.progressBarBall.style.left = zoom + '%';
             }
         };
-        this.els.progressBarCont.addEventListener('click', function (e) {
+        this.els.progressBarCont.addEventListener('click', function(e) {
             var br = this.getBoundingClientRect();
             var offsetX = e.clientX - br.left;
             var zoom = 100 / parseInt(getComputedStyle(this).width) * offsetX;
@@ -260,47 +259,47 @@ NavigationBar.prototype = {
 
             this.removeEventListener('mousemove', zoomBarMove);
         });
-        this.els.progressBarBall.addEventListener('mousedown', function (e) {
+        this.els.progressBarBall.addEventListener('mousedown', function(e) {
             _this.els.progressBarCont.addEventListener('mousemove', zoomBarMove);
         });
-        this.els.progressBarBall.addEventListener('mouseleave', function (e) {
+        this.els.progressBarBall.addEventListener('mouseleave', function(e) {
             _this.els.progressBarCont.removeEventListener('mousemove', zoomBarMove);
             _this.els.progressBarBall.style.left = _this.zoom + '%';
         });
 
         this.els.regionField.value = this.region.toString();
-        this.els.regionField.addEventListener('keyup', function (event) {
+        this.els.regionField.addEventListener('keyup', function(event) {
             if (_this._checkRegion(this.value) && event.which === 13) {
                 _this._triggerRegionChange({region: new Region(this.value), sender: this});
             }
         });
-        this.els.goButton.addEventListener('click', function () {
+        this.els.goButton.addEventListener('click', function() {
             var value = _this.els.regionField.value;
             if (_this._checkRegion(value)) {
                 _this._triggerRegionChange({region: new Region(value), sender: this});
             }
         });
 
-        this.els.moveFurtherLeftButton.addEventListener('click', function () {
+        this.els.moveFurtherLeftButton.addEventListener('click', function() {
             _this._handleMoveRegion(10);
         });
 
-        this.els.moveFurtherRightButton.addEventListener('click', function () {
+        this.els.moveFurtherRightButton.addEventListener('click', function() {
             _this._handleMoveRegion(-10);
         });
 
-        this.els.moveLeftButton.addEventListener('click', function () {
+        this.els.moveLeftButton.addEventListener('click', function() {
             _this._handleMoveRegion(1);
         });
 
-        this.els.moveRightButton.addEventListener('click', function () {
+        this.els.moveRightButton.addEventListener('click', function() {
             _this._handleMoveRegion(-1);
         });
 
 //        this.els.autoheightButton.addEventListener('click', function (e) {
 //            _this.trigger('autoHeight-button:click', {clickEvent: e, sender: _this});
 //        });
-        this.els.autoheightButton.addEventListener('click', function () {
+        this.els.autoheightButton.addEventListener('click', function() {
             _this.trigger('autoHeight-button:change', {selected: this.checked, sender: _this});
         });
 
@@ -309,7 +308,7 @@ NavigationBar.prototype = {
 
 
         var lastQuery = '';
-        this.els.searchField.addEventListener('keyup', function (event) {
+        this.els.searchField.addEventListener('keyup', function(event) {
             this.classList.remove('error');
             var query = this.value;
             if (query.length > 2 && lastQuery !== query && event.which !== 13) {
@@ -326,7 +325,7 @@ NavigationBar.prototype = {
             }
         });
 
-        this.els.quickSearchButton.addEventListener('click', function () {
+        this.els.quickSearchButton.addEventListener('click', function() {
             _this.els.searchField.classList.remove('error');
             var query = _this.els.searchField.value;
             var item = _this.quickSearchDataset[query];
@@ -338,7 +337,7 @@ NavigationBar.prototype = {
         });
 
         this.els.windowSizeField.value = this.region.length();
-        this.els.windowSizeField.addEventListener('keyup', function (event) {
+        this.els.windowSizeField.addEventListener('keyup', function(event) {
             var value = this.value;
             var pattern = /^([0-9])+$/;
             if (pattern.test(value)) {
@@ -359,7 +358,7 @@ NavigationBar.prototype = {
         });
         this.rendered = true;
     },
-    draw: function () {
+    draw: function() {
         this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
         if (!this.targetDiv) {
             console.log('target not found');
@@ -368,17 +367,17 @@ NavigationBar.prototype = {
         this.targetDiv.appendChild(this.div);
     },
 
-    _addRegionHistoryMenuItem: function (region) {
+    _addRegionHistoryMenuItem: function(region) {
         var _this = this;
         var menuEntry = document.createElement('li');
         menuEntry.textContent = region.toString();
         this.els.regionHistoryMenu.appendChild(menuEntry);
-        menuEntry.addEventListener('click', function () {
+        menuEntry.addEventListener('click', function() {
             _this._triggerRegionChange({region: new Region(this.textContent), sender: _this})
         });
     },
 
-    _setQuickSearchMenu: function (query) {
+    _setQuickSearchMenu: function(query) {
         if (typeof this.quickSearchResultFn === 'function') {
             while (this.els.searchDataList.firstChild) {
                 this.els.searchDataList.removeChild(this.els.searchDataList.firstChild);
@@ -399,7 +398,7 @@ NavigationBar.prototype = {
         }
     },
 
-    _setChromosomeMenu: function () {
+    _setChromosomeMenu: function() {
         var _this = this;
 
         while (this.els.chromosomesMenu.firstChild) {
@@ -437,7 +436,7 @@ NavigationBar.prototype = {
             menuEntry.textContent = chr;
             this.els.chromosomesMenu.appendChild(menuEntry);
 
-            menuEntry.addEventListener('click', function () {
+            menuEntry.addEventListener('click', function() {
                 var region = new Region({
                     chromosome: this.textContent,
                     start: _this.region.start,
@@ -490,23 +489,33 @@ NavigationBar.prototype = {
 //            }
 //        }
 //    },
-    _setSpeciesMenu: function () {
+    _setSpeciesMenu: function() {
         var _this = this;
 
-        var createEntry = function (species, ul) {
+        var createSpeciesEntry = function(species, ul) {
             var menuEntry = document.createElement('li');
-            menuEntry.textContent = species.text + ' ' + species.assembly;
+            menuEntry.textContent = species.scientificName + ' (' + species.assembly.name + ')';
             ul.appendChild(menuEntry);
 
-            menuEntry.addEventListener('click', function () {
+            menuEntry.addEventListener('click', function() {
                 _this.trigger('species:change', {species: species, sender: _this});
             });
         };
 
-        var createTaxonomy = function (taxonomy) {
+        //var createAssemblyEntry = function(assembly, ul, species) {
+        //    var menuEntry = document.createElement('li');
+        //    menuEntry.textContent = assembly.name;
+        //    ul.appendChild(menuEntry);
+        //
+        //    menuEntry.addEventListener('click', function() {
+        //        _this.trigger('species:change', {species: species, sender: _this});
+        //    });
+        //};
+
+        var createTaxonomy = function(taxonomy) {
             var menuEntry = document.createElement('li');
             menuEntry.setAttribute('data-sub', true);
-            menuEntry.textContent = taxonomy.text;
+            menuEntry.textContent = taxonomy;
             _this.els.speciesMenu.appendChild(menuEntry);
 
             var ul = document.createElement('ul');
@@ -516,18 +525,25 @@ NavigationBar.prototype = {
         };
 
         //find species object
-        var list = [];
-        for (var i = 0; i < this.availableSpecies.items.length; i++) {
-            var taxonomy = this.availableSpecies.items[i];
+        //var list = [];
+        for (var taxonomy in this.availableSpecies) {
             var taxUl = createTaxonomy(taxonomy);
-
-            for (var j = 0; j < taxonomy.items.length; j++) {
-                var species = taxonomy.items[j];
-                createEntry(species, taxUl);
+            for (var i = 0; i < this.availableSpecies[taxonomy].length; i++) {
+                var species = this.availableSpecies[taxonomy][i];
+                createSpeciesEntry(species, taxUl);
             }
         }
+        //for (var i = 0; i < this.availableSpecies.items.length; i++) {
+        //    var taxonomy = this.availableSpecies.items[i];
+        //    var taxUl = createTaxonomy(taxonomy);
+        //
+        //    for (var j = 0; j < taxonomy.items.length; j++) {
+        //        var species = taxonomy.items[j];
+        //        createEntry(species, taxUl);
+        //    }
+        //}
     },
-    _checkRegion: function (value) {
+    _checkRegion: function(value) {
         var reg = new Region(value);
         if (!reg.parse(value) || reg.start < 0 || reg.end < 0 || _.indexOf(this.currentChromosomeList, reg.chromosome) == -1) {
             this.els.regionField.classList.add('error');
@@ -538,10 +554,10 @@ NavigationBar.prototype = {
         }
     },
 
-    _handleZoomOutButton: function () {
+    _handleZoomOutButton: function() {
         this._handleZoomSlider(Math.max(0, this.zoom - 5));
     },
-    _handleZoomSlider: function (value) {
+    _handleZoomSlider: function(value) {
         var _this = this;
         if (!_this.zoomChanging) {
             _this.zoomChanging = true;
@@ -549,16 +565,16 @@ NavigationBar.prototype = {
             _this.zoom = 5 * (Math.round(value / 5));
             _this.trigger('zoom:change', {zoom: _this.zoom, sender: _this});
             /**/
-            setTimeout(function () {
+            setTimeout(function() {
                 _this.zoomChanging = false;
             }, 700);
         }
     },
-    _handleZoomInButton: function () {
+    _handleZoomInButton: function() {
         this._handleZoomSlider(Math.min(100, this.zoom + 5));
     },
 
-    _handleMoveRegion: function (positions) {
+    _handleMoveRegion: function(positions) {
         var pixelBase = (this.width - this.svgCanvasWidthOffset) / this.region.length();
         var disp = Math.round((positions * 10) / pixelBase);
         this.region.start -= disp;
@@ -567,7 +583,7 @@ NavigationBar.prototype = {
         this.trigger('region:move', {region: this.region, disp: disp, sender: this});
     },
 
-    setVisible: function (obj) {
+    setVisible: function(obj) {
         for (key in obj) {
             var el = this.els[key];
             if (obj[key]) {
@@ -578,7 +594,7 @@ NavigationBar.prototype = {
         }
     },
 
-    setRegion: function (region, zoom) {
+    setRegion: function(region, zoom) {
         this.region.load(region);
         if (zoom) {
             this.zoom = 5 * (Math.round(zoom / 5));
@@ -586,36 +602,36 @@ NavigationBar.prototype = {
         this.updateRegionControls();
         this._addRegionHistoryMenuItem(region);
     },
-    moveRegion: function (region) {
+    moveRegion: function(region) {
         this.region.load(region);
         this.els.chromosomesText.textContent = this.region.chromosome;
         this.els.regionField.value = this.region.toString()
     },
 
-    setSpecies: function (species) {
+    setSpecies: function(species) {
         this.species = species;
-        this.els.speciesText.textContent = this.species.text;
+        this.els.speciesText.textContent = this.species.scientificName;
         this._setChromosomeMenu();
     },
 
-    setWidth: function (width) {
+    setWidth: function(width) {
         this.width = width;
     },
-    _triggerRegionChange: function (event) {
+    _triggerRegionChange: function(event) {
         var _this = this;
         if (!this.regionChanging) {
             this.regionChanging = true;
             /**/
             this.trigger('region:change', event);
             /**/
-            setTimeout(function () {
+            setTimeout(function() {
                 _this.regionChanging = false;
             }, 700);
         } else {
             this.updateRegionControls();
         }
     },
-    updateRegionControls: function () {
+    updateRegionControls: function() {
         this.els.chromosomesText.textContent = this.region.chromosome;
         this.els.regionField.value = this.region.toString();
         this.els.windowSizeField.value = this.region.length();
@@ -623,7 +639,7 @@ NavigationBar.prototype = {
         this.els.progressBar.style.width = this.zoom + '%';
         this.els.progressBarBall.style.left = this.zoom + '%';
     },
-    setCellBaseHost: function (host) {
+    setCellBaseHost: function(host) {
         this.cellBaseHost = host;
     }
 

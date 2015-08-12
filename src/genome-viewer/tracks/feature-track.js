@@ -57,8 +57,7 @@ FeatureTrack.prototype.clean = function () {
 };
 
 FeatureTrack.prototype.updateHeight = function () {
-//    this._updateHeight();
-
+    //this._updateHeight();
     if (this.histogram) {
         $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
         this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
@@ -71,6 +70,7 @@ FeatureTrack.prototype.updateHeight = function () {
     if (this.resizable) {
         if (this.autoHeight == false) {
             $(this.contentDiv).css({'height': this.height});
+            this.main.setAttribute('height', this.height);
         } else if (this.autoHeight == true) {
             var x = this.pixelPosition;
             var width = this.width;

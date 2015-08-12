@@ -24,31 +24,31 @@ var Utils = {
     characters: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
 
     number: {
-        sign: function (x) {
+        sign: function(x) {
             return x ? x < 0 ? -1 : 1 : 0;
         }
     },
     //Methods
-    formatNumber: function (position) {
+    formatNumber: function(position) {
         return position.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
     },
-    formatText: function (text, spaceChar) {
+    formatText: function(text, spaceChar) {
         text = text.replace(new RegExp(spaceChar, "gi"), " ");
         text = text.charAt(0).toUpperCase() + text.slice(1);
         return text;
     },
-    isFunction: function (s) {
+    isFunction: function(s) {
         return typeof(s) === 'function' || s instanceof Function;
     },
-    parseDate: function (strDate) {
+    parseDate: function(strDate) {
         return strDate.substring(0, 4) + "-" + strDate.substring(4, 6) + "-" + strDate.substring(6, 8) + " " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
     },
-    genId: function (prefix) {
+    genId: function(prefix) {
         prefix = prefix || '';
         prefix = prefix.length == 0 ? prefix : prefix + '-';
         return prefix + this.randomString();
     },
-    randomString: function (length) {
+    randomString: function(length) {
         length = length || 10;
         var str = "";
         for (var i = 0; i < length; i++) {
@@ -56,19 +56,19 @@ var Utils = {
         }
         return str;
     },
-    getRandomInt: function (min, max) {
+    getRandomInt: function(min, max) {
         // https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/random
         // Using Math.round() will give you a non-uniform distribution!
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
-    endsWithIgnoreCase: function (str, test) {
+    endsWithIgnoreCase: function(str, test) {
         var regex = new RegExp('^.*\\.(' + test + ')$', 'i');
         return regex.test(str);
     },
-    endsWith: function (str, test) {
+    endsWith: function(str, test) {
         return str.length >= test.length && str.substr(str.length - test.length) == test;
     },
-    addQueryParamtersToUrl: function (paramsWS, url) {
+    addQueryParamtersToUrl: function(paramsWS, url) {
         var chr = "?";
         if (url.indexOf("?") != -1) {
             chr = "&";
@@ -78,7 +78,7 @@ var Utils = {
             query = chr + query;
         return url + query;
     },
-    queryString: function (obj) {
+    queryString: function(obj) {
         var items = [];
         for (var key in obj) {
             if (obj[key] != null && obj[key] != undefined) {
@@ -87,14 +87,14 @@ var Utils = {
         }
         return items.join('&');
     },
-    randomColor: function () {
+    randomColor: function() {
         var color = "";
         for (var i = 0; i < 6; i++) {
             color += ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]);
         }
         return "#" + color;
     },
-    colorLuminance: function (hex, lum) {
+    colorLuminance: function(hex, lum) {
         // validate hex string
         hex = String(hex).replace(/[^0-9a-f]/gi, '');
         hex = String(hex).replace(/#/gi, '');
@@ -113,18 +113,17 @@ var Utils = {
 
         return rgb;
     },
-    getSpeciesFromAvailable: function (availableSpecies, speciesCode) {
-        for (var i = 0; i < availableSpecies.items.length; i++) {
-            var phylos = availableSpecies.items[i].items;
-            for (var j = 0; j < phylos.length; j++) {
-                var species = phylos[j];
-                if (this.getSpeciesCode(species.text) == speciesCode) {
+    getSpeciesFromAvailable: function(availableSpecies, speciesCode) {
+        for (var phylos in availableSpecies) {
+            for (var i = 0; i < availableSpecies[phylos].length; i++) {
+                var species = availableSpecies[phylos][i];
+                if (this.getSpeciesCode(species.id) == speciesCode) {
                     return species;
                 }
             }
         }
     },
-    getSpeciesCode: function (speciesName) {
+    getSpeciesCode: function(speciesName) {
         var pair = speciesName.split(" ");
         var code;
         if (pair.length < 3) {
@@ -134,9 +133,8 @@ var Utils = {
 
         }
         return code;
-
     },
-    basicValidationForm: function (scope) {
+    basicValidationForm: function(scope) {
         var validated = true;
         var msg = "";
         if (scope.$.outdir.selectedFile === undefined || scope.$.outdir.selectedFile.type != "FOLDER") {
@@ -156,7 +154,7 @@ var Utils = {
         }
         return validated;
     },
-    getUrl: function (fileId) {
+    getUrl: function(fileId) {
         return OpencgaManager.files.download({
             id: fileId,
             query: {
@@ -167,23 +165,23 @@ var Utils = {
             }
         });
     },
-    getFileContent: function (callback, fileId) {
+    getFileContent: function(callback, fileId) {
         OpencgaManager.files.content({
             id: fileId,
             query: {
                 sid: Cookies("bioinfo_sid")
             },
             request: {
-                success: function (response) {
+                success: function(response) {
                     callback(response);
                 },
-                error: function () {
+                error: function() {
                     this.message = 'Server error, try again later.';
                 }
             }
         })
     },
-    loadExampleFile: function (callback, toolName, exampleFileName) {
+    loadExampleFile: function(callback, toolName, exampleFileName) {
 
         var me = this;
         OpencgaManager.files.contentExample({
@@ -193,18 +191,18 @@ var Utils = {
             },
             request: {
                 //method: 'POST',
-                success: function (response) {
+                success: function(response) {
                     callback(response);
 //                            debugger
 //                            me.loadedMainSelectChanged(false,true);
                 },
-                error: function () {
+                error: function() {
                     alert('Server error, try again later.');
                 }
             }
         })
     },
-    downloadExampleFile: function (toolName, fileName) {
+    downloadExampleFile: function(toolName, fileName) {
         var url = OpencgaManager.files.downloadExample({
             query: {
                 toolName: toolName,
@@ -224,7 +222,7 @@ var Utils = {
         });
         link.dispatchEvent(event);
     },
-    argsParser: function (form, args) {
+    argsParser: function(form, args) {
         if (form.toolName == args.tool) {
             for (var key in args) {
                 if (typeof(args[key]) == "object") {
@@ -251,7 +249,7 @@ var Utils = {
             }
         }
     },
-    getLinks: function (terms) {
+    getLinks: function(terms) {
         var links = [];
         for (var i = 0; i < terms.length; i++) {
             var term = terms[i];
@@ -259,7 +257,7 @@ var Utils = {
         }
         return links;
     },
-    getLink: function (term) {
+    getLink: function(term) {
         var link = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
         if (term.indexOf("(") >= 0) {
             var id = term.split("(");
@@ -275,7 +273,7 @@ var Utils = {
         link = link + id;
         return link;
     },
-    myRound: function (value, decimals) {
+    myRound: function(value, decimals) {
         decimals = typeof decimals !== 'undefined' ? decimals : 2;
         value = parseFloat(value);
         /** rounding **/
@@ -286,14 +284,14 @@ var Utils = {
         value = parseFloat(value);
         return value;
     },
-    formatNumber: function (value, decimals) {
+    formatNumber: function(value, decimals) {
         value = Utils.myRound(value, decimals);
 
         if (Math.abs(value) > 0 && Math.abs(value) < 0.001)
             value = value.toExponential();
         return value;
     },
-    getSpecies: function (specieValue, species) {
+    getSpecies: function(specieValue, species) {
         for (var i = 0; i < species.length; i++) {
             var specie = species[i];
             if (specie.value == specieValue) {
@@ -302,10 +300,10 @@ var Utils = {
         }
         return null;
     },
-    test: function () {
+    test: function() {
         return this;
     },
-    cancelFullscreen: function () {
+    cancelFullscreen: function() {
         if (document.cancelFullScreen) {
             document.cancelFullScreen();
         } else if (document.mozCancelFullScreen) {
@@ -314,7 +312,7 @@ var Utils = {
             document.webkitCancelFullScreen();
         }
     },
-    launchFullScreen: function (element) {
+    launchFullScreen: function(element) {
         if (element.requestFullScreen) {
             element.requestFullScreen();
         } else if (element.mozRequestFullScreen) {
@@ -323,7 +321,7 @@ var Utils = {
             element.webkitRequestFullScreen();
         }
     },
-    parseJobCommand: function (item) {
+    parseJobCommand: function(item) {
         var commandObject = {};
         var commandArray = item.commandLine.split(/ -{1,2}/g);
         var tableHtml = '<table cellspacing="0" style="max-width:400px;border-collapse: collapse;border:1px solid #ccc;"><tbody>';
@@ -358,7 +356,7 @@ var Utils = {
         tableHtml += '</tbody></table>';
         return {html: tableHtml, data: commandObject};
     },
-    htmlTable: function (object) {
+    htmlTable: function(object) {
         var tableHtml = '';
         tableHtml += '<table cellspacing="0" style="border-collapse: collapse;border:1px solid #ccc;"><tbody>';
         for (var key in object) {
@@ -370,25 +368,25 @@ var Utils = {
         tableHtml += '</tbody></table>';
         return tableHtml;
     },
-    camelCase: function (input) {
-        return input.toLowerCase().replace(/[.-_\s](.)/g, function (match, group1) {
+    camelCase: function(input) {
+        return input.toLowerCase().replace(/[.-_\s](.)/g, function(match, group1) {
             return group1.toUpperCase();
         })
     },
-    msg: function (title, msg) {
+    msg: function(title, msg) {
         var div = $('<div class="ocb-msg-hidden"><div>' + title + '</div><div>' + msg + '</div></div>')[0];
         $('body').append(div);
-        setTimeout(function () {
+        setTimeout(function() {
             $(div).addClass('ocb-msg-shown');
         }, 10);
-        setTimeout(function () {
+        setTimeout(function() {
             $(div).removeClass('ocb-msg-shown');
         }, 2000);
-        setTimeout(function () {
+        setTimeout(function() {
             $(div).remove();
         }, 2200);
     },
-    repeat: function (string, count) {
+    repeat: function(string, count) {
         'use strict';
         if (string == null) {
             throw new TypeError('can\'t convert ' + string + ' to object');
@@ -428,11 +426,11 @@ var Utils = {
         return rpt;
 
     },
-    clone: function (obj) {
+    clone: function(obj) {
         return JSON.parse(JSON.stringify(obj));
     },
-    deleteIndexedDB: function () {
-        window.indexedDB.webkitGetDatabaseNames().onsuccess = function (sender, args) {
+    deleteIndexedDB: function() {
+        window.indexedDB.webkitGetDatabaseNames().onsuccess = function(sender, args) {
             var r = sender.target.result;
             for (var i in r) {
                 indexedDB.deleteDatabase(r[i]);

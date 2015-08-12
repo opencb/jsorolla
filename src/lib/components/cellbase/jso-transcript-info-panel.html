@@ -129,6 +129,7 @@
                     title: 'SO term'
                 }, {
                     title: 'Location (strand)',
+                    name:'location',
                     width: 180,
                     formula: function (row) {
                         return new Region(row).toString() + " (" + row.strand + ")";
@@ -149,6 +150,7 @@
                     title: 'Alternate'
                 }, {
                     title: 'Location',
+                    name:'location',
                     width: 180,
                     formula: function (row) {
                         return new Region(row).toString();
@@ -172,6 +174,7 @@
                     title: 'Score'
                 }, {
                     title: 'Location',
+                    name:'location',
                     width: 180,
                     formula: function (row) {
                         return new Region(row).toString();
@@ -195,6 +198,7 @@
                     title: 'Source'
                 }, {
                     title: 'Location (strand)',
+                    name:'location',
                     width: 190,
                     formula: function (row) {
                         return new Region(row).toString() + " (" + row.strand + ")";

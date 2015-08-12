@@ -37,7 +37,7 @@ function HistogramRenderer(args) {
 
 };
 
-HistogramRenderer.prototype._checkFeatureValue = function (feature) {
+HistogramRenderer.prototype._checkFeatureValue = function(feature) {
     if (feature.features_count == null) {
 //            var height = Math.log(features[i].absolute);
         if (feature.absolute != 0 && feature.absolute > 0) {
@@ -60,7 +60,7 @@ HistogramRenderer.prototype._checkFeatureValue = function (feature) {
  * updates "this.multiplier" using "histogramMaxFreqValue" and "height"
  * @param args
  */
-HistogramRenderer.prototype.updateScale = function (args) {
+HistogramRenderer.prototype.updateScale = function(args) {
     if (args != null) {
         if (args.height != null) {
             this.histogramHeight = args.height * 0.95;
@@ -73,7 +73,12 @@ HistogramRenderer.prototype.updateScale = function (args) {
     this.multiplier = this.histogramHeight / this.maxValue;
 };
 
-HistogramRenderer.prototype.render = function (features, args) {
+HistogramRenderer.prototype.render = function(features, args) {
+    features.sort(function(a, b) {
+        return a.value.start - b.value.start;
+    });
+
+
     var middle = args.width / 2;
     //console.log(middle);
     var points = '';

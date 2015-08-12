@@ -38,8 +38,6 @@
     <!-- /build -->
 
 
-
-
     <script type="text/javascript" src="gv-config.js"></script>
 
 
@@ -124,7 +122,7 @@
         _gaq.push(['_setAccount', 'UA-16414504-2']);
         _gaq.push(['_trackPageview']);
 
-        (function () {
+        (function() {
             var ga = document.createElement('script');
             ga.type = 'text/javascript';
             ga.async = true;
@@ -148,6 +146,7 @@
         }
 
         #application {
+            box-sizing: border-box;
             margin: 0 auto;
             width: 1500px;
             border: 1px solid lightgray;
@@ -166,57 +165,62 @@
 <body class="ocb">
 
 <script type="text/javascript">
+    var genomeViewer;
+    var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
+    /*
+     *  For development purpose only
+     */
+    if (window.location.host.indexOf("localhost") != -1 ||
+            window.location.protocol === "file:"
+    ) {
+        CELLBASE_HOST = "http://localhost:8080/cellbase/webservices/rest";
+    }
 
-    var genomeViewer = null;
-    var div;
-    var run = function () {
+    var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+    //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
 
-        /* region and species configuration */
-//        var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
-        var availableSpecies = {
-            "text": "Species",
-            "items": [
-                {
-                    "text": "Vertebrates",
-                    "items": [
-                        {
-                            "text": "Homo sapiens",
-                            "assembly": "GRCh37.p10",
-                            "region": {"chr": "13", "start": 32889611, "end": 32889611},
-                            "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"],
-                            "url": "ftp://ftp.ensembl.org/pub/release-71/"
-                        },
-                        {
-                            "text": "Mus musculus",
-                            "assembly": "GRCm38.p1",
-                            "region": {"chr": "1", "start": 18422009, "end": 18422009},
-                            "chromosomes": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "X", "Y", "MT"],
-                            "url": "ftp://ftp.ensembl.org/pub/release-71/"
+
+    getSpecies(function(s) {
+        AVAILABLE_SPECIES = s;
+        run();
+    });
+
+    function getSpecies(callback) {
+        CellBaseManager.get({
+            host: CELLBASE_HOST,
+            category: "meta",
+            subCategory: "species",
+            success: function(r) {
+                var taxonomies = r.response[0].result[0];
+                for (var taxonomy in taxonomies) {
+                    var newSpecies = [];
+                    for (var i = 0; i < taxonomies[taxonomy].length; i++) {
+                        var species = taxonomies[taxonomy][i];
+                        for (var j = 0; j < species.assemblies.length; j++) {
+                            var s = Utils.clone(species)
+                            s.assembly = species.assemblies[j];
+                            delete s.assemblies;
+                            newSpecies.push(s)
                         }
-                    ]
+                    }
+                    taxonomies[taxonomy] = newSpecies;
                 }
-            ]
-        };
-        var species = availableSpecies.items[0].items[0];
+                callback(taxonomies);
+            }
+        });
+    }
 
-        var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
-        /*
-         *  For development purpose only
-         */
-        if (window.location.host.indexOf("localhost") != -1 ||
-                window.location.protocol === "file:"
-        ) {
-            CELLBASE_HOST = "http://localhost:8080/cellbase/webservices/rest";
-        }
+    function run() {
+
+        var species = AVAILABLE_SPECIES.vertebrates[0];
 
         genomeViewer = new GenomeViewer({
             cellBaseHost: CELLBASE_HOST,
             cellBaseVersion: 'v3',
             target: 'application',
-            width: $('#application').width(),
+            width: document.querySelector('#application').getBoundingClientRect().width,
             region: region,
-            availableSpecies: availableSpecies,
+            availableSpecies: AVAILABLE_SPECIES,
             species: species,
             sidePanel: false,
             autoRender: true,
@@ -250,7 +254,7 @@
                 }
             },
             handlers: {
-                'region:change': function (e) {
+                'region:change': function(e) {
                     console.log(e)
                 }
             }
@@ -294,7 +298,7 @@
 
             renderer: new GeneRenderer({
                 handlers: {
-                    'feature:click': function (e) {
+                    'feature:click': function(e) {
                         console.log(e)
                     }
                 }
@@ -319,7 +323,7 @@
 
         var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
         renderer.on({
-            'feature:click': function (event) {
+            'feature:click': function(event) {
                 // feature click event example
                 console.log(event)
             }
@@ -377,9 +381,8 @@
 
         genomeViewer.draw();
 
-    };
+    }
 
-    $(document).ready(run);
 </script>
 
 <div id="title">Genome Viewer</div>
