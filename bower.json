@@ -15,8 +15,8 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#1.0.5",
-    "iron-flex-layout": "PolymerElements/iron-flex-layout#1.0.2",
+    "polymer": "Polymer/polymer#1.0.9",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#1.0.3",
     "fontawesome": "~4.3.0",
     "cookies-js": "~1.1.0",
     "crypto-js-evanvosberg": "3.1.4",
@@ -28,7 +28,7 @@
     "d3": "~3.5.3",
     "qtip2": "~2.2.1",
     "pako": "~0.2.5",
-    "iron-list": "PolymerElements/iron-list#~1.0.0",
+    "iron-list": "PolymerElements/iron-list#1.0.2",
     "uri.js": "~1.16.0"
   }
 }
