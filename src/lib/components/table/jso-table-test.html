@@ -37,7 +37,7 @@
         columns.push({
             name: "col_" + i,
             title: "col_" + i,
-//            width: 100,
+            width: 100,
             type: 'text'
         });
     }
@@ -46,7 +46,7 @@
         columns.push({
             name: "col_" + i,
             title: "col_" + i,
-//            width: 50,
+            width: 50,
             type: 'select',
             options: ['a', 'b']
         });
@@ -69,8 +69,8 @@
     table.setAttribute("enable-filter", "");
     table.setAttribute("enable-select", "");
     table.setAttribute("enable-paging", "");
-    table.style.height = "500px";
-    //    table.style.width = "900px";
+//    table.style.height = "500px";
+        table.style.width = "700px";
     table.data = data;
     table.columns = columns;
 

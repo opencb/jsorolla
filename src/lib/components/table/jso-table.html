@@ -24,6 +24,10 @@
             display: none;
         }
 
+        #wrap {
+            height: calc(100% - 30px);
+        }
+
         .table-header {
             position: relative;
             box-sizing: border-box;
@@ -31,7 +35,7 @@
             border-bottom: 1px solid #d3d3d3;
         }
 
-        #header {
+        #headerRow {
             position: relative;
         }
 
@@ -137,8 +141,11 @@
             box-sizing: border-box;
             overflow-x: auto;
             /*overflow-y: scroll;*/
-            height: calc(100% - 61px);
+            height: calc(100% - 31px);
             background-color: #f8f8f8;
+        }
+
+        :host > .table-body {
             overflow-y: scroll;
         }
 
@@ -319,17 +326,18 @@
             </div>
         </div>
 
-        <div class="table-header">
-            <div id="header"></div>
-            <div class="scrollfix"></div>
+        <div id="wrap" style="overflow-x: scroll;">
+            <div id="header" class="table-header">
+                <div id="headerRow"></div>
+                <div class="scrollfix"></div>
+            </div>
+            <div id="filter" class="table-filter" hidden$="{{!enableFilter}}">
+                <div id="filterRow" hidden$="{{!enableFilter}}"></div>
+                <div class="scrollfix"></div>
+            </div>
+            <div id="list" class="table-body" on-dragover="allowDrop" on-drop="drop"></div>
         </div>
-        <div hidden$="{{!enableFilter}}" class="table-filter">
-            <div id="filterRow" hidden$="{{!enableFilter}}"></div>
-            <div class="scrollfix"></div>
-        </div>
-        <div id="list" class="table-body" on-dragover="allowDrop" on-drop="drop">
 
-        </div>
 
         <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center">
             <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i></div>
@@ -680,18 +688,30 @@
             console.log(url)
         },
         updateColumns: function () {
-            var els = this.$.header.querySelectorAll('.table-header-row');
+            var els = this.$.headerRow.querySelectorAll('.table-header-row');
             for (var i = 0; i < els.length; i++) {
-                this.$.header.removeChild(els[i]);
+                this.$.headerRow.removeChild(els[i]);
             }
             this._createHeaderRow();
+
+            var totalColWidth = 0;
             for (var i = 0; i < this.columns.length; i++) {
                 var x = [];
                 var column = this.columns[i];
+                // set default width
+                if (isNaN(column.width)) {
+                    column.width = 100;
+                }
+                totalColWidth += column.width;
                 this._processColumn(column, x);
                 column.plainColumns = x;
             }
             this._createFilterRow();
+
+
+            this.$.header.style.width = totalColWidth + 'px';
+            this.$.filter.style.width = totalColWidth + 'px';
+            this.$.list.style.width = totalColWidth + 'px';
         },
         _createFilterRow: function () {
             var el = document.createElement('div');
@@ -863,7 +883,7 @@
                 var column = this.columns[i];
                 this._createHeaderField(el, column);
             }
-            this.$.header.appendChild(el);
+            this.$.headerRow.appendChild(el);
         },
         _createHeaderField: function (rowEl, column) {
             var me = this;

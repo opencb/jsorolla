@@ -2,15 +2,14 @@
 <dom-module id="jso-table-row">
     <style>
         :host {
-            display: block;
             position: relative;
 
             box-sizing: border-box;
             cursor: default;
             background-color: #fff;
-            overflow: hidden;
             border-bottom: 1px solid #ddd;
             height: 30px;
+            overflow: hidden;
         }
 
         :host[selected] {
@@ -35,13 +34,14 @@
     </style>
     <template>
         <template is="dom-repeat" items="{{columns}}" as="column">
-            <jso-table-field row="{{row}}" column="{{column}}" class="horizontal layout"></jso-table-field>
+            <td is="jso-table-field" row="{{row}}" column="{{column}}"></td>
         </template>
     </template>
 </dom-module>
 <script>
     Polymer({
         is: 'jso-table-row',
+        extends: 'tr',
         properties: {
             columns: {
                 type: Array
