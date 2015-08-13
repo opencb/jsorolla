@@ -95,7 +95,7 @@
                                     <div class="flex">{{uitem.attribute}}</div>
 
                                     <div class="jso-select flex" style="margin-left:5px;">
-                                        <select>
+                                        <select on-change="handleSelect">
                                             <template is="dom-repeat" items={{uitem.options}} as="option">
                                                 <option value="{{option}}">{{option}}</option>
                                             </template>
@@ -142,6 +142,9 @@
                 type: Array,
             }
         },
+        handleSelect: function (e) {
+            e.model.uitem.render = e.currentTarget.value;
+        },
         _updateUniqueValues: function () {
             if (this.selectedColumn && this.selectedColumn.name != '') {
                 var uniqueMap = {};
@@ -162,7 +165,7 @@
                         }
 
                         if (value) {
-                            uniqueItems.push({attribute: value, render: render, options:this.options});
+                            uniqueItems.push({attribute: value, render: render, options: this.options});
                         }
                     }
                 }
