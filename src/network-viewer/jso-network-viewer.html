@@ -63,7 +63,7 @@
 <link rel="import" href="../lib/components/network/jso-text-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-xlsx-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-attribute-network-file-open.html">
-<!--<link rel="import" href="../lib/components/network/jso-network-edit.html">-->
+<link rel="import" href="../lib/components/network/jso-network-edit.html">
 <link rel="import" href="../lib/components/network/jso-attribute-edit.html">
 <!--<link rel="import" href="../lib/components/network/jso-nv-select-filter.html">-->
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-node-render.html">
@@ -273,13 +273,26 @@
             <!--networkViewer="{{}}"-->
             <!--type="edge">-->
             <!--</jso-nv-select-filter>-->
-            <!--<jso-network-edit-->
-            <!--hidden-->
-            <!--id="networkEdit"-->
-            <!--networkViewer="{{}}">-->
-            <!--</jso-network-edit>-->
 
-            <jso-panel hidden collapsible fixed movable closable id="nodeAttributeEditPanel">
+            <jso-panel hidden collapsible fixed movable closable id="networkEditPanel">
+                <div class="header">
+                    Edit Network
+                </div>
+                <jso-network-edit
+                        class="container" id="networkEdit"
+                        selected-vertices="{{selectedVertices}}" selected-edges="{{selectedEdges}}"
+                        vertices="{{vertices}}" edges="{{edges}}"
+                        on-remove-selected-edges="removeSelectedEdges"
+                        on-remove-selected-vertices="removeSelectedVertices"
+                        on-add-edge="handleNetworkEditAddEdge"
+                        on-add-vertex="handleNetworkEditAddVertex"
+
+                        >
+                </jso-network-edit>
+            </jso-panel>
+
+
+            <jso-panel hidden collapsible fixed movable closable expandible id="nodeAttributeEditPanel">
                 <div class="header">
                     Edit and filter node attributes
                 </div>
@@ -469,7 +482,7 @@
         <ul id="vertexcontextmenu" class="jso-context">
             <li on-click="handleContextRemoveVertex">Delete</li>
             <li data-divider hidden$="{{ vAttr.selected.length < 2 }}"></li>
-            <li on-click="handleContextRemoveSelectedVertices" hidden$="{{ vAttr.selected.length < 2 }}">Delete Selected
+            <li on-click="removeSelectedVertices" hidden$="{{ vAttr.selected.length < 2 }}">Delete Selected
             </li>
             <li data-divider></li>
             <li on-click="handleContextSelectVerticesNeighbour">Select first neighbour nodes</li>
@@ -1017,7 +1030,7 @@
             var attributes, vertex, c;
             for (var i = 0; i < this.graph.vertices.length; i++) {
                 vertex = this.graph.vertices[i];
-                attributes =  vertex.attributes;
+                attributes = vertex.attributes;
                 c = parseFloat(attributes[coordAttr]);
                 c = (c - min) * measure / range;
                 if (invertAxis) {
@@ -1189,7 +1202,7 @@
             return selectedMenu === option;
         },
         handleNetworkEditMenu: function (e) {
-            this.$.networkEdit.removeAttribute('hidden');
+            this.$.networkEditPanel.hidden = false;
         },
         handleNodesEditMenu: function (e) {
             this.$.nodeAttributeEditPanel.hidden = false;
@@ -1538,7 +1551,7 @@
         handleEdgeNameField: function (e) {
             this.setEdgeLabel(e.detail.value);
         },
-        /*Layout Handlers*/
+        /** Layout Handlers **/
         handleCreateVertex: function (e) {
             this.createVertex(e.detail.x, e.detail.y);
         },
@@ -1599,13 +1612,11 @@
             }
             this._lastContextVertexAttributes = attrs;
         },
+        /** Context Handlers **/
         handleContextRemoveVertex: function (e) {
             this.$.vertexcontextmenu.style.opacity = "";
             this.$.vertexcontextmenu.style.visibility = "";
             this.removeVertex(this._lastContextVertex);
-        },
-        handleContextRemoveSelectedVertices: function (e) {
-            this.removeSelectedVertices();
         },
         handleContextSelectVerticesNeighbour: function (e) {
             this.selectVertex(this._lastContextVertex);
@@ -1637,7 +1648,19 @@
             this._hideImageContextMenu();
             this.removeBackGroundImage(this._lastImageElClicked);
         },
-        /* Methods */
+        /** network edit **/
+        handleNetworkEditAddVertex: function (e) {
+            var vertex = this.createVertex(null, null, e.detail.id);
+        },
+        handleNetworkEditAddEdge: function (e) {
+            var sourceVertex = this.createVertex(null, null, e.detail.source);
+            var targetVertex = this.createVertex(null, null, e.detail.target);
+            var edge = this.createEdge(sourceVertex, targetVertex, e.detail.relation);
+        },
+
+        /**
+         /** Methods
+         /***********/
         selectAll: function () {
             this.selectAllVertices();
             this.selectAllEdges();
@@ -1898,13 +1921,15 @@
         },
         createVertex: function (x, y, id) {
             if (x == null) {
-                x = this.center.x;
+                var clientRect = this.$.networkLayout.getBoundingClientRect();
+                x = clientRect.width / 2;
             } else {
                 x -= this.center.x;
                 x /= this.scale;
             }
             if (y == null) {
-                x = this.center.y;
+                var clientRect = this.$.networkLayout.getBoundingClientRect();
+                y = clientRect.height / 2;
             } else {
                 y -= this.center.y;
                 y /= this.scale;
