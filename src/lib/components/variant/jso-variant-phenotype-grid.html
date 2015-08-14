@@ -158,6 +158,7 @@
 
             if (neo) {
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                variant =
                 CellBaseManager.get({
 //                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
                     version: 'v3',
@@ -174,24 +175,24 @@
                             var dataGwas = [];
                             var dataClinvar = [];
 
-                            var clinicalData = response.response[0].result[0].clinicalData;
+                            var clinicalData = response.response[0].result[0].clinical;
                             console.log(clinicalData)
 
-                            if (clinicalData.Cosmic != null) {
-                                for (var i = 0; i < clinicalData.Cosmic.length; i++) {
-                                    var cosmic = clinicalData.Cosmic[i];
+                            if (clinicalData.cosmic != null) {
+                                for (var i = 0; i < clinicalData.cosmic.length; i++) {
+                                    var cosmic = clinicalData.cosmic[i];
                                     dataCosmic.push(cosmic);
                                 }
                             }
-                            if (clinicalData.Gwas != null) {
-                                for (var i = 0; i < clinicalData.Gwas.length; i++) {
-                                    var gwas = clinicalData.Gwas[i];
+                            if (clinicalData.gwas != null) {
+                                for (var i = 0; i < clinicalData.gwas.length; i++) {
+                                    var gwas = clinicalData.gwas[i];
                                     dataGwas.push(gwas);
                                 }
                             }
-                            if (clinicalData.Clinvar != null) {
-                                for (var i = 0; i < clinicalData.Clinvar.length; i++) {
-                                    var clinvar = clinicalData.Clinvar[i];
+                            if (clinicalData.clinvar != null) {
+                                for (var i = 0; i < clinicalData.clinvar.length; i++) {
+                                    var clinvar = clinicalData.clinvar[i];
                                     dataClinvar.push(clinvar);
                                 }
                             }

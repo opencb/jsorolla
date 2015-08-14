@@ -133,8 +133,8 @@
         },
         ready: function () {
         },
-        isDataEmpty:function(data){
-              return data.length === 0;
+        isDataEmpty: function (data) {
+            return data.length === 0;
         },
         isColumnEditable: function (column) {
             return column.editable != false;
@@ -166,6 +166,7 @@
                             col.formula = function (row) {
                                 return row.attributes[this.name];
                             }
+                            col.width = 100;
                         }
 
                         me.selectedMenu = '';
@@ -211,6 +212,7 @@
             for (var i = 0; i < columns.length; i++) {
                 var column = columns[i];
                 column.title = column.name;
+                column.width = 100;
                 this.ignoreColumns[i] = false;
 
                 if (column.name == 'id') {
