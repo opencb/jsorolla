@@ -118,9 +118,11 @@
                     type: Boolean,
                     reflectToAttribute: true,
                     observer: 'hiddenChanged',
-                    nofity:true
+                    nofity: true
                 }
             },
+            _resizing: false,
+
             hiddenChanged: function (neo, old) {
                 if (neo == false && this.genomeViewer == null) {
                     this.createGenomeViewer();
@@ -130,8 +132,17 @@
             },
             created: function () {
                 var me = this;
+                var after_resize = (function () {
+                    var timer = 0;
+                    return function (callback, ms) {
+                        clearTimeout(timer);
+                        timer = setTimeout(callback, ms);
+                    };
+                })();
                 window.addEventListener("resize", function (e) {
-                    me.genomeViewer.setWidth(me.getBoundingClientRect().width);
+                    after_resize(function () {
+                        me.genomeViewer.setWidth(me.getBoundingClientRect().width);
+                    }, 300);
                 });
             },
             createGenomeViewer: function (config) {
