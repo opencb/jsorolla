@@ -68,6 +68,7 @@
             /*overflow: hidden;*/
             /*text-overflow: ellipsis;*/
             cursor: pointer;
+            position: relative;
         }
 
         .table-header-field.sort-down > .name:after {
@@ -324,6 +325,25 @@
             box-shadow: inset 0 0 3px 1px rgba(102, 175, 233, .5);
             background-color: #fff;
         }
+
+        .table-header-field > .resizer {
+            width: 2px;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            cursor: col-resize;
+            display: none;
+        }
+
+        .table-header-field:hover > .resizer {
+
+            display: inherit;
+            background-color: #E1E3E5;
+            border-left: 1px solid #DDD;
+        }
+
+
     </style>
     <template>
         <div id="loading" hidden$="{{!loading}}">
@@ -411,6 +431,10 @@
             enablePaging: {
                 type: Boolean,
                 observer: 'enablePagingChanged',
+                value: false
+            },
+            enableResize: {
+                type: Boolean,
                 value: false
             },
             pageSize: {
@@ -700,6 +724,12 @@
                 this.$.headerRow.removeChild(els[i]);
             }
 
+            els = this.$.filterRow.children;
+            for (var i = 0; i < els.length; i++) {
+                this.$.filterRow.removeChild(els[i]);
+            }
+
+
             var totalColWidth = 0;
             for (var i = 0; i < this.columns.length; i++) {
                 var x = [];
@@ -871,6 +901,8 @@
             if (column.columns && column.columns.length > 0) {
                 for (var i = 0; i < column.columns.length; i++) {
                     var col = column.columns[i];
+                    col._parentColumn = column;
+
                     if (column.ak) {
                         col.ak = column.ak + "." + col.name
                     } else {
@@ -892,6 +924,70 @@
             }
             this.$.headerRow.appendChild(el);
         },
+        _setResizable: function (elem) {
+            var me = this;
+
+            var columnName = ".column-" + elem._column.name;
+
+            var resizer = document.createElement('div');
+            resizer.classList.add("resizer", 'style-scope', 'jso-table');
+            elem.appendChild(resizer);
+
+            var startX, startWidth;
+
+            function initDrag(e) {
+                startX = e.clientX;
+                startWidth = parseInt(document.defaultView.getComputedStyle(elem).width, 10);
+                document.documentElement.addEventListener('mousemove', doDrag, false);
+                document.documentElement.addEventListener('mouseup', stopDrag, false);
+            }
+
+            function doDrag(e) {
+                elem.style.width = (startWidth + e.clientX - startX) + 'px';
+                elem.style.minWidth = (startWidth + e.clientX - startX) + 'px';
+            }
+
+            function stopDrag(e) {
+
+
+                document.documentElement.removeEventListener('mousemove', doDrag, false);
+                document.documentElement.removeEventListener('mouseup', stopDrag, false);
+
+                var dif = e.clientX - startX;
+
+                elem.style.width = (startWidth + dif) + 'px';
+                elem._column.width = (startWidth + dif);
+
+                var parentColumn = elem._column._parentColumn;
+                while (parentColumn != null) {
+                    parentColumn.width += dif;
+                    parentColumn = parentColumn._parentColumn;
+                }
+
+
+                function resizeChildren(columns, d) {
+
+                    if (Array.isArray(columns)) {
+
+                        for (var i = 0; i < columns.length; i++) {
+                            var col = columns[i];
+
+                            col.width += (d / columns.length);
+                            resizeChildren(col.columns, d / columns.length);
+                        }
+                    }
+                }
+
+                resizeChildren(elem._column.columns, dif);
+
+
+                me.updateColumns();
+                me.viewDataChanged();
+            }
+
+            resizer.addEventListener('mousedown', initDrag, false);
+        },
+
         _createHeaderField: function (rowEl, column) {
             var me = this;
             var el = document.createElement('div');
@@ -908,6 +1004,11 @@
             nameEl.classList.add('name', 'style-scope', 'jso-table');
             nameEl.innerHTML = column.title;
             el.appendChild(nameEl);
+
+            if (this.enableResize) {
+                this._setResizable(el);
+            }
+
             if (column.columns && column.columns.length > 0) {
                 var subColumnsEl = document.createElement('div');
                 subColumnsEl.classList.add('sub', 'horizontal', 'layout', 'style-scope', 'jso-table');
