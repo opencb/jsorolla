@@ -65,7 +65,7 @@
 <link rel="import" href="../lib/components/network/jso-attribute-network-file-open.html">
 <link rel="import" href="../lib/components/network/jso-network-edit.html">
 <link rel="import" href="../lib/components/network/jso-attribute-edit.html">
-<!--<link rel="import" href="../lib/components/network/jso-nv-select-filter.html">-->
+<link rel="import" href="../lib/components/network/jso-nv-select-filter.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-node-render.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-edge-render.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-number-table.html">
@@ -257,22 +257,37 @@
 
         </div>
         <div class="left-side">
-            <!--<jso-nv-select-filter-->
-            <!--hidden-->
-            <!--id="nodeSelectFilter"-->
-            <!--filters="{{vertexDefaults.filters}}"-->
-            <!--attributeManager="{{vAttr}}"-->
-            <!--networkViewer="{{}}"-->
-            <!--type="node">-->
-            <!--</jso-nv-select-filter>-->
-            <!--<jso-nv-select-filter-->
-            <!--hidden-->
-            <!--id="edgeSelectFilter"-->
-            <!--filters="{{edgeDefaults.filters}}"-->
-            <!--attributeManager="{{eAttr}}"-->
-            <!--networkViewer="{{}}"-->
-            <!--type="edge">-->
-            <!--</jso-nv-select-filter>-->
+
+            <jso-panel collapsible fixed movable closable id="nodeSelectFilterPanel">
+                <div class="header">
+                    Select nodes by attributes
+                </div>
+                <jso-nv-select-filter
+                        class="container" id="nodeSelectFilter"
+                        columns="{{vertexColumns}}"
+                        items="{{vertices}}"
+                        selected="{{selectedVertices}}"
+                        filters="{{vertexDefaults.filters}}"
+                        on-invert-selection="selectVerticesInvert"
+                        on-remove-selected="removeSelectedVertices">
+                </jso-nv-select-filter>
+            </jso-panel>
+
+            <jso-panel hidden collapsible fixed movable closable id="edgeSelectFilterPanel">
+                <div class="header">
+                    Select edges by attributes
+                </div>
+                <jso-nv-select-filter
+                        class="container" id="edgeSelectFilter"
+                        columns="{{edgeColumns}}"
+                        items="{{edges}}"
+                        selected="{{selectedEdges}}"
+                        filters="{{edgeDefaults.filters}}"
+                        on-invert-selection="selectEdgesInvert"
+                        on-remove-selected="removeSelectedEdges">
+                </jso-nv-select-filter>
+            </jso-panel>
+
 
             <jso-panel hidden collapsible fixed movable closable id="networkEditPanel">
                 <div class="header">
@@ -1211,10 +1226,10 @@
             this.$.edgeAttributeEditPanel.hidden = false;
         },
         handleNodesFilterMenu: function (e) {
-            this.$.nodeSelectFilter.removeAttribute('hidden')
+            this.$.nodeSelectFilterPanel.hidden = false;
         },
         handleEdgesFilterMenu: function (e) {
-            this.$.edgeSelectFilter.removeAttribute('hidden')
+            this.$.edgeSelectFilterPanel.hidden = false;
         },
         handleCellbaseMenu: function (e) {
             this.$.cellbaseAttributeImport.removeAttribute('hidden')
