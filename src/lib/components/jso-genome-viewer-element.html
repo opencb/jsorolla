@@ -219,6 +219,9 @@
                     this.addOverviewTracks();
                     this.addDefaultTracks();
                 }
+
+                this.fire('created');
+
                 return this.genomeViewer;
             },
             addOverviewTracks: function () {
