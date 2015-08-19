@@ -176,7 +176,10 @@
                             var dataClinvar = [];
 
                             var clinicalData = response.response[0].result[0].clinical;
-                            console.log(clinicalData)
+
+                            if(!clinicalData){
+                                return;
+                            }
 
                             if (clinicalData.cosmic != null) {
                                 for (var i = 0; i < clinicalData.cosmic.length; i++) {

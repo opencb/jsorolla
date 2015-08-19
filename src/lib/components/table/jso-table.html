@@ -1317,6 +1317,28 @@
             e.dataTransfer.setData("rowData", JSON.stringify(e.currentTarget._rowData));
         },
         handleLoading: function (neo, old) {
+        },
+
+
+        selectElem: function (elem, compareFunction) {
+
+
+            var selected = null;
+
+            for (var i = 0; i < this.viewData.length && selected == null; i++) {
+                var obj = this.viewData[i];
+                if (compareFunction(elem, obj)) {
+                    selected = obj;
+                }
+            }
+
+            if (selected != null) {
+                this.selected = [selected];
+            }else{
+                this._clearSelection();
+            }
+
+
         }
     })
 </script>
