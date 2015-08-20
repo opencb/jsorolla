@@ -19,6 +19,7 @@
                  on-wheel="handleWheel"
                  on-mousedown="mouseDownHandler"
                  on-mouseup="mouseUpHandler"
+                 on-mouseover="mouseHoverHandler"
                  on-contextmenu="mouseContextMenuHandler"
                  width="100%" height="100%">
                 <rect id="backgroundColor" width="100%" height="100%" fill$="{{backgroundColor}}" x="0" y="0"></rect>
@@ -35,7 +36,7 @@
 
                         <g id="scaleFrontGroup" font-family="Ubuntu Mono"
                            transform$="{{computeTransform(tx,ty,scale)}}">
-                        <!--<g id="scaleFrontGroup" font-family="Ubuntu Mono">-->
+                            <!--<g id="scaleFrontGroup" font-family="Ubuntu Mono">-->
                         </g>
                     </svg>
                 </svg>
@@ -207,6 +208,24 @@
 //
 //            this.stateTf = this.stateTf.multiply(k.inverse());
 
+        },
+        mouseHoverHandler: function (e) {
+            var targetEl = e.target;
+            var targetElNetworkType = targetEl.getAttribute('network-type');
+            var br = this.getBoundingClientRect();
+            var x = e.clientX - br.left;
+            var y = e.clientY - br.top;
+            switch (targetElNetworkType) {
+                case 'vertex':
+                case 'vertex-label':
+                    this.fire('hoververtex', {vertexId: this.getVertexId(targetEl), x: x, y: y, e: e});
+                    break;
+                case 'edge':
+                case 'edge-label':
+                    break;
+                default:
+                    this.fire('hoverleave');
+            }
         },
         mouseDownHandler: function (e) {
             switch (e.which) {

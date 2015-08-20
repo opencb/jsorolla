@@ -162,7 +162,9 @@
             }
             if (this.$.typeSelectBox && this.visualSet.type !== this.attributeType.name) {
                 this.$.typeSelectBox.selectByName(this.visualSet.type);
-                this.set('points', this.visualSet.points);
+                if(this.visualSet.points && this.visualSet.points.length > 0 ){
+                    this.set('points', this.visualSet.points);
+                }
             }
             if (this.$.parseSelectBox && this.visualSet.parse !== this.attributeParse.name) {
                 this.$.parseSelectBox.selectByName(this.visualSet.parse);

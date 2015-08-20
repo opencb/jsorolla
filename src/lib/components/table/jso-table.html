@@ -166,6 +166,7 @@
         }
 
         .table-row {
+            position: relative;
             box-sizing: border-box;
             cursor: default;
             background-color: #fff;
@@ -203,6 +204,7 @@
             text-overflow: ellipsis;
             border-right: 1px solid #d3d3d3;
             float: left;
+            height: 100%;
         }
 
         div.table-field:last-of-type {
@@ -310,9 +312,10 @@
 
         .table-field > .select,
         .table-field > input[type=text] {
+            box-sizing: border-box;
             background-color: transparent;
             border-color: transparent;
-            height: 29px;
+            height: 100%;
             margin: 0;
         }
 
@@ -1210,11 +1213,7 @@
                         input.setAttribute("type", "text");
                         input.setAttribute("placeholder", "");
                         input.classList.add('style-scope', 'jso-table');
-                        if (isNaN(column.width)) {
-                            input.classList.add('flex');
-                        } else {
-                            input.style.width = column.width + "px";
-                        }
+                        input.style.width = "100%";
                         input._col = column.name;
                         input.addEventListener('blur', function (e) {
                             var val = this.value;

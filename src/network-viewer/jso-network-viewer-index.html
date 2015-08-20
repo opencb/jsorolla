@@ -36,11 +36,23 @@
 
 <body>
 
+<script>
+    CELLBASE_VERSION = "v3";
+    CELLBASE_HOST = "http://bioinfodev.hpc.cam.ac.uk/cellbase";
+</script>
+
 <!--<jso-network-viewer hide-bar hide-tool-bar hide-edition-bar hide-status-bar hide-node-render hide-edge-render></jso-network-viewer>-->
 <jso-network-viewer></jso-network-viewer>
-
 <script>
     var networkViewer = document.body.querySelector('jso-network-viewer');
+//    networkViewer.addEventListener('hoververtex', function (e) {
+//        var x = e.detail.e.clientX;
+//        var y = e.detail.e.clientY;
+//        console.log(x + '-' + y);
+//    });
+//    networkViewer.addEventListener('hoverleave', function (e) {
+//        console.log(e)
+//    });
 </script>
 
 </body>

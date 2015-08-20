@@ -23,7 +23,7 @@
             <div class="item flex"
                  data-checked$="{{isSelected(selected, option)}}"
                  on-mousedown="handleSelect">
-                <span>{{option.title}}</span>
+                <span>{{computeOptionDisplay(option)}}</span>
             </div>
         </template>
     </template>
@@ -43,7 +43,18 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: true
+            },
+            nameAttribute: {
+                type: String,
+                value: 'name'
+            },
+            titleAttribute: {
+                type: String,
+                value: 'title'
             }
+        },
+        computeOptionDisplay: function (option) {
+            return option[this.titleAttribute];
         },
         optionsChanged: function () {
             this.set('selected', this.options[0]);
@@ -66,12 +77,12 @@
             var index = -1;
             for (var i = 0; i < this.options.length; i++) {
                 var option = this.options[i];
-                if(option.name == name){
+                if (option[this.nameAttribute] == name) {
                     index = i;
                     break;
                 }
             }
-            if(index > -1){
+            if (index > -1) {
                 this.selectByIndex(index);
             }
         }

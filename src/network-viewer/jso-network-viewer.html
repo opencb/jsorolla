@@ -72,13 +72,13 @@
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-color-table.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-select-table.html">
 
-<!--<link rel="import" href="../lib/components/network/jso-cellbase-attribute-import.html">-->
-<!--<link rel="import" href="../lib/components/network/jso-intact-import.html">-->
-<!--<link rel="import" href="../lib/components/network/jso-communities-structure-detection.html">-->
-<!--<link rel="import" href="../lib/components/network/jso-topological-study.html">-->
-<!--<link rel="import" href="../lib/components/network/jso-kegg.html">-->
-<!--<link rel="import" href="../lib/components/network/jso-reactome.html">-->
-<!--<link rel="import" href="../lib/components/network/jso-configure-force-directed.html">-->
+<link rel="import" href="../lib/components/network/jso-cellbase-attribute-import.html">
+<link rel="import" href="../lib/components/network/jso-intact-import.html">
+<link rel="import" href="../lib/components/network/jso-communities-structure-detection.html">
+<link rel="import" href="../lib/components/network/jso-topological-study.html">
+<link rel="import" href="../lib/components/network/jso-kegg.html">
+<link rel="import" href="../lib/components/network/jso-reactome.html">
+<link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
 
 <!--<link rel="import" href="jso-nv-snow.html">-->
 <!--<link rel="import" href="jso-nv-network-miner.html">-->
@@ -129,6 +129,19 @@
         }
 
         .attrvalue {
+        }
+
+        .link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .link:visited {
+            color: inherit;
         }
 
     </style>
@@ -258,7 +271,7 @@
         </div>
         <div class="left-side">
 
-            <jso-panel collapsible fixed movable closable id="nodeSelectFilterPanel">
+            <jso-panel hidden collapsible fixed movable closable id="nodeSelectFilterPanel">
                 <div class="header">
                     Select nodes by attributes
                 </div>
@@ -301,7 +314,6 @@
                         on-remove-selected-vertices="removeSelectedVertices"
                         on-add-edge="handleNetworkEditAddEdge"
                         on-add-vertex="handleNetworkEditAddVertex"
-
                         >
                 </jso-network-edit>
             </jso-panel>
@@ -322,7 +334,7 @@
 
             <jso-panel hidden collapsible fixed movable closable id="edgeAttributeEditPanel">
                 <div class="header">
-                    Edit and filter node attributes
+                    Edit and filter edge attributes
                 </div>
                 <jso-attribute-edit class="container" id="edgeAttributeEdit" columns="{{edgeColumns}}" items="{{edges}}"
                                     selected="{{selectedEdges}}"
@@ -332,41 +344,105 @@
                 </jso-attribute-edit>
             </jso-panel>
 
-            <!--<jso-cellbase-attribute-import-->
-            <!--hidden-->
-            <!--id="cellbaseAttributeImport"-->
-            <!--attributeManager="{{vAttr}}">-->
-            <!--</jso-cellbase-attribute-import>-->
-            <!--<jso-intact-import-->
-            <!--hidden-->
-            <!--id="intactImport"-->
-            <!--networkViewer="{{}}">-->
-            <!--</jso-intact-import>-->
-            <!--<jso-communities-structure-detection-->
-            <!--hidden-->
-            <!--id="communitiesStructureDetection"-->
-            <!--networkViewer="{{}}">-->
-            <!--</jso-communities-structure-detection>-->
-            <!--<jso-topological-study-->
-            <!--hidden-->
-            <!--id="topologicalStudy"-->
-            <!--networkViewer="{{}}">-->
-            <!--</jso-topological-study>-->
-            <!--<jso-reactome-->
-            <!--hidden-->
-            <!--id="reactomeImport"-->
-            <!--networkViewer="{{}}">-->
-            <!--</jso-reactome>-->
-            <!--<jso-kegg-->
-            <!--hidden-->
-            <!--id="keggImport"-->
-            <!--networkViewer="{{}}">-->
-            <!--</jso-kegg>-->
-            <!--<jso-configure-force-directed-->
-            <!--hidden-->
-            <!--id="configureForceDirected"-->
-            <!--networkViewer="{{}}">-->
-            <!--</jso-configure-force-directed>-->
+
+            <jso-panel hidden collapsible fixed movable closable id="cellbaseAttributeImportPanel">
+                <div class="header">
+                    Import Cellbase attributes
+                </div>
+                <jso-cellbase-attribute-import
+                        id="cellbaseAttributeImport"
+                        class="container"
+                        items="{{vertices}}"
+                        columns="{{vertexColumns}}"
+                        on-add-columns="handleCellbaseAddColumns">
+                </jso-cellbase-attribute-import>
+            </jso-panel>
+
+            <jso-panel hidden collapsible fixed movable closable id="intactImportPanel">
+                <div class="header">
+                    Network protein connectivity
+                </div>
+                <jso-intact-import
+                        id="intactImport"
+                        class="container"
+                        items="{{vertices}}"
+                        columns="{{vertexColumns}}"
+                        selected="{{selectedVertices}}"
+                        on-graph="handleIntactGraph">
+                </jso-intact-import>
+            </jso-panel>
+
+            <jso-panel hidden collapsible fixed movable closable id="reactomeImportPanel">
+                <div class="header">
+                    Reactome import
+                </div>
+                <jso-reactome
+                        id="reactomeImport"
+                        class="container"
+                        on-graph="handleReactomeGraph">
+                </jso-reactome>
+            </jso-panel>
+
+
+            <jso-panel hidden collapsible fixed movable closable id="keggImportPanel">
+                <div class="header">
+                    Kegg import
+                </div>
+                <jso-kegg
+                        id="keggImport"
+                        class="container"
+                        on-graph="handleKeggGraph">
+                </jso-kegg>
+            </jso-panel>
+
+            <jso-panel hidden collapsible fixed movable closable id="communitiesStructureDetectionPanel">
+                <div class="header">
+                    Network analysis: Communities structure detection
+                </div>
+                <jso-communities-structure-detection
+                        id="communitiesStructureDetection"
+                        items="{{vertices}}"
+                        columns="{{vertexColumns}}"
+                        graph="{{graph}}"
+                        on-community="handleCommunityAttributes"
+                        on-apply-community="handleApplyCommunity"
+                        class="container">
+                </jso-communities-structure-detection>
+            </jso-panel>
+
+
+            <jso-panel hidden collapsible fixed movable closable id="topologicalStudyPanel">
+                <div class="header">
+                    Network analysis: Topological study
+                </div>
+                <jso-topological-study
+                        id="topologicalStudy"
+                        items="{{vertices}}"
+                        columns="{{vertexColumns}}"
+                        graph="{{graph}}"
+                        on-topological="handleTopologicalAttributes"
+                        class="container">
+                </jso-topological-study>
+            </jso-panel>
+
+
+            <jso-panel hidden collapsible fixed movable closable id="configureForceDirectedPanel">
+                <div class="header">
+                    Force directed layout configuration
+                    <a class="link" style="margin-left: 15px;" target="_blank"
+                       href="https://github.com/mbostock/d3/wiki/Force-Layout">
+                        <i class="fa fa-external-link"></i>
+                        about
+                    </a>
+                </div>
+                <jso-configure-force-directed
+                        id="configureForceDirected"
+                        class="container"
+                        vertex-columns="{{vertexColumns}}"
+                        edge-columns="{{edgeColumns}}"
+                        on-ok="handleForceDirectedConfig">
+                </jso-configure-force-directed>
+            </jso-panel>
 
 
             <jso-panel hidden collapsible fixed movable closable id="sessionManagerPanel">
@@ -377,7 +453,7 @@
                         class="container"
                         id="sessionManager"
                         userData="{{userData}}"
-                        serialize-version="{{serializeVersion}}"
+                        serialize-version="{{serializeVersion}}">
                 </jso-nv-session-manager>
             </jso-panel>
 
@@ -877,10 +953,9 @@
             this._createAttrColumns();
             this._restoreColumns(o.vertexColumns);
             this._restoreColumns(o.edgeColumns);
-            var newVertexColumns = this._getNewColumns(o.vertexColumns, this.vertexColumns);
-            var newEdgeColumns = this._getNewColumns(o.edgeColumns, this.edgeColumns);
-            this.set('vertexColumns', this.vertexColumns.concat(newVertexColumns));
-            this.set('edgeColumns', this.edgeColumns.concat(newEdgeColumns));
+
+            this._addColumns(o.vertexColumns, 'vertexColumns');
+            this._addColumns(o.edgeColumns, 'edgeColumns');
 
             this.vertexDefaults = o.vertexDefaults;
             this.edgeDefaults = o.edgeDefaults;
@@ -1149,6 +1224,7 @@
             this.$.edgeRender.refreshAttributes();
         },
         selectedVerticesChanged: function (changeRecord) {
+            console.time("selectedVerticesChanged")
             if (this.vertices && this.selectedVertices) {
                 if (changeRecord) {
                     changeRecord.indexSplices.forEach(function (s) {
@@ -1175,6 +1251,7 @@
                     }
                 }
             }
+            console.timeEnd("selectedVerticesChanged")
         },
         selectedEdgesChanged: function (changeRecord) {
 //            console.log('selectedEdgesChanged');
@@ -1232,7 +1309,7 @@
             this.$.edgeSelectFilterPanel.hidden = false;
         },
         handleCellbaseMenu: function (e) {
-            this.$.cellbaseAttributeImport.removeAttribute('hidden')
+            this.$.cellbaseAttributeImportPanel.hidden = false;
         },
         handleSessionStartMenu: function (e) {
             if (confirm('All changes will be lost. Are you sure?')) {
@@ -1377,19 +1454,19 @@
             this.$.edgeRenderPanel.hidden = false;
         },
         handleReactomeMenu: function (e) {
-            this.$.reactomeImport.removeAttribute('hidden')
+            this.$.reactomeImportPanel.hidden = false;
         },
         handleKeggMenu: function (e) {
-            this.$.keggImport.removeAttribute('hidden')
+            this.$.keggImportPanel.hidden = false;
         },
         handleIntactMenu: function (e) {
-            this.$.intactImport.removeAttribute('hidden')
+            this.$.intactImportPanel.hidden = false;
         },
         handleCommunitiesMenu: function (e) {
-            this.$.communitiesStructureDetection.removeAttribute('hidden')
+            this.$.communitiesStructureDetectionPanel.hidden = false;
         },
         handleTopologicalMenu: function (e) {
-            this.$.topologicalStudy.removeAttribute('hidden')
+            this.$.topologicalStudyPanel.hidden = false;
         },
         handleSnowMenu: function (e) {
             if (this.jsoHeader) {
@@ -1487,7 +1564,7 @@
                     this.setLayout('Force directed');
                     break;
                 case 'layout-configure-force-directed':
-                    this.$.configureForceDirected.removeAttribute('hidden')
+                    this.$.configureForceDirectedPanel.hidden = false;
                     break;
                 case 'layout-tree':
                     this.setLayout('Tree');
@@ -1672,7 +1749,122 @@
             var targetVertex = this.createVertex(null, null, e.detail.target);
             var edge = this.createEdge(sourceVertex, targetVertex, e.detail.relation);
         },
+        /** Cellbase import **/
+        handleCellbaseAddColumns: function (e) {
+            this._addColumns(e.detail, 'vertexColumns');
+        },
+        /** IntAct import**/
+        handleIntactGraph: function (e) {
+            this.setGraph(e.detail.graph);
+            this.setLayout('Force directed');
+        },
+        handleReactomeGraph: function (e) {
+            this.setGraph(e.detail.graph);
+            var cols = [{
+                name: "x",
+                title: "x",
+                type: "text",
+                formula: function (row) {
+                    return row.attributes[this.name];
+                }
+            }, {
+                name: "y",
+                title: "y",
+                type: "text",
+                formula: function (row) {
+                    return row.attributes[this.name];
+                }
+            }];
+            var map = e.detail.map;
+            for (var i = 0; i < this.vertices.length; i++) {
+                var attributes = this.vertices[i].attributes;
+                attributes["name"] = map[attributes["id"]].name;
+                attributes["x"] = map[attributes["id"]].x;
+                attributes["y"] = map[attributes["id"]].y;
+            }
+            this._addColumns(cols, 'vertexColumns');
 
+            this.vertexDefaults.labelAttribute = "name";
+            this.handleVertexDefaultLabelAttribute();
+
+            this.handleVertexDefaultXAttribute();
+            this.handleVertexDefaultYAttribute();
+            this.setLayout("Force directed");
+        },
+        handleKeggGraph: function (e) {
+            this.setGraph(e.detail.graph);
+            var cols = [{
+                name: "x",
+                title: "x",
+                type: "text",
+                formula: function (row) {
+                    return row.attributes[this.name];
+                }
+            }, {
+                name: "y",
+                title: "y",
+                type: "text",
+                formula: function (row) {
+                    return row.attributes[this.name];
+                }
+            }, {
+                name: "entryName",
+                title: "Entry name",
+                type: "text",
+                formula: function (row) {
+                    return row.attributes[this.name];
+                }
+            }];
+            var map = e.detail.map;
+            for (var i = 0; i < this.vertices.length; i++) {
+                var attributes = this.vertices[i].attributes;
+                attributes["name"] = map[attributes["id"]].name;
+                attributes["entryName"] = map[attributes["id"]].entryName;
+                attributes["x"] = map[attributes["id"]].x;
+                attributes["y"] = map[attributes["id"]].y;
+            }
+            this._addColumns(cols, 'vertexColumns');
+
+            this.vertexDefaults.labelAttribute = "name";
+            this.handleVertexDefaultLabelAttribute();
+
+            this.handleVertexDefaultXAttribute();
+            this.handleVertexDefaultYAttribute();
+//            me.setLayout("Force directed");
+        },
+        handleCommunityAttributes: function (e) {
+            var attr = e.detail.attributes;
+            for (var i = 0; i < attr.length; i++) {
+                var obj = attr[i];
+                var vertex = this.graph.getVertexById(obj.id);
+                var attributes = vertex.attributes;
+                attributes["community"] = obj.community;
+                attributes["communityColor"] = obj.communityColor;
+            }
+            this._addColumns(e.detail.columns, 'vertexColumns');
+        },
+        handleApplyCommunity: function (e) {
+            this.vertexDefaults.labelAttribute = "name";
+            this.handleVertexDefaultLabelAttribute();
+
+            var nodeRender = this.$.nodeRender;
+            nodeRender.applyDirect('communityColor', 'color');
+        },
+        handleTopologicalAttributes: function (e) {
+            var attr = e.detail.attributes;
+            for (var i = 0; i < attr.length; i++) {
+                var obj = attr[i];
+                var vertex = this.graph.getVertexById(obj.id);
+                if (vertex != null) {
+                    var attributes = vertex.attributes;
+                    attributes["degree"] = obj.degree;
+                    attributes["betweenness"] = obj.betweenness;
+                    attributes["closenessCentrality"] = obj.closenessCentrality;
+                    attributes["clusteringCoefficient"] = obj.clusteringCoefficient;
+                }
+            }
+            this._addColumns(e.detail.columns, 'vertexColumns');
+        },
         /**
          /** Methods
          /***********/
@@ -2169,6 +2361,41 @@
                     break;
             }
         },
+        handleForceDirectedConfig: function (e) {
+            var me = this;
+            var clientRect = this.$.networkLayout.getBoundingClientRect();
+            var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+            var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+
+            GraphLayout.force({
+                network: this,
+                width: width,
+                height: height,
+                linkDistance: parseFloat(e.detail.linkDistance),
+                linkStrength: parseFloat(e.detail.linkStrength),
+                charge: parseFloat(e.detail.charge),
+                attributes: {
+                    linkDistance: e.detail.linkDistanceAttribute,
+                    linkStrength: e.detail.linkStrengthAttribute,
+                    charge: e.detail.chargeAttribute
+                },
+                friction: parseFloat(e.detail.friction),
+                gravity: parseFloat(e.detail.gravity),
+                chargeDistance: parseFloat(e.detail.chargeDistance),
+
+                simulation: false,
+                end: function (verticesArray) {
+                    for (var i = 0, l = verticesArray.length; i < l; i++) {
+                        var v = verticesArray[i];
+                        var vertex = me.graph.getVertexById(v.id);
+                        vertex.position.x = v.x;
+                        vertex.position.y = v.y;
+                        vertex.renderer.move();
+                        me._updateEdgeCoords(vertex);
+                    }
+                }
+            });
+        },
         select: function (option) {
             switch (option) {
                 case 'All nodes':
@@ -2195,31 +2422,6 @@
         },
         exportGraph: function (separator) {
             return this.graph.getAsSIF(separator);
-        },
-        getAsSIFCustomRelation: function (separator, relationColumn) {
-            if (typeof separator === 'undefined') {
-                separator = '\t';
-            }
-            var vertices = this.graph.vertices;
-            var edges = this.graph.edges;
-            var sifText = '',
-                    edge, line;
-            for (var i = 0; i < edges.length; i++) {
-                edge = edges[i];
-                line = "";
-                line = edge.source.id + separator + edge.attributes[relationColumn] + separator + edge.target.id + "\n";
-                sifText += line;
-            }
-            var vertex;
-            for (var i = 0; i < vertices.length; i++) {
-                vertex = vertices[i];
-                line = "";
-                if (vertex.edges.length == 0) {
-                    line = vertex.id + separator + separator + "\n";
-                }
-                sifText += line;
-            }
-            return sifText;
         },
         exportVertexAttributes: function (separator) {
             return this._getAttributesAsFile(this.vertexColumns, this.vertices, separator);
@@ -2289,9 +2491,6 @@
             this.$.networkLayout.appendDom();
         },
         importVertexAttributeManager: function (columns, attributes) {
-
-            var newColumns = this._getNewColumns(columns, this.vertexColumns);
-
             for (var i = 0; i < attributes.length; i++) {
                 var row = attributes[i];
                 var vertex = this.graph.getVertexById(row.id);
@@ -2302,7 +2501,7 @@
                 }
             }
 
-            this.set('vertexColumns', this.vertexColumns.concat(newColumns));
+            this._addColumns(columns, 'vertexColumns');
 //            this.$.nodeRender.refreshAttributes();
 
             this.handleVertexDefaultXAttribute();
@@ -2327,9 +2526,11 @@
             }
             return columnsToAdd;
         },
+        _addColumns: function (newColumns, path) {
+            var toAddColumns = this._getNewColumns(newColumns, this[path]);
+            this.set(path, this[path].concat(toAddColumns));
+        },
         importEdgeAttributeManager: function (columns, attributes) {
-            var newColumns = this._getNewColumns(columns, this.edgeColumns);
-
             for (var i = 0; i < attributes.length; i++) {
                 var row = attributes[i];
                 var edge = this.graph.getEdgeById(row.id);
@@ -2339,8 +2540,7 @@
                     }
                 }
             }
-
-            this.set('edgeColumns', this.edgeColumns.concat(newColumns));
+            this._addColumns(columns, 'edgeColumns');
 
 //            this.$.edgeRender.refreshAttributes();
         },

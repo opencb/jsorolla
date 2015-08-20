@@ -294,6 +294,28 @@
             }
             return sifText;
         },
+        getAsSIFCustomRelation: function (relationColumn, separator) {
+            if (typeof separator === 'undefined') {
+                separator = '\t';
+            }
+            var sifText = '', edge, line;
+            for (var i = 0; i < this.edges.length; i++) {
+                edge = this.edges[i];
+                line = "";
+                line = edge.source.id + separator + edge.attributes[relationColumn] + separator + edge.target.id + "\n";
+                sifText += line;
+            }
+            var vertex;
+            for (var i = 0; i < this.vertices.length; i++) {
+                vertex = this.vertices[i];
+                line = "";
+                if (vertex.edges.length == 0) {
+                    line = vertex.id + separator + separator + "\n";
+                }
+                sifText += line;
+            }
+            return sifText;
+        },
         getAsSIFNoRelation: function (separator) {
             if (typeof separator === 'undefined') {
                 separator = '\t';
