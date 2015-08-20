@@ -60,15 +60,15 @@ function FeatureTemplateAdapter(args) {
 }
 
 FeatureTemplateAdapter.prototype = {
-    setSpecies: function(species) {
+    setSpecies: function (species) {
         this.species = species;
         this.configureCache();
     },
-    setHost: function(host) {
+    setHost: function (host) {
         this.configureCache();
         this.host = host;
     },
-    configureCache: function() {
+    configureCache: function () {
         var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
         var cacheId = this.uriTemplate + speciesString;
         if (!this.cacheConfig) {
@@ -81,7 +81,7 @@ FeatureTemplateAdapter.prototype = {
         this.cache = new FeatureChunkCache(this.cacheConfig);
     },
 
-    getData: function(args) {
+    getData: function (args) {
         var _this = this;
 
         var params = {};
@@ -98,7 +98,7 @@ FeatureTemplateAdapter.prototype = {
         region.end = (region.end > 300000000) ? 300000000 : region.end;
 
         /** 2 category check **/
-        var categories = [Utils.queryString(this.templateVariables) + Utils.queryString(params)];
+        var categories = ["cat_" + Utils.queryString(this.templateVariables) + Utils.queryString(params)];
 
         /** 3 dataType check **/
         var dataType = args.dataType;
@@ -118,7 +118,7 @@ FeatureTemplateAdapter.prototype = {
          * by the Cache TODO????
          * Cached chunks will be returned by the args.dataReady Callback.
          */
-        this.cache.get(region, categories, dataType, chunkSize, function(cachedChunks, uncachedRegions) {
+        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
 
             var category = categories[0];
             var categoriesName = "";
@@ -144,7 +144,7 @@ FeatureTemplateAdapter.prototype = {
                     /** Temporal fix save queried region **/
                     request._queryRegion = queryRegion;
 
-                    request.onload = function() {
+                    request.onload = function () {
                         var response;
                         var contentType = this.getResponseHeader('Content-Type');
                         if (contentType === 'application/json') {
@@ -159,7 +159,7 @@ FeatureTemplateAdapter.prototype = {
 
                         chunks = chunks.concat(responseChunks);
                         if (args.webServiceCallCount === 0) {
-                            chunks.sort(function(a, b) {
+                            chunks.sort(function (a, b) {
                                 return a.chunkKey.localeCompare(b.chunkKey)
                             });
                             args.done({
@@ -167,7 +167,7 @@ FeatureTemplateAdapter.prototype = {
                             });
                         }
                     };
-                    request.onerror = function() {
+                    request.onerror = function () {
                         console.log('Server error');
                         args.done();
                     };
@@ -193,22 +193,29 @@ FeatureTemplateAdapter.prototype = {
         });
     },
 
-    _success: function(response, categories, dataType, queryRegion, chunkSize) {
+    _success: function (response, categories, dataType, queryRegion, chunkSize) {
         var timeId = Utils.randomString(4) + this.resource + " save";
         console.time(timeId);
         /** time log **/
 
         var regions = [];
-        if(dataType == 'histogram'){
-            for (var i = 0; i < response.response.length; i++) {
-                var r = response.response[i];
-                for (var j = 0; j < r.result.length; j++) {
-                    var interval = r.result[j];
-                    var region = new Region(interval);
-                    regions.push(region);
+        if (dataType == 'histogram') {
+
+            var regions = [];
+
+            if (this.getRegionsFromIntervals === "undefined") {
+                for (var i = 0; i < response.response.length; i++) {
+                    var r = response.response[i];
+                    for (var j = 0; j < r.result.length; j++) {
+                        var interval = r.result[j];
+                        var region = new Region(interval);
+                        regions.push(region);
+                    }
                 }
+            } else {
+                regions = this.getRegionsFromIntervals(response);
             }
-        }else{
+        } else {
             var regionSplit = queryRegion.split(',');
             for (var i = 0; i < regionSplit.length; i++) {
                 var regionStr = regionSplit[i];
@@ -232,7 +239,7 @@ FeatureTemplateAdapter.prototype = {
      * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
-    _groupQueries: function(uncachedRegions) {
+    _groupQueries: function (uncachedRegions) {
         var groupSize = 50;
         var queriesLists = [];
         while (uncachedRegions.length > 0) {
@@ -241,11 +248,11 @@ FeatureTemplateAdapter.prototype = {
         return queriesLists;
     },
 
-    _getSpeciesString: function(species) {
+    _getSpeciesString: function (species) {
         if (this.speciesParse != null) {
             return this.speciesParse(species);
         } else {
-            return Utils.getSpeciesCode(species)
+            return Utils.getSpeciesCode(species.scientificName)
         }
     },
 };
