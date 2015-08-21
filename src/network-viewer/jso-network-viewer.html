@@ -80,7 +80,7 @@
 <link rel="import" href="../lib/components/network/jso-reactome.html">
 <link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
 
-<!--<link rel="import" href="jso-nv-snow.html">-->
+<link rel="import" href="jso-nv-snow.html">
 <!--<link rel="import" href="jso-nv-network-miner.html">-->
 <!--<link rel="import" href="jso-nv-fatigo.html">-->
 <!--<link rel="import" href="jso-nv-reactome-fi.html">-->
@@ -529,6 +529,25 @@
 
         </div>
 
+
+        <jso-panel collapsible fixed movable closable id="snowPanel">
+            <div class="header">
+                Network enrichment form
+            </div>
+            <jso-nv-snow
+                    id="snow"
+                    bioformats="{{bioformats}}"
+                    projects="{{projects}}"
+
+                    columns="{{vertexColumns}}"
+                    items="{{vertices}}"
+                    selected="{{selectedVertices}}"
+
+                    class="container">
+            </jso-nv-snow>
+        </jso-panel>
+
+
         <!--<template if="{{selectedMenu == 'networkminer'}}">-->
         <!--<jso-nv-network-miner-->
         <!--selectedOption="{{selectedMenu}}"-->
@@ -539,13 +558,7 @@
         <!--</jso-nv-network-miner>-->
         <!--</template>-->
         <!--<template if="{{selectedMenu == 'snow'}}">-->
-        <!--<jso-nv-snow-->
-        <!--selectedOption="{{selectedMenu}}"-->
-        <!--userData="{{userData}}"-->
-        <!--selectedStudy="{{selectedStudy}}"-->
-        <!--studies="{{studies}}"-->
-        <!--networkViewer="{{}}">-->
-        <!--</jso-nv-snow>-->
+
         <!--</template>-->
         <!--<template if="{{selectedMenu == 'fatigo'}}">-->
         <!--<jso-nv-fatigo-->
@@ -694,6 +707,12 @@
             saveInProgress: {
                 type: Boolean,
                 value: false
+            },
+            bioformats: {
+                type: Array
+            },
+            projects: {
+                type: Array
             },
         },
         observers: [
@@ -1473,8 +1492,9 @@
                 if (this.jsoHeader.isLogged == false) {
                     this.jsoHeader.anonymousSign();
                 }
-                this.selectedMenu = "snow";
             }
+            //TODO
+            this.$.snowPanel.hidden = false;
         },
         handleNetworkMinerMenu: function (e) {
             if (this.jsoHeader) {

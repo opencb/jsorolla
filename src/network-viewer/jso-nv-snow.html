@@ -1,54 +1,142 @@
-<link rel="import" href="../lib/components/forms/jso-snow.html">
-<polymer-element name="jso-nv-snow" extends="jso-window" attributes="userData selectedOption selectedStudy studies networkViewer">
+<link rel="import" href="../lib/components/opencga/files/jso-opencga-file-origin.html">
+<dom-module id="jso-nv-snow">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            width: 800px;
+        }
+
+        #main {
+            overflow-y: scroll;
+            height: 500px;
+        }
+
+        jso-snow {
+            padding: 5px;
+            border: 0px;
+            width: 800px;
+        }
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: fixed;
-                box-sizing: border-box;
-            }
 
-            .container {
-                overflow-y: scroll;
-                height: 500px;
-            }
+        <form id="main">
 
-            jso-snow {
-                padding: 5px;
-                border: 0px;
-                width:800px;
-            }
-        </style>
+            <div class="formbox">
+                <div class="formtitle">Examples</div>
+                <div class="formcontent">
+                    <div class="button action" style="display:inline-block" on-click="loadExample1">
+                        Downregulated in fibroblasts from old individuals, compared to young
+                    </div>
+                    <div class="button action" on-click="handleDownloadFile" data-example="oldage_dn.txt"
+                         style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
+                    <br>
 
-        <div class="panel panel-shadow" id="panel" vertical layout>
-            <div id="header" class="header" horizontal layout
-                 on-mousedown="{{handleHeaderMouseDown}}"
-                 on-mouseup="{{handleHeaderMouseUp}}">
-                <div class="text">Network enrichment form</div>
-                <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerclose" on-click="{{handleCancel}}"></div>
+                    <div class="button action" style="display:inline-block;margin-top:5px;" on-click="loadExample2">
+                        Upregulated by induction of exogenous BRCA1 in EcR-293 cells
+                    </div>
+                    <div class="button action" on-click="handleDownloadFile" data-example="brca1_overexp_up.txt"
+                         style="display:inline-block">
+                        <font-awesome icon="download"></font-awesome>
+                    </div>
                 </div>
             </div>
-            <div class="container">
-                <jso-snow
-                        selectedOption="{{selectedOption}}"
-                        userData="{{userData}}"
-                        selectedStudy="{{selectedStudy}}"
-                        studies="{{studies}}"
-                        networkViewer="{{networkViewer}}"
-                        hideTitle="true"
-                        >
-                </jso-snow>
+
+            <div class="formbox">
+                <div class="formtitle">Define your input data</div>
+                <div class="formcontent">
+                    <label class="control">
+                        <input id="mode_1" name="mode" class="fc-radioitem" type="radio" value="one_list"
+                               checked="checked" on-click="modeChanged">
+                        <span>One list</span>
+                    </label>
+                    <label class="control">
+                        <input id="mode_2" name="mode" class="fc-radioitem" type="radio" value="two_list"
+                               on-click="modeChanged">
+                        <span>Comparing two lists</span>
+                    </label>
+                </div>
             </div>
-        </div>
+
+            <div class="formbox">
+                <div class="formtitle">Select your input files</div>
+                <div class="formcontent">
+
+                    List 1:
+                    <jso-opencga-file-origin
+                            id="inputFile"
+                            selection-mode="file"
+                            allow-text-area
+                            allow-network
+                            on-validfileselect="handleFileSelect"
+                            bioformats="{{bioformats}}"
+                            projects="{{projects}}"
+
+                            columns="{{columns}}"
+                            items="{{items}}"
+                            selected="{{selected}}">
+                    </jso-opencga-file-origin>
+
+
+                    <!--<div id="list2Div" hidden>-->
+                        <!--<br>-->
+
+                        <!--<div class="jso-btn jso-btn-shdw" style="width:150px;" on-click="handleShowList2Panel">-->
+                            <!--Browse List 2 file...-->
+                        <!--</div>-->
+                        <!--<jso-panel hidden fixed movable closable id="browserList2Panel" on-hidden="handlePanelHidden">-->
+                            <!--<div class="header">-->
+                                <!--Browse List 2 file...-->
+                            <!--</div>-->
+                            <!--<div class="container flex">-->
+                                <!--<jso-opencga-browser-->
+                                        <!--id="browserList2"-->
+                                        <!--on-fileselect="handleFileSelect"-->
+                                        <!--bioformats="{{bioformats}}"-->
+                                        <!--projects="{{projects}}"-->
+                                        <!--on-need-refresh="handleUserNeedRefresh"></jso-opencga-browser>-->
+                            <!--</div>-->
+                        <!--</jso-panel>-->
+                    <!--</div>-->
+                </div>
+            </div>
+
+        </form>
     </template>
     <script>
         Polymer({
-            created: function () {
+//            attributes="userData selectedOption selectedStudy studies networkViewer"
+            is: "jso-nv-snow",
+            properties: {
+                bioformats: {
+                    type: Array
+                },
+                projects: {
+                    type: Array
+                },
+
+                columns: {
+                    type: Array
+                },
+                items: {
+                    type: Array
+                },
+                selected: {
+                    type: Array
+                },
             },
+            handleShowList1Panel: function () {
+                this.$.browserList1Panel.hidden = false;
+            },
+            handleShowList2Panel: function () {
+                this.$.browserList2Panel.hidden = false;
+            },
+
             handleCancel: function () {
                 this.selectedOption = '';
             }
         });
     </script>
-</polymer-element>
+</dom-module>

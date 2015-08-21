@@ -1,0 +1,214 @@
+<link rel="import" href="../../network/jso-network-list-select.html">
+<dom-module id="jso-opencga-file-origin">
+    <style>
+        :host {
+            position: relative;
+        }
+
+        .labelSelection {
+            margin-left: 10px;
+        }
+
+        jso-project-browser {
+            border: 1px solid #d3d3d3;
+            height: 500px;
+            font-size: 13px;
+        }
+    </style>
+    <template>
+
+        <template is="dom-if" if="{{check(selectionMode,'file')}}">
+            <template is="dom-if" if="{{allowTextArea}}">
+                <form class="horizontal layout" style="margin-bottom:5px;">
+                    <label class="jso-control">
+                        <input type="radio" name="origin" value="server" on-change="handleOriginChange" checked>
+                        <span>File</span>
+                    </label>
+
+                    <label class="jso-control">
+                        <input type="radio" name="origin" value="textarea" on-change="handleOriginChange">
+                        <span>Text area</span>
+                    </label>
+
+                    <template is="dom-if" if="{{allowNetwork}}">
+                        <label class="jso-control">
+                            <input type="radio" name="origin" value="network" on-change="handleOriginChange">
+                            <span>Network</span>
+                        </label>
+                    </template>
+                </form>
+            </template>
+        </template>
+
+
+        <div hidden$="{{!check(dataOrigin,'server')}}">
+            <template if="{{check(selectionMode,'file')}}">
+                <div style="color:#666;margin-bottom: 5px;">
+                    The files must be on the server to select them.<br>
+                    You can upload files using the button
+                    <font-awesome style="color:#445D76;font-size:16px;" icon="cloud-upload"></font-awesome>
+                    inside file browser.
+                </div>
+            </template>
+            <template is="dom-if" if="{{check(dataOrigin,'folder')}}">
+                <div style="color:#666;margin-bottom: 5px;">
+                    You can create folders using the button
+                    <font-awesome style="color:#445D76;font-size:16px;" icon="folder-o"></font-awesome>
+                    +
+                    inside file browser.
+                </div>
+            </template>
+            <div class="horizontal layout">
+                <div class="jso-btn jso-btn-shdw" style="width:150px;" on-click="buttonHandler">File browser</div>
+                <div id="selection" style="line-height: 25px;" class="labelSelection">
+                    {{selectedStudy.name}}/{{selectedFile.path}}
+                </div>
+            </div>
+            <div hidden$="{{showBrowser}}">
+                <br>
+                <jso-panel hidden fixed modal movable id="browserPanel" on-hidden>
+                    <div class="header">
+                        Browse file...
+                    </div>
+                    <div class="container flex">
+                        <jso-opencga-browser
+                                id="browser"
+                                mode="file"
+                                on-fileselect="handleFileSelect"
+                                bioformats="{{bioformats}}"
+                                projects="{{projects}}"
+                                on-need-refresh="handleUserNeedRefresh"></jso-opencga-browser>
+                    </div>
+                </jso-panel>
+
+                <!--<jso-project-browser-->
+                <!--id="jsoProjectBrowser"-->
+                <!--studies="{{studies}}"-->
+                <!--selectedProject="{{selectedProject}}"-->
+                <!--selectedStudy="{{selectedStudy}}"-->
+                <!--selectionMode="{{selectionMode}}"-->
+                <!--on-ok="{{selectHandler}}"-->
+                <!--bioformat="{{bioformat}}"-->
+                <!--on-cancel="{{handleCancel}}">-->
+                <!--</jso-project-browser>-->
+            </div>
+        </div>
+
+
+        <template is="dom-if" if="{{check(dataOrigin,'textarea')}}">
+            <template is="dom-if" if="{{allowTextArea}}">
+                <label>You can paste your ids here:</label>
+
+                <div class="horizontal layout">
+                <textarea rows="10" cols="20" value="{{textAreaValue}}">
+                </textarea>
+                </div>
+            </template>
+        </template>
+
+        <template is="dom-if" if="{{allowNetwork}}">
+            <template is="dom-if" if="{{check(dataOrigin,'network')}}">
+                <div class="horizontal layout">
+                    <jso-network-list-select
+                            id="networkSelect"
+                            columns="{{columns}}"
+                            items="{{items}}"
+                            selected="{{selected}}"
+                            textAreaValue="{{textAreaValue}}"></jso-network-list-select>
+                </div>
+            </template>
+        </template>
+
+    </template>
+    <script>
+        Polymer({
+            is: "jso-opencga-file-origin",
+            properties: {
+                allowTextArea: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                allowNetwork: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                showBrowser: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                dataOrigin: {
+                    type: String,
+                    value: 'server'
+                },
+                textAreaValue: {
+                    type: String,
+                    value: ''
+                },
+                selectionMode: {
+                    type: String,
+                    value: ''
+                },
+                file: {
+                    type: Object,
+                },
+
+
+                bioformats: {
+                    type: Array
+                },
+                projects: {
+                    type: Array
+                },
+
+
+                // network Viewer
+                columns: {
+                    type: Array
+                },
+                items: {
+                    type: Array
+                },
+                selected: {
+                    type: Array
+                },
+            },
+            check: function (s, v) {
+                return s === v;
+            },
+            buttonHandler: function () {
+                this.$.browserPanel.hidden = false;
+            },
+            handleFileSelect: function (e) {
+                var file = e.detail;
+                var foundBioformat = false;
+                for (var i = 0; i < this.bioformats.length; i++) {
+                    var bf = this.bioformats[i];
+                    if (bf.value == file.bioformat) {
+                        foundBioformat = true;
+                        break;
+                    }
+                }
+                if (foundBioformat) {
+                    this.set('file', file);
+                    this.fire('validfileselect', file);
+                }
+            },
+            selectHandler: function (e) {
+//                console.log(this.shadowRoot.querySelector("#jsoProjectBrowser"))
+                this.showBrowser = false;
+                this.selectedFile = e.detail.file;
+            },
+            handleCancel: function (e) {
+                this.selectedFile = undefined;
+                this.showBrowser = false;
+            },
+            handleOriginChange: function (e) {
+                this.dataOrigin = e.target.value;
+                this.textAreaValue = "";
+            }
+        });
+    </script>
+</dom-module>

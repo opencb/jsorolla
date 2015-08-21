@@ -124,7 +124,7 @@
             margin-right: 5px;
         }
 
-        #filePreview .container{
+        #filePreview .container {
             width: 800px;
             height: 600px;
             overflow-y: auto;
@@ -200,7 +200,15 @@
         </div>
 
 
-        <div id="botbar" class="horizontal layout end-justified">
+        <div id="botbar" class="horizontal layout">
+            <div class="flex"></div>
+
+            <div hidden$="{{!checkFileModeOk(mode,selectedFile)}}"
+                 class="jso-btn jso-btn-shdw"
+                 style="width:100px;"
+                 on-click="handleFileModeOk">
+                OK
+            </div>
         </div>
 
         <jso-panel modal movable closable hidden id="uploadFilePanel">
@@ -318,8 +326,29 @@
                 reflectToAttribute: true
             },
             contentData: {
-                type:String,
+                type: String,
                 value: ""
+            },
+            mode: {
+                type: String,
+                reflectToAttribute: true,
+                value: ""
+            }
+        },
+        check: function (a, b) {
+            return a === b;
+        },
+        checkFileModeOk: function (mode, selectedFile) {
+            if (mode === 'file' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FILE') {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        handleFileModeOk: function (e) {
+            var jsoPanel = Polymer.dom(Polymer.dom(this.parentNode).parentNode).node;
+            if (jsoPanel instanceof JsoPanel) {
+                jsoPanel.hidden = true;
             }
         },
         projectsChanged: function (neo, old) {
@@ -346,7 +375,7 @@
                     var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
                     this.set('selectedStudy', el);
                 }
-                if(this.folder && this.selectedStudy){
+                if (this.folder && this.selectedStudy) {
                     this.refreshFolderFiles();
                 }
             }, 100);
@@ -529,20 +558,20 @@
             var filesFiltered = [];
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
-//                if (file.name.charAt(0) == '.') {
-//                    continue;
-//                }
-//                if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
-//                    continue;
-//                }
-//                if (Utils.endsWith(file.name, '.snappy')) {
-//                    continue;
-//                }
-//                if (file.bioformat == 'ALIGNMENT'
-//                        && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
-//                ) {
-//                    continue;
-//                }
+                if (file.name.charAt(0) == '.') {
+                    continue;
+                }
+                if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
+                    continue;
+                }
+                if (Utils.endsWith(file.name, '.snappy')) {
+                    continue;
+                }
+                if (file.bioformat == 'ALIGNMENT'
+                        && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
+                ) {
+                    continue;
+                }
                 filesFiltered.push(file);
             }
             return filesFiltered;
@@ -554,29 +583,29 @@
                 return project.name.charAt(0) != ".";
             }
         },
-        handlePreviewFile: function(e){
+        handlePreviewFile: function (e) {
             var file = e.detail;
 
             var data;
             OpencgaManager.files.content({
-                            id: file.id,
-                            query: {
-                                sid: Cookies('bioinfo_sid'),
-                                limit:100
-                            },
-                            request: {
-                                async: false,
-                                success: function (response) {
-                                    data = response;
-                                },
-                                error: function () {
+                id: file.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    limit: 100
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        data = response;
+                    },
+                    error: function () {
 
-                                }
-                            }
-                        });
+                    }
+                }
+            });
 
 
-            if(data){
+            if (data) {
 
                 this.contentData = data;
                 this.$.filePreview.hidden = false;
