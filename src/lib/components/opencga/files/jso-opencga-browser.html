@@ -191,6 +191,7 @@
                         study="{{selectedStudy.study}}"
                         folder="{{folder}}"
                         files="{{files}}"
+                        mode="{{mode}}"
                         >
                 </jso-opencga-folder-list>
             </div>
@@ -308,6 +309,9 @@
             },
             bioformats: {
                 type: Array,
+                value: function () {
+                    return [];
+                },
                 notify: true
             },
             showHidden: {
@@ -341,14 +345,17 @@
         checkFileModeOk: function (mode, selectedFile) {
             if (mode === 'file' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FILE') {
                 return true;
-            } else {
-                return false;
             }
+            if (mode === 'folder' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FOLDER') {
+                return true;
+            }
+            return false;
         },
         handleFileModeOk: function (e) {
             var jsoPanel = Polymer.dom(Polymer.dom(this.parentNode).parentNode).node;
             if (jsoPanel instanceof JsoPanel) {
                 jsoPanel.hidden = true;
+                this.fire('ok-click');
             }
         },
         projectsChanged: function (neo, old) {
@@ -411,7 +418,7 @@
             var me = this;
             this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
                 me.files = files;
-                console.log(files);
+//                console.log(files);
             });
         },
         handleStudyBreadcrum: function (e) {
@@ -476,7 +483,7 @@
                 me.folder = folder;
                 me._getFilesInFolder(me.selectedStudy.study.id, me.folder.id, function (files) {
                     me.files = files;
-                    console.log(files);
+//                    console.log(files);
                 });
             });
         },
@@ -558,21 +565,29 @@
             var filesFiltered = [];
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
-                if (file.name.charAt(0) == '.') {
-                    continue;
+
+                if (this.mode == 'folder') {
+                    if (file.type == 'FILE') {
+                        continue;
+                    }
+                    filesFiltered.push(file);
+                } else {
+                    if (file.name.charAt(0) == '.') {
+                        continue;
+                    }
+                    if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
+                        continue;
+                    }
+                    if (Utils.endsWith(file.name, '.snappy')) {
+                        continue;
+                    }
+                    if (file.bioformat == 'ALIGNMENT'
+                            && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
+                    ) {
+                        continue;
+                    }
+                    filesFiltered.push(file);
                 }
-                if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
-                    continue;
-                }
-                if (Utils.endsWith(file.name, '.snappy')) {
-                    continue;
-                }
-                if (file.bioformat == 'ALIGNMENT'
-                        && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
-                ) {
-                    continue;
-                }
-                filesFiltered.push(file);
             }
             return filesFiltered;
         },

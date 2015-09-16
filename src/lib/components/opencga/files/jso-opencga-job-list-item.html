@@ -4,20 +4,14 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-            padding: 3px;
-            margin: 2px 2px 0 2px;
-            border: 1px solid transparent;
-
-            /*width: 200px;*/
         }
 
         :host(:hover) {
-            border-color: #d3d3d3;
-            background-color: #f5f5f5;
+            background-color: var(--hover-color);
         }
 
         :host[selected] {
-            background-color: #ccc;
+            background-color: var(--selected-color);
         }
 
         .job {
@@ -29,7 +23,7 @@
         }
 
         .PREPARED {
-            color: #ff8c00;
+            color: #919900;
         }
 
         .ERROR {
@@ -45,7 +39,7 @@
         }
 
         .DONE {
-            color: #0068cc;
+            color: #00accc;
         }
 
         .READY {
@@ -82,7 +76,7 @@
                 </div>
                 <div>{{computeToolName(job)}}</div>
                 <div>
-                    <span class="capitalize {{job.status}}">{{computeStatus(job)}}</span>
+                    <span class$="{{computeStatusClass(job)}}">{{computeStatus(job)}}</span>
                     <span class="date">{{computeDate(job)}}</span>
                 </div>
             </div>
@@ -122,8 +116,8 @@
             return iconMap[job.status];
         },
         computeStatusIcon: function (job) {
-
             var iconMap = {
+                "PREPARED": 'PREPARED fa fa-clock-o',
                 "READY": 'READY fa fa-check',
                 "ERROR": 'ERROR fa fa-times',
                 "QUEUED": 'QUEUED fa fa-clock-o',
@@ -136,6 +130,9 @@
                 return "Finishing";
             }
             return job.status.toLowerCase();
+        },
+        computeStatusClass: function (job) {
+            return "capitalize " + job.status;
         },
         computeToolName: function (job) {
             if (job.toolName.toLowerCase() == "pathiways") {
@@ -150,14 +147,14 @@
             return job.visits > 0
                     ;
         },
-        isRunning: function(job){
+        isRunning: function (job) {
             return job.status == "RUNNING";
         },
-        handleDeleteJob: function(e){
+        handleDeleteJob: function (e) {
             var jobId = e.currentTarget.dataJob;
             e.stopPropagation();
 
-            if(confirm("Are you sure?")){
+            if (confirm("Are you sure?")) {
                 var aux = OpencgaManager.jobs.delete({
                     id: jobId,
                     query: {
@@ -165,7 +162,7 @@
                     },
                     request: {
                         success: function (response) {
-                           
+
                         },
                         error: function () {
                             console.log('Server error, try again later.');

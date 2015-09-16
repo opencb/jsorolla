@@ -15,7 +15,7 @@
         }
 
         #header {
-            height: 25px;
+            height: 30px;
             border-bottom: 1px solid rgba(125, 125, 125, 0.5);
         }
 
@@ -25,7 +25,8 @@
         }
 
         #content {
-            height: calc(100% - 55px);
+            height: calc(100% - 30px);
+            /*height: 100%;*/
             overflow-y: auto;
             overflow-x: hidden;
         }
@@ -38,16 +39,25 @@
     </style>
     <template>
         <div id="header" class="horizontal layout">
+            <label class="jso">Tool name:</label>
+            <div class="jso-select" style="width:150px;">
+                <select id="toolFilterSelect" on-change="handleFilterSelect">
+                    <option value="all">all</option>
+                    <template is="dom-repeat" items={{allowedTools}} as="toolName">
+                        <option value="{{toolName}}">{{toolName}}</option>
+                    </template>
+                </select>
+            </div>
         </div>
         <div id="content">
-            <template is="dom-repeat" items="{{jobs}}" filter="checkFilters" observe="status">
+            <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
                 <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect">
                 </jso-opencga-job-list-item>
             </template>
         </div>
-        <div id="footer" class="horizontal layout">
+        <!--<div id="footer" class="horizontal layout">-->
 
-        </div>
+        <!--</div>-->
 
     </template>
 </dom-module>
@@ -63,13 +73,22 @@
             jobs: {
                 type: Array,
                 notify: true,
-                value: function () {
-                    return [];
-                }
+                observer: 'jobsChanged'
+            },
+            filteredJobs: {
+                type: Array,
+                notify: true
             },
             selected: {
                 type: Object,
                 notify: true
+            },
+            allowedTools: {
+                type: Array
+            },
+            toolFilterValue: {
+                type: String,
+                value: 'all'
             }
         },
         handleSelect: function (e) {
@@ -85,9 +104,23 @@
         checkFolder: function (folder) {
             return folder == null;
         },
-        checkFilters: function (item) {
-            return true;
-//            return item.bioformat == "VARIANT";
+        jobsChanged: function (neo, old) {
+            var me = this;
+            var jobs;
+            if (this.toolFilterValue == 'all') {
+                var jobs = this.jobs.filter(function (item) {
+                    return me.allowedTools.indexOf(item.toolName) != -1;
+                });
+            } else {
+                var jobs = this.jobs.filter(function (item) {
+                    return item.toolName === me.toolFilterValue;
+                });
+            }
+            this.set('filteredJobs', jobs);
+        },
+        handleFilterSelect: function (e) {
+            this.set('toolFilterValue', e.currentTarget.value);
+            this.jobsChanged();
         }
     });
 </script>

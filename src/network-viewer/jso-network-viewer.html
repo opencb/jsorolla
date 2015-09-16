@@ -81,8 +81,8 @@
 <link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
 
 <link rel="import" href="jso-nv-snow.html">
-<!--<link rel="import" href="jso-nv-network-miner.html">-->
-<!--<link rel="import" href="jso-nv-fatigo.html">-->
+<link rel="import" href="jso-nv-network-miner.html">
+<link rel="import" href="jso-nv-fatigo.html">
 <!--<link rel="import" href="jso-nv-reactome-fi.html">-->
 
 <script src="../lib/cellbase-manager.js"></script>
@@ -530,13 +530,12 @@
         </div>
 
 
-        <jso-panel collapsible fixed movable closable id="snowPanel">
+        <jso-panel hidden collapsible fixed movable closable id="snowPanel">
             <div class="header">
                 Network enrichment form
             </div>
             <jso-nv-snow
                     id="snow"
-                    bioformats="{{bioformats}}"
                     projects="{{projects}}"
 
                     columns="{{vertexColumns}}"
@@ -548,27 +547,40 @@
         </jso-panel>
 
 
-        <!--<template if="{{selectedMenu == 'networkminer'}}">-->
-        <!--<jso-nv-network-miner-->
-        <!--selectedOption="{{selectedMenu}}"-->
-        <!--userData="{{userData}}"-->
-        <!--selectedStudy="{{selectedStudy}}"-->
-        <!--studies="{{studies}}"-->
-        <!--networkViewer="{{}}">-->
-        <!--</jso-nv-network-miner>-->
-        <!--</template>-->
-        <!--<template if="{{selectedMenu == 'snow'}}">-->
+        <jso-panel collapsible fixed movable closable id="networkMinerPanel">
+            <div class="header">
+                Gene set network enrichment form
+            </div>
+            <jso-nv-network-miner
+                    id="networkMiner"
+                    projects="{{projects}}"
 
-        <!--</template>-->
-        <!--<template if="{{selectedMenu == 'fatigo'}}">-->
-        <!--<jso-nv-fatigo-->
-        <!--selectedOption="{{selectedMenu}}"-->
-        <!--userData="{{userData}}"-->
-        <!--selectedStudy="{{selectedStudy}}"-->
-        <!--studies="{{studies}}"-->
-        <!--networkViewer="{{}}">-->
-        <!--</jso-nv-fatigo>-->
-        <!--</template>-->
+                    columns="{{vertexColumns}}"
+                    items="{{vertices}}"
+                    selected="{{selectedVertices}}"
+
+                    class="container">
+            </jso-nv-network-miner>
+        </jso-panel>
+
+
+        <jso-panel hidden collapsible fixed movable closable id="fatigoPanel">
+            <div class="header">
+                Single enrichment form
+            </div>
+            <jso-nv-fatigo
+                    id="fatigo"
+                    projects="{{projects}}"
+
+                    columns="{{vertexColumns}}"
+                    items="{{vertices}}"
+                    selected="{{selectedVertices}}"
+
+                    class="container">
+            </jso-nv-fatigo>
+        </jso-panel>
+
+
         <!--<template if="{{selectedMenu == 'reactome-fi-microarray'}}">-->
         <!--<jso-nv-reactome-fi-->
         <!--selectedOption="{{selectedMenu}}"-->
@@ -1369,16 +1381,16 @@
             var link = document.createElement('a');
             link.href = url;
             link.download = "network.json.gz";
-            var fileName = window.prompt("Please enter file name", "network.json.gz")
+            var fileName = window.prompt("Please enter file name", "network.json.gz");
             if (fileName != null && fileName != "") {
                 link.download = fileName;
+                var event = new MouseEvent('click', {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true
+                });
+                link.dispatchEvent(event);
             }
-            var event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true
-            });
-            link.dispatchEvent(event);
         },
         handleSessionManageMenu: function (e) {
             this.$.sessionManagerPanel.hidden = false;
@@ -1501,24 +1513,24 @@
                 if (this.jsoHeader.isLogged == false) {
                     this.jsoHeader.anonymousSign();
                 }
-                this.selectedMenu = "networkminer";
             }
+            this.$.networkMinerPanel.hidden = false;
         },
         handleFatigoMenu: function (e) {
             if (this.jsoHeader) {
                 if (this.jsoHeader.isLogged == false) {
                     this.jsoHeader.anonymousSign();
                 }
-                this.selectedMenu = "fatigo";
             }
+            this.$.fatigoPanel.hidden = false;
         },
         handleReactomeFiMenu: function (e) {
             if (this.jsoHeader) {
                 if (this.jsoHeader.isLogged == false) {
                     this.jsoHeader.anonymousSign();
                 }
-                this.selectedMenu = "reactome-fi-microarray";
             }
+            this.$.reactomeFiPanel.hidden = false;
         },
         /**/
         handleImportSif: function (e) {

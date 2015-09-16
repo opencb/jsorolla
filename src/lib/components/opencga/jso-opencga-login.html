@@ -32,9 +32,9 @@
         }
 
         .shortcut{
-            text-align: right;
             cursor: pointer;
             color: var(--dark-primary-color);
+            float:right;
         }
 
         .shortcut:hover {
@@ -54,12 +54,13 @@
             <label class="jso">User</label>
             <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <div class="shortcut" on-click="handleSignup">Create new user...</div>
+            <span class="shortcut" on-click="handleSignup">Create new user...</span>
             <br>
             <label class="jso">Password</label>
             <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <div class="shortcut" on-click="handleRemember">Remember password...</div>
+            <span class="shortcut" on-click="handleRemember">Remember password...</span>
+            <br>
             <br>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleForm">Log in</div>

@@ -283,7 +283,6 @@ var OpencgaManager = {
     //    },
     //    create: function (args) {
     //        return OpencgaManager._doRequest(args, 'analysis', 'create');
-    //    }
     //},
     _url: function (args, api, action) {
         var host = OpencgaManager.host;
@@ -301,6 +300,12 @@ var OpencgaManager = {
 
         var url = host + '/webservices/rest/' + version + '/' + api + id + '/' + action;
         if (OPENCGA_OLD_URL_FORMAT === true) {
+            if(action == 'jobs'){
+                action = 'job'
+            }
+            if(api == 'jobs'){
+                api = 'job'
+            }
             url = host + '/rest/' + api + id + '/' + action;
         }
         url = Utils.addQueryParamtersToUrl(args.query, url);

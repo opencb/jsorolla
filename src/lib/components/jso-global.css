@@ -259,3 +259,32 @@ textarea.jso {
     margin-bottom: 10px;
 
 }
+
+/* top Message*/
+.jso-msg-hidden {
+    position: absolute;
+    z-index: 50000;
+    top: -200px;
+    left: 45%;
+    background: white;
+    border: 1px solid #000;
+    transition: top 0.9s;
+    margin: 5px;
+    min-width: 150px;
+}
+
+.jso-msg-hidden :first-child {
+    padding: 5px;
+    color: white;
+    background-color: #000;
+}
+
+.jso-msg-hidden :last-child {
+    padding: 7px;
+    color: #000;
+    background-color: white;
+}
+
+.jso-msg-shown {
+    top: 0px;
+}

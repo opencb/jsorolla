@@ -138,7 +138,10 @@
                 reflectToAttribute: true
             },
             bioformats: {
-                type: Array
+                type: Array,
+                value: function () {
+                    return [];
+                }
             },
             uploading: {
                 type: Boolean,
@@ -165,11 +168,9 @@
         ready: function (e) {
             if (this.bioformats.length == 0) {
                 console.log("No bioformats selected")
+                /*** Check number of bioformats in order to show the bioformat chooser ***/
+                this.checkBioformats();
             }
-
-
-            /*** Check number of bioformats in order to show the bioformat chooser ***/
-            this.checkBioformats();
         },
         checkBioformats: function () {
             var numberOfBioformats = 0;

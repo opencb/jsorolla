@@ -19,25 +19,10 @@
             height: 400px;
         }
 
-        #topbar,
-        #botbar {
-            box-sizing: border-box;
-            height: 30px;
-            padding: 3px 7px;
-            line-height: 30px;
-        }
-
-        #topbar {
-            border-bottom: 1px solid rgba(130, 130, 130, 0.4);
-        }
-
-        #botbar {
-            border-top: 1px solid rgba(130, 130, 130, 0.4);
-        }
-
         #main {
             position: relative;
-            height: calc(100% - 60px);
+            /*height: calc(100% - 60px);*/
+            height: 100%;
         }
 
         #mainmenu {
@@ -58,7 +43,7 @@
         }
 
         #mainmenucontent {
-            height: calc(100% - 30px);
+            height: 100%;
             overflow-y: auto;
         }
 
@@ -79,49 +64,11 @@
             word-wrap: break-word;
         }
 
-        .project-menu-item {
-
-        }
-
-        #breadcrums {
-            box-sizing: border-box;
-            padding-left: 5px;
-            line-height: 23px;
-        }
-
-        #breadcrums > span.clickable:hover {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        #breadcrums > .projectbread {
-        }
-
-        /*#breadcrums > span:not(:last-of-type)::after {*/
-        /*font-family: 'FontAwesome';*/
-        /*content: '\f105';*/
-        /*margin-left: 5px;*/
-        /*}*/
-
         jso-opencga-job-list {
             height: 100%;
         }
-
-        .bar > div {
-            margin-right: 5px;
-        }
     </style>
     <template>
-        <div id="topbar" class="horizontal layout">
-            <!--<div flex id="breadcrums">-->
-            <!--<span>Root</span>-->
-            <!--<i hidden hidden$="{{computeAngleIcon(selectedProject)}}" class="fa fa-angle-right"></i>-->
-            <!--<span>{{selectedProject.project.name}}</span>-->
-            <!--<i hidden hidden$="{{computeAngleIcon(selectedStudy)}}" class="fa fa-angle-right"></i>-->
-            <!--<span>{{selectedStudy.study.name}}</span>-->
-            <!--</div>-->
-        </div>
-
         <div id="main" class="flex">
             <div id="mainmenu">
                 <div id="mainmenucontent">
@@ -136,26 +83,14 @@
                 <jso-opencga-job-list
                         on-jobselect="handleJobSelect"
                         study="{{selectedStudy.study}}"
+                        allowed-tools="{{allowedTools}}"
                         jobs="{{jobs}}">
                 </jso-opencga-job-list>
-                <!--                <jso-opencga-folder-list
-                                       on-fileselect="handleFileSelect"
-                                       on-openfolder="handleOpenFolder"
-                                       on-upload-file="handleUploadFile"
-                                       on-back="handleBackFolder"
-                                       on-need-refresh="refreshFolderFiles"
-                                       on-previewfile="handlePreviewFile"
-                                       study="{{selectedStudy.study}}"
-                                       folder="{{folder}}"
-                                       files="{{files}}"
-                                       >
-                               </jso-opencga-folder-list> -->
             </div>
             <!--<div id="maininfo">-->
 
             <!--</div>-->
         </div>
-        <div id="botbar" class="horizontal layout end-justified"></div>
     </template>
 
 </dom-module>
@@ -199,6 +134,15 @@
                     return [];
                 }
             }
+        },
+        ready: function () {
+            /** Periodical refresh **/
+            var me = this;
+            this.async(function () {
+                setInterval(function () {
+                    me.refreshJobs();
+                }, 5000);
+            });
         },
         projectsChanged: function (neo, old) {
             this.async(function () {
@@ -246,7 +190,8 @@
             return true;
         },
         refreshJobs: function () {
-            this.jobs = this._getJobs(this.selectedStudy.study.id);
+            console.log('refreshJobs');
+            this._getJobs(this.selectedStudy.study.id);
         },
         _getJobs: function (studyId) {
             var me = this;
@@ -264,13 +209,15 @@
                             var jobList = response.response[0].result;
 
                             if (me.allowedTools != null && me.allowedTools.length > 0) {
-                                me.jobs = jobList.filter(function (item) {
+                                jobList = jobList.filter(function (item) {
                                     return me.allowedTools.indexOf(item.toolName) != -1;
                                 })
-                            } else {
-                                me.jobs = jobList;
                             }
+                            jobList.sort(function (a, b) {
+                                return b.date.localeCompare(a.date);
+                            });
 
+                            me.set('jobs', jobList);
 //                            me.jobs = response.response[0].result;
 
                         } else {

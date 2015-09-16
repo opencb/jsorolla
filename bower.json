@@ -15,7 +15,7 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#1.0.9",
+    "polymer": "Polymer/polymer#1.1.3",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#1.0.3",
     "fontawesome": "~4.3.0",
     "cookies-js": "~1.1.0",

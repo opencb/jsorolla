@@ -207,6 +207,13 @@
             height: 100%;
         }
 
+        .table-field > div {
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         div.table-field:last-of-type {
             border-right-width: 0;
         }
@@ -1260,12 +1267,13 @@
                 }
             } else {
                 var cEl = document.createElement('div');
+                cEl.classList.add('style-scope', 'jso-table');
                 if (isNaN(column.width)) {
                     cEl.classList.add('flex');
                 } else {
                     cEl.style.width = column.width + "px";
                 }
-                cEl.textContent = value != null ? value : defValue;
+                cEl.innerHTML = value != null ? value : defValue;
                 if (!this.disableTooltip) {
                     var tooltipValue = value == null ? '' : value;
                     cEl.setAttribute("title", tooltipValue);
@@ -1333,7 +1341,7 @@
 
             if (selected != null) {
                 this.selected = [selected];
-            }else{
+            } else {
                 this._clearSelection();
             }
 

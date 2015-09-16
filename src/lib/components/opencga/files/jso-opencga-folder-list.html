@@ -73,6 +73,7 @@
                 </div>
 
                 <div class="jso-btn jso-btn-shdw upload-btn"
+                     hidden$="{{isFolderMode(mode)}}"
                      on-click="handleUploadFile">
                     <i class="fa fa-cloud-upload"></i> Upload
                 </div>
@@ -154,6 +155,10 @@
             },
             study: {
                 type: Object
+            },
+            mode: {
+                type: String,
+                reflectToAttribute: true,
             }
         },
         handleUploadFile: function (e) {
@@ -237,6 +242,9 @@
         checkFilters: function (item) {
             return true;
 //            return item.bioformat == "VARIANT";
+        },
+        isFolderMode: function (mode) {
+            return mode === 'folder';
         },
 
 
