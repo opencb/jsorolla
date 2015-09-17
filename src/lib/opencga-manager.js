@@ -299,7 +299,7 @@ var OpencgaManager = {
         }
 
         var url = host + '/webservices/rest/' + version + '/' + api + id + '/' + action;
-        if (OPENCGA_OLD_URL_FORMAT === true) {
+        if (OPENCGA_OLD_URL_FORMAT != null && OPENCGA_OLD_URL_FORMAT === true) {
             if(action == 'jobs'){
                 action = 'job'
             }
