@@ -308,7 +308,7 @@ GenomeViewer.prototype = {
         if (!$.isFunction(this.quickSearchResultFn)) {
             this.quickSearchResultFn = function (query) {
                 var results = [];
-                var speciesCode = Utils.getSpeciesCode(this.species.text);
+                var speciesCode = Utils.getSpeciesCode(this.species.scientificName);
 
                 CellBaseManager.get({
                     host: _this.cellBaseHost,
@@ -885,7 +885,7 @@ GenomeViewer.prototype = {
         for (var i = 0; i < this.availableSpecies.items.length; i++) {
             for (var j = 0; j < this.availableSpecies.items[i].items.length; j++) {
                 var species = this.availableSpecies.items[i].items[j];
-                var taxonomy = Utils.getSpeciesCode(species.text);
+                var taxonomy = Utils.getSpeciesCode(species.scientificName);
                 if (taxonomy === taxonomyCode) {
                     speciesObject = species;
                     break;
