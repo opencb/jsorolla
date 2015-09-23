@@ -392,7 +392,6 @@ var Utils = {
         setTimeout(function () {
             document.body.removeChild(div);
             div = null;
-            delete div;
         }, 2200);
     },
     repeat: function (string, count) {
