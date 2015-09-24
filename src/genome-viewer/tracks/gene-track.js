@@ -65,7 +65,7 @@ GeneTrack.prototype.updateHeight = function() {
 
     if (this.resizable) {
         if (this.autoHeight == false) {
-            $(this.contentDiv).css({'height': this.height + 5});
+            $(this.contentDiv).css({'height': this.height + 10});
             this.main.setAttribute('height', this.height);
         } else if (this.autoHeight == true) {
             var x = this.pixelPosition;
@@ -77,7 +77,7 @@ GeneTrack.prototype.updateHeight = function() {
                 }
             }
             var visibleHeight = parseInt(lastContains) + 30;
-            $(this.contentDiv).css({'height': visibleHeight + 5});
+            $(this.contentDiv).css({'height': visibleHeight + 10});
             this.main.setAttribute('height', visibleHeight);
         }
     }

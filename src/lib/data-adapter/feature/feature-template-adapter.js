@@ -51,6 +51,8 @@ function FeatureTemplateAdapter(args) {
     _.extend(this, Backbone.Events);
 
     this.templateVariables = {};
+    this.multiRegions = true;
+    this.histogramMultiRegions = true;
 
     _.extend(this, args);
 
@@ -60,15 +62,15 @@ function FeatureTemplateAdapter(args) {
 }
 
 FeatureTemplateAdapter.prototype = {
-    setSpecies: function (species) {
+    setSpecies: function(species) {
         this.species = species;
         this.configureCache();
     },
-    setHost: function (host) {
+    setHost: function(host) {
         this.configureCache();
         this.host = host;
     },
-    configureCache: function () {
+    configureCache: function() {
         var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
         var cacheId = this.uriTemplate + speciesString;
         if (!this.cacheConfig) {
@@ -81,7 +83,7 @@ FeatureTemplateAdapter.prototype = {
         this.cache = new FeatureChunkCache(this.cacheConfig);
     },
 
-    getData: function (args) {
+    getData: function(args) {
         var _this = this;
 
         var params = {};
@@ -118,7 +120,7 @@ FeatureTemplateAdapter.prototype = {
          * by the Cache TODO????
          * Cached chunks will be returned by the args.dataReady Callback.
          */
-        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
+        this.cache.get(region, categories, dataType, chunkSize, function(cachedChunks, uncachedRegions) {
 
             var category = categories[0];
             var categoriesName = "";
@@ -129,7 +131,22 @@ FeatureTemplateAdapter.prototype = {
 
             var chunks = cachedChunks[category];
             // TODO check how to manage multiple regions
-            var queriesList = _this._groupQueries(uncachedRegions[category]);
+
+            var queriesList;
+            if (dataType !== 'histogram') {
+                if (_this.multiRegions === false) {
+                    queriesList = _this._singleQueries(uncachedRegions[category]);
+                } else {
+                    queriesList = _this._groupQueries(uncachedRegions[category]);
+                }
+            } else {
+                if (_this.histogramMultiRegions === false) {
+                    queriesList = _this._singleQueries(uncachedRegions[category]);
+                } else {
+                    queriesList = _this._groupQueries(uncachedRegions[category]);
+                }
+            }
+
 
             /** Uncached regions found **/
             if (queriesList.length > 0) {
@@ -143,23 +160,24 @@ FeatureTemplateAdapter.prototype = {
 
                     /** Temporal fix save queried region **/
                     request._queryRegion = queryRegion;
+                    request._originalRegion = region;
 
-                    request.onload = function () {
+                    request.onload = function() {
                         var response;
-                        var contentType = this.getResponseHeader('Content-Type');
-                        if (contentType === 'application/json') {
+                        try {
                             response = JSON.parse(this.response);
-                        } else {
+                        } catch (e) {
+                            console.log('Warning: Response is not JSON');
                             response = this.response;
                         }
 
                         /** Process response **/
-                        var responseChunks = _this._success(response, categories, dataType, this._queryRegion, chunkSize);
+                        var responseChunks = _this._success(response, categories, dataType, this._queryRegion, this._originalRegion, chunkSize);
                         args.webServiceCallCount--;
 
                         chunks = chunks.concat(responseChunks);
                         if (args.webServiceCallCount === 0) {
-                            chunks.sort(function (a, b) {
+                            chunks.sort(function(a, b) {
                                 return a.chunkKey.localeCompare(b.chunkKey)
                             });
                             args.done({
@@ -167,7 +185,7 @@ FeatureTemplateAdapter.prototype = {
                             });
                         }
                     };
-                    request.onerror = function () {
+                    request.onerror = function() {
                         console.log('Server error');
                         args.done();
                     };
@@ -193,43 +211,34 @@ FeatureTemplateAdapter.prototype = {
         });
     },
 
-    _success: function (response, categories, dataType, queryRegion, chunkSize) {
-        var timeId = Utils.randomString(4) + this.resource + " save";
-        console.time(timeId);
+    _success: function(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
+        //var timeId = Utils.randomString(4) + this.resource + " save";
+        //console.time(timeId);
         /** time log **/
 
         var regions = [];
-        if (dataType == 'histogram') {
-
-            var regions = [];
-
-            if (this.getRegionsFromIntervals === "undefined") {
-                for (var i = 0; i < response.response.length; i++) {
-                    var r = response.response[i];
-                    for (var j = 0; j < r.result.length; j++) {
-                        var interval = r.result[j];
-                        var region = new Region(interval);
-                        regions.push(region);
-                    }
-                }
+        var chunks = [];
+        if (dataType !== 'histogram') {
+            if (typeof this.parse === 'function') {
+                chunks = this.parse(response, dataType);
             } else {
-                regions = this.getRegionsFromIntervals(response);
+                chunks = response;
             }
+            regions = this._getRegionsFromQueryRegions(queryRegion);
         } else {
-            var regionSplit = queryRegion.split(',');
-            for (var i = 0; i < regionSplit.length; i++) {
-                var regionStr = regionSplit[i];
-                var region = new Region(regionStr);
-                regions.push(region);
+            debugger
+            if (typeof this.parseHistogram === 'function') {
+                chunks = this.parseHistogram(response);
+            } else {
+                chunks = response;
             }
+            regions = this._getRegionsFromHistogramChunks(chunks, originalRegion.chromosome);
         }
-
-        var chunks = this.parse(response, dataType);
 
         var items = this.cache.putByRegions(regions, chunks, categories, dataType, chunkSize);
 
         /** time log **/
-        console.timeEnd(timeId);
+        //console.timeEnd(timeId);
 
         return items;
     },
@@ -239,7 +248,7 @@ FeatureTemplateAdapter.prototype = {
      * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
-    _groupQueries: function (uncachedRegions) {
+    _groupQueries: function(uncachedRegions) {
         var groupSize = 50;
         var queriesLists = [];
         while (uncachedRegions.length > 0) {
@@ -247,13 +256,42 @@ FeatureTemplateAdapter.prototype = {
         }
         return queriesLists;
     },
+    _singleQueries: function(uncachedRegions) {
+        var queriesLists = [];
+        for (var i = 0; i < uncachedRegions.length; i++) {
+            var region = uncachedRegions[i];
+            queriesLists.push(region.toString());
+        }
+        return queriesLists;
+    },
 
-    _getSpeciesString: function (species) {
+    _getSpeciesString: function(species) {
         if (this.speciesParse != null) {
             return this.speciesParse(species);
         } else {
             return Utils.getSpeciesCode(species.scientificName)
         }
+    },
+
+    _getRegionsFromQueryRegions: function(queryRegion) {
+        var regions = [];
+        var regionSplit = queryRegion.split(',');
+        for (var i = 0; i < regionSplit.length; i++) {
+            var regionStr = regionSplit[i];
+            regions.push(new Region(regionStr));
+        }
+        return regions;
+    },
+
+    _getRegionsFromHistogramChunks: function(intervals, chromosome) {
+        var regions = [];
+        for (var i = 0; i < intervals.length; i++) {
+            var interval = intervals[i];
+            var region = new Region(interval);
+            region.chromosome = chromosome;
+            regions.push(region);
+        }
+        return regions;
     },
 };
 

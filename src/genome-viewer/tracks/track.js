@@ -149,7 +149,7 @@ Track.prototype = {
         this._updateHeight();
     },
     _updateHeight: function() {
-        $(this.contentDiv).css({'height': this.height});
+        $(this.contentDiv).css({'height': this.height + 10});
     },
     enableAutoHeight: function() {
         console.log('enable autoHeigth');
