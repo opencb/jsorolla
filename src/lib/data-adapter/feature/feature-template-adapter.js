@@ -71,7 +71,10 @@ FeatureTemplateAdapter.prototype = {
         this.host = host;
     },
     configureCache: function() {
-        var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
+        var speciesString = '';
+        if(this.species != null){
+            var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
+        }
         var cacheId = this.uriTemplate + speciesString;
         if (!this.cacheConfig) {
             this.cacheConfig = {
