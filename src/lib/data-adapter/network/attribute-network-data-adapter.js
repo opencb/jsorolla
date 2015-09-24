@@ -34,7 +34,8 @@ function AttributeNetworkDataAdapter(args) {
     _.extend(this, args);
 
 
-    this.attributeManager = new AttributeManagerMemory();
+    this.attributes = [];
+    this.columns = [];
 
     this.on(this.handlers);
 
@@ -124,10 +125,10 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                 finalColumnNames[i] = "id";
             }
             if (this.ignoreColumns[i] !== true) {
-                this.attributeManager.addColumn({
+                this.columns.push({
                     "name": finalColumnNames[i],
                     "title": finalColumnNames[i],
-                    "type": "string",
+                    "type": "text",
                     "defaultValue": ""
                 });
             }
@@ -152,7 +153,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                             row[finalColumnNames[j]] = fields[j].trim();
                         }
                     }
-                    this.attributeManager.addRow(row);
+                    this.attributes.push(row);
                 }
             }
         } else {
@@ -170,12 +171,12 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                     for (var j = 0; j < fields.length; j++) {
                         row[finalColumnNames[j]] = fields[j].trim();
                     }
-                    this.attributeManager.addRow(row);
+                    this.attributes.push(row);
                 }
             }
         }
 
-        this.trigger('data:load', {attributeManager: this.attributeManager, sender: this});
+        this.trigger('data:load', {columns: this.columns, attributes: this.attributes, sender: this});
     } catch (e) {
         console.log(e);
         console.log(e.stack);

@@ -10,48 +10,52 @@
     </div>
 
 */
-* /deep/ .formbox {
-    border: 1px solid #d3d3d3;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.15);
+.jso-formbox {
+    border: 1px solid rgba(125, 125, 125, 0.4);
     margin: 0 5px 10px 5px;
     background-color: #FFFFFF;
 }
 
-* /deep/ .formtitle {
-    border-bottom: 1px solid #dfdfdf;
+.jso-formbox.jso-shdw {
+    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.jso-formtitle {
+    border-bottom: 1px solid rgba(125, 125, 125, 0.3);
     padding: 6px 10px;
     font-size: 16px;
     color: #000;
     background-color: #f5f5f5;
 }
 
-* /deep/ .formtitle > * {
+.jso-formtitle > * {
     margin-left: 5px;
 }
 
-* /deep/ .formtitle > .actions > * {
+/*.jso-formtitle > .actions > * {
     margin-left: 5px;
-    color: #888;
+    padding:1px 4px;
+    cursor: pointer;
 }
 
-* /deep/ .formtitle > .actions > *[data-checked] {
-    color: #445D76;
+.jso-formtitle > .actions > *[data-checked] {
+    background-color: #ddd;
 }
 
-* /deep/ .formtitle > .actions > *:hover {
-    color: #000;
-}
+.jso-formtitle > .actions > *:hover {
+    background-color: #ccc;
+}*/
 
-* /deep/ .formcontent {
+.jso-formcontent {
     padding: 8px 10px;
 }
 
-* /deep/ .formbox.fit {
+.jso-formbox.jso-fit {
     margin: 0px;
     border-width: 0;
 }
 
-* /deep/ .formcontent.fit {
+.jso-formcontent.jso-fit {
     padding: 0px;
 }
 
@@ -65,17 +69,17 @@
     </label>
 
 */
-* /deep/ label.control {
+label.jso-control {
     color: inherit;
 }
 
-* /deep/ label.control > input[type=radio],
-* /deep/ label.control > input[type=checkbox] {
+label.jso-control > input[type=radio],
+label.jso-control > input[type=checkbox] {
     display: none;
 }
 
-* /deep/ label.control > input[type=radio] + span,
-* /deep/ label.control > input[type=checkbox] + span {
+label.jso-control > input[type=radio] + span,
+label.jso-control > input[type=checkbox] + span {
     display: block;
     position: relative;
     outline: 0;
@@ -87,8 +91,8 @@
     color: inherit;
 }
 
-* /deep/ label.control > input[type=radio] + span:before,
-* /deep/ label.control > input[type=checkbox] + span:before {
+label.jso-control > input[type=radio] + span:before,
+label.jso-control > input[type=checkbox] + span:before {
     font-family: 'FontAwesome';
     display: inline-block;
     width: 20px;
@@ -98,27 +102,29 @@
     color: #666;
 }
 
-* /deep/ label.control > input[type=radio] + span:before {
+label.jso-control > input[type=radio] + span:before {
     content: '\f10c';
 }
 
-* /deep/ label.control > input[type=radio]:checked + span:before {
+label.jso-control > input[type=radio]:checked + span:before {
     content: '\f192';
 }
 
-* /deep/ label.control > input[type=checkbox] + span:before {
+label.jso-control > input[type=checkbox] + span:before {
     content: '\f096';
 }
 
-* /deep/ label.control > input[type=checkbox]:checked + span:before {
+label.jso-control > input[type=checkbox]:checked + span:before {
     content: '\f046';
 }
 
-* /deep/ label.control > input[type=radio]:disabled + span,
-* /deep/ label.control > input[type=radio]:disabled + span:before {
-    color: #d3d3d3 !important;
+label.jso-control > input[type=radio]:disabled + span,
+label.jso-control > input[type=radio]:disabled + span:before {
+    color: rgba(125, 125, 125, 0.25);
+!important;
 }
 
-* /deep/ input[type=text]:disabled {
-    color: #d3d3d3 !important;
+input[type=text]:disabled {
+    color: rgba(125, 125, 125, 0.25);
+!important;
 }

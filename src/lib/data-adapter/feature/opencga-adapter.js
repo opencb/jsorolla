@@ -27,21 +27,29 @@ function OpencgaAdapter(args) {
 
     this.on(this.handlers);
 
-    this.cacheConfig = {
-        cacheId: 'opencga' + this.resource.id,
-//        subCacheId: this.resource + this.params.exclude,
-        chunkSize: 3000
-    };
-    _.extend(this.cacheConfig, args.cacheConfig);
+    this.configureCache();
 
-    this.cache = new FeatureChunkCache(this.cacheConfig);
     this.debug = false;
 }
 
 OpencgaAdapter.prototype = {
+    setSpecies: function (species) {
+        this.species = species;
+    },
+    configureCache: function () {
+        var host = this.host || OpencgaManager.host;
+        if (!this.cacheConfig) {
+            this.cacheConfig = {
+                // subCacheId: this.resource + this.params.keys(),
+                chunkSize: 3000
+            }
+        }
+        this.cacheConfig.cacheId = 'opencga' + this.resource.id;
+        this.cache = new FeatureChunkCache(this.cacheConfig);
+    },
+
     getData: function (args) {
         var _this = this;
-        args.webServiceCallCount = 0;
 
         var params = {};
 //                    histogram: (dataType == 'histogram')
@@ -58,7 +66,6 @@ OpencgaAdapter.prototype = {
 
 
         /** 2 category check **/
-        //TODO define category
         var categories = this.resource.id.toString().split(',');   // in this adapter each category is each file
 
         /** 3 dataType check **/
@@ -68,7 +75,7 @@ OpencgaAdapter.prototype = {
         }
 
         /** 4 chunkSize check **/
-        var chunkSize = args.params.interval ? args.params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
+        var chunkSize = params.interval ? params.interval : this.cacheConfig.chunkSize; // this.cache.defaultChunkSize should be the same
         if (this.debug) {
             console.log(chunkSize);
         }
@@ -87,53 +94,59 @@ OpencgaAdapter.prototype = {
                 categoriesName += "," + categories[j];
             }
             categoriesName = categoriesName.slice(1);   // to remove first ','
-            /**
-             * Process uncached regions
-             */
+
+            var chunks = cachedChunks[category];
             // TODO check if OpenCGA allows multiple regions
             var queriesList = _this._groupQueries(uncachedRegions[category]);
 
-            // TODO check how to manage multiple regions and multiple files ids
-            for (var i = 0; i < queriesList.length; i++) {
-                args.webServiceCallCount++;
-                var queryRegion = queriesList[i];
+            /** Uncached regions found **/
+            if (queriesList.length > 0) {
+                args.webServiceCallCount = 0;
 
-                params['region'] = queryRegion.toString();
-                params['interval'] = chunkSize;
-                params['histogram'] = (dataType == 'histogram');
-                params['process_differences'] = false;
+                // TODO check how to manage multiple regions and multiple files ids
+                for (var i = 0; i < queriesList.length; i++) {
+                    args.webServiceCallCount++;
+                    var queryRegion = queriesList[i];
 
-                OpencgaManager.files.fetch({
-                    id: categoriesName,
-                    query: params,
-                    request: {
-                        success: function (response) {
-                            _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
-                        },
-                        error: function () {
-                            args.done();
-                            console.log('Server error');
+                    params['region'] = queryRegion.toString();
+                    params['interval'] = chunkSize;
+                    params['histogram'] = (dataType == 'histogram');
+                    params['process_differences'] = false;
+
+                    OpencgaManager.files['fetch']({
+                        id: categoriesName,
+                        query: params,
+                        request: {
+                            success: function (response) {
+                                var responseChunks = _this._opencgaSuccess(response, categories, dataType, chunkSize, args);
+                                args.webServiceCallCount--;
+
+                                chunks = chunks.concat(responseChunks);
+                                if (args.webServiceCallCount === 0) {
+                                    args.done({
+                                        items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                                    });
+                                }
+                            },
+                            error: function () {
+                                console.log('Server error');
+                                args.done();
+                            }
                         }
-                    }
-                });
-            }
-
-            /**
-             * Process Cached chunks
-             */
-            if (cachedChunks[category].length > 0) {
-                if (args.webServiceCallCount === 0) {
-                    args.done();
+                    });
                 }
-                _this.trigger('data:ready', {items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
-//                args.dataReady({items: cachedChunks[category], dataType: dataType, chunkSize: chunkSize, sender: _this});
+
+            }
+            /** All regions are cached **/
+            else {
+                args.done({
+                    items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                });
             }
         });
     },
 
-    _opencgaSuccess: function (data, categories, dataType, chunkSize, args) {
-        args.webServiceCallCount--;
-
+    _opencgaSuccess: function (data, categories, dataType, chunkSize) {
         var timeId = this.cacheConfig.cacheId + " save " + data.response.length + " samples";
         console.time(timeId);
         /** time log **/
@@ -152,25 +165,23 @@ OpencgaAdapter.prototype = {
             }
         }
 
+        var responseItems = [];
         for (var i = 0; i < data.response.length; i++) {    // FIXME each response is a sample? in variant too?
             var queryResult = data.response[i];
             var items = this._adaptChunks(queryResult, categories[i], dataType, chunkSize);
+            responseItems = responseItems.concat(items);
             //if (items.length > 0) {
             //    // if (data.encoded) {decrypt }
             //    args.dataReady({items: items, dataType: dataType, chunkSize: chunkSize, sender: this, category: categories[i]});
             //}
             //var decryptedChunks = this._decryptChunks(items, "mypassword");
-            if (items.length > 0) {
-                this.trigger('data:ready', {items: items, dataType: dataType, chunkSize: chunkSize, sender: this});
-            }
         }
 
         /** time log **/
         console.timeEnd(timeId);
 
-        if (args.webServiceCallCount === 0) {
-            args.done();
-        }
+        return responseItems;
+
     },
 
     /**

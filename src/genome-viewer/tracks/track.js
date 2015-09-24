@@ -75,22 +75,23 @@ function Track(args) {
 
 Track.prototype = {
 
-    get: function (attr) {
+    get: function(attr) {
         return this[attr];
     },
 
-    set: function (attr, value) {
+    set: function(attr, value) {
         this[attr] = value;
     },
-    hide: function () {
+    hide: function() {
         this.visible = false;
         this.div.classList.add('hidden');
     },
-    show: function () {
+    show: function() {
         this.visible = true;
         this.div.classList.remove('hidden');
+        this.updateHeight();
     },
-    toggle: function () {
+    toggle: function() {
         if (this.visible) {
             this.hide();
         } else {
@@ -98,7 +99,10 @@ Track.prototype = {
 
         }
     },
-    hideContent: function () {
+    remove: function() {
+        $(this.div).remove();
+    },
+    hideContent: function() {
         this.contentVisible = false;
         this.contentDiv.classList.add('hidden');
         this.resizeDiv.classList.add('hidden');
@@ -106,15 +110,16 @@ Track.prototype = {
         this.iToggleEl.classList.remove('fa-minus');
         this.iToggleEl.classList.add('fa-plus');
     },
-    showContent: function () {
+    showContent: function() {
         this.contentVisible = true;
         this.contentDiv.classList.remove('hidden');
         this.resizeDiv.classList.remove('hidden');
 
         this.iToggleEl.classList.remove('fa-plus');
         this.iToggleEl.classList.add('fa-minus');
+        this.updateHeight();
     },
-    toggleContent: function () {
+    toggleContent: function() {
         if (this.contentVisible) {
             this.hideContent();
         } else {
@@ -122,41 +127,41 @@ Track.prototype = {
 
         }
     },
-    close: function () {
+    close: function() {
         this.trigger('track:close', {sender: this});
     },
-    up: function () {
+    up: function() {
         this.trigger('track:up', {sender: this});
     },
-    down: function () {
+    down: function() {
         this.trigger('track:down', {sender: this});
     },
-    setSpecies: function (species) {
+    setSpecies: function(species) {
         this.species = species;
-        this.dataAdapter.species = this.species
+        this.dataAdapter.setSpecies(this.species);
     },
 
-    setWidth: function (width) {
+    setWidth: function(width) {
         this.width = width;
 //        this.main.setAttribute("width", width);
     },
-    updateHeight: function () {
+    updateHeight: function() {
         this._updateHeight();
     },
-    _updateHeight: function () {
-        $(this.contentDiv).css({'height': this.height});
+    _updateHeight: function() {
+        $(this.contentDiv).css({'height': this.height + 10});
     },
-    enableAutoHeight: function () {
+    enableAutoHeight: function() {
         console.log('enable autoHeigth');
         this.autoHeight = true;
         this.updateHeight();
     },
-    disableAutoHeight: function () {
+    disableAutoHeight: function() {
         console.log('disable autoHeigth');
         this.autoHeight = false;
         this.updateHeight();
     },
-    toggleAutoHeight: function (bool) {
+    toggleAutoHeight: function(bool) {
         if (bool == true) {
             this.enableAutoHeight();
             return;
@@ -172,11 +177,11 @@ Track.prototype = {
             return;
         }
     },
-    setTitle: function (title) {
+    setTitle: function(title) {
         $(this.titleText).html(title);
     },
 
-    setLoading: function (bool) {
+    setLoading: function(bool) {
         if (bool) {
             this.status = "rendering";
             $(this.loadingEl).html('&nbsp; &nbsp;<i class="fa fa-spinner fa-spin"></i> Loading...</span>');
@@ -186,7 +191,7 @@ Track.prototype = {
         }
     },
 
-    updateHistogramParams: function () {
+    updateHistogramParams: function() {
         if (this.region.length() > this.minHistogramRegionSize) {
             this.histogram = true;
             this.histogramLogarithm = true;
@@ -209,18 +214,18 @@ Track.prototype = {
 //            }
 //        }
     },
-    clean: function () {
+    clean: function() {
         this._clean();
     },
-    _clean: function () {
+    _clean: function() {
         //Must be called on child clean method
         this.chunksDisplayed = {};
         this.renderedArea = {};
     },
-    initializeDom: function (targetId) {
+    initializeDom: function(targetId) {
         this._initializeDom(targetId);
     },
-    _initializeDom: function (targetId) {
+    _initializeDom: function(targetId) {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
@@ -289,34 +294,34 @@ Track.prototype = {
 
         /** title div **/
         $(titleBardiv).css({'padding': '4px'})
-            .on('dblclick', function (e) {
+            .on('dblclick', function(e) {
                 e.stopPropagation();
             });
 //        $(this.titleText).click(function (e) {
 //            _this.toggleContent();
 //        });
-        $(this.toggleEl).click(function (e) {
+        $(this.toggleEl).click(function(e) {
             _this.toggleContent();
         });
-        $(this.closeEl).click(function (e) {
+        $(this.closeEl).click(function(e) {
             _this.close();
         });
-        $(this.upEl).click(function (e) {
+        $(this.upEl).click(function(e) {
             _this.up();
         });
-        $(this.downEl).click(function (e) {
+        $(this.downEl).click(function(e) {
             _this.down();
         });
-        $(this.externalLinkEl).click(function (e) {
+        $(this.externalLinkEl).click(function(e) {
             window.open(_this.externalLink);
         });
 
         if (this.resizable) {
-            $(resizediv).mousedown(function (event) {
+            $(resizediv).mousedown(function(event) {
                 $('html').addClass('unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
-                $('html').bind('mousemove.genomeViewer', function (event) {
+                $('html').bind('mousemove.genomeViewer', function(event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(contentDiv).outerHeight();
                     _this.height = actualHeight + despY;
@@ -325,11 +330,11 @@ Track.prototype = {
 //                    _this.autoHeight = false;
                 });
             });
-            $('html').bind('mouseup.genomeViewer', function (event) {
+            $('html').bind('mouseup.genomeViewer', function(event) {
                 $('html').removeClass('unselectable');
                 $('html').off('mousemove.genomeViewer');
             });
-            $(contentDiv).closest(".trackListPanels").mouseup(function (event) {
+            $(contentDiv).closest(".trackListPanels").mouseup(function(event) {
                 _this.updateHeight();
             });
         }
@@ -388,7 +393,7 @@ Track.prototype = {
         this.status = "ready";
 
     },
-    _drawHistogramLegend: function () {
+    _drawHistogramLegend: function() {
         var histogramHeight = this.histogramRenderer.histogramHeight;
         var multiplier = this.histogramRenderer.multiplier;
 
@@ -466,17 +471,17 @@ Track.prototype = {
 //        }
 //    },
 
-    draw: function () {
+    draw: function() {
 
     },
 
-    getFeaturesToRenderByChunk: function (response, filters) {
+    getFeaturesToRenderByChunk: function(response, filters) {
         //Returns an array avoiding already drawn features in this.chunksDisplayed
 
-        var getChunkId = function (position) {
+        var getChunkId = function(position) {
             return Math.floor(position / response.chunkSize);
         };
-        var getChunkKey = function (chromosome, chunkId) {
+        var getChunkKey = function(chromosome, chunkId) {
             return chromosome + ":" + chunkId + "_" + response.dataType + "_" + response.chunkSize;
         };
 

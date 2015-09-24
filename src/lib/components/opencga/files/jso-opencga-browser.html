@@ -1,0 +1,632 @@
+<link rel="import" href="jso-opencga-project-tree.html">
+<link rel="import" href="jso-opencga-upload-file.html">
+<link rel="import" href="jso-opencga-folder-list.html">
+<link rel="import" href="jso-opencga-create-study.html">
+<link rel="import" href="jso-opencga-create-project.html">
+
+<dom-module id="jso-opencga-browser">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+
+            /*left: 0;*/
+            /*right: 0;*/
+            /*margin: 0px auto 0px auto;*/
+
+            height: 100%;
+
+            transition: all 0.2s;
+            background-color: inherit;
+            width: 600px;
+            height: 400px;
+        }
+
+        #topbar,
+        #botbar {
+            box-sizing: border-box;
+            height: 30px;
+            padding: 3px 7px;
+            line-height: 30px;
+        }
+
+        #topbar {
+            border-bottom: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #botbar {
+            border-top: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #main {
+            position: relative;
+            height: calc(100% - 60px);
+        }
+
+        #mainmenu {
+            position: absolute;
+            box-sizing: border-box;
+            width: 175px;
+            height: 100%;
+
+            border-right: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        #mainmenubar {
+            box-sizing: border-box;
+            background-color: rgba(125, 125, 125, 0.1);
+            padding: 3px 7px;
+            height: 30px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #mainmenucontent {
+            height: calc(100% - 30px);
+            overflow-y: auto;
+        }
+
+        #maincontent {
+            position: absolute;
+            left: 175px;
+            top: 0;
+            width: calc(100% - 175px);
+            height: 100%;
+            white-space: nowrap;
+        }
+
+        #maininfo {
+            box-sizing: border-box;
+            width: 150px;
+            height: 100%;
+            border-left: 1px solid rgba(130, 130, 130, 0.4);;
+            word-wrap: break-word;
+        }
+
+        .project-menu-item {
+
+        }
+
+        #breadcrums {
+            box-sizing: border-box;
+            padding-left: 5px;
+            line-height: 23px;
+        }
+
+        #breadcrums > span.clickable:hover {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        #breadcrums > .projectbread {
+        }
+
+        /*#breadcrums > span:not(:last-of-type)::after {*/
+        /*font-family: 'FontAwesome';*/
+        /*content: '\f105';*/
+        /*margin-left: 5px;*/
+        /*}*/
+
+        jso-opencga-folder-list {
+            height: 100%;
+        }
+
+        jso-opencga-upload-file,
+        jso-opencga-create-project,
+        jso-opencga-create-study {
+            width: 300px;
+            box-sizing: border-box;
+            background-color: #fafafa;
+            padding: 20px 30px;
+        }
+
+        .bar > div {
+            margin-right: 5px;
+        }
+
+        #filePreview .container {
+            width: 800px;
+            height: 600px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .wrapped-text {
+            white-space: pre-wrap;
+        }
+    </style>
+    <template>
+        <div id="topbar" class="horizontal layout">
+            <div id="breadcrums" class="flex">
+                /
+                <span class="projectbread">{{selectedProject.project.name}}</span>
+                &nbsp; <i hidden hidden$="{{computeAngleIcon(selectedStudy)}}" class="fa fa-caret-right"></i> &nbsp
+                <span class="clickable" on-click="handleStudyBreadcrum">{{selectedStudy.study.name}}</span>
+
+                <template is="dom-repeat" items="{{folders}}">
+                    &nbsp;<i class="fa fa-angle-right"></i>&nbsp;
+                    <span class="clickable" on-click="handleBreadcrumClick" folder="{{item}}">{{item.name}}</span>
+                </template>
+
+            </div>
+        </div>
+
+        <div id="main" class="flex">
+            <div id="mainmenu">
+                <div id="mainmenubar" class="horizontal layout">
+                    <div class="bar horizontal layout flex">
+                        <template is="dom-if" if="{{!disableNewProject}}">
+                            <div class="jso-btn jso-btn-shdw"
+                                 on-click="handleCreateProject">
+                                <i class="fa fa-briefcase"></i> +
+                            </div>
+                        </template>
+                        <template is="dom-if" if="{{!disableNewStudy}}">
+
+                            <div class="jso-btn jso-btn-shdw"
+                                 on-click="handleCreateStudy">
+                                <i class="fa fa-book"></i> +
+                            </div>
+                        </template>
+                    </div>
+                    <div class="bar horizontal layout">
+                    </div>
+                </div>
+                <div id="mainmenucontent">
+                    <template is="dom-repeat" items="{{projects}}" filter="isHidden">
+                        <jso-opencga-project-tree on-clickstudy="handleStudyClick"
+                                                  project="{{item}}">
+                        </jso-opencga-project-tree>
+                    </template>
+                </div>
+            </div>
+            <div id="maincontent">
+                <jso-opencga-folder-list
+                        on-fileselect="handleFileSelect"
+                        on-openfolder="handleOpenFolder"
+                        on-upload-file="handleUploadFile"
+                        on-back="handleBackFolder"
+                        on-need-refresh="refreshFolderFiles"
+                        on-previewfile="handlePreviewFile"
+                        study="{{selectedStudy.study}}"
+                        folder="{{folder}}"
+                        files="{{files}}"
+                        mode="{{mode}}"
+                        >
+                </jso-opencga-folder-list>
+            </div>
+            <!--<div id="maininfo">-->
+
+            <!--</div>-->
+        </div>
+
+
+        <div id="botbar" class="horizontal layout">
+            <div class="flex"></div>
+
+            <div hidden$="{{!checkFileModeOk(mode,selectedFile)}}"
+                 class="jso-btn jso-btn-shdw"
+                 style="width:100px;"
+                 on-click="handleFileModeOk">
+                OK
+            </div>
+        </div>
+
+        <jso-panel modal movable closable hidden id="uploadFilePanel">
+            <div class="header">
+                <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
+            </div>
+            <jso-opencga-upload-file
+                    showbioformats
+                    class="container" id="uploadFile"
+                    on-file-uploaded="handleFileUploaded"
+                    projects="{{projects}}"
+                    selected-project="{{selectedProject.project}}"
+                    selected-study="{{selectedStudy.study}}"
+                    selected-folder="{{folder}}"
+                    bioformats="{{bioformats}}"
+
+                    ></jso-opencga-upload-file>
+        </jso-panel>
+
+        <jso-panel modal closable hidden id="createProjectPanel">
+            <div class="header">
+                <i class="fa fa-briefcase"></i> &nbsp; Create project
+            </div>
+            <div class="container">
+                <jso-opencga-create-project
+                        id="createProject"
+                        on-project-created="handleProjectCreated"
+                        ></jso-opencga-create-project>
+            </div>
+        </jso-panel>
+
+        <jso-panel modal closable hidden id="createStudyPanel">
+            <div class="header">
+                <i class="fa fa-book"></i> &nbsp; Create study
+            </div>
+            <div class="container">
+                <jso-opencga-create-study
+                        id="createStudy"
+                        on-study-created="handleStudyCreated"
+                        projects="{{projects}}"
+                        ></jso-opencga-create-study>
+            </div>
+        </jso-panel>
+
+        <jso-panel modal closable hidden id="filePreview">
+            <div class="header">
+                <i class="fa fa-book"></i> File Preview
+            </div>
+            <div class="container">
+                <code class="wrapped-text">{{contentData}}</code>
+            </div>
+        </jso-panel>
+
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-browser",
+        properties: {
+            projects: {
+                type: Array,
+                notify: true,
+                observer: 'projectsChanged'
+            },
+            selectedProject: {
+                type: Object,
+                notify: true,
+                observer: 'selectedProjectChanged'
+            },
+            selectedStudy: {
+                type: Object,
+                notify: true,
+                observer: 'selectedStudyChanged'
+            },
+            selectedFile: {
+                type: Object,
+                notify: true,
+                value: function () {
+                    return null;
+                }
+            },
+            folder: {
+                type: Object,
+                notify: true
+            },
+            folders: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return []
+                }
+            },
+            files: {
+                type: Array,
+                notify: true
+            },
+            bioformats: {
+                type: Array,
+                value: function () {
+                    return [];
+                },
+                notify: true
+            },
+            showHidden: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            disableNewProject: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            disableNewStudy: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            contentData: {
+                type: String,
+                value: ""
+            },
+            mode: {
+                type: String,
+                reflectToAttribute: true,
+                value: ""
+            }
+        },
+        check: function (a, b) {
+            return a === b;
+        },
+        checkFileModeOk: function (mode, selectedFile) {
+            if (mode === 'file' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FILE') {
+                return true;
+            }
+            if (mode === 'folder' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FOLDER') {
+                return true;
+            }
+            return false;
+        },
+        handleFileModeOk: function (e) {
+            var jsoPanel = Polymer.dom(Polymer.dom(this.parentNode).parentNode).node;
+            if (jsoPanel instanceof JsoPanel) {
+                jsoPanel.hidden = true;
+                this.fire('ok-click');
+            }
+        },
+        projectsChanged: function (neo, old) {
+//            var me = this;
+//            if (this.selectedProject == null) {
+//                if (neo && neo[0]) {
+//                    this.selectedProject = neo[0];
+//                    if (this.selectedStudy == null) {
+//                        if (this.selectedProject.studies[0]) {
+//                            this.selectedStudy = this.selectedProject.studies[0];
+//                        }
+//                    }
+//                }
+//            } else {
+//                this._showStudyFolder();
+//            }
+            this.async(function () {
+
+                if (this.selectedProject == null) {
+                    var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
+                    this.set('selectedProject', el);
+                }
+                if (this.selectedProject != null && this.selectedStudy == null) {
+                    var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
+                    this.set('selectedStudy', el);
+                }
+                if (this.folder && this.selectedStudy) {
+                    this.refreshFolderFiles();
+                }
+            }, 100);
+        },
+        selectedStudyChanged: function (neo, old) {
+            if (old) old.selected = false;
+            if (neo) neo.selected = true;
+
+            if (!neo) {
+                this.files = [];
+            }
+            this.selectedFile = null;
+            this._showStudyFolder();
+        },
+        selectedProjectChanged: function (neo, old) {
+            if (old) old.selected = false;
+            if (neo) neo.selected = true;
+        },
+        handleStudyClick: function (e) {
+            this.set('selectedProject', e.currentTarget);
+            this.set('selectedStudy', e.currentTarget.selectedStudy);
+        },
+        handleFileSelect: function (e) {
+            this.selectedFile = e.detail;
+        },
+        handleOpenFolder: function (e) {
+            var me = this;
+            this.folder = e.detail;
+            this.push('folders', this.folder);
+            this.refreshFolderFiles();
+        },
+        refreshFolderFiles: function () {
+            var me = this;
+            this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
+                me.files = files;
+//                console.log(files);
+            });
+        },
+        handleStudyBreadcrum: function (e) {
+            this._showStudyFolder();
+        },
+        handleBreadcrumClick: function (e) {
+            var me = this;
+            this.folder = e.currentTarget.folder;
+
+            while (this.folder !== this.folders[this.folders.length - 1]) {
+                this.pop('folders');
+            }
+            this.refreshFolderFiles();
+        },
+        handleBackFolder: function (e) {
+            var me = this;
+            this.pop('folders');
+            if (this.folders.length > 0) {
+                this.set('folder', this.folders[this.folders.length - 1]);
+                this.refreshFolderFiles();
+            } else {
+                this._showStudyFolder();
+            }
+        },
+
+        handleUploadFile: function (e) {
+            this.$.uploadFilePanel.hidden = !this.$.uploadFilePanel.hidden;
+        },
+        handleCreateProject: function (e) {
+            this.$.createProjectPanel.hidden = !this.$.createProjectPanel.hidden;
+        },
+        handleCreateStudy: function (e) {
+            this.$.createStudyPanel.hidden = !this.$.createProjectPanel.hidden;
+        },
+
+        handleFileUploaded: function (e) {
+            this.refreshFolderFiles();
+            this.$.uploadFilePanel.hidden = true;
+        },
+        handleProjectCreated: function (e) {
+            this.$.createProjectPanel.hidden = true;
+        },
+        handleStudyCreated: function (e) {
+            this.$.createStudyPanel.hidden = true;
+        },
+        handleLoading: function (e) {
+            this.fire("loading")
+        },
+
+
+        /* Private methods */
+        computeAngleIcon: function (el) {
+            if (el) {
+                return false;
+            }
+            return true;
+        },
+        _showStudyFolder: function () {
+            var me = this;
+            this._getStudyFolder(this.selectedStudy.study.id, function (folder) {
+                me.set('folders', []);
+                me.folder = folder;
+                me._getFilesInFolder(me.selectedStudy.study.id, me.folder.id, function (files) {
+                    me.files = files;
+//                    console.log(files);
+                });
+            });
+        },
+        _getStudyFolder: function (studyId, callback) {
+            var me = this;
+            this.message = '';
+            var folder;
+            OpencgaManager.files.search({
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: studyId,
+                    name: '.'
+                },
+                request: {
+                    async: true,
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            folder = response.response[0].result[0];
+                            callback(folder);
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+        },
+        _getFilesInFolder: function (studyId, folderId, callback) {
+            var me = this;
+            var files;
+
+            var bfList = [];
+            for (var i = 0; i < this.bioformats.length; i++) {
+                var bf = this.bioformats[i];
+                bfList.push(bf.value);
+            }
+
+            OpencgaManager.files.list({
+                id: folderId,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+//                    status:'READY,STAGED,MISSING',
+                    status: 'READY',
+                    bioformat: bfList.join(',') + ',NONE',
+                    type: 'FILE,FOLDER',
+                    studyId: studyId
+                },
+                request: {
+                    async: true,
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            files = me._filterFiles(response.response[0].result);
+//                            files = response.response[0].result;
+                            callback(files);
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+        },
+        _filterFiles: function (files) {
+            var bfList = [];
+            for (var i = 0; i < this.bioformats.length; i++) {
+                var bf = this.bioformats[i];
+                bfList.push(bf.value);
+            }
+
+            files.sort(function (a, b) {
+                return b.creationDate.localeCompare(a.creationDate);
+            });
+            var filesFiltered = [];
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+
+                if (this.mode == 'folder') {
+                    if (file.type == 'FILE') {
+                        continue;
+                    }
+                    filesFiltered.push(file);
+                } else {
+                    if (file.name.charAt(0) == '.') {
+                        continue;
+                    }
+                    if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
+                        continue;
+                    }
+                    if (Utils.endsWith(file.name, '.snappy')) {
+                        continue;
+                    }
+                    if (file.bioformat == 'ALIGNMENT'
+                            && ( Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz') )
+                    ) {
+                        continue;
+                    }
+                    filesFiltered.push(file);
+                }
+            }
+            return filesFiltered;
+        },
+        isHidden: function (project) {
+            if (this.showHidden) {
+                return true;
+            } else {
+                return project.name.charAt(0) != ".";
+            }
+        },
+        handlePreviewFile: function (e) {
+            var file = e.detail;
+
+            var data;
+            OpencgaManager.files.content({
+                id: file.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    limit: 100
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        data = response;
+                    },
+                    error: function () {
+
+                    }
+                }
+            });
+
+
+            if (data) {
+
+                this.contentData = data;
+                this.$.filePreview.hidden = false;
+            }
+
+
+        }
+    });
+</script>

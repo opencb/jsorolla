@@ -1,0 +1,167 @@
+<link rel="import" href="jso-feature-info-menu.html">
+<link rel="import" href="jso-gene-info.html">
+<link rel="import" href="jso-transcript-info.html">
+<link rel="import" href="jso-snp-info.html">
+
+<dom-module id="jso-snp-info-panel">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #panel {
+            width: 600px;
+            height: 400px;
+        }
+
+        #left {
+            box-sizing: border-box;
+            border-right: 1px solid var(--divider-color);
+            padding: 5px;
+            width: 150px;
+        }
+
+        #right {
+            padding: 5px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        jso-transcript-info {
+            margin-bottom: 10px;
+        }
+    </style>
+    <template>
+        <jso-panel closable movable fixed id="panel" on-hidden="handlePanelHidden">
+            <div class="header">
+                <i class="fa fa-info"></i> &nbsp; SNP information
+            </div>
+            <div class="container flex horizontal layout">
+                <jso-feature-info-menu id="left" options="{{options}}"
+                                       on-option-click="handleOption"></jso-feature-info-menu>
+                <div id="right" class="horizontal layout flex">
+                    <jso-snp-info snp="{{snp}}" option="Information"></jso-snp-info>
+                    <div option="Transcripts" hidden>
+                        <template is="dom-repeat" items="{{transcripts}}" as="transcript">
+                            <jso-transcript-info transcript="{{transcript}}"></jso-transcript-info>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </jso-panel>
+    </template>
+</dom-module>
+<script>
+    JsoSnpInfoPanel = Polymer({
+        is: "jso-snp-info-panel",
+        factoryImpl: function (query, feature, host, species) {
+            this.feature = feature;
+            this.host = host;
+            this.species = species;
+            this.query = query;
+        },
+        properties: {
+            query: {
+                type: String,
+                observer: 'queryChanged'
+            },
+            feature: {
+                type: Object
+            },
+            host: {
+                type: String
+            },
+            species: {
+                type: Object
+            },
+            snp: {
+                type: Object
+            },
+            transcripts: {
+                type: Array
+            },
+            options: {
+                type: Array,
+                value: [
+                    {section: "Genomic"},
+                    {option: "Information"},
+                    {option: "Transcripts"},
+                    {section: "Annotation"},
+                    {option: "Consequence Type"},
+                    {option: "Clinical"} // (antigua "Annotated phenotype" que ahora se leeria de Clinical)
+
+
+                ]
+            },
+            option: {
+                type: String
+            }
+        },
+        handlePanelHidden: function () {
+            this.parentNode.removeChild(this);
+        },
+        queryChanged: function (neo, old) {
+            if (neo) {
+                this.getInfo();
+            }
+        },
+        getInfo: function () {
+            var me = this;
+            CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category: 'feature',
+                subCategory: 'snp',
+                query: this.query,
+                resource: 'info',
+                success: function (response) {
+                    me.set('snp', response.response[0].result[0]);
+                    console.log(me.snp)
+                },
+                error: function () {
+                    console.log('Server error');
+                }
+            });
+            CellBaseManager.get({
+                host: this.host,
+                species: this.species,
+                category: 'genomic',
+                subCategory: 'region',
+                query: new Region(this.feature),
+                resource: 'gene',
+                success: function (response) {
+                    var genes = response.response[0].result;
+                    var transcripts = [];
+                    for (var i = 0; i < genes.length; i++) {
+                        var gene = genes[i];
+                        for (var j = 0; j < gene.transcripts.length; j++) {
+                            var transcript = gene.transcripts[j];
+                            if (me.feature.start <= transcript.end && me.feature.end >= transcript.start) {
+                                transcripts.push(transcript);
+                            }
+                        }
+                    }
+                    me.set('transcripts', transcripts);
+                    console.log(me.transcripts)
+                },
+                error: function () {
+                    console.log('Server error');
+                }
+            });
+        },
+        handleOption: function (e) {
+            var option = e.detail;
+            var els = Polymer.dom(this.$.right).querySelectorAll('[option]');
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                if (el.getAttribute('option') == option) {
+                    el.removeAttribute('hidden');
+                } else {
+                    el.setAttribute('hidden', '');
+                }
+            }
+        }
+    });
+</script>

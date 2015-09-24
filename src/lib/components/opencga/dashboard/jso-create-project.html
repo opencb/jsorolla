@@ -1,0 +1,127 @@
+<polymer-element name="jso-dashboard-create-project"
+                 class=""
+                 attributes="hide">
+    <template>
+        <style>
+            :host {
+                position: fixed;
+                display: block;
+                box-sizing: border-box;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(150, 150, 150, 0.4);
+                z-index: 10;
+            }
+
+            #main {
+                padding: 20px 60px;
+                position: absolute;
+                display: block;
+                width: 300px;
+
+                top: 150px;
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+                border: 1px solid rgba(120, 120, 120, 0.6);
+            }
+
+            #title {
+                margin: 10px;
+                font-size: 20px;
+                text-align: center;
+            }
+
+            #close:after {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                font-size: 18px;
+                font-family: FontAwesome;
+                content: '\f00d';
+            }
+
+            #description {
+                box-sizing: border-box;
+                width: 100%;
+                height: 90px;
+                resize: none;
+            }
+
+            .button.action {
+                margin-left: 10px;
+                width: 100px;
+            }
+
+        </style>
+        <form id="main" class="jso-bgcolor-comp-1 jso-color-comp-1 jso-shadow">
+            <div id="close" on-click="{{handleClose}}"></div>
+            <div id="title">
+                Create project
+            </div>
+            <div>
+                <label>Name:</label>
+                <input type="text" value="{{name}}" required pattern="[a-zA-Z0-9]+">
+            </div>
+            <div style="margin-top:15px;">
+                <label>Organization:</label>
+                <input type="text" value="{{organization}}">
+            </div>
+            <div style="margin-top:15px;">
+                <label>Description</label>
+                <textarea id="description"></textarea>
+            </div>
+            <div style="margin-top:15px;" horizontal layout reverse>
+                <div class="button action" on-click="{{handleOk}}">OK</div>
+                <div class="button action" on-click="{{handleClose}}">Cancel</div>
+            </div>
+        </form>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.name = '';
+                this.organization = '';
+            },
+            domReady: function () {
+
+            },
+            handleClose: function () {
+                this.hide = true;
+            },
+            handleOk: function () {
+                if (this.$.main.checkValidity()) {
+                    this.createProject();
+                }
+            },
+            createProject: function () {
+                var me = this;
+                OpencgaManager.projects.create({
+                    query: {
+                        userId: Cookies('bioinfo_user'),
+                        sid: Cookies('bioinfo_sid'),
+                        name: this.name,
+                        alias: this.name,
+                        description: this.$.description.value.trim(),
+                        organization: this.organization
+                    },
+                    request: {
+                        async: false,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log(response.response[0].result);
+                                me.hide = true;
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</polymer-element>

@@ -30,6 +30,8 @@ function Edge(args) {
     this.directed;
     this.overlapCount;
 
+    this.attributes = {};
+
     this.renderer = new DefaultEdgeRenderer();
     //set instantiation args, must be last
     for (var prop in args) {
@@ -73,7 +75,8 @@ Edge.prototype = {
             weight: this.weight,
             directed: this.directed,
             relation: this.relation,
-            renderer: this.renderer
+            renderer: this.renderer,
+            attributes: this.attributes
         }
     }
 }

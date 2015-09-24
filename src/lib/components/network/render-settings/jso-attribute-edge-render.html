@@ -1,433 +1,426 @@
-<polymer-element name="jso-attribute-edge-render" attributes="attributeManager defaults visualSets">
+<link rel="import" href="jso-attribute-render-behavior.html">
+<dom-module id="jso-attribute-edge-render">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            width: 320px;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 1px 5px 3px 0px;
+        }
+
+        .container .jso-txt {
+            box-sizing: border-box;
+            width: 90px;
+            text-align: right;
+            border-left: 5px solid transparent;
+        }
+
+        .container .jso-txt[data-open] {
+            font-weight: bold;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .vertical > * {
+            margin-top: 3px;
+        }
+
+        .horizontal > * {
+            margin-right: 3px;
+        }
+
+        .horizontal > *:last-child {
+            margin-right: 0px;
+        }
+
+        .showlabels:after {
+            font-family: FontAwesome;
+            content: '\f06e';
+        }
+
+        .remove:after {
+            font-family: FontAwesome;
+            content: '\f014';
+            color: #888888;
+        }
+
+        .remove[data-enabled]:after {
+            color: #c70804;
+        }
+
+        .toggle:after {
+            font-family: FontAwesome;
+            /*content: '\f204';*/
+            content: '\f070';
+            color: #888888;
+        }
+
+        .toggle[data-exists]:after {
+            font-family: FontAwesome;
+            content: '\f06e';
+            color: #333333;
+        }
+
+        .toggle[data-enabled][data-exists]:after {
+            font-family: FontAwesome;
+            content: '\f06e';
+            color: #00AA33;
+        }
+
+        .configure {
+            color: #666;
+            width: 90px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 11px !important;
+        }
+
+        .configure[data-exists] {
+            color: #0081c2;
+        }
+
+        jso-color-picker {
+            font-size: 10px;
+        }
+
+    </style>
     <template>
-        <link rel="stylesheet" href="../../jso-style.css">
-        <link rel="stylesheet" href="../../jso-panel.css">
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                background-color: #FFFFFF;
-                width: 320px;
-            }
 
-            .container {
-                box-sizing: border-box;
-                padding: 1px 5px 3px 0px;
-            }
-
-            .container .text {
-                width: 85px;
-                text-align: right;
-            }
-
-            [vertical] > * {
-                margin-top: 3px;
-            }
-
-            [horizontal] > * {
-                margin-right: 3px;
-            }
-
-            [horizontal] > *:last-child {
-                margin-right: 0px;
-            }
-
-            .showlabels:after {
-                font-family: FontAwesome;
-                content: '\f06e';
-            }
-
-            .remove:after {
-                font-family: FontAwesome;
-                content: '\f014';
-                color: #888888;
-            }
-
-            .remove[data-enabled=true]:after {
-                color: #c70804;
-            }
-
-            .toggle:after {
-                font-family: FontAwesome;
-                /*content: '\f204';*/
-                content: '\f070';
-                color: #888888;
-            }
-
-            .toggle[data-enabled=false]:after {
-                font-family: FontAwesome;
-                content: '\f06e';
-                color: #333333;
-            }
-
-            .toggle[data-enabled=true]:after {
-                font-family: FontAwesome;
-                content: '\f06e';
-                color: #00AA33;
-            }
-
-            /*.configure:after {*/
-            /*font-family: FontAwesome;*/
-            /*content: '\f141';*/
-            /*content: '\f0ad';*/
-            /*color: #333333;*/
-            /*}*/
-
-            /*.configure[data-enabled=true]:after {*/
-            /*color: #0081c2;*/
-            /*}*/
-
-            .configure {
-                color: #666;
-                width: 90px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                font-size: 11px !important;
-            }
-
-            .configure[data-enabled=true] {
-                color: #0081c2;
-            }
-
-            jso-color-picker {
-                font-size: 10px;
-            }
-
-        </style>
-        <div class="panel panel-shadow">
-            <div id="header" class="header" horizontal layout>
-                <div class="text">Edge visualization settings</div>
-                <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerclose" on-click="{{handleClose}}"></div>
+        <div class="container vertical layout">
+            <div class="horizontal layout">
+                <div class="jso-txt">Label attr:</div>
+                <div class="jso-select flex">
+                    <select on-change="handleLabelAttribute">
+                        <template is="dom-repeat" items="{{columns}}" as="column">
+                            <option value="{{column.name}}">{{column.title}}</option>
+                        </template>
+                    </select>
                 </div>
+                <!--<div class="jso-btn jso-btn-shdw showlabels" data-checked="{{showLabels}}"-->
+                <!--on-click="{{handleShowLabels}}"></div>-->
             </div>
-            <div class="container" vertical layout>
-                <div horizontal layout>
-                    <div class="text">Label attr:</div>
-                    <div flex class="select">
-                        <select value="{{defaults.labelAttribute}}" on-change="{{handleLabelAttribute}}">
-                            <template repeat="{{column in attributeManager.columns}}">
-                                <option value="{{column.name}}">{{column.title}}</option>
-                            </template>
-                        </select>
-                    </div>
 
-                    <!--<div class="button action showlabels" data-checked="{{showLabels}}"-->
-                    <!--on-click="{{handleShowLabels}}"></div>-->
+
+            <!--labelSize-->
+            <div class="horizontal layout">
+                <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'labelSize')}}">Label size:</div>
+                <div class="flex">
+                    <input class="jso" type="number" min="0" max="50" value={{defaults.labelSize::input}}
+                           on-change="handleLabelSize">
                 </div>
 
-                <div horizontal layout>
-                    <div class="text">Label size:</div>
-                    <div flex>
-                        <input type="number" min="0" max="50" value={{defaults.labelSize}} on-change="{{handleLabelSize}}">
-                    </div>
-
-                    <div class="button action configure" data-enabled="{{visualSets.labelSize != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="labelSize"
-                         title="{{visualSets.labelSize !=null ? visualSets.labelSize.attribute : 'Select attribute'}}">
-                        {{visualSets.labelSize !=null ? visualSets.labelSize.attribute : 'Select attribute'}}
-                    </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.labelSize.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="labelSize"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.labelSize != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="labelSize"></div>
+                <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick"
+                     data-prop="labelSize"
+                     data-exists$="{{visualSetExists(visualSets.labelSize)}}"
+                     title$="{{visualSetBtnText(visualSets.labelSize.attribute)}}">
+                    <span>{{visualSetBtnText(visualSets.labelSize.attribute)}}</span>
                 </div>
-                <div horizontal layout>
-                    <div class="text">Opacity:</div>
-                    <div flex>
-                        <input type="number" min="0" max="1" step="0.1" value={{defaults.opacity}} on-change="{{handleOpacity}}">
-                    </div>
+                <div class="jso-btn jso-btn-shdw toggle" on-click="handleToggleSet"
+                     data-prop="labelSize"
+                     data-exists$="{{visualSetExists(visualSets.labelSize)}}"
+                     data-enabled$="{{visualSets.labelSize.enabled}}"></div>
+                <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveSet"
+                     data-prop="labelSize"
+                     data-enabled$="{{visualSetExists(visualSets.labelSize)}}"></div>
+            </div>
 
-                    <div class="button action configure" data-enabled="{{visualSets.opacity != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="opacity"
-                         title="{{visualSets.opacity !=null ? visualSets.opacity.attribute : 'Select attribute'}}">
-                        {{visualSets.opacity !=null ? visualSets.opacity.attribute : 'Select attribute'}}
-                    </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.opacity.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="opacity"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.opacity != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="opacity"></div>
+
+            <!--opacity-->
+            <div class="horizontal layout">
+                <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'opacity')}}">Opacity:</div>
+                <div class="flex">
+                    <input class="jso" type="number" min="0" max="1" step="0.1" value={{defaults.opacity::input}}
+                           on-change="handleOpacity">
                 </div>
-                <div horizontal layout>
-                    <div class="text">Shaft:</div>
-                    <div flex class="select">
-                        <select value="{{defaults.shaft}}" on-change="{{handleShaft}}">
-                            <option value="solid">solid</option>
-                            <option value="dashed">dashed</option>
-                        </select>
-                    </div>
-
-                    <div class="button action configure" data-enabled="{{visualSets.shaft != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="shaft"
-                         title="{{visualSets.shaft !=null ? visualSets.shaft.attribute : 'Select attribute'}}">
-                        {{visualSets.shaft !=null ? visualSets.shaft.attribute : 'Select attribute'}}
-                    </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.shaft.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="shaft"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.shaft != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="shaft"></div>
+                <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick"
+                     data-prop="opacity"
+                     data-exists$="{{visualSetExists(visualSets.opacity)}}"
+                     title$="{{visualSetBtnText(visualSets.opacity.attribute)}}">
+                    <span>{{visualSetBtnText(visualSets.opacity.attribute)}}</span>
                 </div>
-                <div horizontal layout>
-                    <div class="text">Head:</div>
-                    <div flex class="select">
-                        <select value="{{defaults.shape}}" on-change="{{handleShape}}">
-                            <option value="directed">directed</option>
-                            <option value="undirected">undirected</option>
-                            <option value="inhibited">inhibited</option>
-                            <option value="dot">dot</option>
-                            <option value="odot">odot</option>
-                        </select>
-                    </div>
+                <div class="jso-btn jso-btn-shdw toggle" on-click="handleToggleSet"
+                     data-prop="opacity"
+                     data-exists$="{{visualSetExists(visualSets.opacity)}}"
+                     data-enabled$="{{visualSets.opacity.enabled}}"></div>
+                <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveSet"
+                     data-prop="opacity"
+                     data-enabled$="{{visualSetExists(visualSets.opacity)}}"></div>
+            </div>
 
-                    <div class="button action configure" data-enabled="{{visualSets.shape != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="shape"
-                         title="{{visualSets.shape !=null ? visualSets.shape.attribute : 'Select attribute'}}">
-                        {{visualSets.shape !=null ? visualSets.shape.attribute : 'Select attribute'}}
-                    </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.shape.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="shape"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.shape != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="shape"></div>
+
+            <!--shaft-->
+            <div class="horizontal layout">
+                <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'shaft')}}">Shaft:</div>
+                <div class="jso-select flex">
+                    <select on-change="handleShaft">
+                        <option value="solid">solid</option>
+                        <option value="dashed">dashed</option>
+                    </select>
                 </div>
-                <div horizontal layout>
-                    <div class="text">Bidirectional:</div>
-                    <div flex class="select">
-                        <select value="{{defaults.bidirectional}}" on-change="{{handleBidirectional}}">
-                            <option value="true">true</option>
-                            <option value="false">false</option>
-                        </select>
-                    </div>
 
-                    <div class="button action configure" data-enabled="{{visualSets.bidirectional != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="bidirectional"
-                         title="{{visualSets.bidirectional !=null ? visualSets.bidirectional.attribute : 'Select attribute'}}">
-                        {{visualSets.bidirectional !=null ? visualSets.bidirectional.attribute : 'Select attribute'}}
-                    </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.bidirectional.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="bidirectional"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.bidirectional != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="bidirectional"></div>
+
+                <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick"
+                     data-prop="shaft"
+                     data-exists$="{{visualSetExists(visualSets.shaft)}}"
+                     title$="{{visualSetBtnText(visualSets.shaft.attribute)}}">
+                    <span>{{visualSetBtnText(visualSets.shaft.attribute)}}</span>
                 </div>
-                <div horizontal layout>
-                    <div class="text">Color:</div>
+                <div class="jso-btn jso-btn-shdw toggle" on-click="handleToggleSet"
+                     data-prop="shaft"
+                     data-exists$="{{visualSetExists(visualSets.shaft)}}"
+                     data-enabled$="{{visualSets.shaft.enabled}}"></div>
+                <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveSet"
+                     data-prop="shaft"
+                     data-enabled$="{{visualSetExists(visualSets.shaft)}}"></div>
+            </div>
 
-                    <!--<input flex type="color" value="{{defaults.color}}" on-change="{{handleColor}}">-->
-                    <jso-color-picker flex color="{{defaults.color}}" on-color-click="{{handleColor}}"></jso-color-picker>
 
-                    <div class="button action configure" data-enabled="{{visualSets.color != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="color"
-                         title="{{visualSets.color !=null ? visualSets.color.attribute : 'Select attribute'}}">
-                        {{visualSets.color !=null ? visualSets.color.attribute : 'Select attribute'}}
-                    </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.color.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="color"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.color != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="color"></div>
+            <!--shape-->
+            <div class="horizontal layout">
+                <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'shape')}}">Head shape:</div>
+                <div class="jso-select flex">
+                    <select on-change="handleShape">
+                        <option value="directed">directed</option>
+                        <option value="undirected">undirected</option>
+                        <option value="inhibited">inhibited</option>
+                        <option value="dot">dot</option>
+                        <option value="odot">odot</option>
+                    </select>
                 </div>
-                <div horizontal layout>
-                    <div class="text">Size:</div>
-                    <div flex>
-                    <input type="number" min="1" max="200" value={{defaults.size}} on-change="{{handleSize}}">
-                    </div>
 
-                    <div class="button action configure" data-enabled="{{visualSets.size != null}}"
-                         on-click="{{handleSettingsClick}}" data-prop="size"
-                         title="{{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}">
-                        {{visualSets.size !=null ? visualSets.size.attribute : 'Select attribute'}}
-                    </div>
-                    <div class="button action toggle" data-enabled="{{visualSets.size.enabled}}"
-                         on-click="{{handleToggleSet}}" data-prop="size"></div>
-                    <div class="button action remove" data-enabled="{{visualSets.size != null}}"
-                         on-click="{{handleRemoveSet}}" data-prop="size"></div>
+
+                <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick"
+                     data-prop="shape"
+                     data-exists$="{{visualSetExists(visualSets.shape)}}"
+                     title$="{{visualSetBtnText(visualSets.shape.attribute)}}">
+                    <span>{{visualSetBtnText(visualSets.shape.attribute)}}</span>
                 </div>
+                <div class="jso-btn jso-btn-shdw toggle" on-click="handleToggleSet"
+                     data-prop="shape"
+                     data-exists$="{{visualSetExists(visualSets.shape)}}"
+                     data-enabled$="{{visualSets.shape.enabled}}"></div>
+                <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveSet"
+                     data-prop="shape"
+                     data-enabled$="{{visualSetExists(visualSets.shape)}}"></div>
+            </div>
+
+
+            <!--bidirectional-->
+            <div class="horizontal layout">
+                <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'bidirectional')}}">Bidirectional:</div>
+                <div class="jso-select flex">
+                    <select on-change="handleBidirectional">
+                        <option value="true">true</option>
+                        <option value="false">false</option>
+                    </select>
+                </div>
+
+
+                <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick"
+                     data-prop="bidirectional"
+                     data-exists$="{{visualSetExists(visualSets.bidirectional)}}"
+                     title$="{{visualSetBtnText(visualSets.bidirectional.attribute)}}">
+                    <span>{{visualSetBtnText(visualSets.bidirectional.attribute)}}</span>
+                </div>
+                <div class="jso-btn jso-btn-shdw toggle" on-click="handleToggleSet"
+                     data-prop="bidirectional"
+                     data-exists$="{{visualSetExists(visualSets.bidirectional)}}"
+                     data-enabled$="{{visualSets.bidirectional.enabled}}"></div>
+                <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveSet"
+                     data-prop="bidirectional"
+                     data-enabled$="{{visualSetExists(visualSets.bidirectional)}}"></div>
+            </div>
+
+
+            <!--color-->
+            <div class="horizontal layout">
+                <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'color')}}">Color:</div>
+                <!--<input flex type="color" value="{{defaults.color}}" list="colors" on-change="{{handleColor}}">-->
+                <jso-color-picker class="flex" color="{{defaults.color}}"
+                                  on-color-click="handleColor"></jso-color-picker>
+
+                <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick"
+                     data-prop="color"
+                     data-exists$="{{visualSetExists(visualSets.color)}}"
+                     title$="{{visualSetBtnText(visualSets.color.attribute)}}">
+                    <span>{{visualSetBtnText(visualSets.color.attribute)}}</span>
+                </div>
+                <div class="jso-btn jso-btn-shdw toggle" on-click="handleToggleSet"
+                     data-prop="color"
+                     data-exists$="{{visualSetExists(visualSets.color)}}"
+                     data-enabled$="{{visualSets.color.enabled}}"></div>
+                <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveSet"
+                     data-prop="color"
+                     data-enabled$="{{visualSetExists(visualSets.color)}}"></div>
+            </div>
+
+            <!--size-->
+            <div class="horizontal layout">
+                <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'size')}}">Size:</div>
+                <div class="flex">
+                    <input class="jso" type="number" min="1" max="200" value={{defaults.size::input}}
+                           on-change="handleSize">
+                </div>
+
+                <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick"
+                     data-prop="size"
+                     data-exists$="{{visualSetExists(visualSets.size)}}"
+                     title$="{{visualSetBtnText(visualSets.size.attribute)}}">
+                    <span>{{visualSetBtnText(visualSets.size.attribute)}}</span>
+                </div>
+                <div class="jso-btn jso-btn-shdw toggle" on-click="handleToggleSet"
+                     data-prop="size"
+                     data-exists$="{{visualSetExists(visualSets.size)}}"
+                     data-enabled$="{{visualSets.size.enabled}}"></div>
+                <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveSet"
+                     data-prop="size"
+                     data-enabled$="{{visualSetExists(visualSets.size)}}"></div>
             </div>
         </div>
 
-        <!--<template if="{{displayProperty == 'labelSize'}}">-->
+
         <jso-attribute-render-number-table
-                hidden?="{{displayProperty != 'labelSize'}}"
                 id="labelSize"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.labelSize}}"
-                visualSet="{{visualSets.labelSize}}"
-                >
+                display-property="{{displayProperty}}"
+                default-value="{{defaults.labelSize}}"
+                visual-set="{{visualSets.labelSize}}"
+                items="{{items}}"
+                columns="{{columns}}"
+                on-ok="handleOkSet"
+                on-close="handleCloseSet">
         </jso-attribute-render-number-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'opacity'}}">-->
+
         <jso-attribute-render-number-table
-                hidden?="{{displayProperty != 'opacity'}}"
                 id="opacity"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.opacity}}"
-                visualSet="{{visualSets.opacity}}"
-                >
+                display-property="{{displayProperty}}"
+                default-value="{{defaults.opacity}}"
+                visual-set="{{visualSets.opacity}}"
+                items="{{items}}"
+                columns="{{columns}}"
+                on-ok="handleOkSet"
+                on-close="handleCloseSet">
         </jso-attribute-render-number-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'shaft'}}">-->
+
         <jso-attribute-render-select-table
-                hidden?="{{displayProperty != 'shaft'}}"
                 id="shaft"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.shaft}}"
-                visualSet="{{visualSets.shaft}}"
-                options="solid,dashed"
-                >
+                display-property="{{displayProperty}}"
+                default-value="{{defaults.shaft}}"
+                visual-set="{{visualSets.shaft}}"
+                options="[[shaftOptions]]"
+                items="{{items}}"
+                columns="{{columns}}"
+                on-ok="handleOkSet"
+                on-close="handleCloseSet">
         </jso-attribute-render-select-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'shape'}}">-->
+
         <jso-attribute-render-select-table
-                hidden?="{{displayProperty != 'shape'}}"
                 id="shape"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.shape}}"
-                visualSet="{{visualSets.shape}}"
-                options="directed,undirected,inhibited,dot,odot"
-                >
+                display-property="{{displayProperty}}"
+                default-value="{{defaults.shape}}"
+                visual-set="{{visualSets.shape}}"
+                options="[[shapeOptions]]"
+                items="{{items}}"
+                columns="{{columns}}"
+                on-ok="handleOkSet"
+                on-close="handleCloseSet">
         </jso-attribute-render-select-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'bidirectional'}}">-->
+
         <jso-attribute-render-select-table
-                hidden?="{{displayProperty != 'bidirectional'}}"
                 id="bidirectional"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.bidirectional}}"
-                visualSet="{{visualSets.bidirectional}}"
-                options="true,false"
-                >
+                display-property="{{displayProperty}}"
+                default-value="{{defaults.bidirectional}}"
+                visual-set="{{visualSets.bidirectional}}"
+                options="[[bidirectionalOptions]]"
+                items="{{items}}"
+                columns="{{columns}}"
+                on-ok="handleOkSet"
+                on-close="handleCloseSet">
         </jso-attribute-render-select-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'color'}}">-->
+
         <jso-attribute-render-color-table
-                hidden?="{{displayProperty != 'color'}}"
                 id="color"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.color}}"
-                visualSet="{{visualSets.color}}"
-                >
+                display-property="{{displayProperty}}"
+                default-value="{{defaults.color}}"
+                visual-set="{{visualSets.color}}"
+                items="{{items}}"
+                columns="{{columns}}"
+                on-ok="handleOkSet"
+                on-close="handleCloseSet">
         </jso-attribute-render-color-table>
-        <!--</template>-->
-        <!--<template if="{{displayProperty == 'size'}}">-->
+
         <jso-attribute-render-number-table
-                hidden?="{{displayProperty != 'size'}}"
                 id="size"
-                on-ok="{{handleOkSet}}"
-                displayProperty="{{displayProperty}}"
-                attributeManager="{{attributeManager}}"
-                defaultValue="{{defaults.size}}"
-                visualSet="{{visualSets.size}}"
-                >
+                display-property="{{displayProperty}}"
+                default-value="{{defaults.size}}"
+                visual-set="{{visualSets.size}}"
+                items="{{items}}"
+                columns="{{columns}}"
+                on-ok="handleOkSet"
+                on-close="handleCloseSet">
         </jso-attribute-render-number-table>
-        <!--</template>-->
     </template>
-    <script>
-        Polymer({
-            created: function () {
-                this.displayProperty = '';
-                this.downX;
-                this.downY;
-            },
-            ready: function () {
-            },
-//            handleHeaderMouseDown: function (e) {
-//                var me = this;
-//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-////                this.style.position = 'fixed';
-////                this.downX = this.offsetLeft + e.layerX;
-////                this.downY = this.offsetTop + e.layerY;
-//                this.mouseMoveHandler = function (moveEvent) {
-//                    me.handleMouseMove(moveEvent);
-//                };
-//                window.addEventListener('mousemove', this.mouseMoveHandler, true);
-//            },
-//            handleHeaderMouseUp: function () {
-//                window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-//            },
-//            handleMouseMove: function (e) {
-//                this.style.left = (e.x - this.downX) + "px";
-//                this.style.top = (e.y - this.downY) + "px";
-//            },
+</dom-module>
 
-            handleLabelAttribute: function () {
-                this.fire('labelattribute');
-            },
-            handleLabelSize: function () {
-                this.fire('labelsize');
-            },
-            handleOpacity: function () {
-                this.fire('opacity');
-            },
-            handleShaft: function () {
-                this.fire('shaft');
-            },
-            handleShape: function () {
-                this.fire('shape');
-            },
-            handleBidirectional: function () {
-                this.fire('bidirectional');
-            },
-            handleColor: function (e) {
-                this.defaults.color = e.detail.color
-                this.fire('color');
-            },
-            handleSize: function () {
-                this.fire('size');
-            },
-
-
-            handleClose: function () {
-                this.setAttribute('hidden', '');
-            },
-            handleSettingsClick: function (e) {
-                this.displayProperty = e.currentTarget.dataset.prop;
-            },
-            /*Visual sets*/
-            handleToggleSet: function (e) {
-                var displayProperty = e.currentTarget.dataset.prop;
-                if (this.visualSets[displayProperty]) {
-                    this.visualSets[displayProperty].enabled = !this.visualSets[displayProperty].enabled;
-                    this.fire(displayProperty.toLowerCase());
+<script>
+    Polymer({
+        is: 'jso-attribute-edge-render',
+        behaviors: [JsoAttributeRenderBehavior],
+        properties: {
+            shaftOptions: {
+                type: Array,
+                value: function () {
+                    return ['solid', 'dashed'];
                 }
             },
-            handleOkSet: function (e) {
-                this.fire(e.detail.displayProperty.toLowerCase());
+            shapeOptions: {
+                type: Array,
+                value: function () {
+                    return ['directed', 'undirected', 'inhibited', 'dot', 'odot'];
+                }
             },
-            handleRemoveSet: function (e) {
-                var displayProperty = e.currentTarget.dataset.prop;
-                this.removeVisualSet(displayProperty);
+            bidirectionalOptions: {
+                type: Array,
+                value: function () {
+                    return ['true', 'false'];
+                }
             },
-            applyDirect: function (attributeName, displayProperty) {
-                this.displayProperty = displayProperty;
+        },
+        handleLabelAttribute: function (e) {
+            this.set('defaults.labelAttribute', e.currentTarget.value);
+            this.fire('labelattribute');
+        },
+        handleLabelSize: function () {
+            this.fire('labelsize');
+        },
+        handleOpacity: function () {
+            this.fire('opacity');
+        },
+        handleShape: function () {
+            this.set('defaults.shape', e.currentTarget.value);
+            this.fire('shape');
+        },
+        handleShaft: function () {
+            this.set('defaults.shaft', e.currentTarget.value);
+            this.fire('shaft');
+        },
+        handleBidirectional: function () {
+            this.set('defaults.bidirectional', e.currentTarget.value);
+            this.fire('bidirectional');
+        },
+        handleColor: function (e) {
+            this.defaults.color = e.detail.color
+            this.fire('color');
+        },
+        handleSize: function () {
+            this.fire('size');
+        },
 
-                var table = this.$[displayProperty];
-                table.attributeName = attributeName;
-                table._updateUniqueValues();
-                table.handleApplyDirect();
-                table.handleOk();
-
-                this.displayProperty = null;
-            },
-            applyVisualSet:function (visualSet){
-                this.visualSets[visualSet.displayProperty] = visualSet;
-                this.fire(visualSet.displayProperty)
-            },
-            removeVisualSet:function(displayProperty){
-                delete this.visualSets[displayProperty];
-                this.fire(displayProperty.toLowerCase());
-            }
-        });
-    </script>
-</polymer-element>
+    });
+</script>

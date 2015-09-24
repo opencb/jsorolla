@@ -1,48 +1,60 @@
-<polymer-element name="jso-pvalue-button" attributes="pvalue">
-    <template>
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-                /*position: relative;*/
-                background-color: white;
-            }
+<dom-module name="jso-pvalue-button">
+    <style>
+        :host {
+            display: block;
+            /*position: relative;*/
+            background-color: white;
+        }
 
-        </style>
-        <div id="fatigoOutput" class="output">
-            <div class="level-0">
-                <div class="children">
-                    <div class="level-1" horizontal layout>
-                        <label>Select p-value: </label>
-                        <div horizontal="" layout="">
-                            <div class="button" data-checked="{{pvalue == 0.1}}" on-click="{{ handlePvalue }}">
-                                0.1
-                            </div>
-                            <div class="button" data-checked="{{pvalue == 0.05}}" on-click="{{ handlePvalue }}">
-                                0.05
-                            </div>
-                            <div class="button" data-checked="{{pvalue == 0.01}}" on-click="{{ handlePvalue }}">
-                                0.01
-                            </div>
-                            <div class="button" data-checked="{{pvalue == 0.005}}" on-click="{{ handlePvalue }}">
-                                0.005
-                            </div>
-                        </div>
-                    </div>
+        #buttons > div {
+            margin: 0 1px;
+        }
+
+        label {
+            font-size: 16px;
+        }
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <label class="jso">Select p-value: </label>
+
+            <div class="horizontal layout" id="buttons">
+                <div class="jso-btn jso-btn-shdw" data-checked$="{{isChecked(pvalue, '0.1')}}"
+                     on-click="handlePvalue">
+                    0.1
+                </div>
+                <div class="jso-btn jso-btn-shdw" data-checked="{{isChecked(pvalue, '0.05')}}"
+                     on-click="handlePvalue">
+                    0.05
+                </div>
+                <div class="jso-btn jso-btn-shdw" data-checked="{{isChecked(pvalue, '0.01')}}"
+                     on-click="handlePvalue">
+                    0.01
+                </div>
+                <div class="jso-btn jso-btn-shdw" data-checked="{{isChecked(pvalue, '0.005')}}"
+                     on-click="handlePvalue">
+                    0.005
                 </div>
             </div>
         </div>
     </template>
     <script>
         Polymer({
-            created: function(){
-//                this.pvalue = 0.05;
+            is: 'jso-pvalue-button',
+            properties: {
+                pvalue: {
+                    type: Number
+                }
             },
-            handlePvalue: function (event, clicked, elem) {
-                this.pvalue = parseFloat(elem.innerHTML);
+            handlePvalue: function (e) {
+                this.pvalue = parseFloat(e.currentTarget.innerHTML);
+                this.fire('pvalue-click', this.pvalue);
+            },
+            isChecked: function (pvalue, v) {
+                return pvalue === parseFloat(v);
             }
         })
     </script>
-</polymer-element>
+</dom-module>
 
 

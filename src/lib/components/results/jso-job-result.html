@@ -1,137 +1,135 @@
-<polymer-element name="jso-job-result" attributes="jobItem selectedOption networkViewer">
+<link rel="import" href="jso-interactome-viewer.html">
+<link rel="import" href="jso-go-viewer.html">
+<link rel="import" href="jso-pvalue-button.html">
+<link rel="import" href="jso-fatigo-table.html">
+<dom-module id="jso-job-result">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+
+            margin: 0px auto 0px auto;
+
+            transition: all 0.2s;
+            background-color: #fff;
+        }
+
+        .level > .level {
+            margin-left: 5px;
+        }
+
+        .output {
+            /*width: 1000px;*/
+            background-color: white;
+            padding: 0 20px 30px 20px;
+        }
+
+        .data {
+            margin-left: 20px;
+        }
+
+        .level-0 {
+            /*border: 1px solid grey;*/
+            padding: 10px 20px;
+
+        }
+
+        .level-0 > .headerTitle {
+            font-size: 28px;
+            padding: 5px;
+            color: #666;
+        }
+
+        .level-1 {
+            padding: 5px 20px 20px 30px;
+        }
+
+        .level-1 > .headerTitle {
+            font-size: 22px;
+            color: #444;
+            padding: 4px;
+            /*background-color: blue;*/
+        }
+
+        .level-2 {
+            margin: 5px 20px 20px 30px;
+        }
+
+        .level-2 > .headerTitle {
+            color: #333;
+            font-size: 20px;
+            padding: 3px;
+            /*background-color: blue;*/
+        }
+
+        .message, .file {
+            color: #222;
+            font-size: 16px;
+        }
+
+        .message > label {
+            color: #777;
+            margin-right: 10px;
+        }
+
+        .message > label:after, .file > label:after {
+            content: ':';
+        }
+
+        .message > .messageValue {
+            /*font-weight: bold;*/
+            color: #256acf;
+        }
+
+        .file > label {
+            color: #777;
+            margin-right: 10px;
+        }
+
+        .file > a {
+            color: #256acf;
+            text-decoration: underline;
+        }
+
+        .image {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: red !important;
+        }
+
+        .loading {
+            font-size: 25px;
+            margin: 20px 50px;
+        }
+
+        jso-table {
+            border: 1px solid #d3d3d3;
+            width: 900px;
+            margin-top: 10px;
+        }
+
+        .close {
+            margin: 5px 10px 0 0;
+            color: #aaa;
+            font-size: 20px;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+    </style>
     <template>
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                /*padding: 20px 40px;*/
-
-                z-index: 50000;
-                margin: 0px auto 0px auto;
-
-                border: 1px solid #c6d0da;
-                transition: all 0.2s;
-                box-shadow: 2px 6px 15px 8px rgba(0, 0, 0, 0.30);
-                background-color: #FFFFFF;
-            }
-
-            .level > .level {
-                margin-left: 5px;
-            }
-
-            .output {
-                margin: 10px;
-                /*width: 1000px;*/
-                background-color: white;
-                border-radius: 5px;
-                padding: 0 20px 0 20px;
-            }
-
-            .data {
-                margin-left: 20px;
-            }
-
-            .level-0 {
-                /*border: 1px solid grey;*/
-                padding: 20px;
-
-            }
-
-            .level-0 > .headerTitle {
-                font-size: 15pt;
-                font-weight: bold;
-                padding: 5px;
-            }
-
-            .level-1 {
-                margin: 20px 20px 20px 40px;
-            }
-
-            .level-1 > .headerTitle {
-                font-size: 13pt;
-                font-weight: bold;
-                /*background-color: blue;*/
-            }
-
-            .level-2 {
-                margin: 20px 20px 20px 40px;
-            }
-
-            .level-2 > .headerTitle {
-                font-size: 12pt;
-                /*background-color: blue;*/
-            }
-
-            sortable-table {
-                max-width: 1000px;
-                margin-top: 10px;
-            }
-
-            .message > label {
-                margin-right: 10px;
-            }
-
-            .message > label:after {
-                content: ':';
-            }
-
-            .message > .messageValue {
-                font-size: 9pt;
-                font-weight: bold;
-                font-style: italic;
-                color: #55f;
-                line-height: 21px;
-            }
-
-            .file > label {
-                margin-right: 10px;
-            }
-
-            .file > a {
-                font-size: 9pt;
-                font-weight: bold;
-                font-style: italic;
-                color: #55f;
-            }
-
-            .image {
-                margin-top: 20px;
-            }
-
-            .error {
-                color: red !important;
-            }
-
-            .loading {
-                font-size: 25px;
-                margin: 20px 50px;
-            }
-
-            sortable-table {
-                border: 1px solid #d3d3d3;
-            }
-
-            .close {
-                margin: 5px 10px 0 0;
-                color: #aaa;
-                font-size: 20px;
-            }
-
-            .close:hover {
-                color: #ffad76;
-            }
-
-        </style>
-        <div horizontal layout end-justified>
-            <div class="close" on-click="{{handleClose}}">
-                <font-awesome icon="times"></font-awesome>
+        <div class="horizontal layout end-justified">
+            <div class="close" on-click="handleClose">
+                <i class="fa fa-times"></i>
             </div>
         </div>
-        <template if="{{loading}}">
+        <template is="dom-if" if="{{loading}}">
             <div class="loading">
-                <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
+                <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
                 Loading results...
             </div>
         </template>
@@ -150,10 +148,10 @@
                     <br>
                     For detailed information you can download the log file:
                     <div class="file"><label>Log output file:</label>
-                        <a href="{{logOutputFile}}" download="log_output.txt">log_output.txt</a>
+                        <a href$="{{logOutputFile}}" download="log_output.txt">log_output.txt</a>
                     </div>
                     <div class="file"><label>Log error file:</label>
-                        <a href="{{logErrorFile}}" download="log_error.txt">log_error.txt</a>
+                        <a href$="{{logErrorFile}}" download="log_error.txt">log_error.txt</a>
                     </div>
                     If error persist, please contact babelomics crew at babelomics@cipf.es
                 </div>
@@ -164,15 +162,43 @@
     </template>
     <script>
         Polymer({
-            created: function () {
-                this.createdElements = {};
-                this.selectedOption = "";
-                this.pvalue = 0.05;
-                this.error = false;
-                this.logErrorFile = "";
-
+            id: 'jso-job-result',
+            properties: {
+                jobItem: {
+                    type: Object,
+                    observer: 'jobItemChanged'
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
+                },
+                error: {
+                    type: Boolean,
+                    value: false
+                },
+                createdElements: {
+                    type: Object,
+                    value: function () {
+                        return {}
+                    }
+                },
+                logOutputFile: {
+                    type: String,
+                    value: ''
+                },
+                logErrorFile: {
+                    type: String,
+                    value: ''
+                },
+                pvalue: {
+                    type: Number,
+                    value: 0.05
+                },
+                networkViewer: {
+                    type: Object
+                }
             },
-            jobItemChanged: function (oldV, newV) {
+            jobItemChanged: function (neo, old) {
                 var me = this;
                 this.resultXML = null;
                 this.error = false;
@@ -182,11 +208,12 @@
                 while (this.output.firstChild) {
                     this.output.removeChild(this.output.firstChild);
                 }
-                if (typeof newV == "object")
+                if (typeof neo == "object")
                     this.pvalue = 0.05;
 
                 if (this.jobItem.toolName == "rnaseq-norm" || this.jobItem.toolName == "rnaseq-diffexpr") {
                     var result = document.createElement('jso-' + this.jobItem.toolName + '-result');
+                    result.classList.add('style-scope', 'jso-job-result');
                     result.jobItem = this.jobItem;
                     this.$.output.appendChild(result);
                     this.loading = false;
@@ -265,6 +292,7 @@
             },
             createElement: function (parent, htmlType, htmlContent) {
                 var el = document.createElement(htmlType);
+                el.classList.add('style-scope', 'jso-job-result');
                 var node = document.createTextNode(htmlContent);
                 el.appendChild(node);
                 parent.appendChild(el);
@@ -288,6 +316,7 @@
             },
             getJobInfoHtml: function () {
                 var el = document.createElement("jso-job-info-widget");
+                el.classList.add('style-scope', 'jso-job-result');
                 el.jobItem = this.jobItem;
                 return el;
 //
@@ -355,6 +384,7 @@
             },
             _renderJSON: function () {
                 var mainDiv = document.createElement("div");
+                mainDiv.classList.add('style-scope', 'jso-job-result');
                 var div = this.getJobInfoHtml();
                 mainDiv.appendChild(div);
                 if (this.resultXML != null) {
@@ -387,6 +417,10 @@
                 var dataDiv = document.createElement("div");
                 var childDiv = document.createElement("div");
 
+                mainDiv.classList.add('style-scope', 'jso-job-result');
+                titleDiv.classList.add('style-scope', 'jso-job-result');
+                dataDiv.classList.add('style-scope', 'jso-job-result');
+                childDiv.classList.add('style-scope', 'jso-job-result');
 
                 mainDiv.classList.add("level-" + level);
                 titleDiv.classList.add("headerTitle");
@@ -398,6 +432,7 @@
                     dataElementDiv = this._renderValue(dataElement);
                     dataDiv.appendChild(dataElementDiv);
                 }
+
 
                 dataDiv.classList.add("data");
 
@@ -429,6 +464,7 @@
             _renderValue: function (element) {
                 var me = this;
                 var res = document.createElement("div");
+                res.classList.add('style-scope', 'jso-job-result');
                 switch (element.type) {
                     case "TEXT":
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
@@ -479,10 +515,13 @@
                         break;
                     case "DATA":
                         var file = document.createElement("div");
+                        file.classList.add('style-scope', 'jso-job-result');
 
                         file.classList.add("file");
 
                         var label = document.createElement("label");
+                        label.classList.add('style-scope', 'jso-job-result');
+
                         label.innerHTML = element.title;
                         file.appendChild(label);
                         element.value = element.value.replace("${pvalue}", me.pvalue);
@@ -499,6 +538,8 @@
                             }
                         })
                         var a = document.createElement("a");
+                        a.classList.add('style-scope', 'jso-job-result');
+
                         a.innerHTML = element.value;
                         a.setAttribute("href", fileURL);
                         a.download = element.value;
@@ -520,6 +561,8 @@
                         } else {
                             var fileId = this._getFileId(element.value);
                             res = document.createElement("img");
+                            res.classList.add('style-scope', 'jso-job-result');
+
                             res.classList.add("image");
 
                             var imageUrl = OpencgaManager.files.content({
@@ -554,14 +597,17 @@
                         res.classList.add("message");
 
                         var label = document.createElement("label");
+                        label.classList.add('style-scope', 'jso-job-result');
+
                         label.innerHTML = element.title;
 
                         var div = document.createElement("div");
+                        div.classList.add('style-scope', 'jso-job-result');
+
                         div.innerHTML = element.value;
                         div.classList.add("messageValue");
 
-                        res.setAttribute("horizontal", "");
-                        res.setAttribute("layout", "");
+                        res.classList.add('horizontal', 'layout');
 
                         if (element.tags.indexOf("ERROR") >= 0) {
                             res.classList.add("error");
@@ -627,11 +673,15 @@
                             break;
                         }
                         var file = document.createElement("div");
+                        file.classList.add('style-scope', 'jso-job-result');
+
                         if (element.value.indexOf("testfilename") < 0) {
 
                             file.classList.add("file");
 
                             var label = document.createElement("label");
+                            label.classList.add('style-scope', 'jso-job-result');
+
                             label.innerHTML = element.title;
                             file.appendChild(label);
                             element.value = element.value.replace("${pvalue}", me.pvalue);
@@ -650,6 +700,8 @@
 
 
                             var a = document.createElement("a");
+                            a.classList.add('style-scope', 'jso-job-result');
+
                             a.innerHTML = element.value;
                             a.setAttribute("href", fileURL);
                             file.appendChild(a);
@@ -682,6 +734,8 @@
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
                             var interactorsTable = document.createElement('jso-interactors-table');
+                            interactorsTable.classList.add('style-scope', 'jso-job-result');
+
                             this.getFileContent(function (content) {
                                 interactorsTable.typeTable = "NETWORKMINERRANKED_TABLE";
                                 interactorsTable.content = content;
@@ -694,6 +748,8 @@
                         if (element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
                             var dataArray = new Array();
                             var interactorsTable = document.createElement('jso-interactors-table');
+                            interactorsTable.classList.add('style-scope', 'jso-job-result');
+
                             this.getFileContent(function (content) {
                                 interactorsTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
                                 interactorsTable.content = content;
@@ -715,11 +771,14 @@
                                 seedArray = tags[4];
 
                             var interactomeViewer = document.createElement('jso-interactome-viewer');
+                            interactomeViewer.classList.add('style-scope', 'jso-job-result');
+
                             this.getFileContent(function (content) {
-                                interactomeViewer.content = content;
-                                interactomeViewer.intermediates = intermediatesArray;
-                                interactomeViewer.seedList = seedArray;
-                                interactomeViewer.jobResult = me;
+                                interactomeViewer.set('intermediates', intermediatesArray);
+                                interactomeViewer.set('seedList', seedArray);
+                                interactomeViewer.set('jobResult', me);
+                                interactomeViewer.set('networkViewer', me.networkViewer);
+                                interactomeViewer.set('content', content);
                             }, element.value);
 
                             res.appendChild(interactomeViewer);
@@ -727,6 +786,7 @@
                         if (element.tags.indexOf("PROTEIN_VIEWER") >= 0) {
                             var dataArray = new Array();
                             var proteinViewer = document.createElement('jso-protein-viewer');
+                            proteinViewer.classList.add('style-scope', 'jso-job-result');
 
                             this.getFileContent(function (content) {
                                 proteinViewer.nodes = content.split("\n");
@@ -769,7 +829,7 @@
 
                                 }, test + "_significative_table.txt");
                             }
-                            else{
+                            else {
                                 sortableTable.loading = false;
                             }
 
@@ -871,19 +931,20 @@
                         if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
 
                             if (element.value.indexOf(me.pvalue) >= 0) {
-                                var sortableTable = document.createElement('jso-fatigo-table');
+                                var table = document.createElement('jso-fatigo-table');
+                                table.classList.add('style-scope', 'jso-job-result');
                                 this.getFileContent(function (content) {
-                                    sortableTable.content = content;
-
+                                    table.content = content;
                                 }, element.value);
-                                res.appendChild(sortableTable);
+                                res.appendChild(table);
                             }
                         }
 
                         if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
 
                             if (element.value.indexOf(me.pvalue) >= 0) {
-                                var sortableTable = document.createElement('jso-logistic-table');
+                                var table = document.createElement('jso-logistic-table');
+                                table.classList.add('style-scope', 'jso-job-result');
                                 this.getFileContent(function (content) {
                                     sortableTable.content = content;
 
@@ -901,64 +962,84 @@
                                 element.value = element.value.replace("${pvalue}", me.pvalue);
                                 this.getFileContent(function (content) {
                                     var data = content.split("\n");
-
-                                    for (var i = 0; i < data.length; i++) {
-                                        if (i == 0) {
-                                            columns = data[i].split("\t");
-                                            continue;
-                                        }
+                                    var colNames = data[0].split("\t");
+                                    for (var i = 0; i < colNames.length; i++) {
+                                        var colName = colNames[i];
+                                        columns.push({
+                                            name: colName,
+                                            title: colName,
+                                            type: "text",
+                                            editable: false,
+                                            width: 450
+                                        });
+                                    }
+                                    for (var i = 1; i < data.length; i++) {
                                         if (data[i] == "") continue;
-                                        dataArray.push(data[i].split("\t"))
+                                        var split = data[i].split("\t");
+                                        var obj = {};
+                                        for (var j = 0; j < columns.length; j++) {
+                                            var c = columns[j];
+                                            obj[c.name] = split[j];
+                                        }
+                                        dataArray.push(obj);
                                     }
 
                                 }, element.value);
 
-                                var sortableTable = document.createElement('sortable-table');
-                                sortableTable.setAttribute("id", "tableId");
-//                            sortableTable.setAttribute("cellTemplate", "html");
+                                var table = document.createElement('jso-table');
+                                table.classList.add('style-scope', 'jso-job-result');
 
-                                sortableTable.columns = columns;
-                                sortableTable.data = dataArray;
-                                sortableTable.pageSize = "10";
-                                sortableTable.footerTemplate = "simplePager";
+                                table.columns = columns;
+                                table.data = dataArray;
+                                table.pageSize = "10";
                                 var pvalueButton = document.createElement('jso-pvalue-button');
+                                pvalueButton.classList.add('style-scope', 'jso-job-result');
                                 pvalueButton.id = "pvalueButton";
                                 pvalueButton.pvalue = me.pvalue;
-                                pvalueButton.onclick = function () {
-                                    me.pvalue = this.pvalue;
+                                pvalueButton.addEventListener('pvalue-click', function (e) {
+                                    me.pvalue = e.detail;
                                     me.jobItemChanged();
-                                };
+                                });
                                 res.appendChild(pvalueButton);
 
-                                res.appendChild(sortableTable);
+                                res.appendChild(table);
                             }
                             else {
-                                var dataArray = new Array();
-                                var columns = new Array();
+                                var dataArray = [];
+                                var columns = [];
                                 this.getFileContent(function (content) {
                                     var data = content.split("\n");
-
-                                    for (var i = 0; i < data.length; i++) {
-                                        if (i == 0) {
-                                            columns = data[i].split("\t");
-                                            continue;
-                                        }
-                                        if (data[i] == "") continue;
-                                        dataArray.push(data[i].split("\t"))
+                                    var colNames = data[0].split("\t");
+                                    for (var i = 0; i < colNames.length; i++) {
+                                        var colName = colNames[i];
+                                        columns.push({
+                                            name: colName,
+                                            title: colName,
+                                            type: "text",
+                                            editable: false,
+                                            width: 300
+                                        });
                                     }
-
+                                    for (var i = 1; i < data.length; i++) {
+                                        if (data[i] == "") continue;
+                                        var split = data[i].split("\t");
+                                        var obj = {};
+                                        for (var j = 0; j < columns.length; j++) {
+                                            var c = columns[j];
+                                            obj[c.name] = split[j];
+                                        }
+                                        dataArray.push(obj);
+                                    }
                                 }, element.value);
 
-                                var sortableTable = document.createElement('sortable-table');
-                                sortableTable.setAttribute("id", "tableId");
-//                            sortableTable.setAttribute("cellTemplate", "html");
+                                var table = document.createElement('jso-table');
+                                table.classList.add('style-scope', 'jso-job-result');
 
-                                sortableTable.columns = columns;
-                                sortableTable.data = dataArray;
-                                sortableTable.pageSize = "10";
-                                sortableTable.footerTemplate = "simplePager";
+                                table.columns = columns;
+                                table.data = dataArray;
+                                table.pageSize = "10";
 
-                                res.appendChild(sortableTable);
+                                res.appendChild(table);
                             }
                         }
                         if (element.tags.indexOf("REDIRECT_TOOL_SNOW") >= 0) {
@@ -1007,6 +1088,8 @@
                         if (element.name.indexOf("plink.assoc") >= 0) {
                             /** Plink file is too big, we should bring a header or something like this **/
                             var association = document.createElement('jso-association-result');
+                            association.classList.add('style-scope', 'jso-job-result');
+
                             association.files = this.filesList;
 //                            var sortableTable = document.createElement('jso-generic-table');
 //                            this.getFileContent(function (content) {
@@ -1032,7 +1115,9 @@
                             if (element.value.indexOf(me.pvalue) >= 0) {
                                 var fileNames = element.value.split(",");
                                 var goViewer = document.createElement('jso-go-viewer');
-                                goViewer.jobResult = me;
+                                goViewer.classList.add('style-scope', 'jso-job-result');
+                                goViewer.set('jobResult', me);
+                                goViewer.set('networkViewer', me.networkViewer);
 
                                 this.getFileContent(function (sifContent) {
                                     me.getFileContent(function (attrContent) {
@@ -1080,6 +1165,7 @@
             _createRedirectButton: function (buttonText, tool, args) {
                 var me = this;
                 var button = document.createElement('jso-redirection');
+                button.classList.add('style-scope', 'jso-job-result');
                 //args titleRed fileName fileUrl buttonLabel buttonWidth
                 args["tool"] = tool;
                 button.args = args;
@@ -1190,10 +1276,12 @@
 
                 /** Create HTML elements **/
                 var elSizeAvg = document.createElement("div");
+                elSizeAvg.classList.add('style-scope', 'jso-job-result');
                 elSizeAvg.id = div.id + "_avg";
 //                this.$.output.querySelector("#" + divId).appendChild(elSizeAvg);
                 div.appendChild(elSizeAvg);
                 var elSizeScore = document.createElement("div");
+                elSizeScore.classList.add('style-scope', 'jso-job-result');
                 elSizeScore.id = div.id + "_score";
 //                this.$.output.querySelector("#" + divId).appendChild(elSizeScore);
                 div.appendChild(elSizeScore);
@@ -1354,8 +1442,7 @@
                 });
 
 
-            }
-            ,
+            },
             _parseElem: function (elemXML, elements) {
                 var groups = elemXML.getAttribute("group").split(".");
                 if (groups.length == 1) { // Final Group
@@ -1412,8 +1499,7 @@
                     this._parseElem(newNode, newElem.children);
 
                 }
-            }
-            ,
+            },
             _getGroup: function (elements, group) {
                 for (var i = 0; i < elements.length; i++) {
                     var elem = elements[i];
@@ -1423,16 +1509,14 @@
 
                 }
                 return {};
-            }
-            ,
+            },
             _containsGroup: function (elements, group) {
 
                 var passed = elements.some(function (elem, index, array) {
                     return elem.group == group;
                 })
                 return passed;
-            }
-            ,
+            },
             _addValueToGroup: function (elements, group, value) {
                 for (var i = 0; i < elements.length; i++) {
                     var elem = elements[i];
@@ -1443,9 +1527,9 @@
                 }
             },
             handleClose: function () {
-                this.selectedOption = '';
+                this.fire('job-close');
             }
 
         })
     </script>
-</polymer-element>
+</dom-module>

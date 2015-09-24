@@ -1,0 +1,85 @@
+<dom-module id="jso-opencga-create-folder">
+    <style>
+        :host {
+            display: block;
+        }
+
+        .message {
+            margin-top: 5px;
+        }
+
+    </style>
+    <template>
+        <form id="form" class="vertical layout" on-keypress="handleFormKey">
+            <!--<label> Folder name</label> <input type="text" id="name" value="{{name}}" required pattern="[a-zA-Z0-9]+">-->
+            <label class="jso"> Folder name</label>
+            <input class="jso" type="text" id="name" value="{{newFolderName::input}}" required pattern="[a-zA-Z0-9_-]+">
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Create</div>
+            <br>
+        </form>
+        <div>{{message}}</div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-opencga-create-folder',
+        properties: {
+            folder: {
+                type: Object,
+                notify: true,
+                value: null
+            },
+            study: {
+                type: Object
+            },
+            message: {
+                type: String,
+                value: ''
+            },
+            newFolderName: {
+                type: String,
+                value: ''
+            },
+        },
+        handleFormKey: function (e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                this.handleForm();
+            }
+        },
+        handleForm: function (e) {
+            var me = this;
+            this.message = '';
+
+            if (this.$.form.checkValidity()) {
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        folder: this.folder.path + this.newFolderName,
+                        studyId: this.study.id
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.message = '';
+                                me.name = '';
+                                me.fire('need-refresh');
+                                me.fire('folder-created');
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            } else {
+                this.message = 'Only letters, numbers or slash(-,_) admitted';
+            }
+        }
+    });
+</script>

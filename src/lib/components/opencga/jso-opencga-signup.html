@@ -1,0 +1,312 @@
+<dom-module id="jso-opencga-signup">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            padding: 30px 100px;
+
+            left: 0;
+            right: 0;
+            margin: 0px auto 0px auto;
+
+            width: 500px;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+        }
+
+        .icon {
+            font-size: 50px;
+            color: var(--dark-primary-color);
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+    </style>
+    <template>
+        <div class="title">
+            <div>
+                Create a new user
+            </div>
+            <div class="icon">
+                <i class="fa fa-pencil-square-o"></i>
+            </div>
+        </div>
+        <form id="form" on-keypress="handleFormKey">
+            <label class="jso">User name</label>
+            <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
+            <label class="jso">E-mail</label>
+            <input class="jso" type="email" value="{{email::input}}" required>
+            <br>
+            <label class="jso">Create a password</label>
+            <input class="jso" type="password" value="{{password::input}}" required>
+            <label class="jso">Confirm your password</label>
+            <input class="jso" type="password" value="{{passwordCheck::input}}" required>
+
+            <!--<br>-->
+            <!--<label class="jso">Organization</label>-->
+            <!--<input class="jso" type="text" value="{{organization}}">-->
+
+            <br>
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Sign up</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+</dom-module>
+
+
+<script>
+    Polymer({
+        is: "jso-opencga-signup",
+        properties: {
+            user: {
+                type: String,
+                value: ''
+            },
+            email: {
+                type: String,
+                value: ''
+            },
+            password: {
+                type: String,
+                value: ''
+            },
+            passwordCheck: {
+                type: String,
+                value: ''
+            },
+            message: {
+                type: String,
+                value: ''
+            }
+        },
+        handleFormKey: function (e) {
+            if (e.which == 13) {
+                this.handleForm();
+            }
+        },
+        handleForm: function (e) {
+            this.message = '';
+
+            if (this.$.form.checkValidity()) {
+                if (this.password === this.passwordCheck) {
+                    this._signup();
+                }
+                else {
+                    alert("Sorry, your password does not match");
+                }
+            }
+            else {
+                alert("Please, you should fill all the fields. If error persist, contact crew at " + CONTACT_MAIL + ".");
+            }
+        },
+        _signup: function () {
+            var me = this;
+            OpencgaManager.users.create({
+                query: {
+                    userId: this.user,
+                    name: this.user,
+                    email: this.email,
+                    organization: '',
+                    password: CryptoJS.SHA1(this.password).toString()
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            var userId = response.response[0].result[0].id;
+                            me.message = userId + ' created';
+                            me.login()
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                            //Delete cookies
+                            Cookies.expire('bioinfo_sid');
+                            Cookies.expire('bioinfo_user');
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            });
+        },
+        login: function (e) {
+            var me = this;
+            this.message = '';
+
+            OpencgaManager.users.login({
+                id: this.user,
+                query: {
+                    password: CryptoJS.SHA1(this.password).toString()
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        console.log(response);
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            me.sid = response.response[0].result[0].sessionId;
+                            Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                            Cookies.set('bioinfo_user', response.response[0].result[0].userId);
+                            me.createProject(me.userId, me.sid);
+                            me.createMetaProject(me.userId, me.sid);
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                            //Delete all cookies
+                            Cookies.expire('bioinfo_sid');
+                            Cookies.expire('bioinfo_user');
+                        }
+                    },
+                    error: function () {
+                        me.message = 'Server error, try again later.';
+                    }
+                }
+            });
+        },
+        createProject: function (userId, sid) {
+            var me = this;
+            this.message = '';
+
+            OpencgaManager.projects.create({
+                query: {
+                    userId: me.user,
+                    sid: me.sid,
+                    name: "Default project",
+                    alias: "defaultPr",
+                    description: "default project",
+                    organization: this.organization
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Project created sucessfully.';
+                            me.projectId = response.response[0].result[0].id;
+                            me.createStudy()
+
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+        },
+        createMetaProject: function (userId, sid) {
+            var me = this;
+            this.message = '';
+
+            OpencgaManager.projects.create({
+                query: {
+                    userId: me.user,
+                    sid: me.sid,
+                    name: ".meta",
+                    alias: "meta",
+                    description: "meta",
+                    organization: this.organization
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Project created sucessfully.';
+                            var projectId = response.response[0].result[0].id;
+                            me.createMetaStudy(projectId)
+
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+
+        },
+        createMetaStudy: function (projectId) {
+            var me = this;
+            this.message = '';
+
+            OpencgaManager.studies.create({
+                query: {
+                    sid: me.sid,
+                    name: ".meta",
+                    alias: "meta",
+                    description: "meta",
+                    organization: this.organization,
+                    type: "FAMILY",
+                    projectId: projectId
+
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+
+                            me.user = "";
+                            me.name = "";
+                            me.email = "";
+                            me.organization = "";
+                            me.password = "";
+                            me.check = "";
+
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+        },
+        createStudy: function (e) {
+            var me = this;
+            this.message = '';
+//                var studyName = "WorkSpace";
+
+            OpencgaManager.studies.create({
+                query: {
+                    sid: me.sid,
+                    name: "Default study",
+                    alias: "defaultSt",
+                    description: "default study",
+                    organization: this.organization,
+                    type: "FAMILY",
+                    projectId: me.projectId
+
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                            me.message = 'Study created sucessfully.';
+                            me.studyId = response.response[0].result[0].id;
+
+                            me.fire('login', {status: true});
+//                            me.createAnalysis();
+
+                        } else {
+                            me.message = response.response[0].errorMsg;
+                        }
+                    },
+                    error: function () {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+        }
+    });
+</script>

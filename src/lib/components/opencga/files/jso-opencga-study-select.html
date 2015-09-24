@@ -1,0 +1,122 @@
+<dom-module id="jso-opencga-study-select">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            background-color: #FFF;
+            overflow-y: auto;
+            border: 1px solid #d3d3d3;
+            height:150px;
+        }
+
+        .study-item, .project-item {
+            padding: 2px 5px;
+        }
+
+        .project-item {
+            color: #555;
+        }
+
+        .study-item {
+            padding-left: 15px;
+        }
+
+        .study-item:hover {
+            background-color: #eee;
+        }
+
+        .study-item[data-checked] {
+            background-color: #ddd;
+        }
+
+        label.jso {
+            display: block;
+        }
+
+    </style>
+    <template>
+        <template is="dom-repeat" items="{{projects}}" as="project">
+            <div class="project-item" on-click="handleProjectClick">{{project.name}}</div>
+            <template is="dom-repeat" items="{{project.studies}}" as="study">
+                <div class="study-item" on-click="handleStudyClick">
+                    <span>{{study.name}}</span>
+                </div>
+            </template>
+        </template>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-study-select",
+        properties: {
+            projects: {
+                type: Array,
+                observer: 'projectsChanged'
+            },
+            selectedStudy: {
+                type: Object,
+//                notify:true,
+                observer: 'selectedStudyChanged'
+            }
+        },
+        handleStudyClick: function (e) {
+            this.selectedStudy = e.model.study;
+
+            this._cleanStudiesSelection();
+            e.currentTarget.setAttribute('data-checked', '')
+        },
+        projectsChanged: function (neo, old) {
+//            var found = false;
+//            for (var i = 0; i < neo.length; i++) {
+//                var p = neo[i];
+//                for (var j = 0; j < p.studies.length; j++) {
+//                    var s = p.studies[j];
+//                    if (s.id == parseInt(this.selectedStudy.id)) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!found) {
+//                this.selectedStudy = null;
+//            }
+        },
+//        selectStudy:function(study){
+//            this._cleanStudiesSelection();
+//
+//        },
+        _cleanStudiesSelection:function(){
+            var sel = this.querySelectorAll('.study-item');
+            for (var i = 0; i < sel.length; i++) {
+                var el = sel[i];
+                el.removeAttribute('data-checked');
+            }
+        },
+        selectedStudyChanged: function (neo, old) {
+            if(neo != null) {
+                var sel = this.querySelectorAll('.study-item');
+                for (var i = 0; i < sel.length; i++) {
+                    var el = sel[i];
+                    el.removeAttribute('data-checked');
+                    if (this.selectedStudy.id == el.dataset.id) {
+                        el.setAttribute('data-checked', '');
+                    }
+                }
+            }
+
+//            var found = false;
+//            for (var i = 0; i < neo.length; i++) {
+//                var p = neo[i];
+//                for (var j = 0; j < p.studies.length; j++) {
+//                    var s = p.studies[j];
+//                    if (s.id == parseInt(this.selectedStudy)) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//            }
+        }
+    });
+</script>

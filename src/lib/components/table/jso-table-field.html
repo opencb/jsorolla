@@ -1,0 +1,58 @@
+<dom-module id="jso-table-field">
+    <style>
+        :host {
+            position: relative;
+
+            box-sizing: border-box;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-right: 1px solid #d3d3d3;
+            padding: 7px 10px;
+        }
+
+        :host:last-of-type {
+            border-right-width: 0;
+        }
+    </style>
+    <template>
+        <span>{{computeValue(row, column)}}</span>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-table-field',
+        extends: 'td',
+        properties: {
+            column: {
+                type: Array,
+                observer: 'columnChanged'
+            },
+            row: {
+                type: Object
+            }
+        },
+        created: function() {
+            this.style.width = '1px solid red';
+        },
+        columnChanged: function (neo, old) {
+            if (neo) {
+                if (isNaN(this.column.width)) {
+                    this.classList.add('flex');
+                } else {
+                    this.style.width = this.column.width + "px";
+                }
+            }
+        },
+        computeValue: function (row, column) {
+            var value;
+            if (column.formula) {
+                value = column.formula(row);
+            } else {
+                value = row[column.name];
+            }
+            return value;
+        }
+    })
+</script>

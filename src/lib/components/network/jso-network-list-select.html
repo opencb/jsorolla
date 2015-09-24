@@ -1,64 +1,57 @@
-<polymer-element name="jso-network-list-select" attributes="networkViewer textAreaValue">
+<dom-module id="jso-network-list-select">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .selbox {
+            box-sizing: border-box;
+            overflow-y: auto;
+            border: 1px solid var(--hover-color);
+        }
+
+        .selitem {
+            padding: 2px 5px;
+        }
+
+        .selitem[data-checked=true] {
+            background-color: #ddd;
+        }
+
+        textarea {
+            resize: none;
+        }
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: relative;
-                box-sizing: border-box;
-                background-color: #FFFFFF;
-            }
+        <div class="vertical layout">
 
-            .selbox {
-                box-sizing: border-box;
-                overflow-y: auto;
-                border: 1px solid #d3d3d3;
-                background-color: #FFF;
-            }
-
-            .selitem {
-                padding: 2px 5px;
-            }
-
-            .selitem[data-checked=true] {
-                background-color: #ddd;
-            }
-
-            textarea {
-                resize: none;
-            }
-        </style>
-        <div vertical layout>
-
-            <form horizontal layout>
-                <label class="control">
-                    <input type="radio" name="mode" value="nodes" on-change="{{handleRadio}}" checked>
+            <form class="horizontal layout">
+                <label class="jso-control">
+                    <input type="radio" name="mode" value="nodes" on-change="handleRadio" checked>
                     <span>Network nodes</span>
                 </label>
-                <label class="control">
-                    <input type="radio" name="mode" value="selection" on-change="{{handleRadio}}">
+                <label class="jso-control">
+                    <input type="radio" name="mode" value="selection" on-change="handleRadio">
                     <span>Network selection</span>
                 </label>
             </form>
 
-            <div horizontal layout center>
+            <div class="horizontal layout center">
                 <div>
-                    <label style="margin-top: 5px;">Select attribute:</label>
+                    <label class="jso" style="margin-top: 5px;">Select attribute:</label>
 
-                    <div class="selbox" style="height: 150px; width:200px;">
-                        <template repeat="{{column in networkViewer.vAttr.columns}}">
-                            <div class="selitem"
-                                 data-checked="{{ columnSelected == column.name }}"
-                                 on-click="{{handleBoxSelect}}">{{column.title}}
-                            </div>
-                        </template>
-                    </div>
+                    <jso-select-box style="height: 150px; width:200px;" id="columns" options="{{columns}}" on-select="handleBoxSelect">
+                    </jso-select-box>
+
                 </div>
-                <div class="button action" style="margin:5px;" on-click="{{handleApply}}">
-                        <font-awesome icon="arrow-right"></font-awesome>
+                <div class="jso-btn jso-btn-shdw" style="margin:5px;" on-click="handleApply">
+                    <i class="fa fa-arrow-right"></i>
                 </div>
                 <div style="margin-left: 3px;">
-                    <label style="margin-top: 5px;">List:</label>
-                    <textarea style="height:150px;width:200px;" value="{{textAreaValue}}"></textarea>
+                    <label class="jso" style="margin-top: 5px;">List:</label>
+                    <textarea  id="textarea" class="jso" style="height:150px;width:200px;"></textarea>
                 </div>
             </div>
 
@@ -66,21 +59,34 @@
     </template>
     <script>
         Polymer({
-            created: function () {
+            is: "jso-network-list-select",
+            properties:{
+                textAreaValue: {
+                    type: String,
+                    value: ''
+                },
+                columnSelected: {
+                    type: Object
+                },
+                columns: {
+                    type: Array
+                },
+                items: {
+                    type: Array
+                },
+                selected: {
+                    type: Array
+                },
+            },
+            ready: function () {
                 this.columnSelected = "id";
                 this.selectNodes = "nodes";
             },
-            attached: function () {
-            },
-//            observe: {
-//                'networkViewer.vAttr.selected': 'handleSelectionChange',
-//                'networkViewer.vAttr.data': 'handleNodesChange'
-//            },
             handleRadio: function (e) {
                 this.selectNodes = e.target.getAttribute("value");
             },
             handleBoxSelect: function (e) {
-                this.columnSelected = e.target.templateInstance.model.column.name;
+                this.columnSelected = e.detail;
             },
 //            handleNodesChange: function () {
 //                this.handleApply();
@@ -89,26 +95,26 @@
 //                this.handleApply();
 //            },
             handleNodesList: function () {
-                this.selectNodes = 'nodes';
+                this.selectedMode = 'nodes';
                 var value = '';
-                for (var i = 0; i < this.networkViewer.vAttr.data.length; i++) {
-                    var row = this.networkViewer.vAttr.data[i];
-                    if (row[this.columnSelected]) {
-                        value += row[this.columnSelected] + '\n';
-                    }
+                for (var i = 0; i < this.items.length; i++) {
+                    var attributes = this.items[i].attributes;
+                    value += attributes[this.$.columns.selected.name] + '\n';
                 }
-                this.textAreaValue = value.trim();
+                this.$.textarea.value = value.trim();
+
+                this.textAreaValue = this.$.textarea.value;
             },
             handleSelectionList: function () {
-                this.selectNodes = 'selection';
+                this.selectedMode = 'selection';
                 var value = '';
-                for (var i = 0; i < this.networkViewer.vAttr.selected.length; i++) {
-                    var row = this.networkViewer.vAttr.selected[i];
-                    if (row[this.columnSelected]) {
-                        value += row[this.columnSelected] + '\n';
-                    }
+                for (var i = 0; i < this.selected.length; i++) {
+                    var attributes = this.selected[i].attributes;
+                    value += attributes[this.$.columns.selected.name] + '\n';
                 }
-                this.textAreaValue = value.trim();
+                this.$.textarea.value =  value.trim();
+
+                this.textAreaValue = this.$.textarea.value;
             },
             handleApply: function (e) {
                 if (this.columnSelected !== "") {
@@ -121,4 +127,4 @@
             }
         });
     </script>
-</polymer-element>
+</dom-module>

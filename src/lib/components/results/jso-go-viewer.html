@@ -1,73 +1,83 @@
-<polymer-element name="jso-go-viewer" attributes="content rootNode jobResult">
+<dom-module id="jso-go-viewer">
+    <style>
+        :host {
+            display: block;
+        }
+
+        jso-network-viewer {
+            /*max-width: 1000px;*/
+            height: 800px;
+
+            border-color: rgb(217, 217, 217);
+            border-style: solid;
+            border-width: 1px;
+        }
+
+
+    </style>
     <template>
-        <link rel="stylesheet" href="../sortable-table.css">
-        <style>
-            :host {
-                display: block;
-            }
+        <template is="dom-if" if="{{checkNetworkViewer(networkViewer)}}">
+            <br>
 
-            jso-network-viewer {
-                /*max-width: 1000px;*/
-                height: 800px;
-
-                border-color: rgb(217, 217, 217);
-                border-style: solid;
-                border-width: 1px;
-            }
-
-
-        </style>
-        <template if="{{jobResult.networkViewer}}">
-            <div horizontal layout>
+            <div class="horizontal layout">
                 <div>
-                    <input type="text" value="{{sessionName}}">
+                    <input class="jso" type="text" value="{{sessionName::input}}" placeholder="session name...">
                 </div>
-                <div class="button action" style="margin-left:5px" on-click="{{handleSaveSessionToCellMaps}}">
+                <div class="jso-btn jso-btn-shdw" style="margin-left:5px" on-click="handleSaveSessionToCellMaps">
                     Save network as Cell Maps session
                 </div>
             </div>
-            <div horizontal layout>
-                <label>
-                    {{saveMessage}}
-                </label>
-                <template if="{{saveMessageOk}}">
-                    <div class="button action" on-click="{{handleOpenCellMapsSessionManager}}">
+            <div class="horizontal layout">
+                <label class="jso">{{saveMessage}}</label>
+                <template is="dom-if" if="{{saveMessageOk}}">
+                    <div class="jso-btn jso-btn-shdw" on-click="handleOpenCellMapsSessionManager">
                         Open Cell Maps session Manager
                     </div>
                 </template>
             </div>
             <br>
         </template>
-        <jso-network-viewer
-                id="networkViewer"
-                lite="true"
-                ></jso-network-viewer>
-        <label>Colored nodes represent significant results: red for GOs overrepresented and blue for GOs underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs</label>
-        <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
-            <font-awesome icon="arrows"></font-awesome>
+        <jso-network-viewer id="networkViewer" lite hide-node-render hide-edge-render></jso-network-viewer>
+        <label class="jso">Colored nodes represent significant results: red for GOs overrepresented and blue for GOs
+            underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs
+        </label>
+        <br>
+        <label class="jso">You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
+            <i class="fa fa-arrows"></i>
         </label>
         <br>
     </template>
     networkViewer =
     <script>
         Polymer({
-            created: function () {
-                this.sessionName = "";
-                this.saveMessage = "";
-                this.saveMessageOk = false;
+            is: 'jso-go-viewer',
+            properties: {
+                sessionName: {
+                    type: String,
+                    value: ''
+                },
+                saveMessage: {
+                    type: String,
+                    value: ''
+                },
+                saveMessageOk: {
+                    type: Boolean,
+                    value: false
+                },
+                networkViewer: {
+                    type: Object
+                },
+                jobResult: {
+                    type: Object
+                }
             },
             ready: function () {
-            },
-            domReady: function () {
-                this.$.networkViewer.$.nodeRender.setAttribute('hidden', '');
-                this.$.networkViewer.$.edgeRender.setAttribute('hidden', '');
-
-//                this.$.networkViewer.selectVerticesByAttribute("id", "all");
-//                this.$.networkViewer.setLayout("Force directed");
-
-                //
-                this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute, false, false);
-                this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute, false, true);
+                this.async(function () {
+                    //                this.$.networkViewer.selectVerticesByAttribute("id", "all");
+                    //                this.$.networkViewer.setLayout("Force directed");
+                    this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute, false, false);
+                    this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute, false, true);
+                });
             },
             setContent: function (sifContent, attrContent, attr2Content) {
                 var me = this;
@@ -85,10 +95,8 @@
 //                                ignoreColumns: ?,
                                 dataSource: new StringDataSource(attrContent),
                                 handlers: {
-                                    'data:load': function (event) {
-                                        var attributeManager1 = event.attributeManager;
-                                        me.$.networkViewer.importVertexAttributeManager(attributeManager1);
-
+                                    'data:load': function (e) {
+                                        me.$.networkViewer.importVertexAttributeManager(e.columns, e.attributes);
                                         me._applyVertexAttributes();
                                     },
                                     'error:parse': function (event) {
@@ -108,7 +116,7 @@
                 this.$.networkViewer.vertexDefaults.labelAttribute = "name";
                 this.$.networkViewer.handleVertexDefaultLabelAttribute();
 
-                var nodeRender = this.$.networkViewer.shadowRoot.querySelector('jso-attribute-node-render');
+                var nodeRender = this.$.networkViewer.$.nodeRender;
 
                 //attributeName, displayProperty
                 nodeRender.applyDirect("color", "color");
@@ -127,8 +135,14 @@
             handleOpenCellMapsSessionManager: function () {
                 this.jobResult.selectedOption = "";
                 this.jobResult.networkViewer.selectedMenu = "session-manager";
+            },
+            checkNetworkViewer: function (networkViewer) {
+                if (networkViewer) {
+                    return true;
+                }
+                return false;
             }
         })
     </script>
-</polymer-element>
+</dom-module>
 

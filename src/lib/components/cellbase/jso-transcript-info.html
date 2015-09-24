@@ -1,0 +1,101 @@
+<dom-module id="jso-transcript-info">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #title {
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        #title > * {
+            margin-right: 7px;
+        }
+
+        #name {
+            font-size: 1.3em;
+            color: var(--default-primary-color)
+        }
+
+        #id {
+            font-size: 1.15em;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        label,
+        a:link,
+        a:visited {
+            color: var(--secondary-text-color)
+        }
+    </style>
+    <template>
+        <div id="title">
+            <span id="name">{{transcript.name}}</span>
+            <span id="id">{{transcript.id}}</span>
+            <a target="_blank" href$="{{ensemblUrl}}"> Ensembl <i class="fa fa-external-link"></i></a>
+            <!--<a target="_blank" href$="{{wikipathwaysUrl}}"> Wikipathways <i class="fa fa-external-link"></i>-->
+        </div>
+        <div style="margin-top:5px;">
+            <label>Location: </label>
+            <span>{{transcript.chromosome}}</span> :
+            <span>{{transcript.start}}</span> -
+            <span>{{transcript.end}}</span>
+            <br>
+            <label>Strand:</label> <span>{{transcript.strand}}</span>
+        </div>
+
+        <div>
+            <label>Biotype:</label>
+            <span>{{transcript.biotype}}</span>
+        </div>
+        <div>
+            <label>Description: </label>
+            <span>{{transcript.description}}</span>
+        </div>
+        <div>
+            <label>CDS (start-end): </label>
+            <span>{{transcript.genomicCodingStart}}</span> -
+            <span>{{transcript.genomicCodingEnd}}</span>
+        </div>
+        <div>
+            <label>CDNA (start-end): </label>
+            <span>{{transcript.cdnaCodingStart}}</span> -
+            <span>{{transcript.cdnaCodingEnd}}</span>
+        </div>
+        <div>
+            <label>Protein: </label>
+            <span>{{transcript.proteinID}}</span>
+        </div>
+        <div>
+            <label>External DB: </label>
+            <span>{{transcript.externalDb}}</span>
+        </div>
+        <div>
+            <label>Status: </label>
+            <span>{{transcript.status}}</span>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-transcript-info",
+        properties: {
+            transcript: {
+                type: Object
+            },
+            ensemblUrl: {
+                type: String,
+                computed: 'computeEnsemblUrl(transcript)'
+            }
+        },
+        computeEnsemblUrl: function (transcript) {
+            return "http://www.ensembl.org/Multi/Search/Results?q=" + transcript.name;
+        }
+
+    });
+</script>

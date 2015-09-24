@@ -1,189 +1,76 @@
-<polymer-element name="jso-reactome" extends="jso-window" attributes="networkViewer">
+<dom-module id="jso-reactome">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            width: 500px;
+        }
+
+        .attributelist {
+            display: block;
+            width: 100%;
+            height: 600px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            padding: 5px 5px 5px 5px;
+        }
+
+        .attributelist .item {
+            margin-top: 3px;
+        }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--hover-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: fixed;
-                box-sizing: border-box;
+        <form class="attributelist flex">
+            <jso-reactome-tpl items="{{items}}" on-item-select="_getReactomeSbml"></jso-reactome-tpl>
+        </form>
 
-                width: 500px;
-                height: 350px;
-            }
-
-            #panel {
-                width: 100%;
-                height: 100%;
-            }
-
-            #container {
-                overflow-y: auto;
-            }
-
-            .attributelist {
-                box-sizing: border-box;
-                padding: 0 5px 5px 5px;
-            }
-
-            .attributelist .item {
-                margin-top: 3px;
-            }
-
-            .checkbox, .radiobox, .collapsebox {
-                width: 25px;
-            }
-
-            .checkbox::after, .radiobox::after {
-                font-family: 'FontAwesome';
-                content: ' \00a0'
-            }
-
-            .radiobox[data-checked]::after {
-                content: '\f10c'
-            }
-
-            .checkbox[data-checked]::after {
-                content: '\f00c'
-            }
-
-            .collapsebox::after {
-                font-family: 'FontAwesome';
-                content: ' \f054'
-            }
-
-            .collapsebox[data-checked]::after {
-                content: '\f078'
-            }
-
-            [data-leaf]::after {
-                content: '\f06c' !important;
-            }
-
-            textarea {
-                resize: none;
-                margin: 3px;
-            }
-
-            .selected {
-                text-decoration: underline;
-            }
-        </style>
-        <div id="panel" class="panel panel-shadow" vertical layout>
-            <div id="header" class="header" horizontal layout
-                 on-mousedown="{{handleHeaderMouseDown}}"
-                 on-mouseup="{{handleHeaderMouseUp}}">
-                <div class="text">Reactome import</div>
-                <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerclose" on-click="{{handleClose}}"></div>
-                </div>
+        <div class="footer horizontal layout flex">
+            <div class="jso-txt">
+                <template is="dom-if" if="{{loading}}">
+                    <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
+                </template>
+                <span>{{message}}</span>
             </div>
-            <div id="container" class="container" flex horizontal layout>
-
-                <div class="attributelist" flex>
-                    <template bind="{{imgs as images}}">
-                        <template repeat="{{items}}" id="itemsTemplate">
-                            <div horizontal layout class="item">
-                                <div class="button action collapsebox"
-                                     data-checked?="{{ open }}"
-                                     data-leaf?="{{items <= 0}}"
-                                     on-click="{{handleOpenNode}}"></div>
-                                <div class="button action radiobox" style="margin-left:5px;"
-                                     data-checked?="{{ selected }}"
-                                     on-click="{{handleItemSelect}}"></div>
-                                <img src="{{imgsrc}}" style="margin:0 5px;">
-
-                                <div class="text {{selected ? 'selected': ''}}" on-click="{{handleItemSelect}}">{{displayName}}</div>
-                            </div>
-                            <div style="margin-left:10px;">
-                                <template if="{{open}}">
-                                    <template ref="itemsTemplate" repeat="{{items}}"></template>
-                                </template>
-                            </div>
-                        </template>
-                    </template>
-                </div>
-
-            </div>
-            <div class="footer" horizontal layout>
-                <div class="text" horizontal layout flex>
-                    <template if="{{loading}}">
-                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
-                    </template>
-                    <div>{{message}}</div>
-                </div>
-                <div horizontal end-justified layout>
-                    <!--<div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>-->
-                </div>
-            </div>
-            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+            <!--<div class="flex"></div>-->
+            <!--<div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleGo">Search</div>-->
         </div>
     </template>
     <script>
         Polymer({
-            created: function () {
-//                <template if="{{pathway.selected }}">
-//                <template repeat="{{pathwayEvent in pathway.hasEvent}}">
-//                <div horizontal layout>
-//                <div>pwE</div>
-//                <div flex class="text">{{pathwayEvent.displayName}}</div>
-//            </div>
-//            </template>
-//            </template>
-//                this.species = [];
-//                this.pathways = [];
-//                this.nodes = [{nodeName:"asdf"}];
-                this.items = [];
-                this.root = [];
-
-                this.images = {
-                    Reaction: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVR42mNgGCzgPxRTbADZBiFr/I9FjmTDGCgx5D8BcYLe/E8kpq0LqBoG/ymNRvonpCEGAFWvKtY210w0AAAAAElFTkSuQmCC",
-                    BlackBoxEvent: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAARklEQVR42mNgGAVgICkp+R+Enz179h+XPCH1IAZeA5ANwWsAsmIYGxkjqyHZBTB5DAOICQNkOazqQRxcBmATx6d+FNAbAABzKWs7aCV9SQAAAABJRU5ErkJggg==",
-                    Pathway: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAVklEQVR42tVSQQoAIAza0/a0/bwuLUZJaJ0SPGSbSGZW4O5t5UnfMC4mqwHSocFTgkRENEWHg0l0pnG9KMX+szqYSqku020GLKGB0gJlIL8B2w4N9h90t4HQjSs2eNAAAAAASUVORK5CYII="
-
-                };
-
+            is: "jso-reactome",
+            properties: {
+                items: {
+                    type: Array
+                },
+                message: {
+                    type: String,
+                },
+                loading: {
+                    type: Boolean
+                }
             },
-            domReady: function () {
-                this.super();
-//                <label>Species</label>
-//
-//                <div class="attributelist" flex>
-//                <template repeat="{{spe in species}}">
-//                <div horizontal layout>
-//                <div class="button action radiobox"
-//                data-checked?="{{ speciesSelected == spe }}"
-//                        on-click="{{handleSpeciesSelect}}"></div>
-//                        <div flex class="text">{{spe.name}}</div>
-//            </div>
-//            </template>
-//            </div>
-//                this._getSpecies();
-
-
+            images: {
+                Reaction: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANklEQVR42mNgGCzgPxRTbADZBiFr/I9FjmTDGCgx5D8BcYLe/E8kpq0LqBoG/ymNRvonpCEGAFWvKtY210w0AAAAAElFTkSuQmCC",
+                BlackBoxEvent: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAARklEQVR42mNgGAVgICkp+R+Enz179h+XPCH1IAZeA5ANwWsAsmIYGxkjqyHZBTB5DAOICQNkOazqQRxcBmATx6d+FNAbAABzKWs7aCV9SQAAAABJRU5ErkJggg==",
+                Pathway: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAVklEQVR42tVSQQoAIAza0/a0/bwuLUZJaJ0SPGSbSGZW4O5t5UnfMC4mqwHSocFTgkRENEWHg0l0pnG9KMX+szqYSqku020GLKGB0gJlIL8B2w4N9h90t4HQjSs2eNAAAAAASUVORK5CYII="
+            },
+            ready: function () {
                 this._getSpeciesPathways({value: 'Homo+sapiens'});
             },
             handleSpeciesSelect: function (e) {
-                this.speciesSelected = e.target.templateInstance.model.spe;
+                this.speciesSelected = e.model.spe;
                 this._getSpeciesPathways(this.speciesSelected);
-            },
-            handleOpenNode: function (e) {
-                var item = e.target.templateInstance.model;
-                item.open = !item.open;
-            },
-            handleItemSelect: function (e) {
-                this._deselectAllItems();
-                var item = e.target.templateInstance.model;
-                item.selected = !item.selected;
-                this._getReactomeSbml(item);
-            },
-            _deselectAllItems: function () {
-                this._deselectItem(this.root);
-            },
-            _deselectItem: function (item) {
-                item.selected = false;
-                for (var i = 0; i < item.items.length; i++) {
-                    var it = item.items[i];
-                    this._deselectItem(it);
-                }
             },
             handlePathwayEventSelect: function (e) {
                 this.pathwayEventSelected = e.target.templateInstance.model.pathwayEvent;
@@ -239,19 +126,15 @@
                 this.loading = true;
                 this.message = "Querying Reactome WS Server...";
                 var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/pathwayHierarchy/' + species.value;
-                OpencgaManager.util.proxy({
-                    query: {
-                        url: url
-                    },
-                    request: {
-                        success: function (response) {
-                            me._processSpeciesPathways(response);
-                            me.message = "Human pathways ready.";
-                            me.loading = false;
-                        }
-                    }
 
-                });
+                var request = new XMLHttpRequest();
+                request.onload = function () {
+                    me._processSpeciesPathways(this.response);
+                    me.message = "Human pathways ready.";
+                    me.loading = false;
+                };
+                request.open('GET', 'http://ws.babelomics.org/opencga/rest/util/proxy?url=' + url, true);
+                request.send();
             },
             _processSpeciesPathways: function (response) {
                 var parser = new DOMParser();
@@ -261,25 +144,21 @@
                 this.root = this._processNode(pathways);
                 this.items = this.root.items;
             },
-            _getReactomeSbml: function (item) {
+            _getReactomeSbml: function (e) {
                 var me = this;
-
+                var item = e.detail.item;
                 this.loading = true;
                 this.message = "Querying Reactome WS Server...";
                 var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/sbmlExporter/' + item.dbId;
-                OpencgaManager.util.proxy({
-                    query: {
-                        url: url
-                    },
-                    request: {
-                        success: function (response) {
-                            me._processReactomeSbml(response);
-                            me.message = "Pathway loaded.";
-                            me.loading = false;
-                        }
-                    }
 
-                });
+                var request = new XMLHttpRequest();
+                request.onload = function () {
+                    me._processReactomeSbml(this.response);
+                    me.message = "Pathway loaded.";
+                    me.loading = false;
+                };
+                request.open('GET', 'http://ws.babelomics.org/opencga/rest/util/proxy?url=' + url, true);
+                request.send();
             },
             _processReactomeSbml: function (response) {
                 var renderMap = {
@@ -350,7 +229,7 @@
                 var glyphs = doc.querySelectorAll(queryStr);
                 var arcs = doc.querySelectorAll("arc");
 
-                var graph = new Graph();
+                var graph = new JsoGraph();
                 var map = {};
                 for (var i = 0; i < glyphs.length; i++) {
                     var glyph = glyphs[i];
@@ -436,36 +315,92 @@
                     });
                     graph.addEdge(edge);
                 }
-                this.networkViewer.setGraph(graph);
-                var vAttr = this.networkViewer.vAttr;
-                vAttr.addColumn({
-                    defaultValue: "",
-                    name: "x",
-                    title: "x",
-                    type: "string",
-                    cellTemplate: "inputTemplate"
-                });
-                vAttr.addColumn({
-                    defaultValue: "",
-                    name: "y",
-                    title: "y",
-                    type: "string",
-                    cellTemplate: "inputTemplate"
-                });
-                for (var i = 0; i < vAttr.data.length; i++) {
-                    var row = vAttr.data[i];
-                    row["name"] = map[row["id"]].name;
-                    row["x"] = map[row["id"]].x;
-                    row["y"] = map[row["id"]].y;
-                }
-                this.networkViewer.vertexDefaults.labelAttribute = "name";
-                this.networkViewer.handleVertexDefaultLabelAttribute();
-
-                this.networkViewer.handleVertexDefaultXAttribute();
-                this.networkViewer.handleVertexDefaultYAttribute();
-                this.networkViewer.setLayout("Force directed");
+                this.fire('graph', {graph: graph, map: map});
             }
-
         });
     </script>
-</polymer-element>
+</dom-module>
+<dom-module id="jso-reactome-tpl">
+    <style>
+        .collapsebox::after {
+            font-family: 'FontAwesome';
+            content: ' \f054'
+        }
+
+        .collapsebox[data-checked]::after {
+            content: '\f078'
+        }
+
+        .collapsebox[data-leaf]::after {
+            content: '\f06c' !important;
+        }
+
+        [data-selected] {
+            text-decoration: underline;
+        }
+    </style>
+
+    <template>
+        <template is="dom-repeat" items="{{items}}" as="item" index-as="index" id="itemsTemplate">
+            <div class="horizontal layout">
+                <div class="jso-txt collapsebox"
+                     data-checked$="{{item.open}}"
+                     data-leaf$="{{hasItems(item.length)}}"
+                     on-click="handleOpenNode">
+                </div>
+                <label class="jso-control">
+                    <input type="radio" on-click="handleItemSelect" name="pw"/>
+                    <span>
+                        <img src$="{{item.imgsrc}}" style="margin:0 5px;">
+                        <span data-selected$="{{item.selected}}">{{item.displayName}}</span>
+                    </span>
+                </label>
+            </div>
+            <div style="margin-left:10px;">
+                <template is="dom-if" if="{{item.open}}">
+                    <jso-reactome-tpl items="{{item.items}}"></jso-reactome-tpl>
+                </template>
+            </div>
+        </template>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "jso-reactome-tpl",
+            properties: {
+                items: Array
+            },
+            hasItems: function (l) {
+                return l > 0;
+            },
+            handleOpenNode: function (e) {
+                var path = 'items.' + e.model.index + '.open';
+                this.set(path, !e.model.item.open);
+            },
+            handleItemSelect: function (e) {
+                this._deselectAllItems();
+                var item = e.model.item;
+
+                var path = 'items.' + e.model.index + '.selected';
+                this.set(path, !item.selected);
+
+                this.fire('item-select', {item: item});
+            },
+            _deselectAllItems: function () {
+                for (var i = 0; i < this.items.length; i++) {
+                    var item = this.items[i];
+                    this._deselectItem(item);
+                }
+            },
+            _deselectItem: function (item) {
+                item.selected = false;
+                for (var i = 0; i < item.items.length; i++) {
+                    var it = item.items[i];
+                    this._deselectItem(it);
+                }
+            },
+        });
+    </script>
+
+</dom-module>

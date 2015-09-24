@@ -25,7 +25,7 @@ function TrackListPanel(args) {//parent is a DOM div element
     // Using Underscore 'extend' function to extend and add Backbone Events
     _.extend(this, Backbone.Events);
 
-    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
     this.cellBaseVersion = 'v3';
 
     //set default args
@@ -311,7 +311,8 @@ TrackListPanel.prototype = {
             _this.mousePosition = centerPosition + rcX - posOffset;
             _this.trigger('mousePosition:change', {
                 mousePos: _this.mousePosition,
-                baseHtml: _this.getMousePosition(_this.mousePosition)
+                chromosome: _this.region.chromosome,
+                base: _this.getMousePosition(_this.mousePosition)
             });
         });
 
@@ -366,7 +367,7 @@ TrackListPanel.prototype = {
                                 _this.trigger('region:move', {region: _this.region, disp: disp, sender: _this});
                                 _this.trigger('trackRegion:move', {region: _this.region, disp: disp, sender: _this});
                                 lastX = newX;
-                                _this.setNucleotidPosition(p);
+                                //_this.setNucleotidPosition(p);
                             }
                         }
                     });
@@ -508,29 +509,6 @@ TrackListPanel.prototype = {
     setWidth: function (width) {
         console.log(width);
         this.width = width - 18;
-        var mid = this.width / 2;
-        this._setPixelBase();
-
-
-        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase + 2});
-        $(this.mouseLine).css({'width': this.pixelBase});
-
-        this.trigger('trackWidth:change', {width: this.width, sender: this})
-
-        this._setTextPosition();
-
-        if (this.showRegionOverviewBox) {
-            var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
-            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
-            $(this.regionOverviewBoxLeft).css({
-                'width': regionOverviewDarkBoxWidth
-            });
-            $(this.regionOverviewBoxRight).css({
-                'left': (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
-                'width': regionOverviewDarkBoxWidth
-            });
-        }
-
     },
 
     highlight: function (event) {
@@ -558,16 +536,30 @@ TrackListPanel.prototype = {
 
     setRegion: function (region) {//item.chromosome, item.position, item.species
         var _this = this;
+        var mid = this.width / 2;
         this.region.load(region);
         this.visualRegion.load(region);
         this._setPixelBase();
         //get pixelbase by Region
 
 
-        $(this.centerLine).css({'width': this.pixelBase + 2});
-        $(this.mouseLine).css({'width': this.pixelBase + 2});
+        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase});
+        $(this.mouseLine).css({'width': this.pixelBase});
 
         this._setTextPosition();
+
+        if (this.showRegionOverviewBox) {
+            var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
+            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
+            $(this.regionOverviewBoxLeft).css({
+                'width': regionOverviewDarkBoxWidth
+            });
+            $(this.regionOverviewBoxRight).css({
+                'left': (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
+                'width': regionOverviewDarkBoxWidth
+            });
+        }
+
 
         this.trigger('window:size', {windowSize: this.windowSize});
 
@@ -669,6 +661,9 @@ TrackListPanel.prototype = {
         track.set('pixelBase', this.pixelBase);
         track.set('region', this.visualRegion);
         track.set('width', this.width);
+        7
+
+        track.set('trackListPanel', this);
 
         // Track must be initialized after we have created
         // de DIV element in order to create the elements in the DOM
@@ -692,6 +687,7 @@ TrackListPanel.prototype = {
 
 
         track.set('trackRegion:change', function (event) {
+            track.setWidth(_this.width);
             track.set('pixelBase', _this.pixelBase);
             track.set('region', event.region);
             track.draw();
@@ -705,11 +701,11 @@ TrackListPanel.prototype = {
         });
 
 
-        track.set('trackWidth:change', function (event) {
-            track.setWidth(event.width);
-            track.set('pixelBase', _this.pixelBase);
-            track.draw();
-        });
+        //track.set('trackWidth:change', function (event) {
+        //    track.setWidth(event.width);
+        //    track.set('pixelBase', _this.pixelBase);
+        //    track.draw();
+        //});
 
 
         track.set('trackFeature:highlight', function (event) {
@@ -759,7 +755,7 @@ TrackListPanel.prototype = {
 //        this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on('trackRegion:change', track.get('trackRegion:change'));
         this.on('trackRegion:move', track.get('trackRegion:move'));
-        this.on('trackWidth:change', track.get('trackWidth:change'));
+        //this.on('trackWidth:change', track.get('trackWidth:change'));
         this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
 
 //        track.on('track:ready', function () {
@@ -802,6 +798,7 @@ TrackListPanel.prototype = {
             $(track.div).detach();
             $(this.tlTracksDiv).append(track.div);
         }
+        this.trigger('tracks:refresh', {sender: this});
     },
     removeTrack: function (track) {
         if (!this.containsTrack(track)) {
@@ -809,6 +806,7 @@ TrackListPanel.prototype = {
         }
         // first hide the track
         this.hideTrack(track);
+        track.remove();
 
         var index = this.getTrackIndex(track);
         // remove track from list and hash data
@@ -827,7 +825,7 @@ TrackListPanel.prototype = {
 //        this.off('trackSpecies:change', track.get('trackSpecies:change'));
         this.off('trackRegion:change', track.get('trackRegion:change'));
         this.off('trackRegion:move', track.get('trackRegion:move'));
-        this.off('trackWidth:change', track.set('trackWidth:change'));
+        //this.off('trackWidth:change', track.set('trackWidth:change'));
         this.off('trackFeature:highlight', track.get('trackFeature:highlight'));
 
         this.refreshTracksDom();
@@ -984,7 +982,7 @@ TrackListPanel.prototype = {
         //if multiple, returns the first found
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
-            if (track instanceof SequenceTrack) {
+            if (track.renderer instanceof SequenceRenderer) {
                 return track;
             }
         }
@@ -993,25 +991,21 @@ TrackListPanel.prototype = {
 
     getMousePosition: function (position) {
         var base = '';
-        var colorStyle = '';
         if (position > 0) {
             base = this.getSequenceNucleotid(position);
-            colorStyle = 'color:' + SEQUENCE_COLORS[base];
         }
 //        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
 //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
-        return '<span style="' + colorStyle + '">' + base + '</span>';
+        return base;
     },
 
     getSequenceNucleotid: function (position) {
         var seqTrack = this.getSequenceTrack();
-        if (seqTrack != null && this.visualRegion.length() <= seqTrack.visibleRegionSize) {
-            var nt = seqTrack.dataAdapter.getNucleotidByPosition({
-                start: position,
-                end: position,
-                chromosome: this.region.chromosome
-            })
-            return nt;
+        if (seqTrack) {
+            var el = seqTrack.svgCanvasFeatures.querySelector('text[data-pos="' + position + '"]');
+            if (el) {
+                return el.textContent;
+            }
         }
         return '';
     },
@@ -1020,5 +1014,16 @@ TrackListPanel.prototype = {
         var base = this.getSequenceNucleotid(position);
         this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
         this.positionNucleotidDiv.textContent = base;
+    },
+
+    setCellBaseHost: function (host) {
+        this.cellBaseHost = host;
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            if (track.dataAdapter instanceof CellBaseAdapter) {
+                track.dataAdapter.setHost(this.cellBaseHost);
+            }
+        }
     }
+
 };

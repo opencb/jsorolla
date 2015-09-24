@@ -1,180 +1,168 @@
-<polymer-element name="jso-intact-import" extends="jso-window" attributes="networkViewer">
+<dom-module id="jso-intact-import">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            width: 680px;
+        }
+
+        #main {
+            width: 100%;
+        }
+
+        #left {
+            width: 230px;
+            padding: 5px;
+        }
+
+        textarea {
+            resize: none;
+            margin: 3px;
+        }
+
+        jso-select-box {
+            height: 125px;
+        }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--hover-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+
+        }
+
+    </style>
     <template>
-        <style>
-            :host {
-                display: block;
-                position: fixed;
-                box-sizing: border-box;
-                background-color: #FFFFFF;
+        <div id="main" class="flex horizontal layout">
+            <div id="left">
+                <label class="jso" style="margin-top: 2px;">Species:</label>
 
-                width: 680px;
-                height: 420px;
-            }
+                <jso-select-box id="species" options="{{species}}" name-attribute="id"
+                                title-attribute="_title">
+                </jso-select-box>
 
-            #panel {
-                width: 100%;
-                height: 100%;
-                /*background-color: #FFFFFF;*/
-            }
+                <label class="jso" style="margin-top: 10px;">Attributes:</label>
 
-            .checkbox {
-                width: 25px;
-            }
+                <jso-select-box id="columns" options="{{columns}}" on-select="handleEditSelect">
+                </jso-select-box>
 
-            .checkbox::after {
-                font-family: 'FontAwesome';
-                content: ' \00a0'
-            }
+                <label class="jso" style="margin-top: 10px;">Input:</label>
 
-            .checkbox[data-checked]::after {
-                content: '\f00c'
-            }
+                <form>
+                    <label class="jso-control">
+                        <input type="radio" checked="{{checkSelectedMode(selectedMode,'nodes')}}" name="mode"
+                               on-change="handleSelectNodesList">
+                        <span>Network nodes</span>
+                    </label>
+                    <label class="jso-control">
+                        <input type="radio" checked="{{checkSelectedMode(selectedMode,'selection')}}" name="mode"
+                               on-change="handleSelectSelectionList">
+                        <span>Network selection</span>
+                    </label>
+                    <label class="jso-control">
+                        <input type="radio" checked="{{checkSelectedMode(selectedMode,'text')}}" name="mode"
+                               on-change="handleSelectTextList">
+                        <span>List from text</span>
+                    </label>
 
-            .selbox {
-                box-sizing: border-box;
-                overflow-y: auto;
-                border: 1px solid #d3d3d3;
-                background-color: #FFF;
-            }
-
-            .selitem {
-                padding: 2px 5px;
-            }
-
-            .selitem[data-checked=true] {
-                background-color: #ddd;
-                /*background-color: #435f7a;*/
-                /*background-color: #f07746;*/
-                /*color: #fff;*/
-            }
-
-            textarea {
-                resize: none;
-                margin: 3px;
-            }
-        </style>
-        <div class="panel panel-shadow" id="panel" vertical layout>
-            <div id="header" class="header" horizontal layout
-                 on-mousedown="{{handleHeaderMouseDown}}"
-                 on-mouseup="{{handleHeaderMouseUp}}">
-                <div class="text">Import IntAct</div>
-                <div class="headeractions" horizontal end-justified layout flex>
-                    <!--<div class="text headerexpand" expanded?={{expanded}} on-click="{{handleExpand}}"></div>-->
-                    <div class="text headerclose" on-click="{{handleClose}}"></div>
-                </div>
-            </div>
-            <div class="container" flex horizontal layout>
-
-                <div vertical layout style="width:230px;padding:5px;">
-
-                    <label style="margin-top: 2px;">Species:</label>
-
-                    <div class="selbox" flex>
-                        <template repeat="{{spe in species}}">
-                            <div class="selitem"
-                                 data-checked="{{ speciesSelected == spe }}"
-                                 on-click="{{handleSpeciesSelect}}">{{spe.name}}
-                            </div>
-                        </template>
+                    <div class="jso-btn jso-btn-shdw" style="width:150px;margin-top: 3px;"
+                         on-click="handleSelectFileList">
+                        List from file ...
                     </div>
-
-                    <label style="margin-top: 10px;">Attributes:</label>
-
-                    <div class="selbox" flex>
-                        <template repeat="{{column in networkViewer.vAttr.columns}}">
-                            <div class="selitem"
-                                 data-checked="{{ columnSelected == column.name }}"
-                                 on-click="{{handleEditSelect}}">{{column.title}}
-                            </div>
-                        </template>
-                    </div>
-
-                    <label style="margin-top: 10px;">Input:</label>
-
-                    <form>
-                        <label class="control">
-                            <input type="radio" checked="{{selectedMode == 'nodes'}}" on-change="{{handleSelectNodesList}}">
-                            <span>Network nodes</span>
-                        </label>
-                        <label class="control">
-                            <input type="radio" checked="{{selectedMode == 'selection'}}" on-change="{{handleSelectSelectionList}}">
-                            <span>Network selection</span>
-                        </label>
-                        <label class="control">
-                            <input type="radio" checked="{{selectedMode == 'text'}}" on-change="{{handleSelectTextList}}">
-                            <span>List from text</span>
-                        </label>
-
-                        <div class="button action" style="width:150px;margin-top: 3px;" on-click="{{handleSelectFileList}}">
-                            List from file ...
-                        </div>
-                    </form>
-                </div>
-
-
-                <textarea id="textarea" flex></textarea>
-
+                </form>
             </div>
 
-            <div class="footer" horizontal layout>
-                <div class="text" horizontal layout flex>
-                    <template if="{{loading}}">
-                        <font-awesome icon="spinner" animation="spin" style="margin-right: 5px;"></font-awesome>
-                    </template>
-                    <div>{{message}}</div>
-                </div>
-                <div horizontal end-justified layout>
-                    <div class="button action" on-click="{{handleGo}}" style="width:100px;">Search</div>
-                </div>
+            <textarea class="jso flex" id="textarea"></textarea>
+
+        </div>
+        <input on-change="handleInputFileChange" id="inputFile" type="file" hidden>
+
+        <div class="footer horizontal layout flex">
+            <div class="jso-txt">
+                <template is="dom-if" if="{{loading}}">
+                    <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
+                </template>
+                <span>{{message}}</span>
             </div>
-            <input on-change={{handleInputFileChange}} id="inputFile" type="file" hidden>
+            <div class="flex"></div>
+            <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleGo">Search</div>
         </div>
     </template>
     <script>
         Polymer({
+            is: "jso-intact-import",
+            properties: {
+                species: {
+                    type: Array
+                },
+                selectedMode: {
+                    type: String,
+                    value: 'text'
+                },
+                columns: {
+                    type: Array
+                },
+                items: {
+                    type: Array
+                },
+                selected: {
+                    type: Array
+                },
+                message: {
+                    type: String
+                },
+                loading: {
+                    type: Boolean
+                }
+            },
+            checkSelectedMode: function (selectedMode, v) {
+                return selectedMode === v;
+            },
+            getSpecies: function (callback) {
+                CellBaseManager.get({
+                    host: CELLBASE_HOST,
+                    category: "meta",
+                    subCategory: "species",
+                    success: function (r) {
+                        var list = [];
+                        var taxonomies = r.response[0].result[0];
+                        for (var taxonomy in taxonomies) {
+                            var newSpecies = [];
+                            for (var i = 0; i < taxonomies[taxonomy].length; i++) {
+                                var species = taxonomies[taxonomy][i];
+                                for (var j = 0; j < species.assemblies.length; j++) {
+                                    var s = Utils.clone(species)
+                                    s.assembly = species.assemblies[j];
+                                    s._title = s.scientificName + " " + s.assembly.name
+                                    delete s.assemblies;
+                                    newSpecies.push(s);
+                                    list.push(s);
+                                }
+                            }
+                            taxonomies[taxonomy] = newSpecies;
+                        }
+                        callback(list);
+                    }
+                });
+            },
             created: function () {
-                this.species = [
-                    {name: "Homo sapiens", value: "hsapiens"},
-                    {name: "Mus musculus", value: "mmusculus"},
-                    {name: "Rattus norvegicus", value: "rnorvegicus"},
-                    {name: "Bos taurus", value: "btaurus"},
-                    {name: "Gallus gallus", value: "ggallus"},
-                    {name: "Sus scrofa", value: "sscrofa"},
-                    {name: "Canis familiaris", value: "cfamiliaris"},
-                    {name: "Drosophila melanogaster", value: "dmelanogaster"},
-                    {name: "Caenorhabditis elegans", value: "celegans"},
-                    {name: "Saccharomyces cerevisiae", value: "scerevisiae"},
-                    {name: "Danio rerio", value: "drerio"},
-                    {name: "Schizosaccharomyces pombe", value: "spombe"},
-                    {name: "Escherichia coli", value: "ecoli"},
-                    {name: "Human immunodeficiency virus 1", value: "hiv-1"},
-                    {name: "Influenza A virus", value: "flu-a"},
-                    {name: "Clostridium botulinum", value: "cbotulinum"},
-                    {name: "Arabidopsis thaliana", value: "athaliana"},
-                    {name: "Plasmodium falciparum", value: "pfalciparum"},
-                    {name: "Dictyostelium discoideum", value: "ddiscoideum"},
-                    {name: "Mycobacterium tuberculosis", value: "mtuberculosis"},
-                    {name: "Neisseria meningitidis serogroup B", value: "nmeningitidis"},
-                    {name: "Chlamydia trachomatis", value: "ctrachomatis"},
-                    {name: "Oryza sativa", value: "osativa"},
-                    {name: "Toxoplasma gondii", value: "tgondii"},
-                    {name: "Xenopus tropicalis", value: "xtropicalis"},
-                    {name: "Salmonella typhimurium", value: "styphimurium"},
-                    {name: "Taeniopygia guttata", value: "tguttata"},
-                    {name: "Staphylococcus aureus N315", value: "saureus"}
-                ];
-
-                this.speciesSelected = this.species[0];
-                this.columnSelected = "id";
-
-                this.selectedMode = 'text';
+                var me = this;
+                this.async(function () {
+                    this.getSpecies(function (species) {
+                        me.species = species;
+                    });
+                }, 50);
             },
-            observe: {
-                'networkViewer.vAttr.selected': 'handleSelectionChange',
-                'networkViewer.vAttr.data': 'handleNodesChange'
-            },
+            observers: [
+                'handleSelectionChange(selected.splices)',
+                'handleNodesChange(items.splices)'
+            ],
             handleEditSelect: function (e) {
-                this.columnSelected = e.target.templateInstance.model.column.name;
+                this.columnSelected = e.detail;
             },
             handleSpeciesSelect: function (e) {
                 this.speciesSelected = e.target.templateInstance.model.spe;
@@ -186,9 +174,9 @@
             handleSelectNodesList: function () {
                 this.selectedMode = 'nodes';
                 var value = '';
-                for (var i = 0; i < this.networkViewer.vAttr.data.length; i++) {
-                    var row = this.networkViewer.vAttr.data[i];
-                    value += row[this.columnSelected] + '\n';
+                for (var i = 0; i < this.items.length; i++) {
+                    var attributes = this.items[i].attributes;
+                    value += attributes[this.$.columns.selected.name] + '\n';
                 }
                 this.$.textarea.value = value;
             },
@@ -200,9 +188,9 @@
             handleSelectSelectionList: function () {
                 this.selectedMode = 'selection';
                 var value = '';
-                for (var i = 0; i < this.networkViewer.vAttr.selected.length; i++) {
-                    var row = this.networkViewer.vAttr.selected[i];
-                    value += row[this.columnSelected] + '\n';
+                for (var i = 0; i < this.selected.length; i++) {
+                    var attributes = this.selected[i].attributes;
+                    value += attributes[this.$.columns.selected.name] + '\n';
                 }
                 this.$.textarea.value = value;
             },
@@ -233,29 +221,28 @@
             handleGo: function () {
                 var me = this;
                 var queryList = this.$.textarea.value.split('\n');
-                if (this.speciesSelected != null && queryList.length > 0) {
-                    this.getGraph(this.speciesSelected.value, queryList, function (graph) {
-                        me.networkViewer.setGraph(graph);
-                        me.networkViewer.setLayout('Force directed');
+                if (this.$.species.selected != null && queryList.length > 0) {
+                    this.getGraph(this.$.species.selected, queryList, function (graph) {
                         me.loading = false;
                         me.message = "Information has been saved as nodes and edges";
+                        me.fire('graph', {graph: graph});
                     });
                 } else {
                     this.message = "Please select one species and one attribute";
                 }
             },
 
-            getGraph: function (speciesCode, idList, successFunction) {
+            getGraph: function (species, idList, successFunction) {
                 var me = this;
 
-                var graph = new Graph();
+                var graph = new JsoGraph();
 //                _this.progress.updateProgress(0.1, 'Requesting data');
 
                 this.loading = true;
                 this.message = "Retrieving data...";
                 CellBaseManager.get({
-
-                    species: speciesCode,
+                    host: CELLBASE_HOST,
+                    species: species,
                     category: 'network',
                     subCategory: 'protein',
                     resource: 'all',
@@ -277,16 +264,16 @@
                             var sourceVertex = new Vertex({
                                 id: sourceName,
                                 position: new Point(0, 0),
-                                renderer: new CircosVertexRenderer(me.networkViewer.vertexDefaults)
                             });
                             if (!graph.addVertex(sourceVertex)) {
                                 sourceVertex = graph.getVertexById(sourceName);
                             }
+                            sourceVertex.attributes.id = sourceVertex.id;
+                            sourceVertex.attributes.name = sourceVertex.id;
 
                             var targetVertex = new Vertex({
                                 id: targetName,
                                 position: new Point(0, 0),
-                                renderer: new CircosVertexRenderer(me.networkViewer.vertexDefaults)
                             });
                             if (!graph.addVertex(targetVertex)) {
                                 targetVertex = graph.getVertexById(targetName);
@@ -298,8 +285,10 @@
                                 relation: edgeRelation,
                                 source: sourceVertex,
                                 target: targetVertex,
-                                renderer: new DefaultEdgeRenderer(me.networkViewer.edgeDefaults)
                             });
+                            edge.attributes.id = edge.id;
+                            edge.attributes.name = edge.id;
+                            edge.attributes.relation = edge.relation;
                             graph.addEdge(edge);
 //                            var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
 //                            var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
@@ -312,4 +301,4 @@
 
         });
     </script>
-</polymer-element>
+</dom-module>

@@ -1,36 +1,60 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Network Viewer</title>
 
+    <!--Fonts-->
+    <link href='../../styles/fonts/fonts.css' rel='stylesheet' type='text/css'>
+    <link href='../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+
+    <!--CSS-->
+    <link href='../lib/components/jso-global.css' rel='stylesheet' type='text/css'>
+    <link href='../lib/components/jso-form.css' rel='stylesheet' type='text/css'>
+    <link href='../lib/components/jso-dropdown.css' rel='stylesheet' type='text/css'>
+
     <!--Web Components-->
-    <script src="../../bower_components/webcomponentsjs/webcomponents.js"></script>
+    <script src="../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <link rel="import" href="jso-network-viewer.html">
 
     <style>
         html {
-            background-color: #435f7a;
+            overflow: hidden;
+            height: 100%;
         }
 
-        html, body {
+        html,
+        body {
             position: relative;
             margin: 0px;
             height: 100%;
         }
     </style>
+    <link rel="import" href="nv-theme.html">
 </head>
 
 <body>
 
-<jso-network-viewer hideBar="true" hideToolBar="true" hideEditionBar="true" hideStatusBar="true"></jso-network-viewer>
-
 <script>
-    var networkViewer;
-    window.addEventListener('polymer-ready', function () {
-        networkViewer = document.body.querySelector('jso-network-viewer');
-    });
+    CELLBASE_VERSION = "v3";
+    CELLBASE_HOST = "http://bioinfodev.hpc.cam.ac.uk/cellbase";
+</script>
+
+<!--<jso-network-viewer hide-bar hide-tool-bar hide-edition-bar hide-status-bar hide-node-render hide-edge-render></jso-network-viewer>-->
+<jso-network-viewer></jso-network-viewer>
+<script>
+    var networkViewer = document.body.querySelector('jso-network-viewer');
+//    networkViewer.addEventListener('hoververtex', function (e) {
+//        var x = e.detail.e.clientX;
+//        var y = e.detail.e.clientY;
+//        console.log(x + '-' + y);
+//    });
+//    networkViewer.addEventListener('hoverleave', function (e) {
+//        console.log(e)
+//    });
 </script>
 
 </body>
+
 </html>

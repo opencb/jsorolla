@@ -20,59 +20,67 @@
  */
 
 var CellBaseManager = {
-    host: (typeof CELLBASE_HOST === 'undefined') ? 'http://bioinfo.hpc.cam.ac.uk/cellbase/webservices/rest' : CELLBASE_HOST,
+    host: (typeof CELLBASE_HOST === 'undefined') ? 'http://bioinfo.hpc.cam.ac.uk/cellbase' : CELLBASE_HOST,
     version: 'v3',
-    get: function (args) {
+    get: function(args) {
         var success = args.success;
         var error = args.error;
-        var async = (_.isUndefined(args.async) || _.isNull(args.async) ) ? true : args.async;
-        var urlConfig = _.omit(args, ['success', 'error', 'async']);
+        var async = (args.async == false) ? false : true;
+
+        // remove XMLHttpRequest keys
+        var ignoreKeys = ['success', 'error', 'async'];
+        var urlConfig = {};
+        for (var prop in args) {
+            if (hasOwnProperty.call(args, prop) && args[prop] != null && ignoreKeys.indexOf(prop) == -1) {
+                urlConfig[prop] = args[prop];
+            }
+        }
 
         var url = CellBaseManager.url(urlConfig);
-        if(typeof url === 'undefined'){
+        if (typeof url === 'undefined') {
             return;
         }
         console.log(url);
 
         var d;
-        $.ajax({
-            type: "GET",
-            url: url,
-            dataType: 'json',//still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
-            async: async,
-            success: function (data, textStatus, jqXHR) {
-                if($.isPlainObject(data) || $.isArray(data)){
-//                    data.params = args.params;
-//                    data.resource = args.resource;
-//                    data.category = args.category;
-//                    data.subCategory = args.subCategory;
-                    if (_.isFunction(success)) success(data);
-                    d = data;
-                }else{
-                    console.log('Cellbase returned a non json object or list, please check the url.');
-                    console.log(url);
-                    console.log(data)
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
-                if (_.isFunction(error)) error(jqXHR, textStatus, errorThrown);
+        var request = new XMLHttpRequest();
+        request.onload = function() {
+            var contentType = this.getResponseHeader('Content-Type');
+            if (contentType === 'application/json') {
+                var parsedResponse = JSON.parse(this.response);
+                if (typeof success === "function") success(parsedResponse);
+                d = parsedResponse;
+            } else {
+                console.log('Cellbase returned a non json object or list, please check the url.');
+                console.log(url);
+                console.log(this.response)
             }
-        });
+        };
+        request.onerror = function() {
+            console.log("CellBaseManager: Ajax call returned " + this.statusText);
+            if (typeof error === "function") error(this);
+        };
+        request.open("GET", url, async);
+        request.send();
         return d;
+
     },
-    url: function (args) {
-        if (!$.isPlainObject(args)) args = {};
-        if (!$.isPlainObject(args.params)) args.params = {};
+    url: function(args) {
+        if (args == null) {
+            args = {};
+        }
+        if (args.params == null) {
+            args.params = {};
+        }
 
         var version = this.version;
-        if(typeof args.version !== 'undefined' && args.version != null){
+        if (args.version != null) {
             version = args.version
         }
 
         var host = this.host;
-        if (typeof args.host !== 'undefined' && args.host != null) {
-            host =  args.host;
+        if (args.host != null) {
+            host = args.host;
         }
 
         delete args.host;
@@ -83,27 +91,37 @@ var CellBaseManager = {
             version: version
         };
 
-        var params = {
-            of: 'json'
-        };
-
-        _.extend(config, args);
-        _.extend(config.params, params);
+        for (var prop in args) {
+            if (hasOwnProperty.call(args, prop) && args[prop] != null) {
+                config[prop] = args[prop];
+            }
+        }
 
         var query = '';
-        if(typeof config.query !== 'undefined' && config.query != null){
-            if ($.isArray(config.query)) {
-                config.query = config.query.toString();
-            }
-            query = '/' + config.query;
+        if (config.query != null) {
+            query = '/' + config.query.toString();
         }
 
         //species can be the species code(String) or an object with text attribute
-        if ($.isPlainObject(config.species)) {
-            config.species = Utils.getSpeciesCode(config.species.text);
+        if (config.species && config.species.id != null) {
+            if (config.species.assembly != null) {
+                config.params["assembly"] = config.species.assembly.name;
+            }
+            // TODO Remove temporary fix
+            if (config.subCategory === 'chromosome') {
+                delete config.params["assembly"]
+            }
+            config.species = Utils.getSpeciesCode(config.species.scientificName);
         }
 
-        var url = config.host + '/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
+        var url;
+        if (config.category === 'meta') {
+            url = config.host + '/webservices/rest/' + config.version + '/' + config.category + '/' + config.subCategory;
+        } else {
+            url = config.host + '/webservices/rest/' + config.version + '/' + config.species + '/' + config.category + '/' + config.subCategory + query + '/' + config.resource;
+        }
+
+
         url = Utils.addQueryParamtersToUrl(config.params, url);
         return url;
     }

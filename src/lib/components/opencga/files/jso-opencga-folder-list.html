@@ -1,0 +1,306 @@
+<link rel="import" href="jso-opencga-create-folder.html">
+<link rel="import" href="jso-opencga-folder-list-item.html">
+<dom-module id="jso-opencga-folder-list">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        #header,
+        #bar {
+            box-sizing: border-box;
+            background-color: rgba(125, 125, 125, 0.1);
+            padding: 3px 7px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #header {
+            height: 25px;
+        }
+
+        #bar {
+            height: 30px;
+        }
+
+        #content {
+            height: calc(100% - 55px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .name {
+        }
+
+        .creationDate {
+            color: #444;
+            width: 120px;
+        }
+
+        .status {
+            color: #444;
+            width: 120px;
+        }
+
+        jso-opencga-folder-list-item {
+            padding: 3px 7px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+        }
+
+        #createfolder {
+            box-sizing: border-box;
+            width: 300px;
+            background-color: #fafafa;
+            padding: 20px 30px;
+        }
+
+        .upload-btn {
+            color: var(--default-primary-color);
+        }
+
+        .bar > div {
+            margin-right: 5px;
+        }
+    </style>
+    <template>
+        <div id="bar" class="horizontal layout">
+            <div class="bar horizontal layout flex">
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkBack(folder)}}"
+                     on-click="handleBack">
+                    <i class="fa fa-arrow-left"></i>
+                </div>
+
+                <div class="jso-btn jso-btn-shdw upload-btn"
+                     hidden$="{{isFolderMode(mode)}}"
+                     on-click="handleUploadFile">
+                    <i class="fa fa-cloud-upload"></i> Upload
+                </div>
+
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkFolder(folder)}}"
+                     on-click="handleCreateFolder">
+                    <i class="fa fa-folder"></i> +
+                </div>
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkSelected(selected)}}"
+                     on-click="handleDeleteFile">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{checkSelectedFile(selected)}}"
+                     on-click="handlePreviewFile">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="horizontal layout">
+
+                <div class="jso-btn jso-btn-shdw"
+                     hidden$="{{handleHiddenIndex(selected)}}"
+                     on-click="handleIndexFile">
+                    <i class="fa fa-cog"></i>&nbsp;Index
+                </div>
+            </div>
+        </div>
+        <div id="header" class="horizontal layout">
+            <div class="name flex">Name</div>
+            <div class="creationDate">Creation date</div>
+            <div class="status">Status</div>
+        </div>
+        <div id="content">
+            <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
+                <jso-opencga-folder-list-item file="{{item}}"
+                                              on-dblclick="handleFileDblClick"
+                                              on-click="handleFileClick">
+                </jso-opencga-folder-list-item>
+            </template>
+        </div>
+
+        <jso-panel modal closable hidden id="createFolderModal">
+            <div class="header"><i class="fa fa-folder"></i> &nbsp; Create folder</div>
+            <jso-opencga-create-folder
+                    class="container" id="createfolder"
+                    on-folder-created="handleFolderCreated"
+                    folder="{{folder}}"
+                    study="{{study}}">
+            </jso-opencga-create-folder>
+        </jso-panel>
+
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-folder-list",
+        properties: {
+            folder: {
+                type: Object,
+                notify: true,
+                value: null
+            },
+            files: {
+                type: Array,
+                notify: true,
+                value: function () {
+                    return [];
+                }
+            },
+            selected: {
+                type: Object,
+                notify: true,
+                value: function () {
+                    return null;
+                }
+            },
+            study: {
+                type: Object
+            },
+            mode: {
+                type: String,
+                reflectToAttribute: true,
+            }
+        },
+        handleUploadFile: function (e) {
+            this.fire('upload-file');
+        },
+        handleCreateFolder: function (e) {
+            if (this.$.createFolderModal.hasAttribute('hidden')) {
+                this.$.createFolderModal.removeAttribute('hidden');
+            } else {
+                this.$.createFolderModal.setAttribute('hidden', '');
+            }
+        },
+        handleFolderCreated: function (e) {
+            this.$.createFolderModal.setAttribute('hidden', '');
+        },
+        handleDeleteFile: function (e) {
+            if (confirm("Are you sure?")) {
+                this._deleteFile();
+
+            }
+        },
+        handleIndexFile: function (e) {
+            this._indexFile();
+        },
+        handleFileClick: function (e) {
+
+            this.selected = e.currentTarget.file;
+            var sel = this.querySelector("jso-opencga-folder-list-item[selected]");
+            if (sel) {
+                sel.removeAttribute('selected');
+            }
+            e.currentTarget.setAttribute('selected', '');
+            this.fire('fileselect', this.selected);
+        },
+        handleFileDblClick: function (e) {
+            var file = e.currentTarget.file;
+            if (file.type == 'FOLDER') {
+                this.fire('openfolder', file);
+            } else if (file.type == "FILE") {
+                this.fire('previewfile', file);
+            }
+
+        },
+        handlePreviewFile: function (e) {
+            if (this.selected) {
+                this.fire('previewfile', this.selected);
+            }
+        },
+        handleBack: function () {
+            this.fire('back');
+        },
+        checkFolder: function (folder) {
+            return folder == null;
+        },
+        checkBack: function (folder) {
+            if (folder == null) {
+                return true
+            } else {
+                if (folder.name == '.') {
+                    return true;
+                }
+            }
+            return false;
+        },
+        checkSelected: function (selected) {
+            return selected == null;
+        },
+        checkSelectedFile: function (selected) {
+            return selected == null || selected.type != "FILE";
+        },
+        handleHiddenIndex: function (selected) {
+            if (selected == null) {
+                return true;
+            } else {
+                if (selected.type == 'FOLDER') {
+                    return true;
+                }
+            }
+            return selected.index != null;
+        },
+        checkFilters: function (item) {
+            return true;
+//            return item.bioformat == "VARIANT";
+        },
+        isFolderMode: function (mode) {
+            return mode === 'folder';
+        },
+
+
+        /**/
+        _deleteFile: function () {
+            var me = this;
+            if (this.selected) {
+                OpencgaManager.files.delete({
+                    id: this.selected.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log("delete");
+                                console.log(response);
+
+                                me.fire('need-refresh');
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        },
+        _indexFile: function () {
+            var me = this;
+            if (this.selected) {
+                OpencgaManager.files.index({
+                    id: this.selected.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        storageEngine: "mongodb",
+
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log("index");
+                                console.log(response);
+                                me.fire('need-refresh');
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        },
+    });
+</script>

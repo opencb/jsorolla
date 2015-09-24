@@ -1,0 +1,100 @@
+<dom-module id="jso-opencga-folder-list-item">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        :host:hover {
+            background-color: #ddd;
+        }
+
+        :host[selected] {
+            background-color: #ccc;
+        }
+
+        .name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .icon {
+            padding: 0 5px 0 2px;
+        }
+
+        .creationDate {
+            color: #444;
+            width: 120px;
+        }
+
+        #status {
+            color: #444;
+            width: 120px;
+            text-transform: capitalize;
+        }
+
+        .fa-cog {
+            color: var(--default-primary-color);
+        }
+
+
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <div class="horizontal layout flex">
+                <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
+                <div class="name flex" title$="{{file.name}}">{{file.name}}</div>
+            </div>
+            <div class="creationDate">{{computeDate(file)}}</div>
+            <div id="status">
+                <i class$="{{computeStatusIcon(file)}}"></i>
+                <span>{{computeStatus(file)}}</span>
+            </div>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-folder-list-item",
+        properties: {
+            file: {
+                type: Object,
+                notify: true
+            },
+            indexableBioFormats: {
+                type: Array,
+                value: ['VARIANT', 'ALIGNMENT']
+            }
+        },
+        computeDate: function (file) {
+            var date = new Date(Date.parse(Utils.parseDate(file.creationDate)));
+            return date.toLocaleString("en-us", {month: "short"}) + " " + date.getDate() + ", " + date.getFullYear();
+        },
+        computeIcon: function (file) {
+            var iconMap = {
+                "FOLDER": 'fa fa-folder',
+                "FILE": 'fa fa-file-o'
+            };
+            return iconMap[file.type];
+        },
+        computeStatusIcon: function (file) {
+            var iconMap = {
+                "INDEXING": 'fa fa-cog fa-spin',
+                "READY": 'fa fa-check',
+                "NONE": 'fa fa-check'
+            };
+            if (file.index) {
+                return iconMap[file.index.status];
+            }
+            return '';
+        },
+        computeStatus: function (file) {
+            if (file.index && this.indexableBioFormats.indexOf(file.bioformat) != -1) {
+                return file.index.status;
+            }
+            return '--';
+        }
+    });
+</script>

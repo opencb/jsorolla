@@ -85,7 +85,7 @@
 var OpencgaManager = {
 //    host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080/opencga/rest' : OPENCGA_HOST,
-    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v3' : OPENCGA_VERSION,
+    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v1' : OPENCGA_VERSION,
 
     users: {
         login: function (args) {
@@ -98,7 +98,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'users', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'users', 'modify');
+            return OpencgaManager._doRequest(args, 'users', 'update');
         },
         updateEmail: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'change-email');
@@ -125,7 +125,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'projects', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'projects', 'modify');
+            return OpencgaManager._doRequest(args, 'projects', 'update');
         },
         create: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'create');
@@ -146,7 +146,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'studies', 'info');
         },
         update: function (args) {
-            return OpencgaManager._doRequest(args, 'studies', 'modify');
+            return OpencgaManager._doRequest(args, 'studies', 'update');
         },
         create: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'create');
@@ -157,8 +157,8 @@ var OpencgaManager = {
         analysis: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'analysis');
         },
-        job: function (args) {
-            return OpencgaManager._doRequest(args, 'studies', 'job');
+        jobs: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'jobs');
         }
     },
 
@@ -168,6 +168,12 @@ var OpencgaManager = {
         },
         fetch: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'fetch');
+        },
+        alignments: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'alignments');
+        },
+        variants: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'variants');
         },
         read: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
@@ -205,8 +211,8 @@ var OpencgaManager = {
         downloadExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download-example');
         },
-        modify: function (args) {
-            return OpencgaManager._doRequest(args, 'files', 'modify');
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'files', 'update');
         },
         download: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download');
@@ -215,23 +221,55 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'files', 'upload');
         },
         upload2: function (args) {
-            var url = OpencgaManager._url({
+            /** Check if exists a file with the same name **/
+            OpencgaManager.files.search({
                 query: {
-                    sid: args.sid
+                    sid: Cookies('bioinfo_sid'),
+                    studyId: args.studyId,
+                    path: args.relativeFilePath
                 },
-                request: {}
-            }, 'files', 'upload');
-            args.url = url;
-            OpencgaManager._uploadFile(args);
+                request: {
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            if (response.response[0].result.length == 0) {
+
+                                /** No file found with the same name -> start upload **/
+                                var url = OpencgaManager._url({
+                                    query: {
+                                        sid: args.sid
+                                    },
+                                    request: {}
+                                }, 'files', 'upload');
+                                args.url = url;
+                                OpencgaManager._uploadFile(args);
+
+
+                            } else {
+                                args.error('File already exists');
+                            }
+                        } else {
+                            args.error(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        args.error('Server error, try again later.');
+                    }
+                }
+            });
         }
 
     },
     jobs: {
         create: function (args) {
-            return OpencgaManager._doRequest(args, 'job', 'create');
+            return OpencgaManager._doRequest(args, 'jobs', 'create');
         },
         delete: function (args) {
-            return OpencgaManager._doRequest(args, 'job', 'delete');
+            return OpencgaManager._doRequest(args, 'jobs', 'delete');
+        }
+    },
+    samples: {
+        search: function (args) {
+            return OpencgaManager._doRequest(args, 'samples', 'search');
         }
     },
     util: {
@@ -245,7 +283,6 @@ var OpencgaManager = {
     //    },
     //    create: function (args) {
     //        return OpencgaManager._doRequest(args, 'analysis', 'create');
-    //    }
     //},
     _url: function (args, api, action) {
         var host = OpencgaManager.host;
@@ -261,7 +298,16 @@ var OpencgaManager = {
             id = '/' + args.id;
         }
 
-        var url = host + '/' + api + id + '/' + action;
+        var url = host + '/webservices/rest/' + version + '/' + api + id + '/' + action;
+        if (window.OPENCGA_OLD_URL_FORMAT != null && OPENCGA_OLD_URL_FORMAT === true) {
+            if(action == 'jobs'){
+                action = 'job'
+            }
+            if(api == 'jobs'){
+                api = 'job'
+            }
+            url = host + '/rest/' + api + id + '/' + action;
+        }
         url = Utils.addQueryParamtersToUrl(args.query, url);
         return url;
     },

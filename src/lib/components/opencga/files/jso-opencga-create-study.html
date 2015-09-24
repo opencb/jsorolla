@@ -1,0 +1,121 @@
+<link rel="import" href="jso-opencga-project-select.html">
+<dom-module id="jso-opencga-create-study">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            width: 300px;
+            padding: 20px 30px;
+        }
+
+
+    </style>
+    <template>
+
+        <jso-opencga-project-select id="projectSelect" projects="{{projects}}">
+        </jso-opencga-project-select>
+
+        <br>
+
+        <form id="form" onsubmit="return false" >
+
+            <div>
+                <label class="jso">Study type</label>
+                <label class="jso-control">
+                    <input value="FAMILY" type="radio" name="type" checked>
+                    <span>Family</span>
+                </label>
+                <label class="jso-control">
+                    <input value="CASE_CONTROL" type="radio" name="type">
+                    <span>Case / Control</span>
+                </label>
+                <label class="jso-control">
+                    <input value="TRIO" type="radio" name="type">
+                    <span>Trio</span>
+                </label>
+                <label class="jso-control">
+                    <input value="PAIRED" type="radio" name="type">
+                    <span>Paired</span>
+                </label>
+                <label class="jso-control">
+                    <input value="CASE_SET" type="radio" name="type">
+                    <span>Case set</span>
+                </label>
+                <label class="jso-control">
+                    <input value="CONTROL_SET" type="radio" name="type">
+                    <span>Control set</span>
+                </label>
+            </div>
+            <br>
+            <jso-opencga-input-text
+                    id="input"
+                    label="Study name:"
+                    placeholder="New study"
+                    tooltip="Please, use only the requested format: letter, numbers, spaces or underscore"
+                    pattern="^[\w ]+$"
+                    required>
+            </jso-opencga-input-text>
+
+            <!--<label class="jso">Study name:</label>-->
+            <!--<input class="jso" type="text" value={{name::input}} placeholder="New study" required-->
+                   <!--pattern="[a-zA-Z0-9]+">-->
+            <br>
+            <input class="jso-btn jso-btn-shdw" type="submit" value="Create" on-click="handleForm">
+        </form>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-create-study",
+        properties: {
+            projects: {
+                type: Array,
+                notify: true
+            },
+            name: {
+                type: String
+            }
+        },
+        handleForm: function () {
+            var me = this;
+            if (this.$.projectSelect.selectedProject == null) {
+                alert("Please select a Project");
+                return;
+            }
+
+            if (this.$.form.checkValidity()) {
+
+                OpencgaManager.studies.create({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        name: this.$.input.value,
+                        alias: this.$.input.value.replace(/ /gi, ''),
+                        description: '',
+                        organization: '',
+                        type: this.querySelector('input[name="type"]:checked').value,
+                        projectId: this.$.projectSelect.selectedProject
+
+                    },
+                    request: {
+                        async: true,
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+//                                me.message = 'Study created sucessfully.';
+                                me.name = "";
+                                me.fire('need-refresh');
+                                me.fire('study-created');
+                            } else {
+                                alert('Server error, try again later.');
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>

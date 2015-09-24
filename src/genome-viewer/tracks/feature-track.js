@@ -46,7 +46,7 @@ function FeatureTrack(args) {
 };
 
 
-FeatureTrack.prototype.clean = function () {
+FeatureTrack.prototype.clean = function() {
     this._clean();
 
 //    console.time("-----------------------------------------empty");
@@ -56,9 +56,8 @@ FeatureTrack.prototype.clean = function () {
 //    console.timeEnd("-----------------------------------------empty");
 };
 
-FeatureTrack.prototype.updateHeight = function () {
-//    this._updateHeight();
-
+FeatureTrack.prototype.updateHeight = function() {
+    //this._updateHeight();
     if (this.histogram) {
         $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
         this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
@@ -70,24 +69,25 @@ FeatureTrack.prototype.updateHeight = function () {
 
     if (this.resizable) {
         if (this.autoHeight == false) {
-            $(this.contentDiv).css({'height': this.height});
+            $(this.contentDiv).css({'height': this.height + 10});
+            this.main.setAttribute('height', this.height);
         } else if (this.autoHeight == true) {
             var x = this.pixelPosition;
             var width = this.width;
             var lastContains = 0;
             for (var i in this.renderedArea) {
-                if (this.renderedArea[i].contains({start: x, end: x + width })) {
+                if (this.renderedArea[i].contains({start: x, end: x + width})) {
                     lastContains = i;
                 }
             }
             var visibleHeight = parseInt(lastContains) + 30;
-            $(this.contentDiv).css({'height': visibleHeight + 5});
+            $(this.contentDiv).css({'height': visibleHeight + 10});
             this.main.setAttribute('height', visibleHeight);
         }
     }
 };
 
-FeatureTrack.prototype.initializeDom = function (targetId) {
+FeatureTrack.prototype.initializeDom = function(targetId) {
     this._initializeDom(targetId);
 
     this.main = SVG.addChild(this.contentDiv, 'svg', {
@@ -104,43 +104,41 @@ FeatureTrack.prototype.initializeDom = function (targetId) {
     this.updateHeight();
 };
 
-FeatureTrack.prototype.render = function (targetId) {
-    var _this = this;
-
+FeatureTrack.prototype.render = function(targetId) {
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
     this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
-
-    this.dataAdapter.on('data:ready', function (event) {
-        var features;
-        if (event.dataType == 'histogram') {
-            _this.renderer = _this.histogramRenderer;
-            features = event.items;
-        } else {
-            _this.renderer = _this.defaultRenderer;
-            features = _this.getFeaturesToRenderByChunk(event);
-        }
-        _this.renderer.render(features, {
-            svgCanvasFeatures: _this.svgCanvasFeatures,
-            featureTypes: _this.featureTypes,
-            renderedArea: _this.renderedArea,
-            pixelBase: _this.pixelBase,
-            position: _this.region.center(),
-            regionSize: _this.region.length(),
-            maxLabelRegionSize: _this.maxLabelRegionSize,
-            width: _this.width,
-            pixelPosition: _this.pixelPosition,
-            resource: _this.resource,
-            species: _this.species,
-            featureType: _this.featureType
-        });
-        _this.updateHeight();
-    });
 };
 
-FeatureTrack.prototype.draw = function () {
+FeatureTrack.prototype.getDataHandler = function(event) {
+    var features;
+    if (event.dataType == 'histogram') {
+        this.renderer = this.histogramRenderer;
+        features = event.items;
+    } else {
+        this.renderer = this.defaultRenderer;
+        features = this.getFeaturesToRenderByChunk(event);
+    }
+    this.renderer.render(features, {
+        svgCanvasFeatures: this.svgCanvasFeatures,
+        featureTypes: this.featureTypes,
+        renderedArea: this.renderedArea,
+        pixelBase: this.pixelBase,
+        position: this.region.center(),
+        regionSize: this.region.length(),
+        maxLabelRegionSize: this.maxLabelRegionSize,
+        width: this.width,
+        pixelPosition: this.pixelPosition,
+        resource: this.resource,
+        species: this.species,
+        featureType: this.featureType
+    });
+    this.updateHeight();
+};
+
+FeatureTrack.prototype.draw = function() {
     var _this = this;
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -171,7 +169,8 @@ FeatureTrack.prototype.draw = function () {
                 histogramMax: this.histogramMax,
                 interval: this.interval
             },
-            done: function () {
+            done: function(event) {
+                _this.getDataHandler(event);
                 _this.setLoading(false);
             }
         });
@@ -180,11 +179,11 @@ FeatureTrack.prototype.draw = function () {
     } else {
 //        this.invalidZoomText.setAttribute("visibility", "visible");
     }
-    _this.updateHeight();
+    this.updateHeight();
 };
 
 
-FeatureTrack.prototype.move = function (disp) {
+FeatureTrack.prototype.move = function(disp) {
     var _this = this;
 
     this.dataType = 'features';
@@ -219,8 +218,8 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval
                 },
-                done: function () {
-
+                done: function(event) {
+                    _this.getDataHandler(event);
                 }
             });
             this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -240,8 +239,8 @@ FeatureTrack.prototype.move = function (disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval
                 },
-                done: function () {
-
+                done: function(event) {
+                    _this.getDataHandler(event);
                 }
 
             });
@@ -249,7 +248,7 @@ FeatureTrack.prototype.move = function (disp) {
         }
     }
 
-    if(this.autoHeight == true){
+    if (this.autoHeight == true) {
         this.updateHeight();
     }
 };

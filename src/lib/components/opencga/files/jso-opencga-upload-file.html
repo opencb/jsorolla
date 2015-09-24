@@ -1,0 +1,318 @@
+<link rel="import" href="jso-opencga-study-select.html">
+<link rel="import" href="jso-opencga-bioformat.html">
+<dom-module id="jso-opencga-upload-file">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            width: 300px;
+            padding: 20px 30px;
+
+        }
+
+        jso-study-select {
+            height: 150px;
+        }
+
+        jso-bioformat {
+            height: 150px;
+        }
+
+        .uploadbar {
+            margin-top: 5px;
+            position: relative;
+            height: 20px;
+            border: 1px solid #d3d3d3;
+            background-color: white;
+            line-height: 20px;
+        }
+
+        .uploadprogress {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+            background-color: #eaeaea;
+            /*margin-top: 10px;*/
+        }
+
+        .uploadtext {
+            position: absolute;
+            text-align: center;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .filename {
+            word-break: break-all;
+        }
+
+    </style>
+    <template>
+        <div>
+            <div hidden$="{{!showSelectStudy}}">
+                <label class="jso">Studies:</label>
+                <jso-opencga-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
+                </jso-opencga-study-select>
+                <br>
+            </div>
+
+            <div hidden$="{{showSelectStudy}}">
+                <label class="jso">File path:</label>
+
+                <div>
+                    /<span>{{selectedProject.name}}</span>/<span>{{selectedStudy.name}}</span>/<span>{{selectedFolder.name}}</span>
+                </div>
+                <br>
+            </div>
+            <div hidden$="{{hideBioformats}}">
+                <label class="jso">Bioformat:</label>
+                <jso-opencga-bioformat id="bioformatSelect"
+                                       bioformats="{{bioformats}}"></jso-opencga-bioformat>
+            </div>
+        </div>
+        <br>
+
+        <form id="form">
+            <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
+                <span>Choose file...</span>
+            </div>
+            <br>
+            <label class="jso">Selected file name:</label>
+
+            <div class="filename">{{fileName}}</div>
+
+            <input type="file" hidden id="fileInput" required on-change="handleInputChange"
+                   disabled$="{{uploading}}">
+
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Upload</div>
+        </form>
+        <br>
+
+        <div class="uploadbar" hidden$="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <div class="uploadtext">
+                <i class="fa fa-spinner fa-spin"></i>
+                <span>{{percentProgress}}</span> %
+            </div>
+            <br>
+        </div>
+        <span>{{message}}</span>
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-upload-file",
+        properties: {
+            fileName: {
+                type: String,
+                value: 'None'
+            },
+            projects: {
+                type: Array,
+                notify: true
+            },
+            selectedProject: {
+                type: Object,
+                observer: "selectedProjectChanged"
+            },
+            selectedStudy: {
+                type: Object,
+                value: null,
+                observer: "selectedStudyChanged"
+            },
+            selectedFolder: {
+                type: Object,
+                observer: "selectedFolderChanged"
+            },
+            disableIndex: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            bioformats: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            },
+            uploading: {
+                type: Boolean,
+                value: false
+            },
+            percentProgress: {
+                type: Number,
+                value: 0,
+                observer: 'percentProgressChanged'
+            },
+            message: {
+                type: String,
+                value: ''
+            },
+            hideBioformats: {
+                type: Boolean,
+                value: false
+            },
+            showSelectStudy: {
+                type: Boolean,
+                value: true
+            }
+        },
+        ready: function (e) {
+            if (this.bioformats.length == 0) {
+                console.log("No bioformats selected")
+                /*** Check number of bioformats in order to show the bioformat chooser ***/
+                this.checkBioformats();
+            }
+        },
+        checkBioformats: function () {
+            var numberOfBioformats = 0;
+            var bioformatIdx;
+            for (var i = 0; i < this.bioformats.length; i++) {
+                var format = this.bioformats[i];
+                if (format.key) {
+                    numberOfBioformats++;
+                    bioformatIdx = i;
+                }
+            }
+            if (numberOfBioformats == 1) {
+                this.hideBioformats = true;
+                this.selectedBioformat = this.bioformats[bioformatIdx].value;
+            }
+
+        },
+        handleBrowseClick: function (e) {
+            if (this.uploading == false) {
+                this.$.fileInput.click();
+            }
+        },
+        handleInputChange: function () {
+            if (this.uploading == false) {
+                var inputFile = this.$.fileInput.files[0];
+                this.fileName = inputFile.name
+            }
+        },
+        handleForm: function () {
+            var me = this;
+            if (this.uploading == false) {
+                var selStudy;
+                if (this.$.studySelect.selectedStudy != null) {
+                    selStudy = this.$.studySelect.selectedStudy;
+                }
+                if (this.selectedStudy != null) {
+                    selStudy = this.selectedStudy;
+                }
+                if (selStudy == null) {
+                    alert("Please select a study");
+                    return;
+                }
+
+                var selBioformat;
+                if (this.$.bioformatSelect.selectedBioformat != null) {
+                    selBioformat = this.$.bioformatSelect.selectedBioformat;
+                }
+                if (this.selectedBioformat != null) {
+                    selBioformat = this.selectedBiormat;
+                }
+                if (selBioformat == null) {
+                    alert("Please select a bioformat");
+                    return;
+                }
+                var folder = "";
+                if (this.selectedFolder != null) {
+                    folder = this.selectedFolder.path;
+                }
+                if (this.$.form.checkValidity()) {
+                    this.uploading = true;
+                    this.message = '';
+                    var config = {
+                        inputFile: this.$.fileInput.files[0],
+                        fileName: this.fileName,
+                        userId: Cookies("bioinfo_user"),
+                        sid: Cookies("bioinfo_sid"),
+                        studyId: selStudy.id,
+                        relativeFilePath: folder + this.fileName,
+                        fileFormat: 'PLAIN',
+                        bioFormat: selBioformat.value,
+                        description: '',
+                        callbackProgress: function (chunk, total, response) {
+                            me.percentProgress = Math.round((chunk.id / total) * 100);
+                            if (chunk.last) {
+                                me.percentProgress = 100;
+                                me.uploading = false;
+                                me.message = 'Done';
+                                me.$.fileInput.value = null;
+                                me.fileName = '';
+                                me.fire('need-refresh');
+                                me.fire('file-uploaded');
+
+                                var uploadedFile = response.response[0].result[0];
+//                                me._indexFile(uploadedFile);
+                            }
+                        },
+                        error: function (msg) {
+                            me.$.fileInput.value = null;
+                            me.fileName = '';
+                            me.uploading = false;
+                            me.message = msg;
+                        }
+                    };
+                    OpencgaManager.files.upload2(config);
+                } else {
+                    alert("Please select a file");
+                    return;
+                }
+            }
+        },
+        percentProgressChanged: function (neo, old) {
+            this.$.progressBar.style.width = neo + '%';
+        },
+        selectedProjectChanged: function (neo, old) {
+        },
+        selectedStudyChanged: function (neo, old) {
+            this.fileName = "None";
+            if (this.selectedStudy == null)
+                this.showSelectStudy = true;
+            else
+                this.showSelectStudy = false;
+        },
+        selectedFolderChanged: function (neo, old) {
+            this.fileName = "None";
+        },
+
+        _indexFile: function (file) {
+            console.log(file.id);
+            if (!this.disableIndex) {
+                OpencgaManager.files.index({
+                    id: file.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        storageEngine: "mongodb"
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                console.log("index");
+                                console.log(response);
+                            } else {
+                                //                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            alert('Server error, try again later.');
+                        }
+                    }
+                });
+            } else {
+                console.log("Disabled Index");
+            }
+        }
+    });
+</script>

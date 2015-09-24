@@ -1,0 +1,112 @@
+<dom-module id="jso-opencga-remember">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            padding: 30px 100px;
+
+            left: 0;
+            right: 0;
+            margin: 0px auto 0px auto;
+
+            width: 500px;
+            transition: all 0.2s;
+            box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
+
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 25px;
+        }
+
+        .icon {
+            font-size: 50px;
+            color: var(--dark-primary-color);
+        }
+
+        .message {
+            margin-top: 20px;
+        }
+    </style>
+    <template>
+        <div class="title">
+            <div>
+                Remember password
+            </div>
+            <div class="icon color-2">
+                <i class="fa fa-life-ring"></i>
+            </div>
+        </div>
+        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+            <label class="jso">User ID</label>
+            <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
+            <br>
+            <label class="jso">e-mail</label>
+            <input class="jso" type="email" value="{{email::input}}" required>
+            <br>
+            <br>
+
+            <div class="jso-btn jso-btn-shdw" on-click="{{handleForm}}">Send email with new password</div>
+        </form>
+        <div class="message">{{message}}</div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-remember",
+        properties: {
+            email: {
+                type: String,
+                value: ''
+            },
+            user: {
+                type: String,
+                value: ''
+            },
+            message: {
+                type: String,
+                value: ''
+            }
+        },
+//        created: function () {
+//            this.user;
+//            this.email;
+//        },
+        handleFormKey: function (e) {
+            if (e.which == 13) {
+                this.handleForm();
+            }
+        },
+        handleForm: function (e) {
+            var me = this;
+            this.message = '';
+
+            if (this.$.form.checkValidity()) {
+                OpencgaManager.users.resetPassword({
+                    id: this.user,
+                    query: {
+                        email: this.email
+                    },
+                    request: {
+                        success: function (response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var userId = response.response[0].result[0].id;
+                                me.message = 'An email was sent with a new password';
+                            } else {
+                                me.message = response.response[0].errorMsg;
+                            }
+                        },
+                        error: function () {
+                            me.message = 'Server error, try again later.';
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
+</polymer-element>

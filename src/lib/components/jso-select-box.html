@@ -1,0 +1,90 @@
+<dom-module id="jso-select-box">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            overflow-y: auto;
+            border: 1px solid var(--divider-color);
+            background-color: #FFF;
+        }
+
+        .item {
+            padding: 2px 5px;
+            cursor: pointer;
+        }
+
+        .item[data-checked] {
+            background-color: #ddd;
+        }
+    </style>
+    <template>
+        <template is="dom-repeat" items="{{options}}" as="option">
+            <div class="item flex"
+                 data-checked$="{{isSelected(selected, option)}}"
+                 on-mousedown="handleSelect">
+                <span>{{computeOptionDisplay(option)}}</span>
+            </div>
+        </template>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-select-box',
+        properties: {
+            options: {
+                type: Array,
+                observer: 'optionsChanged'
+            },
+            selected: {
+                type: Object
+            },
+            selectFirst: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: true
+            },
+            nameAttribute: {
+                type: String,
+                value: 'name'
+            },
+            titleAttribute: {
+                type: String,
+                value: 'title'
+            }
+        },
+        computeOptionDisplay: function (option) {
+            return option[this.titleAttribute];
+        },
+        optionsChanged: function () {
+            this.set('selected', this.options[0]);
+            this.fire('select', this.selected);
+        },
+        handleSelect: function (e) {
+            this.set('selected', e.model.option);
+            this.fire('select', this.selected);
+        },
+        isSelected: function (selected, current) {
+            return selected == current;
+        },
+        selectByIndex: function (index) {
+            if (this.options[index] != null) {
+                this.set('selected', this.options[index]);
+                this.fire('select', this.selected);
+            }
+        },
+        selectByName: function (name) {
+            var index = -1;
+            for (var i = 0; i < this.options.length; i++) {
+                var option = this.options[i];
+                if (option[this.nameAttribute] == name) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index > -1) {
+                this.selectByIndex(index);
+            }
+        }
+    });
+</script>

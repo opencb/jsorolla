@@ -1,0 +1,65 @@
+<dom-module id="jso-exon-info">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #title {
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        #title > * {
+            margin-right: 7px;
+        }
+
+        #id {
+            font-size: 1.15em;
+            color: var(--default-primary-color);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        label,
+        a:link,
+        a:visited {
+            color: var(--secondary-text-color);
+        }
+    </style>
+    <template>
+
+        <div id="title">
+            <span id="id">{{exon.id}}</span>
+            <a target="_blank" href$="{{ensemblUrl}}"> Ensembl <i class="fa fa-external-link"></i></a>
+        </div>
+        <div style="margin-top:5px;">
+            <label>Location: </label>
+            <span>{{exon.chromosome}}</span> :
+            <span>{{exon.start}}</span> -
+            <span>{{exon.end}}</span>
+            <br>
+            <label>Strand:</label> <span>{{exon.strand}}</span>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-exon-info",
+        properties: {
+            exon: {
+                type: Object
+            },
+            ensemblUrl: {
+                type: String,
+                computed: 'computeEnsemblUrl(exon)'
+            }
+        },
+        computeEnsemblUrl: function (exon) {
+            return "http://www.ensembl.org/Multi/Search/Results?q=" + exon.name;
+        }
+
+    });
+</script>

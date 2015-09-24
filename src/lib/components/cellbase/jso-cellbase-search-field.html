@@ -1,0 +1,104 @@
+<dom-module id="jso-cellbase-search-field">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <input id="searchField" class="jso" on-keyup="handleInput"
+                   list="searchDataList" placeholder="{{placeholder}}" type="text">
+            <datalist id="searchDataList">
+                <template is="x-repeat" items="{{dataListItems}}">
+                    <option value="{{item}}"></option>
+                </template>
+            </datalist>
+            <div id="searchButton" class="jso-btn" style="border-left: none;">
+                <i class="fa fa-search"></i>
+            </div>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-cellbase-search-field",
+        properties: {
+            dataListItems: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            },
+            dataListItemsMap: {
+                type: Object,
+                value: function () {
+                    return {};
+                }
+            },
+            lastQuery: {
+                type: String,
+                value: ''
+            },
+            placeholder: {
+                type: String,
+                value: 'Search'
+            }
+        },
+        handleInput: function (e) {
+            e.preventDefault();
+            e.target.classList.remove('error');
+            var query = e.target.value.toUpperCase();
+            console.log(query);
+            if (event.which !== 13 && this.lastQuery != query && query.length > 2) {
+                this._updateDataListItems(query);
+                this.lastQuery = query;
+            }
+
+            if (event.which === 13) {
+                var item = this.dataListItemsMap[query];
+                if (item) {
+                    this.fire('featureselected', item);
+                } else {
+                    e.target.classList.add('error');
+                }
+            }
+        },
+        _updateDataListItems: function (query) {
+            var dataListItems = [];
+            var dataListItemsMap = {};
+            var items = this._quickSearchResultFn(query);
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var value = item["name"];
+                dataListItemsMap[value] = item;
+                dataListItems.push(value);
+            }
+            this.dataListItems = dataListItems;
+            this.dataListItemsMap = dataListItemsMap;
+        },
+        _quickSearchResultFn: function (query) {
+            var results = [];
+            var speciesCode = Utils.getSpeciesCode('Homo sapiens');
+
+            CellBaseManager.get({
+                host: CELLBASE_HOST,
+                version: CELLBASE_VERSION,
+                species: speciesCode,
+                category: 'feature',
+                subCategory: 'id',
+                query: query,
+                resource: 'starts_with',
+                params: {
+                    limit: 10
+                },
+                async: false,
+                success: function (data, textStatus, jqXHR) {
+                    results = data.response[0].result;
+                }
+            });
+            return results;
+        }
+    });
+</script>

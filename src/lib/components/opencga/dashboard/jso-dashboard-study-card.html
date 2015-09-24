@@ -1,0 +1,189 @@
+
+<polymer-element name="jso-dashboard-study-card"
+                 attributes="study">
+    <template>
+        <style>
+            :host {
+                position: relative;
+                display: block;
+                box-sizing: border-box;
+
+                left: 0;
+                right: 0;
+                margin: 0 auto 0 auto;
+                padding-bottom: 15px;
+
+                min-width: 600px !important;
+                width: 50% !important;
+                background-color: inherit;
+                transition: width 0.2s, height 0.2s;
+            }
+
+            /*:host([collapsed]) {*/
+            /*padding-bottom: 3px;*/
+            /*width: 50% !important;*/
+            /*}*/
+
+            .study-item {
+                height: 100%;
+                box-sizing: border-box;
+                font-size: 18px;
+                border: 1px solid rgba(120, 120, 120, 0.4);
+            }
+
+            #study-title {
+                box-sizing: border-box;
+                height: 40px;
+                line-height: 40px;
+                padding: 0 5px 0 20px;
+            }
+
+            #study-title:before {
+                padding-right: 15px;
+                font-family: FontAwesome;
+                content: '\f114';
+            }
+
+            #study-content {
+                box-sizing: border-box;
+                border-top: 1px solid rgba(120, 120, 120, 0.4);
+                height: 420px;
+            }
+
+            #study-bbar {
+                box-sizing: border-box;
+                height: 40px;
+                line-height: 40px;
+                padding: 0 15px 0 20px;
+                border-top: 1px solid rgba(120, 120, 120, 0.4);
+            }
+
+            .study-info {
+                padding: 10px;
+                width: 260px;
+                border-right: 1px solid rgba(120, 120, 120, 0.4);
+            }
+
+            #upload-button:before {
+                font-family: FontAwesome;
+                content: '\f093';
+            }
+
+            #open-button {
+                margin: 6px;
+                padding: 0 10px;
+                line-height: 26px;
+                border-radius: 3px;
+                background-color: #006699;
+                color: #fff;
+            }
+
+            #open-button:after {
+                font-family: FontAwesome;
+                content: '\f061';
+                /*content: '\f178';*/
+                /*content: '\f054';*/
+            }
+
+            #remove-button:before {
+                font-family: FontAwesome;
+                /*content: '\f014';*/
+                content: '\f1f8';
+            }
+
+            #collapse-button:before {
+                font-family: FontAwesome;
+                content: '\f066';
+            }
+
+            #collapse-button[collapsed]:before {
+                font-family: FontAwesome;
+                content: '\f065';
+            }
+
+            .actions > * {
+                margin-left: 15px;
+            }
+
+            core-menu {
+                margin: 6px;
+            }
+
+            core-item {
+                margin-right: 25px;
+                cursor: pointer !important;
+                padding: 0px 2px;
+                border-bottom: 2px solid transparent;
+            }
+
+            core-item.core-selected {
+                font-weight: normal !important;
+                border-bottom: 1px solid rgba(120, 120, 120, 0.4);
+            }
+
+
+        </style>
+
+        <div class="study-item {{collapsed ? '' : 'jso-shadow'}}">
+            <div id="study-title" class="jso-bgcolor-main-3" horizontal layout>
+                <div flex on-click="{{handleCollapse}}">
+                    {{study.name}}
+                </div>
+                <div horizontal layout reverse class="actions">
+                    <div id="open-button" class="jso-color-main-1h"
+                         on-click="{{handleOpen}}">
+                        Open
+                    </div>
+
+                    <font-awesome icon="trah" class="jso-color-main-1h"></font-awesome>
+                    <div id="remove-button" class="jso-color-main-1h">
+                    </div>
+                    <font-awesome class="jso-color-main-1h"
+                                  icon="gear" animation="spin"
+                                  hidden?="{{study.status == 'active' }}"></font-awesome>
+                    <div id="upload-button" class="jso-color-main-1h">
+                    </div>
+                    <div id="collapse-button" class="jso-color-main-1h"
+                         collapsed?="{{collapsed}}"
+                         on-click="{{handleCollapse}}">
+                    </div>
+
+                </div>
+            </div>
+            <div id="study-content" horizontal layout hidden?="{{collapsed}}">
+                <div class="study-info">
+                    {{study.alias}}
+                    <br>
+                    {{study.type}}
+                    <br>
+                    {{study.description}}
+                    <br>
+                </div>
+                <div flex>
+                    <core-menu class="title" selected="{{selectedTab}}" horizontal layout>
+                        <core-item icon="" label="Files"></core-item>
+                        <core-item icon="" label="Stats"></core-item>
+                        <core-item icon="" label="Attributes"></core-item>
+                    </core-menu>
+                </div>
+            </div>
+            <div id="study-bbar" class="jso-bgcolor-main-3" hidden?="{{collapsed}}">
+                {{study.status}}
+            </div>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            created: function () {
+                this.collapsed = false;
+            },
+            handleCollapse: function () {
+                this.collapsed = !this.collapsed;
+            },
+            handleOpen: function () {
+                this.fire('open', {study: this.study})
+            }
+        });
+    </script>
+</polymer-element>

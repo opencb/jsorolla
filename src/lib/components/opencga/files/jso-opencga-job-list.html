@@ -1,0 +1,126 @@
+<link rel="import" href="jso-opencga-job-list-item.html">
+<dom-module id="jso-opencga-job-list">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        #header,
+        #footer {
+            box-sizing: border-box;
+            background-color: rgba(125, 125, 125, 0.1);
+            padding: 3px 7px;
+        }
+
+        #header {
+            height: 30px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #footer {
+            height: 30px;
+            border-top: 1px solid rgba(125, 125, 125, 0.5);
+        }
+
+        #content {
+            height: calc(100% - 30px);
+            /*height: 100%;*/
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        jso-opencga-job-list-item {
+            padding: 3px 7px;
+            border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+        }
+
+    </style>
+    <template>
+        <div id="header" class="horizontal layout">
+            <label class="jso">Tool name:</label>
+            <div class="jso-select" style="width:150px;">
+                <select id="toolFilterSelect" on-change="handleFilterSelect">
+                    <option value="all">all</option>
+                    <template is="dom-repeat" items={{allowedTools}} as="toolName">
+                        <option value="{{toolName}}">{{toolName}}</option>
+                    </template>
+                </select>
+            </div>
+        </div>
+        <div id="content">
+            <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
+                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect">
+                </jso-opencga-job-list-item>
+            </template>
+        </div>
+        <!--<div id="footer" class="horizontal layout">-->
+
+        <!--</div>-->
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-job-list",
+        properties: {
+            folder: {
+                type: Object,
+                notify: true,
+                value: null
+            },
+            jobs: {
+                type: Array,
+                notify: true,
+                observer: 'jobsChanged'
+            },
+            filteredJobs: {
+                type: Array,
+                notify: true
+            },
+            selected: {
+                type: Object,
+                notify: true
+            },
+            allowedTools: {
+                type: Array
+            },
+            toolFilterValue: {
+                type: String,
+                value: 'all'
+            }
+        },
+        handleSelect: function (e) {
+            this.selected = e.currentTarget.job;
+            var sel = this.querySelector("jso-opencga-job-list-item[selected]");
+            if (sel) {
+                sel.removeAttribute('selected');
+            }
+            e.currentTarget.setAttribute('selected', '');
+            console.log(this.selected);
+            this.fire('jobselect', this.selected);
+        },
+        checkFolder: function (folder) {
+            return folder == null;
+        },
+        jobsChanged: function (neo, old) {
+            var me = this;
+            var jobs;
+            if (this.toolFilterValue == 'all') {
+                var jobs = this.jobs.filter(function (item) {
+                    return me.allowedTools.indexOf(item.toolName) != -1;
+                });
+            } else {
+                var jobs = this.jobs.filter(function (item) {
+                    return item.toolName === me.toolFilterValue;
+                });
+            }
+            this.set('filteredJobs', jobs);
+        },
+        handleFilterSelect: function (e) {
+            this.set('toolFilterValue', e.currentTarget.value);
+            this.jobsChanged();
+        }
+    });
+</script>

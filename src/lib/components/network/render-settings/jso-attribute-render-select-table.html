@@ -1,258 +1,179 @@
-<polymer-element name="jso-attribute-render-select-table"
-                 attributes="displayProperty attributeManager defaultValue visualSet options">
+<link rel="import" href="jso-attribute-render-table-behavior.html">
+<dom-module id="jso-attribute-render-select-table">
+    <style>
+        :host {
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+
+            top: 0px;
+            right: 320px;
+            width: 500px;
+            transition: all 0.2s;
+        }
+
+        .container {
+            box-sizing: border-box;
+            padding: 5px 8px 8px 8px;
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
+
+        #left {
+            width: 165px;
+            margin-right: 10px;
+        }
+
+        .wrap {
+            border: 1px solid var(--divider-color);
+        }
+
+        iron-list {
+            height: 175px;
+            border-top-width: 0;
+            background-color: #FFFFFF;
+            padding: 1px;
+            overflow-y: scroll;
+        }
+
+        .head {
+            border-bottom: 1px solid var(--divider-color);
+            background-color: var(--hover-color);
+            color: var(--primary-text-color);
+            padding-right: 20px;
+        }
+
+        .row {
+            padding: 1px 2px 1px 4px;
+        }
+
+        .row:nth-child(even) {
+            background-color: var(--light-primary-color);
+        }
+
+        .head-field {
+            padding: 3px 10px;
+            border-right: 1px solid var(--divider-color)
+        }
+
+        div.head-field:last-of-type {
+            border-right: none;
+        }
+
+    </style>
     <template>
-        <link rel="stylesheet" href="../../core-list-table.css">
-        <style>
-            :host {
-                display: block;
-                position: absolute;
-                box-sizing: border-box;
-                background-color: #FFFFFF;
-
-                top: 0px;
-                right: 320px;
-                width: 500px;
-                transition: all 0.2s;
-            }
-
-            .container {
-                box-sizing: border-box;
-                padding: 2px 5px 5px 5px;
-            }
-
-            .footer > * {
-                margin-left: 5px;
-            }
-
-            #left {
-                width: 165px;
-                margin-right: 10px;
-            }
-
-            .selbox {
-                box-sizing: border-box;
-                overflow-y: auto;
-                border: 1px solid #d3d3d3;
-                background-color: #FFF;
-            }
-
-            .selitem {
-                padding: 2px 5px;
-            }
-
-            .selitem[data-checked=true] {
-                background-color: #ddd;
-            }
-
-            core-list {
-                height: 175px;
-                border: 1px solid #d3d3d3;
-                border-top-width: 0;
-                background-color: #FFFFFF;
-            }
-        </style>
-        <datalist id="dl">
-            <option value="asdf">asdf</option>
-        </datalist>
-        <div class="panel panel-shadow">
+        <jso-panel id="panel" closable on-close="handleClose">
             <div class="header">
-                <div class="text">{{displayProperty}} rendering configuration</div>
-                <div class="headeractions" horizontal end-justified layout flex>
-                    <div class="text headerclose" on-click="{{handleClose}}"></div>
-                </div>
+                <span>{{displayProperty}}</span> render configuration
             </div>
-            <div class="container" horizontal layout>
-                <div id="left" vertical layout>
+            <div class="container horizontal layout flex">
+                <div id="left" class="vertical layout">
 
-                    <label>Attribute name</label>
-
-                    <div class="selbox" style="height: 100px;">
-                        <template repeat="{{column in attributeManager.columns}}">
-                            <div horizontal layout>
-                                <div class="selitem" flex
-                                     data-checked="{{ attributeName == column.name}}"
-                                     data-name="{{column.name}}"
-                                     on-click="{{handleAttributeNameSelect}}">
-                                    {{column.title}}
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
+                    <label class="jso">Attribute name:</label>
+                    <jso-select-box id="columnSelectBox" style="height: 202px;"
+                                    options="{{columns}}"
+                                    on-select="handleColumnSelect">
+                    </jso-select-box>
 
                 </div>
-                <div vertical layout flex>
-                    <label>Assign render values to attributes</label>
+                <div class="vertical layout flex">
+                    <label class="jso">Assign render values to attributes:</label>
 
-                    <div>
-                        <div class="table-head" horizontal layout>
-                            <div flex>Attribute value</div>
-                            <div flex>Render value</div>
+
+                    <div class="wrap">
+                        <div class="flex horizontal layout head">
+                            <div class="flex head-field">Attribute value</div>
+                            <div class="flex head-field">Render value</div>
                         </div>
-                        <core-list id="list" data="{{uniqueData}}" height="27">
+
+                        <iron-list id="list" items="{{uniqueItems}}" as="uitem">
                             <template>
-                                <div horizontal layout class="table-row">
-                                    <div flex>{{model.attribute}}</div>
-                                    <select flex value="{{model.render}}">
-                                        <template repeat="{{op in selectOptions}}">
-                                            <option value="{{op}}">{{op}}</option>
-                                        </template>
-                                    </select>
+                                <div class="horizontal layout center row">
+                                    <div class="flex">{{uitem.attribute}}</div>
+
+                                    <div class="jso-select flex" style="margin-left:5px;">
+                                        <select on-change="handleSelect">
+                                            <template is="dom-repeat" items={{uitem.options}} as="option">
+                                                <option value="{{option}}">{{option}}</option>
+                                            </template>
+                                        </select>
+                                    </div>
                                 </div>
                             </template>
-                        </core-list>
+                        </iron-list>
                     </div>
 
-                    <div horizontal layout style="margin-top:8px;">
-                        <label>Edit default</label>
-                        <!--<div class="button action">Select all</div>-->
-                        <!--<div class="button action">Deselect all</div>-->
-                        <!--<div class="text">Selection:</div>-->
-                        <select flex value="{{defaultValue}}">
-                            <template repeat="{{op in selectOptions}}">
-                                <option value="{{op}}">{{op}}</option>
-                            </template>
-                        </select>
+                    <div class="horizontal layout" style="margin-top:8px;">
+                        <label class="jso">Edit default:</label>
+
+                        <div class="jso-select flex">
+                            <select value="{{defaultValue}}">
+                                <template is="dom-repeat" items={{options}} as="option">
+                                    <option value="{{option}}">{{option}}</option>
+                                </template>
+                            </select>
+                        </div>
                     </div>
+
 
                 </div>
             </div>
-            <div class="footer" horizontal layout end-justified>
-                <div class="button action" on-click="{{handleApplyDirect}}">Use attribute value directly</div>
-                <div class="button action" style="width: 100px;" on-click="{{handleOk}}">OK</div>
+
+            <div class="footer horizontal layout flex">
+                <div class="jso-btn jso-btn-shdw" on-click="handleApplyDirect">Use attribute value directly</div>
+                <div class="flex"></div>
+                <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleClose">Cancel</div>
+                <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleOk">OK</div>
             </div>
-        </div>
+
+        </jso-panel>
 
     </template>
-    <script>
-        Polymer({
-            created: function () {
-                this.isReady = false;
-
-                this.clean();
-            },
-            clean: function () {
-                this.attributeName = '';
-                this.attributeParse = 'string';
-
-                this.uniqueData = [];
-                this.uniqueMatches = {};
-            },
-            ready: function () {
-                var me = this;
-                this.selectOptions = this.options.split(",");
-                var observer = new MutationObserver(function (mutations) {
-                    me.$.list.updateSize();
-                }.bind(this));
-                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
-            },
-            domReady: function () {
-                this.isReady = true;
-            },
-            defaultValueChanged: function (oldValue, newValue) {
-                for (var i = 0; i < this.uniqueData.length; i++) {
-                    var data = this.uniqueData[i];
-                    if (data.render === oldValue) {
-                        data.render = newValue;
-                    }
-                }
-            },
-            visualSetChanged: function (oldValue, newValue) {
-                if (this.visualSet) {
-                    this.attributeName = this.visualSet.attribute;
-                    this.attributeParse = this.visualSet.parse;
-                    this.uniqueMatches = this.visualSet.matches;
-                }
-            },
-            attributeNameChanged: function (oldValue, newValue) {
-                this._updateUniqueValues();
-            },
-            /* Observers */
-            observe: {
-                'attributeManager.data': 'handleAttributeManagerChange'
-            },
-            handleAttributeManagerChange: function (oldValue, newValue) {
-                this._updateUniqueValues();
-                if (this.isReady && this.visualSet && this.visualSet.enabled) {
-                    this._updateVisualSet();
-                    this.fire('ok', {displayProperty: this.getAttribute("id")});
-                }
-            },
-
-            handleClose: function () {
-                this.displayProperty = null;
-            },
-            handleOk: function () {
-                var uniqueMatches = {};
-                for (var i = 0; i < this.uniqueData.length; i++) {
-                    var data = this.uniqueData[i];
-                    uniqueMatches[data.attribute] = data.render;
-                }
-                this.uniqueMatches = uniqueMatches;
-                this.visualSet = {
-                    attribute: this.attributeName,
-                    displayProperty: this.displayProperty,
-                    type: this.attributeType,
-                    matches: this.uniqueMatches,
-                    parse: this.attributeParse,
-                    points: this.points,
-                    enabled: true
-                };
-                this.fire('ok', {displayProperty: this.displayProperty});
-                this.handleClose();
-            },
-            _updateVisualSet: function () {
-                if (this.attributeName != '') {
-                    this.uniqueMatches = {};
-                    for (var i = 0; i < this.uniqueData.length; i++) {
-                        var data = this.uniqueData[i];
-                        this.uniqueMatches[data.attribute] = data.render;
-                    }
-                    this.visualSet = {
-                        attribute: this.attributeName,
-                        displayProperty: this.displayProperty,
-                        matches: this.uniqueMatches,
-                        parse: this.attributeParse,
-                        enabled: true
-                    }
-                }
-            },
-            handleAttributeNameSelect: function (e) {
-                this.attributeName = e.currentTarget.dataset.name;
-            },
-            _updateUniqueValues: function () {
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-attribute-render-select-table',
+        behaviors: [JsoAttributeRenderTableBehavior],
+        properties: {
+            options: {
+                type: Array,
+            }
+        },
+        handleSelect: function (e) {
+            e.model.uitem.render = e.currentTarget.value;
+        },
+        _updateUniqueValues: function () {
+            if (this.selectedColumn && this.selectedColumn.name != '') {
                 var uniqueMap = {};
-                var uniqueData = [];
-                for (var i = 0, l = this.attributeManager.data.length; i < l; i++) {
-                    var row = this.attributeManager.data[i];
-                    if (!uniqueMap[row[this.attributeName]]) {
-                        uniqueMap[row[this.attributeName]] = true;
+                var uniqueItems = [];
+
+                var attributes, value;
+                for (var i = 0, l = this.items.length; i < l; i++) {
+                    attributes = this.items[i].attributes;
+                    value = attributes[this.selectedColumn.name];
+                    if (!uniqueMap[value]) {
+                        uniqueMap[value] = true;
 
                         var render = this.defaultValue;
-                        if (this.visualSet && this.visualSet.attribute == this.attributeName) {
-                            if (this.visualSet.matches[row[this.attributeName]] != null) {
-                                render = this.visualSet.matches[row[this.attributeName]];
+                        if (this.visualSet && this.visualSet.attribute == this.selectedColumn.name) {
+                            if (this.visualSet.matches[value] != null) {
+                                render = this.visualSet.matches[value];
                             }
                         }
-//                        if (this.visualSet) {
-//                            render = this.visualSet.matches[row[this.attributeName]];
-//                        }
-                        if (row[this.attributeName]) {
-                            uniqueData.push({attribute: row[this.attributeName], render: render});
+
+                        if (value) {
+                            uniqueItems.push({attribute: value, render: render, options: this.options});
                         }
                     }
                 }
-                uniqueData.sort(function (a, b) {
+                uniqueItems.sort(function (a, b) {
                     return a.attribute.localeCompare(b.attribute);
                 });
-                this.uniqueData = uniqueData;
-            },
-            handleApplyDirect: function () {
-                for (var i = 0; i < this.uniqueData.length; i++) {
-                    var data = this.uniqueData[i];
-                    data.render = data.attribute;
-                }
+                this.set('uniqueItems', uniqueItems);
             }
-        });
-    </script>
-</polymer-element>
+        }
+    });
+</script>
