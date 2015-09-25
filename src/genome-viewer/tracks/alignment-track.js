@@ -116,7 +116,7 @@ AlignmentTrack.prototype.getDataHandler = function (event) {
         //features = this.getFeaturesToRenderByChunk(event);
     }
     this.renderer.render(features, {
-        cacheItems:event.items,
+        cacheItems: event.items,
         svgCanvasFeatures: this.svgCanvasFeatures,
         featureTypes: this.featureTypes,
         renderedArea: this.renderedArea,

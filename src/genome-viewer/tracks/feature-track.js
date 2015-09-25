@@ -46,7 +46,7 @@ function FeatureTrack(args) {
 };
 
 
-FeatureTrack.prototype.clean = function() {
+FeatureTrack.prototype.clean = function () {
     this._clean();
 
 //    console.time("-----------------------------------------empty");
@@ -56,7 +56,7 @@ FeatureTrack.prototype.clean = function() {
 //    console.timeEnd("-----------------------------------------empty");
 };
 
-FeatureTrack.prototype.updateHeight = function() {
+FeatureTrack.prototype.updateHeight = function () {
     //this._updateHeight();
     if (this.histogram) {
         $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
@@ -87,11 +87,11 @@ FeatureTrack.prototype.updateHeight = function() {
     }
 };
 
-FeatureTrack.prototype.resizeHeight = function() {
+FeatureTrack.prototype.resizeHeight = function () {
     this.main.setAttribute('height', this.height - 10);
 };
 
-FeatureTrack.prototype.initializeDom = function(targetId) {
+FeatureTrack.prototype.initializeDom = function (targetId) {
     this._initializeDom(targetId);
 
     this.main = SVG.addChild(this.contentDiv, 'svg', {
@@ -108,7 +108,7 @@ FeatureTrack.prototype.initializeDom = function(targetId) {
     this.updateHeight();
 };
 
-FeatureTrack.prototype.render = function(targetId) {
+FeatureTrack.prototype.render = function (targetId) {
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -116,7 +116,7 @@ FeatureTrack.prototype.render = function(targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 };
 
-FeatureTrack.prototype.getDataHandler = function(event) {
+FeatureTrack.prototype.getDataHandler = function (event) {
     var features;
     if (event.dataType == 'histogram') {
         this.renderer = this.histogramRenderer;
@@ -126,7 +126,7 @@ FeatureTrack.prototype.getDataHandler = function(event) {
         features = this.getFeaturesToRenderByChunk(event);
     }
     this.renderer.render(features, {
-        cacheItems:event.items,
+        cacheItems: event.items,
         svgCanvasFeatures: this.svgCanvasFeatures,
         featureTypes: this.featureTypes,
         renderedArea: this.renderedArea,
@@ -143,7 +143,7 @@ FeatureTrack.prototype.getDataHandler = function(event) {
     this.updateHeight();
 };
 
-FeatureTrack.prototype.draw = function() {
+FeatureTrack.prototype.draw = function () {
     var _this = this;
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -174,7 +174,7 @@ FeatureTrack.prototype.draw = function() {
                 histogramMax: this.histogramMax,
                 interval: this.interval
             },
-            done: function(event) {
+            done: function (event) {
                 _this.getDataHandler(event);
                 _this.setLoading(false);
             }
@@ -188,7 +188,7 @@ FeatureTrack.prototype.draw = function() {
 };
 
 
-FeatureTrack.prototype.move = function(disp) {
+FeatureTrack.prototype.move = function (disp) {
     var _this = this;
 
     this.dataType = 'features';
@@ -223,7 +223,7 @@ FeatureTrack.prototype.move = function(disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval
                 },
-                done: function(event) {
+                done: function (event) {
                     _this.getDataHandler(event);
                 }
             });
@@ -244,7 +244,7 @@ FeatureTrack.prototype.move = function(disp) {
                     histogramMax: this.histogramMax,
                     interval: this.interval
                 },
-                done: function(event) {
+                done: function (event) {
                     _this.getDataHandler(event);
                 }
 
