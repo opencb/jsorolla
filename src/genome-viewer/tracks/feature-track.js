@@ -87,6 +87,10 @@ FeatureTrack.prototype.updateHeight = function() {
     }
 };
 
+FeatureTrack.prototype.resizeHeight = function() {
+    this.main.setAttribute('height', this.height - 10);
+};
+
 FeatureTrack.prototype.initializeDom = function(targetId) {
     this._initializeDom(targetId);
 
@@ -122,6 +126,7 @@ FeatureTrack.prototype.getDataHandler = function(event) {
         features = this.getFeaturesToRenderByChunk(event);
     }
     this.renderer.render(features, {
+        cacheItems:event.items,
         svgCanvasFeatures: this.svgCanvasFeatures,
         featureTypes: this.featureTypes,
         renderedArea: this.renderedArea,

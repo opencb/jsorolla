@@ -76,6 +76,10 @@ AlignmentTrack.prototype.updateHeight = function () {
     //}
 };
 
+AlignmentTrack.prototype.resizeHeight = function () {
+    this.main.setAttribute('height', this.height - 10);
+};
+
 AlignmentTrack.prototype.initializeDom = function (targetId) {
     this._initializeDom(targetId);
 
@@ -112,6 +116,7 @@ AlignmentTrack.prototype.getDataHandler = function (event) {
         //features = this.getFeaturesToRenderByChunk(event);
     }
     this.renderer.render(features, {
+        cacheItems:event.items,
         svgCanvasFeatures: this.svgCanvasFeatures,
         featureTypes: this.featureTypes,
         renderedArea: this.renderedArea,

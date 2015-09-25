@@ -42,7 +42,7 @@ function GeneTrack(args) {
 };
 
 
-GeneTrack.prototype.clean = function() {
+GeneTrack.prototype.clean = function () {
 //    console.time("-----------------------------------------empty");
     while (this.svgCanvasFeatures.firstChild) {
         this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
@@ -51,7 +51,7 @@ GeneTrack.prototype.clean = function() {
     this._clean();
 };
 
-GeneTrack.prototype.updateHeight = function() {
+GeneTrack.prototype.updateHeight = function () {
 //    this._updateHeight();
 
     if (this.histogram) {
@@ -83,7 +83,11 @@ GeneTrack.prototype.updateHeight = function() {
     }
 };
 
-GeneTrack.prototype.initializeDom = function(targetId) {
+GeneTrack.prototype.resizeHeight = function () {
+    this.main.setAttribute('height', this.height - 10);
+};
+
+GeneTrack.prototype.initializeDom = function (targetId) {
     this._initializeDom(targetId);
 
     this.main = SVG.addChild(this.contentDiv, 'svg', {
@@ -100,7 +104,7 @@ GeneTrack.prototype.initializeDom = function(targetId) {
     this.updateHeight();
 };
 
-GeneTrack.prototype.render = function(targetId) {
+GeneTrack.prototype.render = function (targetId) {
     this.initializeDom(targetId);
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -108,7 +112,7 @@ GeneTrack.prototype.render = function(targetId) {
     this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2
 };
 
-GeneTrack.prototype.getDataHandler = function(event) {
+GeneTrack.prototype.getDataHandler = function (event) {
     var features;
     if (event.dataType == 'histogram') {
         this.renderer = this.histogramRenderer;
@@ -118,6 +122,7 @@ GeneTrack.prototype.getDataHandler = function(event) {
         features = this.getFeaturesToRenderByChunk(event);
     }
     this.renderer.render(features, {
+        cacheItems: event.items,
         svgCanvasFeatures: this.svgCanvasFeatures,
         renderedArea: this.renderedArea,
         pixelBase: this.pixelBase,
@@ -131,7 +136,7 @@ GeneTrack.prototype.getDataHandler = function(event) {
     this.updateHeight();
 };
 
-GeneTrack.prototype.updateTranscriptParams = function() {
+GeneTrack.prototype.updateTranscriptParams = function () {
     if (this.region.length() < this.minTranscriptRegionSize) {
         this.exclude = this.dataAdapter.params.exclude;
     } else {
@@ -139,7 +144,7 @@ GeneTrack.prototype.updateTranscriptParams = function() {
     }
 };
 
-GeneTrack.prototype.draw = function() {
+GeneTrack.prototype.draw = function () {
     var _this = this;
 
     this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
@@ -177,7 +182,7 @@ GeneTrack.prototype.draw = function() {
                 interval: this.interval,
                 exclude: this.exclude
             },
-            done: function(event) {
+            done: function (event) {
                 _this.getDataHandler(event);
                 _this.setLoading(false);
             }
@@ -191,7 +196,7 @@ GeneTrack.prototype.draw = function() {
 };
 
 
-GeneTrack.prototype.move = function(disp) {
+GeneTrack.prototype.move = function (disp) {
     var _this = this;
 
     this.dataType = 'features';
@@ -239,7 +244,7 @@ GeneTrack.prototype.move = function(disp) {
                     interval: this.interval,
                     exclude: this.exclude
                 },
-                done: function(event) {
+                done: function (event) {
                     _this.getDataHandler(event);
                 }
             });
@@ -262,7 +267,7 @@ GeneTrack.prototype.move = function(disp) {
                     interval: this.interval,
                     exclude: this.exclude
                 },
-                done: function(event) {
+                done: function (event) {
                     _this.getDataHandler(event);
                 }
             });

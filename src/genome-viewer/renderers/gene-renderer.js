@@ -299,7 +299,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                     "fill": transcriptColor,
                                     "cursor": "pointer"
                                 });
-                                if (args.pixelBase > 9.5) {
+                                if (args.pixelBase > 9.5 && transcript.proteinSequence != null) {
                                     if (exon.strand == '+') {
                                         var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.floor(exon.cdsEnd / 3));
                                         var proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * args.pixelBase);

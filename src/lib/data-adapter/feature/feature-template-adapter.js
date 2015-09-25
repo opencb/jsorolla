@@ -72,7 +72,7 @@ FeatureTemplateAdapter.prototype = {
     },
     configureCache: function() {
         var speciesString = '';
-        if(this.species != null){
+        if (this.species != null) {
             var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
         }
         var cacheId = this.uriTemplate + speciesString;
@@ -194,7 +194,7 @@ FeatureTemplateAdapter.prototype = {
                     };
                     var uriTemplate = new URITemplate(_this.uriTemplate);
                     _this.templateVariables['region'] = queryRegion.toString();
-                    _this.templateVariables['species'] = _this._getSpeciesString(_this.species);
+                    _this.templateVariables['species'] = _this._getSpeciesQueryString(_this.species);
 
                     var url = uriTemplate.expand(_this.templateVariables);
                     url = Utils.addQueryParamtersToUrl(params, url);
@@ -229,7 +229,6 @@ FeatureTemplateAdapter.prototype = {
             }
             regions = this._getRegionsFromQueryRegions(queryRegion);
         } else {
-            debugger
             if (typeof this.parseHistogram === 'function') {
                 chunks = this.parseHistogram(response);
             } else {
@@ -268,7 +267,10 @@ FeatureTemplateAdapter.prototype = {
         return queriesLists;
     },
 
-    _getSpeciesString: function(species) {
+    _getSpeciesQueryString: function(species) {
+        if (species == null) {
+            return '';
+        }
         if (this.speciesParse != null) {
             return this.speciesParse(species);
         } else {
