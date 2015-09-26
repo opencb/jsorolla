@@ -91,6 +91,11 @@ FeatureTrack.prototype.resizeHeight = function () {
     this.main.setAttribute('height', this.height - 10);
 };
 
+FeatureTrack.prototype.setWidth = function(width) {
+    this._setWidth(width);
+    this.main.setAttribute("width", this.width);
+};
+
 FeatureTrack.prototype.initializeDom = function (targetId) {
     this._initializeDom(targetId);
 

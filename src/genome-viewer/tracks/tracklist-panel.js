@@ -19,7 +19,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function TrackListPanel(args) {//parent is a DOM div element
+function TrackListPanel(args) { //parent is a DOM div element
     var _this = this;
 
     // Using Underscore 'extend' function to extend and add Backbone Events
@@ -78,44 +78,56 @@ function TrackListPanel(args) {//parent is a DOM div element
 };
 
 TrackListPanel.prototype = {
-    show: function () {
-        $(this.div).css({display: 'block'});
+    show: function() {
+        $(this.div).css({
+            display: 'block'
+        });
         this.hidden = false;
     },
 
-    hide: function () {
-        $(this.div).css({display: 'none'});
+    hide: function() {
+        $(this.div).css({
+            display: 'none'
+        });
         this.hidden = true;
     },
-    setVisible: function (bool) {
+    setVisible: function(bool) {
         if (bool) {
             this.show()
         } else {
             this.hide()
         }
     },
-    setTitle: function (title) {
+    setTitle: function(title) {
         if ('titleDiv' in this) {
             $(this.titleDiv).html(title);
         }
     },
-    showContent: function () {
-        $(this.tlHeaderDiv).css({display: 'block'});
-        $(this.panelDiv).css({display: 'block'});
+    showContent: function() {
+        $(this.tlHeaderDiv).css({
+            display: 'block'
+        });
+        $(this.panelDiv).css({
+            display: 'block'
+        });
         this.collapsed = false;
         $(this.collapseDiv).removeClass('active');
         $(this.collapseDiv).children().first().removeClass('fa-plus');
         $(this.collapseDiv).children().first().addClass('fa-minus');
     },
-    hideContent: function () {
-        $(this.tlHeaderDiv).css({display: 'none'});
-        $(this.panelDiv).css({display: 'none'});
+    hideContent: function() {
+        $(this.tlHeaderDiv).css({
+            display: 'none'
+        });
+        $(this.panelDiv).css({
+            display: 'none'
+        });
         this.collapsed = true;
         $(this.collapseDiv).addClass('active');
         $(this.collapseDiv).children().first().removeClass('fa-minus');
         $(this.collapseDiv).children().first().addClass('fa-plus');
     },
-    render: function () {
+    render: function() {
         var _this = this;
 
         this.div = document.createElement('div');
@@ -140,14 +152,14 @@ TrackListPanel.prototype = {
 
                 this.collapseDiv.appendChild(collapseSpan);
 
-                $(titleDiv).dblclick(function () {
+                $(titleDiv).dblclick(function() {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
                         _this.hideContent();
                     }
                 });
-                $(this.collapseDiv).click(function () {
+                $(this.collapseDiv).click(function() {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
@@ -169,11 +181,17 @@ TrackListPanel.prototype = {
         var tlHeaderDiv = $('<div id="tl-header" class="unselectable"></div>')[0];
 
         var panelDiv = $('<div id="tl-panel"></div>')[0];
-        $(panelDiv).css({position: 'relative', width: '100%'});
+        $(panelDiv).css({
+            position: 'relative',
+            width: '100%'
+        });
 
 
         this.tlTracksDiv = $('<div id="tl-tracks"></div>')[0];
-        $(this.tlTracksDiv).css({position: 'relative', 'z-index': 3});
+        $(this.tlTracksDiv).css({
+            position: 'relative',
+            'z-index': 3
+        });
 
 
         $(this.div).append(tlHeaderDiv);
@@ -219,8 +237,8 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': mid - 1,
             'top': 0,
-            'width': Math.floor(this.pixelBase),//this.pixelBase + 1,
-//            'height': '100%',
+            'width': Math.floor(this.pixelBase), //this.pixelBase + 1,
+            //            'height': '100%',
             'height': 'calc(100% - 8px)',
             'opacity': 0.5,
             'border': '1px solid orangered',
@@ -235,7 +253,7 @@ TrackListPanel.prototype = {
             'position': 'absolute',
             'left': -20.5,
             'top': 0,
-            'width': Math.floor(this.pixelBase),//this.pixelBase + 2,
+            'width': Math.floor(this.pixelBase), //this.pixelBase + 2,
             'height': 'calc(100% - 8px)',
             'border': '1px solid gray',
             'opacity': 0.7,
@@ -266,7 +284,7 @@ TrackListPanel.prototype = {
             $(panelDiv).append(regionOverviewBoxLeft);
             $(panelDiv).append(regionOverviewBoxRight);
             var regionOverviewBoxWidth = this.region.length() * this.pixelBase;
-            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2
+            var regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
             $(regionOverviewBoxLeft).css({
                 'z-index': 0,
                 'position': 'absolute',
@@ -274,7 +292,7 @@ TrackListPanel.prototype = {
                 'top': 0,
                 'width': regionOverviewDarkBoxWidth,
                 'height': 'calc(100% - 8px)',
-//                'border': '1px solid gray',
+                //                'border': '1px solid gray',
                 'opacity': 0.5,
                 //            'visibility': 'hidden',
                 'background-color': 'lightgray'
@@ -286,7 +304,7 @@ TrackListPanel.prototype = {
                 'top': 0,
                 'width': regionOverviewDarkBoxWidth,
                 'height': 'calc(100% - 8px)',
-//                'border': '1px solid gray',
+                //                'border': '1px solid gray',
                 'opacity': 0.5,
                 //            'visibility': 'hidden',
                 'background-color': 'lightgray'
@@ -296,7 +314,7 @@ TrackListPanel.prototype = {
         }
 
 
-        $(this.div).mousemove(function (event) {
+        $(this.div).mousemove(function(event) {
             var centerPosition = _this.region.center();
             var mid = _this.width / 2;
             var mouseLineOffset = _this.pixelBase / 2;
@@ -305,8 +323,10 @@ TrackListPanel.prototype = {
             var cX = offsetX - mouseLineOffset;
             var rcX = (cX / _this.pixelBase) | 0;
             var pos = (rcX * _this.pixelBase) + (mid % _this.pixelBase) - 1;
-            $(_this.mouseLine).css({'left': pos});
-//
+            $(_this.mouseLine).css({
+                'left': pos
+            });
+            //
             var posOffset = (mid / _this.pixelBase) | 0;
             _this.mousePosition = centerPosition + rcX - posOffset;
             _this.trigger('mousePosition:change', {
@@ -316,7 +336,7 @@ TrackListPanel.prototype = {
             });
         });
 
-        $(this.tlTracksDiv).dblclick(function (event) {
+        $(this.tlTracksDiv).dblclick(function(event) {
             if (!_this.regionChanging) {
                 _this.regionChanging = true;
                 /**/
@@ -328,21 +348,26 @@ TrackListPanel.prototype = {
                     start: _this.mousePosition - halfLength,
                     end: _this.mousePosition + halfLength
                 })
-                _this.trigger('region:change', {region: mouseRegion, sender: _this});
+                _this.trigger('region:change', {
+                    region: mouseRegion,
+                    sender: _this
+                });
                 /**/
                 /**/
                 /**/
-                setTimeout(function () {
+                setTimeout(function() {
                     _this.regionChanging = false;
                 }, 700);
             }
         });
 
         var downX, moveX;
-        $(this.tlTracksDiv).mousedown(function (event) {
+        $(this.tlTracksDiv).mousedown(function(event) {
             $('html').addClass('unselectable');
-//                            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
-            $(_this.mouseLine).css({'visibility': 'hidden'});
+            //                            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
+            $(_this.mouseLine).css({
+                'visibility': 'hidden'
+            });
 
             var mouseState = event.which;
             if (event.ctrlKey) {
@@ -350,22 +375,32 @@ TrackListPanel.prototype = {
             }
             switch (mouseState) {
                 case 1: //Left mouse button pressed
-                    $(this).css({"cursor": "move"});
+                    $(this).css({
+                        "cursor": "move"
+                    });
                     downX = event.clientX;
                     var lastX = 0;
-                    $(this).mousemove(function (event) {
-                        var newX = (downX - event.clientX) / _this.pixelBase | 0;//truncate always towards zero
+                    $(this).mousemove(function(event) {
+                        var newX = (downX - event.clientX) / _this.pixelBase | 0; //truncate always towards zero
                         if (newX != lastX) {
                             var disp = lastX - newX;
                             var centerPosition = _this.region.center();
                             var p = centerPosition - disp;
-                            if (p > 0) {//avoid 0 and negative positions
+                            if (p > 0) { //avoid 0 and negative positions
                                 _this.region.start -= disp;
                                 _this.region.end -= disp;
                                 _this._setTextPosition();
                                 //						_this.onMove.notify(disp);
-                                _this.trigger('region:move', {region: _this.region, disp: disp, sender: _this});
-                                _this.trigger('trackRegion:move', {region: _this.region, disp: disp, sender: _this});
+                                _this.trigger('region:move', {
+                                    region: _this.region,
+                                    disp: disp,
+                                    sender: _this
+                                });
+                                _this.trigger('trackRegion:move', {
+                                    region: _this.region,
+                                    disp: disp,
+                                    sender: _this
+                                });
                                 lastX = newX;
                                 //_this.setNucleotidPosition(p);
                             }
@@ -375,16 +410,26 @@ TrackListPanel.prototype = {
                     break;
                 case 2: //Middle mouse button pressed
                 case 'ctrlKey1': //ctrlKey and left mouse button
-                    $(selBox).css({'visibility': 'visible'});
-                    $(selBox).css({'width': 0});
+                    $(selBox).css({
+                        'visibility': 'visible'
+                    });
+                    $(selBox).css({
+                        'width': 0
+                    });
                     downX = (event.pageX - $(_this.tlTracksDiv).offset().left);
-                    $(selBox).css({"left": downX});
-                    $(this).mousemove(function (event) {
+                    $(selBox).css({
+                        "left": downX
+                    });
+                    $(this).mousemove(function(event) {
                         moveX = (event.pageX - $(_this.tlTracksDiv).offset().left);
                         if (moveX < downX) {
-                            $(selBox).css({"left": moveX});
+                            $(selBox).css({
+                                "left": moveX
+                            });
                         }
-                        $(selBox).css({"width": Math.abs(moveX - downX)});
+                        $(selBox).css({
+                            "width": Math.abs(moveX - downX)
+                        });
                     });
 
 
@@ -397,10 +442,14 @@ TrackListPanel.prototype = {
 
         });
 
-        $(this.tlTracksDiv).mouseup(function (event) {
+        $(this.tlTracksDiv).mouseup(function(event) {
             $('html').removeClass("unselectable");
-            $(this).css({"cursor": "default"});
-            $(_this.mouseLine).css({'visibility': 'visible'});
+            $(this).css({
+                "cursor": "default"
+            });
+            $(_this.mouseLine).css({
+                'visibility': 'visible'
+            });
             $(this).off('mousemove');
 
             var mouseState = event.which;
@@ -413,7 +462,9 @@ TrackListPanel.prototype = {
                     break;
                 case 2: //Middle mouse button pressed
                 case 'ctrlKey1': //ctrlKey and left mouse button
-                    $(selBox).css({'visibility': 'hidden'});
+                    $(selBox).css({
+                        'visibility': 'hidden'
+                    });
                     $(this).off('mousemove');
                     if (downX != null && moveX != null) {
                         var ss = downX / _this.pixelBase;
@@ -422,7 +473,10 @@ TrackListPanel.prototype = {
                         ee += _this.visualRegion.start;
                         _this.region.start = parseInt(Math.min(ss, ee));
                         _this.region.end = parseInt(Math.max(ss, ee));
-                        _this.trigger('region:change', {region: _this.region, sender: _this});
+                        _this.trigger('region:change', {
+                            region: _this.region,
+                            sender: _this
+                        });
                         moveX = null;
                     } else if (downX != null && moveX == null) {
                         var mouseRegion = new Region({
@@ -430,7 +484,10 @@ TrackListPanel.prototype = {
                             start: _this.mousePosition,
                             end: _this.mousePosition
                         })
-                        _this.trigger('region:change', {region: mouseRegion, sender: _this});
+                        _this.trigger('region:change', {
+                            region: mouseRegion,
+                            sender: _this
+                        });
                     }
                     break;
                 case 3: //Right mouse button pressed
@@ -440,37 +497,45 @@ TrackListPanel.prototype = {
 
         });
 
-        $(this.tlTracksDiv).mouseleave(function (event) {
-            $(this).css({"cursor": "default"});
-            $(_this.mouseLine).css({'visibility': 'hidden'});
+        $(this.tlTracksDiv).mouseleave(function(event) {
+            $(this).css({
+                "cursor": "default"
+            });
+            $(_this.mouseLine).css({
+                'visibility': 'hidden'
+            });
             $(this).off('mousemove');
             $("body").off('keydown.genomeViewer');
 
-            $(selBox).css({'visibility': 'hidden'});
+            $(selBox).css({
+                'visibility': 'hidden'
+            });
             downX = null;
             moveX = null;
         });
 
-        $(this.tlTracksDiv).mouseenter(function (e) {
-//            $('.qtip').qtip('enable'); // To enable them again ;)
-            $(_this.mouseLine).css({'visibility': 'visible'});
+        $(this.tlTracksDiv).mouseenter(function(e) {
+            //            $('.qtip').qtip('enable'); // To enable them again ;)
+            $(_this.mouseLine).css({
+                'visibility': 'visible'
+            });
             $("body").off('keydown.genomeViewer');
             enableKeys();
         });
 
-        var enableKeys = function () {
+        var enableKeys = function() {
             //keys
-            $("body").bind('keydown.genomeViewer', function (e) {
+            $("body").bind('keydown.genomeViewer', function(e) {
                 var disp = 0;
                 switch (e.keyCode) {
-                    case 37://left arrow
+                    case 37: //left arrow
                         if (e.ctrlKey) {
                             disp = Math.round(100 / _this.pixelBase);
                         } else {
                             disp = Math.round(10 / _this.pixelBase);
                         }
                         break;
-                    case 39://right arrow
+                    case 39: //right arrow
                         if (e.ctrlKey) {
                             disp = Math.round(-100 / _this.pixelBase)
                         } else {
@@ -482,9 +547,17 @@ TrackListPanel.prototype = {
                     _this.region.start -= disp;
                     _this.region.end -= disp;
                     _this._setTextPosition();
-//					_this.onMove.notify(disp);
-                    _this.trigger('region:move', {region: _this.region, disp: disp, sender: _this});
-                    _this.trigger('trackRegion:move', {region: _this.region, disp: disp, sender: _this});
+                    //					_this.onMove.notify(disp);
+                    _this.trigger('region:move', {
+                        region: _this.region,
+                        disp: disp,
+                        sender: _this
+                    });
+                    _this.trigger('trackRegion:move', {
+                        region: _this.region,
+                        disp: disp,
+                        sender: _this
+                    });
                 }
             });
         };
@@ -497,35 +570,35 @@ TrackListPanel.prototype = {
         this.rendered = true;
     },
 
-    setHeight: function (height) {
-//        this.height=Math.max(height,60);
-//        $(this.tlTracksDiv).css('height',height);
-//        //this.grid.setAttribute("height",height);
-//        //this.grid2.setAttribute("height",height);
-//        $(this.centerLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
-//        $(this.mouseLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
+    setHeight: function(height) {
+        //        this.height=Math.max(height,60);
+        //        $(this.tlTracksDiv).css('height',height);
+        //        //this.grid.setAttribute("height",height);
+        //        //this.grid2.setAttribute("height",height);
+        //        $(this.centerLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
+        //        $(this.mouseLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
     },
 
-    setWidth: function (width) {
-        console.log(width);
+    setWidth: function(width) {
+        console.log('trackListPanel setWidth ------> '+ width);
         this.width = width - 18;
     },
 
-    highlight: function (event) {
+    highlight: function(event) {
         this.trigger('trackFeature:highlight', event)
     },
 
 
-    moveRegion: function (event) {
+    moveRegion: function(event) {
         this.region.load(event.region);
         this.visualRegion.load(event.region);
         this._setTextPosition();
         this.trigger('trackRegion:move', event);
     },
 
-    setSpecies: function (species) {
+    setSpecies: function(species) {
         this.species = species;
-//        this.trigger('trackSpecies:change', {species: species, sender: this});
+        //        this.trigger('trackSpecies:change', {species: species, sender: this});
 
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
@@ -534,7 +607,9 @@ TrackListPanel.prototype = {
         }
     },
 
-    setRegion: function (region) {//item.chromosome, item.position, item.species
+    setRegion: function(region) { //item.chromosome, item.position, item.species
+        console.log('trackListPanel setRegion region ------> '+ region);
+        console.log('trackListPanel setRegion width ------> '+ this.width);
         var _this = this;
         var mid = this.width / 2;
         this.region.load(region);
@@ -543,8 +618,13 @@ TrackListPanel.prototype = {
         //get pixelbase by Region
 
 
-        $(this.centerLine).css({'left': mid - 1, 'width': this.pixelBase});
-        $(this.mouseLine).css({'width': this.pixelBase});
+        $(this.centerLine).css({
+            'left': mid - 1,
+            'width': this.pixelBase
+        });
+        $(this.mouseLine).css({
+            'width': this.pixelBase
+        });
 
         this._setTextPosition();
 
@@ -561,68 +641,75 @@ TrackListPanel.prototype = {
         }
 
 
-        this.trigger('window:size', {windowSize: this.windowSize});
+        this.trigger('window:size', {
+            windowSize: this.windowSize
+        });
 
-//        if (region.species != null) {
-//            //check species and modify CellBaseAdapter, clean cache
-//            for (i in this.tracks) {
-//                if (this.tracks[i].trackData.adapter instanceof CellBaseAdapter ||
-//                    this.tracks[i].trackData.adapter instanceof SequenceAdapter
-//                    ) {
-//                    this.tracks[i].trackData.adapter.species = region.species;
-//                    //this.tracks[i].trackData.adapter.featureCache.clear();
-//
-//                    this.tracks[i].trackData.adapter.clearData();
-//                }
-//            }
-//        }
-        this.trigger('trackRegion:change', {region: this.visualRegion, sender: this})
+        //        if (region.species != null) {
+        //            //check species and modify CellBaseAdapter, clean cache
+        //            for (i in this.tracks) {
+        //                if (this.tracks[i].trackData.adapter instanceof CellBaseAdapter ||
+        //                    this.tracks[i].trackData.adapter instanceof SequenceAdapter
+        //                    ) {
+        //                    this.tracks[i].trackData.adapter.species = region.species;
+        //                    //this.tracks[i].trackData.adapter.featureCache.clear();
+        //
+        //                    this.tracks[i].trackData.adapter.clearData();
+        //                }
+        //            }
+        //        }
+        this.trigger('trackRegion:change', {
+            region: this.visualRegion,
+            sender: this
+        })
 
-        this.positionNucleotidDiv.textContent = "";//remove base char, will be drawn later if needed
+        this.positionNucleotidDiv.textContent = ""; //remove base char, will be drawn later if needed
 
         this.status = 'rendering';
 
-//        this.onRegionChange.notify();
+        //        this.onRegionChange.notify();
 
         //this.minRegionRect.setAttribute("width",this.minRectWidth);
         //this.minRegionRect.setAttribute("x",(this.width/2)-(this.minRectWidth/2)+6);
     },
 
-    draw: function () {
+    draw: function() {
         var _this = this;
-        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
         if (!this.targetDiv) {
             console.log('target not found');
             return;
         }
         this.targetDiv.appendChild(this.div);
 
-        this.trigger('track:draw', {sender: this});
+        this.trigger('track:draw', {
+            sender: this
+        });
     },
-    _checkAllTrackStatus: function (status) {
+    _checkAllTrackStatus: function(status) {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
             if (track.status != status) return false;
         }
         return true;
     },
-    checkTracksReady: function () {
+    checkTracksReady: function() {
         return this._checkAllTrackStatus('ready');
-//        if (this._checkAllTrackStatus('ready')) {
-//            this.status = 'ready';
-//            console.log('all ready')
-//            this.trigger('tracks:ready', {sender: this});
-//        }
-//        var checkStatus = function () {
-//            if (checkAllTrackStatus('ready')) {
-//                _this.trigger('tracks:ready', {sender: _this});
-//            } else {
-//                setTimeout(checkStatus, 100);
-//            }
-//        };
-//        setTimeout(checkStatus, 10);
+        //        if (this._checkAllTrackStatus('ready')) {
+        //            this.status = 'ready';
+        //            console.log('all ready')
+        //            this.trigger('tracks:ready', {sender: this});
+        //        }
+        //        var checkStatus = function () {
+        //            if (checkAllTrackStatus('ready')) {
+        //                _this.trigger('tracks:ready', {sender: _this});
+        //            } else {
+        //                setTimeout(checkStatus, 100);
+        //            }
+        //        };
+        //        setTimeout(checkStatus, 10);
     },
-    addTrack: function (track) {
+    addTrack: function(track) {
         if (_.isArray(track)) {
             for (var i in track) {
                 this._addTrack(track[i]);
@@ -631,7 +718,7 @@ TrackListPanel.prototype = {
             this._addTrack(track);
         }
     },
-    _addTrack: function (track) {
+    _addTrack: function(track) {
         if (!this.rendered) {
             console.info(this.id + ' is not rendered yet');
             return;
@@ -676,17 +763,19 @@ TrackListPanel.prototype = {
 
 
         //trackEvents
-        track.set('track:draw', function (event) {
+        track.set('track:draw', function(event) {
             track.draw();
         });
 
 
-//        track.set('trackSpecies:change', function (event) {
-//            track.setSpecies(event.species);
-//        });
+        //        track.set('trackSpecies:change', function (event) {
+        //            track.setSpecies(event.species);
+        //        });
 
 
-        track.set('trackRegion:change', function (event) {
+        track.set('trackRegion:change', function(event) {
+          console.log('trackListPanel trackRegion:change region ------> '+ event.region);
+          console.log('trackListPanel trackRegion:change width ------> '+ _this.width);
             track.setWidth(_this.width);
             track.set('pixelBase', _this.pixelBase);
             track.set('region', event.region);
@@ -694,7 +783,7 @@ TrackListPanel.prototype = {
         });
 
 
-        track.set('trackRegion:move', function (event) {
+        track.set('trackRegion:move', function(event) {
             track.set('region', event.region);
             track.set('pixelBase', _this.pixelBase);
             track.move(event.disp);
@@ -708,7 +797,7 @@ TrackListPanel.prototype = {
         //});
 
 
-        track.set('trackFeature:highlight', function (event) {
+        track.set('trackFeature:highlight', function(event) {
 
 
             var attrName = event.attrName || 'feature_id';
@@ -717,7 +806,7 @@ TrackListPanel.prototype = {
                 for (var key in event.attrValue) {
                     var queryStr = attrName + '~=' + event.attrValue[key];
                     var group = $(track.svgdiv).find('g[' + queryStr + ']')
-                    $(group).each(function () {
+                    $(group).each(function() {
                         var animation = $(this).find('animate');
                         if (animation.length == 0) {
                             animation = SVG.addChild(this, 'animate', {
@@ -741,66 +830,68 @@ TrackListPanel.prototype = {
             }
         });
 
-        track.on('track:close', function (event) {
+        track.on('track:close', function(event) {
             _this.removeTrack(event.sender);
         });
-        track.on('track:up', function (event) {
+        track.on('track:up', function(event) {
             _this._reallocateAbove(event.sender);
         });
-        track.on('track:down', function (event) {
+        track.on('track:down', function(event) {
             _this._reallocateUnder(event.sender);
         });
 
         this.on('track:draw', track.get('track:draw'));
-//        this.on('trackSpecies:change', track.get('trackSpecies:change'));
+        //        this.on('trackSpecies:change', track.get('trackSpecies:change'));
         this.on('trackRegion:change', track.get('trackRegion:change'));
         this.on('trackRegion:move', track.get('trackRegion:move'));
         //this.on('trackWidth:change', track.get('trackWidth:change'));
         this.on('trackFeature:highlight', track.get('trackFeature:highlight'));
 
-//        track.on('track:ready', function () {
-//            _this.checkTracksReady();
-//        });
+        //        track.on('track:ready', function () {
+        //            _this.checkTracksReady();
+        //        });
     },
-    toggleAutoHeight: function (bool) {
+    toggleAutoHeight: function(bool) {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
             track.toggleAutoHeight(bool);
         }
     },
-    updateHeight: function () {
+    updateHeight: function() {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
             track.updateHeight(true);
         }
     },
 
-    containsTrack: function (track) {
+    containsTrack: function(track) {
         if (typeof this.tracksIndex[track.id] !== 'undefined') {
             return true;
         } else {
             return false;
         }
     },
-    getTrackIndex: function (track) {
+    getTrackIndex: function(track) {
         return this.tracksIndex[track.id];
     },
-    _updateTracksIndex: function () {
+    _updateTracksIndex: function() {
         //update index with correct index after splice
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
             this.tracksIndex[track.id] = i;
         }
     },
-    refreshTracksDom: function () {
+    refreshTracksDom: function() {
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
             $(track.div).detach();
             $(this.tlTracksDiv).append(track.div);
         }
-        this.trigger('tracks:refresh', {sender: this});
+        this.trigger('tracks:refresh', {
+            sender: this
+        });
     },
-    removeTrack: function (track) {
+    removeTrack: function(track) {
         if (!this.containsTrack(track)) {
             return false;
         }
@@ -822,7 +913,7 @@ TrackListPanel.prototype = {
 
 
         this.off('track:draw', track.get('track:draw'));
-//        this.off('trackSpecies:change', track.get('trackSpecies:change'));
+        //        this.off('trackSpecies:change', track.get('trackSpecies:change'));
         this.off('trackRegion:change', track.get('trackRegion:change'));
         this.off('trackRegion:move', track.get('trackRegion:move'));
         //this.off('trackWidth:change', track.set('trackWidth:change'));
@@ -832,7 +923,7 @@ TrackListPanel.prototype = {
         return track;
     },
 
-    restoreTrack: function (track, index) {
+    restoreTrack: function(track, index) {
         if (this.containsTrack((track))) {
             return false;
         }
@@ -847,7 +938,7 @@ TrackListPanel.prototype = {
 
 
     //This routine is called when track order is modified
-    _reallocateAbove: function (track) {
+    _reallocateAbove: function(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -869,7 +960,7 @@ TrackListPanel.prototype = {
     },
 
     //This routine is called when track order is modified
-    _reallocateUnder: function (track) {
+    _reallocateUnder: function(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -890,7 +981,7 @@ TrackListPanel.prototype = {
         }
     },
 
-    setTrackIndex: function (track, newIndex) {
+    setTrackIndex: function(track, newIndex) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -908,7 +999,7 @@ TrackListPanel.prototype = {
         //update track div positions
         this.refreshTracksDom();
     },
-    swapTracks: function (t1, t2) {
+    swapTracks: function(t1, t2) {
         if (!this.containsTrack((t1))) {
             return false;
         }
@@ -925,7 +1016,7 @@ TrackListPanel.prototype = {
         this.refreshTracksDom();
     },
 
-    scrollToTrack: function (track) {
+    scrollToTrack: function(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -935,7 +1026,7 @@ TrackListPanel.prototype = {
     },
 
 
-    hideTrack: function (track) {
+    hideTrack: function(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
@@ -943,22 +1034,22 @@ TrackListPanel.prototype = {
         this.refreshTracksDom();
     },
 
-    showTrack: function (track) {
+    showTrack: function(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
         track.show();
         this.refreshTracksDom();
     },
-    _setPixelBase: function () {
+    _setPixelBase: function() {
         this.pixelBase = this.width / this.region.length();
         this.pixelBase = this.pixelBase / this.zoomMultiplier;
         this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
     },
 
-    _setTextPosition: function () {
+    _setTextPosition: function() {
         var centerPosition = this.region.center();
-        var baseLength = parseInt(this.width / this.pixelBase);//for zoom 100
+        var baseLength = parseInt(this.width / this.pixelBase); //for zoom 100
         var aux = Math.ceil((baseLength / 2) - 1);
         this.visualRegion.start = Math.floor(centerPosition - aux);
         this.visualRegion.end = Math.floor(centerPosition + aux);
@@ -972,13 +1063,13 @@ TrackListPanel.prototype = {
         this.windowSizeDiv.innerHTML = this.windowSize;
     },
 
-    getTrackById: function (trackId) {
+    getTrackById: function(trackId) {
         if (typeof this.tracksIndex[trackId] !== 'undefined') {
             var i = this.tracksIndex[trackId];
             return this.tracks[i];
         }
     },
-    getSequenceTrack: function () {
+    getSequenceTrack: function() {
         //if multiple, returns the first found
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];
@@ -989,17 +1080,17 @@ TrackListPanel.prototype = {
         return;
     },
 
-    getMousePosition: function (position) {
+    getMousePosition: function(position) {
         var base = '';
         if (position > 0) {
             base = this.getSequenceNucleotid(position);
         }
-//        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
-//        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
+        //        this.mouseLine.setAttribute('stroke',SEQUENCE_COLORS[base]);
+        //        this.mouseLine.setAttribute('fill',SEQUENCE_COLORS[base]);
         return base;
     },
 
-    getSequenceNucleotid: function (position) {
+    getSequenceNucleotid: function(position) {
         var seqTrack = this.getSequenceTrack();
         if (seqTrack) {
             var el = seqTrack.svgCanvasFeatures.querySelector('text[data-pos="' + position + '"]');
@@ -1010,13 +1101,13 @@ TrackListPanel.prototype = {
         return '';
     },
 
-    setNucleotidPosition: function (position) {
+    setNucleotidPosition: function(position) {
         var base = this.getSequenceNucleotid(position);
         this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
         this.positionNucleotidDiv.textContent = base;
     },
 
-    setCellBaseHost: function (host) {
+    setCellBaseHost: function(host) {
         this.cellBaseHost = host;
         for (var i = 0; i < this.tracks.length; i++) {
             var track = this.tracks[i];

@@ -98,13 +98,13 @@
             properties: {
                 selectedSpecies: {
                     type: Object,
-                    value: function () {
+                    value: function() {
                         return DEFAULT_SPECIES;
                     }
                 },
                 region: {
                     type: Object,
-                    value: function () {
+                    value: function() {
                         var region = new Region();
                         region.load("1:1004608-1004608");
                         return region;
@@ -123,29 +123,30 @@
             },
             _resizing: false,
 
-            hiddenChanged: function (neo, old) {
+            hiddenChanged: function(neo, old) {
                 if (neo == false && this.genomeViewer == null) {
                     this.createGenomeViewer();
                     this.genomeViewer.draw();
                     this.genomeViewer.toggleAutoHeight(true);
                 }
             },
-            created: function () {
+            created: function() {
                 var me = this;
-                var after_resize = (function () {
+                var after_resize = (function() {
                     var timer = 0;
-                    return function (callback, ms) {
+                    return function(callback, ms) {
                         clearTimeout(timer);
                         timer = setTimeout(callback, ms);
                     };
                 })();
-                window.addEventListener("resize", function (e) {
-                    after_resize(function () {
+                window.addEventListener("resize", function(e) {
+                    after_resize(function() {
+                        console.log(' new Size ----------> ' + me.getBoundingClientRect().width)
                         me.genomeViewer.setWidth(me.getBoundingClientRect().width);
                     }, 300);
                 });
             },
-            createGenomeViewer: function (config) {
+            createGenomeViewer: function(config) {
                 if (config != null) {
                     config.target = this.$.gv;
                     this.genomeViewer = new GenomeViewer(config);
@@ -163,13 +164,13 @@
                         target: this.$.gv,
                         width: w,
                         region: this.region,
-//                        version: this.version,
+                        //                        version: this.version,
                         availableSpecies: AVAILABLE_SPECIES,
                         species: this.selectedSpecies,
                         sidePanel: false,
                         resizable: false,
-//                        quickSearchResultFn:quickSearchResultFn,
-//                        quickSearchDisplayKey:,
+                        //                        quickSearchResultFn:quickSearchResultFn,
+                        //                        quickSearchDisplayKey:,
                         karyotypePanelConfig: {
                             hidden: true,
                             collapsed: false,
@@ -186,7 +187,7 @@
                             collapsible: true
                         },
                         drawStatusBar: true,
-//                       drawNavigationBar: false,
+                        //                       drawNavigationBar: false,
                         navigationBarConfig: {
                             componentsConfig: {
                                 menuButton: false,
@@ -197,23 +198,23 @@
                                 chromosomesButton: false,
                                 karyotypeButton: false,
                                 chromosomeButton: false,
-//                                regionButton:false,
-//                                zoomControl:false,
-//                                windowSizeControl:false,
-//                                positionControl:false,
-//                                moveControl:false,
-//                                autoheightButton:false,
-//                                compactButton:false,
+                                //                                regionButton:false,
+                                //                                zoomControl:false,
+                                //                                windowSizeControl:false,
+                                //                                positionControl:false,
+                                //                                moveControl:false,
+                                //                                autoheightButton:false,
+                                //                                compactButton:false,
                                 searchControl: false
                             }
                         }
 
-//        chromosomeList:[]
-//            trackListTitle: ''
-//            drawNavigationBar = true;
-//            drawKaryotypePanel: false,
-//            drawChromosomePanel: false,
-//            drawOverviewTrackListPanel: false
+                        //        chromosomeList:[]
+                        //            trackListTitle: ''
+                        //            drawNavigationBar = true;
+                        //            drawKaryotypePanel: false,
+                        //            drawChromosomePanel: false,
+                        //            drawOverviewTrackListPanel: false
 
                     });
                     this.addOverviewTracks();
@@ -224,18 +225,18 @@
 
                 return this.genomeViewer;
             },
-            addOverviewTracks: function () {
+            addOverviewTracks: function() {
                 var me = this;
 
                 var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
                 renderer.on({
-                    'feature:click': function (event) {
+                    'feature:click': function(event) {
                         // feature click event example
                         console.log(event)
                     }
                 });
                 var gene = new FeatureTrack({
-//        title: 'Gene overview',
+                    //        title: 'Gene overview',
                     minHistogramRegionSize: 20000000,
                     maxLabelRegionSize: 10000000,
                     height: 100,
@@ -257,7 +258,7 @@
                 });
                 this.genomeViewer.addOverviewTrack(gene);
             },
-            addDefaultTracks: function () {
+            addDefaultTracks: function() {
                 var sequenceTrack = new FeatureTrack({
                     title: 'Sequence',
                     height: 25,
@@ -285,7 +286,7 @@
                     height: 100,
                     renderer: new GeneRenderer({
                         handlers: {
-                            'feature:click': function (e) {
+                            'feature:click': function(e) {
                                 console.log(e);
                                 console.log(e.feature);
                                 switch (e.featureType) {
@@ -317,7 +318,7 @@
                 this.genomeViewer.addTrack(geneTrack);
 
                 var renderer = new FeatureRenderer(FEATURE_TYPES.snp);
-                renderer.on('feature:click', function (e) {
+                renderer.on('feature:click', function(e) {
                     me.$.content.appendChild(new JsoSnpInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
                 });
                 snpTrack = new FeatureTrack({

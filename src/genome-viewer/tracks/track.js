@@ -42,10 +42,10 @@ function Track(args) {
     _.extend(this, args);
 
     this.pixelBase;
-    this.svgCanvasWidth = 500000;//mesa
+    this.svgCanvasWidth = 500000; //mesa
     this.pixelPosition = this.svgCanvasWidth / 2;
     this.svgCanvasOffset;
-//    this.svgCanvasFeatures;
+    //    this.svgCanvasFeatures;
     this.status;
     this.histogram;
     this.histogramLogarithm;
@@ -58,8 +58,8 @@ function Track(args) {
 
     this.invalidZoomText;
 
-    this.renderedArea = {};//used for renders to store binary trees
-    this.chunksDisplayed = {};//used to avoid painting multiple times features contained in more than 1 chunk
+    this.renderedArea = {}; //used for renders to store binary trees
+    this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
 
     if ('handlers' in this) {
         for (eventName in this.handlers) {
@@ -75,23 +75,23 @@ function Track(args) {
 
 Track.prototype = {
 
-    get: function (attr) {
+    get: function(attr) {
         return this[attr];
     },
 
-    set: function (attr, value) {
+    set: function(attr, value) {
         this[attr] = value;
     },
-    hide: function () {
+    hide: function() {
         this.visible = false;
         this.div.classList.add('hidden');
     },
-    show: function () {
+    show: function() {
         this.visible = true;
         this.div.classList.remove('hidden');
         this.updateHeight();
     },
-    toggle: function () {
+    toggle: function() {
         if (this.visible) {
             this.hide();
         } else {
@@ -99,10 +99,10 @@ Track.prototype = {
 
         }
     },
-    remove: function () {
+    remove: function() {
         $(this.div).remove();
     },
-    hideContent: function () {
+    hideContent: function() {
         this.contentVisible = false;
         this.contentDiv.classList.add('hidden');
         this.resizeDiv.classList.add('hidden');
@@ -110,7 +110,7 @@ Track.prototype = {
         this.iToggleEl.classList.remove('fa-minus');
         this.iToggleEl.classList.add('fa-plus');
     },
-    showContent: function () {
+    showContent: function() {
         this.contentVisible = true;
         this.contentDiv.classList.remove('hidden');
         this.resizeDiv.classList.remove('hidden');
@@ -119,7 +119,7 @@ Track.prototype = {
         this.iToggleEl.classList.add('fa-minus');
         this.updateHeight();
     },
-    toggleContent: function () {
+    toggleContent: function() {
         if (this.contentVisible) {
             this.hideContent();
         } else {
@@ -127,41 +127,52 @@ Track.prototype = {
 
         }
     },
-    close: function () {
-        this.trigger('track:close', {sender: this});
+    close: function() {
+        this.trigger('track:close', {
+            sender: this
+        });
     },
-    up: function () {
-        this.trigger('track:up', {sender: this});
+    up: function() {
+        this.trigger('track:up', {
+            sender: this
+        });
     },
-    down: function () {
-        this.trigger('track:down', {sender: this});
+    down: function() {
+        this.trigger('track:down', {
+            sender: this
+        });
     },
-    setSpecies: function (species) {
+    setSpecies: function(species) {
         this.species = species;
         this.dataAdapter.setSpecies(this.species);
     },
 
-    setWidth: function (width) {
-        this.width = width;
-//        this.main.setAttribute("width", width);
+    setWidth: function(width) {
+        this._setWidth(width);
     },
-    updateHeight: function () {
+    _setWidth: function(width) {
+        this.width = width;
+    },
+
+    updateHeight: function() {
         this._updateHeight();
     },
-    _updateHeight: function () {
-        $(this.contentDiv).css({'height': this.height + 10});
+    _updateHeight: function() {
+        $(this.contentDiv).css({
+            'height': this.height + 10
+        });
     },
-    enableAutoHeight: function () {
+    enableAutoHeight: function() {
         console.log('enable autoHeigth');
         this.autoHeight = true;
         this.updateHeight();
     },
-    disableAutoHeight: function () {
+    disableAutoHeight: function() {
         console.log('disable autoHeigth');
         this.autoHeight = false;
         this.updateHeight();
     },
-    toggleAutoHeight: function (bool) {
+    toggleAutoHeight: function(bool) {
         if (bool == true) {
             this.enableAutoHeight();
             return;
@@ -177,11 +188,11 @@ Track.prototype = {
             return;
         }
     },
-    setTitle: function (title) {
+    setTitle: function(title) {
         $(this.titleText).html(title);
     },
 
-    setLoading: function (bool) {
+    setLoading: function(bool) {
         if (bool) {
             this.status = "rendering";
             $(this.loadingEl).html('&nbsp; &nbsp;<i class="fa fa-spinner fa-spin"></i> Loading...</span>');
@@ -191,12 +202,12 @@ Track.prototype = {
         }
     },
 
-    updateHistogramParams: function () {
+    updateHistogramParams: function() {
         if (this.region.length() > this.minHistogramRegionSize) {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;
-            this.interval = Math.ceil(10 / this.pixelBase);//server interval limit 512
+            this.interval = Math.ceil(10 / this.pixelBase); //server interval limit 512
             $(this.histogramEl).html('&nbsp;<i class="fa fa-signal"></i>');
         } else {
             this.histogram = undefined;
@@ -206,33 +217,33 @@ Track.prototype = {
             $(this.histogramEl).html('');
         }
 
-//        if (this.histogramRenderer) {
-//            if (this.zoom <= this.histogramZoom) {
-//                this.histogramGroup.setAttribute('visibility', 'visible');
-//            } else {
-//                this.histogramGroup.setAttribute('visibility', 'hidden');
-//            }
-//        }
+        //        if (this.histogramRenderer) {
+        //            if (this.zoom <= this.histogramZoom) {
+        //                this.histogramGroup.setAttribute('visibility', 'visible');
+        //            } else {
+        //                this.histogramGroup.setAttribute('visibility', 'hidden');
+        //            }
+        //        }
     },
-    clean: function () {
+    clean: function() {
         this._clean();
     },
-    _clean: function () {
+    _clean: function() {
         //Must be called on child clean method
         this.chunksDisplayed = {};
         this.renderedArea = {};
     },
-    initializeDom: function (targetId) {
+    initializeDom: function(targetId) {
         this._initializeDom(targetId);
     },
-    _initializeDom: function (targetId) {
+    _initializeDom: function(targetId) {
 
         var _this = this;
         var div = $('<div id="' + this.id + '-div"></div>')[0];
         div.classList.add('ocb-gv-track');
         var titleBarHtml = '';
         titleBarHtml += '   <div class="ocb-gv-track-title">';
-//      titleBarHtml+=       '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' ;
+        //      titleBarHtml+=       '   <button id="configBtn" type="button" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-cog"></span></button>' ;
         titleBarHtml += '   <div class="ocb-gv-track-title-el">';
         titleBarHtml += '       <span class="ocb-gv-track-title-text">' + this.title + '</span>';
         titleBarHtml += '       <span class="ocb-gv-track-title-histogram"></span>';
@@ -293,111 +304,115 @@ Track.prototype = {
 
 
         /** title div **/
-        $(titleBardiv).css({'padding': '4px'})
-            .on('dblclick', function (e) {
+        $(titleBardiv).css({
+                'padding': '4px'
+            })
+            .on('dblclick', function(e) {
                 e.stopPropagation();
             });
-//        $(this.titleText).click(function (e) {
-//            _this.toggleContent();
-//        });
-        $(this.toggleEl).click(function (e) {
+        //        $(this.titleText).click(function (e) {
+        //            _this.toggleContent();
+        //        });
+        $(this.toggleEl).click(function(e) {
             _this.toggleContent();
         });
-        $(this.closeEl).click(function (e) {
+        $(this.closeEl).click(function(e) {
             _this.close();
         });
-        $(this.upEl).click(function (e) {
+        $(this.upEl).click(function(e) {
             _this.up();
         });
-        $(this.downEl).click(function (e) {
+        $(this.downEl).click(function(e) {
             _this.down();
         });
-        $(this.externalLinkEl).click(function (e) {
+        $(this.externalLinkEl).click(function(e) {
             window.open(_this.externalLink);
         });
 
         if (this.resizable) {
-            $(resizediv).mousedown(function (event) {
+            $(resizediv).mousedown(function(event) {
                 $('html').addClass('unselectable');
                 event.stopPropagation();
                 var downY = event.clientY;
-                $('html').bind('mousemove.genomeViewer', function (event) {
+                $('html').bind('mousemove.genomeViewer', function(event) {
                     var despY = (event.clientY - downY);
                     var actualHeight = $(contentDiv).outerHeight();
                     var newHeight = actualHeight + despY;
                     if (newHeight > 0) {
                         _this.height = newHeight;
-                        $(contentDiv).css({height: _this.height});
+                        $(contentDiv).css({
+                            height: _this.height
+                        });
                         _this.resizeHeight();
                     }
                     downY = event.clientY;
-//                    _this.autoHeight = false;
+                    //                    _this.autoHeight = false;
                 });
             });
-            $('html').bind('mouseup.genomeViewer', function (event) {
+            $('html').bind('mouseup.genomeViewer', function(event) {
                 $('html').removeClass('unselectable');
                 $('html').off('mousemove.genomeViewer');
             });
-            $(contentDiv).closest(".trackListPanels").mouseup(function (event) {
+            $(contentDiv).closest(".trackListPanels").mouseup(function(event) {
                 _this.updateHeight();
             });
         }
 
 
-//        var hoverRect = SVG.addChild(this.svgGroup, 'rect', {
-//            'x': 0,
-//            'y': 0,
-//            'width': this.width,
-//            'height': this.height,
-//            'opacity': '0.6',
-//            'fill': 'transparent'
-//        });
+        //        var hoverRect = SVG.addChild(this.svgGroup, 'rect', {
+        //            'x': 0,
+        //            'y': 0,
+        //            'width': this.width,
+        //            'height': this.height,
+        //            'opacity': '0.6',
+        //            'fill': 'transparent'
+        //        });
 
-//        this.fnTitleMouseEnter = function () {
-//            hoverRect.setAttribute('opacity', '0.1');
-//            hoverRect.setAttribute('fill', 'lightblue');
-//        };
-//        this.fnTitleMouseLeave = function () {
-//            hoverRect.setAttribute('opacity', '0.6');
-//            hoverRect.setAttribute('fill', 'transparent');
-//        };
+        //        this.fnTitleMouseEnter = function () {
+        //            hoverRect.setAttribute('opacity', '0.1');
+        //            hoverRect.setAttribute('fill', 'lightblue');
+        //        };
+        //        this.fnTitleMouseLeave = function () {
+        //            hoverRect.setAttribute('opacity', '0.6');
+        //            hoverRect.setAttribute('fill', 'transparent');
+        //        };
 
-//        $(this.svgGroup).off('mouseenter');
-//        $(this.svgGroup).off('mouseleave');
-//        $(this.svgGroup).mouseenter(this.fnTitleMouseEnter);
-//        $(this.svgGroup).mouseleave(this.fnTitleMouseLeave);
+        //        $(this.svgGroup).off('mouseenter');
+        //        $(this.svgGroup).off('mouseleave');
+        //        $(this.svgGroup).mouseenter(this.fnTitleMouseEnter);
+        //        $(this.svgGroup).mouseleave(this.fnTitleMouseLeave);
 
 
-//        this.invalidZoomText = SVG.addChild(this.svgGroup, 'text', {
-//            'x': 154,
-//            'y': 18,
-//            'opacity': '0.6',
-//            'fill': 'black',
-//            'visibility': 'hidden',
-//            'class': this.fontClass
-//        });
-//        this.invalidZoomText.textContent = "No information available at this zoom";
+        //        this.invalidZoomText = SVG.addChild(this.svgGroup, 'text', {
+        //            'x': 154,
+        //            'y': 18,
+        //            'opacity': '0.6',
+        //            'fill': 'black',
+        //            'visibility': 'hidden',
+        //            'class': this.fontClass
+        //        });
+        //        this.invalidZoomText.textContent = "No information available at this zoom";
 
         this.div = div;
         this.contentDiv = contentDiv;
         this.titlediv = titlediv;
         this.resizeDiv = resizediv;
-//        this.configBtn = configBtn;
+        //        this.configBtn = configBtn;
 
-//        this.main = main;
-//        this.hoverRect = hoverRect;
-//        this.titleText = titleText;
+        //        this.main = main;
+        //        this.hoverRect = hoverRect;
+        //        this.titleText = titleText;
 
 
-//        if (this.histogramRenderer) {
-//            this._drawHistogramLegend();
-//        }
+        //        if (this.histogramRenderer) {
+        //            this._drawHistogramLegend();
+        //        }
 
         this.rendered = true;
         this.status = "ready";
 
     },
-    _drawHistogramLegend: function () {
+    _drawHistogramLegend: function() {
         var histogramHeight = this.histogramRenderer.histogramHeight;
         var multiplier = this.histogramRenderer.multiplier;
 
@@ -443,49 +458,49 @@ Track.prototype = {
         text.textContent = "1000-";
     },
 
-//    showInfoWidget: function (args) {
-//        if (this.dataAdapter.species == "orange") {
-//            //data.resource+="orange";
-//            if (args.featureType.indexOf("gene") != -1)
-//                args.featureType = "geneorange";
-//            if (args.featureType.indexOf("transcript") != -1)
-//                args.featureType = "transcriptorange";
-//        }
-//        switch (args.featureType) {
-//            case "gene":
-//                new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
-//                break;
-//            case "geneorange":
-//                new GeneOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
-//                break;
-//            case "transcriptorange":
-//                new TranscriptOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
-//                break;
-//            case "transcript":
-//                new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
-//                break;
-//            case "snp" :
-//                new SnpInfoWidget(null, this.dataAdapter.species).draw(args);
-//                break;
-//            case "vcf" :
-//                new VCFVariantInfoWidget(null, this.dataAdapter.species).draw(args);
-//                break;
-//            default:
-//                break;
-//        }
-//    },
+    //    showInfoWidget: function (args) {
+    //        if (this.dataAdapter.species == "orange") {
+    //            //data.resource+="orange";
+    //            if (args.featureType.indexOf("gene") != -1)
+    //                args.featureType = "geneorange";
+    //            if (args.featureType.indexOf("transcript") != -1)
+    //                args.featureType = "transcriptorange";
+    //        }
+    //        switch (args.featureType) {
+    //            case "gene":
+    //                new GeneInfoWidget(null, this.dataAdapter.species).draw(args);
+    //                break;
+    //            case "geneorange":
+    //                new GeneOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
+    //                break;
+    //            case "transcriptorange":
+    //                new TranscriptOrangeInfoWidget(null, this.dataAdapter.species).draw(args);
+    //                break;
+    //            case "transcript":
+    //                new TranscriptInfoWidget(null, this.dataAdapter.species).draw(args);
+    //                break;
+    //            case "snp" :
+    //                new SnpInfoWidget(null, this.dataAdapter.species).draw(args);
+    //                break;
+    //            case "vcf" :
+    //                new VCFVariantInfoWidget(null, this.dataAdapter.species).draw(args);
+    //                break;
+    //            default:
+    //                break;
+    //        }
+    //    },
 
-    draw: function () {
+    draw: function() {
 
     },
 
-    getFeaturesToRenderByChunk: function (response, filters) {
+    getFeaturesToRenderByChunk: function(response, filters) {
         //Returns an array avoiding already drawn features in this.chunksDisplayed
 
-        var getChunkId = function (position) {
+        var getChunkId = function(position) {
             return Math.floor(position / response.chunkSize);
         };
-        var getChunkKey = function (chromosome, chunkId) {
+        var getChunkKey = function(chromosome, chunkId) {
             return chromosome + ":" + chunkId + "_" + response.dataType + "_" + response.chunkSize;
         };
 
@@ -495,7 +510,7 @@ Track.prototype = {
 
         var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
         for (var i = 0, leni = chunks.length; i < leni; i++) {
-            if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
+            if (this.chunksDisplayed[chunks[i].chunkKey] != true) { //check if any chunk is already displayed and skip it
 
                 for (var j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
                     feature = chunks[i].value[j];

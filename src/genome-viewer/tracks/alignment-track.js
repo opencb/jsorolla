@@ -80,6 +80,11 @@ AlignmentTrack.prototype.resizeHeight = function () {
     this.main.setAttribute('height', this.height - 10);
 };
 
+AlignmentTrack.prototype.setWidth = function(width) {
+    this._setWidth(width);
+    this.main.setAttribute("width", this.width);
+};
+
 AlignmentTrack.prototype.initializeDom = function (targetId) {
     this._initializeDom(targetId);
 
