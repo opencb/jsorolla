@@ -52,32 +52,8 @@ AlignmentTrack.prototype.clean = function () {
 
 AlignmentTrack.prototype.updateHeight = function () {
 //    this._updateHeight();
-
-
     var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
     this.main.setAttribute('height', renderedHeight);
-
-    //if (this.resizable) {
-    //    if (this.autoHeight == false) {
-    //        $(this.contentDiv).css({'height': this.height});
-    //    } else if (this.autoHeight == true) {
-    //        var x = this.pixelPosition;
-    //        var width = this.width;
-    //        var lastContains = 0;
-    //        for (var i in this.renderedArea) {
-    //            if (this.renderedArea[i].contains({start: x, end: x + width })) {
-    //                lastContains = i;
-    //            }
-    //        }
-    //        var visibleHeight = parseInt(lastContains) + 30;
-    //        $(this.contentDiv).css({'height': visibleHeight + 5});
-    //        this.main.setAttribute('height', visibleHeight);
-    //    }
-    //}
-};
-
-AlignmentTrack.prototype.resizeHeight = function () {
-    this.main.setAttribute('height', this.height - 10);
 };
 
 AlignmentTrack.prototype.setWidth = function(width) {

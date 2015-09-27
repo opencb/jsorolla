@@ -59,7 +59,7 @@ FeatureTrack.prototype.clean = function () {
 FeatureTrack.prototype.updateHeight = function () {
     //this._updateHeight();
     if (this.histogram) {
-        $(this.contentDiv).css({'height': this.histogramRenderer.histogramHeight + 5});
+        this.contentDiv.style.height = this.histogramRenderer.histogramHeight + 5 + 'px';
         this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
         return;
     }
@@ -69,26 +69,24 @@ FeatureTrack.prototype.updateHeight = function () {
 
     if (this.resizable) {
         if (this.autoHeight == false) {
-            $(this.contentDiv).css({'height': this.height + 10});
-            this.main.setAttribute('height', this.height);
+            this.contentDiv.style.height = this.height + 10 + 'px';
         } else if (this.autoHeight == true) {
             var x = this.pixelPosition;
             var width = this.width;
             var lastContains = 0;
             for (var i in this.renderedArea) {
-                if (this.renderedArea[i].contains({start: x, end: x + width})) {
+                if (this.renderedArea[i].contains({
+                        start: x,
+                        end: x + width
+                    })) {
                     lastContains = i;
                 }
             }
             var visibleHeight = parseInt(lastContains) + 30;
-            $(this.contentDiv).css({'height': visibleHeight + 10});
+            this.contentDiv.style.height = visibleHeight + 10 + 'px';
             this.main.setAttribute('height', visibleHeight);
         }
     }
-};
-
-FeatureTrack.prototype.resizeHeight = function () {
-    this.main.setAttribute('height', this.height - 10);
 };
 
 FeatureTrack.prototype.setWidth = function(width) {

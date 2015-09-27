@@ -343,7 +343,6 @@ Track.prototype = {
                         $(contentDiv).css({
                             height: _this.height
                         });
-                        _this.resizeHeight();
                     }
                     downY = event.clientY;
                     //                    _this.autoHeight = false;
