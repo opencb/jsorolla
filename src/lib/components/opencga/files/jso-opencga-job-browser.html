@@ -191,7 +191,9 @@
         },
         refreshJobs: function () {
             console.log('refreshJobs');
-            this._getJobs(this.selectedStudy.study.id);
+            if (this.selectedStudy != null) {
+                this._getJobs(this.selectedStudy.study.id);
+            }
         },
         _getJobs: function (studyId) {
             var me = this;

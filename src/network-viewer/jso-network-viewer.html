@@ -144,6 +144,11 @@
             color: inherit;
         }
 
+        #sessionManager,
+        #sessionManagerPanel {
+            width: 500px;
+        }
+
     </style>
     <template>
 
@@ -452,144 +457,147 @@
                 <jso-nv-session-manager
                         class="container"
                         id="sessionManager"
-                        userData="{{userData}}"
+                        user-data="{{userData}}"
                         serialize-version="{{serializeVersion}}">
                 </jso-nv-session-manager>
             </jso-panel>
 
 
+            <jso-panel hidden collapsible fixed movable closable id="snowPanel">
+                <div class="header">
+                    Network enrichment form
+                </div>
+                <jso-nv-snow
+                        id="snow"
+                        projects="{{projects}}"
+
+                        columns="{{vertexColumns}}"
+                        items="{{vertices}}"
+                        selected="{{selectedVertices}}"
+
+                        class="container">
+                </jso-nv-snow>
+            </jso-panel>
+
+
+            <jso-panel hidden collapsible fixed movable closable id="networkMinerPanel">
+                <div class="header">
+                    Gene set network enrichment form
+                </div>
+                <jso-nv-network-miner
+                        id="networkMiner"
+                        projects="{{projects}}"
+
+                        columns="{{vertexColumns}}"
+                        items="{{vertices}}"
+                        selected="{{selectedVertices}}"
+
+                        class="container">
+                </jso-nv-network-miner>
+            </jso-panel>
+
+
+            <jso-panel hidden collapsible fixed movable closable id="fatigoPanel">
+                <div class="header">
+                    Single enrichment form
+                </div>
+                <jso-nv-fatigo
+                        id="fatigo"
+                        projects="{{projects}}"
+
+                        columns="{{vertexColumns}}"
+                        items="{{vertices}}"
+                        selected="{{selectedVertices}}"
+
+                        class="container">
+                </jso-nv-fatigo>
+            </jso-panel>
+
+
+            <!--<template if="{{selectedMenu == 'reactome-fi-microarray'}}">-->
+            <!--<jso-nv-reactome-fi-->
+            <!--selectedOption="{{selectedMenu}}"-->
+            <!--userData="{{userData}}"-->
+            <!--selectedStudy="{{selectedStudy}}"-->
+            <!--studies="{{studies}}"-->
+            <!--networkViewer="{{}}">-->
+            <!--</jso-nv-reactome-fi>-->
+            <!--</template>-->
+
+
             <!--Menu file-->
-            <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-sif')}}">
-                <jso-panel modal fixed>
-                    <div class="header">
-                        Import a network SIF file
-                    </div>
-                    <jso-sif-network-file-open
-                            class="container"
-                            selected-menu="{{selectedMenu}}"
-                            on-graph="handleImportSif">
-                    </jso-sif-network-file-open>
-                </jso-panel>
-            </template>
+            <div style="position:fixed;z-index:10">
+                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-sif')}}">
+                    <jso-panel modal fixed style>
+                        <div class="header">
+                            Import a network SIF file
+                        </div>
+                        <jso-sif-network-file-open
+                                class="container"
+                                selected-menu="{{selectedMenu}}"
+                                on-graph="handleImportSif">
+                        </jso-sif-network-file-open>
+                    </jso-panel>
+                </template>
 
 
-            <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-text')}}">
-                <jso-panel modal fixed>
-                    <div class="header">
-                        Import a network Text file
-                    </div>
-                    <jso-text-network-file-open
-                            class="container"
-                            selected-menu="{{selectedMenu}}"
-                            on-graph="handleImportText">
-                    </jso-text-network-file-open>
-                </jso-panel>
-            </template>
+                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-text')}}">
+                    <jso-panel modal fixed>
+                        <div class="header">
+                            Import a network Text file
+                        </div>
+                        <jso-text-network-file-open
+                                class="container"
+                                selected-menu="{{selectedMenu}}"
+                                on-graph="handleImportText">
+                        </jso-text-network-file-open>
+                    </jso-panel>
+                </template>
 
 
-            <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-xlsx')}}">
-                <jso-panel modal fixed>
-                    <div class="header">
-                        Import a network XLSX file
-                    </div>
-                    <jso-xlsx-network-file-open
-                            class="container"
-                            selected-menu="{{selectedMenu}}"
-                            on-graph="handleImportText">
-                    </jso-xlsx-network-file-open>
-                </jso-panel>
-            </template>
+                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-xlsx')}}">
+                    <jso-panel modal fixed>
+                        <div class="header">
+                            Import a network XLSX file
+                        </div>
+                        <jso-xlsx-network-file-open
+                                class="container"
+                                selected-menu="{{selectedMenu}}"
+                                on-graph="handleImportText">
+                        </jso-xlsx-network-file-open>
+                    </jso-panel>
+                </template>
 
 
-            <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-node-attributes')}}">
-                <jso-panel modal fixed>
-                    <div class="header">
-                        Import Node attributes file
-                    </div>
-                    <jso-attribute-network-file-open
-                            class="container"
-                            selected-menu="{{selectedMenu}}"
-                            on-open="handleImportNodeAttr">
-                    </jso-attribute-network-file-open>
-                </jso-panel>
-            </template>
+                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-node-attributes')}}">
+                    <jso-panel modal fixed>
+                        <div class="header">
+                            Import Node attributes file
+                        </div>
+                        <jso-attribute-network-file-open
+                                class="container"
+                                selected-menu="{{selectedMenu}}"
+                                on-open="handleImportNodeAttr">
+                        </jso-attribute-network-file-open>
+                    </jso-panel>
+                </template>
 
-            <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-edge-attributes')}}">
-                <jso-panel modal fixed>
-                    <div class="header">
-                        Import edge attributes file
-                    </div>
-                    <jso-attribute-network-file-open
-                            class="container"
-                            selected-menu="{{selectedMenu}}"
-                            on-open="handleImportNodeAttr">
-                    </jso-attribute-network-file-open>
-                </jso-panel>
-            </template>
+                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-edge-attributes')}}">
+                    <jso-panel modal fixed>
+                        <div class="header">
+                            Import edge attributes file
+                        </div>
+                        <jso-attribute-network-file-open
+                                class="container"
+                                selected-menu="{{selectedMenu}}"
+                                on-open="handleImportNodeAttr">
+                        </jso-attribute-network-file-open>
+                    </jso-panel>
+                </template>
+            </div>
+
 
         </div>
-
-
-        <jso-panel hidden collapsible fixed movable closable id="snowPanel">
-            <div class="header">
-                Network enrichment form
-            </div>
-            <jso-nv-snow
-                    id="snow"
-                    projects="{{projects}}"
-
-                    columns="{{vertexColumns}}"
-                    items="{{vertices}}"
-                    selected="{{selectedVertices}}"
-
-                    class="container">
-            </jso-nv-snow>
-        </jso-panel>
-
-
-        <jso-panel collapsible fixed movable closable id="networkMinerPanel">
-            <div class="header">
-                Gene set network enrichment form
-            </div>
-            <jso-nv-network-miner
-                    id="networkMiner"
-                    projects="{{projects}}"
-
-                    columns="{{vertexColumns}}"
-                    items="{{vertices}}"
-                    selected="{{selectedVertices}}"
-
-                    class="container">
-            </jso-nv-network-miner>
-        </jso-panel>
-
-
-        <jso-panel hidden collapsible fixed movable closable id="fatigoPanel">
-            <div class="header">
-                Single enrichment form
-            </div>
-            <jso-nv-fatigo
-                    id="fatigo"
-                    projects="{{projects}}"
-
-                    columns="{{vertexColumns}}"
-                    items="{{vertices}}"
-                    selected="{{selectedVertices}}"
-
-                    class="container">
-            </jso-nv-fatigo>
-        </jso-panel>
-
-
-        <!--<template if="{{selectedMenu == 'reactome-fi-microarray'}}">-->
-        <!--<jso-nv-reactome-fi-->
-        <!--selectedOption="{{selectedMenu}}"-->
-        <!--userData="{{userData}}"-->
-        <!--selectedStudy="{{selectedStudy}}"-->
-        <!--studies="{{studies}}"-->
-        <!--networkViewer="{{}}">-->
-        <!--</jso-nv-reactome-fi>-->
-        <!--</template>-->
 
         <ul id="imagecontextmenu" class="jso-context">
             <li on-click="handleContextRemoveBackGroundImage">Remove</li>
@@ -737,6 +745,8 @@
         //                attributes="userData selectedStudy studies jsoHeader "
         ready: function () {
             var me = this;
+            this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
+
             this.graph = this.$.graph;
             this.set('selectedVertices', []);
             this.set('selectedEdges', []);
@@ -760,8 +770,6 @@
 
             this.$.nodeRenderPanel.hidden = this.hideNodeRender;
             this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
-
-            this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
             document.body.addEventListener('click', function (e) {
                 me.$.imagecontextmenu.style.opacity = "";
@@ -944,16 +952,21 @@
                 localStorage.setItem(this.serializeKey, pako.gzip(JSON.stringify(this), {
                     to: 'string'
                 }));
-                console.log('saved');
                 this.saveInProgress = false;
             } else {
                 console.log("Save is already in progress");
             }
         },
         deleteLocalStorage: function () {
-            //OLD keys
-            localStorage.removeItem("NETWORKVIEWER" + this.serializeVersion);
-            window.localStorage.setItem(this.serializeKey, null);
+            //Clean OLD
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                if (key.indexOf('NETWORKVIEWER') != -1) {
+                    localStorage.removeItem(key);
+                }
+            }
+
+            localStorage.setItem(this.serializeKey, null);
             localStorage.removeItem(this.serializeKey);
         },
 
@@ -1356,11 +1369,26 @@
                 if (file) {
                     var reader = new FileReader();
                     reader.onload = function (evt) {
-                        var jsonStr = pako.ungzip(evt.target.result, {to: 'string'});
-                        me.loadJSON(JSON.parse(jsonStr));
+
+                        try {
+                            var jsonStr = pako.ungzip(evt.target.result, {to: 'string'});
+                            me.loadJSON(JSON.parse(jsonStr));
+                        } catch (err) {
+                            console.log('Unable to ungzip');
+
+                            /** **/
+                            var stringReader = new FileReader();
+                            stringReader.onload = function (evt2) {
+                                console.log('Readed as plain text');
+                                var jsonStr = evt2.target.result;
+                                me.loadJSON(JSON.parse(jsonStr));
+                            }
+                            stringReader.readAsText(file);
+                            /** **/
+                        }
+
                     };
                     reader.readAsArrayBuffer(file);
-                    e.currentTarget.value = null;
                 }
             });
             var event = new MouseEvent('click', {
@@ -1371,26 +1399,36 @@
             input.dispatchEvent(event);
         },
         handleSessionSaveMenu: function (e) {
-            var content = pako.gzip(JSON.stringify(this));
+            var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+            if (isSafari) {
+                var content = JSON.stringify(this);
+                var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+                var initialFileName = 'network.json';
 
-            var blob = new Blob([content], {
-                type: "application/x-gzip"
-            });
-
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = "network.json.gz";
-            var fileName = window.prompt("Please enter file name", "network.json.gz");
-            if (fileName != null && fileName != "") {
-                link.download = fileName;
-                var event = new MouseEvent('click', {
-                    'view': window,
-                    'bubbles': true,
-                    'cancelable': true
-                });
-                link.dispatchEvent(event);
+            } else {
+                var content = pako.gzip(JSON.stringify(this));
+                var blob = new Blob([content], {type: "application/gzip"});
+                var initialFileName = 'network.json.gz';
             }
+            var fileName = window.prompt("Please enter file name", initialFileName);
+            if (fileName != null && fileName != "") {
+                saveAs(blob, fileName);
+            }
+
+            //            var url = URL.createObjectURL(blob);
+            //            var link = document.createElement('a');
+            //            link.href = url;
+            //            link.download = "network.json.gz";
+            //            var fileName = window.prompt("Please enter file name", "network.json.gz");
+            //            if (fileName != null && fileName != "") {
+            //                link.download = fileName;
+            //                var event = new MouseEvent('click', {
+            //                    'view': window,
+            //                    'bubbles': true,
+            //                    'cancelable': true
+            //                });
+            //                link.dispatchEvent(event);
+            //            }
         },
         handleSessionManageMenu: function (e) {
             this.$.sessionManagerPanel.hidden = false;
@@ -1412,51 +1450,52 @@
         },
         handleExportSifMenu: function (e) {
             var content = this.exportGraph();
-            var blob = new Blob([content], {
-                type: "data:text/tsv"
-            });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = "network.sif";
-            var event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true
-            });
-            link.dispatchEvent(event);
+            var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, "network.sif");
+
+//            var url = URL.createObjectURL(blob);
+//            var link = document.createElement('a');
+//            link.target = '_blank';
+//            link.href = url;
+//            link.download = "network.sif";
+//            var event = new MouseEvent('click', {
+//                'view': window,
+//                'bubbles': true,
+//                'cancelable': true
+//            });
+//            link.dispatchEvent(event);
         },
         handleExportNodeAttrMenu: function (e) {
             var content = this.exportVertexAttributes();
-            var blob = new Blob([content], {
-                type: "data:text/tsv"
-            });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = "node.attr";
-            var event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true
-            });
-            link.dispatchEvent(event);
+            var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, "node.attr");
+
+//            var url = URL.createObjectURL(blob);
+//            var link = document.createElement('a');
+//            link.href = url;
+//            link.download = "node.attr";
+//            var event = new MouseEvent('click', {
+//                'view': window,
+//                'bubbles': true,
+//                'cancelable': true
+//            });
+//            link.dispatchEvent(event);
         },
         handleExportEdgeAttrMenu: function (e) {
             var content = this.exportEdgeAttributes();
-            var blob = new Blob([content], {
-                type: "data:text/tsv"
-            });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = "edge.attr";
-            var event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true
-            });
-            link.dispatchEvent(event);
+            var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, "edge.attr");
+
+//            var url = URL.createObjectURL(blob);
+//            var link = document.createElement('a');
+//            link.href = url;
+//            link.download = "edge.attr";
+//            var event = new MouseEvent('click', {
+//                'view': window,
+//                'bubbles': true,
+//                'cancelable': true
+//            });
+//            link.dispatchEvent(event);
         },
         handleExportSvgMenu: function (e) {
             //                var svg = new XMLSerializer().serializeToString(this.$.networkLayout.$.svg);
@@ -1464,16 +1503,18 @@
             var blob = new Blob([svg], {
                 type: "image/svg+xml"
             });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href = url;
-            link.download = "network.svg";
-            var event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true
-            });
-            link.dispatchEvent(event);
+            saveAs(blob, "network.svg");
+
+//            var url = URL.createObjectURL(blob);
+//            var link = document.createElement('a');
+//            link.href = url;
+//            link.download = "network.svg";
+//            var event = new MouseEvent('click', {
+//                'view': window,
+//                'bubbles': true,
+//                'cancelable': true
+//            });
+//            link.dispatchEvent(event);
         },
         handleExportPngMenu: function (e) {
             //            Deprecated
@@ -2503,6 +2544,7 @@
             for (var i = 0, l = vertices.length; i < l; i++) {
                 var vertex = vertices[i];
                 vertex.attributes.id = vertex.id;
+                debugger
 //                vertex.attributes.name = vertex.id;
                 //                    vertex.setRenderer(new CircosVertexRenderer(this.vertexDefaults));
                 vertex.render({
@@ -2583,27 +2625,33 @@
             var me = this;
             if (e.detail.subvalue == 1) {
                 var request = new XMLHttpRequest();
+                request.responseType = 'arraybuffer';
                 request.onload = function () {
-                    me.loadJSON(JSON.parse(this.response));
+                    var jsonStr = pako.ungzip(this.response, {to: 'string'});
+                    me.loadJSON(JSON.parse(jsonStr));
                 };
-                request.open('GET', './example-files/ppi_histone_network.json', true);
+                request.open('GET', './example-files/ppi_histone_network.json.gz', true);
                 request.send();
             }
             if (e.detail.subvalue == 2) {
                 var request = new XMLHttpRequest();
+                request.responseType = 'arraybuffer';
                 request.onload = function () {
-                    me.loadJSON(JSON.parse(this.response));
+                    var jsonStr = pako.ungzip(this.response, {to: 'string'});
+                    me.loadJSON(JSON.parse(jsonStr));
                 };
-                request.open('GET', './example-files/reactome_network.json', true);
+                request.open('GET', './example-files/reactome_network.json.gz', true);
                 request.send();
             }
             if (e.detail.subvalue == 3) {
                 var request = new XMLHttpRequest();
+                request.responseType = 'arraybuffer';
                 request.onload = function () {
-                    me.loadJSON(JSON.parse(this.response));
+                    var jsonStr = pako.ungzip(this.response, {to: 'string'});
+                    me.loadJSON(JSON.parse(jsonStr));
                     me.setLayout("Force directed");
                 };
-                request.open('GET', './example-files/ppi_network.json', true);
+                request.open('GET', './example-files/ppi_network.json.gz', true);
                 request.send();
             }
         },

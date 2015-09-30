@@ -35,7 +35,7 @@
                     <li hidden$="{{lite}}" data-value="session-start">New session...</li>
                     <li hidden$="{{lite}}" data-value="session-save">Save session...</li>
                     <li hidden$="{{lite}}" data-value="session-open">Open session...</li>
-                    <li hidden$="{{lite}}" data-value="session-manage">Manage sessions...</li>
+                    <li hidden$="{{lite}}" data-value="session-manage" id="manageSessionOption">Manage sessions...</li>
                     <li hidden$="{{lite}}" data-divider></li>
                     <li hidden$="{{lite}}" data-sub>Import
                         <ul>
@@ -199,6 +199,13 @@
             },
             columns: {
                 type: Array,
+            }
+        },
+        ready:function(){
+            this.networkViewer = this.domHost;
+            this.cellMaps = this.networkViewer.domHost;
+            if(this.cellMaps == null){
+                this.$.manageSessionOption.setAttribute('hidden','');
             }
         },
         handleClick: function (e) {

@@ -14,9 +14,14 @@
             width: 860px;
         }
 
-
         .jso-zoom-bar > div {
             background-color: var(--accent-color);
+        }
+
+        div.jso-dropdown ul li:hover,
+        ul.jso-context li:hover {
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
         }
 
     </style>
@@ -110,7 +115,8 @@
             </div>
             <input on-change=handleBackgroundImageField id="importBackgroundImageField" type="file" hidden>
 
-            <jso-color-picker ctitle="Change the color of the background" id="backgroundColorPicker" color="{{backgroundColor}}"
+            <jso-color-picker ctitle="Change the color of the background" id="backgroundColorPicker"
+                              color="{{backgroundColor}}"
                               on-color-click="handleBackgroundColorPicker"
                               style="float:left;width:90px;"></jso-color-picker>
 
@@ -131,7 +137,8 @@
             <input type="text" on-keyup="handleRotateField" id="rotateField" class="jso" style="width: 50px;"
                    placeholder="90&deg;" pattern="^-?\d+$">
 
-            <div title="Zoom out" id="zoomOutButton" on-click="handleZoomOutButton" class="jso-btn" style="margin-left: 10px">
+            <div title="Zoom out" id="zoomOutButton" on-click="handleZoomOutButton" class="jso-btn"
+                 style="margin-left: 10px">
                 <i class="fa fa-minus"></i>
             </div>
             <div on-click="handleZoomSlider" id="progressBarCont" class="jso-zoom-bar">

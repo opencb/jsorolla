@@ -395,7 +395,6 @@ var Utils = {
         }, 2200);
     },
     repeat: function (string, count) {
-        'use strict';
         if (string == null) {
             throw new TypeError('can\'t convert ' + string + ' to object');
         }

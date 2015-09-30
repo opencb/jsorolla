@@ -15,6 +15,12 @@
             width: 900px;
         }
 
+        div.jso-dropdown ul li:hover,
+        ul.jso-context li:hover {
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
+        }
+
         /*:host > *, #vertexToolbar > *, #edgeToolbar > * {*/
         /*float: left;*/
         /*}*/
@@ -34,7 +40,8 @@
                 Edges
             </div>
             <div id="vertexToolbar" class="horizontal layout" hidden$="{{!isVertexBarSelected(selectedBar)}}">
-                <input hidden value="{{vertexNameField}}" id="vertexNameField" class="jso" type="text" placeholder="name"
+                <input hidden value="{{vertexNameField}}" id="vertexNameField" class="jso" type="text"
+                       placeholder="name"
                        on-keypress="handleVertexNameField"
                        style="width: 70px; margin-left: 5px;">
 
@@ -86,11 +93,13 @@
                 <input value="{{vertexSizeField}}" id="vertexSizeField" class="jso" type="text"
                        style="width: 50px;border-right-width:0">
 
-                <jso-color-picker ctitle="Change the color of the selected node(s)" id="vertexColorPicker" color="{{vertexColor}}"
+                <jso-color-picker ctitle="Change the color of the selected node(s)" id="vertexColorPicker"
+                                  color="{{vertexColor}}"
                                   on-color-click="handleVertexColor"
                                   style="float:left;width:90px;"></jso-color-picker>
 
-                <div title="Change the stroke size of the selected node(s)" class="jso-dropdown" style="margin-left: 10px">
+                <div title="Change the stroke size of the selected node(s)" class="jso-dropdown"
+                     style="margin-left: 10px">
                     <div tabindex="-1" id="vertexStrokeSizeButton" class="jso-btn" style="border-right: none">
                         <i class="fa fa-circle-o"></i>
                     </div>
@@ -116,7 +125,8 @@
                                   style="float:left;width:90px;"></jso-color-picker>
 
 
-                <div title="Change the label size of the selected node(s)" class="jso-dropdown" style="margin-left: 10px">
+                <div title="Change the label size of the selected node(s)" class="jso-dropdown"
+                     style="margin-left: 10px">
                     <div tabindex="-1" id="vertexLabelSizeButton" class="jso-btn">
                         <i class="fa fa-text-height"></i>
                     </div>
@@ -137,7 +147,8 @@
                 <!--<i class="fa fa-search"></i></div>-->
                 <!--<ul id="vertexSearchMenu"></ul>-->
                 <!--</div>-->
-                <div class="jso-select" title="Select nodes by attribute" style="width:70px;margin-left: 5px;border-right-width: 0;">
+                <div class="jso-select" title="Select nodes by attribute"
+                     style="width:70px;margin-left: 5px;border-right-width: 0;">
                     <select id="nodeSearchSelect">
                         <template is="dom-repeat" items={{vertexColumns}} as="column">
                             <option value="{{column.name}}">{{column.title}}</option>
@@ -197,7 +208,8 @@
                                   color="#888888"></jso-color-picker>
 
 
-                <div title="Change the label size of the selected edges(s)" class="jso-dropdown" style="margin-left: 5px">
+                <div title="Change the label size of the selected edges(s)" class="jso-dropdown"
+                     style="margin-left: 5px">
                     <div tabindex="-1" id="edgeLabelSizeButton" class="jso-btn">
                         <i class="fa fa-text-height"></i>
                     </div>
@@ -248,7 +260,7 @@
             },
             selectionColor: {
                 type: String,
-                notify:true
+                notify: true
             },
             selectedBar: {
                 type: String,
@@ -299,7 +311,11 @@
             var input = e.currentTarget;
             input.style.color = '';
             if (e.which == 13) {
-                this.fire('vertexsearch', {value: e.currentTarget.value, columnName: this.$.nodeSearchSelect.value, inputEl: input});
+                this.fire('vertexsearch', {
+                    value: e.currentTarget.value,
+                    columnName: this.$.nodeSearchSelect.value,
+                    inputEl: input
+                });
             }
         },
         handleVertexNameField: function (e) {
@@ -325,7 +341,11 @@
             var input = e.currentTarget;
             input.style.color = '';
             if (e.which == 13) {
-                this.fire('edgesearch', {value: e.currentTarget.value, columnName: this.$.edgeSearchSelect.value, inputEl: input});
+                this.fire('edgesearch', {
+                    value: e.currentTarget.value,
+                    columnName: this.$.edgeSearchSelect.value,
+                    inputEl: input
+                });
             }
         },
         handleEdgeNameField: function (e) {

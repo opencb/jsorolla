@@ -41,10 +41,18 @@
 
         #left > div,
         #right > div {
-            display: block;
-            text-align: center;
-            padding: 0 5px;
+            box-sizing: border-box;
+            margin-right: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
             cursor: pointer;
+            text-align: center;
+            line-height: 30px;
+            padding: 0 5px;
+        }
+
+        #right > div:hover {
+            border-bottom: 1px solid var(--divider-color);
         }
 
         div.title {
@@ -98,7 +106,7 @@
                 font-size: 0.8em;
             }
         }
-        
+
         @media (max-width: 1050px) {
             .option-text {
                 display: none;
@@ -181,7 +189,7 @@
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> Sign up </span>
                 </div>
-                <div>
+                <div id="help">
                     <content select=".helpmenu"></content>
                 </div>
             </div>

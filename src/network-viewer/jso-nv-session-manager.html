@@ -3,7 +3,6 @@
         :host {
             display: block;
             box-sizing: border-box;
-            width: 500px;
         }
 
         .selbox {
@@ -17,7 +16,7 @@
             padding: 2px 5px;
         }
 
-        .selitem[data-checked=true] {
+        .selitem[data-checked] {
             background-color: #ddd;
         }
 
@@ -43,13 +42,13 @@
         }
     </style>
     <template>
-        <div class="container" vertical layout>
+        <div class="container">
 
             <label class="jso">Save current session:</label>
 
             <div class="horizontal layout">
                 <div class="flex">
-                    <input class="jso" type="text" value="{{sessionName}}" placeholder="Session name">
+                    <input class="jso" type="text" value="{{sessionName::input}}" placeholder="Session name">
                 </div>
                 <div class="jso-btn jso-btn-shdw" on-click="handleAddSession">
                     Add session
@@ -57,18 +56,23 @@
             </div>
 
 
-            <label class="jso">Saved sessions:</label>
+            <label class="jso horizontal layout">
+                <div>Saved sessions:</div>
+                <div class="flex"></div>
+                <div><i hidden$="{{isMessageEmpty(message)}}" class="fa fa-circle-o-notch fa-spin"></i> <span>{{message}}</span>
+                </div>
+            </label>
 
             <div class="selbox" style="height: 200px;">
-                <template if="{{!logged}}">
+                <template is="dom-if" if="{{!logged}}">
                     <div class="selitem">You must be logged in to save your sessions.</div>
                 </template>
-                <template if="{{logged && sessions.length == 0}}">
+                <template is="dom-if" if="{{hasSessions(logged, sessions.length)}}">
                     <div class="selitem">No sessions found.</div>
                 </template>
-                <template repeat="{{session in sessions}}">
+                <template is="dom-repeat" items="{{sessions}}" as="session">
                     <div class="selitem" on-click="handleSelectSession"
-                         data-checked="{{selectedSessionKey == session.key}}">
+                         data-checked$="{{isSessionChecked(selectedSessionKey,session.key)}}">
                         <div>{{session.name}}</div>
                         <div class="light">{{session.dateString}}</div>
                     </div>
@@ -99,7 +103,8 @@
         is: 'jso-nv-session-manager',
         properties: {
             userData: {
-                type: Object
+                type: Object,
+                observer: 'userDataChanged'
             },
             serializeVersion: {
                 type: String
@@ -121,27 +126,49 @@
             },
             selectedSessionKey: {
                 type: String
+            },
+            sessionName: {
+                type: String,
+                value: ''
+            },
+            logged: {
+                type: Boolean,
+                value: false
+            },
+            selectedStudy: {
+                type: Object
+            },
+            message: {
+                type: String,
+                value: ''
             }
         },
         ready: function () {
-            this.sessionName = '';
-            this.logged = false;
-            this.selectedStudy;
-
-
-            this.keyPrefix = 'NV_SESSION_MANAGER' + this.serializeVersion;
-        },
-        domReadyOFF: function () {
-            this.super();
             var me = this;
-//                this.networkViewer.jsoHeader.addEventListener('login', function (e) {
-//                    me.handleLogin();
-//                });
-            if (this.networkViewer.jsoHeader) {
-                this.networkViewer.jsoHeader.addEventListener('logout', function (e) {
-                    me.handleLogout();
-                });
+            this.keyPrefix = 'NV_SESSION_MANAGER' + this.serializeVersion;
+            this.networkViewer = this.domHost;
+            this.cellMaps = this.networkViewer.domHost;
+
+            if (this.cellMaps) {
+                if (this.cellMaps.$.jsoHeader) {
+                    this.cellMaps.$.jsoHeader.addEventListener('login', function (e) {
+                        me.handleLogin();
+                    });
+                    this.cellMaps.$.jsoHeader.addEventListener('logout', function (e) {
+                        me.handleLogout();
+                    });
+                }
             }
+
+        },
+        hasSessions: function (logged, length) {
+            return logged && length == 0;
+        },
+        isSessionChecked: function (selectedSessionKey, key) {
+            return selectedSessionKey === key;
+        },
+        isMessageEmpty: function (message) {
+            return message === '';
         },
         handleLogin: function () {
             this.logged = true;
@@ -152,7 +179,7 @@
             this.sessions = [];
             this.sessionMap = {};
         },
-        userDataChanged: function (oldValue, newValue) {
+        userDataChanged: function (neo, old) {
             var me = this;
             if (this.userData) {
 
@@ -164,7 +191,6 @@
                         sid: Cookies("bioinfo_sid")
                     },
                     request: {
-                        //method: 'POST',
                         success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.studies = response.response[0].result;
@@ -188,92 +214,122 @@
             this._updateSessionsFromUserData();
         },
         handleAddSession: function (e) {
-            this.saveSession(this.networkViewer, this.sessionName);
+            var me = this;
+            this.saveSession(this.networkViewer, this.sessionName, function () {
+                me.message = '';
+                me._updateSessionsFromUserData();
+            });
         },
-        saveSession: function (networkViewer, name) {
+        saveSession: function (networkViewer, name, callback) {
             if (this.logged) {
                 if (name != '') {
                     name = name.replace(/--/gi, "");
                     var sessionKey = this.keyPrefix + '--' + Date.now() + '--' + name;
                     if (!this.sessionMap[sessionKey]) {
+                        this.message = 'saving session...';
                         var fileContent = pako.gzip(JSON.stringify(networkViewer), {to: 'string'});
-
-                        this.uploadFile(fileContent, sessionKey);
-                        this._updateSessionsFromUserData();
-                        return true;
+                        this.uploadFile(fileContent, sessionKey, callback);
                     }
                 }
             }
-            return false;
         },
         handleRemoveSession: function () {
+            var me = this;
             if (this.logged) {
-                this.deleteFile(this.selectedSession.file);
-                this._updateSessionsFromUserData();
-
-                this.selectedSessionKey = null;
-                this.selectedSession = null;
+                this.message = 'deleting session...';
+                this.deleteFile(this.selectedSession.file, function (deleteMsg) {
+                    me.message = '';
+                    me._updateSessionsFromUserData();
+                    me.selectedSessionKey = null;
+                    me.selectedSession = null;
+                });
             }
         },
         handleRemoveAllSessions: function () {
+            var me = this;
             if (this.logged) {
+                this.message = 'deleting all session...';
                 if (this.sessions.length > 0 && confirm('All saved sessions will be deleted. Are you sure?')) {
                     for (var i = 0; i < this.sessions.length; i++) {
                         var session = this.sessions[i];
-                        this.deleteFile(session.file);
+                        this.deleteFile(session.file, function (deleteMsg) {
+                            //TODO deleteFiles
+                            me.message = '';
+                            me.sessions = [];
+                            me.sessionMap = {};
+                            me.selectedSessionKey = null;
+                            me.selectedSession = null;
+                        });
                     }
-                    this.sessions = [];
-                    this.sessionMap = {};
-                    this.selectedSessionKey = null;
-                    this.selectedSession = null;
                 }
             }
         },
         handleLoadSession: function () {
+            var me = this;
             if (this.logged) {
+                this.message = 'loading session...';
                 if (this.selectedSessionKey) {
                     var file = this.selectedSession.file;
-                    var content = this._getFileContent(file);
-                    this.networkViewer.loadJSON(JSON.parse(pako.ungzip(content, {to: 'string'})));
+                    var content = this._getFileContent(file, function (content) {
+                        me.message = '';
+                        me.networkViewer.loadJSON(JSON.parse(pako.ungzip(content, {to: 'string'})));
+                    });
                 }
             }
         },
         handleSelectSession: function (e) {
-            this.selectedSessionKey = e.target.templateInstance.model.session.key;
-            this.selectedSession = e.target.templateInstance.model.session;
+            this.selectedSessionKey = e.model.session.key;
+            this.selectedSession = e.model.session;
         },
         _updateSessionsFromUserData: function () {
-            var sessions = [];
-            this.sessionMap = {};
-            var sessionsFolder = this._getSessionsFolder(this.selectedStudy.id);
-            if (sessionsFolder == null) {
-                sessionsFolder = this._createSessionsFolder(this.selectedStudy.id);
-            }
-            var sessionsFiles = this._getSessionsFiles(sessionsFolder);
-
-            for (var i = 0; i < sessionsFiles.length; i++) {
-                var sessionFile = sessionsFiles[i];
-                if (sessionFile.status != "DELETED" && sessionFile.status != "DELETING") {
-                    var keySplit = sessionFile.name.split('--');
-                    if (keySplit[0] == this.keyPrefix) {
-                        var timeStamp = parseInt(keySplit[1]);
-                        sessions.push({
-                            file: sessionFile,
-                            key: sessionFile.name,
-                            name: keySplit[2],
-                            timeStamp: timeStamp,
-                            dateString: new Date(timeStamp).toString()
+            this.message = 'updating list..'
+            var me = this;
+            if (this.selectedStudy != null) {
+                var studyId = this.selectedStudy.id;
+                this._getSessionsFolder(studyId, function (sessionsFolder) {
+                    if (sessionsFolder == null) {
+                        me._createSessionsFolder(studyId, function (sessionsFolder) {
+                            me._processSessionsFiles(sessionsFolder);
                         });
-                        this.sessionMap[sessionFile.name] = true;
+                    } else {
+                        me._processSessionsFiles(sessionsFolder);
                     }
-                }
+                });
             }
-            sessions.sort(function (a, b) {
-                return b.timeStamp - a.timeStamp;
-            });
-            this.sessions = sessions;
         },
-        _getFileContent: function (file) {
+        _processSessionsFiles: function (sessionsFolder) {
+            var me = this;
+            this._getSessionsFiles(sessionsFolder, function (sessionsFiles) {
+                if (sessionsFiles != null) {
+                    var sessions = [];
+                    me.sessionMap = {};
+                    for (var i = 0; i < sessionsFiles.length; i++) {
+                        var sessionFile = sessionsFiles[i];
+                        if (sessionFile.status != "DELETED" && sessionFile.status != "DELETING") {
+                            var keySplit = sessionFile.name.split('--');
+                            if (keySplit[0] == me.keyPrefix) {
+                                var timeStamp = parseInt(keySplit[1]);
+                                sessions.push({
+                                    file: sessionFile,
+                                    key: sessionFile.name,
+                                    name: keySplit[2],
+                                    timeStamp: timeStamp,
+                                    dateString: new Date(timeStamp).toString()
+                                });
+                                me.sessionMap[sessionFile.name] = true;
+                            }
+                        }
+                    }
+                    sessions.sort(function (a, b) {
+                        return b.timeStamp - a.timeStamp;
+                    });
+                    me.sessions = sessions;
+                }
+                me.message = ''
+            });
+        },
+
+        _getFileContent: function (file, callback) {
             var content;
             OpencgaManager.files.content({
                 id: file.id,
@@ -281,18 +337,18 @@
                     sid: Cookies('bioinfo_sid')
                 },
                 request: {
-                    async: false,
                     success: function (response) {
                         content = response;
+                        callback(content);
                     },
                     error: function () {
 //                            me.message = 'Server error, try again later.';
+                        callback(content);
                     }
                 }
             });
-            return content;
         },
-        _getSessionsFolder: function (studyId) {
+        _getSessionsFolder: function (studyId, callback) {
             var me = this;
             var folder;
             OpencgaManager.files.search({
@@ -302,7 +358,6 @@
                     name: '.cellmaps_sessions'
                 },
                 request: {
-                    async: false,
                     success: function (response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
@@ -310,15 +365,16 @@
                         } else {
 //                                me.message = response.response[0].errorMsg;
                         }
+                        callback(folder);
                     },
                     error: function () {
 //                            me.message = 'Server error, try again later.';
+                        callback(folder);
                     }
                 }
             });
-            return folder;
         },
-        _createSessionsFolder: function (studyId) {
+        _createSessionsFolder: function (studyId, callback) {
             var me = this;
             var folder;
             OpencgaManager.files.createFolder({
@@ -328,22 +384,22 @@
                     studyId: studyId
                 },
                 request: {
-                    async: false,
                     success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             folder = response.response[0].result[0];
                         } else {
 //                                me.message = response.response[0].errorMsg;
                         }
+                        callback(folder);
                     },
                     error: function () {
 //                             me.message = 'Server error, try again later.';
+                        callback(folder);
                     }
                 }
             });
-            return folder;
         },
-        _getSessionsFiles: function (folder) {
+        _getSessionsFiles: function (folder, callback) {
             var me = this;
             var files;
             OpencgaManager.files.list({
@@ -353,7 +409,6 @@
                     studyId: this.selectedStudy.id
                 },
                 request: {
-                    async: false,
                     success: function (response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
@@ -361,31 +416,34 @@
                         } else {
                             me.message = response.response[0].errorMsg;
                         }
+                        callback(files);
                     },
                     error: function () {
                         me.message = 'Server error, try again later.';
+                        callback(files);
                     }
                 }
             });
             return files
         },
-        deleteFile: function (file) {
+        deleteFile: function (file, callback) {
             OpencgaManager.files.delete({
                 id: file.id,
                 query: {
                     sid: Cookies('bioinfo_sid')
                 },
                 request: {
-                    async: false,
                     success: function (response) {
+                        callback('success')
                     },
                     error: function () {
+                        callback('error')
 //                            me.message = 'Server error, try again later.';
                     }
                 }
             });
         },
-        uploadFile: function (fileContent, fileName) {
+        uploadFile: function (fileContent, fileName, callback) {
             var url = OpencgaManager.files.upload({
                 query: {
                     sid: Cookies("bioinfo_sid")
@@ -423,10 +481,10 @@
             formData.append("description", description);
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', url, false);
+            xhr.open('POST', url, true);
             xhr.onloadend = function (e) {
                 console.log('upload Done!');
-
+                callback();
             };
             xhr.send(formData);
         }
