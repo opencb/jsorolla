@@ -16,7 +16,7 @@
             display: block;
             box-sizing: border-box;
             cursor: default;
-            width:100%;
+            width: 100%;
         }
 
         .main {
@@ -30,7 +30,7 @@
             box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
             /*background-color: inherit;*/
             background-color: var(--dark-primary-color);
-            color:var(--text-primary-color);
+            color: var(--text-primary-color);
         }
 
         #tools {
@@ -41,10 +41,18 @@
 
         #left > div,
         #right > div {
-            display: block;
-            text-align: center;
-            padding: 0 5px;
+            box-sizing: border-box;
+            margin-right: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
             cursor: pointer;
+            text-align: center;
+            line-height: 30px;
+            padding: 0 5px;
+        }
+
+        #right > div:hover {
+            border-bottom: 1px solid var(--divider-color);
         }
 
         div.title {
@@ -87,27 +95,31 @@
             }
         }
 
-        #user{
-            color:var(--accent-color);
+        #user {
+            color: var(--accent-color);
             font-weight: normal;
+        }
+
+        #user:hover, #help:hover {
+            border-bottom: 1px solid transparent !important;
         }
 
     </style>
     <template>
         <div id="tools">
             <jso-opencga-login id="jsoLogin"
-                       menu-option="login"
-                       on-login="handleLogin"
-                       on-remember="handleRemember"
-                       on-signup="handleSignup">
+                               menu-option="login"
+                               on-login="handleLogin"
+                               on-remember="handleRemember"
+                               on-signup="handleSignup">
             </jso-opencga-login>
             <jso-opencga-signup id="jsoSignup"
-                        on-login="handleLogin"
-                        menu-option="signup">
+                                on-login="handleLogin"
+                                menu-option="signup">
             </jso-opencga-signup>
 
             <jso-opencga-profile id="jsoProfile"
-                         menu-option="profile">
+                                 menu-option="profile">
             </jso-opencga-profile>
 
             <jso-opencga-remember menu-option="remember">
@@ -149,7 +161,7 @@
                     </div>
                 </div>
 
-                <div title="jobs" id="jobs"  data-option="jobs" on-click="handleJobClick"
+                <div title="jobs" id="jobs" data-option="jobs" on-click="handleJobClick"
                      hidden$="{{computeJobs(isLogged, allowJobs)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> jobs </span>
@@ -166,7 +178,7 @@
                     <span class="option-text"> logout </span>
                 </div>
 
-                <div title="log in" id="login"  data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="log in" id="login" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
                     <i class="fa fa-sign-in"></i>
                     <span class="option-text"> Sign in </span>
                 </div>
@@ -174,7 +186,7 @@
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> Sign up </span>
                 </div>
-                <div>
+                <div id="help">
                     <content select=".helpmenu"></content>
                 </div>
             </div>

@@ -125,15 +125,18 @@
                 value: [{
                     name: 'source',
                     title: 'Source',
+                    width: 150,
                     formula: function (row) {
                         return row.source.id
                     }
                 }, {
                     name: 'relation',
-                    title: 'Relation'
+                    title: 'Relation',
+                    width: 150
                 }, {
                     name: 'target',
                     title: 'Target',
+                    width: 150,
                     formula: function (row) {
                         return row.target.id
                     }
@@ -143,7 +146,8 @@
                 type: Array,
                 value: [{
                     name: 'id',
-                    title: 'Id'
+                    title: 'Id',
+                    width: 450
                 }]
             },
             selectedVertices: {

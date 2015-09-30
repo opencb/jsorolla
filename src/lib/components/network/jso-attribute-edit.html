@@ -460,6 +460,7 @@
             this.page = 1;
         },
         handleEditApply: function (e) {
+
             if (this._newValue != '') {
                 var colName = this.$.selectEdit.value;
                 var found = false;
@@ -471,8 +472,8 @@
                     }
                 }
                 if (found) {
-                    for (var i = 0; i < this.items.length; i++) {
-                        var item = this.items[i];
+                    for (var i = 0; i < this._currentItems.length; i++) {
+                        var item = this._currentItems[i];
                         item.attributes[colName] = this._newValue;
                     }
                     this.$.table.refresh();

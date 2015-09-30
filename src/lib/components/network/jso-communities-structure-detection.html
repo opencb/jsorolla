@@ -213,6 +213,7 @@
                             response = this.response;
                         }
                         if (response.error === "" && response.response[0].error == null) {
+                            debugger
                             me.results = response.response[0].results;
                             me.results.globalModularity = me.results['Global modularity'];
                             me.results.numberCommunities = me.results['Number of communities with more than 2 nodes'];

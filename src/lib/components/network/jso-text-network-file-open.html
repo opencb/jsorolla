@@ -89,7 +89,7 @@
         </div>
 
         <jso-table id="table" enable-paging page-size="12" columns="{{columns}}"
-                   data="{{parsedData}}" style="height:420px"></jso-table>
+                   data="{{parsedData}}" style="height:436px"></jso-table>
 
         <div class="footer horizontal layout center">
             <div class="jso-txt">{{message}}</div>
@@ -125,15 +125,18 @@
                     return [{
                         name: 'source',
                         title: 'Source',
+                        width: 300,
                         formula: function (row) {
                             return row.source.id
                         }
                     }, {
                         name: 'relation',
-                        title: 'Relation'
+                        title: 'Relation',
+                        width: 300
                     }, {
                         name: 'target',
                         title: 'Target',
+                        width: 300,
                         formula: function (row) {
                             return row.target.id
                         }

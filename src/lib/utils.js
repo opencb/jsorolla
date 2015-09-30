@@ -392,11 +392,10 @@ var Utils = {
         setTimeout(function () {
             document.body.removeChild(div);
             div = null;
-            delete div;
+            //delete div;
         }, 2200);
     },
     repeat: function (string, count) {
-        'use strict';
         if (string == null) {
             throw new TypeError('can\'t convert ' + string + ' to object');
         }
