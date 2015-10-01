@@ -147,6 +147,9 @@
             <div title="Zoom in" id="zoomInButton" on-click="handleZoomInButton" class="jso-btn">
                 <i class="fa fa-plus"></i>
             </div>
+            <div title="Reset zoom" id="resetZoomButton" on-click="handleResetZoomButton" class="jso-btn" style="margin-left: 10px">
+                <i class="fa fa-television"></i>
+            </div>
             <div id="helpButton" on-click="handleHelpButton" class="jso-btn" style="margin-left: 10px">
                 <i class="fa fa-question-circle"></i>
             </div>
@@ -233,6 +236,9 @@
         },
         handleZoomInButton: function () {
             this.zoom = Math.min(100, this.zoom + 1)
+        },
+        handleResetZoomButton:function(){
+            this.fire('reset-zoom');
         },
         handleMode: function (e) {
             this.mode = e.currentTarget.dataset.mode;
