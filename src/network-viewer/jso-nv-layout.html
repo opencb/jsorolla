@@ -85,11 +85,11 @@
                 type: Number,
                 value: 0
             },
-            lmx: {
+            rmx: {
                 type: Number,
                 value: 0
             },
-            lmy: {
+            rmy: {
                 type: Number,
                 value: 0
             }
@@ -103,10 +103,10 @@
             this.set('my', (e.clientY - clientRect.top));
             console.log('mousePos: ' + this.mx + ' , ' + this.my);
 
-            var x = (this.mx - this.tx) / this.scale;
-            var y = (this.my - this.ty) / this.scale;
-            console.log('mousePss: ' + x + ' , ' + y);
-            console.log('--------------------------');
+            this.rmx = (this.mx - this.tx) / this.scale;
+            this.rmy = (this.my - this.ty) / this.scale;
+            console.log('mousePss: ' + this.rmx + ' , ' + this.rmy);
+            // console.log('--------------------------');
 
             //            console.log(this.scale)
         },
@@ -173,65 +173,14 @@
         },
         zoomChanged: function(neo, old) {
             this.scale = (this.zoom == 0) ? 0.04 : (this.zoom / 25);
-            var ts = (this.scale - 1);
-
-            var x = (this.mx - this.tx) / this.scale;
-            var y = (this.my - this.ty) / this.scale;
-
-            this.tx = (-this.mx * ts);
-            this.ty = (-this.my * ts);
-
-
-
-            // TODO: original
-            // var clientRect = this.$.svg.getBoundingClientRect();
-            // var centerX = clientRect.width / 2;
-            // var centerY = clientRect.height / 2;
-            // this.tx = this.x + (-centerX * ts);
-            // this.ty = this.y + (-centerY * ts);
-
-
-            // TODO: New
-            // console.log('scale: ' + this.scale);
-            // console.log('mousePos: ' + this.mx + ' - ' + this.my);
-            //
-            // console.log('p: ' + this.mx + ' - ' + this.my);
-            // console.log('ps: ' + this.mx / this.scale + ' - ' + this.my / this.scale);
-
-            // var ts = (this.scale - 1);
-            //
-            // oldScale = (old == null) ? 0 : old;
-            // oldScale = (oldScale == 0) ? 0.04 : (oldScale / 25);
-            // var ots = (oldScale - 1);
-            // var dx = this.mx * ots - this.lmx * ots;
-            // var dy = this.my * ots - this.lmy * ots;
-            //
-            // this.tx = dx + (-(this.mx) * ts);
-            // this.ty = dy + (-(this.my) * ts);
-            //
-            // this.lmx = this.mx;
-            // this.lmy = this.my;
-
-
-
-
-            // TODO: d3
-            // var me = this;
-            // var zoomed = function() {
-            //     // container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-            //     // console.log(d3.event.translate);
-            //     // console.log(d3.event.scale);
-            //     me.scale = d3.event.scale;
-            //     me.tx = d3.event.translate[0];
-            //     me.ty = d3.event.translate[1];
-            // }
-            // var zoom = d3.behavior.zoom()
-            //     .scaleExtent([1, 10])
-            //     .on("zoom", zoomed);
-            //
-            // var svg = d3.select(this.$.scaleFrontGroup).call(zoom);
-
-            console.log('t: ' + this.tx + ' - ' + this.ty);
+            var inc = 0.08;
+            if (neo > old) {
+                this.tx += (-this.rmx) * inc;
+                this.ty += (-this.rmy) * inc;
+            } else {
+                this.tx -= (-this.rmx) * inc;
+                this.ty -= (-this.rmy) * inc;
+            }
         },
         mouseHoverHandler: function(e) {
             var targetEl = e.target;
