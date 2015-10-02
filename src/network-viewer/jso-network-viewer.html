@@ -73,6 +73,7 @@
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-select-table.html">
 
 <link rel="import" href="../lib/components/network/jso-cellbase-attribute-import.html">
+<link rel="import" href="../lib/components/network/jso-cellbase-drugs-import.html">
 <link rel="import" href="../lib/components/network/jso-intact-import.html">
 <link rel="import" href="../lib/components/network/jso-communities-structure-detection.html">
 <link rel="import" href="../lib/components/network/jso-topological-study.html">
@@ -157,7 +158,7 @@
         on-layout-configure-force-directed="handleLayoutMenu" on-layout-circle="handleLayoutMenu" on-layout-random="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu"
         on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu"
         on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu"
-        on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-configure="{{}}">
+        on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu">
         </jso-nv-bar>
 
         <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage"
@@ -254,6 +255,15 @@
                 <jso-cellbase-attribute-import id="cellbaseAttributeImport" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns">
                 </jso-cellbase-attribute-import>
             </jso-panel>
+
+            <jso-panel collapsible fixed movable closable id="drugsPanel">
+                <div class="header">
+                    Import drugs by gene
+                </div>
+                <jso-cellbase-drugs-import id="drugs" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns" on-apply-color="handleApplyDrugsColor" on-apply-multicolor="handleApplyDrugsMulticolor">
+                </jso-cellbase-drugs-import>
+            </jso-panel>
+
 
             <jso-panel hidden collapsible fixed movable closable id="intactImportPanel">
                 <div class="header">
@@ -429,7 +439,9 @@
             <li on-click="handleContextSelectVerticesNeighbour">Select first neighbour nodes</li>
             <li on-click="handleContextSelectEdgesNeighbour">Select Adjacent edges</li>
             <li data-divider></li>
-            <li data-text><u>Attributes</u></li>
+            <li data-text>
+                <u>Attributes</u>
+            </li>
             <li data-text>
                 <div class="attr-context" class="vertical layout">
                     <template is="dom-repeat" items="{{_lastContextVertexAttributes}}" as="attr">
@@ -1179,6 +1191,9 @@
         handleCellbaseMenu: function(e) {
             this.$.cellbaseAttributeImportPanel.hidden = false;
         },
+        handleDrugsMenu: function(e) {
+            this.$.drugsPanel.hidden = false;
+        },
         handleSessionStartMenu: function(e) {
             if (confirm('All changes will be lost. Are you sure?')) {
                 this.startOver();
@@ -1414,7 +1429,6 @@
             //                _this.configuration.cleanVisualSets();
             this.setGraph(e.detail.graph);
             this.set('lastLoadedFileName', e.detail.fileName);
-            //                this.$.networkViewer.setLayout(e.detail.layout);
             this.setLayout('Force directed');
             this.saveLocalStorage();
         },
@@ -1422,7 +1436,6 @@
             //                _this.configuration.cleanVisualSets();
             this.setGraph(e.detail.graph);
             this.lastLoadedFileName = e.detail.fileName;
-            //                this.$.networkViewer.setLayout(e.detail.layout);
             this.setLayout('Force directed');
             this.saveLocalStorage();
         },
@@ -1776,6 +1789,50 @@
                 }
             }
             this._addColumns(e.detail.columns, 'vertexColumns');
+        },
+        handleApplyDrugsColor: function(e) {
+            var nodeRender = this.$.nodeRender;
+            var matches = {};
+            for (var i = 0; i < this.vertices.length; i++) {
+                var vertex = this.vertices[i];
+                if(vertex.attributes.drugs === 'none'){
+                    matches[vertex.attributes.drugs] = '#FFFFFF';
+                }else{
+                    matches[vertex.attributes.drugs] = '#FF0000';
+                }
+            }
+            nodeRender.applyVisualSet({
+                attribute: "drugs",
+                displayProperty: "color",
+                enabled: true,
+                matches: matches,
+                parse: "string",
+                type: "categorical"
+            });
+        },
+        handleApplyDrugsMulticolor: function(e) {
+            var nodeRender = this.$.nodeRender;
+            var matches = {};
+            for (var i = 0; i < this.vertices.length; i++) {
+                var vertex = this.vertices[i];
+                var drugs = vertex.attributes.drugs.split(',');
+                for (var j = 0; j < drugs.length; j++) {
+                    var drug = drugs[j];
+                    if(drug === 'none'){
+                        matches[drug] = '#FFFFFF';
+                    }else{
+                        matches[drug] = Utils.randomColor();
+                    }
+                }
+            }
+            nodeRender.applyVisualSet({
+                attribute: "drugs",
+                displayProperty: "color",
+                enabled: true,
+                matches: matches,
+                parse: "list",
+                type: "categorical"
+            });
         },
         /**
          /** Methods
@@ -2383,9 +2440,10 @@
             for (var i = 0, l = vertices.length; i < l; i++) {
                 var vertex = vertices[i];
                 vertex.attributes.id = vertex.id;
-                console.log('TODO debugger')
-                    //                vertex.attributes.name = vertex.id;
-                    //                    vertex.setRenderer(new CircosVertexRenderer(this.vertexDefaults));
+                if (vertex.attributes.name == null) {
+                    vertex.attributes.name = vertex.id;
+                }
+                //                    vertex.setRenderer(new CircosVertexRenderer(this.vertexDefaults));
                 vertex.render({
                     target: this.$.networkLayout.$.scaleFrontGroup
                 });

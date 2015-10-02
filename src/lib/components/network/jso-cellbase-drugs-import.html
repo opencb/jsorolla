@@ -1,0 +1,258 @@
+<dom-module id="jso-cellbase-drugs-import">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            position: relative;
+            width: 650px;
+        }
+
+        #main {
+            width: 100%;
+            height: 100%;
+            /*background-color: #FFFFFF;*/
+        }
+
+        .checkbox {
+            width: 25px;
+        }
+
+        .checkbox::after {
+            font-family: 'FontAwesome';
+            content: ' \00a0'
+        }
+
+        .checkbox[data-checked]::after {
+            content: '\f00c'
+        }
+
+        jso-select-box {
+            overflow-y: auto;
+            height: 150px;
+        }
+
+        .selbox {
+            box-sizing: border-box;
+            overflow-y: auto;
+            border: 1px solid #d3d3d3;
+            background-color: #FFF;
+        }
+
+        .selitem {
+            padding: 2px 5px;
+        }
+
+        .selitem[data-checked=true] {
+            background-color: #ddd;
+            /*background-color: #435f7a;*/
+            /*background-color: #f07746;*/
+            /*color: #fff;*/
+        }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--hover-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
+    </style>
+    <template>
+        <div id="main" class="flex horizontal layout">
+
+            <div style="width:230px;padding:5px;">
+                <label class="jso" style="margin-top: 5px;">Species:</label>
+
+                <jso-select-box id="species" options="{{species}}" name-attribute="id" title-attribute="_title">
+                </jso-select-box>
+
+                <label class="jso" style="margin-top: 10px;">Attributes:</label>
+
+                <jso-select-box id="columns" options="{{columns}}">
+                </jso-select-box>
+
+            </div>
+
+            <div class="flex vertical layout" style="margin:5px;">
+                <div hidden$="{{!showResult}}">
+                    Use this button just to show which genes have at least one drug or more .
+                    <div class="jso-btn jso-btn-shdw" on-click="handleApplyColor">Apply color</div>
+                    <br>
+                    <br> Use this button to show all drugs as a pie chart on each gene.
+                    <div class="jso-btn jso-btn-shdw" on-click="handleApplyMulticolor">Apply multiple colors</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer horizontal layout flex">
+            <div class="jso-txt">
+                <template is="dom-if" if="{{loading}}">
+                    <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
+                </template>
+                <span>{{message}}</span>
+            </div>
+            <div class="flex"></div>
+            <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleGo">Go</div>
+        </div>
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-cellbase-drugs-import",
+        properties: {
+            species: {
+                type: Array
+            },
+            selectedList: {
+                type: String,
+                value: 'ext'
+            },
+            message: {
+                type: String
+            },
+            showResult: {
+                type: Boolean,
+                value: false
+            },
+            columns: {
+                type: Array
+            },
+            items: {
+                type: Array
+            }
+        },
+        checkSelectedList: function(selectedList, list) {
+            return selectedList === list;
+        },
+        getSpecies: function(callback) {
+            CellBaseManager.get({
+                host: CELLBASE_HOST,
+                category: "meta",
+                subCategory: "species",
+                success: function(r) {
+                    var list = [];
+                    var taxonomies = r.response[0].result[0];
+                    for (var taxonomy in taxonomies) {
+                        var newSpecies = [];
+                        for (var i = 0; i < taxonomies[taxonomy].length; i++) {
+                            var species = taxonomies[taxonomy][i];
+                            for (var j = 0; j < species.assemblies.length; j++) {
+                                var s = Utils.clone(species)
+                                s.assembly = species.assemblies[j];
+                                s._title = s.scientificName + " " + s.assembly.name
+                                delete s.assemblies;
+                                newSpecies.push(s);
+                                list.push(s);
+                            }
+                        }
+                        taxonomies[taxonomy] = newSpecies;
+                    }
+                    callback(list);
+                }
+            });
+        },
+        ready: function() {
+            var me = this;
+
+            this.async(function() {
+                this.getSpecies(function(species) {
+                    me.species = species;
+                });
+            }, 50);
+        },
+        handleGo: function() {
+            if (this.$.columns.selected != null && this.$.species.selected != null) {
+                this.retrieveData(this.$.columns.selected.name, this.$.species.selected);
+            } else {
+                this.message = "Please select one species and one attribute";
+            }
+        },
+        retrieveData: function(attributeName, species, callbackFunction) {
+            var me = this;
+            var queries = [];
+
+            for (var i = 0; i < this.items.length; i++) {
+                var attributes = this.items[i].attributes;
+                queries.push(attributes[attributeName]);
+            }
+
+            if (queries.length > 0) {
+
+                this.loading = true;
+                this.message = "Retrieving data...";
+                this.showResult = false;
+
+                CellBaseManager.get({
+                    host: CELLBASE_HOST,
+                    species: species,
+                    category: 'feature',
+                    subCategory: 'gene',
+                    query: queries.toString(),
+                    resource: 'info',
+                    params: {
+                        exclude: 'transcripts,expressionValues',
+                    },
+                    success: function(res) {
+                        var resultMap = {};
+                        for (var i = 0; i < res.response.length; i++) {
+                            var response = res.response[i];
+                            var query = queries[i];
+                            var drugNames = [];
+                            for (var j = 0; j < response.result.length; j++) {
+                                var gene = response.result[j];
+                                if (gene.drugInteractions != null) {
+                                    for (var k = 0; k < gene.drugInteractions.length; k++) {
+                                        var di = gene.drugInteractions[k];
+                                        drugNames.push(di.drugName);
+                                    }
+                                }
+                            }
+                            resultMap[query] = drugNames;
+                        }
+                        for (var i = 0; i < me.items.length; i++) {
+                            var item = me.items[i];
+                            var drugNames = resultMap[item.attributes[attributeName]];
+                            if (drugNames != null && drugNames.length > 0) {
+                                item.attributes['drugs'] = resultMap[item.attributes[attributeName]].join(',');
+                            } else {
+                                item.attributes['drugs'] = 'none';
+                            }
+                        }
+
+                        var column = {
+                            name: 'drugs',
+                            title: 'Drugs',
+                            type: "text",
+                            formula: function(r) {
+                                return r.attributes[this.name];
+                            }
+                        };
+                        me.fire('add-columns', [column]);
+
+                        me.loading = false;
+                        me.message = "Information has been saved as attributes";
+                        me.showResult = true;
+
+                        if (callbackFunction) {
+                            callbackFunction();
+                        }
+                    }
+                });
+            } else {
+                this.message = "Node list is empty";
+            }
+
+        },
+        handleApplyColor:function(){
+            this.fire('apply-color');
+        },
+        handleApplyMulticolor:function(){
+            this.fire('apply-multicolor');
+        }
+
+    });
+</script>
