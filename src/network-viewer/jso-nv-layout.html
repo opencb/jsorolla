@@ -92,23 +92,41 @@
             rmy: {
                 type: Number,
                 value: 0
+            },
+            last_rmx: {
+                type: Number,
+                value: 0
+            },
+            last_rmy: {
+                type: Number,
+                value: 0
+            },
+            isMouseIn: {
+                type: Boolean,
+                value: false
             }
         },
         listeners: {
             'mousemove': 'handleMouseMove',
+            'mouseleave': 'handleMouseLeave',
+            'mouseenter': 'handleMouseEnter',
+        },
+        handleMouseLeave: function(e) {
+            this.set('isMouseIn', false);
+        },
+        handleMouseEnter: function(e) {
+            this.set('isMouseIn', true);
         },
         handleMouseMove: function(e) {
             var clientRect = this.$.svg.getBoundingClientRect();
             this.set('mx', (e.clientX - clientRect.left));
             this.set('my', (e.clientY - clientRect.top));
-            console.log('mousePos: ' + this.mx + ' , ' + this.my);
+            // console.log('mousePos: ' + this.mx + ' , ' + this.my);
 
-            this.rmx = (this.mx - this.tx) / this.scale;
-            this.rmy = (this.my - this.ty) / this.scale;
-            console.log('mousePss: ' + this.rmx + ' , ' + this.rmy);
+            this.set('rmx', (this.mx - this.tx) / this.scale);
+            this.set('rmy', (this.my - this.ty) / this.scale);
+            // console.log('mousePss: ' + this.rmx + ' , ' + this.rmy);
             // console.log('--------------------------');
-
-            //            console.log(this.scale)
         },
 
         created: function() {},
@@ -139,9 +157,9 @@
         handleWheel: function(e) {
             e.preventDefault();
             if (e.deltaY < 0) {
-                this.zoom = Math.min(100, this.zoom + 2);
+                this.zoom = Math.min(100, this.zoom + 1);
             } else {
-                this.zoom = Math.max(0, this.zoom - 2);
+                this.zoom = Math.max(0, this.zoom - 1);
             }
         },
         modeChanged: function(neo, old) {
@@ -172,14 +190,23 @@
             }
         },
         zoomChanged: function(neo, old) {
-            this.scale = (this.zoom == 0) ? 0.04 : (this.zoom / 25);
-            var inc = 0.08;
-            if (neo > old) {
-                this.tx += (-this.rmx) * inc;
-                this.ty += (-this.rmy) * inc;
-            } else {
-                this.tx -= (-this.rmx) * inc;
-                this.ty -= (-this.rmy) * inc;
+            if (old != null && neo != null) {
+                if (this.zoom === 0) {
+                    this.scale = 0.04;
+                } else {
+                    this.scale = this.zoom / 25;
+                }
+                var inc = (neo - old) / 25; // sign included 
+                if (this.isMouseIn === true) {
+                    this.tx += (-this.rmx) * inc;
+                    this.ty += (-this.rmy) * inc;
+
+                    this.last_rmx = this.rmx;
+                    this.last_rmy = this.rmy;
+                } else {
+                    this.tx += (-this.last_rmx) * inc;
+                    this.ty += (-this.last_rmy) * inc;
+                }
             }
         },
         mouseHoverHandler: function(e) {
