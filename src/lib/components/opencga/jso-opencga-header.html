@@ -155,40 +155,42 @@
                     <content select=".menu"></content>
                 </div>
             </div>
-            <div id="right" hidden$="{{!allowLogin}}" class="horizontal layout end-justified">
-                <div id="user" hidden$="{{!isLogged}}">
+            <div id="right" class="horizontal layout end-justified">
+                <div id="user" hidden$="{{computeUser(hideLogin, isLogged)}}">
                     <span class="option-text">{{userText}}</span>
                 </div>
 
-                <div hidden$="{{!allowBrowse}}">
-                    <div title="Upload" id="projects" data-option="projects" on-click="handleMenu" hidden$="{{!isLogged}}">
-                        <span class="option-text"> upload </span>
-                    </div>
+                <div title="Upload" id="projects" data-option="projects" on-click="handleMenu" hidden$="{{computeBrowse(hideBrowse, hideLogin, isLogged)}}">
+                    <span class="option-text"> upload </span>
                 </div>
 
-                <div title="jobs" id="jobs" data-option="jobs" on-click="handleJobClick" hidden$="{{computeJobs(isLogged, allowJobs)}}">
+                <div title="jobs" id="jobs" data-option="jobs" on-click="handleJobClick" hidden$="{{computeJobs(hideJobs, hideLogin, isLogged)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> jobs </span>
                 </div>
 
-                <div title="profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(isLogged, userText)}}">
+                <div title="profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideLogin, isLogged)}}">
                     <i class="fa fa-user"></i>
                     <span class="option-text"> profile </span>
                 </div>
 
-                <div title="logout" id="logout" on-click="handleLogoutClick" hidden$="{{!isLogged}}">
+                <div title="logout" id="logout" on-click="handleLogoutClick" hidden$="{{computeLogout(hideLogin, isLogged)}}">
                     <i class="fa fa-sign-out"></i>
                     <span class="option-text"> logout </span>
                 </div>
 
-                <div title="log in" id="login" data-option="login" on-click="handleMenu" hidden$="{{isLogged}}">
-                    <i class="fa fa-sign-in"></i>
-                    <span class="option-text"> Sign in </span>
-                </div>
-                <div title="sign up" id="signup" data-option="signup" on-click="handleMenu" hidden$="{{isLogged}}">
+                <div title="sign up" id="signup" data-option="signup" on-click="handleMenu" hidden$="{{computeSignup(hideSignup, hideLogin, isLogged)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> Sign up </span>
                 </div>
+
+                <div title="log in" id="login" data-option="login" on-click="handleMenu" hidden$="{{computeLogin(hideLogin, isLogged)}}">
+                    <i class="fa fa-sign-in"></i>
+                    <span class="option-text"> Sign in </span>
+                </div>
+
+
+
                 <div id="help">
                     <content select=".helpmenu"></content>
                 </div>
@@ -234,9 +236,14 @@
                 reflectToAttribute: true,
                 observer: 'selectedOptionChanged'
             },
-            allowLogin: {
+            hideLogin: {
                 type: Boolean,
-                value: true,
+                value: false,
+                reflectToAttribute: true
+            },
+            hideSignup: {
+                type: Boolean,
+                value: false,
                 reflectToAttribute: true
             },
             showMenuOnLogin: {
@@ -248,12 +255,12 @@
                 type: Boolean,
                 value: false
             },
-            allowJobs: {
+            hideJobs: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
             },
-            allowBrowse: {
+            hideBrowse: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
@@ -287,18 +294,52 @@
             }
             return false;
         },
-        computeProfile: function(isLogged, userText) {
-            if (!isLogged || userText == 'anonymous') {
+
+
+        computeUser: function(hideLogin, isLogged) {
+            if (hideLogin) {
                 return true;
             }
-            return false;
+            return !isLogged
         },
-        computeJobs: function(isLogged, allowJobs) {
-            if (!isLogged || !allowJobs) {
+        computeBrowse: function(hideBrowse, hideLogin, isLogged) {
+            if (hideLogin || hideBrowse) {
                 return true;
             }
-            return false;
+            return !isLogged
         },
+        computeJobs: function(hideJobs, hideLogin, isLogged) {
+            if (hideLogin || hideJobs) {
+                return true;
+            }
+            return !isLogged
+        },
+        computeProfile: function(userText, hideLogin, isLogged) {
+            if (hideLogin || userText == 'anonymous') {
+                return true;
+            }
+            return !isLogged
+        },
+        computeLogout: function(hideLogin, isLogged) {
+            if (hideLogin) {
+                return true;
+            }
+            return !isLogged
+        },
+        computeSignup: function(hideSignup, hideLogin, isLogged) {
+            if (hideLogin || hideSignup) {
+                return true;
+            }
+            return isLogged
+        },
+        computeLogin: function(hideLogin, isLogged) {
+            if (hideLogin) {
+                return true;
+            }
+            return isLogged
+        },
+
+
         selectedOptionChanged: function(neo, old) {
             var menuItems = Polymer.dom(this.root).querySelectorAll('[menu-option]');
             for (var i = 0; i < menuItems.length; i++) {
@@ -313,7 +354,7 @@
         },
         //TODO
         ready: function() {
-            if (this.allowLogin) {
+            if (!this.hideLogin) {
                 if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
                     this.sessionInitiated();
                 } else {
