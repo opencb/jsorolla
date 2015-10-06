@@ -55,6 +55,10 @@
             border-bottom: 1px solid var(--divider-color);
         }
 
+        #help, #user {
+            border-bottom: none !important;
+        }
+
         div.title {
             font-size: 30px;
             text-overflow: ellipsis;
@@ -170,7 +174,7 @@
                     <span class="option-text"> jobs </span>
                 </div>
 
-                <div title="profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideLogin, isLogged)}}">
+                <div title="profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideSignup, hideLogin, isLogged)}}">
                     <i class="fa fa-user"></i>
                     <span class="option-text"> profile </span>
                 </div>
@@ -315,8 +319,8 @@
             }
             return !isLogged
         },
-        computeProfile: function(userText, hideLogin, isLogged) {
-            if (hideLogin || userText == 'anonymous') {
+        computeProfile: function(userText, hideSignup, hideLogin, isLogged) {
+            if (hideSignup || hideLogin || userText == 'anonymous') {
                 return true;
             }
             return !isLogged
