@@ -54,12 +54,12 @@
             <label class="jso">User</label>
             <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <span class="shortcut" on-click="handleSignup">Create new user...</span>
+            <span hidden$={{hideSignup}} class="shortcut" on-click="handleSignup">Create new user...</span>
             <br>
             <label class="jso">Password</label>
             <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
 
-            <span class="shortcut" on-click="handleRemember">Remember password...</span>
+            <span hidden$={{hideSignup}} class="shortcut" on-click="handleRemember">Remember password...</span>
             <br>
             <br>
 
@@ -84,7 +84,12 @@
             message: {
                 type: String,
                 value: ''
-            }
+            },
+            hideSignup: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
         },
         handleFormKey: function (e) {
             if (e.which == 13) {

@@ -120,8 +120,9 @@
     </style>
     <template>
         <div id="tools">
-            <jso-opencga-login id="jsoLogin" menu-option="login" on-login="handleLogin" on-remember="handleRemember" on-signup="handleSignup">
+            <jso-opencga-login id="jsoLogin" hide-signup$={{hideSignup}} menu-option="login" on-login="handleLogin" on-remember="handleRemember" on-signup="handleSignup">
             </jso-opencga-login>
+
             <jso-opencga-signup id="jsoSignup" on-login="handleLogin" menu-option="signup">
             </jso-opencga-signup>
 
