@@ -20,9 +20,7 @@
     </style>
     <template>
         <template is="dom-repeat" items="{{options}}" as="option">
-            <div class="item flex"
-                 data-checked$="{{isSelected(selected, option)}}"
-                 on-mousedown="handleSelect">
+            <div class="item flex" data-checked$="{{isSelected(selected, option)}}" on-mousedown="handleSelect">
                 <span>{{computeOptionDisplay(option)}}</span>
             </div>
         </template>
@@ -53,27 +51,30 @@
                 value: 'title'
             }
         },
-        computeOptionDisplay: function (option) {
+        computeOptionDisplay: function(option) {
             return option[this.titleAttribute];
         },
-        optionsChanged: function () {
-            this.set('selected', this.options[0]);
-            this.fire('select', this.selected);
+        optionsChanged: function() {
+            if (this.selected != null && this.selected.name) {
+                this.selectByName(this.selected.name);
+            } else {
+                this.selectByIndex(0);
+            }
         },
-        handleSelect: function (e) {
+        handleSelect: function(e) {
             this.set('selected', e.model.option);
             this.fire('select', this.selected);
         },
-        isSelected: function (selected, current) {
+        isSelected: function(selected, current) {
             return selected == current;
         },
-        selectByIndex: function (index) {
+        selectByIndex: function(index) {
             if (this.options[index] != null) {
                 this.set('selected', this.options[index]);
                 this.fire('select', this.selected);
             }
         },
-        selectByName: function (name) {
+        selectByName: function(name) {
             var index = -1;
             for (var i = 0; i < this.options.length; i++) {
                 var option = this.options[i];

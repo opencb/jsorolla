@@ -10,20 +10,14 @@
         #main {
             width: 100%;
             height: 100%;
-            /*background-color: #FFFFFF;*/
         }
 
-        .checkbox {
-            width: 25px;
+        #left{
+            width:230px;
+            margin:5px;
         }
-
-        .checkbox::after {
-            font-family: 'FontAwesome';
-            content: ' \00a0'
-        }
-
-        .checkbox[data-checked]::after {
-            content: '\f00c'
+        #right{
+            margin:5px;
         }
 
         jso-select-box {
@@ -31,27 +25,9 @@
             height: 150px;
         }
 
-        .selbox {
-            box-sizing: border-box;
-            overflow-y: auto;
-            border: 1px solid #d3d3d3;
-            background-color: #FFF;
-        }
-
-        .selitem {
-            padding: 2px 5px;
-        }
-
-        .selitem[data-checked=true] {
-            background-color: #ddd;
-            /*background-color: #435f7a;*/
-            /*background-color: #f07746;*/
-            /*color: #fff;*/
-        }
-
         .footer {
             padding: 4px 5px 4px 12px;
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
@@ -62,8 +38,8 @@
     <template>
         <div id="main" class="flex horizontal layout">
 
-            <div style="width:230px;padding:5px;">
-                <label class="jso" style="margin-top: 5px;">Species:</label>
+            <div id="left">
+                <label class="jso">Species:</label>
 
                 <jso-select-box id="species" options="{{species}}" name-attribute="id" title-attribute="_title">
                 </jso-select-box>
@@ -75,13 +51,34 @@
 
             </div>
 
-            <div class="flex vertical layout" style="margin:5px;">
+            <div id="right" class="flex vertical layout">
                 <div hidden$="{{!showResult}}">
-                    Use this button just to show which genes have at least one drug or more .
-                    <div class="jso-btn jso-btn-shdw" on-click="handleApplyColor">Apply color</div>
+                    <label class="jso">Results:</label>
                     <br>
-                    <br> Use this button to show all drugs as a pie chart on each gene.
-                    <div class="jso-btn jso-btn-shdw" on-click="handleApplyMulticolor">Apply multiple colors</div>
+                    <div>
+                        Results are available as node attributes, select 'Attributes' menu and then "Edit node attributes" to see the results.
+                    </div>
+                    <div class="jso-note jso-note-info">
+                        <div> Please read:</div>
+                        Some genes can be affected by none, one or more drugs, so you can hightlight the nodes with one or more with one color, or paint different colors if there is a gene affected by different drugs
+                    </div>
+                    <br>
+                    <div>Use this button to show which genes have at least one drug or more.</div>
+                    <br>
+                    <div class="horizontal layout center-justified">
+                        <div class="jso-btn jso-btn-shdw" on-click="handleApplyColor">Apply color</div>
+                    </div>
+                    <br>
+                    <div>Use this button to show all drugs as a pie chart on each gene.</div>
+                    <br>
+                    <div class="horizontal layout center-justified">
+                        <div class="jso-btn jso-btn-shdw" on-click="handleApplyMulticolor">Apply multiple colors</div>
+                    </div>
+                </div>
+                <div hidden$="{{showResult}}">
+                    <label class="jso">Tip:</label>
+                    <br>
+                    <div>Please select an species and an attribute with the gene name, then press the "Go" button.</div>
                 </div>
             </div>
 
@@ -247,10 +244,10 @@
             }
 
         },
-        handleApplyColor:function(){
+        handleApplyColor: function() {
             this.fire('apply-color');
         },
-        handleApplyMulticolor:function(){
+        handleApplyMulticolor: function() {
             this.fire('apply-multicolor');
         }
 

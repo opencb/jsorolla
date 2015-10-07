@@ -104,8 +104,7 @@
                             </div>
 
                             <div class="horizontal layout" style="margin-top: 3px;">
-                                <input flex type="text" class="jso" value="{{_newValue::input}}"
-                                       placeholder="Attribute value">
+                                <input flex type="text" class="jso" value="{{_newValue::input}}" placeholder="Attribute value">
 
                                 <div class="jso-btn jso-btn-shdw newvalue" on-click="handleEditApply"></div>
                             </div>
@@ -114,8 +113,7 @@
                         <label class="jso" style="margin-top: 10px;">Add new attribute</label>
 
                         <div class="horizontal layout">
-                            <input flex type="text" class="jso" value="{{_newColumnName::input}}"
-                                   placeholder="Attribute name">
+                            <input flex type="text" class="jso" value="{{_newColumnName::input}}" placeholder="Attribute name">
 
                             <div class="jso-btn jso-btn-shdw newattr" on-click="handleAddApply"></div>
                         </div>
@@ -139,12 +137,10 @@
                     <div class="jso-formtitle horizontal layout">
                         <div class="flex">Filters</div>
                         <div class="horizontal layout">
-                            <div class="jso-btn" data-checked$="{{isAddFilterSelected(_filterSelectedOption)}}"
-                                 on-click="handleAddNewFilter">
+                            <div class="jso-btn" data-checked$="{{isAddFilterSelected(_filterSelectedOption)}}" on-click="handleAddNewFilter">
                                 <i class="fa fa-plus"></i>
                             </div>
-                            <div class="jso-btn" data-checked$="{{isViewFilterSelected(_filterSelectedOption)}}"
-                                 on-click="handleViewFilters">
+                            <div class="jso-btn" data-checked$="{{isViewFilterSelected(_filterSelectedOption)}}" on-click="handleViewFilters">
                                 <i class="fa fa-eye"></i>
                             </div>
                             <template if="{{filters.length > 0}}">
@@ -156,8 +152,7 @@
 
                     <div class="jso-formcontent" vertical layout>
 
-                        <div hidden$="{{!isViewFilterSelected(_filterSelectedOption)}}" class="selbox"
-                             style="height: 280px;">
+                        <div hidden$="{{!isViewFilterSelected(_filterSelectedOption)}}" class="selbox" style="height: 280px;">
                             <template is="dom-if" if="{{!_thereAreFilters}}">
                                 <div class="selitem flex">No filters to show.
                                     <br> Click
@@ -198,11 +193,9 @@
                             <label class="jso">Data type:</label>
 
                             <div class="selbox">
-                                <div class="selitem flex" data-checked$="{{isAttributeString(_attributeType)}}"
-                                     on-click="handleAttributeTypeSelect" data-name="string">String
+                                <div class="selitem flex" data-checked$="{{isAttributeString(_attributeType)}}" on-click="handleAttributeTypeSelect" data-name="string">String
                                 </div>
-                                <div class="selitem flex" data-checked$="{{isAttributeNumber(_attributeType)}}"
-                                     on-click="handleAttributeTypeSelect" data-name="number">Number
+                                <div class="selitem flex" data-checked$="{{isAttributeNumber(_attributeType)}}" on-click="handleAttributeTypeSelect" data-name="number">Number
                                 </div>
                             </div>
 
@@ -210,14 +203,11 @@
                                 <label class="jso">String matching:</label>
 
                                 <div class="selbox" style="height: 122px;">
-                                    <div class="selitem flex" data-checked$="{{isStringMatchExact(_stringMatch)}}"
-                                         on-click="handleStringMatchSelect" data-name="exact">Exact
+                                    <div class="selitem flex" data-checked$="{{isStringMatchExact(_stringMatch)}}" on-click="handleStringMatchSelect" data-name="exact">Exact
                                     </div>
-                                    <div class="selitem flex" data-checked$="{{isStringMatchContains(_stringMatch)}}"
-                                         on-click="handleStringMatchSelect" data-name="contains">Contains
+                                    <div class="selitem flex" data-checked$="{{isStringMatchContains(_stringMatch)}}" on-click="handleStringMatchSelect" data-name="contains">Contains
                                     </div>
-                                    <div class="selitem flex" data-checked$="{{isStringMatchNotcontains(_stringMatch)}}"
-                                         on-click="handleStringMatchSelect" data-name="notcontains">Not contains
+                                    <div class="selitem flex" data-checked$="{{isStringMatchNotcontains(_stringMatch)}}" on-click="handleStringMatchSelect" data-name="notcontains">Not contains
                                     </div>
                                 </div>
                             </template>
@@ -226,38 +216,28 @@
                                 <label class="jso">Number matching:</label>
 
                                 <div class="selbox">
-                                    <div class="selitem flex" data-checked$="{{isNumberMatchEquals(_numberMatch)}}"
-                                         on-click="handleNumberMatchSelect" data-name="equals">Equals
+                                    <div class="selitem flex" data-checked$="{{isNumberMatchEquals(_numberMatch)}}" on-click="handleNumberMatchSelect" data-name="equals">Equals
                                     </div>
-                                    <div class="selitem flex" data-checked$="{{isNumberMatchNotequal(_numberMatch)}}"
-                                         on-click="handleNumberMatchSelect" data-name="notequal">Not equal to
+                                    <div class="selitem flex" data-checked$="{{isNumberMatchNotequal(_numberMatch)}}" on-click="handleNumberMatchSelect" data-name="notequal">Not equal to
                                     </div>
 
-                                    <div class="selitem flex" data-checked$="{{isNumberMatchGreater(_numberMatch)}}"
-                                         on-click="handleNumberMatchSelect" data-name="greater">Greater than
+                                    <div class="selitem flex" data-checked$="{{isNumberMatchGreater(_numberMatch)}}" on-click="handleNumberMatchSelect" data-name="greater">Greater than
                                     </div>
-                                    <div class="selitem flex"
-                                         data-checked$="{{isNumberMatchGreaterequal(_numberMatch)}}"
-                                         on-click="handleNumberMatchSelect" data-name="greaterequal">Greater than or
-                                        equal to
+                                    <div class="selitem flex" data-checked$="{{isNumberMatchGreaterequal(_numberMatch)}}" on-click="handleNumberMatchSelect" data-name="greaterequal">Greater than or equal to
                                     </div>
 
-                                    <div class="selitem flex" data-checked$="{{isNumberMatchLess(_numberMatch)}}"
-                                         on-click="handleNumberMatchSelect" data-name="less">Less than
+                                    <div class="selitem flex" data-checked$="{{isNumberMatchLess(_numberMatch)}}" on-click="handleNumberMatchSelect" data-name="less">Less than
                                     </div>
-                                    <div class="selitem flex" data-checked$="{{isNumberMatchLessequal(_numberMatch)}}"
-                                         on-click="handleNumberMatchSelect" data-name="lessequal">Less than or equal to
+                                    <div class="selitem flex" data-checked$="{{isNumberMatchLessequal(_numberMatch)}}" on-click="handleNumberMatchSelect" data-name="lessequal">Less than or equal to
                                     </div>
                                 </div>
                             </template>
 
                             <div style="margin-top:5px;" class="horizontal layout">
                                 <div class="flex">
-                                    <input type="text" class="jso" value="{{_queryString::input}}"
-                                           placeholder="Query string">
+                                    <input type="text" class="jso" value="{{_queryString::input}}" placeholder="Query string">
                                 </div>
-                                <div class="jso-btn jso-btn-shdw" style="margin-left:3px;"
-                                     on-click="handleCreateFilter">
+                                <div class="jso-btn jso-btn-shdw" style="margin-left:3px;" on-click="handleCreateFilter">
                                     Add filter
                                 </div>
                             </div>
@@ -267,7 +247,7 @@
             </div>
 
             <div id="right" class="flex vertical layout">
-                <div class="bar horizontal layout center">
+                <div id="topbar" class="bar horizontal layout center">
                     <div class="jso-btn jso-btn-shdw" on-click="handleSelectAll">Select all</div>
                     <div class="jso-btn jso-btn-shdw" on-click="handleDeselectAll">Deselect all</div>
 
@@ -279,9 +259,7 @@
                     </div>
                 </div>
 
-                <jso-table id="table" enable-paging enable-select enable-edit enable-resize columns="{{columns}}"
-                           data="{{_currentItems}}" selected="{{_currentSelected}}" page-size="15"
-                           style="height:540px"></jso-table>
+                <jso-table id="table" enable-paging enable-select enable-edit enable-resize columns="{{columns}}" data="{{_currentItems}}" selected="{{_currentSelected}}" page-size="15" style="height:540px"></jso-table>
 
             </div>
         </div>
@@ -308,7 +286,7 @@
             },
             _filters: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
@@ -355,337 +333,353 @@
             '_currentSelectedChanged(_currentSelected.splices)',
             '_filtersChanged(_filters.splices)'
         ],
-        itemsChanged: function (changeRecord) {
-            this._checkCurrentItems();
-        },
-        selectedChanged: function (changeRecord) {
-            this._checkCurrentItems();
-        },
-        _filtersChanged: function (changeRecord) {
-            this._thereAreFilters = this._filters.length > 0;
-        },
-        _currentSelectedChanged: function (changeRecord) {
-            this.fire('selectedchange');
-        },
-        computeSelected: function () {
-        },
-        computeItem: function (item, column) {
-            var value;
-            if (column.formula) {
-                value = column.formula(item);
-            } else {
-                value = item[column.name];
-            }
-            return value;
-        },
-        // readyOFF: function () {
-        //     var me = this;
-        //     this.table = this.$.table;
-        //     this.table.cellEditFinished = function (e) {
-        //         var row = e.target.templateInstance.model.row;
-        //         me.attributeManager._updateRow(row);
-        //     }
-        // },
-        isColumnEditable: function (column) {
-            return column.editable != false;
-        },
-        isAddFilterSelected: function (_filterSelectedOption) {
-            return _filterSelectedOption == 'add';
-        },
-        isViewFilterSelected: function (_filterSelectedOption) {
-            return _filterSelectedOption == 'view';
-        },
-        isAttributeString: function (_attributeType) {
-            return _attributeType == 'string';
-        },
-        isAttributeNumber: function (_attributeType) {
-            return _attributeType == 'number';
-        },
-        isStringMatchExact: function (_stringMatch) {
-            return _stringMatch == 'exact';
-        },
-        isStringMatchContains: function (_stringMatch) {
-            return _stringMatch == 'contains';
-        },
-        isStringMatchNotcontains: function (_stringMatch) {
-            return _stringMatch == 'notcontains';
-        },
-        isNumberMatchEquals: function (_numberMatch) {
-            return _numberMatch == 'equals';
-        },
-        isNumberMatchNotequal: function (_numberMatch) {
-            return _numberMatch == 'notequal';
-        },
-        isNumberMatchGreater: function (_numberMatch) {
-            return _numberMatch == 'greater';
-        },
-        isNumberMatchGreaterequal: function (_numberMatch) {
-            return _numberMatch == 'greaterequal';
-        },
-        isNumberMatchLess: function (_numberMatch) {
-            return _numberMatch == 'less';
-        },
-        isNumberMatchLessequal: function (_numberMatch) {
-            return _numberMatch == 'lessequal';
-        },
-        showSelectedChanged: function () {
-            // if (this.showSelected) {
-            //     this.$.table.currentPage = 1;
-            // }
-            this._checkCurrentItems();
-        },
-        handleSelectedChanged: function () {
-            this._checkCurrentItems();
-        },
-        _checkCurrentItems: function () {
-            if (this._showSelected) {
-                this.set('_currentItems', this.selected);
-                this.set('_currentSelected', []);
-            } else {
-                this.set('_currentItems', this.items);
-                this.set('_currentSelected', this.selected);
-            }
-            var filteredData = [];
-            if (this._filters.length > 0) {
-                for (var i = 0; i < this._filters.length; i++) {
-                    var filter = this._filters[i];
-                    filteredData = this._applyFilter(filter, this._currentItems, filteredData, i);
+        ready: function() {
+            var me = this;
+            this._parentJsoPanel.addEventListener('expand', function() {
+                    if (me._parentJsoPanel.expanded) {
+                        var brcMe = me.getBoundingClientRect();
+                        var bcrJsoPanel = me._parentJsoPanel.getBoundingClientRect();
+                        var bcrTopBar = me.$.topbar.getBoundingClientRect();
+                        me.style.width = bcrJsoPanel.width + 'px';
+                        me.$.table.style.height = brcMe.height - bcrTopBar.height + 'px';
+                        me.$.table.pageSize = Math.floor((brcMe.height - bcrTopBar.height) / 30) - 3;
+                } else {
+                    me.style.width = '';
+                    me.$.table.style.height = '540px';
+                    me.$.table.pageSize = 15;
                 }
-                this.set('_currentItems', filteredData);
+            });
+    },
+    itemsChanged: function(changeRecord) {
+        this._checkCurrentItems();
+    },
+    selectedChanged: function(changeRecord) {
+        this._checkCurrentItems();
+    },
+    _filtersChanged: function(changeRecord) {
+        this._thereAreFilters = this._filters.length > 0;
+    },
+    _currentSelectedChanged: function(changeRecord) {
+        this.fire('selectedchange');
+    },
+    computeSelected: function() {},
+    computeItem: function(item, column) {
+        var value;
+        if (column.formula) {
+            value = column.formula(item);
+        } else {
+            value = item[column.name];
+        }
+        return value;
+    },
+    // readyOFF: function () {
+    //     var me = this;
+    //     this.table = this.$.table;
+    //     this.table.cellEditFinished = function (e) {
+    //         var row = e.target.templateInstance.model.row;
+    //         me.attributeManager._updateRow(row);
+    //     }
+    // },
+    isColumnEditable: function(column) {
+        return column.editable != false;
+    },
+    isAddFilterSelected: function(_filterSelectedOption) {
+        return _filterSelectedOption == 'add';
+    },
+    isViewFilterSelected: function(_filterSelectedOption) {
+        return _filterSelectedOption == 'view';
+    },
+    isAttributeString: function(_attributeType) {
+        return _attributeType == 'string';
+    },
+    isAttributeNumber: function(_attributeType) {
+        return _attributeType == 'number';
+    },
+    isStringMatchExact: function(_stringMatch) {
+        return _stringMatch == 'exact';
+    },
+    isStringMatchContains: function(_stringMatch) {
+        return _stringMatch == 'contains';
+    },
+    isStringMatchNotcontains: function(_stringMatch) {
+        return _stringMatch == 'notcontains';
+    },
+    isNumberMatchEquals: function(_numberMatch) {
+        return _numberMatch == 'equals';
+    },
+    isNumberMatchNotequal: function(_numberMatch) {
+        return _numberMatch == 'notequal';
+    },
+    isNumberMatchGreater: function(_numberMatch) {
+        return _numberMatch == 'greater';
+    },
+    isNumberMatchGreaterequal: function(_numberMatch) {
+        return _numberMatch == 'greaterequal';
+    },
+    isNumberMatchLess: function(_numberMatch) {
+        return _numberMatch == 'less';
+    },
+    isNumberMatchLessequal: function(_numberMatch) {
+        return _numberMatch == 'lessequal';
+    },
+    showSelectedChanged: function() {
+        // if (this.showSelected) {
+        //     this.$.table.currentPage = 1;
+        // }
+        this._checkCurrentItems();
+    },
+    handleSelectedChanged: function() {
+        this._checkCurrentItems();
+    },
+    _checkCurrentItems: function() {
+        if (this._showSelected) {
+            this.set('_currentItems', this.selected);
+            this.set('_currentSelected', []);
+        } else {
+            this.set('_currentItems', this.items);
+            this.set('_currentSelected', this.selected);
+        }
+        var filteredData = [];
+        if (this._filters.length > 0) {
+            for (var i = 0; i < this._filters.length; i++) {
+                var filter = this._filters[i];
+                filteredData = this._applyFilter(filter, this._currentItems, filteredData, i);
             }
-            this.$.table.refresh();
-        },
-        handleExpand: function () {
-            this.super();
-            this.page = 1;
-        },
-        handleEditApply: function (e) {
+            this.set('_currentItems', filteredData);
+        }
+        this.$.table.refresh();
+    },
+    handleExpand: function() {
+        this.super();
+        this.page = 1;
+    },
+    handleEditApply: function(e) {
 
-            if (this._newValue != '') {
-                var colName = this.$.selectEdit.value;
-                var found = false;
-                for (var i = 0; i < this.columns.length; i++) {
-                    var column = this.columns[i];
-                    if (column.name == colName) {
-                        found = true;
-                        break;
+        if (this._newValue != '') {
+            var colName = this.$.selectEdit.value;
+            var found = false;
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                if (column.name == colName) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                for (var i = 0; i < this._currentItems.length; i++) {
+                    var item = this._currentItems[i];
+                    item.attributes[colName] = this._newValue;
+                }
+                this.$.table.refresh();
+            }
+        }
+        this.fire('update-row');
+    },
+    handleRemoveApply: function(e) {
+        if (confirm('Delete this attribute?')) {
+            var colName = this.$.selectDelete.value;
+            var colIndex;
+            var found = false;
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                if (column.name == colName) {
+                    found = true;
+                    colIndex = i;
+                    break;
+                }
+            }
+            if (found) {
+                this.splice('columns', colIndex, 1)
+            }
+        }
+    },
+    handleAddApply: function(e) {
+        if (this._newColumnName != '') {
+            var found = false;
+            for (var i = 0; i < this.columns.length; i++) {
+                var column = this.columns[i];
+                if (column.name == this._newColumnName) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                this.push('columns', {
+                    name: this._newColumnName,
+                    title: this._newColumnName,
+                    type: "text",
+                    formula: function(row) {
+                        return row.attributes[this.name];
                     }
-                }
-                if (found) {
-                    for (var i = 0; i < this._currentItems.length; i++) {
-                        var item = this._currentItems[i];
-                        item.attributes[colName] = this._newValue;
-                    }
-                    this.$.table.refresh();
-                }
+                });
+                this._newColumnName = '';
             }
-            this.fire('update-row');
-        },
-        handleRemoveApply: function (e) {
-            if (confirm('Delete this attribute?')) {
-                var colName = this.$.selectDelete.value;
-                var colIndex;
-                var found = false;
-                for (var i = 0; i < this.columns.length; i++) {
-                    var column = this.columns[i];
-                    if (column.name == colName) {
-                        found = true;
-                        colIndex = i;
-                        break;
-                    }
-                }
-                if (found) {
-                    this.splice('columns', colIndex, 1)
-                }
+        }
+    },
+    handleSelectAll: function() {
+        this.fire('selectall')
+    },
+    handleDeselectAll: function() {
+        this.fire('deselectall')
+    },
+    /* Search */
+    handleAttributeNameSelect: function(e) {
+        this.attributeName = e.currentTarget.dataset.name;
+    },
+    handleAttributeTypeSelect: function(e) {
+        this._attributeType = e.currentTarget.dataset.name;
+    },
+    handleStringMatchSelect: function(e) {
+        this._stringMatch = e.currentTarget.dataset.name;
+    },
+    handleNumberMatchSelect: function(e) {
+        this._numberMatch = e.currentTarget.dataset.name;
+    },
+    handleCreateFilter: function() {
+        var attributeName = this.$.filterAttributeSelect.value;
+        var match;
+        if (this._attributeType == 'string') {
+            match = this._stringMatch;
+        } else if (this._attributeType == 'number') {
+            match = this._numberMatch;
+        }
+        var filter = {
+            attributeName: attributeName,
+            queryString: this._queryString,
+            attributeType: this._attributeType,
+            match: match
+        };
+        this.push('_filters', filter);
+        this._checkCurrentItems();
+        this.handleViewFilters();
+    },
+    _applyFilter: function(filter, fullData, filteredData, filterIndex) {
+        var dataToIterate;
+        if (filterIndex == 0) {
+            dataToIterate = fullData;
+        } else {
+            dataToIterate = filteredData;
+        }
+        if (filter.attributeType == 'string') {
+            switch (filter.match) {
+                case 'exact':
+                    dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
+                    break;
+                case 'contains':
+                    dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString);
+                    break;
+                case 'notcontains':
+                    dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
+                    break;
             }
-        },
-        handleAddApply: function (e) {
-            if (this._newColumnName != '') {
-                var found = false;
-                for (var i = 0; i < this.columns.length; i++) {
-                    var column = this.columns[i];
-                    if (column.name == this._newColumnName) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    this.push('columns', {
-                        name: this._newColumnName,
-                        title: this._newColumnName,
-                        type: "text",
-                        formula: function (row) {
-                            return row.attributes[this.name];
-                        }
-                    });
-                    this._newColumnName = '';
-                }
+        } else if (filter.attributeType == 'number') {
+            switch (filter.match) {
+                case 'equals':
+                    dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
+                    break;
+                case 'notequal':
+                    dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
+                    break;
+                case 'greater':
+                    dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>');
+                    break;
+                case 'greaterequal':
+                    dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>', true);
+                    break;
+                case 'less':
+                    dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<');
+                    break;
+                case 'lessequal':
+                    dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<', true);
+                    break;
             }
-        },
-        handleSelectAll: function () {
-            this.fire('selectall')
-        },
-        handleDeselectAll: function () {
-            this.fire('deselectall')
-        },
-        /* Search */
-        handleAttributeNameSelect: function (e) {
-            this.attributeName = e.currentTarget.dataset.name;
-        },
-        handleAttributeTypeSelect: function (e) {
-            this._attributeType = e.currentTarget.dataset.name;
-        },
-        handleStringMatchSelect: function (e) {
-            this._stringMatch = e.currentTarget.dataset.name;
-        },
-        handleNumberMatchSelect: function (e) {
-            this._numberMatch = e.currentTarget.dataset.name;
-        },
-        handleCreateFilter: function () {
-            var attributeName = this.$.filterAttributeSelect.value;
-            var match;
-            if (this._attributeType == 'string') {
-                match = this._stringMatch;
-            } else if (this._attributeType == 'number') {
-                match = this._numberMatch;
+        }
+        return dataToIterate;
+    },
+    selectByColumnValue: function(data, column, value) {
+        var selected = [];
+        for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            if (row[column] === value) {
+                selected.push(row);
             }
-            var filter = {
-                attributeName: attributeName,
-                queryString: this._queryString,
-                attributeType: this._attributeType,
-                match: match
-            };
-            this.push('_filters', filter);
-            this._checkCurrentItems();
-            this.handleViewFilters();
-        },
-        _applyFilter: function (filter, fullData, filteredData, filterIndex) {
-            var dataToIterate;
-            if (filterIndex == 0) {
-                dataToIterate = fullData;
-            } else {
-                dataToIterate = filteredData;
-            }
-            if (filter.attributeType == 'string') {
-                switch (filter.match) {
-                    case 'exact':
-                        dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
-                        break;
-                    case 'contains':
-                        dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString);
-                        break;
-                    case 'notcontains':
-                        dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
-                        break;
-                }
-            } else if (filter.attributeType == 'number') {
-                switch (filter.match) {
-                    case 'equals':
-                        dataToIterate = this.selectByColumnValue(dataToIterate, filter.attributeName, filter.queryString);
-                        break;
-                    case 'notequal':
-                        dataToIterate = this.selectByColumnContainsValue(dataToIterate, filter.attributeName, filter.queryString, true);
-                        break;
-                    case 'greater':
-                        dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>');
-                        break;
-                    case 'greaterequal':
-                        dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '>', true);
-                        break;
-                    case 'less':
-                        dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<');
-                        break;
-                    case 'lessequal':
-                        dataToIterate = this.selectByColumnComparationValue(dataToIterate, filter.attributeName, filter.queryString, '<', true);
-                        break;
-                }
-            }
-            return dataToIterate;
-        },
-        selectByColumnValue: function (data, column, value) {
-            var selected = [];
+        }
+        return selected;
+    },
+    selectByColumnContainsValue: function(data, column, value, notContains) {
+        var selected = [];
+        if (notContains == true) {
             for (var i = 0; i < data.length; i++) {
                 var row = data[i];
-                if (row[column] === value) {
+                if (row[column].indexOf(value) == -1) {
                     selected.push(row);
                 }
             }
-            return selected;
-        },
-        selectByColumnContainsValue: function (data, column, value, notContains) {
-            var selected = [];
-            if (notContains == true) {
-                for (var i = 0; i < data.length; i++) {
-                    var row = data[i];
-                    if (row[column].indexOf(value) == -1) {
-                        selected.push(row);
-                    }
-                }
-            } else {
-                for (var i = 0; i < data.length; i++) {
-                    var row = data[i];
-                    if (row[column].indexOf(value) != -1) {
-                        selected.push(row);
-                    }
+        } else {
+            for (var i = 0; i < data.length; i++) {
+                var row = data[i];
+                if (row[column].indexOf(value) != -1) {
+                    selected.push(row);
                 }
             }
-            return selected;
-        },
-        selectByColumnComparationValue: function (data, column, value, comparation, includeValue) {
-            if (!isNaN(value)) {
-                var selected = [];
-                if (comparation == '>') {
-                    if (includeValue) {
-                        for (var i = 0; i < data.length; i++) {
-                            var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) >= parseFloat(value)) {
-                                selected.push(row);
-                            }
-                        }
-                    } else {
-                        for (var i = 0; i < data.length; i++) {
-                            var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) > parseFloat(value)) {
-                                selected.push(row);
-                            }
-                        }
-                    }
-                } else if (comparation == '<') {
-                    if (includeValue) {
-                        for (var i = 0; i < data.length; i++) {
-                            var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) <= parseFloat(value)) {
-                                selected.push(row);
-                            }
-                        }
-                    } else {
-                        for (var i = 0; i < data.length; i++) {
-                            var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) < parseFloat(value)) {
-                                selected.push(row);
-                            }
-                        }
-                    }
-                }
-                return selected;
-            } else {
-                return data;
-            }
-        },
-        handleDeleteFilter: function (e) {
-            var index = e.model.filterIndex;
-            this.splice('_filters', index, 1);
-            this._checkCurrentItems();
-        },
-        handleDeleteFilters: function (e) {
-            this.set('_filters', []);
-            this._checkCurrentItems();
-        },
-        handleViewFilters: function (e) {
-            this._filterSelectedOption = 'view';
-        },
-        handleAddNewFilter: function (e) {
-            this._filterSelectedOption = 'add';
         }
+        return selected;
+    },
+    selectByColumnComparationValue: function(data, column, value, comparation, includeValue) {
+        if (!isNaN(value)) {
+            var selected = [];
+            if (comparation == '>') {
+                if (includeValue) {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) >= parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) > parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                }
+            } else if (comparation == '<') {
+                if (includeValue) {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) <= parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        if (!isNaN(row[column]) && parseFloat(row[column]) < parseFloat(value)) {
+                            selected.push(row);
+                        }
+                    }
+                }
+            }
+            return selected;
+        } else {
+            return data;
+        }
+    },
+    handleDeleteFilter: function(e) {
+        var index = e.model.filterIndex;
+        this.splice('_filters', index, 1);
+        this._checkCurrentItems();
+    },
+    handleDeleteFilters: function(e) {
+        this.set('_filters', []);
+        this._checkCurrentItems();
+    },
+    handleViewFilters: function(e) {
+        this._filterSelectedOption = 'view';
+    },
+    handleAddNewFilter: function(e) {
+        this._filterSelectedOption = 'add';
+    }
     });
 </script>
