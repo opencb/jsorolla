@@ -121,6 +121,11 @@
             color: var(--accent-color);
             font-weight: normal;
         }
+
+        #icon{
+            margin-top:0px !important;
+            margin-bottom:0px !important;
+        }
     </style>
     <template>
         <div id="tools">
@@ -142,7 +147,7 @@
                 <div on-click="handleMenu">
                     <content select=".menu-button"></content>
                 </div>
-                <div data-option="home" on-click="handleMenu">
+                <div id="icon" data-option="home" on-click="handleMenu">
                     <content select=".icon"></content>
                 </div>
                 <div class="title" data-option="home" on-click="handleMenu">
