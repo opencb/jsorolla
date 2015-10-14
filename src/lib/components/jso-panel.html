@@ -259,7 +259,7 @@
                 }
             },
             listeners: {
-                'click': '_updateLastWindow'
+                'mousedown': '_updateLastWindow'
             },
             hostAttributes: {
                 'class': 'vertical layout flex'
@@ -367,8 +367,7 @@
                         this.style.position = '';
                         this.style.top = '';
                         this.style.left = '';
-
-                        if (currentZIndex > -1) {
+                        if (currentZIndex >= -1) {
                             this.style['z-index'] = currentZIndex - 100;
                         } else {
                             this.style['z-index'] = '';
@@ -384,7 +383,7 @@
                 e.stopPropagation();
             },
             handleHeaderMouseDown: function(e) {
-                if (this.movable) {
+                if (this.movable && !this.expanded) {
                     document.body.classList.add('jso-nosel');
                     var me = this;
                     var bcr = this.$.header.getBoundingClientRect();
@@ -393,10 +392,6 @@
                     this.headerOffsetY = e.clientY - bcr.top;
 
                     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-                    this.moved = true;
-                    this.style.position = 'fixed';
-
-                    this._updateLastWindow();
 
                     this.mouseMoveHandler = function(moveEvent) {
                         me.handleMouseMove(moveEvent);
@@ -409,15 +404,19 @@
                     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
                     document.body.classList.remove('jso-nosel');
                 }
+                // this._updateLastWindow();
             },
             handleMouseMove: function(e) {
                 if (this.movable) {
+                    this.moved = true;
+                    this.style.position = 'fixed';
                     var left = e.clientX - this.headerOffsetX;
                     var top = e.clientY - this.headerOffsetY;
                     if (this.constraint) {
                         var bcr = this.getBoundingClientRect();
+                        var bcrHeader = this.$.header.getBoundingClientRect();
                         var rightLimit = window.innerWidth - bcr.width;
-                        var bottomLimit = window.innerHeight - bcr.height;
+                        var bottomLimit = window.innerHeight - bcrHeader.height;
                         if (left > 0 && left < rightLimit) {
                             this.style.left = left + 'px';
                         }
@@ -440,11 +439,15 @@
             },
             _updateLastWindow: function() {
                 if (lastWindow_) {
-                    lastWindow_.style["z-index"] = '1';
+                    if (!lastWindow_.expanded) {
+                        lastWindow_.style["z-index"] = '1';
+                    }
                 }
                 lastWindow_ = this;
                 if (lastWindow_) {
-                    lastWindow_.style["z-index"] = '2';
+                    if (!lastWindow_.expanded) {
+                        lastWindow_.style["z-index"] = '2';
+                    }
                 }
             }
 
