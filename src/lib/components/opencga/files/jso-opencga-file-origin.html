@@ -44,18 +44,15 @@
         <div hidden$="{{!check(dataOrigin,'server')}}">
             <template is="dom-if" if="{{check(selectionMode,'file')}}">
                 <div style="color:#666;margin-bottom: 5px;">
-                    The files must be on the server to select them.<br>
-                    You can upload files using the button
-                    <i class="fa fa-cloud-upload" style="font-size: 16px;"></i>
-                    inside file browser.
+                    The files must be on the server to select them.
+                    <br> You can upload files using the button
+                    <i class="fa fa-cloud-upload" style="font-size: 16px;"></i> inside file browser.
                 </div>
             </template>
             <template is="dom-if" if="{{check(selectionMode,'folder')}}">
                 <div style="color:#666;margin-bottom: 5px;">
                     You can create folders using the button
-                    <i class="fa fa-folder" style="font-size: 16px;"></i>
-                    +
-                    inside file browser.
+                    <i class="fa fa-folder" style="font-size: 16px;"></i> + inside file browser.
                 </div>
             </template>
             <div class="horizontal layout">
@@ -72,16 +69,7 @@
                     <div class="header">
                         Browse file...
                     </div>
-                    <div class="container flex">
-                        <jso-opencga-browser
-                                id="browser"
-                                mode="{{selectionMode}}"
-                                on-fileselect="handleFileSelect"
-                                on-ok-click="handleClickOk"
-                                bioformats="{{bioformats}}"
-                                projects="{{projects}}"
-                                on-need-refresh="handleUserNeedRefresh"></jso-opencga-browser>
-                    </div>
+                    <jso-opencga-browser id="browser" class="container flex" mode="{{selectionMode}}" on-fileselect="handleFileSelect" on-ok-click="handleClickOk" bioformats="{{bioformats}}" projects="{{projects}}" on-need-refresh="handleUserNeedRefresh"></jso-opencga-browser>
                 </jso-panel>
 
                 <!--<jso-project-browser-->
@@ -103,8 +91,8 @@
                 <label class="jso">You can paste your ids here:</label>
 
                 <div class="horizontal layout">
-                <textarea class="jso" rows="10" cols="20" value="{{textAreaValue}}">
-                </textarea>
+                    <textarea class="jso" rows="10" cols="20" value="{{textAreaValue}}">
+                    </textarea>
                 </div>
             </template>
         </template>
@@ -112,12 +100,7 @@
         <template is="dom-if" if="{{allowNetwork}}">
             <template is="dom-if" if="{{check(dataOrigin,'network')}}">
                 <div class="horizontal layout">
-                    <jso-network-list-select
-                            id="networkSelect"
-                            columns="{{columns}}"
-                            items="{{items}}"
-                            selected="{{selected}}"
-                            textAreaValue="{{textAreaValue}}"></jso-network-list-select>
+                    <jso-network-list-select id="networkSelect" columns="{{columns}}" items="{{items}}" selected="{{selected}}" textAreaValue="{{textAreaValue}}"></jso-network-list-select>
                 </div>
             </template>
         </template>
@@ -184,13 +167,13 @@
                     type: Array
                 },
             },
-            check: function (s, v) {
+            check: function(s, v) {
                 return s === v;
             },
-            buttonHandler: function () {
+            buttonHandler: function() {
                 this.$.browserPanel.hidden = false;
             },
-            handleFileSelect: function (e) {
+            handleFileSelect: function(e) {
                 var file = e.detail;
                 var foundBioformat = false;
                 for (var i = 0; i < this.bioformats.length; i++) {
@@ -205,22 +188,22 @@
                     this.fire('validfileselect', file);
                 }
             },
-            handleClickOk: function (e) {
+            handleClickOk: function(e) {
                 var selectedFile = e.currentTarget.selectedFile;
                 this.set('selectedFile', selectedFile);
                 this.set('selectedProject', e.currentTarget.selectedProject.project);
                 this.set('selectedStudy', e.currentTarget.selectedStudy.study);
             },
-            selectHandler: function (e) {
-//                console.log(this.shadowRoot.querySelector("#jsoProjectBrowser"))
+            selectHandler: function(e) {
+                //                console.log(this.shadowRoot.querySelector("#jsoProjectBrowser"))
                 this.showBrowser = false;
                 this.selectedFile = e.detail.file;
             },
-            handleCancel: function (e) {
+            handleCancel: function(e) {
                 this.selectedFile = undefined;
                 this.showBrowser = false;
             },
-            handleOriginChange: function (e) {
+            handleOriginChange: function(e) {
                 this.dataOrigin = e.target.value;
                 this.textAreaValue = "";
             }

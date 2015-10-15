@@ -13,19 +13,6 @@
             /*background-color: #FFFFFF;*/
         }
 
-        .checkbox {
-            width: 25px;
-        }
-
-        .checkbox::after {
-            font-family: 'FontAwesome';
-            content: ' \00a0'
-        }
-
-        .checkbox[data-checked]::after {
-            content: '\f00c'
-        }
-
         jso-select-box {
             overflow-y: auto;
             height: 150px;
@@ -38,25 +25,22 @@
             background-color: #FFF;
         }
 
-        .selitem {
-            padding: 2px 5px;
-        }
-
-        .selitem[data-checked=true] {
-            background-color: #ddd;
-            /*background-color: #435f7a;*/
-            /*background-color: #f07746;*/
-            /*color: #fff;*/
-        }
-
         .footer {
             padding: 4px 5px 4px 12px;
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
         .footer > * {
             margin-left: 5px;
+        }
+
+        .capitalize {
+            text-transform: capitalize;
+        }
+
+        #tissuesContent {
+            margin-left: 20px;
         }
     </style>
     <template>
@@ -86,9 +70,9 @@
                     <!--on-click="{{handleSelectRepoList}}">Repositories-->
                     <!--</div>-->
                 </div>
-                <div class="selbox" flex style="margin-top:3px; height:330px;">
+                <div class="selbox" class="flex" style="margin-top:3px; height:330px;">
                     <template is="dom-if" if="{{checkSelectedList(selectedList, 'ext')}}">
-                        <div class="attributelist">
+                        <div>
                             <template is="dom-repeat" items={{extList}}>
                                 <label class="jso-control">
                                     <input type="checkbox" checked$="{{item.selected}}" on-click="handleItemSelect">
@@ -99,7 +83,7 @@
                     </template>
 
                     <template is="dom-if" if="{{checkSelectedList(selectedList, 'func')}}">
-                        <div id="functionsContent" class="attributelist">
+                        <div id="functionsContent" class="flex">
                             <template is="dom-repeat" items={{funcList}}>
                                 <label class="jso-control">
                                     <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
@@ -107,10 +91,18 @@
                                 </label>
                             </template>
                         </div>
+                        <div id="tissuesContent" hidden$="{{!showTissues}}">
+                            <template is="dom-repeat" items={{tissues}}>
+                                <label class="jso-control">
+                                    <input type="checkbox" value$="{{item}}">
+                                    <span class="capitalize">{{item}}</span>
+                                </label>
+                            </template>
+                        </div>
                     </template>
 
                     <template is="dom-if" if="{{checkSelectedList(selectedList, 'repo')}}">
-                        <div class="attributelist">
+                        <div>
                             <template is="dom-repeat" items={{repoList}}>
                                 <label class="jso-control">
                                     <input type="checkbox" checked$="{{item.selected}}" on-click="handleItemSelect">
@@ -156,6 +148,10 @@
             },
             items: {
                 type: Array
+            },
+            showTissues: {
+                type: Boolean,
+                value: false
             }
         },
         checkSelectedList: function(selectedList, list) {
@@ -360,10 +356,6 @@
                     name: "drugs",
                     selected: false,
                 }, {
-                    boxLabel: "Tissues",
-                    name: "tissues",
-                    selected: false,
-                }, {
                     boxLabel: "Sub-cellular locations",
                     name: "subcellularLocation",
                     selected: false,
@@ -376,14 +368,18 @@
                     name: "goCellularComponent",
                     selected: false,
                 }, {
-                    boxLabel: "GO Biological Biological",
+                    boxLabel: "GO Biological process",
                     name: "goBiologicalProcess",
                     selected: false,
                 }, {
                     boxLabel: "GO Molecular function",
                     name: "goMolecularFunction",
                     selected: false,
-                },
+                }, {
+                    boxLabel: "Tissues",
+                    name: "tissues",
+                    selected: false,
+                }
 
 
                 //
@@ -465,10 +461,26 @@
                     }
                 }
             ];
+
+            this.tissues = ["synovial membrane", "lung", "pancreas", "connective tissue", "eye", "colon", "bone", "central nervous system", "skin", "brain", "ovary", "kidney", "stomach", "esophagus", "liver", "placenta", "decidua",
+                "PBMCs", "aorta", "stomach fundus", "subthalamic nucleus", "coronary artery", "endometrium", "pituitary gland", "myometrium", "thalamus", "skeletal muscle", "bone marrow", "spinal cord", "jejunum", "thyroid gland",
+                "salivary gland", "adrenal gland cortex", "cerebellum", "substantia nigra pars compacta", "tonsil", "prostate", "adipose tissue", "vagina", "lymph node", "urethra", "deltoid muscle", "cervix", "heart",
+                "heart ventricle", "muscle", "prostate gland", "blood", "gingiva", "cord blood", "bladder", "left ventricular myocardium", "smooth muscle", "bronchial epithelium", "epidermis", "small intestine", "hippocampus CA1",
+                "palatine tonsil", "conjunctiva", "colon mucosa", "thymus", "abdomen", "placental basal plate", "atrial myocardium", "mammary gland", "quadriceps", "larynx", "uterus", "caudate nucleus", "umbilical vein",
+                "vastus lateralis", "cardiac ventricle", "tongue", "mandible", "trigeminal ganglion", "superior cervical ganglion", "pituitary", "adrenal cortex", "testis - leydig cell", "beta cell islets", "whole blood",
+                "prefrontal cortex", "umbilical cord", "articular cartilage", "gingival", "peripheral blood", "testis", "cerebral cortex", "cerebrospinal fluid", "native skin", "spleen", "ventricular myocardium", "thyroid",
+                "olfactory bulb", "dorsal root ganglion", "tibia"
+            ];
         },
         handleItemSelect: function(e) {
             var item = e.model.item;
             item.selected = !item.selected;
+
+            if (item.name === 'tissues' && item.selected) {
+                this.set('showTissues', true);
+            } else {
+                this.set('showTissues', false);
+            }
         },
         handleSelectExtList: function() {
             this.set('selectedList', 'ext');
@@ -635,7 +647,6 @@
         retrieveFunctionalInformation: function(attributeName, species) {
             var me = this;
             var queries = [];
-            var queries = ['BRCA2', 'TP53', 'PACO'];
 
             for (var i = 0; i < this.items.length; i++) {
                 var attributes = this.items[i].attributes;
@@ -652,6 +663,21 @@
                     oneSelectedFlag = true;
                 } else {
                     options[cb.value] = false;
+                }
+            }
+            if (options.tissues) {
+                var oneTissueSelectedFlag = false;
+                options.selectedTissues = {};
+                var els = tissuesContent.querySelectorAll('input[type=checkbox]');
+                for (var i = 0; i < els.length; i++) {
+                    var cb = els[i];
+                    if (cb.checked) {
+                        options.selectedTissues[cb.value] = true;
+                        oneTissueSelectedFlag = true;
+                    }
+                }
+                if (!oneTissueSelectedFlag) {
+                    options.tissues = false;
                 }
             }
             if (!oneSelectedFlag) {
@@ -696,36 +722,98 @@
                 });
             }
 
+            this.getGeneInfo(options, queries, species, function(infoMap) {
+                var columns = [];
+                for (var key in infoMap) {
+                    for (var i = 0; i < me.items.length; i++) {
+                        var item = me.items[i];
+                        if (key === 'tissues') {
+                            var map = infoMap[key][item.attributes[attributeName]];
+                        }else{
+                            var values = infoMap[key][item.attributes[attributeName]];
+                            if (values != null && values.length > 0) {
+                                item.attributes[key] = values.join(',')
+                            } else {
+                                item.attributes[key] = 'none';
+                            }
+                            var column = {
+                                name: key,
+                                title: Utils.camelToSpace(key),
+                                type: "text",
+                                formula: function(r) {
+                                    return r.attributes[this.name];
+                                }
+                            };
+                            columns.push(column);
+                        }
+                    }
 
-
-            // this.getGeneInfo(geneString, function(expressionValues) {
-            //     console.log(expressionValues)
-            //     debugger
-            // });
-            //
-            // this.getProteinString(geneString, function(proteinString) {
-            //     if (proteinString != null) {
-            //         me.getProteinFullinfo(proteinString, function(comment) {
-            //             console.log(comment);
-            //         });
-            //     }
-            // });
+                }
+            });
 
 
 
         },
-        getGeneInfo: function(geneString, callback) {
+        getGeneInfo: function(args, queries, species, callback) {
+            var infoMap = {};
+            var includes = [];
+            if (args.tissues) {
+                includes.push('expressionValues');
+                infoMap.tissues = {};
+            }
+            if (args.drug) {
+                includes.push('drugInteractions');
+                infoMap.drugs = {};
+            }
             CellBaseManager.get({
                 host: CELLBASE_HOST,
-                species: this.$.species.selected,
+                species: species,
                 category: 'feature',
                 subCategory: 'gene',
-                query: geneString,
+                query: queries.toString(),
                 resource: 'info',
                 params: {
-                    include: 'expressionValues,drugInteractions',
+                    include: includes.join(',')
                 },
                 success: function(data) {
+                    for (var i = 0; i < data.response.length; i++) {
+                        var r = data.response[i];
+                        if (r.result.length > 0) {
+                            var expressionValues = r.result[0].expressionValues;
+                            var drugInteractions = r.result[0].drugInteractions;
+                            var tissues = {};
+                            var drugs = [];
+                            if (args.tissues) {
+                                if (expressionValues != null) {
+                                    for (var j = 0; j < expressionValues.length; j++) {
+                                        var ev = expressionValues[j];
+                                        if (args.selectedTissues[ev.factorValue] === true) {
+                                            tissues[ev.factorValue] = ev.expression;
+                                        }
+                                    }
+                                } else {
+                                    infoMap.tissues[queries[i]] = tissues;
+                                }
+                            }
+                            if (args.drugs) {
+                                if (drugInteractions != null) {
+                                    for (var j = 0; j < drugInteractions.length; j++) {
+                                        var di = drugInteractions[j];
+                                        drugs.push(di.drugName);
+                                    }
+                                }
+                                infoMap.drugs[queries[i]] = drugs;
+                            }
+                        } else {
+                            if (args.tissues) {
+                                infoMap.subcellularLocation[queries[i]] = {};
+                            }
+                            if (args.drugs) {
+                                infoMap.disease[queries[i]] = [];
+                            }
+                        }
+                    }
+
                     var expressionValues = data.response[0].result[0].expressionValues;
                     /* Tissues */
                     for (var i = 0; i < expressionValues.length; i++) {
@@ -736,20 +824,28 @@
                     }
                     callback(data.response[0].result[0].expressionValues);
                     return
+
+
+
                 }
             });
         },
         getProteinFullinfo: function(args, queries, proteinQueries, species, callback) {
-            // args.subcellularLocation;
-            // args.disease;
-            // goCellularComponent
-            // goBiologicalProcess
-            // goMolecularFunction
             var infoMap = {};
-            for (var key in args) {
-                if (args[key] === true) {
-                    infoMap[key] = {};
-                }
+            if (args.subcellularLocation) {
+                infoMap.subcellularLocation = {};
+            }
+            if (args.disease) {
+                infoMap.disease = {};
+            }
+            if (args.goCellularComponent) {
+                infoMap.goCellularComponent = {};
+            }
+            if (args.goBiologicalProcess) {
+                infoMap.goBiologicalProcess = {};
+            }
+            if (args.goMolecularFunction) {
+                infoMap.goMolecularFunction = {};
             }
             var includes = [];
             if (args.subcellularLocation || args.disease) {
