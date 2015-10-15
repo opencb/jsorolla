@@ -377,6 +377,28 @@
 
         tracks.push(this.snp);
 
+/*************************/
+        var customTrack = new FeatureTrack({
+            title: 'custom track',
+            minHistogramRegionSize: 12000,
+            maxLabelRegionSize: 3000,
+            height: 120,
+
+            renderer: new FeatureRenderer(),
+
+            dataAdapter: new FeatureTemplateAdapter({
+              multiRegions: true,
+              histogramMultiRegions: false,
+              uriTemplate: 'https://dcc.icgc.org/api/browser/gene?segment={region}&resource=gene',
+              cacheConfig: {
+                chunkSize: 100000
+              }
+            })
+        });
+        tracks.push(customTrack);
+/*************************/
+
+
         genomeViewer.addTrack(tracks);
 
         genomeViewer.draw();

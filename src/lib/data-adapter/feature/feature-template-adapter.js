@@ -96,11 +96,16 @@ FeatureTemplateAdapter.prototype = {
 
         /** 1 region check **/
         var region = args.region;
-        if (region.start > 300000000 || region.end < 1) {
+        var regionLimit = 300000000;
+        if (this.species != null && this.species.chromosomes[region.chromosome] != null) {
+            regionLimit = this.species.chromosomes[args.region.chromosome].end;
+        }
+        if (region.start > regionLimit || region.end < 1) {
             return;
         }
+
         region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > 300000000) ? 300000000 : region.end;
+        region.end = (region.end > regionLimit) ? regionLimit : region.end;
 
         /** 2 category check **/
         var categories = ["cat_" + Utils.queryString(this.templateVariables) + Utils.queryString(params)];
@@ -130,7 +135,7 @@ FeatureTemplateAdapter.prototype = {
             for (var j = 0; j < categories.length; j++) {
                 categoriesName += "," + categories[j];
             }
-            categoriesName = categoriesName.slice(1);   // to remove first ','
+            categoriesName = categoriesName.slice(1); // to remove first ','
 
             var chunks = cachedChunks[category];
             // TODO check how to manage multiple regions
@@ -184,7 +189,10 @@ FeatureTemplateAdapter.prototype = {
                                 return a.chunkKey.localeCompare(b.chunkKey)
                             });
                             args.done({
-                                items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                                items: chunks,
+                                dataType: dataType,
+                                chunkSize: chunkSize,
+                                sender: _this
                             });
                         }
                     };
@@ -208,7 +216,10 @@ FeatureTemplateAdapter.prototype = {
             /** All regions are cached **/
             {
                 args.done({
-                    items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                    items: chunks,
+                    dataType: dataType,
+                    chunkSize: chunkSize,
+                    sender: _this
                 });
             }
         });
@@ -299,4 +310,3 @@ FeatureTemplateAdapter.prototype = {
         return regions;
     },
 };
-

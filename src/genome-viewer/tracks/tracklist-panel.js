@@ -748,7 +748,7 @@ TrackListPanel.prototype = {
         track.set('pixelBase', this.pixelBase);
         track.set('region', this.visualRegion);
         track.set('width', this.width);
-        7
+        track.setSpecies(this.species);
 
         track.set('trackListPanel', this);
 
