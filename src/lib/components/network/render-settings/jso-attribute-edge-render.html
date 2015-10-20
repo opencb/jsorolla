@@ -402,15 +402,15 @@
         handleOpacity: function () {
             this.fire('opacity');
         },
-        handleShape: function () {
+        handleShape: function (e) {
             this.set('defaults.shape', e.currentTarget.value);
             this.fire('shape');
         },
-        handleShaft: function () {
+        handleShaft: function (e) {
             this.set('defaults.shaft', e.currentTarget.value);
             this.fire('shaft');
         },
-        handleBidirectional: function () {
+        handleBidirectional: function (e) {
             this.set('defaults.bidirectional', e.currentTarget.value);
             this.fire('bidirectional');
         },
