@@ -1,3 +1,6 @@
+<script src="../lib/utils.js"></script>
+<script src="../lib/svg.js"></script>
+
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
@@ -19,8 +22,6 @@
 <script src="../../bower_components/underscore/underscore-min.js"></script>
 <script src="../../bower_components/backbone/backbone.js"></script>
 
-<script src="../lib/svg.js"></script>
-<script src="../lib/utils.js"></script>
 
 <link rel="import" href="../lib/components/network/jso-graph.html">
 
@@ -116,7 +117,7 @@
             height: calc(100% - 126px);
         }
 
-        .context {
+        .jso-context {
             min-width: 200px;
             cursor: pointer;
         }
@@ -433,7 +434,7 @@
         <ul id="vertexcontextmenu" class="jso-context">
             <li on-click="handleContextRemoveVertex">Delete</li>
             <li data-divider hidden$="{{ vAttr.selected.length < 2 }}"></li>
-            <li on-click="removeSelectedVertices" hidden$="{{ vAttr.selected.length < 2 }}">Delete Selected
+            <li on-click="handleContextRemoveSelectedVertices" hidden$="{{ vAttr.selected.length < 2 }}">Delete Selected
             </li>
             <li data-divider></li>
             <li on-click="handleContextSelectVerticesNeighbour">Select first neighbour nodes</li>
@@ -1631,9 +1632,16 @@
         },
         /** Context Handlers **/
         handleContextRemoveVertex: function(e) {
-            this.$.vertexcontextmenu.style.opacity = "";
-            this.$.vertexcontextmenu.style.visibility = "";
-            this.removeVertex(this._lastContextVertex);
+            if (confirm('Remove selected vertex?')) {
+                this.$.vertexcontextmenu.style.opacity = "";
+                this.$.vertexcontextmenu.style.visibility = "";
+                this.removeVertex(this._lastContextVertex);
+            }
+        },
+        handleContextRemoveSelectedVertices: function(e) {
+            if (confirm('Remove selected vertices?')) {
+                this.removeSelectedVertices();
+            }
         },
         handleContextSelectVerticesNeighbour: function(e) {
             this.selectVertex(this._lastContextVertex);
