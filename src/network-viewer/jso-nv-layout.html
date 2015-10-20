@@ -651,17 +651,11 @@
         /**/
         /**/
 
-
-
-
-
-
-
         getVertexId: function(targetEl) {
-            return targetEl.parentNode.getAttribute('id');
+            return Utils.closest(targetEl,'[network-type=vertex-svg]').getAttribute('id');
         },
         getEdgeId: function(targetEl) {
-            return targetEl.parentNode.getAttribute('id');
+            return Utils.closest(targetEl,'[network-type=vertex-svg]').getAttribute('id');
         },
         addBackgroundImage: function(image) {
             SVG.addChildImage(this.$.scaleBackGroup, {

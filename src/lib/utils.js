@@ -37,14 +37,27 @@ var Utils = {
         text = text.charAt(0).toUpperCase() + text.slice(1);
         return text;
     },
-    camelCase: function(input) {
-        return input.toLowerCase().replace(/[.-_\s](.)/g, function(match, group1) {
+    titleCase: function(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);;
+    },
+    camelCase: function(str) {
+        return str.toLowerCase().replace(/[.-_\s](.)/g, function(match, group1) {
             return group1.toUpperCase();
         })
     },
     camelToSpace: function(str) {
         var result = str.replace(/([A-Z])/g, ' $1').toLowerCase().trim();
         return result.charAt(0).toUpperCase() + result.slice(1);
+    },
+    closest: function(element, selector) {
+        while (element) {
+			if (element.matches(selector)) {
+				break;
+			}
+
+			element = element.parentElement;
+		}
+		return element;
     },
     isFunction: function(s) {
         return typeof(s) === 'function' || s instanceof Function;
