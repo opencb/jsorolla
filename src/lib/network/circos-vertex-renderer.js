@@ -278,7 +278,7 @@ CircosVertexRenderer.prototype = {
         this.targetEl = args.target;
         //this.vertex = args.vertex;
         //this.coords = args.coords;
-        this.setLabelText(this.vertex.id);
+        this._setLabelText(this.vertex.id);
 
         if (this._checkListProperties()) {
             this.complex = true;
@@ -319,7 +319,7 @@ CircosVertexRenderer.prototype = {
         if (text == null) {
             text = '';
         }
-        this.setLabelText(text);
+        this._setLabelText(text);
         if (this.labelEl) {
             this._renderLabelEl();
         }
@@ -351,12 +351,12 @@ CircosVertexRenderer.prototype = {
             donutSlices: this.donutSlices
         };
     },
-    setLabelText: function(text) {
+
+    /* Private methods */
+    _setLabelText: function(text) {
         this.labelText = text;
         this.labelLines = this.labelText.split(/\\n/);
     },
-
-    /* Private methods */
     _updateDrawParameters: function() {
         var midSize = (this.size + (this.strokeSize));
         this.mid = midSize / 2;
@@ -484,7 +484,7 @@ CircosVertexRenderer.prototype = {
                 "transform": "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")",
                 "cursor": "pointer",
                 opacity: this.opacity,
-                'network-type': 'vertex-svg'
+                'network-type': 'vertex-g'
             });
             switch (this.shape) {
                 case "circle":
@@ -549,7 +549,7 @@ CircosVertexRenderer.prototype = {
             "transform": "translate(" + [this.coords.x - this.mid, this.coords.y - this.mid].join(',') + ")",
             "cursor": "pointer",
             opacity: this.opacity,
-            'network-type': 'vertex-svg'
+            'network-type': 'vertex-g'
         });
 
         var totalAreas = this._sumAreas(this.pieSlices);

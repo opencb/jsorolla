@@ -652,10 +652,10 @@
         /**/
 
         getVertexId: function(targetEl) {
-            return Utils.closest(targetEl,'[network-type=vertex-svg]').getAttribute('id');
+            return Utils.closest(targetEl,'[network-type=vertex-g]').getAttribute('id');
         },
         getEdgeId: function(targetEl) {
-            return Utils.closest(targetEl,'[network-type=vertex-svg]').getAttribute('id');
+            return Utils.closest(targetEl,'[network-type=edge-g]').getAttribute('id');
         },
         addBackgroundImage: function(image) {
             SVG.addChildImage(this.$.scaleBackGroup, {
