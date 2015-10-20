@@ -455,7 +455,6 @@
             this.page = 1;
         },
         handleEditApply: function(e) {
-
             if (this._newValue != '') {
                 var colName = this.$.selectEdit.value;
                 var found = false;
@@ -467,10 +466,18 @@
                     }
                 }
                 if (found) {
-                    for (var i = 0; i < this._currentItems.length; i++) {
-                        var item = this._currentItems[i];
-                        item.attributes[colName] = this._newValue;
+                    if (this._showSelected) {
+                        for (var i = 0; i < this._currentItems.length; i++) {
+                            var item = this._currentItems[i];
+                            item.attributes[colName] = this._newValue;
+                        }
+                    } else {
+                        for (var i = 0; i < this._currentSelected.length; i++) {
+                            var item = this._currentSelected[i];
+                            item.attributes[colName] = this._newValue;
+                        }
                     }
+
                     this.$.table.refresh();
                 }
             }
