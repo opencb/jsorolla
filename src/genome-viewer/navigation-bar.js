@@ -156,8 +156,8 @@ NavigationBar.prototype = {
 
 
             '<div id="searchControl" style="float:left;">' +
-            '<div class="ocb-ctrl-label" style="border-right: none;margin-left: 5px;">Search:</div>' +
-            '<input id="searchField" class="ocb-ctrl"  list="searchDataList"  placeholder="gene" type="text" style="width: 90px;">' +
+            //'<div class="ocb-ctrl-label" style="border-right: none;margin-left: 5px;"></div>' +
+            '<input id="searchField" class="ocb-ctrl"  list="searchDataList"  placeholder="gene" type="text" style="width: 90px;margin-left: 5px;">' +
             '       <datalist id="searchDataList">' +
             '       </datalist>' +
             '<div id="quickSearchButton" class="ocb-ctrl" style="border-left: none;"><i class="fa fa-search"></i></div>' +
