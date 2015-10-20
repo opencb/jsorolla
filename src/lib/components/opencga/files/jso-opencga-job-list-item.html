@@ -135,10 +135,10 @@
             return "capitalize " + job.status;
         },
         computeToolName: function (job) {
-            if (job.toolName.toLowerCase() == "pathiways") {
-                return "PATHiVAR";
-            }
-            return job.toolName;
+            // if (job.toolName.toLowerCase() == "pathiways") {
+                // return "PATHiVAR";
+            // }
+            return job.toolName + ' - ' + job.execution ;
         },
         handleBarClick: function (e) {
             e.stopPropagation();

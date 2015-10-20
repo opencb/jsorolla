@@ -24,7 +24,7 @@
         #botbar {
             box-sizing: border-box;
             height: 30px;
-            padding: 3px 7px;
+            padding: 0 7px;
             line-height: 30px;
         }
 
@@ -85,7 +85,6 @@
         #breadcrums {
             box-sizing: border-box;
             padding-left: 5px;
-            line-height: 23px;
         }
 
         #breadcrums > span.clickable:hover {
@@ -129,7 +128,7 @@
         }
     </style>
     <template>
-        <div id="topbar" class="horizontal layout">
+        <div id="topbar" class="horizontal layout center">
             <div id="breadcrums" class="flex">
                 /
                 <span class="projectbread">{{selectedProject.project.name}}</span>
@@ -141,6 +140,9 @@
                     <span class="clickable" on-click="handleBreadcrumClick" folder="{{item}}">{{item.name}}</span>
                 </template>
 
+            </div>
+            <div hidden$="{{!loading}}">
+                <i class="fa fa-circle-o-notch fa-spin"></i>
             </div>
         </div>
 
@@ -298,6 +300,20 @@
                 type: String,
                 reflectToAttribute: true,
                 value: ""
+            },
+            loading: {
+                type: Boolean,
+                value: false
+            }
+        },
+        ready: function() {
+            var me = this;
+            if (this._parentJsoPanel != null) {
+                this._parentJsoPanel.addEventListener('hidden', function(e) {
+                    if (e.detail == false) {
+                        me._setInitialSelection();
+                    }
+                });
             }
         },
         check: function(a, b) {
@@ -317,21 +333,12 @@
             this.fire('ok-click');
         },
         projectsChanged: function(neo, old) {
-            //            var me = this;
-            //            if (this.selectedProject == null) {
-            //                if (neo && neo[0]) {
-            //                    this.selectedProject = neo[0];
-            //                    if (this.selectedStudy == null) {
-            //                        if (this.selectedProject.studies[0]) {
-            //                            this.selectedStudy = this.selectedProject.studies[0];
-            //                        }
-            //                    }
-            //                }
-            //            } else {
-            //                this._showStudyFolder();
-            //            }
             this.async(function() {
-
+                this._setInitialSelection();
+            }, 100);
+        },
+        _setInitialSelection: function() {
+            if (this._parentJsoPanel != null && this._parentJsoPanel.hidden === false) {
                 if (this.selectedProject == null) {
                     var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
                     this.set('selectedProject', el);
@@ -343,7 +350,7 @@
                 if (this.folder && this.selectedStudy) {
                     this.refreshFolderFiles();
                 }
-            }, 100);
+            }
         },
         selectedStudyChanged: function(neo, old) {
             if (old) old.selected = false;
@@ -353,6 +360,7 @@
                 this.files = [];
             }
             this.selectedFile = null;
+            this.files = [];
             this._showStudyFolder();
         },
         selectedProjectChanged: function(neo, old) {
@@ -360,6 +368,7 @@
             if (neo) neo.selected = true;
         },
         handleStudyClick: function(e) {
+            this.files = [];
             this.set('selectedProject', e.currentTarget);
             this.set('selectedStudy', e.currentTarget.selectedStudy);
         },
@@ -370,16 +379,20 @@
             var me = this;
             this.folder = e.detail;
             this.push('folders', this.folder);
+            this.files = [];
             this.refreshFolderFiles();
         },
         refreshFolderFiles: function() {
             var me = this;
+            this.loading = true;
             this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function(files) {
                 me.files = files;
+                me.loading = false;
                 //                console.log(files);
             });
         },
         handleStudyBreadcrum: function(e) {
+            this.files = [];
             this._showStudyFolder();
         },
         handleBreadcrumClick: function(e) {
@@ -389,11 +402,13 @@
             while (this.folder !== this.folders[this.folders.length - 1]) {
                 this.pop('folders');
             }
+            this.files = [];
             this.refreshFolderFiles();
         },
         handleBackFolder: function(e) {
             var me = this;
             this.pop('folders');
+            this.files = [];
             if (this.folders.length > 0) {
                 this.set('folder', this.folders[this.folders.length - 1]);
                 this.refreshFolderFiles();
@@ -436,11 +451,13 @@
         },
         _showStudyFolder: function() {
             var me = this;
+            this.loading = true;
             this._getStudyFolder(this.selectedStudy.study.id, function(folder) {
                 me.set('folders', []);
                 me.folder = folder;
                 me._getFilesInFolder(me.selectedStudy.study.id, me.folder.id, function(files) {
                     me.files = files;
+                    me.loading = false;
                     //                    console.log(files);
                 });
             });
@@ -458,7 +475,7 @@
                 request: {
                     async: true,
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             folder = response.response[0].result[0];
                             callback(folder);
@@ -495,7 +512,7 @@
                 request: {
                     async: true,
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             files = me._filterFiles(response.response[0].result);
                             //                            files = response.response[0].result;
