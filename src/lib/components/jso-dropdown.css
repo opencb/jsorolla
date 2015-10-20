@@ -5,7 +5,7 @@
     data-divider: add li with boolean attribute data-divider to add a space between li
     data-sub: add attribute data-sub to add the angle icon for sub ul
 
-    <div class="dropdown">
+    <div class="jso-dropdown">
         <div tabindex="-1">
             Example text
         </div>
@@ -30,6 +30,9 @@ div.jso-dropdown {
     display: block;
     color: #333;
     cursor: pointer;
+}
+div.jso-dropdown > div:first-of-type {
+    outline: transparent solid 0px;
 }
 
 div.jso-dropdown ul {
@@ -135,8 +138,8 @@ ul.jso-context li[data-divider]:hover {
     background-color: #DEDEDE;
 }
 
-div.jso-dropdown > div.jso-btn:focus + ul,
-div.jso-dropdown > div.jso-btn:focus + ul li:hover > ul {
+div.jso-dropdown > div:first-of-type:focus + ul,
+div.jso-dropdown > div:first-of-type:focus + ul li:hover > ul {
     visibility: visible;
     opacity: 1;
 }
