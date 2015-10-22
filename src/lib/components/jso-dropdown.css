@@ -31,6 +31,7 @@ div.jso-dropdown {
     color: #333;
     cursor: pointer;
 }
+
 div.jso-dropdown > div:first-of-type {
     outline: transparent solid 0px;
 }
@@ -71,7 +72,8 @@ ul.jso-context {
     transition: all 0.1s;
 }
 
-div.jso-dropdown ul, ul.jso-context ul {
+div.jso-dropdown ul,
+ul.jso-context ul {
     left: 0;
     top: 100%;
 }
@@ -109,7 +111,8 @@ ul.jso-context li[data-divider] {
 div.jso-dropdown ul li[data-sub]:after,
 ul.jso-context li[data-sub]:after {
     font-family: 'FontAwesome';
-    content: '\f105'; /* > */
+    content: '\f105';
+    /* > */
     /*content:'\f0da';*/
     position: absolute;
     right: 10px;
@@ -129,13 +132,13 @@ ul.jso-context li:hover {
 
 div.jso-dropdown ul li[data-text]:hover,
 ul.jso-context li[data-text]:hover {
-    background-color: inherit;
-    color: inherit;
+    background-color: inherit !important ;
+    color: inherit !important;
 }
 
 div.jso-dropdown ul li[data-divider]:hover,
 ul.jso-context li[data-divider]:hover {
-    background-color: #DEDEDE;
+    background-color: #DEDEDE !important;
 }
 
 div.jso-dropdown > div:first-of-type:focus + ul,
@@ -144,7 +147,9 @@ div.jso-dropdown > div:first-of-type:focus + ul li:hover > ul {
     opacity: 1;
 }
 
+
 /* dropdown button combination */
+
 div.jso-dropdown > div.jso-btn::after {
     font-family: 'FontAwesome';
     content: '\f107';

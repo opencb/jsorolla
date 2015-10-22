@@ -248,8 +248,8 @@
         handleRemoveAllSessions: function () {
             var me = this;
             if (this.logged) {
-                this.message = 'deleting all session...';
                 if (this.sessions.length > 0 && confirm('All saved sessions will be deleted. Are you sure?')) {
+                    this.message = 'deleting all sessions...';
                     for (var i = 0; i < this.sessions.length; i++) {
                         var session = this.sessions[i];
                         this.deleteFile(session.file, function (deleteMsg) {

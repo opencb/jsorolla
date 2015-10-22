@@ -190,6 +190,8 @@
             }
         },
         zoomChanged: function(neo, old) {
+            console.log(this.rmx + ',' + this.rmy);
+            console.log(this.last_rmx + ',' + this.last_rmy);
             if (old != null && neo != null) {
                 if (this.zoom === 0) {
                     this.scale = 0.04;
@@ -202,7 +204,7 @@
                     this.ty += (-this.rmy) * inc;
 
                     this.last_rmx = this.rmx;
-                    this.last_rmy = this.rmy;
+                    this.last_rmy = this.rmx;
                 } else {
                     this.tx += (-this.last_rmx) * inc;
                     this.ty += (-this.last_rmy) * inc;
@@ -652,10 +654,10 @@
         /**/
 
         getVertexId: function(targetEl) {
-            return Utils.closest(targetEl,'[network-type=vertex-g]').getAttribute('id');
+            return Utils.closest(targetEl, '[network-type=vertex-g]').getAttribute('id');
         },
         getEdgeId: function(targetEl) {
-            return Utils.closest(targetEl,'[network-type=edge-g]').getAttribute('id');
+            return Utils.closest(targetEl, '[network-type=edge-g]').getAttribute('id');
         },
         addBackgroundImage: function(image) {
             SVG.addChildImage(this.$.scaleBackGroup, {

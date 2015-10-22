@@ -15,22 +15,27 @@
         }
     </style>
     <template>
-        <div class="horizontal layout">
+        <div class="horizontal layout center">
             <div class="jso-txt horizontal layout">
-                <div class="grey">Nodes:</div>
+                <div class="grey">Nodes:&nbsp;</div>
+                <span>{{selectedVertices.length}}</span>
+                <span class="grey"> &nbsp;of&nbsp;</span>
                 <span>{{vertices.length}}</span>
             </div>
             <div class="jso-txt horizontal layout">
-                <div class="grey">Edges:</div>
+                <div class="grey">Edges:&nbsp;</div>
+                <span>{{selectedEdges.length}}</span>
+                <span class="grey"> &nbsp;of&nbsp;</span>
+
                 <span>{{edges.length}}</span>
             </div>
             <div class="flex"></div>
-            <template is="dom-if" if="{{networkViewer.lastLoadedFileName !== ''}}">
+            <template is="dom-if" if="{{checkFileName(lastLoadedFileName)}}">
                 <div class="text">
-                    <span class="grey">File: </span><span>{{lastLoadedFileName}}</span>
+                    <span class="grey">File: </span>
+                    <span>{{lastLoadedFileName}}</span>
                 </div>
             </template>
-
         </div>
     </template>
 </dom-module>
@@ -47,12 +52,21 @@
             edges: {
                 type: Array
             },
+            selectedVertices: {
+                type: Array
+            },
+            selectedEdges: {
+                type: Array
+            },
+            selectionColor: {
+                value: String
+            }
         },
-        created: function () {
-
+        checkFileName: function(lastLoadedFileName) {
+            return lastLoadedFileName != '';
         },
-        ready: function () {
-
+        computeColor: function(selectionColor) {
+            return "color:" + selectionColor + ";";
         }
     });
 </script>

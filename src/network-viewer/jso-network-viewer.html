@@ -75,6 +75,7 @@
 
 <link rel="import" href="../lib/components/network/jso-cellbase-attribute-import.html">
 <link rel="import" href="../lib/components/network/jso-cellbase-drugs-import.html">
+<link rel="import" href="../lib/components/network/jso-cellbase-diseases-import.html">
 <link rel="import" href="../lib/components/network/jso-intact-import.html">
 <link rel="import" href="../lib/components/network/jso-communities-structure-detection.html">
 <link rel="import" href="../lib/components/network/jso-topological-study.html">
@@ -149,6 +150,13 @@
         #sessionManagerPanel {
             width: 500px;
         }
+
+        div.jso-dropdown ul li:hover,
+        ul.jso-context li:hover {
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
+        }
+
     </style>
     <template>
 
@@ -159,7 +167,7 @@
         on-layout-configure-force-directed="handleLayoutMenu" on-layout-circle="handleLayoutMenu" on-layout-random="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu"
         on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu"
         on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu"
-        on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu">
+        on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu">
         </jso-nv-bar>
 
         <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage"
@@ -176,7 +184,7 @@
         on-rightclickvertex="handleRightClickVertex" on-rightclickbackgroundimage="handleRightClickBackgroundImage">
         </jso-nv-layout>
 
-        <jso-nv-status-bar hidden$="{{hideStatusBar}}" last-loaded-file-name="{{lastLoadedFileName}}" vertices="{{vertices}}" edges="{{edges}}">
+        <jso-nv-status-bar hidden$="{{hideStatusBar}}" last-loaded-file-name="{{lastLoadedFileName}}" vertices="{{vertices}}" edges="{{edges}}" selected-vertices="{{selectedVertices}}" selected-edges="{{selectedEdges}}" selection-color="{{vertexDefaults.selectionColor}}">
         </jso-nv-status-bar>
 
         <div class="right-side">
@@ -263,6 +271,14 @@
                 </div>
                 <jso-cellbase-drugs-import id="drugs" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns" on-apply-color="handleApplyDrugsColor" on-apply-multicolor="handleApplyDrugsMulticolor">
                 </jso-cellbase-drugs-import>
+            </jso-panel>
+
+            <jso-panel hidden collapsible fixed movable closable id="diseasesPanel">
+                <div class="header">
+                    Import diseases by gene
+                </div>
+                <jso-cellbase-diseases-import id="drugs" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns" on-apply-multicolor="handleApplyDiseasesMulticolor">
+                </jso-cellbase-diseases-import>
             </jso-panel>
 
 
@@ -569,6 +585,7 @@
         observers: [
             'selectedVerticesChanged(selectedVertices.splices)',
             'selectedEdgesChanged(selectedEdges.splices)',
+            'vertexSelectionColorChanged(vertexDefaults.selectionColor)',
             //            'vAttr.selected': 'handleVertexSelected',
             //            'eAttr.selected': 'handleEdgeSelected',
             //            'vAttr.data': 'handleDataChanged',
@@ -823,8 +840,6 @@
             this.backgroundImages = o.backgroundImages;
 
             this.backgroundColor = o.backgroundColor;
-            this.center.x = o.center.x;
-            this.center.y = o.center.y;
 
             //            var graph = new JsoGraph;
             //            graph.fromJSON(o.graph);
@@ -847,9 +862,13 @@
             this.refreshGraphView();
 
             this.saveLocalStorage();
+
             this.setVertexDefaultLabelAttribute(this.vertexDefaults.labelAttribute);
             this.setEdgeDefaultLabelAttribute(this.edgeDefaults.labelAttribute);
             this.$.networkLayout.addBackgroundImages(this.backgroundImages);
+            this.resetZoom();
+            this.set('center.x', o.center.x);
+            this.set('center.y', o.center.y);
             this.zoom = o.zoom;
         },
         toJSON: function() {
@@ -1104,6 +1123,12 @@
         handleEdgesUpdateRow: function(e) {
             this.$.edgeRender.refreshAttributes();
         },
+        vertexSelectionColorChanged: function(neo, old) {
+            for (var i = 0; i < this.selectedVertices.length; i++) {
+                var vertex = this.selectedVertices[i];
+                vertex.renderer.select(this.vertexDefaults.selectionColor);
+            }
+        },
         selectedVerticesChanged: function(changeRecord) {
             console.time("selectedVerticesChanged")
             if (this.vertices && this.selectedVertices) {
@@ -1194,6 +1219,9 @@
         },
         handleDrugsMenu: function(e) {
             this.$.drugsPanel.hidden = false;
+        },
+        handleDiseasesMenu: function(e) {
+            this.$.diseasesPanel.hidden = false;
         },
         handleSessionStartMenu: function(e) {
             if (confirm('All changes will be lost. Are you sure?')) {
@@ -1544,7 +1572,7 @@
         },
         handleVertexSearch: function(e) {
             this.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
-            if (this.vAttr.selected.length == 0) {
+            if (this.selectedVertices.length == 0) {
                 e.detail.inputEl.style.color = '#ff0000';
             }
         },
@@ -1598,19 +1626,19 @@
         },
         handleLeftClickVertex: function(e) {
             var vertex = this.graph.getVertexById(e.detail.vertexId);
-            //                this.$.editionBar.vertexColor = vertex.renderer.color;
-            //                this.$.editionBar.vertexStrokeColor = vertex.renderer.strokeColor;
-            //                this.$.editionBar.vertexNameField = vertex.renderer.labelText;
-            //                this.$.editionBar.vertexSizeField = vertex.renderer.size;
-            //                this.$.editionBar.vertexStrokeSizeField = vertex.renderer.strokeSize;
-            //                this.$.editionBar.selectedBar = 'vertex';
+            this.$.editionBar.vertexColor = vertex.renderer.color;
+            this.$.editionBar.vertexStrokeColor = vertex.renderer.strokeColor;
+            //    this.$.editionBar.vertexNameField = vertex.renderer.labelText;
+            this.$.editionBar.vertexSizeField = vertex.renderer.size;
+            this.$.editionBar.vertexStrokeSizeField = vertex.renderer.strokeSize;
+            this.$.editionBar.selectedBar = 'vertex';
         },
         handleLeftClickEdge: function(e) {
             var edge = this.graph.getEdgeById(e.detail.edgeId);
-            //                this.$.editionBar.edgeColor = edge.renderer.color;
-            //                this.$.editionBar.edgeSizeField = edge.renderer.size;
+            this.$.editionBar.edgeColor = edge.renderer.color;
+            this.$.editionBar.edgeSizeField = edge.renderer.size;
             //                this.$.editionBar.edgeNameField = edge.renderer.labelText;
-            //                this.$.editionBar.selectedBar = 'edge';
+            this.$.editionBar.selectedBar = 'edge';
         },
         handleRightClickVertex: function(e) {
             this._lastContextVertexAttributes = [];
@@ -1803,9 +1831,9 @@
             var matches = {};
             for (var i = 0; i < this.vertices.length; i++) {
                 var vertex = this.vertices[i];
-                if(vertex.attributes.drugs === 'none'){
+                if (vertex.attributes.drugs === 'none') {
                     matches[vertex.attributes.drugs] = '#FFFFFF';
-                }else{
+                } else {
                     matches[vertex.attributes.drugs] = '#FF0000';
                 }
             }
@@ -1826,15 +1854,39 @@
                 var drugs = vertex.attributes.drugs.split(',');
                 for (var j = 0; j < drugs.length; j++) {
                     var drug = drugs[j];
-                    if(drug === 'none'){
+                    if (drug === 'none') {
                         matches[drug] = '#FFFFFF';
-                    }else{
+                    } else {
                         matches[drug] = Utils.randomColor();
                     }
                 }
             }
             nodeRender.applyVisualSet({
                 attribute: "drugs",
+                displayProperty: "color",
+                enabled: true,
+                matches: matches,
+                parse: "list",
+                type: "categorical"
+            });
+        },
+        handleApplyDiseasesMulticolor: function(e) {
+            var nodeRender = this.$.nodeRender;
+            var matches = {};
+            for (var i = 0; i < this.vertices.length; i++) {
+                var vertex = this.vertices[i];
+                var diseases = vertex.attributes.diseases.split(',');
+                for (var j = 0; j < diseases.length; j++) {
+                    var disease = diseases[j];
+                    if (diseases === 'none') {
+                        matches[disease] = '#FFFFFF';
+                    } else {
+                        matches[disease] = Utils.randomColor();
+                    }
+                }
+            }
+            nodeRender.applyVisualSet({
+                attribute: "diseases",
                 displayProperty: "color",
                 enabled: true,
                 matches: matches,
@@ -2137,6 +2189,8 @@
             } else {
                 vertex = this.graph.getVertexById(id);
             }
+            var label = vertex.attributes[this.vertexDefaults.labelAttribute];
+            vertex.renderer.setLabelContent(label);
             return vertex;
         },
         createVertices: function(idList) {
@@ -2459,8 +2513,10 @@
             for (var i = 0, l = edges.length; i < l; i++) {
                 var edge = edges[i];
                 edge.attributes.id = edge.id;
-                edge.attributes.name = edge.id;
-                edge.attributes.relation = edge.relation;
+                // edge.attributes.relation = edge.relation;
+                if (edge.attributes.name == null) {
+                    edge.attributes.name = edge.id;
+                }
                 //                    edge.setRenderer(new DefaultEdgeRenderer(this.edgeDefaults));
                 edge.render({
                     target: this.$.networkLayout.$.scaleFrontGroup
