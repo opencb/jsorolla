@@ -1,0 +1,251 @@
+<script>
+    JsoCellbaseAttributeImportBehavior = {
+        _processInfoMap: function(infoMap, attributeName, columns) {
+            console.log("_processInfoMap");
+            for (var key in infoMap) {
+                for (var i = 0; i < this.items.length; i++) {
+                    var item = this.items[i];
+                    var values = infoMap[key][item.attributes[attributeName]];
+                    if (values != null && values.length > 0) {
+                        item.attributes[key] = values.join(',');
+                    } else {
+                        item.attributes[key] = 'none';
+                    }
+                }
+                columns.push({
+                    name: key,
+                    title: Utils.camelToSpace(key),
+                    type: "text",
+                    formula: function(r) {
+                        return r.attributes[this.name];
+                    }
+                });
+            }
+        },
+        _finishRetrieveFunctionalInformation: function(columns, callCount, callback) {
+            if (callCount === 0) {
+                if (columns.length > 0) {
+                    this.fire('add-columns', columns);
+                }
+                this.loading = false;
+                this.message = "Information has been saved as attributes";
+                if (callback) {
+                    callback();
+                }
+            }
+        },
+        getGeneInfo: function(args, queries, species, callback) {
+            var infoMap = {};
+            var includes = [];
+            if (args.tissues) {
+                includes.push('expressionValues');
+                for (key in args.selectedTissues) {
+                    infoMap[key] = {}
+                }
+            }
+            if (args.drugs) {
+                includes.push('drugInteractions');
+                infoMap.drugs = {};
+            }
+            CellBaseManager.get({
+                host: CELLBASE_HOST,
+                species: species,
+                category: 'feature',
+                subCategory: 'gene',
+                query: queries.toString(),
+                resource: 'info',
+                params: {
+                    include: includes.join(',')
+                },
+                success: function(data) {
+                    for (var i = 0; i < data.response.length; i++) {
+                        var r = data.response[i];
+                        if (r.result.length > 0) {
+                            var expressionValues = r.result[0].expressionValues;
+                            var drugInteractions = r.result[0].drugInteractions;
+                            var tissues = {};
+                            var drugs = [];
+                            if (args.tissues) {
+                                if (expressionValues != null) {
+                                    for (var j = 0; j < expressionValues.length; j++) {
+                                        var ev = expressionValues[j];
+                                        if (args.selectedTissues[ev.factorValue] === true) {
+                                            infoMap[ev.factorValue][queries[i]] = [ev.expression];
+                                        }
+                                    }
+                                }
+                            }
+                            if (args.drugs) {
+                                if (drugInteractions != null) {
+                                    for (var j = 0; j < drugInteractions.length; j++) {
+                                        var di = drugInteractions[j];
+                                        drugs.push(di.drugName);
+                                    }
+                                }
+                                infoMap.drugs[queries[i]] = drugs;
+                            }
+                        } else {
+                            if (args.tissues) {
+                                //
+                            }
+                            if (args.drugs) {
+                                infoMap.drugs[queries[i]] = [];
+                            }
+                        }
+                    }
+                    callback(infoMap);
+                }
+            });
+        },
+        getProteinInfo: function(args, queries, species, callback) {
+            var infoMap = {};
+            if (args.subcellularLocation) {
+                infoMap.subcellularLocation = {};
+            }
+            if (args.uniprotDiseases) {
+                infoMap.uniprotDiseases = {};
+            }
+            if (args.goCellularComponent) {
+                infoMap.goCellularComponent = {};
+            }
+            if (args.goBiologicalProcess) {
+                infoMap.goBiologicalProcess = {};
+            }
+            if (args.goMolecularFunction) {
+                infoMap.goMolecularFunction = {};
+            }
+            var includes = [];
+            if (args.subcellularLocation || args.uniprotDiseases) {
+                includes.push('comment');
+            }
+            if (args.goCellularComponent || args.goBiologicalProcess || args.goMolecularFunction) {
+                includes.push('dbReference');
+            }
+            CellBaseManager.get({
+                host: CELLBASE_HOST,
+                species: species,
+                category: 'feature',
+                subCategory: 'gene',
+                query: queries.toString(),
+                params: {
+                    include: includes.join(',')
+                },
+                resource: 'protein',
+                success: function(data) {
+                    for (var i = 0; i < data.response.length; i++) {
+                        var r = data.response[i];
+                        if (r.result.length > 0) {
+                            var comment = r.result[0].comment;
+                            var dbReference = r.result[0].dbReference;
+
+                            if (args.subcellularLocation || args.uniprotDiseases) {
+                                var subcellularLocations = [];
+                                var uniprotDiseases = [];
+                                for (var j = 0; j < comment.length; j++) {
+                                    var c = comment[j];
+                                    if (args.subcellularLocation && c.subcellularLocation != null && c.molecule == null) {
+                                        for (var k = 0; k < c.subcellularLocation.length; k++) {
+                                            subcellularLocations.push(c.subcellularLocation[k].location[0].value);
+                                        }
+                                    }
+                                    if (args.uniprotDiseases && c.disease != null) {
+                                        var disease = c.disease.name.replace(/,/g, '');
+                                        uniprotDiseases.push(disease);
+                                    }
+                                }
+                                if (args.subcellularLocation) {
+                                    infoMap.subcellularLocation[queries[i]] = subcellularLocations;
+                                }
+                                if (args.uniprotDiseases) {
+                                    infoMap.uniprotDiseases[queries[i]] = uniprotDiseases;
+                                }
+                            }
+                            if (args.goCellularComponent || args.goBiologicalProcess || args.goMolecularFunction) {
+                                var goCellularComponent = [];
+                                var goBiologicalProcess = [];
+                                var goMolecularFunction = [];
+                                for (var j = 0; j < dbReference.length; j++) {
+                                    var d = dbReference[j];
+                                    if (d.type === 'GO') {
+                                        var p = d.property[0];
+                                        if (args.goCellularComponent && p.value.indexOf('C:') !== -1) {
+                                            goCellularComponent.push(p.value);
+                                        }
+                                        if (args.goBiologicalProcess && p.value.indexOf('P:') !== -1) {
+                                            goBiologicalProcess.push(p.value);
+                                        }
+                                        if (args.goMolecularFunction && p.value.indexOf('F:') !== -1) {
+                                            goMolecularFunction.push(p.value);
+                                        }
+                                    }
+                                }
+                                if (args.goCellularComponent) {
+                                    infoMap.goCellularComponent[queries[i]] = goCellularComponent;
+                                }
+                                if (args.goBiologicalProcess) {
+                                    infoMap.goBiologicalProcess[queries[i]] = goBiologicalProcess;
+                                }
+                                if (args.goMolecularFunction) {
+                                    infoMap.goMolecularFunction[queries[i]] = goMolecularFunction;
+                                }
+                            }
+                        } else {
+                            if (args.subcellularLocation) {
+                                infoMap.subcellularLocation[queries[i]] = [];
+                            }
+                            if (args.uniprotDiseases) {
+                                infoMap.uniprotDiseases[queries[i]] = [];
+                            }
+                            if (args.goCellularComponent) {
+                                infoMap.goCellularComponent[queries[i]] = [];
+                            }
+                            if (args.goBiologicalProcess) {
+                                infoMap.goBiologicalProcess[queries[i]] = [];
+                            }
+                            if (args.goMolecularFunction) {
+                                infoMap.goMolecularFunction[queries[i]] = [];
+                            }
+                        }
+                    }
+                    callback(infoMap);
+                }
+            });
+        },
+        getClinvarInfo: function(args, queries, species, callback) {
+            // http://bioinfodev.hpc.cam.ac.uk/cellbase/webservices/rest/v3/hsapiens/feature/gene/BRCA2/clinical?include=clinvarSet.clinVarAssertion.traitSet
+            // clinvarSet.clinVarAssertion[0].traitSet.trait[0].name[0].elementValue.value
+            var infoMap = {};
+            if (args.clinVarDiseases) {
+                infoMap.clinVarDiseases = {};
+            }
+            CellBaseManager.get({
+                host: CELLBASE_HOST,
+                species: species,
+                category: 'feature',
+                subCategory: 'gene',
+                query: queries.toString(),
+                params: {
+                    include: 'clinvarSet.clinVarAssertion.traitSet'
+                },
+                resource: 'clinical',
+                success: function(data) {
+                    for (var i = 0; i < data.response.length; i++) {
+                        var r = data.response[i];
+                        if (r.result.length > 0) {
+                            var diseasesMap = {};
+                            for (var j = 0; j < r.result.length; j++) {
+                                var clinvar = r.result[j];
+                                var disease = clinvar.clinvarSet.clinVarAssertion[0].traitSet.trait[0].name[0].elementValue.value.replace(/,/g, '');
+                                diseasesMap[disease] = true;
+                            }
+                            infoMap.clinVarDiseases[queries[i]] = Object.keys(diseasesMap);
+                        } else {
+                            infoMap.clinVarDiseases[queries[i]] = [];
+                        }
+                    }
+                    callback(infoMap);
+                }
+            })
+        }
+    };
+</script>

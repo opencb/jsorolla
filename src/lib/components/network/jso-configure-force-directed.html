@@ -10,7 +10,7 @@
             padding: 5px;
         }
 
-        .horizontal.layout > div {
+        #main .horizontal.layout > div {
             margin: 0 0 4px 4px;
         }
 
@@ -26,13 +26,12 @@
 
         .footer {
             padding: 4px 5px 4px 12px;
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
         .footer > * {
             margin-left: 5px;
-
         }
     </style>
     <template>
@@ -118,7 +117,7 @@
             </div>
         </div>
 
-        <div class="footer horizontal layout flex">
+        <div class="footer horizontal layout center">
             <div class="flex"></div>
             <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleCancel">Cancel</div>
             <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleOk">OK</div>

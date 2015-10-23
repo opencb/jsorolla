@@ -99,7 +99,7 @@
                 <div class="jso-select flex">
                     <select on-change="handleLabelAttribute">
                         <template is="dom-repeat" items="{{columns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
+                            <option value="{{column.name}}" selected$="{{isOptionSelected(column.name, defaults.labelAttribute)}}">{{column.title}}</option>
                         </template>
                     </select>
                 </div>
@@ -160,8 +160,8 @@
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'shaft')}}">Shaft:</div>
                 <div class="jso-select flex">
                     <select on-change="handleShaft">
-                        <option value="solid">solid</option>
-                        <option value="dashed">dashed</option>
+                        <option value="solid" selected$="{{isOptionSelected('solid', defaults.shaft)}}">solid</option>
+                        <option value="dashed" selected$="{{isOptionSelected('dashed', defaults.shaft)}}">dashed</option>
                     </select>
                 </div>
 
@@ -187,11 +187,11 @@
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'shape')}}">Head shape:</div>
                 <div class="jso-select flex">
                     <select on-change="handleShape">
-                        <option value="directed">directed</option>
-                        <option value="undirected">undirected</option>
-                        <option value="inhibited">inhibited</option>
-                        <option value="dot">dot</option>
-                        <option value="odot">odot</option>
+                        <option value="directed" selected$="{{isOptionSelected('directed', defaults.shape)}}">directed</option>
+                        <option value="undirected" selected$="{{isOptionSelected('undirected', defaults.shape)}}">undirected</option>
+                        <option value="inhibited" selected$="{{isOptionSelected('inhibited', defaults.shape)}}">inhibited</option>
+                        <option value="dot" selected$="{{isOptionSelected('dot', defaults.shape)}}">dot</option>
+                        <option value="odot" selected$="{{isOptionSelected('odot', defaults.shape)}}">odot</option>
                     </select>
                 </div>
 
@@ -217,8 +217,8 @@
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'bidirectional')}}">Bidirectional:</div>
                 <div class="jso-select flex">
                     <select on-change="handleBidirectional">
-                        <option value="true">true</option>
-                        <option value="false">false</option>
+                        <option value="true" selected$="{{isOptionSelected('true', defaults.bidirectional)}}">true</option>
+                        <option value="false" selected$="{{isOptionSelected('false', defaults.bidirectional)}}">false</option>
                     </select>
                 </div>
 

@@ -1,3 +1,4 @@
+<link rel="import" href="jso-cellbase-attribute-import-behavior.html">
 <dom-module id="jso-cellbase-attribute-import">
     <style>
         :host {
@@ -132,6 +133,7 @@
 <script>
     Polymer({
         is: "jso-cellbase-attribute-import",
+        behaviors: [JsoCellbaseAttributeImportBehavior],
         properties: {
             species: {
                 type: Array
@@ -360,8 +362,12 @@
                     name: "subcellularLocation",
                     selected: false,
                 }, {
-                    boxLabel: "Diseases",
-                    name: "disease",
+                    boxLabel: "Uniprot diseases",
+                    name: "uniprotDiseases",
+                    selected: false,
+                }, {
+                    boxLabel: "ClinVar diseases",
+                    name: "clinVarDiseases",
                     selected: false,
                 }, {
                     boxLabel: "GO Cellular component",
@@ -476,10 +482,12 @@
             var item = e.model.item;
             item.selected = !item.selected;
 
-            if (item.name === 'tissues' && item.selected) {
-                this.set('showTissues', true);
-            } else {
-                this.set('showTissues', false);
+            if (item.name === 'tissues') {
+                if (item.selected) {
+                    this.set('showTissues', true);
+                } else {
+                    this.set('showTissues', false);
+                }
             }
         },
         handleSelectExtList: function() {
@@ -492,14 +500,16 @@
             this.set('selectedList', 'repo');
         },
         handleGo: function() {
-            if (this.$.columns.selected != null && this.$.species.selected != null) {
-                if (this.selectedList == 'func') {
-                    this.retrieveFunctionalInformation(this.$.columns.selected.name, this.$.species.selected);
-                } else if (this.selectedList == 'ext') {
-                    this.retrieveData(this.$.columns.selected.name, this.$.species.selected);
+            if (this.loading == false) {
+                if (this.$.columns.selected != null && this.$.species.selected != null) {
+                    if (this.selectedList == 'func') {
+                        this.retrieveFunctionalInformation(this.$.columns.selected.name, this.$.species.selected);
+                    } else if (this.selectedList == 'ext') {
+                        this.retrieveData(this.$.columns.selected.name, this.$.species.selected);
+                    }
+                } else {
+                    this.message = "Please select one species and one attribute";
                 }
-            } else {
-                this.message = "Please select one species and one attribute";
             }
         },
         uncheckAllDatabases: function() {
@@ -646,8 +656,9 @@
         },
         retrieveFunctionalInformation: function(attributeName, species) {
             var me = this;
-            var queries = [];
+            var callCount = 0;
 
+            var queries = [];
             for (var i = 0; i < this.items.length; i++) {
                 var attributes = this.items[i].attributes;
                 queries.push(attributes[attributeName]);
@@ -685,296 +696,35 @@
                 return;
             }
             if (oneSelectedFlag && queries.length > 0) {
+                var columns = [];
                 this.loading = true;
                 this.message = "Retrieving data...";
 
-                this.getProteinString(queries, species, function(proteinQueries) {
-                    if (proteinQueries.length > 0) {
-                        me.getProteinFullinfo(options, queries, proteinQueries, species, function(infoMap) {
-                            var columns = [];
-                            for (var key in infoMap) {
-                                for (var i = 0; i < me.items.length; i++) {
-                                    var item = me.items[i];
-                                    var values = infoMap[key][item.attributes[attributeName]];
-                                    if (values != null && values.length > 0) {
-                                        item.attributes[key] = values.join(',')
-                                    } else {
-                                        item.attributes[key] = 'none';
-                                    }
-                                }
-                                var column = {
-                                    name: key,
-                                    title: Utils.camelToSpace(key),
-                                    type: "text",
-                                    formula: function(r) {
-                                        return r.attributes[this.name];
-                                    }
-                                };
-                                columns.push(column);
-                            }
-                            if (columns.length > 0) {
-                                me.fire('add-columns', columns);
-                            }
-                            me.loading = false;
-                            me.message = "Information has been saved as attributes";
-                        });
-                    }
-                });
-            }
-
-            this.getGeneInfo(options, queries, species, function(infoMap) {
-                var columns = [];
-                for (var key in infoMap) {
-                    for (var i = 0; i < me.items.length; i++) {
-                        var item = me.items[i];
-                        if (key === 'tissues') {
-                            var map = infoMap[key][item.attributes[attributeName]];
-                        }else{
-                            var values = infoMap[key][item.attributes[attributeName]];
-                            if (values != null && values.length > 0) {
-                                item.attributes[key] = values.join(',')
-                            } else {
-                                item.attributes[key] = 'none';
-                            }
-                            var column = {
-                                name: key,
-                                title: Utils.camelToSpace(key),
-                                type: "text",
-                                formula: function(r) {
-                                    return r.attributes[this.name];
-                                }
-                            };
-                            columns.push(column);
-                        }
-                    }
-
+                if (options.subcellularLocation || options.uniprotDiseases || options.goCellularComponent || options.goBiologicalProcess || options.goMolecularFunction) {
+                    callCount++;
+                    this.getProteinInfo(options, queries, species, function(infoMap) {
+                        me._processInfoMap(infoMap, attributeName, columns);
+                        callCount--;
+                        me._finishRetrieveFunctionalInformation(columns, callCount);
+                    });
                 }
-            });
-
-
-
-        },
-        getGeneInfo: function(args, queries, species, callback) {
-            var infoMap = {};
-            var includes = [];
-            if (args.tissues) {
-                includes.push('expressionValues');
-                infoMap.tissues = {};
-            }
-            if (args.drug) {
-                includes.push('drugInteractions');
-                infoMap.drugs = {};
-            }
-            CellBaseManager.get({
-                host: CELLBASE_HOST,
-                species: species,
-                category: 'feature',
-                subCategory: 'gene',
-                query: queries.toString(),
-                resource: 'info',
-                params: {
-                    include: includes.join(',')
-                },
-                success: function(data) {
-                    for (var i = 0; i < data.response.length; i++) {
-                        var r = data.response[i];
-                        if (r.result.length > 0) {
-                            var expressionValues = r.result[0].expressionValues;
-                            var drugInteractions = r.result[0].drugInteractions;
-                            var tissues = {};
-                            var drugs = [];
-                            if (args.tissues) {
-                                if (expressionValues != null) {
-                                    for (var j = 0; j < expressionValues.length; j++) {
-                                        var ev = expressionValues[j];
-                                        if (args.selectedTissues[ev.factorValue] === true) {
-                                            tissues[ev.factorValue] = ev.expression;
-                                        }
-                                    }
-                                } else {
-                                    infoMap.tissues[queries[i]] = tissues;
-                                }
-                            }
-                            if (args.drugs) {
-                                if (drugInteractions != null) {
-                                    for (var j = 0; j < drugInteractions.length; j++) {
-                                        var di = drugInteractions[j];
-                                        drugs.push(di.drugName);
-                                    }
-                                }
-                                infoMap.drugs[queries[i]] = drugs;
-                            }
-                        } else {
-                            if (args.tissues) {
-                                infoMap.subcellularLocation[queries[i]] = {};
-                            }
-                            if (args.drugs) {
-                                infoMap.disease[queries[i]] = [];
-                            }
-                        }
-                    }
-
-                    var expressionValues = data.response[0].result[0].expressionValues;
-                    /* Tissues */
-                    for (var i = 0; i < expressionValues.length; i++) {
-                        var ev = expressionValues[i];
-                        if (ev.factorValue != null && tissuesMap[ev.factorValue]) {
-                            // GET TISSUES MAP
-                        }
-                    }
-                    callback(data.response[0].result[0].expressionValues);
-                    return
-
-
-
+                if (options.tissues || options.drugs) {
+                    callCount++;
+                    this.getGeneInfo(options, queries, species, function(infoMap) {
+                        me._processInfoMap(infoMap, attributeName, columns);
+                        callCount--;
+                        me._finishRetrieveFunctionalInformation(columns, callCount);
+                    });
                 }
-            });
-        },
-        getProteinFullinfo: function(args, queries, proteinQueries, species, callback) {
-            var infoMap = {};
-            if (args.subcellularLocation) {
-                infoMap.subcellularLocation = {};
-            }
-            if (args.disease) {
-                infoMap.disease = {};
-            }
-            if (args.goCellularComponent) {
-                infoMap.goCellularComponent = {};
-            }
-            if (args.goBiologicalProcess) {
-                infoMap.goBiologicalProcess = {};
-            }
-            if (args.goMolecularFunction) {
-                infoMap.goMolecularFunction = {};
-            }
-            var includes = [];
-            if (args.subcellularLocation || args.disease) {
-                includes.push('comment');
-            }
-            if (args.goCellularComponent || args.goBiologicalProcess || args.goMolecularFunction) {
-                includes.push('dbReference');
-            }
-            CellBaseManager.get({
-                host: CELLBASE_HOST,
-                species: species,
-                category: 'feature',
-                subCategory: 'protein',
-                query: proteinQueries.toString(),
-                params: {
-                    include: includes.join(',')
-                },
-                resource: 'fullinfo',
-                success: function(data) {
-                    for (var i = 0; i < data.response.length; i++) {
-                        var r = data.response[i];
-                        if (r.result.length > 0) {
-                            var comment = r.result[0].comment;
-                            var dbReference = r.result[0].dbReference;
-
-                            if (args.subcellularLocation || args.disease) {
-                                var subcellularLocations = [];
-                                var diseases = [];
-                                for (var j = 0; j < comment.length; j++) {
-                                    var c = comment[j];
-                                    if (args.subcellularLocation && c.subcellularLocation != null && c.molecule == null) {
-                                        for (var k = 0; k < c.subcellularLocation.length; k++) {
-                                            subcellularLocations.push(c.subcellularLocation[k].location[0].value);
-                                        }
-                                    }
-                                    if (args.disease && c.disease != null) {
-                                        diseases.push(c.disease.name);
-                                    }
-                                }
-                                if (args.subcellularLocation) {
-                                    infoMap.subcellularLocation[queries[i]] = subcellularLocations;
-                                }
-                                if (args.disease) {
-                                    infoMap.disease[queries[i]] = diseases;
-                                }
-                            }
-                            if (args.goCellularComponent || args.goBiologicalProcess || args.goMolecularFunction) {
-                                var goCellularComponent = [];
-                                var goBiologicalProcess = [];
-                                var goMolecularFunction = [];
-                                for (var j = 0; j < dbReference.length; j++) {
-                                    var d = dbReference[j];
-                                    if (d.type === 'GO') {
-                                        var p = d.property[0];
-                                        if (args.goCellularComponent && p.value.indexOf('C:') !== -1) {
-                                            goCellularComponent.push(p.value);
-                                        }
-                                        if (args.goBiologicalProcess && p.value.indexOf('P:') !== -1) {
-                                            goBiologicalProcess.push(p.value);
-                                        }
-                                        if (args.goMolecularFunction && p.value.indexOf('F:') !== -1) {
-                                            goMolecularFunction.push(p.value);
-                                        }
-                                    }
-                                }
-                                if (args.goCellularComponent) {
-                                    infoMap.goCellularComponent[queries[i]] = goCellularComponent;
-                                }
-                                if (args.goBiologicalProcess) {
-                                    infoMap.goBiologicalProcess[queries[i]] = goBiologicalProcess;
-                                }
-                                if (args.goMolecularFunction) {
-                                    infoMap.goMolecularFunction[queries[i]] = goMolecularFunction;
-                                }
-                            }
-                        } else {
-                            if (args.subcellularLocation) {
-                                infoMap.subcellularLocation[queries[i]] = [];
-                            }
-                            if (args.disease) {
-                                infoMap.disease[queries[i]] = [];
-                            }
-                            if (args.goCellularComponent) {
-                                infoMap.goCellularComponent[queries[i]] = [];
-                            }
-                            if (args.goBiologicalProcess) {
-                                infoMap.goBiologicalProcess[queries[i]] = [];
-                            }
-                            if (args.goMolecularFunction) {
-                                infoMap.goMolecularFunction[queries[i]] = [];
-                            }
-                        }
-                    }
-                    callback(infoMap);
+                if (options.clinVarDiseases) {
+                    callCount++
+                    this.getClinvarInfo(options, queries, species, function(infoMap) {
+                        me._processInfoMap(infoMap, attributeName, columns);
+                        callCount--;
+                        me._finishRetrieveFunctionalInformation(columns, callCount);
+                    });
                 }
-            });
-        },
-        getProteinString: function(queries, species, callback) {
-            CellBaseManager.get({
-                host: CELLBASE_HOST,
-                species: species,
-                category: 'feature',
-                subCategory: 'id',
-                query: queries.toString(),
-                resource: 'xref',
-                params: {
-                    dbname: 'uniprotkb/swissprot'
-                },
-                success: function(data) {
-                    var proteinQueries = [];
-                    var proteinString = null;
-                    for (var i = 0; i < data.response.length; i++) {
-                        var r = data.response[i];
-                        var xrefs = r.result;
-                        if (xrefs.length > 0) {
-                            for (var j = 0; j < xrefs.length; j++) {
-                                var xref = xrefs[j];
-                                if (xref.id.indexOf('_') != -1) {
-                                    proteinString = xref.id;
-                                    break;
-                                }
-                            }
-                        }
-                        proteinQueries.push(proteinString);
-                        proteinString = null;
-                    }
-                    callback(proteinQueries);
-                }
-            });
+            }
         }
     });
 </script>

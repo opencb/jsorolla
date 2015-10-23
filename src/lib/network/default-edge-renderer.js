@@ -456,7 +456,7 @@ DefaultEdgeRenderer.prototype = {
             this.labelEl = SVG.create("text", {
                 'network-type': 'edge-label'
             });
-        } else {
+        } else if(this.el.contains(this.labelEl)) {
             this.el.removeChild(this.labelEl);
         }
         this.labelEl.setAttribute('font-size', this.labelSize);

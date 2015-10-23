@@ -378,7 +378,7 @@ CircosVertexRenderer.prototype = {
             this.labelEl = SVG.create("text", {
                 'network-type': 'vertex-label'
             });
-        } else {
+        } else if(this.groupEl.contains(this.labelEl)) {
             this.groupEl.removeChild(this.labelEl);
         }
         this.labelEl.setAttribute('font-size', this.labelSize);
