@@ -140,7 +140,7 @@ var Utils = {
         for (var phylos in availableSpecies) {
             for (var i = 0; i < availableSpecies[phylos].length; i++) {
                 var species = availableSpecies[phylos][i];
-                if (this.getSpeciesCode(species.id) == speciesCode) {
+                if (species.id === speciesCode || species.scientificName.toLowerCase() === speciesCode.toLowerCase()) {
                     return species;
                 }
             }
