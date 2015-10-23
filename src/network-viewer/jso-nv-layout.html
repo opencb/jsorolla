@@ -23,7 +23,7 @@
                         <line id="linkHelp" x1="0" y1="0" x2="0" y2="0" stroke="slategray" opacity="1" stroke-width="2" cursor="pointer"></line>
                         <rect id="selectHelp" x="0" y="0" width="0" height="0" stroke-width="2" stroke="#ff6500" opacity="0.5" fill="#fff0e7"></rect>
 
-                        <g id="scaleFrontGroup" font-family="Ubuntu Mono" transform$="{{computeTransform(tx,ty,scale)}}">
+                        <g id="scaleFrontGroup" font-family$="{{computeFontFamily()}}" transform$="{{computeTransform(tx,ty,scale)}}">
                             <!--<g id="scaleFrontGroup" font-family="Ubuntu Mono">-->
                         </g>
                     </svg>
@@ -128,7 +128,13 @@
             // console.log('mousePss: ' + this.rmx + ' , ' + this.rmy);
             // console.log('--------------------------');
         },
-
+        computeFontFamily: function() {
+            if (navigator.appVersion.indexOf("Win") != -1) return "'Courier New', Courier";
+            if (navigator.appVersion.indexOf("Mac") != -1) return "Monaco, 'Courier New', Courier";
+            if (navigator.appVersion.indexOf("Linux") != -1) return "monospace, 'Courier New', Courier";
+            if (navigator.appVersion.indexOf("X11") != -1) return "monospace, 'Courier New', Courier";
+            return "'Courier New', Courier";
+        },
         created: function() {},
         ready: function() {},
         computeTransform: function(tx, ty, scale) {
@@ -190,8 +196,8 @@
             }
         },
         zoomChanged: function(neo, old) {
-            console.log(this.rmx + ',' + this.rmy);
-            console.log(this.last_rmx + ',' + this.last_rmy);
+            // console.log(this.rmx + ',' + this.rmy);
+            // console.log(this.last_rmx + ',' + this.last_rmy);
             if (old != null && neo != null) {
                 if (this.zoom === 0) {
                     this.scale = 0.04;

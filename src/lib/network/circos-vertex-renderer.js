@@ -371,14 +371,14 @@ CircosVertexRenderer.prototype = {
         this.mid = this.figureSize / 2;
     },
     _textWidthBySize: function(text, pixelFontSize) {
-        return ((text.length * pixelFontSize / 2) + 0.5) | 0; //round up
+        return ((text.length * pixelFontSize / 2) + (text.length * pixelFontSize / 10)); //round up
     },
     _renderLabelEl: function() {
         if (this.labelEl == null) {
             this.labelEl = SVG.create("text", {
                 'network-type': 'vertex-label'
             });
-        } else if(this.groupEl.contains(this.labelEl)) {
+        } else if (this.groupEl.contains(this.labelEl)) {
             this.groupEl.removeChild(this.labelEl);
         }
         this.labelEl.setAttribute('font-size', this.labelSize);
@@ -386,7 +386,7 @@ CircosVertexRenderer.prototype = {
 
         this.labelEl.textContent = "";
         var linesCount = this.labelLines.length;
-        var yStart = this.labelPositionY + this.mid + (this.labelSize / 3) -  ((linesCount-1) * this.labelSize / 2);
+        var yStart = this.labelPositionY + this.mid + (this.labelSize / 3) - ((linesCount - 1) * this.labelSize / 2);
         for (var i = 0; i < linesCount; i++) {
             var line = this.labelLines[i];
             var tspan = SVG.addChild(this.labelEl, "tspan", {
