@@ -51,14 +51,13 @@
         }
 
         .footer {
-            padding: 4px 5px 4px 12px;
+            padding: 4px 5px 4px 5px;
             border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
         .footer > * {
             margin-left: 5px;
-
         }
     </style>
     <template>
@@ -79,23 +78,20 @@
 
                 <label class="jso">Filter data type:</label>
 
-                <jso-select-box options="{{filterDataTypes}}"
-                                on-select="handleAttributeTypeSelect">
+                <jso-select-box options="{{filterDataTypes}}" on-select="handleAttributeTypeSelect">
                 </jso-select-box>
 
 
                 <template is="dom-if" if="{{checkAttributeType(attributeType, 'string')}}">
                     <label class="jso">Filter string matching:</label>
-                    <jso-select-box options="{{stringMatches}}" style="height: 122px;"
-                                    on-select="handleStringMatchSelect">
+                    <jso-select-box options="{{stringMatches}}" style="height: 122px;" on-select="handleStringMatchSelect">
                     </jso-select-box>
 
                 </template>
 
                 <template is="dom-if" if="{{checkAttributeType(attributeType, 'number')}}">
                     <label class="jso">Number matching:</label>
-                    <jso-select-box options="{{numberMatches}}" style="height: 122px;"
-                                    on-select="handleNumberMatchSelect">
+                    <jso-select-box options="{{numberMatches}}" style="height: 122px;" on-select="handleNumberMatchSelect">
                     </jso-select-box>
                 </template>
 
@@ -134,12 +130,12 @@
                                     </span>
                                 </div>
                                 <div style="word-wrap: break-word;">
-                                    <span class="light">Value:</span>&nbsp;<span>{{filter.queryString}}</span>
+                                    <span class="light">Value:</span>&nbsp;
+                                    <span>{{filter.queryString}}</span>
                                 </div>
                             </div>
                             <div class="filteractions horizontal layout">
-                                <i class$="{{computeFilterIconClass(filter.enabled)}}"
-                                   on-click="handleToggleFilter"></i>
+                                <i class$="{{computeFilterIconClass(filter.enabled)}}" on-click="handleToggleFilter"></i>
                                 <i class="fa fa-times delete" on-click="handleDeleteFilter"></i>
                             </div>
                         </div>
@@ -154,8 +150,8 @@
         <div class="footer horizontal layout flex">
             <div class="jso-btn jso-btn-shdw" on-click="handleRemoveItems">Remove selected</div>
             <div class="flex"></div>
-            <div class="jso-btn jso-btn-shdw" on-click="handleApplyFiltersInvert"> Invert select</div>
-            <div class="jso-btn jso-btn-shdw" on-click="handleApplyFilters">Select</div>
+            <div class="jso-btn jso-btn-shdw" on-click="handleApplyFiltersInvert" style="width:100px;"> Invert select</div>
+            <div class="jso-btn jso-btn-shdw" on-click="handleApplyFilters" style="width:100px;">Select</div>
         </div>
 
     </template>
@@ -244,26 +240,26 @@
             'itemsChanged(items.splices)',
             'selectedChanged(selected.splices)'
         ],
-        checkAttributeType: function (attributeType, value) {
+        checkAttributeType: function(attributeType, value) {
             return attributeType.name === value;
         },
-        computeFilterIconClass: function (enabled) {
+        computeFilterIconClass: function(enabled) {
             if (enabled) {
                 return 'fa fa-toggle-on on'
             } else {
                 return 'fa fa-toggle-off off'
             }
         },
-        thereAreFilters: function (length) {
+        thereAreFilters: function(length) {
             return length > 0;
         },
-        itemsChanged: function (neo, old) {
+        itemsChanged: function(neo, old) {
             this._checkCurrentData();
         },
-        selectedChanged: function (neo, old) {
+        selectedChanged: function(neo, old) {
             this._checkCurrentData();
         },
-        _checkCurrentData: function () {
+        _checkCurrentData: function() {
             this.currentItems = this.items;
             var filteredItems = [];
             var firstFilter = true;
@@ -282,39 +278,39 @@
                 this.currentItems = filteredItems;
             }
         },
-        handleApplyFilters: function () {
+        handleApplyFilters: function() {
             this.set('selected', []);
             if (this.currentItems !== this.items && this.currentItems.length > 0) {
                 this.set('selected', this.currentItems);
             }
         },
-        handleApplyFiltersInvert: function () {
+        handleApplyFiltersInvert: function() {
             this.handleApplyFilters();
             this.fire('invert-selection');
         },
-        handleRemoveItems: function () {
+        handleRemoveItems: function() {
             var answer = confirm('Selected ' + this.type + 's will be deleted. Are you sure?');
             if (answer) {
                 this.fire('remove-selected');
             }
         },
-        handleExpand: function () {
+        handleExpand: function() {
             this.super();
         },
         /* Filter */
-        handleAttributeNameSelect: function (e) {
+        handleAttributeNameSelect: function(e) {
             this.attributeName = e.currentTarget.dataset.name;
         },
-        handleAttributeTypeSelect: function (e) {
+        handleAttributeTypeSelect: function(e) {
             this.attributeType = e.detail;
         },
-        handleStringMatchSelect: function (e) {
+        handleStringMatchSelect: function(e) {
             this.stringMatch = e.detail;
         },
-        handleNumberMatchSelect: function (e) {
+        handleNumberMatchSelect: function(e) {
             this.numberMatch = e.detail;
         },
-        handleCreateFilter: function () {
+        handleCreateFilter: function() {
             var attributeName = this.$.filterAttributeSelect.value;
 
             var match;
@@ -334,7 +330,7 @@
             this.push('filters', filter);
             this._checkCurrentData();
         },
-        _applyFilter: function (filter, itemsToIterate, filterIndex) {
+        _applyFilter: function(filter, itemsToIterate, filterIndex) {
             if (filter.attributeType == 'string') {
                 switch (filter.match) {
                     case 'exact':
@@ -371,7 +367,7 @@
             }
             return itemsToIterate;
         },
-        selectByColumnValue: function (items, column, value) {
+        selectByColumnValue: function(items, column, value) {
             var selected = [];
             for (var i = 0; i < items.length; i++) {
                 var attributes = items[i].attributes;
@@ -381,40 +377,40 @@
             }
             return selected;
         },
-        selectByColumnContainsValue: function (items, column, value, notContains) {
+        selectByColumnContainsValue: function(items, column, value, notContains) {
             var selected = [];
             if (notContains == true) {
                 for (var i = 0; i < items.length; i++) {
                     var attributes = items[i].attributes;
-                    if (attributes[column].indexOf(value) == -1) {
+                    if (attributes[column] != null && attributes[column].indexOf(value) == -1) {
                         selected.push(items[i]);
                     }
                 }
             } else {
                 for (var i = 0; i < items.length; i++) {
                     var attributes = items[i].attributes;
-                    if (attributes[column].indexOf(value) != -1) {
+                    if (attributes[column] != null && attributes[column].indexOf(value) != -1) {
                         selected.push(items[i]);
                     }
                 }
             }
             return selected;
         },
-        selectByColumnComparationValue: function (items, column, value, comparation, includeValue) {
+        selectByColumnComparationValue: function(items, column, value, comparation, includeValue) {
             if (!isNaN(value)) {
                 var selected = [];
                 if (comparation == '>') {
                     if (includeValue) {
                         for (var i = 0; i < items.length; i++) {
                             var attributes = items[i].attributes;
-                            if (!isNaN(attributes[column]) && parseFloat(attributes[column]) >= parseFloat(value)) {
+                            if (attributes[column] != null && !isNaN(attributes[column]) && parseFloat(attributes[column]) >= parseFloat(value)) {
                                 selected.push(items[i]);
                             }
                         }
                     } else {
                         for (var i = 0; i < items.length; i++) {
                             var attributes = items[i].attributes;
-                            if (!isNaN(attributes[column]) && parseFloat(attributes[column]) > parseFloat(value)) {
+                            if (attributes[column] != null && !isNaN(attributes[column]) && parseFloat(attributes[column]) > parseFloat(value)) {
                                 selected.push(items[i]);
                             }
                         }
@@ -423,14 +419,14 @@
                     if (includeValue) {
                         for (var i = 0; i < items.length; i++) {
                             var attributes = items[i].attributes;
-                            if (!isNaN(attributes[column]) && parseFloat(attributes[column]) <= parseFloat(value)) {
+                            if (attributes[column] != null && !isNaN(attributes[column]) && parseFloat(attributes[column]) <= parseFloat(value)) {
                                 selected.push(items[i]);
                             }
                         }
                     } else {
                         for (var i = 0; i < items.length; i++) {
                             var attributes = items[i].attributes;
-                            if (!isNaN(attributes[column]) && parseFloat(attributes[column]) < parseFloat(value)) {
+                            if (attributes[column] != null && !isNaN(attributes[column]) && parseFloat(attributes[column]) < parseFloat(value)) {
                                 selected.push(items[i]);
                             }
                         }
@@ -441,18 +437,18 @@
                 return items;
             }
         },
-        handleDeleteFilter: function (e) {
+        handleDeleteFilter: function(e) {
             var index = e.model.filterIndex;
             this.splice('filters', index, 1);
             this._checkCurrentData();
         },
-        handleDeleteFilters: function (e) {
+        handleDeleteFilters: function(e) {
             if (confirm('All filters will be deleted. Are you sure?')) {
                 this.set('filters', []);
                 this._checkCurrentData();
             }
         },
-        handleToggleFilter: function (e) {
+        handleToggleFilter: function(e) {
             var index = e.model.filterIndex;
             var path = 'filters.' + index + '.enabled';
             this.set(path, !this.filters[index].enabled);

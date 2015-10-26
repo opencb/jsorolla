@@ -1200,28 +1200,28 @@
             return selectedMenu === option;
         },
         handleNetworkEditMenu: function(e) {
-            this.$.networkEditPanel.hidden = false;
+            this.$.networkEditPanel.show();
         },
         handleNodesEditMenu: function(e) {
-            this.$.nodeAttributeEditPanel.hidden = false;
+            this.$.nodeAttributeEditPanel.show();
         },
         handleEdgesEditMenu: function(e) {
-            this.$.edgeAttributeEditPanel.hidden = false;
+            this.$.edgeAttributeEditPanel.show();
         },
         handleNodesFilterMenu: function(e) {
-            this.$.nodeSelectFilterPanel.hidden = false;
+            this.$.nodeSelectFilterPanel.show();
         },
         handleEdgesFilterMenu: function(e) {
-            this.$.edgeSelectFilterPanel.hidden = false;
+            this.$.edgeSelectFilterPanel.show();
         },
         handleCellbaseMenu: function(e) {
-            this.$.cellbaseAttributeImportPanel.hidden = false;
+            this.$.cellbaseAttributeImportPanel.show();
         },
         handleDrugsMenu: function(e) {
-            this.$.drugsPanel.hidden = false;
+            this.$.drugsPanel.show();
         },
         handleDiseasesMenu: function(e) {
-            this.$.diseasesPanel.hidden = false;
+            this.$.diseasesPanel.show();
         },
         handleSessionStartMenu: function(e) {
             if (confirm('All changes will be lost. Are you sure?')) {
@@ -1305,7 +1305,7 @@
             //            }
         },
         handleSessionManageMenu: function(e) {
-            this.$.sessionManagerPanel.hidden = false;
+            this.$.sessionManagerPanel.show();
         },
         handleImportSifMenu: function(e) {
             this.set('selectedMenu', 'import-sif');
@@ -1400,25 +1400,25 @@
             //            Deprecated
         },
         handleNodeSimpleRenderingMenu: function(e) {
-            this.$.nodeRenderPanel.hidden = false;
+            this.$.nodeRenderPanel.show();
         },
         handleEdgeSimpleRenderingMenu: function(e) {
-            this.$.edgeRenderPanel.hidden = false;
+            this.$.edgeRenderPanel.show();
         },
         handleReactomeMenu: function(e) {
-            this.$.reactomeImportPanel.hidden = false;
+            this.$.reactomeImportPanel.show();
         },
         handleKeggMenu: function(e) {
-            this.$.keggImportPanel.hidden = false;
+            this.$.keggImportPanel.show();
         },
         handleIntactMenu: function(e) {
-            this.$.intactImportPanel.hidden = false;
+            this.$.intactImportPanel.show();
         },
         handleCommunitiesMenu: function(e) {
-            this.$.communitiesStructureDetectionPanel.hidden = false;
+            this.$.communitiesStructureDetectionPanel.show();
         },
         handleTopologicalMenu: function(e) {
-            this.$.topologicalStudyPanel.hidden = false;
+            this.$.topologicalStudyPanel.show();
         },
         handleSnowMenu: function(e) {
             if (this.jsoHeader) {
@@ -1427,7 +1427,7 @@
                 }
             }
             //TODO
-            this.$.snowPanel.hidden = false;
+            this.$.snowPanel.show();
         },
         handleNetworkMinerMenu: function(e) {
             if (this.jsoHeader) {
@@ -1435,7 +1435,7 @@
                     this.jsoHeader.anonymousSign();
                 }
             }
-            this.$.networkMinerPanel.hidden = false;
+            this.$.networkMinerPanel.show();
         },
         handleFatigoMenu: function(e) {
             if (this.jsoHeader) {
@@ -1443,7 +1443,7 @@
                     this.jsoHeader.anonymousSign();
                 }
             }
-            this.$.fatigoPanel.hidden = false;
+            this.$.fatigoPanel.show();
         },
         handleReactomeFiMenu: function(e) {
             if (this.jsoHeader) {
@@ -1451,7 +1451,7 @@
                     this.jsoHeader.anonymousSign();
                 }
             }
-            this.$.reactomeFiPanel.hidden = false;
+            this.$.reactomeFiPanel.show();
         },
         /**/
         handleImportSif: function(e) {
@@ -1515,7 +1515,7 @@
                     this.setLayout('Force directed');
                     break;
                 case 'layout-configure-force-directed':
-                    this.$.configureForceDirectedPanel.hidden = false;
+                    this.$.configureForceDirectedPanel.show();
                     break;
                 case 'layout-tree':
                     this.setLayout('Tree');

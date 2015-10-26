@@ -1,5 +1,11 @@
 <script>
     JsoCellbaseAttributeImportBehavior = {
+        properties: {
+            loading: {
+                type: Boolean,
+                value: false
+            }
+        },
         _processInfoMap: function(infoMap, attributeName, columns) {
             console.log("_processInfoMap");
             for (var key in infoMap) {
