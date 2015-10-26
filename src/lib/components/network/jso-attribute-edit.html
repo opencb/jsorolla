@@ -55,6 +55,15 @@
             margin-right: 0px;
         }
 
+        #right {
+            position: relative;
+            width: calc(100% - 220px);
+        }
+
+        #right > jso-table {
+            width: 100%;
+        }
+
         .selbox {
             /*height: 130px;*/
             box-sizing: border-box;
@@ -107,8 +116,9 @@
                             </div>
 
                             <div class="horizontal layout" style="margin-top: 3px;">
-                                <input flex type="text" class="jso" value="{{_newValue::input}}" placeholder="Attribute value">
-
+                                <div class="flex">
+                                    <input class="jso" type="text" value="{{_newValue::input}}" placeholder="Attribute value">
+                                </div>
                                 <div class="jso-btn jso-btn-shdw newvalue" on-click="handleEditApply"></div>
                             </div>
                         </div>
@@ -116,8 +126,9 @@
                         <label class="jso" style="margin-top: 10px;">Add new attribute</label>
 
                         <div class="horizontal layout">
-                            <input flex type="text" class="jso" value="{{_newColumnName::input}}" placeholder="Attribute name">
-
+                            <div class="flex">
+                                <input type="text" class="jso" value="{{_newColumnName::input}}" placeholder="Attribute name">
+                            </div>
                             <div class="jso-btn jso-btn-shdw newattr" on-click="handleAddApply"></div>
                         </div>
 
@@ -249,7 +260,7 @@
                 </div>
             </div>
 
-            <div id="right" class="flex vertical layout">
+            <div id="right" class="vertical layout">
                 <div id="topbar" class="bar horizontal layout center">
                     <div class="jso-btn jso-btn-shdw" on-click="handleSelectAll">Select all</div>
                     <div class="jso-btn jso-btn-shdw" on-click="handleDeselectAll">Deselect all</div>

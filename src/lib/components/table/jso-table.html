@@ -32,6 +32,7 @@
         .table-header,
         .table-filter,
         .table-body {
+            box-sizing: border-box;
             border-right: 1px solid #dadada;
         }
 
@@ -319,6 +320,7 @@
             background-color: transparent;
             border-color: transparent;
             height: 100%;
+            width: 100%;
             margin: 0;
         }
 
@@ -385,7 +387,7 @@
             </div>
         </div>
 
-        <div id="wrap" style="overflow-x: scroll;">
+        <div id="wrap" style="overflow-x: scroll;width:100%;">
             <div id="header" class="table-header" on-contextmenu="handleColumnsMenu">
                 <div id="headerRow"></div>
                 <div class="scrollfix"></div>
@@ -1319,7 +1321,6 @@
                         input.setAttribute("placeholder", "");
                         input.setAttribute("readonly", "");
                         input.classList.add('style-scope', 'jso-table');
-                        input.style.width = "100%";
                         input._col = column.name;
                         input.addEventListener('dblclick', function(e) {
                             this.removeAttribute('readonly');
