@@ -341,7 +341,6 @@
                 this.style.position = '';
                 this.style.left = '';
                 this.style.top = '';
-                this.style.top = '';
                 this.style["z-index"] = '';
 
                 this.moved = false;
@@ -358,8 +357,8 @@
                         this.style.position = 'fixed';
                         this.style.width = '100%';
                         this.style.height = '100%';
-                        this.style.top = '0';
-                        this.style.left = '0';
+                        this.style.top = '';
+                        this.style.left = '';
                         this.style['z-index'] = currentZIndex + 100;
                     } else {
                         this.style.width = '';
@@ -372,7 +371,6 @@
                         } else {
                             this.style['z-index'] = '';
                         }
-
                         this._center();
                     }
                 }
