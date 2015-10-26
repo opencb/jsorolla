@@ -37,7 +37,7 @@
 
         .table-header {
             position: relative;
-            box-sizing: border-box;
+            /*box-sizing: border-box;*/
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
         }
@@ -104,7 +104,7 @@
 
         .table-filter {
             position: relative;
-            box-sizing: border-box;
+            /*box-sizing: border-box;*/
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
         }
@@ -142,7 +142,7 @@
         }
 
         .table-body {
-            box-sizing: border-box;
+            /*box-sizing: border-box;*/
             overflow-x: auto;
             /*overflow-y: scroll;*/
             height: calc(100% - 31px);
@@ -326,6 +326,12 @@
             border-color: #ccc;
         }
 
+        .table-field > input[type=text][readonly]:focus {
+            border-color: #ccc;
+            box-shadow: inset 0 0 3px 1px rgba(0, 0, 0, .01);
+            background-color: #fff;
+        }
+
         .table-field > input[type=text]:focus {
             border-color: #66afe9;
             box-shadow: inset 0 0 3px 1px rgba(102, 175, 233, .5);
@@ -392,7 +398,7 @@
 
 
         <div class="horizontal layout center table-bbar">
-            <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center">
+            <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center flex">
                 <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i></div>
                 <div class="jso-btn jso-btn-shdw" on-click="handlePreviousClick"><i class="fa fa-angle-left"></i></div>
                 <div class="jso-txt">Page</div>
@@ -404,6 +410,8 @@
                 <div class="jso-btn jso-btn-shdw" on-click="handleNextClick"><i class="fa fa-angle-right"></i></div>
                 <div class="jso-btn jso-btn-shdw" on-click="handleLastClick"><i class="fa fa-angle-double-right"></i></div>
 
+                <div class="flex"></div>
+
                 <div class="jso-txt">items</div>
                 <div class="jso-txt">{{pageFirstItem}}</div>
                 <div class="jso-txt">-</div>
@@ -412,14 +420,13 @@
                 <div class="jso-txt">{{itemCount}}</div>
             </div>
 
-            <div class="flex"></div>
 
             <div class="horizontal layout">
                 <div hidden$="{{enablePaging}}">Total:
                     <span>{{itemCount}}</span>
                 </div>
-                <div class="jso-btn jso-btn-shdw">
-                    <i class="fa fa-bars" on-click="handleColumnsMenu"></i>
+                <div class="jso-btn jso-btn-shdw" on-click="handleColumnsMenuButton">
+                    <i class="fa fa-bars"></i>
                 </div>
             </div>
         </div>
@@ -596,11 +603,22 @@
         handleColumnsMenu: function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             this.$.columnsMenu.style.opacity = "1";
             this.$.columnsMenu.style.visibility = "visible";
             this.$.columnsMenu.style.top = (e.clientY + 10) + "px";
             this.$.columnsMenu.style.left = (e.clientX) + "px";
+        },
+        handleColumnsMenuButton: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.$.columnsMenu.style.opacity = "1";
+            this.$.columnsMenu.style.visibility = "visible";
+            var bcrColumnsMenu = this.$.columnsMenu.getBoundingClientRect();
+            var bcrCurrent = e.currentTarget.getBoundingClientRect();
+            this.$.columnsMenu.style.top = (bcrCurrent.top - bcrColumnsMenu.height) + "px";
+            this.$.columnsMenu.style.left = (bcrCurrent.left - bcrColumnsMenu.width + bcrCurrent.width) + "px";
         },
         handleColumnsMenuLeave: function(e) {
             e.preventDefault();
@@ -1272,9 +1290,8 @@
         },
         _createTypeField: function(el, column, rowData, isSubCol) {
             var me = this;
-            var defValue = column.defaultValue != null ? column.defaultValue : '';
             var value;
-
+            var defValue = column.defaultValue;
 
             if (column.formula) {
                 value = column.formula(rowData);
@@ -1285,6 +1302,11 @@
                     value = rowData[column.name];
                 }
             }
+
+            // set empty string if no value found.
+            value = (value == null) ? defValue : value;
+            value = (value == null) ? '' : value;
+
             if (this.enableEdit && column.editable != false) {
                 if (!column.type) {
                     column.type = 'text';
@@ -1294,13 +1316,20 @@
                         var input = document.createElement("input");
                         input.setAttribute("type", "text");
                         input.setAttribute("placeholder", "");
+                        input.setAttribute("readonly", "");
                         input.classList.add('style-scope', 'jso-table');
                         input.style.width = "100%";
                         input._col = column.name;
+                        input.addEventListener('dblclick', function(e) {
+                            this.removeAttribute('readonly');
+                        });
                         input.addEventListener('blur', function(e) {
-                            var val = this.value;
-                            rowData.attributes[column.name] = val;
-                            me.fire('update-row', rowData);
+                            if (!this.hasAttribute('readonly')) {
+                                this.setAttribute('readonly', '');
+                                var val = this.value;
+                                rowData.attributes[column.name] = val;
+                                me.fire('update-row', rowData);
+                            }
                         });
                         input.value = value;
                         el.appendChild(input);
@@ -1348,9 +1377,9 @@
                 } else {
                     cEl.style.width = column.width + "px";
                 }
-                cEl.innerHTML = value != null ? value : defValue;
+                cEl.innerHTML = value;
                 if (!this.disableTooltip) {
-                    var tooltipValue = value == null ? '' : value;
+                    var tooltipValue = value;
                     cEl.setAttribute("title", tooltipValue);
                 }
 
