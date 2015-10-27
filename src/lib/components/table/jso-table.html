@@ -363,6 +363,11 @@
             transition: opacity 0.1s, visibility 0.1s;
         }
 
+        #columnsMenu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
         div.jso-dropdown ul li:hover,
         ul.jso-context li:hover {
             background-color: var(--default-primary-color);
@@ -437,7 +442,7 @@
 
 
 
-        <ul id="columnsMenu" class="jso-context" on-mouseleave="handleColumnsMenuLeave">
+        <ul id="columnsMenu" class="jso-context" on-mouseleave="handleColumnsMenuLeave" on-wheel="handleMenuScroll">
             <!-- <li>Export</li>
             <li data-divider></li> -->
             <template is="dom-repeat" items="{{columns}}">
@@ -629,6 +634,10 @@
             this.$.columnsMenu.style.opacity = "";
             this.$.columnsMenu.style.visibility = "";
         },
+        handleMenuScroll: function(e) {
+            e.stopPropagation();
+        },
+
         selectedChanged: function(changeRecord) {
             this._updateSelected();
             this.fire('selected', this.selected);
@@ -1127,39 +1136,44 @@
             rowEl.appendChild(el);
         },
         handleHeaderFieldClick: function(e) {
-            var els = this.querySelectorAll('.table-header-field');
+            var me = this;
             var column = e.currentTarget._column;
             var sortedData = this.data.slice(0);
-            if (e.currentTarget.classList.contains("sort-down")) {
-                for (var i = 0; i < els.length; i++) {
-                    var el = els[i];
-                    el.classList.remove('sort-down');
-                    el.classList.remove('sort-up');
-                }
-                sortedData.sort(function(b, a) {
-                    if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
-                        return a[column.name] - b[column.name];
-                    } else {
-                        return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
-                    }
+            var els = this.querySelectorAll('.table-header-field');
+            var isSortDown = e.currentTarget.classList.contains("sort-down");
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                el.classList.remove('sort-down');
+                el.classList.remove('sort-up');
+            }
+            if (isSortDown) {
+                sortedData.sort(function(a, b) {
+                    return me._columnSort(column, b, a);
                 });
                 e.currentTarget.classList.add('sort-up');
             } else {
-                for (var i = 0; i < els.length; i++) {
-                    var el = els[i];
-                    el.classList.remove('sort-down');
-                    el.classList.remove('sort-up');
-                }
                 sortedData.sort(function(a, b) {
-                    if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
-                        return a[column.name] - b[column.name];
-                    } else {
-                        return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
-                    }
+                    return me._columnSort(column, a, b);
                 });
                 e.currentTarget.classList.add('sort-down');
             }
             this.data = sortedData;
+        },
+        _columnSort: function(column, a, b) {
+            //checking formula or TODO save calculated value in the item;
+            var aVal, bVal;
+            if (column.formula != null) {
+                aVal = column.formula(a);
+                bVal = column.formula(b);
+            } else {
+                aVal = a[column.name];
+                bVal = b[column.name];
+            }
+            if (!isNaN(bVal) && !isNaN(aVal)) {
+                return aVal - bVal;
+            } else {
+                return (aVal > bVal) - (aVal < bVal);
+            }
         },
         _getPos: function(row) {
             for (var i = 0; i < this.viewData.length; i++) {

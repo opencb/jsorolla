@@ -6,6 +6,10 @@
             width: 900px;
         }
 
+        #main{
+            height:436px;
+        }
+
         #left {
             padding: 10px 15px;
             border-right: 1px solid var(--divider-color);
@@ -43,7 +47,7 @@
         }
     </style>
     <template>
-        <div class="container horizontal layout">
+        <div id="main" class="horizontal layout">
             <div id="left" class="vertical layout">
                 <label class="jso">Select attributes file:</label>
 
@@ -74,7 +78,9 @@
                     </template>
                 </div>
             </div>
+            <div>
 
+            </div>
             <jso-table id="table" class="flex" enable-paging page-size="12" columns="{{columns}}"
                        data="{{data}}" style="height:436px" hidden$="{{isDataEmpty(data)}}"></jso-table>
         </div>
