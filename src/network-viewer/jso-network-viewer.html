@@ -2605,11 +2605,25 @@
                         to: 'string'
                     });
                     me.loadJSON(JSON.parse(jsonStr));
+                    me.setLayout("Force directed");
                 };
-                request.open('GET', './example-files/reactome_network.json.gz', true);
+                request.open('GET', './example-files/RAF_MAK_kinase_cascade.json.gz', true);
                 request.send();
             }
             if (e.detail.subvalue == 3) {
+                var request = new XMLHttpRequest();
+                request.responseType = 'arraybuffer';
+                request.onload = function() {
+                    var jsonStr = pako.ungzip(this.response, {
+                        to: 'string'
+                    });
+                    me.loadJSON(JSON.parse(jsonStr));
+                    me.setLayout("Force directed");
+                };
+                request.open('GET', './example-files/mutational_landscape_oncogenes_and_tumor_suppressors.json.gz', true);
+                request.send();
+            }
+            if (e.detail.subvalue == 4) {
                 var request = new XMLHttpRequest();
                 request.responseType = 'arraybuffer';
                 request.onload = function() {
