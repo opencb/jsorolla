@@ -156,7 +156,6 @@
             background-color: var(--default-primary-color);
             color: var(--text-primary-color);
         }
-
     </style>
     <template>
 
@@ -2513,7 +2512,9 @@
             for (var i = 0, l = edges.length; i < l; i++) {
                 var edge = edges[i];
                 edge.attributes.id = edge.id;
-                // edge.attributes.relation = edge.relation;
+                if (edge.attributes.relation == null) {
+                    edge.attributes.relation = edge.relation;
+                }
                 if (edge.attributes.name == null) {
                     edge.attributes.name = edge.id;
                 }
