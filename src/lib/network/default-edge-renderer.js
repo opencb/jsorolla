@@ -71,6 +71,9 @@ DefaultEdgeRenderer.prototype = {
         return this[attr];
     },
     set: function(attr, value) {
+        if(!isNaN(value)){
+            value = parseFloat(value);
+        }
         this[attr] = value;
         switch (attr) {
             case "color":

@@ -68,20 +68,14 @@ function CircosVertexRenderer(args) {
     for (var prop in args) {
         if (hasOwnProperty.call(args, prop)) {
             if (args[prop] != null) {
-                this[prop] = args[prop];
+                if (!isNaN(args[prop])) {
+                    this[prop] = parseFloat(args[prop]);
+                } else {
+                    this[prop] = args[prop];
+                }
             }
         }
     }
-
-    this.size = parseFloat(this.size);
-    this.strokeSize = parseFloat(this.strokeSize);
-    this.opacity = parseFloat(this.opacity);
-    this.labelSize = parseFloat(this.labelSize);
-    this.labelPositionX = parseFloat(this.labelPositionX);
-    this.labelPositionY = parseFloat(this.labelPositionY);
-    this.area = parseFloat(this.area);
-    this.strokeArea = parseFloat(this.strokeArea);
-
 }
 
 
@@ -90,6 +84,9 @@ CircosVertexRenderer.prototype = {
         return this[attr];
     },
     set: function(attr, value, update) {
+        if (!isNaN(value)) {
+            value = parseFloat(val);
+        }
         this[attr] = value;
 
         if (this._checkListProperties()) {
@@ -105,9 +102,9 @@ CircosVertexRenderer.prototype = {
                 case "labelSize":
                 case "labelPositionY":
                 case "labelPositionX":
-                    this.labelPositionX = parseInt(this.labelPositionX);
-                    this.labelPositionY = parseInt(this.labelPositionY);
-                    this.labelSize = parseInt(this.labelSize);
+                    this.labelPositionX = parseFloat(this.labelPositionX);
+                    this.labelPositionY = parseFloat(this.labelPositionY);
+                    this.labelSize = parseFloat(this.labelSize);
                     this._renderLabelEl();
                     break;
                 case "shape":

@@ -1,0 +1,265 @@
+<link rel="import" href="jso-cellbase-attribute-import-behavior.html">
+<dom-module id="jso-cellbase-functionalities-import">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            position: relative;
+            width: 650px;
+        }
+
+        #main {
+            width: 100%;
+        }
+
+        #left {
+            width: 230px;
+            padding: 5px;
+        }
+
+        #right {
+            padding: 5px;
+        }
+
+        jso-select-box {
+            overflow-y: auto;
+            height: 150px;
+        }
+
+        .selbox {
+            overflow-y: auto;
+            border: 1px solid #d3d3d3;
+            background-color: #FFF;
+        }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--divider-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
+
+        .capitalize {
+            text-transform: capitalize;
+        }
+
+        #tissuesContent {
+            margin-left: 20px;
+        }
+    </style>
+    <template>
+        <div id="main" class="flex horizontal layout">
+
+            <div id="left">
+                <label class="jso">Species:</label>
+
+                <jso-select-box id="species" options="{{species}}" name-attribute="id" title-attribute="_title">
+                </jso-select-box>
+
+                <label class="jso" style="margin-top: 10px;">Attributes:</label>
+
+                <jso-select-box id="columns" options="{{columns}}">
+                </jso-select-box>
+            </div>
+
+            <div id="right" class="flex">
+                <label class="jso">Functional information:</label>
+
+                <div class="selbox" style="height:329px;">
+                    <div id="functionsContent">
+                        <template is="dom-repeat" items={{funcList}}>
+                            <label class="jso-control">
+                                <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
+                                <span>{{item.boxLabel}}</span>
+                            </label>
+                        </template>
+                    </div>
+                    <div id="tissuesContent" hidden$="{{!showTissues}}">
+                        <template is="dom-repeat" items={{tissues}}>
+                            <label class="jso-control">
+                                <input type="checkbox" value$="{{item}}">
+                                <span class="capitalize">{{item}}</span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer horizontal layout flex">
+            <div class="jso-txt">
+                <template is="dom-if" if="{{loading}}">
+                    <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
+                </template>
+                <span>{{message}}</span>
+            </div>
+            <div class="flex"></div>
+            <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleGo">Go</div>
+        </div>
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-cellbase-functionalities-import",
+        behaviors: [JsoCellbaseAttributeImportBehavior],
+        properties: {
+            columns: {
+                type: Array
+            },
+            items: {
+                type: Array
+            },
+            showTissues: {
+                type: Boolean,
+                value: false
+            }
+        },
+        ready: function() {
+            var me = this;
+            this.async(function() {
+                this.getSpecies(function(species) {
+                    me.species = species;
+                });
+            }, 50);
+            this.funcList = [{
+                boxLabel: "Drugs",
+                name: "drugs",
+                selected: false,
+            }, {
+                boxLabel: "Sub-cellular locations",
+                name: "subcellularLocation",
+                selected: false,
+            }, {
+                boxLabel: "Uniprot diseases",
+                name: "uniprotDiseases",
+                selected: false,
+            }, {
+                boxLabel: "ClinVar diseases",
+                name: "clinVarDiseases",
+                selected: false,
+            }, {
+                boxLabel: "GO Cellular component",
+                name: "goCellularComponent",
+                selected: false,
+            }, {
+                boxLabel: "GO Biological process",
+                name: "goBiologicalProcess",
+                selected: false,
+            }, {
+                boxLabel: "GO Molecular function",
+                name: "goMolecularFunction",
+                selected: false,
+            }, {
+                boxLabel: "Tissue gene expression",
+                name: "tissues",
+                selected: false,
+            }];
+            this.tissues = ["abdomen", "adipose tissue", "adrenal cortex", "adrenal gland cortex", "aorta", "articular cartilage", "atrial myocardium", "beta cell islets", "bladder", "blood", "bone", "bone marrow", "brain",
+                "bronchial epithelium", "cardiac ventricle", "caudate nucleus", "central nervous system", "cerebellum", "cerebral cortex", "cerebrospinal fluid", "cervix", "colon", "colon mucosa", "conjunctiva", "connective tissue",
+                "cord blood", "coronary artery", "decidua", "deltoid muscle", "dorsal root ganglion", "endometrium", "epidermis", "esophagus", "eye", "gingiva", "gingival", "heart", "heart ventricle", "hippocampus CA1", "jejunum",
+                "kidney", "larynx", "left ventricular myocardium", "liver", "lung", "lymph node", "mammary gland", "mandible", "muscle", "myometrium", "native skin", "olfactory bulb", "ovary", "palatine tonsil", "pancreas", "PBMCs",
+                "peripheral blood", "pituitary", "pituitary gland", "placenta", "placental basal plate", "prefrontal cortex", "prostate", "prostate gland", "quadriceps", "salivary gland", "skeletal muscle", "skin", "small intestine",
+                "smooth muscle", "spinal cord", "spleen", "stomach", "stomach fundus", "substantia nigra pars compacta", "subthalamic nucleus", "superior cervical ganglion", "synovial membrane", "testis", "testis - leydig cell",
+                "thalamus", "thymus", "thyroid", "thyroid gland", "tibia", "tongue", "tonsil", "trigeminal ganglion", "umbilical cord", "umbilical vein", "urethra", "uterus", "vagina", "vastus lateralis", "ventricular myocardium",
+                "whole blood"
+            ];
+        },
+        handleItemSelect: function(e) {
+            var item = e.model.item;
+            item.selected = !item.selected;
+
+            if (item.name === 'tissues') {
+                if (item.selected) {
+                    this.set('showTissues', true);
+                } else {
+                    this.set('showTissues', false);
+                }
+            }
+        },
+        handleGo: function() {
+            if (this.loading == false) {
+                if (this.$.columns.selected != null && this.$.species.selected != null) {
+                    this.retrieveFunctionalInformation(this.$.columns.selected.name, this.$.species.selected);
+                } else {
+                    this.message = "Please select one species and one attribute";
+                }
+            }
+        },
+        retrieveFunctionalInformation: function(attributeName, species) {
+            var me = this;
+            var callCount = 0;
+
+            var queries = [];
+            for (var i = 0; i < this.items.length; i++) {
+                var attributes = this.items[i].attributes;
+                queries.push(attributes[attributeName]);
+            }
+
+            var options = {};
+            var oneSelectedFlag = false;
+            var els = this.$.functionsContent.querySelectorAll('input[type=checkbox]');
+            for (var i = 0; i < els.length; i++) {
+                var cb = els[i];
+                if (cb.checked) {
+                    options[cb.value] = true;
+                    oneSelectedFlag = true;
+                } else {
+                    options[cb.value] = false;
+                }
+            }
+            if (options.tissues) {
+                var oneTissueSelectedFlag = false;
+                options.selectedTissues = {};
+                var els = this.$.tissuesContent.querySelectorAll('input[type=checkbox]');
+                for (var i = 0; i < els.length; i++) {
+                    var cb = els[i];
+                    if (cb.checked) {
+                        options.selectedTissues[cb.value] = true;
+                        oneTissueSelectedFlag = true;
+                    }
+                }
+                if (!oneTissueSelectedFlag) {
+                    options.tissues = false;
+                }
+            }
+            if (!oneSelectedFlag) {
+                this.message = "No functional information selected.";
+                return;
+            }
+            if (oneSelectedFlag && queries.length > 0) {
+                var columns = [];
+                this.loading = true;
+                this.message = "Retrieving data...";
+
+                if (options.subcellularLocation || options.uniprotDiseases || options.goCellularComponent || options.goBiologicalProcess || options.goMolecularFunction) {
+                    callCount++;
+                    this.getProteinInfo(options, queries, species, function(infoMap) {
+                        me._processInfoMap(infoMap, attributeName, columns);
+                        callCount--;
+                        me._finishRetrieveFunctionalInformation(columns, callCount);
+                    });
+                }
+                if (options.tissues || options.drugs) {
+                    callCount++;
+                    this.getGeneInfo(options, queries, species, function(infoMap) {
+                        me._processInfoMap(infoMap, attributeName, columns);
+                        callCount--;
+                        me._finishRetrieveFunctionalInformation(columns, callCount);
+                    });
+                }
+                if (options.clinVarDiseases) {
+                    callCount++
+                    this.getClinvarInfo(options, queries, species, function(infoMap) {
+                        me._processInfoMap(infoMap, attributeName, columns);
+                        callCount--;
+                        me._finishRetrieveFunctionalInformation(columns, callCount);
+                    });
+                }
+            }
+        }
+    });
+</script>

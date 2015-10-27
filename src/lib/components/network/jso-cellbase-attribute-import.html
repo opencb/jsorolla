@@ -12,13 +12,21 @@
             width: 100%;
         }
 
+        #left {
+            width: 230px;
+            padding: 5px;
+        }
+
+        #right {
+            padding: 5px;
+        }
+
         jso-select-box {
             overflow-y: auto;
             height: 150px;
         }
 
         .selbox {
-            box-sizing: border-box;
             overflow-y: auto;
             border: 1px solid #d3d3d3;
             background-color: #FFF;
@@ -37,16 +45,12 @@
         .capitalize {
             text-transform: capitalize;
         }
-
-        #tissuesContent {
-            margin-left: 20px;
-        }
     </style>
     <template>
         <div id="main" class="flex horizontal layout">
 
-            <div style="width:230px;padding:5px;">
-                <label class="jso" style="margin-top: 5px;">Species:</label>
+            <div id="left">
+                <label class="jso">Species:</label>
 
                 <jso-select-box id="species" options="{{species}}" name-attribute="id" title-attribute="_title">
                 </jso-select-box>
@@ -58,61 +62,17 @@
 
             </div>
 
-            <div class="flex vertical layout" style="margin:5px;">
-                <div class="horizontal layout">
-                    <div class="jso-btn jso-btn-shdw" data-checked$="{{checkSelectedList(selectedList, 'func')}}" on-click="handleSelectFuncList">Functional information
-                    </div>
-                    <div class="jso-btn jso-btn-shdw" style="padding:0 10px;margin-right:2px;" data-checked$="{{checkSelectedList(selectedList, 'ext')}}" on-click="handleSelectExtList">External Ids
-                    </div>
-                    <!--<div class="jso-btn jso-btn-shdw" style="padding:0 10px;margin-left:2px;"-->
-                    <!--data-checked="{{selectedList == 'repo'}}"-->
-                    <!--on-click="{{handleSelectRepoList}}">Repositories-->
-                    <!--</div>-->
-                </div>
-                <div class="selbox" class="flex" style="margin-top:3px; height:330px;">
-                    <template is="dom-if" if="{{checkSelectedList(selectedList, 'ext')}}">
-                        <div>
-                            <template is="dom-repeat" items={{extList}}>
-                                <label class="jso-control">
-                                    <input type="checkbox" checked$="{{item.selected}}" on-click="handleItemSelect">
-                                    <span>{{item.boxLabel}}</span>
-                                </label>
-                            </template>
-                        </div>
-                    </template>
-
-                    <template is="dom-if" if="{{checkSelectedList(selectedList, 'func')}}">
-                        <div id="functionsContent" class="flex">
-                            <template is="dom-repeat" items={{funcList}}>
-                                <label class="jso-control">
-                                    <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
-                                    <span>{{item.boxLabel}}</span>
-                                </label>
-                            </template>
-                        </div>
-                        <div id="tissuesContent" hidden$="{{!showTissues}}">
-                            <template is="dom-repeat" items={{tissues}}>
-                                <label class="jso-control">
-                                    <input type="checkbox" value$="{{item}}">
-                                    <span class="capitalize">{{item}}</span>
-                                </label>
-                            </template>
-                        </div>
-                    </template>
-
-                    <template is="dom-if" if="{{checkSelectedList(selectedList, 'repo')}}">
-                        <div>
-                            <template is="dom-repeat" items={{repoList}}>
-                                <label class="jso-control">
-                                    <input type="checkbox" checked$="{{item.selected}}" on-click="handleItemSelect">
-                                    <span>{{item.boxLabel}}</span>
-                                </label>
-                            </template>
-                        </div>
+            <div id="right" class="flex">
+                <label class="jso">External references:</label>
+                <div class="selbox" style="height:329px;">
+                    <template is="dom-repeat" items={{extList}}>
+                        <label class="jso-control">
+                            <input type="checkbox" checked$="{{item.selected}}" on-click="handleItemSelect">
+                            <span>{{item.boxLabel}}</span>
+                        </label>
                     </template>
                 </div>
             </div>
-
         </div>
 
         <div class="footer horizontal layout flex">
@@ -133,15 +93,9 @@
         is: "jso-cellbase-attribute-import",
         behaviors: [JsoCellbaseAttributeImportBehavior],
         properties: {
-            species: {
-                type: Array
-            },
             selectedList: {
                 type: String,
                 value: 'func'
-            },
-            message: {
-                type: String
             },
             columns: {
                 type: Array
@@ -154,74 +108,13 @@
                 value: false
             }
         },
-        checkSelectedList: function(selectedList, list) {
-            return selectedList === list;
-        },
-        getSpecies: function(callback) {
-            CellBaseManager.get({
-                host: CELLBASE_HOST,
-                category: "meta",
-                subCategory: "species",
-                success: function(r) {
-                    var list = [];
-                    var taxonomies = r.response[0].result[0];
-                    for (var taxonomy in taxonomies) {
-                        var newSpecies = [];
-                        for (var i = 0; i < taxonomies[taxonomy].length; i++) {
-                            var species = taxonomies[taxonomy][i];
-                            for (var j = 0; j < species.assemblies.length; j++) {
-                                var s = Utils.clone(species)
-                                s.assembly = species.assemblies[j];
-                                s._title = s.scientificName + " " + s.assembly.name
-                                delete s.assemblies;
-                                newSpecies.push(s);
-                                list.push(s);
-                            }
-                        }
-                        taxonomies[taxonomy] = newSpecies;
-                    }
-                    callback(list);
-                }
-            });
-        },
         ready: function() {
             var me = this;
-
             this.async(function() {
                 this.getSpecies(function(species) {
                     me.species = species;
                 });
             }, 50);
-            //            this.species = [
-            //                {name: "Homo sapiens", value: "hsapiens"},
-            //                {name: "Mus musculus", value: "mmusculus"},
-            //                {name: "Rattus norvegicus", value: "rnorvegicus"},
-            //                {name: "Bos taurus", value: "btaurus"},
-            //                {name: "Gallus gallus", value: "ggallus"},
-            //                {name: "Sus scrofa", value: "sscrofa"},
-            //                {name: "Canis familiaris", value: "cfamiliaris"},
-            //                {name: "Drosophila melanogaster", value: "dmelanogaster"},
-            //                {name: "Caenorhabditis elegans", value: "celegans"},
-            //                {name: "Saccharomyces cerevisiae", value: "scerevisiae"},
-            //                {name: "Danio rerio", value: "drerio"},
-            //                {name: "Schizosaccharomyces pombe", value: "spombe"},
-            //                {name: "Escherichia coli", value: "ecoli"},
-            //                {name: "Human immunodeficiency virus 1", value: "hiv-1"},
-            //                {name: "Influenza A virus", value: "flu-a"},
-            //                {name: "Clostridium botulinum", value: "cbotulinum"},
-            //                {name: "Arabidopsis thaliana", value: "athaliana"},
-            //                {name: "Plasmodium falciparum", value: "pfalciparum"},
-            //                {name: "Dictyostelium discoideum", value: "ddiscoideum"},
-            //                {name: "Mycobacterium tuberculosis", value: "mtuberculosis"},
-            //                {name: "Neisseria meningitidis serogroup B", value: "nmeningitidis"},
-            //                {name: "Chlamydia trachomatis", value: "ctrachomatis"},
-            //                {name: "Oryza sativa", value: "osativa"},
-            //                {name: "Toxoplasma gondii", value: "tgondii"},
-            //                {name: "Xenopus tropicalis", value: "xtropicalis"},
-            //                {name: "Salmonella typhimurium", value: "styphimurium"},
-            //                {name: "Taeniopygia guttata", value: "tguttata"},
-            //                {name: "Staphylococcus aureus N315", value: "saureus"}
-            //            ];
 
             this.extList = [
                 //                    {boxLabel: "HUGO", selected: false, "inputValue": {db: "WikiGene", field: "id"}},
@@ -351,94 +244,6 @@
                     }
                 }
             ];
-            this.funcList = [{
-                    boxLabel: "Drugs",
-                    name: "drugs",
-                    selected: false,
-                }, {
-                    boxLabel: "Sub-cellular locations",
-                    name: "subcellularLocation",
-                    selected: false,
-                }, {
-                    boxLabel: "Uniprot diseases",
-                    name: "uniprotDiseases",
-                    selected: false,
-                }, {
-                    boxLabel: "ClinVar diseases",
-                    name: "clinVarDiseases",
-                    selected: false,
-                }, {
-                    boxLabel: "GO Cellular component",
-                    name: "goCellularComponent",
-                    selected: false,
-                }, {
-                    boxLabel: "GO Biological process",
-                    name: "goBiologicalProcess",
-                    selected: false,
-                }, {
-                    boxLabel: "GO Molecular function",
-                    name: "goMolecularFunction",
-                    selected: false,
-                }, {
-                    boxLabel: "Tissues",
-                    name: "tissues",
-                    selected: false,
-                }
-
-
-                //
-                // //        {boxLabel: "Biotype", name: "biotype", "inputValue": "biotype"},
-                //
-                // {
-                //     boxLabel: "GO Term Accession",
-                //     selected: false,
-                //     "inputValue": {
-                //         db: "go",
-                //         field: "id"
-                //     }
-                // },
-                // //                    {boxLabel: "GO Term Name", selected: false, "inputValue": {db: "go", field: "description"}},
-                // {
-                //     boxLabel: "Projected GO Accession",
-                //     selected: false,
-                //     "inputValue": {
-                //         db: "projected_go",
-                //         field: "id"
-                //     }
-                // },
-                // //                    {
-                // //                        boxLabel: "Propagated GO Name",
-                // //                        selected: false,
-                // //                        "inputValue": {db: "projected_go", field: "description"}
-                // //                    },
-                // {
-                //     boxLabel: "GOSlim GOA Accession",
-                //     selected: false,
-                //     "inputValue": {
-                //         db: "goslim_goa",
-                //         field: "id"
-                //     }
-                // },
-                // //                    {
-                // //                        boxLabel: "GOSlim GOA Name",
-                // //                        selected: false,
-                // //                        "inputValue": {db: "goslim_goa", field: "description"}
-                // //                    },
-                // {
-                //     boxLabel: "InterPro ID",
-                //     selected: false,
-                //     "inputValue": {
-                //         db: "interpro",
-                //         field: "id"
-                //     }
-                // }
-                // //                    {
-                // //                        boxLabel: "InterPro Short Description",
-                // //                        selected: false,
-                // //                        "inputValue": {db: "interpro", field: "description"}
-                // //                    }
-            ];
-
 
             this.repoList = [
                 //        {boxLabel: "PDB",  "inputValue": {db: "pdb", field: "id"}}, //mysql cellbase
@@ -465,72 +270,38 @@
                     }
                 }
             ];
-
-            this.tissues = ["synovial membrane", "lung", "pancreas", "connective tissue", "eye", "colon", "bone", "central nervous system", "skin", "brain", "ovary", "kidney", "stomach", "esophagus", "liver", "placenta", "decidua",
-                "PBMCs", "aorta", "stomach fundus", "subthalamic nucleus", "coronary artery", "endometrium", "pituitary gland", "myometrium", "thalamus", "skeletal muscle", "bone marrow", "spinal cord", "jejunum", "thyroid gland",
-                "salivary gland", "adrenal gland cortex", "cerebellum", "substantia nigra pars compacta", "tonsil", "prostate", "adipose tissue", "vagina", "lymph node", "urethra", "deltoid muscle", "cervix", "heart",
-                "heart ventricle", "muscle", "prostate gland", "blood", "gingiva", "cord blood", "bladder", "left ventricular myocardium", "smooth muscle", "bronchial epithelium", "epidermis", "small intestine", "hippocampus CA1",
-                "palatine tonsil", "conjunctiva", "colon mucosa", "thymus", "abdomen", "placental basal plate", "atrial myocardium", "mammary gland", "quadriceps", "larynx", "uterus", "caudate nucleus", "umbilical vein",
-                "vastus lateralis", "cardiac ventricle", "tongue", "mandible", "trigeminal ganglion", "superior cervical ganglion", "pituitary", "adrenal cortex", "testis - leydig cell", "beta cell islets", "whole blood",
-                "prefrontal cortex", "umbilical cord", "articular cartilage", "gingival", "peripheral blood", "testis", "cerebral cortex", "cerebrospinal fluid", "native skin", "spleen", "ventricular myocardium", "thyroid",
-                "olfactory bulb", "dorsal root ganglion", "tibia"
-            ];
         },
         handleItemSelect: function(e) {
             var item = e.model.item;
             item.selected = !item.selected;
-
-            if (item.name === 'tissues') {
-                if (item.selected) {
-                    this.set('showTissues', true);
-                } else {
-                    this.set('showTissues', false);
-                }
-            }
-        },
-        handleSelectExtList: function() {
-            this.set('selectedList', 'ext');
-        },
-        handleSelectFuncList: function() {
-            this.set('selectedList', 'func');
-        },
-        handleSelectRepoList: function() {
-            this.set('selectedList', 'repo');
         },
         handleGo: function() {
             if (this.loading == false) {
                 if (this.$.columns.selected != null && this.$.species.selected != null) {
-                    if (this.selectedList == 'func') {
-                        this.retrieveFunctionalInformation(this.$.columns.selected.name, this.$.species.selected);
-                    } else if (this.selectedList == 'ext') {
-                        this.retrieveData(this.$.columns.selected.name, this.$.species.selected);
-                    }
+                    this.retrieveData(this.$.columns.selected.name, this.$.species.selected);
                 } else {
                     this.message = "Please select one species and one attribute";
                 }
             }
         },
-        uncheckAllDatabases: function() {
-            var processCheckBoxes = function(item) {
-                item.selected = false;
-            };
-            this.extList.forEach(processCheckBoxes);
-            this.funcList.forEach(processCheckBoxes);
-            this.repoList.forEach(processCheckBoxes);
-        },
-        checkDatabase: function(db) {
-            var processCheckBoxes = function(item) {
-                if (db === item.inputValue.db) {
-                    item.selected = true;
-                }
-            };
-            this.extList.forEach(processCheckBoxes);
-            this.funcList.forEach(processCheckBoxes);
-            this.repoList.forEach(processCheckBoxes);
-        },
+        // uncheckAllDatabases: function() {
+        //     var processCheckBoxes = function(item) {
+        //         item.selected = false;
+        //     };
+        //     this.extList.forEach(processCheckBoxes);
+        //     this.repoList.forEach(processCheckBoxes);
+        // },
+        // checkDatabase: function(db) {
+        //     var processCheckBoxes = function(item) {
+        //         if (db === item.inputValue.db) {
+        //             item.selected = true;
+        //         }
+        //     };
+        //     this.extList.forEach(processCheckBoxes);
+        //     this.repoList.forEach(processCheckBoxes);
+        // },
         retrieveData: function(attributeName, species, callbackFunction) {
             var me = this;
-
             var columns = [];
             var columnsMap = {};
             var dbnamesMap = {};
@@ -559,7 +330,6 @@
                 }
             }
             this.extList.forEach(processCheckBoxes);
-            this.funcList.forEach(processCheckBoxes);
             this.repoList.forEach(processCheckBoxes);
 
             if (databasesSelectedFlag) {
@@ -650,78 +420,6 @@
             } else {
                 this.message = "Please select at least one database";
 
-            }
-        },
-        retrieveFunctionalInformation: function(attributeName, species) {
-            var me = this;
-            var callCount = 0;
-
-            var queries = [];
-            for (var i = 0; i < this.items.length; i++) {
-                var attributes = this.items[i].attributes;
-                queries.push(attributes[attributeName]);
-            }
-
-            var options = {};
-            var oneSelectedFlag = false;
-            var els = functionsContent.querySelectorAll('input[type=checkbox]');
-            for (var i = 0; i < els.length; i++) {
-                var cb = els[i];
-                if (cb.checked) {
-                    options[cb.value] = true;
-                    oneSelectedFlag = true;
-                } else {
-                    options[cb.value] = false;
-                }
-            }
-            if (options.tissues) {
-                var oneTissueSelectedFlag = false;
-                options.selectedTissues = {};
-                var els = tissuesContent.querySelectorAll('input[type=checkbox]');
-                for (var i = 0; i < els.length; i++) {
-                    var cb = els[i];
-                    if (cb.checked) {
-                        options.selectedTissues[cb.value] = true;
-                        oneTissueSelectedFlag = true;
-                    }
-                }
-                if (!oneTissueSelectedFlag) {
-                    options.tissues = false;
-                }
-            }
-            if (!oneSelectedFlag) {
-                this.message = "No functional information selected.";
-                return;
-            }
-            if (oneSelectedFlag && queries.length > 0) {
-                var columns = [];
-                this.loading = true;
-                this.message = "Retrieving data...";
-
-                if (options.subcellularLocation || options.uniprotDiseases || options.goCellularComponent || options.goBiologicalProcess || options.goMolecularFunction) {
-                    callCount++;
-                    this.getProteinInfo(options, queries, species, function(infoMap) {
-                        me._processInfoMap(infoMap, attributeName, columns);
-                        callCount--;
-                        me._finishRetrieveFunctionalInformation(columns, callCount);
-                    });
-                }
-                if (options.tissues || options.drugs) {
-                    callCount++;
-                    this.getGeneInfo(options, queries, species, function(infoMap) {
-                        me._processInfoMap(infoMap, attributeName, columns);
-                        callCount--;
-                        me._finishRetrieveFunctionalInformation(columns, callCount);
-                    });
-                }
-                if (options.clinVarDiseases) {
-                    callCount++
-                    this.getClinvarInfo(options, queries, species, function(infoMap) {
-                        me._processInfoMap(infoMap, attributeName, columns);
-                        callCount--;
-                        me._finishRetrieveFunctionalInformation(columns, callCount);
-                    });
-                }
             }
         }
     });
