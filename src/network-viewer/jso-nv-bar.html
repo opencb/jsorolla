@@ -6,7 +6,6 @@
             box-sizing: border-box;
             background-color: #FFFFFF;
             border-bottom: 1px solid #D9D9D9;
-
             height: 30px;
             padding: 4px 0;
         }
@@ -68,11 +67,11 @@
                 <ul id="networkMenu" on-mousedown="handleClick">
                     <li data-value="network-edit">Edit network...</li>
                     <li data-sub hidden$="{{lite}}">Import network
-                    <ul>
-                        <li data-value="reactome">Reactome...</li>
-                        <li data-value="kegg">Kegg...</li>
-                        <li data-value="intact">Intact...</li>
-                    </ul>
+                        <ul>
+                            <li data-value="reactome">Reactome...</li>
+                            <li data-value="kegg">Kegg...</li>
+                            <li data-value="intact">Intact...</li>
+                        </ul>
                     </li>
                     <!--<li data-value="network-edit">Edit network...</li>-->
                     <li data-sub>Select
@@ -80,41 +79,39 @@
                             <li data-value="nodes-filter">Nodes by attributes...</li>
                             <li data-value="edges-filter">Edges by attributes...</li>
                             <li data-divider>
-                            <li data-value="nodes-select-all">All nodes</li>
-                            <li data-value="nodes-select-first-neighbourhood">First neighbourhood nodes</li>
-                            <li data-value="nodes-select-invert">Invert node selection</li>
-                            <li data-divider></li>
-                            <li data-value="edges-select-all">All edges</li>
-                            <li data-value="edges-select-adjacent">Adjacent edges</li>
-                            <li data-divider></li>
-                            <li data-value="network-select-all">Everything</li>
+                                <li data-value="nodes-select-all">All nodes</li>
+                                <li data-value="nodes-select-first-neighbourhood">First neighbourhood nodes</li>
+                                <li data-value="nodes-select-invert">Invert node selection</li>
+                                <li data-divider></li>
+                                <li data-value="edges-select-all">All edges</li>
+                                <li data-value="edges-select-adjacent">Adjacent edges</li>
+                                <li data-divider></li>
+                                <li data-value="network-select-all">Everything</li>
                         </ul>
-                    </li>
-                    <li data-sub>Layout
-                        <ul>
-                            <li data-value="layout-force-directed" data-sub>Force directed
-                                <!--<li data-value="layout-force-directed">Force directed-->
-                                <ul>
-                                    <li data-value="layout-force-directed">Default</li>
-                                    <li data-value="layout-configure-force-directed">Configure...</li>
-                                </ul>
-                            </li>
-                            <li hidden data-value="layout-tree">Tree</li>
-                            <li data-value="layout-circle" data-sub>Circle
-                                <ul id="circleAttributesMenu">
-                                    <li data-value="layout-circle">Unsorted</li>
-                                    <li data-divider></li>
-                                    <template is="dom-repeat" items="{{columns}}" as="column">
-                                        <li data-value="layout-circle" data-subvalue$="{{column.name}}">
-                                            <span>{{column.title}}</span>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </li>
-                            <li data-value="layout-random">Random</li>
-                            <!--<li data-value="layout-attribute">Attribute layout...</li>-->
-                        </ul>
-                    </li>
+                        </li>
+                        <li data-sub>Layout
+                            <ul>
+                                <li data-value="layout-force-directed" data-sub>Force directed
+                                    <!--<li data-value="layout-force-directed">Force directed-->
+                                    <ul>
+                                        <li data-value="layout-force-directed">Default</li>
+                                        <li data-value="layout-configure-force-directed">Configure...</li>
+                                    </ul>
+                                </li>
+                                <li hidden data-value="layout-tree">Tree</li>
+                                <li data-value="layout-circle" data-sub>Circle
+                                    <ul id="circleAttributesMenu">
+                                        <li data-value="layout-circle">Unsorted</li>
+                                        <li data-divider></li>
+                                        <template is="dom-repeat" items="{{columns}}" as="column">
+                                            <li data-value="layout-circle" data-subvalue$="{{column.name}}">{{column.title}}</li>
+                                        </template>
+                                    </ul>
+                                </li>
+                                <li data-value="layout-random">Random</li>
+                                <!--<li data-value="layout-attribute">Attribute layout...</li>-->
+                            </ul>
+                        </li>
                 </ul>
             </div>
             <div class="jso-dropdown" style="margin-left: 10px">
@@ -125,12 +122,12 @@
                     <li data-value="nodes-edit">Edit node attributes...</li>
                     <li data-value="edges-edit">Edit edge attributes...</li>
                     <li data-divider>
-                    <li data-value="node-simple-rendering">Node visualization settings...</li>
-                    <li data-value="edge-simple-rendering">Edge visualization settings...</li>
-                    <li hidden$="{{lite}}" data-divider>
-                    <li data-value="cellbase" hidden$="{{lite}}"> Import functionalities...</li>
-                    <li data-value="drugs" hidden$="{{lite}}"> Import drugs by gene...</li>
-                    <li data-value="diseases" hidden$="{{lite}}"> Import diseases by gene...</li>
+                        <li data-value="node-simple-rendering">Node visualization settings...</li>
+                        <li data-value="edge-simple-rendering">Edge visualization settings...</li>
+                        <li hidden$="{{lite}}" data-divider>
+                            <li data-value="cellbase" hidden$="{{lite}}"> Import functionalities...</li>
+                            <li data-value="drugs" hidden$="{{lite}}"> Import drugs by gene...</li>
+                            <li data-value="diseases" hidden$="{{lite}}"> Import diseases by gene...</li>
                 </ul>
             </div>
             <!--<div class="jso-dropdown" style="margin-left: 10px">-->
@@ -173,19 +170,16 @@
                     Examples
                 </div>
                 <ul id="examplesMenu" on-mousedown="handleClick">
-                    <li data-value="example" data-subvalue="1">PPIs related to histone exchange and removal during
-                        nucleosome assembly and disassembly
+                    <li data-value="example" data-subvalue="1">PPIs related to histone exchange and removal during nucleosome assembly and disassembly
                     </li>
                     <li data-value="example" data-subvalue="2">Reactome pathway of Insulin Synthesis and Processing</li>
                     <li data-value="example" data-subvalue="3">PPI network with attributes</li>
                 </ul>
             </div>
-            <div hidden class="jso-btn" data-value="save"  on-mousedown="handleClick">
+            <div hidden class="jso-btn" data-value="save" on-mousedown="handleClick">
                 Save
             </div>
-            <div hidden id="configureButton" class="jso-btn" style="margin-right:10px;float:right;border-width:0;"
-                 on-click="handleConfigureClick"
-                    >
+            <div hidden id="configureButton" class="jso-btn" style="margin-right:10px;float:right;border-width:0;" on-click="handleConfigureClick">
                 Configure
             </div>
         </div>
@@ -203,19 +197,21 @@
                 type: Array,
             }
         },
-        ready:function(){
+        ready: function() {
             this.networkViewer = this.domHost;
             this.cellMaps = this.networkViewer.domHost;
-            if(this.cellMaps == null){
-                this.$.manageSessionOption.setAttribute('hidden','');
+            if (this.cellMaps == null) {
+                this.$.manageSessionOption.setAttribute('hidden', '');
             }
         },
-        handleClick: function (e) {
+        handleClick: function(e) {
+            console.log(e.target)
+            console.log(e.target.dataset.value);
             if ('value' in e.target.dataset) {
                 this.fire(e.target.dataset.value, e.target.dataset);
             }
         },
-        handleConfigureClick: function (e) {
+        handleConfigureClick: function(e) {
             this.fire('configure');
         }
     });

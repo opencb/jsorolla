@@ -2289,7 +2289,7 @@
                     /* string */
                 default:
                     values.sort(function(a, b) {
-                        return a.value.localeCompare(b.value);
+                        return (a.value > b.value) - (a.value < b.value);
                     });
             }
             return values;
