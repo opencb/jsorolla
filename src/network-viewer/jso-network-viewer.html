@@ -442,7 +442,7 @@
                         <div class="header">
                             Import edge attributes file
                         </div>
-                        <jso-attribute-network-file-open class="container" selected-menu="{{selectedMenu}}" on-open="handleImportNodeAttr">
+                        <jso-attribute-network-file-open class="container" selected-menu="{{selectedMenu}}" on-open="handleImportEdgeAttr">
                         </jso-attribute-network-file-open>
                     </jso-panel>
                 </template>
@@ -1330,7 +1330,7 @@
         handleImportNodeAttrMenu: function(e) {
             this.selectedMenu = 'import-node-attributes';
         },
-        handleImportEdgeAttrMenu: function(resetZoome) {
+        handleImportEdgeAttrMenu: function(e) {
             this.selectedMenu = 'import-edge-attributes';
         },
         handleExportSifMenu: function(e) {
