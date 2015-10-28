@@ -29,19 +29,19 @@
             color: #d3d3d3 !important;
             /*display: none !important;*/
         }
-
     </style>
     <template>
 
         <template is="dom-repeat" items="{{bioformats}}" as="bioformat">
             <template is="dom-if" if="{{!bioformat.value}}">
-                <div class="zeroLevel"><span>{{bioformat.text}}</span></div>
+                <div class="zeroLevel">
+                    <span>{{bioformat.text}}</span>
+                </div>
             </template>
             <template is="dom-if" if="{{bioformat.value}}">
                 <div class="thirdLevel">
                     <label class="jso-control">
-                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="{{bioformat.value}}"
-                               checked$="{{isChecked(bioformats)}}">
+                        <input type="radio" name="bioformat" on-change="handleRadioChange" value="{{bioformat.value}}" checked$="{{isChecked(bioformats, bioformat)}}">
                         <span>{{bioformat.text}}</span>
                     </label>
                 </div>
@@ -173,14 +173,15 @@
                 type: Object
             }
         },
-        isChecked: function (bioformats) {
+        isChecked: function(bioformats, bioformat) {
             if (Array.isArray(bioformats) && bioformats.length === 1) {
+                this.selectedBioformat = bioformats[0];
                 return true;
             } else {
                 return false
             }
         },
-        selectedBioformatChanged: function (neo, old) {
+        selectedBioformatChanged: function(neo, old) {
             var radios = Polymer.dom(this).querySelectorAll('input[name="bioformat"]');
             for (var i = 0; i < radios.length; i++) {
                 var radio = radios[i];
@@ -196,18 +197,18 @@
                 }
             }
         },
-        handleRadioChange: function (e) {
+        handleRadioChange: function(e) {
             this.set('selectedBioformat', e.model.bioformat);
         },
-        getSelected: function () {
+        getSelected: function() {
             return this.selectedBioformat;
-//            var selectedBioformat = "";
-//            var radioButton = this.querySelector('input[name="bioformat"]:checked');
-//            if (radioButton == null)
-//                selectedBioformat = "";
-//            else
-//                selectedBioformat = radioButton.value;
-//            return selectedBioformat;
+            //            var selectedBioformat = "";
+            //            var radioButton = this.querySelector('input[name="bioformat"]:checked');
+            //            if (radioButton == null)
+            //                selectedBioformat = "";
+            //            else
+            //                selectedBioformat = radioButton.value;
+            //            return selectedBioformat;
         }
 
 
