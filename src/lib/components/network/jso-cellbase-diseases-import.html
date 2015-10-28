@@ -1,5 +1,5 @@
 <link rel="import" href="jso-cellbase-attribute-import-behavior.html">
-<dom-module id="jso-cellbase-drugs-import">
+<dom-module id="jso-cellbase-diseases-import">
     <style>
         :host {
             display: block;
@@ -19,6 +19,17 @@
 
         #right {
             margin: 5px;
+        }
+
+        .box {
+            box-sizing: border-box;
+            overflow-y: auto;
+            border: 1px solid var(--divider-color);
+            background-color: #FFF;
+        }
+
+        #diseasesContent {
+            height: 50px;
         }
 
         jso-select-box {
@@ -49,37 +60,35 @@
 
                 <jso-select-box id="columns" options="{{columns}}">
                 </jso-select-box>
-
             </div>
 
             <div id="right" class="flex vertical layout">
+                <label class="jso">Diseases origin:</label>
+                <div id="diseasesContent" class="box">
+                    <template is="dom-repeat" items={{diseasesOrigin}}>
+                        <label class="jso-control">
+                            <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
+                            <span>{{item.title}}</span>
+                        </label>
+                    </template>
+                </div>
                 <div hidden$="{{!showResult}}">
+                    <br>
                     <label class="jso">Results:</label>
                     <br>
                     <div>
                         Results are available as node attributes, select 'Attributes' menu and then "Edit node attributes" to see the results.
                     </div>
-                    <div class="jso-note jso-note-info">
-                        <div> Please read:</div>
-                        Some genes can be affected by none, one or more drugs, so you can hightlight the nodes with one or more with one color, or paint different colors if there is a gene affected by different drugs
-                    </div>
-                    <br>
-                    <div>Use this button to show which genes have at least one drug or more.</div>
-                    <br>
-                    <div class="horizontal layout center-justified">
-                        <div class="jso-btn jso-btn-shdw" on-click="handleApplyColor">Apply color</div>
-                    </div>
-                    <br>
                     <div>Use this button to show all drugs as a pie chart on each gene.</div>
                     <br>
                     <div class="horizontal layout center-justified">
-                        <div class="jso-btn jso-btn-shdw" on-click="handleApplyMulticolor">Apply multiple colors</div>
+                        <div class="jso-btn jso-btn-shdw" on-click="handleApplyMulticolor">Apply colors</div>
                     </div>
                 </div>
                 <div hidden$="{{showResult}}">
                     <div class="jso-note jso-note-info">
-                        <div> Tip:</div>
-                        Please select an species and an attribute with the gene name, then press the "Go" button.
+                        <div> Tip </div>
+                        Please select an species an attribute as the gene name and one or more diseases origins, then press the "Go" button.
                     </div>
                 </div>
             </div>
@@ -101,7 +110,7 @@
 </dom-module>
 <script>
     Polymer({
-        is: "jso-cellbase-drugs-import",
+        is: "jso-cellbase-diseases-import",
         behaviors: [JsoCellbaseAttributeImportBehavior],
         properties: {
             species: {
@@ -123,10 +132,26 @@
             },
             items: {
                 type: Array
+            },
+            diseasesOrigin: {
+                type: Array,
+                value: [{
+                    title: 'Uniprot',
+                    name: 'uniprotDiseases',
+                    selected: true
+                }, {
+                    title: 'ClinVar',
+                    name: 'clinVarDiseases',
+                    selected: true
+                }]
             }
         },
         checkSelectedList: function(selectedList, list) {
             return selectedList === list;
+        },
+        handleItemSelect: function(e) {
+            var item = e.model.item;
+            item.selected = !item.selected;
         },
         getSpecies: function(callback) {
             CellBaseManager.get({
@@ -176,11 +201,31 @@
         retrieveData: function(attributeName, species, callbackFunction) {
             var me = this;
             var columns = [];
+            var resultMap = {};
+
+            var options = {};
+            var oneSelectedFlag = false;
+            var els = diseasesContent.querySelectorAll('input[type=checkbox]');
+            for (var i = 0; i < els.length; i++) {
+                var cb = els[i];
+                if (cb.checked) {
+                    options[cb.value] = true;
+                    oneSelectedFlag = true;
+                } else {
+                    options[cb.value] = false;
+                }
+            }
+            if (!oneSelectedFlag) {
+                this.message = "No diseases origin selected.";
+                this.showResult = false;
+                return;
+            }
 
             var queries = [];
             for (var i = 0; i < this.items.length; i++) {
                 var attributes = this.items[i].attributes;
                 queries.push(attributes[attributeName]);
+                resultMap[attributes[attributeName]] = [];
             }
             if (queries.length <= 0) {
                 this.message = "Node list is empty.";
@@ -188,32 +233,80 @@
                 return;
             }
 
+
             this.loading = true;
             this.message = "Retrieving data...";
             this.showResult = false;
             var callCount = 0;
 
-            callCount++;
-            var options = {
-                drugs: true
-            };
-            this.getGeneInfo(options, queries, species, function(infoMap) {
-                me._processInfoMap(infoMap, attributeName, columns);
-                callCount--;
-                me._finishRetrieveFunctionalInformation(columns, callCount, function() {
-                    me.loading = false;
-                    me.message = "Information has been saved as attributes";
-                    me.showResult = true;
+            if (options.uniprotDiseases) {
+                callCount++;
+                this.getProteinInfo(options, queries, species, function(infoMap) {
+                    me._processInfoMap(infoMap, resultMap, attributeName, columns);
+                    callCount--;
+                    me._finishRetrieveFunctionalInformation(columns, resultMap, attributeName, callCount, function() {
+                        me.loading = false;
+                        me.message = "Information has been saved as attributes";
+                        me.showResult = true;
 
-                    if (callbackFunction) {
-                        callbackFunction();
+                        if (callbackFunction) {
+                            callbackFunction();
+                        }
+                    });
+                });
+            }
+            if (options.clinVarDiseases) {
+                callCount++;
+                this.getClinvarInfo(options, queries, species, function(infoMap) {
+                    me._processInfoMap(infoMap, resultMap, attributeName, columns);
+                    callCount--;
+                    me._finishRetrieveFunctionalInformation(columns, resultMap, attributeName, callCount, function() {
+                        me.loading = false;
+                        me.message = "Information has been saved as attributes";
+                        me.showResult = true;
+
+                        if (callbackFunction) {
+                            callbackFunction();
+                        }
+                    });
+                });
+            }
+        },
+        _processInfoMap: function(infoMap, resultMap, attributeName, columns) {
+            for (var key in infoMap) {
+                for (var query in infoMap[key]) {
+                    resultMap[query] = resultMap[query].concat(infoMap[key][query]);
+                }
+            }
+        },
+        _finishRetrieveFunctionalInformation: function(columns, resultMap, attributeName, callCount, callback) {
+            if (callCount === 0) {
+                for (var i = 0; i < this.items.length; i++) {
+                    var item = this.items[i];
+                    var values = resultMap[item.attributes[attributeName]];
+                    if (values != null && values.length > 0) {
+                        item.attributes['diseases'] = values.join(',');
+                    } else {
+                        item.attributes['diseases'] = 'none';
+                    }
+                }
+                columns.push({
+                    name: 'diseases',
+                    title: 'Diseases',
+                    type: "text",
+                    formula: function(r) {
+                        return r.attributes[this.name];
                     }
                 });
-            });
+                if (columns.length > 0) {
+                    this.fire('add-columns', columns);
+                }
+                if (callback) {
+                    callback();
+                }
+            }
         },
-        handleApplyColor: function() {
-            this.fire('apply-color');
-        },
+
         handleApplyMulticolor: function() {
             this.fire('apply-multicolor');
         }

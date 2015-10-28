@@ -93,6 +93,16 @@
             visibility: visible;
             opacity: 1;
         }
+
+        .head > .sort-asc:after {
+            font-family: 'FontAwesome';
+            content: ' \f107';
+        }
+
+        .head > .sort-desc:after {
+            font-family: 'FontAwesome';
+            content: ' \f106';
+        }
     </style>
     <template>
         <jso-panel id="panel" closable on-close="handleClose">
@@ -127,8 +137,8 @@
 
                     <div hidden$="{{!isContinuousType(attributeType)}}">
 
-                        <div class="horizontal layout flex">
-                            <label class="jso flex">Attribute value</label>
+                        <div class="horizontal layout flex head">
+                            <label class="jso flex sort-asc" on-click="handleAttributeValueHeaderClick">Attribute value</label>
                             <label class="jso flex">Render value</label>
                             <label class="jso" style="width: 60px;text-align: right">Gradient</label>
                         </div>
@@ -169,7 +179,7 @@
 
                     <div class="wrap">
                         <div class="flex horizontal layout head">
-                            <div class="flex head-field">Attribute value</div>
+                            <div class="flex head-field sort-asc" on-click="handleAttributeValueHeaderClick">Attribute value</div>
                             <div class="flex head-field">Render value</div>
                         </div>
 

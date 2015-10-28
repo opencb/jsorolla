@@ -96,11 +96,16 @@ FeatureTemplateAdapter.prototype = {
 
         /** 1 region check **/
         var region = args.region;
-        if (region.start > 300000000 || region.end < 1) {
+        var regionLimit = 300000000;
+        if (this.species != null && this.species.chromosomes[region.chromosome] != null) {
+            regionLimit = this.species.chromosomes[args.region.chromosome].end;
+        }
+        if (region.start > regionLimit || region.end < 1) {
             return;
         }
+
         region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > 300000000) ? 300000000 : region.end;
+        region.end = (region.end > regionLimit) ? regionLimit : region.end;
 
         /** 2 category check **/
         var categories = ["cat_" + Utils.queryString(this.templateVariables) + Utils.queryString(params)];
@@ -130,7 +135,7 @@ FeatureTemplateAdapter.prototype = {
             for (var j = 0; j < categories.length; j++) {
                 categoriesName += "," + categories[j];
             }
-            categoriesName = categoriesName.slice(1);   // to remove first ','
+            categoriesName = categoriesName.slice(1); // to remove first ','
 
             var chunks = cachedChunks[category];
             // TODO check how to manage multiple regions
@@ -158,7 +163,6 @@ FeatureTemplateAdapter.prototype = {
                     args.webServiceCallCount++;
                     var queryRegion = queriesList[i];
 
-
                     var request = new XMLHttpRequest();
 
                     /** Temporal fix save queried region **/
@@ -166,25 +170,31 @@ FeatureTemplateAdapter.prototype = {
                     request._originalRegion = region;
 
                     request.onload = function() {
-                        var response;
-                        try {
-                            response = JSON.parse(this.response);
-                        } catch (e) {
-                            console.log('Warning: Response is not JSON');
-                            response = this.response;
-                        }
-
-                        /** Process response **/
-                        var responseChunks = _this._success(response, categories, dataType, this._queryRegion, this._originalRegion, chunkSize);
                         args.webServiceCallCount--;
+                        if (request.status !== 400) {
+                            var response;
+                            try {
+                                response = JSON.parse(this.response);
+                            } catch (e) {
+                                console.log('Warning: Response is not JSON');
+                                response = this.response;
+                            }
 
-                        chunks = chunks.concat(responseChunks);
+                            /** Process response **/
+                            var responseChunks = _this._success(response, categories, dataType, this._queryRegion, this._originalRegion, chunkSize);
+                            chunks = chunks.concat(responseChunks);
+                        } else {
+                            console.log("request.status: " + request.status);
+                        }
                         if (args.webServiceCallCount === 0) {
                             chunks.sort(function(a, b) {
                                 return a.chunkKey.localeCompare(b.chunkKey)
                             });
                             args.done({
-                                items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                                items: chunks,
+                                dataType: dataType,
+                                chunkSize: chunkSize,
+                                sender: _this
                             });
                         }
                     };
@@ -208,7 +218,10 @@ FeatureTemplateAdapter.prototype = {
             /** All regions are cached **/
             {
                 args.done({
-                    items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                    items: chunks,
+                    dataType: dataType,
+                    chunkSize: chunkSize,
+                    sender: _this
                 });
             }
         });
@@ -299,4 +312,3 @@ FeatureTemplateAdapter.prototype = {
         return regions;
     },
 };
-

@@ -35,8 +35,8 @@ function DefaultEdgeRenderer(args) {
     this.labelSize = 0;
     this.labelColor = '#111111';
     this.labelText = '';
-//    this.labelPositionX = 5;
-//    this.labelPositionY = 45;
+    //    this.labelPositionX = 5;
+    //    this.labelPositionY = 45;
 
     this.el;
     this.edgeEl;
@@ -67,10 +67,13 @@ function DefaultEdgeRenderer(args) {
 }
 
 DefaultEdgeRenderer.prototype = {
-    get: function (attr) {
+    get: function(attr) {
         return this[attr];
     },
-    set: function (attr, value) {
+    set: function(attr, value) {
+        if(!isNaN(value)){
+            value = parseFloat(value);
+        }
         this[attr] = value;
         switch (attr) {
             case "color":
@@ -90,7 +93,7 @@ DefaultEdgeRenderer.prototype = {
                 this.updateShaft();
                 break;
             case "labelSize":
-                this.labelEl.setAttribute('font-size', this.labelSize);
+                this.labelSize = parseInt(this.labelSize);
                 this.setLabelContent(this.labelText);
                 break;
             case "opacity":
@@ -100,7 +103,7 @@ DefaultEdgeRenderer.prototype = {
                 this.update();
         }
     },
-    _getStrokeWidth: function () {
+    _getStrokeWidth: function() {
         return 1 + (this.size / 2);
     },
     //setConfig: function (args) {
@@ -122,7 +125,7 @@ DefaultEdgeRenderer.prototype = {
     //    _.extend(this, args);
     //    this.edgeEl.setAttribute('opacity', this.opacity);
     //},
-    render: function (args) {
+    render: function(args) {
         //this.edge = args.edge;
         this.targetEl = args.target;
         this.sourceCoords = this.edge.source.position;
@@ -131,19 +134,19 @@ DefaultEdgeRenderer.prototype = {
         this.targetRenderer = this.edge.target.renderer;
         this._render();
     },
-    remove: function () {
+    remove: function() {
         if (this.el && this.el.parentNode) {
             this.el.parentNode.removeChild(this.el);
         }
     },
-    update: function () {
+    update: function() {
         this.edgeEl.setAttribute('stroke', this.color);
         this.edgeEl.setAttribute('stroke-width', this._getStrokeWidth());
         this.labelEl.setAttribute('font-size', this.labelSize);
         this.updateShaft();
         this.updateShape();
     },
-    updateShape: function () {
+    updateShape: function() {
         if (!this.edgeEl) {
             debugger
         }
@@ -162,7 +165,7 @@ DefaultEdgeRenderer.prototype = {
 
         this.move();
     },
-    updateShaft: function () {
+    updateShaft: function() {
         if (!this.edgeEl) {
             debugger
         }
@@ -173,22 +176,22 @@ DefaultEdgeRenderer.prototype = {
             this._removeSelect();
         }
     },
-    select: function () {
+    select: function() {
         if (!this.selected) {
             this._renderSelect();
         }
     },
-    deselect: function () {
+    deselect: function() {
         if (this.selected) {
             this._removeSelect();
         }
     },
-    setLabelContent: function (text) {
+    setLabelContent: function(text) {
         if (text == null) {
             text = '';
         }
-        this.labelText = text;
-        this.labelEl.textContent = text;
+        this._setLabelText(text);
+        this._renderLabelEl();
         //var splitted = text.split("\\n");
         //var line, lineEl;
         //for (var i = 0; i < splitted.length; i++) {
@@ -200,48 +203,47 @@ DefaultEdgeRenderer.prototype = {
         //    lineEl.textContent = line;
         //}
     },
-//    moveSourceOff: function (coords) {
-//        var linkLine = $(this.el).find('line[network-type="edge"]')[0];
-//        linkLine.setAttribute('x1', coords.x);
-//        linkLine.setAttribute('y1', coords.y);
-//
-//        var x1 = parseFloat(linkLine.getAttribute('x1'));
-//        var y1 = parseFloat(linkLine.getAttribute('y1'));
-//        var x2 = parseFloat(linkLine.getAttribute('x2'));
-//        var y2 = parseFloat(linkLine.getAttribute('y2'));
-//
-//        var x = (x1 + x2) / 2;
-//        var y = (y1 + y2) / 2;
-//
-//        var text = $(this.el).find('text[network-type="edge-label"]')[0];
-//        text.setAttribute('x', x);
-//        text.setAttribute('y', y);
-//    },
-//    moveTargetOff: function (coords) {
-//        var linkLine = $(this.el).find('line[network-type="edge"]')[0];
-//        linkLine.setAttribute('x2', coords.x);
-//        linkLine.setAttribute('y2', coords.y);
-//
-//        var x1 = parseFloat(linkLine.getAttribute('x1'));
-//        var y1 = parseFloat(linkLine.getAttribute('y1'));
-//        var x2 = parseFloat(linkLine.getAttribute('x2'));
-//        var y2 = parseFloat(linkLine.getAttribute('y2'));
-//
-//        var x = (x1 + x2) / 2;
-//        var y = (y1 + y2) / 2;
-//
-//        var text = $(this.el).find('text[network-type="edge-label"]')[0];
-//        text.setAttribute('x', x);
-//        text.setAttribute('y', y);
-//
-//    },
-    move: function () {
+    //    moveSourceOff: function (coords) {
+    //        var linkLine = $(this.el).find('line[network-type="edge"]')[0];
+    //        linkLine.setAttribute('x1', coords.x);
+    //        linkLine.setAttribute('y1', coords.y);
+    //
+    //        var x1 = parseFloat(linkLine.getAttribute('x1'));
+    //        var y1 = parseFloat(linkLine.getAttribute('y1'));
+    //        var x2 = parseFloat(linkLine.getAttribute('x2'));
+    //        var y2 = parseFloat(linkLine.getAttribute('y2'));
+    //
+    //        var x = (x1 + x2) / 2;
+    //        var y = (y1 + y2) / 2;
+    //
+    //        var text = $(this.el).find('text[network-type="edge-label"]')[0];
+    //        text.setAttribute('x', x);
+    //        text.setAttribute('y', y);
+    //    },
+    //    moveTargetOff: function (coords) {
+    //        var linkLine = $(this.el).find('line[network-type="edge"]')[0];
+    //        linkLine.setAttribute('x2', coords.x);
+    //        linkLine.setAttribute('y2', coords.y);
+    //
+    //        var x1 = parseFloat(linkLine.getAttribute('x1'));
+    //        var y1 = parseFloat(linkLine.getAttribute('y1'));
+    //        var x2 = parseFloat(linkLine.getAttribute('x2'));
+    //        var y2 = parseFloat(linkLine.getAttribute('y2'));
+    //
+    //        var x = (x1 + x2) / 2;
+    //        var y = (y1 + y2) / 2;
+    //
+    //        var text = $(this.el).find('text[network-type="edge-label"]')[0];
+    //        text.setAttribute('x', x);
+    //        text.setAttribute('y', y);
+    //
+    //    },
+    move: function() {
         var val = this._calculateEdgePath();
         this.edgeEl.setAttribute('d', val.d);
-        this.labelEl.setAttribute('x', val.xl);
-        this.labelEl.setAttribute('y', val.yl);
+        this._renderLabelEl(val);
     },
-    _calculateEdgePath: function () {
+    _calculateEdgePath: function() {
         var d, labelX, labelY;
         if (this.edge.source === this.edge.target) {
             //calculate self edge
@@ -257,7 +259,8 @@ DefaultEdgeRenderer.prototype = {
                 'L', this.sourceCoords.x - length1, this.sourceCoords.y,
                 'C', this.sourceCoords.x - length2, this.sourceCoords.y, this.sourceCoords.x, this.sourceCoords.y - length2,
                 this.sourceCoords.x, this.sourceCoords.y - length1,
-                'L', this.targetCoords.x, this.targetCoords.y - rSize].join(' ');
+                'L', this.targetCoords.x, this.targetCoords.y - rSize
+            ].join(' ');
         } else {
             //calculate bezier line
             var deltaX = this.targetCoords.x - this.sourceCoords.x;
@@ -293,14 +296,18 @@ DefaultEdgeRenderer.prototype = {
             }
             var pp = this._getPerimeterPositions(angle);
 
-//            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
+            //            d = ['M', this.sourceCoords.x, this.sourceCoords.y, 'C', controlX, controlY, controlX, controlY, this.targetCoords.x, this.targetCoords.y].join(' ');
 
 
             d = ['M', pp.sx, pp.sy, controlPath, pp.tx, pp.ty].join(' ');
         }
-        return {d: d, xl: labelX, yl: labelY};
+        return {
+            d: d,
+            xl: labelX,
+            yl: labelY
+        };
     },
-    _getPerimeterPositions: function (angle) {
+    _getPerimeterPositions: function(angle) {
         // Calculate source and target points of the perimeter
         var sign = this.targetCoords.x >= this.sourceCoords.x ? 1 : -1;
         var srHalfSize = this.sourceRenderer.getSize() / 2;
@@ -385,10 +392,15 @@ DefaultEdgeRenderer.prototype = {
                     ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
             }
         }
-        return {sx: sx, sy: sy, tx: tx, ty: ty};
+        return {
+            sx: sx,
+            sy: sy,
+            tx: tx,
+            ty: ty
+        };
     },
     /* Private */
-    _render: function () {
+    _render: function() {
         this.el = SVG.create('g', {
             "cursor": "pointer",
             "id": this.edge.id,
@@ -408,7 +420,7 @@ DefaultEdgeRenderer.prototype = {
             "cursor": "pointer",
             fill: 'none',
             'network-type': 'edge'
-        },1);
+        }, 1);
 
         if (this.shape === 'undirected') {
             this.edgeEl.removeAttribute('marker-end');
@@ -423,14 +435,8 @@ DefaultEdgeRenderer.prototype = {
             }
         }
 
-        this.labelEl = SVG.addChild(this.el, "text", {
-            "x": val.xl,
-            "y": val.yl,
-            "font-size": this.labelSize,
-            "fill": this.labelColor,
-            'network-type': 'edge-label'
-        });
-        this.setLabelContent(this.edge.id);
+        this._setLabelText(this.edge.id);
+        this._renderLabelEl(val);
 
         SVG._insert(this.targetEl, this.el, 1);
 
@@ -441,13 +447,46 @@ DefaultEdgeRenderer.prototype = {
             this._removeSelect();
         }
     },
+    _setLabelText: function(text) {
+        this.labelText = text;
+        this.labelLines = this.labelText.split(/\\n/);
+    },
+    _renderLabelEl: function(val) {
+        if (val == null) {
+            val = this._calculateEdgePath();
+        }
+        if (this.labelEl == null) {
+            this.labelEl = SVG.create("text", {
+                'network-type': 'edge-label'
+            });
+        } else if(this.el.contains(this.labelEl)) {
+            this.el.removeChild(this.labelEl);
+        }
+        this.labelEl.setAttribute('font-size', this.labelSize);
+        this.labelEl.setAttribute('fill', this.labelColor);
 
-    _renderSelect: function () {
+        this.labelEl.textContent = "";
+        var linesCount = this.labelLines.length;
+        var yStart = val.yl - ((linesCount - 1) * this.labelSize / 2);
+        for (var i = 0; i < linesCount; i++) {
+            var line = this.labelLines[i];
+            var tspan = SVG.addChild(this.labelEl, "tspan", {
+                'network-type': 'edge-label',
+                x: val.xl,
+                y: yStart + (i * this.labelSize)
+            });
+            tspan.textContent = line;
+        }
+
+        this.el.appendChild(this.labelEl);
+    },
+
+    _renderSelect: function() {
         this.edgeEl.setAttribute('stroke-dasharray', '10, 5');
 
         this.selected = true;
     },
-    _removeSelect: function () {
+    _removeSelect: function() {
         if (this.shaft !== 'dashed') {
             this.edgeEl.removeAttribute('stroke-dasharray');
         } else {
@@ -456,7 +495,7 @@ DefaultEdgeRenderer.prototype = {
         this.selected = false;
     },
     /**/
-    _getMarkerArrowId: function (markerLocation) {
+    _getMarkerArrowId: function(markerLocation) {
         var offset = (this.size * -2) - 1;
         // if not exists this marker, add new one to defs
         var markerArrowId = "arrow-" + this.shape + "-" + offset.toString().replace(".", "_") + '-' + this.size.toString().replace(".", "_") + '-' + this.color.replace('#', '') + markerLocation;
@@ -466,7 +505,7 @@ DefaultEdgeRenderer.prototype = {
         }
         return markerArrowIdSel;
     },
-    _addArrowShape: function (type, offset, color, edgeSize, targetSvg, markerArrowId, markerLocation) {
+    _addArrowShape: function(type, offset, color, edgeSize, targetSvg, markerArrowId, markerLocation) {
         var defsEl = targetSvg.querySelector('defs');
         if (!defsEl) {
             defsEl = SVG.addChild(targetSvg, "defs", {}, 0);
@@ -492,8 +531,8 @@ DefaultEdgeRenderer.prototype = {
         });
         switch (type) {
             case "directed":
-                var d = ['M0,0', 'L', 1 * sign, h, 'L', 0, h * 2, 'L', w * sign, h + swh, 'L', w * sign, h - swh, 'Z'].join(' ')//"M0,0 V10 L5,5 Z"
-                //var d = ['M0,0', 'L', 1 * sign, h, 'L', 0, h * 2, 'L', w * sign, h, 'Z'].join(' ')//"M0,0 V10 L5,5 Z"
+                var d = ['M0,0', 'L', 1 * sign, h, 'L', 0, h * 2, 'L', w * sign, h + swh, 'L', w * sign, h - swh, 'Z'].join(' ') //"M0,0 V10 L5,5 Z"
+                    //var d = ['M0,0', 'L', 1 * sign, h, 'L', 0, h * 2, 'L', w * sign, h, 'Z'].join(' ')//"M0,0 V10 L5,5 Z"
                 var arrow = SVG.addChild(marker, "path", {
                     "fill": color,
                     "d": d
@@ -533,7 +572,7 @@ DefaultEdgeRenderer.prototype = {
                 break;
         }
     },
-    toJSON: function () {
+    toJSON: function() {
         return {
             shape: this.shape,
             shaft: this.shaft,

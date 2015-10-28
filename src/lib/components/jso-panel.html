@@ -54,7 +54,6 @@
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
-
             background-color: var(--default-primary-color);
             color: var(--text-primary-color);
         }
@@ -112,7 +111,9 @@
             content: '\f066';
         }
 
-        #header, .container, ::content .footer {
+        #header,
+        .container,
+        ::content .footer {
             position: relative;
         }
 
@@ -124,7 +125,7 @@
         }
 
         #footer {
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
             color: var(--primary-text-color);
         }
@@ -145,17 +146,12 @@
         :host[_hasfooter] .container {
             height: calc(100% - 64px);
         }
-
     </style>
     <template>
 
         <div id="back" hidden$="{{!modal}}"></div>
 
-        <div id="header"
-             class="header horizontal layout"
-             on-dblclick="handleHeaderDblclick"
-             on-mousedown="handleHeaderMouseDown"
-             on-mouseup="handleHeaderMouseUp">
+        <div id="header" class="header horizontal layout" on-dblclick="handleHeaderDblclick" on-mousedown="handleHeaderMouseDown" on-mouseup="handleHeaderMouseUp">
             <div class="horizontal layout flex center">
                 <content select=".header"></content>
             </div>
@@ -167,12 +163,11 @@
             </div>
         </div>
 
-        <div class="container horizontal layout" hidden$="{{isContainerHidden(collapsible, collapsed)}}">
+        <div id="container" class="container horizontal layout" hidden$="{{isContainerHidden(collapsible, collapsed)}}">
             <content select=".container"></content>
         </div>
 
-        <div id="footer" class="horizontal layout flex center"
-             hidden$="{{isFooterHidden(_hasfooter, collapsible, collapsed)}}">
+        <div id="footer" class="horizontal layout flex center" hidden$="{{isFooterHidden(_hasfooter, collapsible, collapsed)}}">
             <content select=".footer"></content>
         </div>
 
@@ -182,7 +177,7 @@
     </template>
 </dom-module>
 <script>
-    (function () {
+    (function() {
         var lastWindow_;
 
         JsoPanel = Polymer({
@@ -264,20 +259,23 @@
                 }
             },
             listeners: {
-                'click': '_updateLastWindow'
+                'mousedown': '_updateLastWindow'
             },
             hostAttributes: {
                 'class': 'vertical layout flex'
             },
-            ready: function () {
-                this.async(function () {
+            ready: function() {
+                this.async(function() {
                     if (this.fixed) {
                         this._center();
                     }
                 }, 50);
                 this._hasfooter = this.$.footer.childElementCount > 0;
+
+                var child = this.$.container.querySelector('.container');
+                child._parentJsoPanel = this;
             },
-            hiddenChanged: function (neo, old) {
+            hiddenChanged: function(neo, old) {
                 // check if is not hidden
                 if (neo == false) {
                     if (this.modal) {
@@ -291,13 +289,17 @@
                 }
                 this.fire('hidden', this.hidden);
             },
-            isContainerHidden: function (collapsible, collapsed) {
+            show: function() {
+                this.hidden = false;
+                this.hiddenChanged(false);
+            },
+            isContainerHidden: function(collapsible, collapsed) {
                 if (collapsible && collapsed) {
                     return true;
                 }
                 return false;
             },
-            isFooterHidden: function (_hasfooter, collapsible, collapsed) {
+            isFooterHidden: function(_hasfooter, collapsible, collapsed) {
                 if (_hasfooter) {
                     if (collapsible && collapsed && _hasfooter) {
                         return true;
@@ -308,7 +310,7 @@
                     return true;
                 }
             },
-            isPinHidden: function (movable, moved, fixed) {
+            isPinHidden: function(movable, moved, fixed) {
                 if (fixed) {
                     return true;
                 }
@@ -320,60 +322,70 @@
                 }
                 return !moved;
             },
-            setLoading: function (loading) {
+            setLoading: function(loading) {
                 this.loading = loading;
             },
             /* */
-            toggleCollapse: function () {
+            toggleCollapse: function() {
                 if (this.collapsible) {
                     this.collapsed = !this.collapsed;
                 }
             },
-            handleHeaderDblclick: function (e) {
+            handleHeaderDblclick: function(e) {
                 this.toggleCollapse();
             },
-            handleCollapseAction: function (e) {
+            handleCollapseAction: function(e) {
                 this.toggleCollapse();
             },
-            handleCloseAction: function () {
+            handleCloseAction: function() {
                 this.hidden = true;
                 this.fire('close');
             },
-            handlePinAction: function (e) {
+            handlePinAction: function(e) {
                 this.style.position = '';
                 this.style.left = '';
-                this.style.top = '';
                 this.style.top = '';
                 this.style["z-index"] = '';
 
                 this.moved = false;
             },
-            handleExpandAction: function (e) {
+            handleExpandAction: function(e) {
+                e.stopPropagation();
+                var currentZIndex = -1; //no z-index set;
+                if (!isNaN(this.style['z-index'])) {
+                    currentZIndex = parseInt(this.style['z-index']);
+                }
                 if (this.expandible) {
                     this.expanded = !this.expanded;
                     if (this.expanded) {
                         this.style.position = 'fixed';
                         this.style.width = '100%';
                         this.style.height = '100%';
-                        this.style.top = '0';
-                        this.style.left = '0';
+                        this.style.top = '';
+                        this.style.left = '';
+                        this.style['z-index'] = currentZIndex + 100;
                     } else {
                         this.style.width = '';
                         this.style.height = '';
                         this.style.position = '';
                         this.style.top = '';
                         this.style.left = '';
-
+                        if (currentZIndex >= -1) {
+                            this.style['z-index'] = currentZIndex - 100;
+                        } else {
+                            this.style['z-index'] = '';
+                        }
                         this._center();
                     }
                 }
+                this.fire('expand');
             },
 
-            handleActionsMouseDown: function (e) {
+            handleActionsMouseDown: function(e) {
                 e.stopPropagation();
             },
-            handleHeaderMouseDown: function (e) {
-                if (this.movable) {
+            handleHeaderMouseDown: function(e) {
+                if (this.movable && !this.expanded) {
                     document.body.classList.add('jso-nosel');
                     var me = this;
                     var bcr = this.$.header.getBoundingClientRect();
@@ -382,31 +394,31 @@
                     this.headerOffsetY = e.clientY - bcr.top;
 
                     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
-                    this.moved = true;
-                    this.style.position = 'fixed';
 
-                    this._updateLastWindow();
-
-                    this.mouseMoveHandler = function (moveEvent) {
+                    this.mouseMoveHandler = function(moveEvent) {
                         me.handleMouseMove(moveEvent);
                     };
                     window.addEventListener('mousemove', this.mouseMoveHandler, true);
                 }
             },
-            handleHeaderMouseUp: function () {
+            handleHeaderMouseUp: function() {
                 if (this.movable) {
                     window.removeEventListener('mousemove', this.mouseMoveHandler, true);
                     document.body.classList.remove('jso-nosel');
                 }
+                // this._updateLastWindow();
             },
-            handleMouseMove: function (e) {
+            handleMouseMove: function(e) {
                 if (this.movable) {
+                    this.moved = true;
+                    this.style.position = 'fixed';
                     var left = e.clientX - this.headerOffsetX;
                     var top = e.clientY - this.headerOffsetY;
                     if (this.constraint) {
                         var bcr = this.getBoundingClientRect();
+                        var bcrHeader = this.$.header.getBoundingClientRect();
                         var rightLimit = window.innerWidth - bcr.width;
-                        var bottomLimit = window.innerHeight - bcr.height;
+                        var bottomLimit = window.innerHeight - bcrHeader.height;
                         if (left > 0 && left < rightLimit) {
                             this.style.left = left + 'px';
                         }
@@ -422,18 +434,22 @@
             },
 
             /** **/
-            _center: function () {
+            _center: function() {
                 var bcr = this.getBoundingClientRect();
-                this.style.left = (window.innerWidth / 2 - bcr.width / 2 ) + 'px';
+                this.style.left = (window.innerWidth / 2 - bcr.width / 2) + 'px';
                 this.style.top = (window.innerHeight / 2 - bcr.height / 2) + 'px';
             },
-            _updateLastWindow: function () {
+            _updateLastWindow: function() {
                 if (lastWindow_) {
-                    lastWindow_.style["z-index"] = '1';
+                    if (!lastWindow_.expanded) {
+                        lastWindow_.style["z-index"] = '1';
+                    }
                 }
                 lastWindow_ = this;
                 if (lastWindow_) {
-                    lastWindow_.style["z-index"] = '2';
+                    if (!lastWindow_.expanded) {
+                        lastWindow_.style["z-index"] = '2';
+                    }
                 }
             }
 

@@ -4,79 +4,113 @@
         :host {
             display: block;
             box-sizing: border-box;
-            width: 380px;
+            width: 650px;
         }
 
         #main {
-            padding: 5px;
+            width: 100%;
+        }
+
+        #left {
+            width: 230px;
+            margin: 5px;
+        }
+
+        #right {
+            margin: 5px;
         }
 
         .footer {
             padding: 4px 5px 4px 12px;
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
         .footer > * {
             margin-left: 5px;
-
         }
     </style>
     <template>
 
-        <form id="main">
-            <label class="jso">Consider network as directed:</label>
+        <form id="main" class="flex horizontal layout">
 
-            <label class="jso-control">
-                <input type="radio" checked name="type"
-                       on-change="handleDirectedNo">
-                <span>No</span>
-            </label>
-            <label class="jso-control">
-                <input type="radio" name="type"
-                       on-change="handleDirectedYes">
-                <span>Yes</span>
-            </label>
+            <div id="left">
 
-            <label class="jso">Consider network as weighted:</label>
+                <label class="jso">Consider network as directed:</label>
 
-            <label class="jso-control">
-                <input type="radio" checked name="weighted"
-                       on-change="handleWeightedNo">
-                <span>No</span>
-            </label>
-            <label class="jso-control">
-                <input type="radio" name="weighted"
-                       on-change="handleWeightedYes">
-                <span>Yes</span>
-            </label>
+                <label class="jso-control">
+                    <input type="radio" checked name="type" on-change="handleDirectedNo">
+                    <span>No</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" name="type" on-change="handleDirectedYes">
+                    <span>Yes</span>
+                </label>
 
-            <div hidden$="{{checkWeighted(selectedWeighted, 'T')}}">
-                <label class="jso">Use attribute for weight:</label>
+                <label class="jso">Consider network as weighted:</label>
 
-                <jso-select-box style="height:100px;" id="columns" options="{{columns}}" on-select="handleEditSelect">
-                </jso-select-box>
+                <label class="jso-control">
+                    <input type="radio" checked name="weighted" on-change="handleWeightedNo">
+                    <span>No</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" name="weighted" on-change="handleWeightedYes">
+                    <span>Yes</span>
+                </label>
+
+                <div hidden$="{{checkWeighted(selectedWeighted, 'T')}}">
+                    <label class="jso">Use attribute for weight:</label>
+
+                    <jso-select-box style="height:100px;" id="columns" options="{{columns}}" on-select="handleEditSelect">
+                    </jso-select-box>
+
+                </div>
+
+            </div>
+            <div id="right">
+
+                <template is="dom-if" if="{{checkResults(results)}}">
+                    <label class="jso">Results</label>
+
+                    <div>Topology results are available as node attributes</div>
+                    <br>
+
+
+                    <div>
+                        <label class="jso">Average nodes per component:</label>
+                        <span>{{results.avgNodesPerComponent}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Average shorthest path length:</label>
+                        <span>{{results.avgShortestPathLength}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Clustering coefficient:</label>
+                        <span>{{results.clusteringCoeff}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Diameter:</label>
+                        <span>{{results.diameter}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Number of components:</label>
+                        <span>{{results.numComponents}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Number of edges:</label>
+                        <span>{{results.numEdges}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Number of nodes:</label>
+                        <span>{{results.numNodes}}</span>
+                    </div>
+
+                </template>
 
             </div>
 
         </form>
 
-        <template if="{{results}}">
-            <div style="margin:5px 10px;">
-                <label class="jso">Results</label>
-
-                <div>Topology results are available as node attributes</div>
-                <br>
-
-                <div>Average nodes per component: {{results['Average nodes per component']}}</div>
-                <div>Average shorthest path length: {{results['Average shorthest path length']}}</div>
-                <div>Clustering coefficient: {{results['Clustering coefficient']}}</div>
-                <div>Diameter: {{results['Diameter']}}</div>
-                <div>Number of components: {{results['Number of components']}}</div>
-                <div>Number of edges: {{results['Number of edges']}}</div>
-                <div>Number of nodes: {{results['Number of nodes']}}</div>
-            </div>
-        </template>
 
         </form>
 
@@ -121,34 +155,37 @@
                     type: Boolean
                 }
             },
-            checkWeighted: function (selectedWeighted, v) {
-                return selectedWeighted === v;
+            checkWeighted: function(selectedWeighted, v) {
+                return selectedWeighted !== v;
             },
-            ready: function () {
+            checkResults: function(results) {
+                return results != null;
+            },
+            ready: function() {
                 this.selectedDirected = 'F';
                 this.selectedWeighted = 'F';
 
                 this.columnSelected = 'id';
             },
-            handleGo: function () {
+            handleGo: function() {
                 this.retrieveData();
             },
-            handleDirectedYes: function () {
+            handleDirectedYes: function() {
                 this.selectedDirected = 'T';
             },
-            handleDirectedNo: function () {
+            handleDirectedNo: function() {
                 this.selectedDirected = 'F';
             },
-            handleWeightedYes: function () {
+            handleWeightedYes: function() {
                 this.selectedWeighted = 'T';
             },
-            handleWeightedNo: function () {
+            handleWeightedNo: function() {
                 this.selectedWeighted = 'F';
             },
-            handleEditSelect: function (e) {
+            handleEditSelect: function(e) {
                 this.columnSelected = e.detail;
             },
-            retrieveData: function (callback) {
+            retrieveData: function(callback) {
                 var me = this;
                 this.results = null;
                 var sif;
@@ -167,7 +204,7 @@
 
 
                     var request = new XMLHttpRequest();
-                    request.onload = function () {
+                    request.onload = function() {
                         var response;
                         var contentType = this.getResponseHeader('Content-Type');
                         if (contentType === 'application/json') {
@@ -177,6 +214,14 @@
                         }
                         if (response.error === "" && response.response[0].error == null) {
                             me.results = response.response[0].global;
+                            me.results.avgNodesPerComponent = me.results['Average nodes per component'];
+                            me.results.avgShortestPathLength = me.results['Average shorthest path length'];
+                            me.results.clusteringCoeff = me.results['Clustering coefficient'];
+                            me.results.diameter = me.results['Diameter'];
+                            me.results.numComponents = me.results['Number of components'];
+                            me.results.numEdges = me.results['Number of edges'];
+                            me.results.numNodes = me.results['Number of nodes'];
+
 
                             var attributes = [];
                             var lines = response.response[0].local.split("\n");
@@ -200,43 +245,46 @@
                                 name: "degree",
                                 title: "Degree",
                                 type: "text",
-                                formula: function (item) {
+                                formula: function(item) {
                                     return item.attributes[this.name];
                                 }
                             }, {
                                 name: "betweenness",
                                 title: "Betweenness",
                                 type: "text",
-                                formula: function (item) {
+                                formula: function(item) {
                                     return item.attributes[this.name];
                                 }
                             }, {
                                 name: "closenessCentrality",
                                 title: "Closeness centrality",
                                 type: "text",
-                                formula: function (item) {
+                                formula: function(item) {
                                     return item.attributes[this.name];
                                 }
                             }, {
                                 name: "clusteringCoefficient",
                                 title: "Clustering coefficient",
                                 type: "text",
-                                formula: function (item) {
+                                formula: function(item) {
                                     return item.attributes[this.name];
                                 }
                             }];
 
-                            me.fire('topological', {attributes: attributes, columns: columns});
+                            me.fire('topological', {
+                                attributes: attributes,
+                                columns: columns
+                            });
                             me.message = "Done";
                         } else {
                             me.message = "No communities found";
                         }
                         me.loading = false;
-                        if(callback != null){
+                        if (callback != null) {
                             callback();
                         }
                     };
-                    request.onerror = function () {
+                    request.onerror = function() {
                         console.log("request error");
                     };
                     request.open("POST", 'http://ws.babelomics.org/opencga/rest/util/network/topological-study', true);

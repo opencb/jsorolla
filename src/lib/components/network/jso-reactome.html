@@ -21,18 +21,17 @@
 
         .footer {
             padding: 4px 5px 4px 12px;
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
         .footer > * {
             margin-left: 5px;
         }
-
     </style>
     <template>
         <form class="attributelist flex">
-            <jso-reactome-tpl items="{{items}}" on-item-select="_getReactomeSbml"></jso-reactome-tpl>
+            <jso-reactome-tpl items="{{items}}" loading="{{loading}}" on-item-select="_getReactomeSbml"></jso-reactome-tpl>
         </form>
 
         <div class="footer horizontal layout flex">
@@ -65,41 +64,43 @@
                 BlackBoxEvent: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAARklEQVR42mNgGAVgICkp+R+Enz179h+XPCH1IAZeA5ANwWsAsmIYGxkjqyHZBTB5DAOICQNkOazqQRxcBmATx6d+FNAbAABzKWs7aCV9SQAAAABJRU5ErkJggg==",
                 Pathway: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAVklEQVR42tVSQQoAIAza0/a0/bwuLUZJaJ0SPGSbSGZW4O5t5UnfMC4mqwHSocFTgkRENEWHg0l0pnG9KMX+szqYSqku020GLKGB0gJlIL8B2w4N9h90t4HQjSs2eNAAAAAASUVORK5CYII="
             },
-            ready: function () {
-                this._getSpeciesPathways({value: 'Homo+sapiens'});
+            ready: function() {
+                this._getSpeciesPathways({
+                    value: 'Homo+sapiens'
+                });
             },
-            handleSpeciesSelect: function (e) {
+            handleSpeciesSelect: function(e) {
                 this.speciesSelected = e.model.spe;
                 this._getSpeciesPathways(this.speciesSelected);
             },
-            handlePathwayEventSelect: function (e) {
+            handlePathwayEventSelect: function(e) {
                 this.pathwayEventSelected = e.target.templateInstance.model.pathwayEvent;
                 this._getSpeciesPathways(this.speciesSelected);
             },
-//            _getSpecies: function () {
-//                var me = this;
-//                OpencgaManager.util.proxy({
-//                    query: {
-//                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/speciesList'
-//                    },
-//                    request: {
-//                        success: function (response) {
-//                            me.species = [];
-//                            for (var i = 0; i < response.length; i++) {
-//                                var species = response[i];
-//                                me.species.push({
-//                                    name: species.displayName,
-//                                    value: species.displayName.replace(/ /gi, "+")
-//                                });
-//                            }
-//
-//                        }
-//                    }
-//
-//                });
-//            },
+            //            _getSpecies: function () {
+            //                var me = this;
+            //                OpencgaManager.util.proxy({
+            //                    query: {
+            //                        url: 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/speciesList'
+            //                    },
+            //                    request: {
+            //                        success: function (response) {
+            //                            me.species = [];
+            //                            for (var i = 0; i < response.length; i++) {
+            //                                var species = response[i];
+            //                                me.species.push({
+            //                                    name: species.displayName,
+            //                                    value: species.displayName.replace(/ /gi, "+")
+            //                                });
+            //                            }
+            //
+            //                        }
+            //                    }
+            //
+            //                });
+            //            },
 
-            _processNode: function (node) {
+            _processNode: function(node) {
                 var item = {
                     type: node.nodeName,
                     selected: false,
@@ -120,15 +121,15 @@
                 }
                 return item;
             },
-            _getSpeciesPathways: function (species) {
+            _getSpeciesPathways: function(species) {
                 var me = this;
 
                 this.loading = true;
-                this.message = "Querying Reactome WS Server...";
+                this.message = "Querying Reactome WS Server, please wait...";
                 var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/pathwayHierarchy/' + species.value;
 
                 var request = new XMLHttpRequest();
-                request.onload = function () {
+                request.onload = function() {
                     me._processSpeciesPathways(this.response);
                     me.message = "Human pathways ready.";
                     me.loading = false;
@@ -136,7 +137,7 @@
                 request.open('GET', 'http://ws.babelomics.org/opencga/rest/util/proxy?url=' + url, true);
                 request.send();
             },
-            _processSpeciesPathways: function (response) {
+            _processSpeciesPathways: function(response) {
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(response, "application/xml");
 
@@ -144,15 +145,15 @@
                 this.root = this._processNode(pathways);
                 this.items = this.root.items;
             },
-            _getReactomeSbml: function (e) {
+            _getReactomeSbml: function(e) {
                 var me = this;
                 var item = e.detail.item;
                 this.loading = true;
-                this.message = "Querying Reactome WS Server...";
+                this.message = "Querying Reactome WS Server, please wait...";
                 var url = 'http://reactomews.oicr.on.ca:8080/ReactomeRESTfulAPI/RESTfulWS/sbmlExporter/' + item.dbId;
 
                 var request = new XMLHttpRequest();
-                request.onload = function () {
+                request.onload = function() {
                     me._processReactomeSbml(this.response);
                     me.message = "Pathway loaded.";
                     me.loading = false;
@@ -160,7 +161,7 @@
                 request.open('GET', 'http://ws.babelomics.org/opencga/rest/util/proxy?url=' + url, true);
                 request.send();
             },
-            _processReactomeSbml: function (response) {
+            _processReactomeSbml: function(response) {
                 var renderMap = {
                     "macromolecule": {
                         color: "#CCFFCC",
@@ -216,8 +217,8 @@
                     "glyph.macromolecule",
                     "glyph.unspecified.entity",
                     "glyph.complex",
-//                    "glyph.annotation",
-//                    "glyph.unit.of.information",
+                    //                    "glyph.annotation",
+                    //                    "glyph.unit.of.information",
                     "glyph.simple.chemical",
                     "glyph.process"
                 ].join(",");
@@ -315,7 +316,10 @@
                     });
                     graph.addEdge(edge);
                 }
-                this.fire('graph', {graph: graph, map: map});
+                this.fire('graph', {
+                    graph: graph,
+                    map: map
+                });
             }
         });
     </script>
@@ -343,13 +347,10 @@
     <template>
         <template is="dom-repeat" items="{{items}}" as="item" index-as="index" id="itemsTemplate">
             <div class="horizontal layout">
-                <div class="jso-txt collapsebox"
-                     data-checked$="{{item.open}}"
-                     data-leaf$="{{hasItems(item.length)}}"
-                     on-click="handleOpenNode">
+                <div class="jso-txt collapsebox" data-checked$="{{item.open}}" data-leaf$="{{hasItems(item.length)}}" on-click="handleOpenNode">
                 </div>
                 <label class="jso-control">
-                    <input type="radio" on-click="handleItemSelect" name="pw"/>
+                    <input type="radio" on-click="handleItemSelect" disabled$="{{loading}}" name="pw" />
                     <span>
                         <img src$="{{item.imgsrc}}" style="margin:0 5px;">
                         <span data-selected$="{{item.selected}}">{{item.displayName}}</span>
@@ -358,7 +359,7 @@
             </div>
             <div style="margin-left:10px;">
                 <template is="dom-if" if="{{item.open}}">
-                    <jso-reactome-tpl items="{{item.items}}"></jso-reactome-tpl>
+                    <jso-reactome-tpl loading="{{loading}}" items="{{item.items}}"></jso-reactome-tpl>
                 </template>
             </div>
         </template>
@@ -369,31 +370,36 @@
         Polymer({
             is: "jso-reactome-tpl",
             properties: {
-                items: Array
+                items: Array,
+                loading: Boolean
             },
-            hasItems: function (l) {
+            hasItems: function(l) {
                 return l > 0;
             },
-            handleOpenNode: function (e) {
+            handleOpenNode: function(e) {
                 var path = 'items.' + e.model.index + '.open';
                 this.set(path, !e.model.item.open);
             },
-            handleItemSelect: function (e) {
-                this._deselectAllItems();
-                var item = e.model.item;
+            handleItemSelect: function(e) {
+                if (this.loading === false) {
+                    this._deselectAllItems();
+                    var item = e.model.item;
 
-                var path = 'items.' + e.model.index + '.selected';
-                this.set(path, !item.selected);
+                    var path = 'items.' + e.model.index + '.selected';
+                    this.set(path, !item.selected);
 
-                this.fire('item-select', {item: item});
+                    this.fire('item-select', {
+                        item: item
+                    });
+                }
             },
-            _deselectAllItems: function () {
+            _deselectAllItems: function() {
                 for (var i = 0; i < this.items.length; i++) {
                     var item = this.items[i];
                     this._deselectItem(item);
                 }
             },
-            _deselectItem: function (item) {
+            _deselectItem: function(item) {
                 item.selected = false;
                 for (var i = 0; i < item.items.length; i++) {
                     var it = item.items[i];

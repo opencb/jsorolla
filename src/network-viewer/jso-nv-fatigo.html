@@ -10,7 +10,6 @@
         #main {
             overflow-y: scroll;
             height: 500px;
-            padding: 5px 0 15px 0;
         }
 
         .db_options {
@@ -25,9 +24,7 @@
     </style>
     <template>
         <form id="main">
-
-
-            <div class="jso-formbox">
+            <div class="jso-formbox" style="margin-top:5px;">
                 <div class="jso-formtitle">Examples</div>
                 <div class="jso-formcontent">
                     <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1"
@@ -419,7 +416,7 @@
                 </div>
             </div>
 
-            <div class="message">{{message}}</div>
+            <div class="message" style="margin-bottom:5px;">{{message}}</div>
         </form>
 
     </template>

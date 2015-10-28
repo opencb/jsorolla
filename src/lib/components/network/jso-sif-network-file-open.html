@@ -10,11 +10,12 @@
             overflow-y: hidden;
             overflow-x: auto;
             border-top: 1px solid var(--divider-color);
-            border-bottom: 1px solid var(--divider-color);
         }
 
         .footer {
             padding: 4px 5px;
+            border-top: 1px solid var(--divider-color);
+            background-color: var(--light-secondary-color);
         }
 
         .footer > * {
@@ -31,8 +32,7 @@
             <input type="file" hidden id="fileInput" required on-change="handleInputChange">
         </div>
 
-        <jso-table id="table" enable-paging page-size="12" columns="{{columns}}"
-                   data="{{parsedData}}" style="height:436px"></jso-table>
+        <jso-table id="table" enable-paging page-size="12" columns="{{columns}}" data="{{parsedData}}" style="height:436px"></jso-table>
 
         <div class="footer horizontal layout center">
             <div class="jso-txt">{{message}}</div>
@@ -58,29 +58,29 @@
             },
             parsedData: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
             columns: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [{
                         name: 'source',
                         title: 'Source',
-                        width:300,
-                        formula: function (row) {
+                        width: 300,
+                        formula: function(row) {
                             return row.source.id
                         }
                     }, {
                         name: 'relation',
                         title: 'Relation',
-                        width:300
+                        width: 300
                     }, {
                         name: 'target',
                         title: 'Target',
-                        width:300,
-                        formula: function (row) {
+                        width: 300,
+                        formula: function(row) {
                             return row.target.id
                         }
                     }];
@@ -88,13 +88,13 @@
             },
             vertices: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
             edges: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -103,22 +103,25 @@
                 notify: true
             }
         },
-        ready: function () {
+        ready: function() {
             this.graph = this.$.graph;
         },
-        handleOk: function () {
+        handleOk: function() {
             if (this.graph) {
                 this.selectedMenu = '';
-                this.fire('graph', {graph: this.graph, fileName: this.fileName});
+                this.fire('graph', {
+                    graph: this.graph,
+                    fileName: this.fileName
+                });
             }
         },
-        handleCancel: function () {
+        handleCancel: function() {
             this.selectedMenu = '';
         },
-        handleBrowseClick: function (e) {
+        handleBrowseClick: function(e) {
             this.$.fileInput.click();
         },
-        handleInputChange: function (e) {
+        handleInputChange: function(e) {
             var me = this;
             var inputFile = this.$.fileInput.files[0];
             this.set('fileName', inputFile.name);
@@ -126,19 +129,21 @@
 
             if (this.$.fileInput.files.length > 0) {
                 this.adapter = new SIFNetworkDataAdapter({
-                    dataSource: new FileDataSource({file: inputFile}),
+                    dataSource: new FileDataSource({
+                        file: inputFile
+                    }),
                     handlers: {
-                        'data:load': function (event) {
+                        'data:load': function(event) {
                             me.processData(event.graph);
                         },
-                        'error:parse': function (event) {
+                        'error:parse': function(event) {
                             me.message = event.errorMsg;
                         }
                     }
                 });
             }
         },
-        processData: function (graph) {
+        processData: function(graph) {
             try {
                 var verticesLength = graph.vertices.length;
                 var edgesLength = graph.edges.length;

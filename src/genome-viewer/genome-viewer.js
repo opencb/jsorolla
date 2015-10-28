@@ -554,6 +554,7 @@ GenomeViewer.prototype = {
             showRegionOverviewBox: true,
             collapsible: this.regionPanelConfig.collapsible,
             region: this.region,
+            species: this.species,
             handlers: {
                 'region:change': function (event) {
                     event.sender = undefined;
@@ -597,6 +598,7 @@ GenomeViewer.prototype = {
             width: this.width - this.sidePanelWidth,
             title: this.trackListTitle,
             region: this.region,
+            species: this.species,
             hidden: this.regionPanelConfig.hidden,
             handlers: {
                 'region:change': function (event) {
@@ -1133,5 +1135,3 @@ GenomeViewer.prototype = {
         this.trackExists(trackId);
     }
 };
-
-

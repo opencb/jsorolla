@@ -2,16 +2,14 @@
     <style>
         :host {
             display: block;
+            position: relative;
             box-sizing: border-box;
-            background-color: #FFFFFF;
-
             width: 630px;
             /*height: 560px;*/
         }
 
         #main {
             width: 100%;
-            height: 100%;
         }
 
         #left {
@@ -21,10 +19,17 @@
             box-sizing: border-box;
         }
 
+        #right {
+            position:relative;
+            width: calc(100% - 180px);
+        }
+        #right > jso-table {
+            width:100%;
+        }
+
         #left div {
             margin-top: 3px;
         }
-
         /*#left div:first-child {*/
         /*margin-top: 0px;*/
         /*}*/
@@ -36,22 +41,15 @@
         .bar > div {
             margin: 0 2px;
         }
-
     </style>
     <template>
         <div id="main" class="horizontal layout">
             <div id="left" class="vertical layout">
                 <div class="horizontal layout">
-                    <div class="jso-btn jso-btn-shdw flex"
-                         on-click="handleView"
-                         data-value="edge"
-                         data-checked$="{{computeView(view, 'edge')}}">
+                    <div class="jso-btn jso-btn-shdw flex" on-click="handleView" data-value="edge" data-checked$="{{computeView(view, 'edge')}}">
                         Edges
                     </div>
-                    <div class="jso-btn jso-btn-shdw flex"
-                         on-click="handleView"
-                         data-value="node"
-                         data-checked$="{{computeView(view, 'node')}}">
+                    <div class="jso-btn jso-btn-shdw flex" on-click="handleView" data-value="node" data-checked$="{{computeView(view, 'node')}}">
                         Nodes
                     </div>
                 </div>
@@ -92,13 +90,9 @@
                     </div>
                 </template>
             </div>
-            <div class="flex vertical layout">
-                <jso-table id="edgeTable" class="flex" enable-paging page-size="16" enable-select style="height:560px"
-                           hidden$="{{!computeView(view, 'edge')}}"
-                           columns="{{edgeColumns}}" data="{{edges}}" selected="{{selectedEdges}}"></jso-table>
-                <jso-table id="vertexTable" class="flex" enable-paging page-size="16" enable-select style="height:560px"
-                           hidden$="{{!computeView(view, 'node')}}"
-                           columns="{{vertexColumns}}" data="{{vertices}}" selected="{{selectedVertices}}"></jso-table>
+            <div id="right">
+                <jso-table id="edgeTable" class="flex" enable-paging page-size="16" enable-select style="height:560px" hidden$="{{!computeView(view, 'edge')}}" columns="{{edgeColumns}}" data="{{edges}}" selected="{{selectedEdges}}"></jso-table>
+                <jso-table id="vertexTable" class="flex" enable-paging page-size="16" enable-select style="height:560px" hidden$="{{!computeView(view, 'node')}}" columns="{{vertexColumns}}" data="{{vertices}}" selected="{{selectedVertices}}"></jso-table>
             </div>
         </div>
 
@@ -126,7 +120,7 @@
                     name: 'source',
                     title: 'Source',
                     width: 150,
-                    formula: function (row) {
+                    formula: function(row) {
                         return row.source.id
                     }
                 }, {
@@ -137,7 +131,7 @@
                     name: 'target',
                     title: 'Target',
                     width: 150,
-                    formula: function (row) {
+                    formula: function(row) {
                         return row.target.id
                     }
                 }]
@@ -175,18 +169,18 @@
                 value: ''
             },
         },
-        computeView: function (view, value) {
+        computeView: function(view, value) {
             return view === value;
         },
-        ready: function () {
+        ready: function() {
             var me = this;
-//            this.interactionMessage = '';
-//            this.nodeMessage = '';
+            //            this.interactionMessage = '';
+            //            this.nodeMessage = '';
         },
-        handleView: function (e) {
+        handleView: function(e) {
             this.view = e.target.dataset.value;
         },
-        handleAddEdge: function (e) {
+        handleAddEdge: function(e) {
             if (this.edgeSource !== '' && this.edgeRelation !== '' && this.edgeTarget !== '') {
                 this.fire('add-edge', {
                     source: this.edgeSource,
@@ -197,11 +191,11 @@
                 this.interactionMessage = 'Please fill the fields';
             }
         },
-        handleDeleteEdges: function () {
+        handleDeleteEdges: function() {
             this.fire('remove-selected-edges');
-//            this.networkViewer.removeSelectedEdges();
+            //            this.networkViewer.removeSelectedEdges();
         },
-        handleAddNode: function (e) {
+        handleAddNode: function(e) {
             if (this.vertexId !== '') {
                 this.fire('add-vertex', {
                     id: this.vertexId
@@ -210,11 +204,11 @@
                 this.interactionMessage = 'Please fill the fields';
             }
         },
-        handleDeleteNodes: function () {
+        handleDeleteNodes: function() {
             this.fire('remove-selected-vertices');
-//            this.networkViewer.removeSelectedVertices();
+            //            this.networkViewer.removeSelectedVertices();
         },
-        handleScroll: function (e) {
+        handleScroll: function(e) {
             e.preventDefault();
             if (e.deltaY > 0) {
                 this.moveToNextPage();
@@ -223,10 +217,10 @@
                 this.moveToPreviousPage();
             }
         },
-        moveToNextPage: function () {
+        moveToNextPage: function() {
             this.$.table.moveToNextPage();
         },
-        moveToPreviousPage: function () {
+        moveToPreviousPage: function() {
             this.$.table.moveToPreviousPage();
         }
     });

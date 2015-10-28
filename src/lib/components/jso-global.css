@@ -3,10 +3,14 @@ CONTROLS
 */
 
 .jso-nosel {
-    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
-    -moz-user-select: none; /* mozilla browsers */
-    -khtml-user-select: none; /* webkit (konqueror) browsers */
-    -ms-user-select: none; /* IE10+ */
+    -webkit-user-select: none;
+    /* webkit (safari, chrome) browsers */
+    -moz-user-select: none;
+    /* mozilla browsers */
+    -khtml-user-select: none;
+    /* webkit (konqueror) browsers */
+    -ms-user-select: none;
+    /* IE10+ */
 }
 
 input.jso {
@@ -21,8 +25,13 @@ label.jso {
     margin-right: 5px;
 }
 
+
 /*label::after {*/
+
+
 /*content: ':'*/
+
+
 /*}*/
 
 label.jso-btn::after {
@@ -257,29 +266,98 @@ textarea.jso {
     font-size: 25px;
     color: #666;
     margin-bottom: 10px;
-
 }
 
-/* top Message*/
-.jso-msg-hidden {
+
+/*
+    Notes
+    <div class="jso-note jso-note-warn">
+        <div>
+        </div>
+        <div>
+        </div>
+    </div>
+*/
+
+.jso-note {
+    position: relative;
+    padding: 10px 10px 10px 40px;
+    margin: 10px 5px;
+    border-left: 5px solid transparent;
+    color: #444;
+}
+
+.jso-note > div:nth-child(1) {
+    font-weight: bold;
+}
+
+.jso-note::after {
     position: absolute;
+    left: 10px;
+    top: 10px;
+    box-sizing: border-box;
+    font-family: FontAwesome;
+    font-size: 16px;
+}
+
+.jso-note-warn {
+    border-left-color: #e9d295;
+    background-color: #faf3d7;
+}
+
+.jso-note-warn::after {
+    content: '\f071';
+    color: #bf9947;
+}
+
+.jso-note-info {
+    border-left-color: #95c9e9;
+    background-color: #e6f1f4;
+}
+
+.jso-note-info::after {
+    content: '\f05a';
+    color: #4790bf;
+}
+
+.jso-note-error {
+    border-left-color: #e99595;
+    background-color: #f4e6e6;
+}
+
+.jso-note-error::after {
+    content: '\f06a';
+    color: #bf4747;
+}
+
+
+/*
+    Top Message
+*/
+
+.jso-msg-hidden {
+    position: fixed;
     z-index: 50000;
     top: -200px;
-    left: 45%;
     background: white;
     border: 1px solid #000;
     transition: top 0.9s;
     margin: 5px;
     min-width: 150px;
+    max-width: 200px;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
 }
 
-.jso-msg-hidden :first-child {
+.jso-msg-hidden >:first-child {
     padding: 5px;
     color: white;
     background-color: #000;
 }
 
-.jso-msg-hidden :last-child {
+.jso-msg-hidden >:last-child {
     padding: 7px;
     color: #000;
     background-color: white;

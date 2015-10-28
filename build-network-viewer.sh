@@ -28,9 +28,8 @@ uglifyjs $BP/tmp/$NAME.js > $BP/tmp/$NAME.min.js
 
 sed -i s@$NAME.js@$NAME.min.js@g $BP/tmp/jso-network-viewer.html
 
-
-#cp LICENSE $BP/
-#cp README.md $BP/
+cp COPYING $BP/
+cp README.md $BP/
 
 mv $BP/tmp/jso-network-viewer.html $BP/
 mv $BP/tmp/$NAME.js $BP/

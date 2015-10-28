@@ -3,101 +3,114 @@
         :host {
             display: block;
             box-sizing: border-box;
-            width: 380px;
+            position: relative;
+            width: 650px;
         }
 
         #main {
-            padding: 5px;
+            width: 100%;
+        }
+
+        #left {
+            width: 230px;
+            margin: 5px;
+        }
+
+        #right {
+            margin: 5px;
         }
 
         .footer {
             padding: 4px 5px 4px 12px;
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
         .footer > * {
             margin-left: 5px;
-
         }
     </style>
     <template>
-        <form id="main">
-            <label class="jso">Community detection method:</label>
+        <form id="main" class="flex horizontal layout">
 
-            <label class="jso-control">
-                <input type="radio" checked name="method"
-                       on-change="handleMethodFastGreedySelect">
-                <span>Fastgreedy</span>
-            </label>
-            <label class="jso-control">
-                <input type="radio" name="method"
-                       on-change="handleMethodWalktrapSelect">
-                <span>Walktrap</span>
-            </label>
-            <label class="jso-control">
-                <input type="radio" name="method"
-                       on-change="handleMethodInfomapSelect">
-                <span>Infomap</span>
-            </label>
+            <div id="left">
+                <label class="jso">Community detection method:</label>
 
-
-            <label class="jso">Consider network as directed:</label>
-
-            <label class="jso-control">
-                <input type="radio" checked name="type"
-                       on-change="handleDirectedNo">
-                <span>No</span>
-            </label>
-            <label class="jso-control">
-                <input type="radio" name="type"
-                       on-change="handleDirectedYes">
-                <span>Yes</span>
-            </label>
-
-            <label class="jso">Consider network as weighted:</label>
-
-            <label class="jso-control">
-                <input type="radio" checked name="weighted"
-                       on-change="handleWeightedNo">
-                <span>No</span>
-            </label>
-            <label class="jso-control">
-                <input type="radio" name="weighted"
-                       on-change="handleWeightedYes">
-                <span>Yes</span>
-            </label>
+                <label class="jso-control">
+                    <input type="radio" checked name="method" on-change="handleMethodFastGreedySelect">
+                    <span>Fastgreedy</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" name="method" on-change="handleMethodWalktrapSelect">
+                    <span>Walktrap</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" name="method" on-change="handleMethodInfomapSelect">
+                    <span>Infomap</span>
+                </label>
 
 
-            <div hidden$="{{checkWeighted(selectedWeighted, 'T')}}">
-                <label class="jso">Use attribute for weight:</label>
+                <label class="jso">Consider network as directed:</label>
 
-                <jso-select-box style="height:100px;" id="columns" options="{{columns}}" on-select="handleEditSelect">
-                </jso-select-box>
+                <label class="jso-control">
+                    <input type="radio" checked name="type" on-change="handleDirectedNo">
+                    <span>No</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" name="type" on-change="handleDirectedYes">
+                    <span>Yes</span>
+                </label>
 
+                <label class="jso">Consider network as weighted:</label>
+
+                <label class="jso-control">
+                    <input type="radio" checked name="weighted" on-change="handleWeightedNo">
+                    <span>No</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" name="weighted" on-change="handleWeightedYes">
+                    <span>Yes</span>
+                </label>
+
+
+                <div hidden$="{{checkWeighted(selectedWeighted, 'T')}}">
+                    <label class="jso">Use attribute for weight:</label>
+
+                    <jso-select-box style="height:100px;" id="columns" options="{{columns}}" on-select="handleEditSelect">
+                    </jso-select-box>
+
+                </div>
             </div>
+
+            <div id="right" class="flex">
+                <template is="dom-if" if="{{checkResults(results)}}">
+                    <label class="jso">Results:</label>
+
+                    <div>A color has been assigned to the top communities.</div>
+                    <div>Communities results are available as node attributes</div>
+                    <br>
+
+                    <div class="jso-btn jso-btn-shdw" on-click="handleApplyColor" style="width:100px;">Apply</div>
+                    <br>
+
+                    <div>
+                        <label class="jso">Global modularity:</label>
+                        <span>{{results.globalModularity}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Number of communities with more than 2 nodes:</label>
+                        <span>{{results.numberCommunities}}</span>
+                    </div>
+                    <div>
+                        <label class="jso">Total number of communities:</label>
+                        <span>{{results.totalCommunities}}</span>
+                    </div>
+                </template>
+            </div>
+
         </form>
 
-        <template is="dom-if" if="{{checkResults(results)}}">
-            <div style="padding:10px;">
-                <label class="jso">Results</label>
 
-                <div>A color has been assigned to the top communities.</div>
-                <div>Communities results are available as node attributes</div>
-                <br>
-
-                <div class="jso-btn jso-btn-shdw" on-click="handleApplyColor" style="width:100px;">Apply</div>
-                <br>
-
-                <div>Global modularity: <span>{{result.globalModularity}}</span></div>
-                <div>Number of communities with more than 2 nodes:
-                    <span>{{results.numberCommunities}}</span>
-                </div>
-                <div>Total number of communities:
-                    <span>{{results.totalCommunities}}</span>
-                </div>
-            </div>
-        </template>
 
         <div class="footer horizontal layout flex">
             <div class="jso-txt">
@@ -143,13 +156,13 @@
                     type: Boolean
                 }
             },
-            checkWeighted: function (selectedWeighted, v) {
-                return selectedWeighted === v;
+            checkWeighted: function(selectedWeighted, v) {
+                return selectedWeighted !== v;
             },
-            checkResults: function (results) {
+            checkResults: function(results) {
                 return results != null;
             },
-            ready: function () {
+            ready: function() {
                 this.selectedMethod = 'fastgreedy';
                 this.selectedDirected = 'F';
                 this.selectedWeighted = 'F';
@@ -158,34 +171,34 @@
 
                 this.results;
             },
-            handleGo: function () {
+            handleGo: function() {
                 this.retrieveData();
             },
-            handleMethodFastGreedySelect: function () {
+            handleMethodFastGreedySelect: function() {
                 this.selectedMethod = 'fastgreedy';
             },
-            handleMethodWalktrapSelect: function () {
+            handleMethodWalktrapSelect: function() {
                 this.selectedMethod = 'walktrap';
             },
-            handleMethodInfomapSelect: function () {
+            handleMethodInfomapSelect: function() {
                 this.selectedMethod = 'infomap';
             },
-            handleDirectedYes: function () {
+            handleDirectedYes: function() {
                 this.selectedDirected = 'T';
             },
-            handleDirectedNo: function () {
+            handleDirectedNo: function() {
                 this.selectedDirected = 'F';
             },
-            handleWeightedYes: function () {
+            handleWeightedYes: function() {
                 this.selectedWeighted = 'T';
             },
-            handleWeightedNo: function () {
+            handleWeightedNo: function() {
                 this.selectedWeighted = 'F';
             },
-            handleEditSelect: function (e) {
+            handleEditSelect: function(e) {
                 this.columnSelected = e.detail;
             },
-            retrieveData: function () {
+            retrieveData: function() {
                 var me = this;
                 this.results = null;
                 var sif;
@@ -204,7 +217,7 @@
                     formData.append("method", this.selectedMethod);
 
                     var request = new XMLHttpRequest();
-                    request.onload = function () {
+                    request.onload = function() {
                         var response;
                         var contentType = this.getResponseHeader('Content-Type');
                         if (contentType === 'application/json') {
@@ -213,8 +226,8 @@
                             response = this.response;
                         }
                         if (response.error === "" && response.response[0].error == null) {
-                            debugger
                             me.results = response.response[0].results;
+                            debugger
                             me.results.globalModularity = me.results['Global modularity'];
                             me.results.numberCommunities = me.results['Number of communities with more than 2 nodes'];
                             me.results.totalCommunities = me.results['Total number of communities'];
@@ -239,7 +252,7 @@
                                 name: "community",
                                 title: "Community",
                                 type: "text",
-                                formula: function (item) {
+                                formula: function(item) {
                                     return item.attributes[this.name];
                                 }
                             }, {
@@ -247,18 +260,21 @@
                                 name: "communityColor",
                                 title: "Community color",
                                 type: "text",
-                                formula: function (item) {
+                                formula: function(item) {
                                     return item.attributes[this.name];
                                 }
                             }];
-                            me.fire('community', {attributes: attributes, columns: columns});
+                            me.fire('community', {
+                                attributes: attributes,
+                                columns: columns
+                            });
                             me.message = "Done";
                         } else {
                             me.message = "No communities found";
                         }
                         me.loading = false;
                     };
-                    request.onerror = function () {
+                    request.onerror = function() {
                         console.log("request error");
                     };
                     request.open("POST", 'http://ws.babelomics.org/opencga/rest/util/network/community', true);
@@ -269,10 +285,10 @@
                     this.message = "Node list is empty";
                 }
             },
-            handleApplyColor: function () {
+            handleApplyColor: function() {
                 this._applyVertexAttributes();
             },
-            _applyVertexAttributes: function () {
+            _applyVertexAttributes: function() {
                 this.fire('apply-community');
             }
         });

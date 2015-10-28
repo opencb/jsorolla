@@ -23,7 +23,7 @@
             },
             uniqueItems: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -32,11 +32,14 @@
             },
             points: {
                 type: Array,
-                value: function () {
-                    return [
-                        {value: undefined, render: this.defaultValue},
-                        {value: undefined, render: this.defaultValue}
-                    ]
+                value: function() {
+                    return [{
+                        value: undefined,
+                        render: this.defaultValue
+                    }, {
+                        value: undefined,
+                        render: this.defaultValue
+                    }]
                 }
             },
             selectedColumn: {
@@ -80,11 +83,15 @@
                 reflectToAttribute: true,
                 value: true
             },
+            attributeSortOrder: {
+                type: String,
+                value: 'asc'
+            }
         },
         observers: [
             'itemsChanged(items.splices)'
         ],
-        displayPropertyChanged: function (neo, old) {
+        displayPropertyChanged: function(neo, old) {
             if (this.displayProperty == this.id) {
                 this.hidden = false;
                 this.$.panel.hidden = false;
@@ -94,34 +101,46 @@
                 this.$.panel.hidden = true;
             }
         },
+        handleAttributeValueHeaderClick: function(e) {
+            if (this.attributeSortOrder === 'desc') {
+                this.attributeSortOrder = 'asc';
+                e.currentTarget.classList.add('sort-asc');
+                e.currentTarget.classList.remove('sort-desc');
+            } else if (this.attributeSortOrder === 'asc') {
+                this.attributeSortOrder = 'desc';
+                e.currentTarget.classList.add('sort-desc');
+                e.currentTarget.classList.remove('sort-asc');
+            }
+            this._updateUniqueValues();
+        },
 
+        itemsChanged: function(neo, old) {
+            this._updateUniqueValues();
+        },
+        selectedColumnChanged: function(neo, old) {
+            this._updateUniqueValues();
+        },
+        attributeParseChanged: function(neo, old) {
+            this._updateUniqueValues();
+        },
 
-        itemsChanged: function (neo, old) {
+        defaultValueChanged: function(neo, old) {
             this._updateUniqueValues();
+            //            for (var i = 0; i < this.uniqueItems.length; i++) {
+            //                var item = this.uniqueItems[i];
+            //                if (item.render === old) {
+            //                    item.render = neo;
+            //                }
+            //            }
         },
-        selectedColumnChanged: function (neo, old) {
-            this._updateUniqueValues();
-        },
-        attributeParseChanged: function (neo, old) {
-            this._updateUniqueValues();
-        },
-
-        defaultValueChanged: function (neo, old) {
-            this._updateUniqueValues();
-//            for (var i = 0; i < this.uniqueItems.length; i++) {
-//                var item = this.uniqueItems[i];
-//                if (item.render === old) {
-//                    item.render = neo;
-//                }
-//            }
-        },
-        visualSetChanged: function (neo, old) {
+        visualSetChanged: function(neo, old) {
             if (neo) {
                 this.loadVisualSet();
             }
         },
 
-        clean: function () {
+
+        clean: function() {
             if (this.$.columnSelectBox) {
                 this.$.columnSelectBox.selectByIndex(0);
             }
@@ -136,15 +155,17 @@
             this.uniqueMatches = {};
         },
 
-        refreshAttributes: function () {
+        refreshAttributes: function() {
             this._updateUniqueValues();
             if (this.visualSet != null) {
                 this._createVisualSet();
-                this.fire('ok', {displayProperty: this.getAttribute("id")});
+                this.fire('ok', {
+                    displayProperty: this.getAttribute("id")
+                });
             }
         },
 
-        applyDirect: function (attributeName) {
+        applyDirect: function(attributeName) {
             var col = this._searchColumnByName(attributeName);
             if (col != null) {
                 this.set('selectedColumn', col);
@@ -154,7 +175,7 @@
             }
         },
 
-        loadVisualSet: function () {
+        loadVisualSet: function() {
             //check if visualset is set for first time programmatically
             var col = this._searchColumnByName(this.visualSet.attribute);
             if (col != null && col !== this.selectedColumn) {
@@ -162,7 +183,7 @@
             }
             if (this.$.typeSelectBox && this.visualSet.type !== this.attributeType.name) {
                 this.$.typeSelectBox.selectByName(this.visualSet.type);
-                if(this.visualSet.points && this.visualSet.points.length > 0 ){
+                if (this.visualSet.points && this.visualSet.points.length > 0) {
                     this.set('points', this.visualSet.points);
                 }
             }
@@ -172,11 +193,11 @@
             this.set('uniqueMatches', this.visualSet.matches);
         },
 
-        applyVisualSet: function (visualSet) {
+        applyVisualSet: function(visualSet) {
             this.set('visualSet', visualSet);
             this.handleOk();
         },
-        _searchColumnByName: function (name) {
+        _searchColumnByName: function(name) {
             var col;
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
@@ -188,61 +209,67 @@
             return col;
         },
 
-        isCategoricalType: function (attributeType) {
+        isCategoricalType: function(attributeType) {
             return attributeType.name == 'categorical';
         },
-        isContinuousType: function (attributeType) {
+        isContinuousType: function(attributeType) {
             return attributeType.name == 'continuous';
         },
-        isStringParse: function (attributeParse) {
+        isStringParse: function(attributeParse) {
             return attributeParse.name == 'string';
         },
-        isListParse: function (attributeParse) {
+        isListParse: function(attributeParse) {
             return attributeParse.name == 'list';
         },
 
 
-        handleColumnSelect: function (e) {
+        handleColumnSelect: function(e) {
             this.set('selectedColumn', e.detail);
         },
-        handleAttributeTypeSelect: function (e) {
+        handleAttributeTypeSelect: function(e) {
             this.set('attributeType', e.detail);
         },
-        handleAttributeParseSelect: function (e) {
+        handleAttributeParseSelect: function(e) {
             this.set('attributeParse', e.detail);
         },
 
 
-        handleClose: function () {
+        handleClose: function() {
             this.displayProperty = '';
         },
 
-        handleOk: function () {
+        handleOk: function() {
             this._createVisualSet();
-            this.fire('ok', {displayProperty: this.getAttribute("id")});
+            this.fire('ok', {
+                displayProperty: this.getAttribute("id")
+            });
             this.handleClose();
         },
-        handleAddPoint: function () {
+        handleAddPoint: function() {
             this.splice('points', this.points.length - 1, 0, {
-                value: 0, render: this.defaultValue
+                value: 0,
+                render: this.defaultValue
             });
         },
-        handleApplyInterpolation: function () {
-//            this._updateUniqueInterpolatedValues();
+        handleApplyInterpolation: function() {
+            //            this._updateUniqueInterpolatedValues();
             this._updateUniqueValues();
         },
 
-        handleApplyDirect: function () {
+        handleApplyDirect: function() {
             var uniqueItems = [];
             for (var i = 0; i < this.uniqueItems.length; i++) {
                 var item = this.uniqueItems[i];
-                uniqueItems.push({attribute: item.attribute, render: item.attribute});
+                uniqueItems.push({
+                    attribute: item.attribute,
+                    render: item.attribute
+                });
             }
             this.set('uniqueItems', uniqueItems);
         },
 
 
-        _createVisualSet: function () {
+        _createVisualSet: function() {
             var uniqueMatches = {};
             for (var i = 0; i < this.uniqueItems.length; i++) {
                 var item = this.uniqueItems[i];
@@ -275,7 +302,7 @@
             });
         },
 
-        _updateUniqueValues: function () {
+        _updateUniqueValues: function() {
             var me = this;
             if (this.selectedColumn && this.selectedColumn.name != '') {
                 var uniqueMap = {};
@@ -283,7 +310,7 @@
                 var max;
                 var min;
 
-                var processValue = function (value) {
+                var processValue = function(value) {
                     if (value) {
                         if (!uniqueMap[value]) {
                             uniqueMap[value] = true;
@@ -293,7 +320,10 @@
                                     render = me.visualSet.matches[value];
                                 }
                             }
-                            uniqueItems.push({attribute: value, render: render});
+                            uniqueItems.push({
+                                attribute: value,
+                                render: render
+                            });
                         }
                         var attribute = parseFloat(value);
                         if (!isNaN(attribute)) {
@@ -315,7 +345,8 @@
 
                 var attributes, value;
                 if (this.attributeParse.name == "list") {
-                    var splitStr = ",", values;
+                    var splitStr = ",",
+                        values;
                     for (var i = 0, l = this.items.length; i < l; i++) {
                         attributes = this.items[i].attributes;
                         value = attributes[this.selectedColumn.name];
@@ -345,16 +376,29 @@
                     this.set('points.' + (this.points.length - 1) + '.value', max);
                 }
 
-
-                uniqueItems.sort(function (a, b) {
-                    return parseFloat(a.attribute) - parseFloat(b.attribute);
-                });
+                if (this.attributeSortOrder === 'asc') {
+                    uniqueItems.sort(function(a, b) {
+                        return me._uniqueItemsSort(a, b);
+                    });
+                } else if (this.attributeSortOrder === 'desc') {
+                    uniqueItems.sort(function(a, b) {
+                        return me._uniqueItemsSort(b, a);
+                    });
+                }
                 if (this.attributeType.name == 'continuous') {
                     this._updateUniqueInterpolatedValues(uniqueItems);
                 }
                 this.set('uniqueItems', uniqueItems);
             }
+        },
+        _uniqueItemsSort: function(a, b) {
+            var aVal = a.attribute;
+            var bVal = b.attribute;
+            if (!isNaN(bVal) && !isNaN(aVal)) {
+                return aVal - bVal;
+            } else {
+                return (aVal > bVal) - (aVal < bVal);
+            }
         }
     };
 </script>
-

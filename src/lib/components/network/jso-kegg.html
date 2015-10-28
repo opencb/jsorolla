@@ -21,21 +21,20 @@
 
         .footer {
             padding: 4px 5px 4px 12px;
-            border-top: 1px solid var(--hover-color);
+            border-top: 1px solid var(--divider-color);
             background-color: var(--light-secondary-color);
         }
 
         .footer > * {
             margin-left: 5px;
         }
-
     </style>
 
     <template>
         <div class="attributelist flex">
             <template is="dom-repeat" items="{{pathwayList}}" as="item" index-as="index">
                 <label class="jso-control">
-                    <input type="radio" on-click="handleItemSelect" name="pw"/>
+                    <input type="radio" on-click="handleItemSelect" disabled$="{{loading}}" name="pw" />
                     <span data-selected$="{{item.selected}}">{{item.text}}</span>
                 </label>
             </template>
@@ -59,7 +58,7 @@
             properties: {
                 pathwayList: {
                     type: Array,
-                    value: function () {
+                    value: function() {
                         return [];
                     }
                 },
@@ -76,34 +75,37 @@
                 circle: 'circle',
                 square: 'square'
             },
-            ready: function () {
+            ready: function() {
                 this.getPathwayList();
             },
-            handleItemSelect: function (e) {
-                for (var i = 0; i < this.pathwayList.length; i++) {
-                    var pw = this.pathwayList[i];
-                    pw.selected = false;
+            handleItemSelect: function(e) {
+                console.log(this.loading);
+                if (this.loading == false) {
+                    for (var i = 0; i < this.pathwayList.length; i++) {
+                        var pw = this.pathwayList[i];
+                        pw.selected = false;
+                    }
+                    var item = e.model.item;
+
+                    var path = 'items.' + e.model.index + '.selected';
+                    this.set(path, !item.selected);
+
+                    this.getPathway(item);
                 }
-                var item = e.model.item;
-
-                var path = 'items.' + e.model.index + '.selected';
-                this.set(path, !item.selected);
-
-                this.getPathway(item);
             },
-            handleGo: function () {
+            handleGo: function() {
                 this.retrieveData();
             },
-            getPathwayList: function () {
-//                http://rest.kegg.jp/list/organism
+            getPathwayList: function() {
+                //                http://rest.kegg.jp/list/organism
                 var me = this;
 
                 this.loading = true;
-                this.message = "Querying KEGG WS Server...";
+                this.message = "Querying KEGG WS Server, please wait...";
                 var url = 'http://rest.kegg.jp/list/pathway/hsa';
 
                 var request = new XMLHttpRequest();
-                request.onload = function () {
+                request.onload = function() {
                     var lines = this.response.split("\n");
                     var line;
                     var pathwayList = [];
@@ -113,10 +115,14 @@
                             var split0 = line.split("\t");
                             var split1 = split0[0].split(":");
                             var split2 = split0[1].split(" - ");
-                            pathwayList.push({name: split1[1], text: split2[0], selected: false});
+                            pathwayList.push({
+                                name: split1[1],
+                                text: split2[0],
+                                selected: false
+                            });
                         }
                     }
-                    pathwayList.sort(function (a, b) {
+                    pathwayList.sort(function(a, b) {
                         return a.text.localeCompare(b.text);
                     });
                     me.set('pathwayList', pathwayList);
@@ -126,16 +132,16 @@
                 request.open('GET', 'http://ws.babelomics.org/opencga/rest/util/proxy?url=' + url, true);
                 request.send();
             },
-            getPathway: function (pathway) {
+            getPathway: function(pathway) {
                 var me = this;
                 console.log(pathway)
 
                 this.loading = true;
-                this.message = "Querying KEGG WS Server...";
+                this.message = "Querying KEGG WS Server, please wait...";
                 var url = 'http://rest.kegg.jp/get/' + pathway.name + '/kgml';
 
                 var request = new XMLHttpRequest();
-                request.onload = function () {
+                request.onload = function() {
                     me._processPathwayResponse(this.response);
                     me.message = "Pathway loaded.";
                     me.loading = false;
@@ -144,7 +150,7 @@
                 request.send();
 
             },
-            _processPathwayResponse: function (response) {
+            _processPathwayResponse: function(response) {
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(response, "application/xml");
                 console.log(doc);
@@ -160,7 +166,7 @@
                     var y = parseFloat(graphics.getAttribute("y"));
                     var color = graphics.getAttribute("bgcolor");
                     var shape = graphics.getAttribute("type");
-//                                var size = graphics.getAttribute("width");
+                    //                                var size = graphics.getAttribute("width");
                     var size = parseInt(graphics.getAttribute("height"));
                     if (size > 100) {
                         size = size / 2;
@@ -170,7 +176,7 @@
                     var name = '';
                     if (graphics.getAttribute("name") != null) {
                         name = graphics.getAttribute("name").split(",")[0];
-                    }else{
+                    } else {
                         //?? no name and no entry name ??
                     }
                     var vertex = new Vertex({
@@ -224,7 +230,10 @@
                     });
                     graph.addEdge(edge);
                 }
-                this.fire('graph', {graph: graph, map: map});
+                this.fire('graph', {
+                    graph: graph,
+                    map: map
+                });
             }
         });
     </script>

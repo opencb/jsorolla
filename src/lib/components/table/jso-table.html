@@ -32,12 +32,13 @@
         .table-header,
         .table-filter,
         .table-body {
+            box-sizing: border-box;
             border-right: 1px solid #dadada;
         }
 
         .table-header {
             position: relative;
-            box-sizing: border-box;
+            /*box-sizing: border-box;*/
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
         }
@@ -104,7 +105,7 @@
 
         .table-filter {
             position: relative;
-            box-sizing: border-box;
+            /*box-sizing: border-box;*/
             background-color: #F1F3F5;
             border-bottom: 1px solid #d3d3d3;
         }
@@ -123,13 +124,7 @@
         }
 
         .table-pager {
-            position: relative;
-            box-sizing: border-box;
-            border-top: 1px solid #d3d3d3;
-            background-color: #fafafa;
             font-weight: bold;
-            color: #666;
-            padding: 3px;
             overflow-y: hidden;
             overflow-x: hidden;
         }
@@ -144,11 +139,11 @@
             border-top: 1px solid #d3d3d3;
             background-color: #fafafa;
             color: #666;
-            padding: 5px;
+            padding: 3px;
         }
 
         .table-body {
-            box-sizing: border-box;
+            /*box-sizing: border-box;*/
             overflow-x: auto;
             /*overflow-y: scroll;*/
             height: calc(100% - 31px);
@@ -325,11 +320,18 @@
             background-color: transparent;
             border-color: transparent;
             height: 100%;
+            width: 100%;
             margin: 0;
         }
 
         .table-field > input[type=text]:hover {
             border-color: #ccc;
+        }
+
+        .table-field > input[type=text][readonly]:focus {
+            border-color: #ccc;
+            box-shadow: inset 0 0 3px 1px rgba(0, 0, 0, .01);
+            background-color: #fff;
         }
 
         .table-field > input[type=text]:focus {
@@ -349,13 +351,38 @@
         }
 
         .table-header-field:hover > .resizer {
-
             display: inherit;
             background-color: #E1E3E5;
             border-left: 1px solid #DDD;
         }
 
+        #columnsMenu {
+            position: fixed;
+            min-width: 200px;
+            cursor: pointer;
+            transition: opacity 0.1s, visibility 0.1s;
+        }
 
+        #columnsMenu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        div.jso-dropdown ul li:hover,
+        ul.jso-context li:hover {
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
+        }
+
+        li.columnControl {
+            cursor: pointer;
+        }
+
+        li.columnControl:hover,
+        li.columnControl:hover {
+            background-color: inherit !important;
+            color: inherit !important;
+        }
     </style>
     <template>
         <div id="loading" hidden$="{{!loading}}">
@@ -365,8 +392,8 @@
             </div>
         </div>
 
-        <div id="wrap" style="overflow-x: scroll;">
-            <div id="header" class="table-header">
+        <div id="wrap" style="overflow-x: scroll;width:100%;">
+            <div id="header" class="table-header" on-contextmenu="handleColumnsMenu">
                 <div id="headerRow"></div>
                 <div class="scrollfix"></div>
             </div>
@@ -378,31 +405,55 @@
         </div>
 
 
-        <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center">
-            <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i></div>
-            <div class="jso-btn jso-btn-shdw" on-click="handlePreviousClick"><i class="fa fa-angle-left"></i></div>
-            <div class="jso-txt">Page</div>
-            <input type="text" class="jso" style="width:80px;" value="{{currentPage::input}}">
+        <div class="horizontal layout center table-bbar">
+            <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center flex">
+                <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i></div>
+                <div class="jso-btn jso-btn-shdw" on-click="handlePreviousClick"><i class="fa fa-angle-left"></i></div>
+                <div class="jso-txt">Page</div>
+                <input type="text" class="jso" style="width:80px;" value="{{currentPage::input}}">
 
-            <div class="jso-txt">of</div>
-            <div class="jso-txt">{{computePageTotal(pageSize, itemCount)}}</div>
+                <div class="jso-txt">of</div>
+                <div class="jso-txt">{{computePageTotal(pageSize, itemCount)}}</div>
 
-            <div class="jso-btn jso-btn-shdw" on-click="handleNextClick"><i class="fa fa-angle-right"></i></div>
-            <div class="jso-btn jso-btn-shdw" on-click="handleLastClick"><i class="fa fa-angle-double-right"></i></div>
+                <div class="jso-btn jso-btn-shdw" on-click="handleNextClick"><i class="fa fa-angle-right"></i></div>
+                <div class="jso-btn jso-btn-shdw" on-click="handleLastClick"><i class="fa fa-angle-double-right"></i></div>
 
-            <div class="flex"></div>
+                <div class="flex"></div>
 
-            <div class="jso-txt">items</div>
-            <div class="jso-txt">{{pageFirstItem}}</div>
-            <div class="jso-txt">-</div>
-            <div class="jso-txt">{{pageLastItem}}</div>
-            <div class="jso-txt">of</div>
-            <div class="jso-txt">{{itemCount}}</div>
+                <div class="jso-txt">items</div>
+                <div class="jso-txt">{{pageFirstItem}}</div>
+                <div class="jso-txt">-</div>
+                <div class="jso-txt">{{pageLastItem}}</div>
+                <div class="jso-txt">of</div>
+                <div class="jso-txt">{{itemCount}}</div>
+            </div>
+
+
+            <div class="horizontal layout">
+                <div hidden$="{{enablePaging}}">Total:
+                    <span>{{itemCount}}</span>
+                </div>
+                <div class="jso-btn jso-btn-shdw" on-click="handleColumnsMenuButton">
+                    <i class="fa fa-bars"></i>
+                </div>
+            </div>
         </div>
 
-        <div hidden$="{{enablePaging}}" class="table-bbar">Total:
-            <span>{{itemCount}}</span>
-        </div>
+
+
+
+        <ul id="columnsMenu" class="jso-context" on-mouseleave="handleColumnsMenuLeave" on-wheel="handleMenuScroll">
+            <!-- <li>Export</li>
+            <li data-divider></li> -->
+            <template is="dom-repeat" items="{{columns}}">
+                <li class="columnControl">
+                    <label class="jso-control">
+                        <input type="checkbox" checked$="{{isColumnVisible(item)}}" on-click="handleColumnVisibilityClick">
+                        <span>{{item.title}}</span>
+                    </label>
+                </li>
+            </template>
+        </ul>
 
     </template>
 </dom-module>
@@ -413,21 +464,21 @@
             columns: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
             data: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
             viewData: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
@@ -472,7 +523,7 @@
             selected: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
@@ -497,7 +548,7 @@
             },
             filters: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {};
                 }
             },
@@ -537,9 +588,18 @@
         ],
         listeners: {
             'wheel': 'handleScroll',
+            'mouseleave': 'handleColumnsMenuLeave',
+        },
+        isColumnVisible: function(v) {
+            return v.visible !== false;
+        },
+        handleColumnVisibilityClick: function(e) {
+            var columnIndex = this.columns.indexOf(e.model.item);
+            this.set('columns.' + columnIndex + '.visible', e.currentTarget.checked);
+            this.columnsChanged();
         },
         /* LISTENERS */
-        handleScroll: function (e) {
+        handleScroll: function(e) {
             e.preventDefault();
             if (e.deltaY > 0) {
                 this.handleNextClick();
@@ -548,11 +608,41 @@
                 this.handlePreviousClick();
             }
         },
-        selectedChanged: function (changeRecord) {
+        handleColumnsMenu: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.$.columnsMenu.style.opacity = "1";
+            this.$.columnsMenu.style.visibility = "visible";
+            this.$.columnsMenu.style.top = (e.clientY + 10) + "px";
+            this.$.columnsMenu.style.left = (e.clientX) + "px";
+        },
+        handleColumnsMenuButton: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.$.columnsMenu.style.opacity = "1";
+            this.$.columnsMenu.style.visibility = "visible";
+            var bcrColumnsMenu = this.$.columnsMenu.getBoundingClientRect();
+            var bcrCurrent = e.currentTarget.getBoundingClientRect();
+            this.$.columnsMenu.style.top = (bcrCurrent.top - bcrColumnsMenu.height) + "px";
+            this.$.columnsMenu.style.left = (bcrCurrent.left - bcrColumnsMenu.width + bcrCurrent.width) + "px";
+        },
+        handleColumnsMenuLeave: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.$.columnsMenu.style.opacity = "";
+            this.$.columnsMenu.style.visibility = "";
+        },
+        handleMenuScroll: function(e) {
+            e.stopPropagation();
+        },
+
+        selectedChanged: function(changeRecord) {
             this._updateSelected();
             this.fire('selected', this.selected);
         },
-        _updateSelected: function () {
+        _updateSelected: function() {
             var els = Polymer.dom(this.$.list).querySelectorAll('.table-row');
             for (var i = 0; i < els.length; i++) {
                 var el = els[i];
@@ -565,18 +655,18 @@
             }
         },
         /* OBSERVERS */
-        dataChanged: function (neo, old) {
+        dataChanged: function(neo, old) {
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 delete row._filtered;
             }
             this.refreshPagination();
         },
-        refreshPagination: function () {
+        refreshPagination: function() {
             this.currentPage = 1;
             var count = 0;
             if (this.data) {
-                this.data.forEach(function (row) {
+                this.data.forEach(function(row) {
                     if (row._filtered || row._filtered == null) {
                         count++;
                     }
@@ -586,8 +676,8 @@
             this.pageCount = Math.ceil(count / this.pageSize);
             this.filterPage();
         },
-        filterPage: function () {
-            var filteredRows = this.enableFilter ? this.data.filter(function (r) {
+        filterPage: function() {
+            var filteredRows = this.enableFilter ? this.data.filter(function(r) {
                 if (r._filtered == undefined) {
                     return true;
                 }
@@ -611,7 +701,7 @@
                 this.set('viewData', viewData);
             }
         },
-        viewDataChanged: function (neo, old) {
+        viewDataChanged: function(neo, old) {
             while (this.$.list.firstChild) {
                 this.$.list.removeChild(this.$.list.firstChild);
             }
@@ -621,80 +711,80 @@
             }
         },
         // pagination
-        handleFirstClick: function () {
+        handleFirstClick: function() {
             this.currentPage = 1;
         },
-        handlePreviousClick: function () {
+        handlePreviousClick: function() {
             if (this.currentPage > 1) {
                 this.currentPage--;
             }
         },
-        handleNextClick: function () {
+        handleNextClick: function() {
             // console.log(this.currentPage);
             // console.log(this.pageCount);
             if (this.currentPage < this.pageCount) {
                 this.currentPage++;
             }
         },
-        handleLastClick: function () {
+        handleLastClick: function() {
             this.currentPage = this.pageCount;
         },
-        currentPageChanged: function (neo, old) {
+        currentPageChanged: function(neo, old) {
             this.currentPage = this.currentPage ? parseInt(this.currentPage) : 0;
             this.currentPage = this.currentPage < 1 ? 1 : this.currentPage;
             this.currentPage = this.pageCount > 0 && this.currentPage > this.pageCount ? this.pageCount : this.currentPage;
             this.filterPage();
         },
-        pageSizeChanged: function () {
+        pageSizeChanged: function() {
             this.pagesize = parseInt(this.pagesize);
             this.refreshPagination();
         },
-        computePageFirstItem: function (currentPage, pageSize, itemCount) {
+        computePageFirstItem: function(currentPage, pageSize, itemCount) {
             return ((currentPage - 1) * pageSize) + 1;
         },
-        computePageLastItem: function (currentPage, pageSize, itemCount) {
+        computePageLastItem: function(currentPage, pageSize, itemCount) {
             var end = currentPage * pageSize;
             if (itemCount < end) {
                 return itemCount;
             }
             return end;
         },
-        computePageTotal: function (pageSize, itemCount) {
+        computePageTotal: function(pageSize, itemCount) {
             return Math.ceil(itemCount / pageSize);
         },
-        enablePagingChanged: function (neo, old) {
+        enablePagingChanged: function(neo, old) {
             this.refreshPagination();
         },
-        enableRemoteChanged: function (neo, old) {
+        enableRemoteChanged: function(neo, old) {
             if (this.request) {
                 this.checkRemote();
             }
         },
-        requestChanged: function (neo, old) {
+        requestChanged: function(neo, old) {
             if (this.currentPage != 1) {
                 this.currentPage = 1;
             } else if (this.request) {
                 this.checkRemote();
             }
         },
-        columnsChanged: function (neo, old) {
+        columnsChanged: function(neo, old) {
             this.updateColumns();
             this.viewDataChanged();
         },
-        clear: function () {
+        clear: function() {
             this.data = [];
             this.viewData = [];
             this.currentPage = 1;
             this.columns = [];
             //            this.totalItems = 0;
         },
-        refresh: function () {
+        refresh: function() {
             this.dataChanged();
         },
-        checkRemote: function () {
+        checkRemote: function() {
             var me = this;
             if (this.enableRemote) {
-                this._callRemote(function (resp) {
+                this._callRemote(function(resp) {
                     me.itemCount = me.request.parseTotal(resp);
                     me.pageCount = Math.ceil(me.itemCount / me.pageSize);
                     me.viewData = me.request.parse(resp);
@@ -703,13 +793,13 @@
                 //                ...
             }
         },
-        _callRemote: function (callback) {
+        _callRemote: function(callback) {
             var method = 'GET';
             if (typeof this.request.method !== 'undefined' && this.request.method != null) {
                 method = this.request.method;
             }
             var request = new XMLHttpRequest();
-            request.onload = function () {
+            request.onload = function() {
                 var contentType = this.getResponseHeader('Content-Type');
                 var resp;
                 if (contentType === 'application/json') {
@@ -719,7 +809,7 @@
                 }
                 callback(resp)
             };
-            request.onerror = function () {
+            request.onerror = function() {
                 //                args.request.error(this);
             };
             var url = Utils.addQueryParamtersToUrl({
@@ -730,7 +820,7 @@
             request.send();
             console.log(url)
         },
-        updateColumns: function () {
+        updateColumns: function() {
             var els = this.$.headerRow.querySelectorAll('.table-header-row');
             for (var i = 0; i < els.length; i++) {
                 this.$.headerRow.removeChild(els[i]);
@@ -741,7 +831,6 @@
                 this.$.filterRow.removeChild(els[i]);
             }
 
-
             var totalColWidth = 0;
             for (var i = 0; i < this.columns.length; i++) {
                 var x = [];
@@ -750,9 +839,12 @@
                 if (isNaN(column.width)) {
                     column.width = 100;
                 }
-                totalColWidth += column.width;
                 this._processColumn(column, x);
                 column.plainColumns = x;
+                if (column.visible !== false) {
+                    totalColWidth += column.width;
+                }
+
             }
             this._createHeaderRow();
             this._createFilterRow();
@@ -761,17 +853,26 @@
             this.$.header.style.width = totalColWidth + 'px';
             this.$.filter.style.width = totalColWidth + 'px';
             this.$.list.style.width = totalColWidth + 'px';
+
+            if (totalColWidth === 0) {
+                this.$.list.setAttribute('hidden', '');
+            } else {
+                this.$.list.removeAttribute('hidden');
+            }
+
         },
-        _createFilterRow: function () {
+        _createFilterRow: function() {
             var el = document.createElement('div');
             el.classList.add('horizontal', 'layout', 'style-scope', 'jso-table');
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
-                this._createFilterField(el, column);
+                if (column.visible !== false) {
+                    this._createFilterField(el, column);
+                }
             }
             this.$.filterRow.appendChild(el);
         },
-        _createFilterField: function (rowEl, column, rowData) {
+        _createFilterField: function(rowEl, column, rowData) {
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-filter-field', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -814,7 +915,7 @@
                             input.style.width = column.width + "px";
                         }
                         input._col = column.name;
-                        input.addEventListener('input', function (e) {
+                        input.addEventListener('input', function(e) {
                             var query = this.value;
                             var filter = {}
                             if (input._col in me.filters) {
@@ -844,7 +945,6 @@
                         var input = document.createElement("select");
                         input.classList.add('style-scope', 'jso-table');
                         selwrap.appendChild(input);
-                        debugger
 
                         input._col = column.name;
                         var option = document.createElement("option");
@@ -859,7 +959,7 @@
                             option.text = optVal;
                             input.appendChild(option);
                         }
-                        input.addEventListener('click', function (e) {
+                        input.addEventListener('click', function(e) {
                             var query = this.value;
                             var filter = {}
                             if (input._col in me.filters) {
@@ -886,7 +986,7 @@
             }
             rowEl.appendChild(el);
         },
-        _applyFilters: function () {
+        _applyFilters: function() {
             for (var i = 0; i < this.data.length; i++) {
                 var row = this.data[i];
                 var filtered = true;
@@ -909,7 +1009,7 @@
             }
             this.refreshPagination();
         },
-        _processColumn: function (column, x) {
+        _processColumn: function(column, x) {
             if (column.columns && column.columns.length > 0) {
                 for (var i = 0; i < column.columns.length; i++) {
                     var col = column.columns[i];
@@ -927,16 +1027,18 @@
                 }
             }
         },
-        _createHeaderRow: function () {
+        _createHeaderRow: function() {
             var el = document.createElement('div');
             el.classList.add('table-header-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
-                this._createHeaderField(el, column);
+                if (column.visible !== false) {
+                    this._createHeaderField(el, column);
+                }
             }
             this.$.headerRow.appendChild(el);
         },
-        _setResizable: function (elem) {
+        _setResizable: function(elem) {
             var me = this;
 
             var columnName = ".column-" + elem._column.name;
@@ -1000,11 +1102,10 @@
             resizer.addEventListener('mousedown', initDrag, false);
         },
 
-        _createHeaderField: function (rowEl, column) {
+        _createHeaderField: function(rowEl, column) {
             var me = this;
             var el = document.createElement('div');
-            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table',
-                    ('column-' + column.name.replace(/\s/g, '_')));
+            el.classList.add('table-header-field', 'vertical', 'layout', 'center-justified', 'style-scope', 'jso-table', ('column-' + column.name.replace(/\s/g, '_')));
             if (isNaN(column.width)) {
                 el.classList.add('flex');
             } else {
@@ -1034,42 +1135,47 @@
             }
             rowEl.appendChild(el);
         },
-        handleHeaderFieldClick: function (e) {
-            var els = this.querySelectorAll('.table-header-field');
+        handleHeaderFieldClick: function(e) {
+            var me = this;
             var column = e.currentTarget._column;
             var sortedData = this.data.slice(0);
-            if (e.currentTarget.classList.contains("sort-down")) {
-                for (var i = 0; i < els.length; i++) {
-                    var el = els[i];
-                    el.classList.remove('sort-down');
-                    el.classList.remove('sort-up');
-                }
-                sortedData.sort(function (b, a) {
-                    if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
-                        return a[column.name] - b[column.name];
-                    } else {
-                        return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
-                    }
+            var els = this.querySelectorAll('.table-header-field');
+            var isSortDown = e.currentTarget.classList.contains("sort-down");
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                el.classList.remove('sort-down');
+                el.classList.remove('sort-up');
+            }
+            if (isSortDown) {
+                sortedData.sort(function(a, b) {
+                    return me._columnSort(column, b, a);
                 });
                 e.currentTarget.classList.add('sort-up');
             } else {
-                for (var i = 0; i < els.length; i++) {
-                    var el = els[i];
-                    el.classList.remove('sort-down');
-                    el.classList.remove('sort-up');
-                }
-                sortedData.sort(function (a, b) {
-                    if (!isNaN(b[column.name]) && !isNaN(a[column.name])) {
-                        return a[column.name] - b[column.name];
-                    } else {
-                        return (a[column.name] > b[column.name]) - (a[column.name] < b[column.name]);
-                    }
+                sortedData.sort(function(a, b) {
+                    return me._columnSort(column, a, b);
                 });
                 e.currentTarget.classList.add('sort-down');
             }
             this.data = sortedData;
         },
-        _getPos: function (row) {
+        _columnSort: function(column, a, b) {
+            //checking formula or TODO save calculated value in the item;
+            var aVal, bVal;
+            if (column.formula != null) {
+                aVal = column.formula(a);
+                bVal = column.formula(b);
+            } else {
+                aVal = a[column.name];
+                bVal = b[column.name];
+            }
+            if (!isNaN(bVal) && !isNaN(aVal)) {
+                return aVal - bVal;
+            } else {
+                return (aVal > bVal) - (aVal < bVal);
+            }
+        },
+        _getPos: function(row) {
             for (var i = 0; i < this.viewData.length; i++) {
                 var elem = this.viewData[i];
                 if (elem === row) {
@@ -1078,7 +1184,7 @@
             }
             return -1;
         },
-        _createRow: function (rowData) {
+        _createRow: function(rowData) {
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-row', 'horizontal', 'layout', 'style-scope', 'jso-table');
@@ -1089,7 +1195,7 @@
                 el.setAttribute("draggable", "true");
                 el.addEventListener('dragstart', this.drag);
             }
-            el.addEventListener('click', function (e) {
+            el.addEventListener('click', function(e) {
                 me.fire('rowclick', {
                     row: rowData
                 });
@@ -1119,11 +1225,13 @@
             });
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
-                this._createField(el, column, rowData);
+                if (column.visible !== false) {
+                    this._createField(el, column, rowData);
+                }
             }
             this.$.list.appendChild(el);
         },
-        _toggleSelected: function (domElem, rowData) {
+        _toggleSelected: function(domElem, rowData) {
             if (domElem.classList.contains("selected")) {
                 var index = this.selected.indexOf(rowData);
                 if (index >= 0) {
@@ -1138,7 +1246,7 @@
             }
             this.lastSelectedRow = domElem;
         },
-        _selectRowsBetweenIndexes: function (first, last) {
+        _selectRowsBetweenIndexes: function(first, last) {
             var rows = this.$.list.getElementsByClassName("table-row");
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
@@ -1156,7 +1264,7 @@
                 }
             }
         },
-        _clearSelection: function () {
+        _clearSelection: function() {
             var rows = this.$.list.getElementsByClassName("table-row");
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
@@ -1164,7 +1272,7 @@
             }
             this.splice('selected', 0, this.selected.length);
         },
-        _createField: function (rowEl, column, rowData) {
+        _createField: function(rowEl, column, rowData) {
             var me = this;
             var el = document.createElement('div');
             el.classList.add('table-field', 'horizontal', 'layout', 'center', 'style-scope', 'jso-table');
@@ -1177,7 +1285,7 @@
             if (column.type === "action") {
                 var remove = document.createElement("i");
                 remove.classList.add("fa", "fa-remove");
-                remove.addEventListener('click', function (e) {
+                remove.addEventListener('click', function(e) {
                     me.fire('removerow', {
                         row: rowData
                     });
@@ -1197,11 +1305,10 @@
             }
             rowEl.appendChild(el);
         },
-        _createTypeField: function (el, column, rowData, isSubCol) {
+        _createTypeField: function(el, column, rowData, isSubCol) {
             var me = this;
-            var defValue = column.defaultValue != null ? column.defaultValue : '';
             var value;
-
+            var defValue = column.defaultValue;
 
             if (column.formula) {
                 value = column.formula(rowData);
@@ -1212,6 +1319,11 @@
                     value = rowData[column.name];
                 }
             }
+
+            // set empty string if no value found.
+            value = (value == null) ? defValue : value;
+            value = (value == null) ? '' : value;
+
             if (this.enableEdit && column.editable != false) {
                 if (!column.type) {
                     column.type = 'text';
@@ -1221,13 +1333,19 @@
                         var input = document.createElement("input");
                         input.setAttribute("type", "text");
                         input.setAttribute("placeholder", "");
+                        input.setAttribute("readonly", "");
                         input.classList.add('style-scope', 'jso-table');
-                        input.style.width = "100%";
                         input._col = column.name;
-                        input.addEventListener('blur', function (e) {
-                            var val = this.value;
-                            rowData.attributes[column.name] = val;
-                            me.fire('update-row', rowData);
+                        input.addEventListener('dblclick', function(e) {
+                            this.removeAttribute('readonly');
+                        });
+                        input.addEventListener('blur', function(e) {
+                            if (!this.hasAttribute('readonly')) {
+                                this.setAttribute('readonly', '');
+                                var val = this.value;
+                                rowData.attributes[column.name] = val;
+                                me.fire('update-row', rowData);
+                            }
                         });
                         input.value = value;
                         el.appendChild(input);
@@ -1259,7 +1377,7 @@
                             input.appendChild(option);
                         }
                         //TODO check
-                        input.addEventListener('click', function (e) {
+                        input.addEventListener('click', function(e) {
                             var val = this.value;
                             rowData.attributes[column.name] = val;
                         });
@@ -1275,9 +1393,9 @@
                 } else {
                     cEl.style.width = column.width + "px";
                 }
-                cEl.innerHTML = value != null ? value : defValue;
+                cEl.innerHTML = value;
                 if (!this.disableTooltip) {
-                    var tooltipValue = value == null ? '' : value;
+                    var tooltipValue = value;
                     cEl.setAttribute("title", tooltipValue);
                 }
 
@@ -1285,7 +1403,7 @@
                 el.appendChild(cEl);
             }
         },
-        _deepValue: function (obj, path) {
+        _deepValue: function(obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {
                 var auxPath = path[i];
                 if (auxPath === "undefined") {
@@ -1295,8 +1413,8 @@
             }
             return obj;
         },
-        contains: function (searchElem, compareFunction) {
-            var cmp = function (a, b) {
+        contains: function(searchElem, compareFunction) {
+            var cmp = function(a, b) {
                 return a === b;
             }
             if (compareFunction && typeof(compareFunction) === "function") {
@@ -1310,26 +1428,25 @@
             }
             return false;
         },
-        setLoading: function (loading) {
+        setLoading: function(loading) {
             this.loading = loading;
         },
-        allowDrop: function (e) {
+        allowDrop: function(e) {
             console.log("drag!!!")
             e.preventDefault();
         },
-        drop: function (e) {
+        drop: function(e) {
             e.preventDefault();
             var data = JSON.parse(e.dataTransfer.getData("rowData"));
             this.push('data', data);
         },
-        drag: function (e) {
+        drag: function(e) {
             e.dataTransfer.setData("rowData", JSON.stringify(e.currentTarget._rowData));
         },
-        handleLoading: function (neo, old) {
-        },
+        handleLoading: function(neo, old) {},
 
 
-        selectElem: function (elem, compareFunction) {
+        selectElem: function(elem, compareFunction) {
 
 
             var selected = null;

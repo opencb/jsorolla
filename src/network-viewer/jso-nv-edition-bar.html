@@ -20,30 +20,20 @@
             background-color: var(--default-primary-color);
             color: var(--text-primary-color);
         }
-
         /*:host > *, #vertexToolbar > *, #edgeToolbar > * {*/
         /*float: left;*/
         /*}*/
-
-
     </style>
     <template>
         <div id="bar" class="horizontal layout flex">
-            <div title="Show node controls" class="jso-btn"
-                 data-checked$="{{isVertexBarSelected(selectedBar)}}" data-bar="vertex"
-                 on-click="handleSelectedBar" style="border-right: none">
+            <div title="Show node controls" class="jso-btn" data-checked$="{{isVertexBarSelected(selectedBar)}}" data-bar="vertex" on-click="handleSelectedBar" style="border-right: none">
                 Nodes
             </div>
-            <div title="Show edge controls" class="jso-btn"
-                 data-checked$="{{isEdgeBarSelected(selectedBar)}}" data-bar="edge"
-                 on-click="handleSelectedBar">
+            <div title="Show edge controls" class="jso-btn" data-checked$="{{isEdgeBarSelected(selectedBar)}}" data-bar="edge" on-click="handleSelectedBar">
                 Edges
             </div>
             <div id="vertexToolbar" class="horizontal layout" hidden$="{{!isVertexBarSelected(selectedBar)}}">
-                <input hidden value="{{vertexNameField}}" id="vertexNameField" class="jso" type="text"
-                       placeholder="name"
-                       on-keypress="handleVertexNameField"
-                       style="width: 70px; margin-left: 5px;">
+                <input hidden value="{{vertexNameField}}" id="vertexNameField" class="jso" type="text" placeholder="name" on-keypress="handleVertexNameField" style="width: 70px; margin-left: 5px;">
 
                 <div title="Change the shape of the selected node(s)" class="jso-dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="vertexShapeButton" class="jso-btn">
@@ -90,16 +80,11 @@
                         <li on-mousedown="handleVertexSize" data-value="160">160</li>
                     </ul>
                 </div>
-                <input value="{{vertexSizeField}}" id="vertexSizeField" class="jso" type="text"
-                       style="width: 50px;border-right-width:0">
+                <input value="{{vertexSizeField::input}}" on-input="handleVertexSizeField" id="vertexSizeField" class="jso" type="text" style="width: 50px;border-right-width:0">
 
-                <jso-color-picker ctitle="Change the color of the selected node(s)" id="vertexColorPicker"
-                                  color="{{vertexColor}}"
-                                  on-color-click="handleVertexColor"
-                                  style="float:left;width:90px;"></jso-color-picker>
+                <jso-color-picker ctitle="Change the color of the selected node(s)" id="vertexColorPicker" color="{{vertexColor}}" on-color-click="handleVertexColor" style="float:left;width:90px;"></jso-color-picker>
 
-                <div title="Change the stroke size of the selected node(s)" class="jso-dropdown"
-                     style="margin-left: 10px">
+                <div title="Change the stroke size of the selected node(s)" class="jso-dropdown" style="margin-left: 10px">
                     <div tabindex="-1" id="vertexStrokeSizeButton" class="jso-btn" style="border-right: none">
                         <i class="fa fa-circle-o"></i>
                     </div>
@@ -116,17 +101,12 @@
                         <li on-mousedown="handleVertexStrokeSize" data-value="10">10</li>
                     </ul>
                 </div>
-                <input value="{{vertexStrokeSizeField}}" id="vertexStrokeSizeField" class="jso" type="text"
-                       style="width: 50px;border-right-width:0">
+                <input value="{{vertexStrokeSizeField::input}}" on-input="handleVertexStrokeSizeField" id="vertexStrokeSizeField" class="jso" type="text" style="width: 50px;border-right-width:0">
 
-                <jso-color-picker ctitle="Change the stroke color of the selected node(s)" id="vertexStrokeColorPicker"
-                                  color="{{vertexStrokeColor}}"
-                                  on-color-click="handleVertexStrokeColor"
-                                  style="float:left;width:90px;"></jso-color-picker>
+                <jso-color-picker ctitle="Change the stroke color of the selected node(s)" id="vertexStrokeColorPicker" color="{{vertexStrokeColor}}" on-color-click="handleVertexStrokeColor" style="float:left;width:90px;"></jso-color-picker>
 
 
-                <div title="Change the label size of the selected node(s)" class="jso-dropdown"
-                     style="margin-left: 10px">
+                <div title="Change the label size of the selected node(s)" class="jso-dropdown" style="margin-left: 10px">
                     <div tabindex="-1" id="vertexLabelSizeButton" class="jso-btn">
                         <i class="fa fa-text-height"></i>
                     </div>
@@ -147,16 +127,14 @@
                 <!--<i class="fa fa-search"></i></div>-->
                 <!--<ul id="vertexSearchMenu"></ul>-->
                 <!--</div>-->
-                <div class="jso-select" title="Select nodes by attribute"
-                     style="width:70px;margin-left: 5px;border-right-width: 0;">
+                <div class="jso-select" title="Select nodes by attribute" style="width:70px;margin-left: 5px;border-right-width: 0;">
                     <select id="nodeSearchSelect">
                         <template is="dom-repeat" items={{vertexColumns}} as="column">
                             <option value="{{column.name}}">{{column.title}}</option>
                         </template>
                     </select>
                 </div>
-                <input on-keypress="handleVertexSearch" id="vertexSearchField" class="jso" type="text"
-                       placeholder="Search" style="width: 80px;border-right-width: 0;">
+                <input on-keypress="handleVertexSearch" id="vertexSearchField" class="jso" type="text" placeholder="Search" style="width: 80px;border-right-width: 0;">
 
                 <div style="width:90px;" title="Selection color">
                     <jso-color-picker ctitle="Select node selection color" color="{{selectionColor}}">
@@ -166,9 +144,7 @@
 
             <!--Edges -->
             <div id="edgeToolbar" class="flex horizontal layout" hidden$="{{!isEdgeBarSelected(selectedBar)}}">
-                <input hidden id="edgeNameField" class="jso" type="text" placeholder="name"
-                       on-keypress="handleEdgeNameField"
-                       style="width: 70px;margin-left: 5px;">
+                <input hidden id="edgeNameField" class="jso" type="text" placeholder="name" on-keypress="handleEdgeNameField" style="width: 70px;margin-left: 5px;">
 
                 <div title="Change the shape of the selected edge(s)" class="jso-dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="edgeShapeButton" class="jso-btn">
@@ -200,16 +176,12 @@
                         <li on-mousedown="handleEdgeSize" data-value="10">10</li>
                     </ul>
                 </div>
-                <input id="edgeSizeField" class="jso" type="text" style="width: 50px;border-right-width: 0">
+                <input value="{{edgeSizeField::input}}" on-input="handleEdgeSizeField" id="edgeSizeField" class="jso" type="text" style="width: 50px;border-right-width: 0">
 
-                <jso-color-picker ctitle="Change the color of the selected edges(s)" id="edgeColorPicker"
-                                  style="float:left;width:90px;"
-                                  on-color-click="handleEdgeColor"
-                                  color="#888888"></jso-color-picker>
+                <jso-color-picker ctitle="Change the color of the selected edges(s)" id="edgeColorPicker" style="float:left;width:90px;" on-color-click="handleEdgeColor" color="#888888"></jso-color-picker>
 
 
-                <div title="Change the label size of the selected edges(s)" class="jso-dropdown"
-                     style="margin-left: 5px">
+                <div title="Change the label size of the selected edges(s)" class="jso-dropdown" style="margin-left: 5px">
                     <div tabindex="-1" id="edgeLabelSizeButton" class="jso-btn">
                         <i class="fa fa-text-height"></i>
                     </div>
@@ -238,9 +210,7 @@
                         </template>
                     </select>
                 </div>
-                <input hidden on-keypress="handleEdgeSearch" id="edgeSearchField" class="jso" type="text"
-                       placeholder="Search"
-                       style="width: 80px;">
+                <input hidden on-keypress="handleEdgeSearch" id="edgeSearchField" class="jso" type="text" placeholder="Search" style="width: 80px;">
             </div>
 
         </div>
@@ -266,48 +236,95 @@
                 type: String,
                 value: 'vertex'
             },
+
+            vertexColor: {
+                type: String,
+                value: '#FFFFFF'
+            },
+            vertexStrokeColor: {
+                type: String,
+                value: '#888888'
+            },
+            vertexNameField: {
+                type: String,
+                value: ''
+            },
+            vertexSizeField: {
+                type: String,
+                value: ''
+            },
+            vertexStrokeSizeField: {
+                type: String,
+                value: ''
+            },
+            edgeSizeField: {
+                type: String,
+                value: ''
+            },
         },
-        created: function () {
-        },
-        ready: function () {
-            this.vertexColor = '#FFFFFF';
-            this.vertexStrokeColor = '#888888'
-            this.vertexNameField = '';
-            this.vertexSizeField = '';
-            this.vertexStrokeSizeField = '';
-        },
-        isVertexBarSelected: function (selectedBar) {
+        created: function() {},
+        isVertexBarSelected: function(selectedBar) {
             return selectedBar == 'vertex';
         },
-        isEdgeBarSelected: function (selectedBar) {
+        isEdgeBarSelected: function(selectedBar) {
             return selectedBar == 'edge';
         },
 
-        handleSelectedBar: function (e) {
+        handleSelectedBar: function(e) {
             this.selectedBar = e.currentTarget.dataset.bar;
         },
-        handleVertexShape: function (e) {
-            this.fire('vertexshape', {value: e.currentTarget.dataset.value});
+        handleVertexShape: function(e) {
+            this.fire('vertexshape', {
+                value: e.currentTarget.dataset.value
+            });
         },
-        handleVertexOpacity: function (e) {
-            this.fire('vertexopacity', {value: e.currentTarget.dataset.value});
+        handleVertexOpacity: function(e) {
+            this.fire('vertexopacity', {
+                value: e.currentTarget.dataset.value
+            });
         },
-        handleVertexSize: function (e) {
-            this.fire('vertexsize', {value: e.currentTarget.dataset.value});
+        handleVertexSize: function(e) {
+            var v = e.currentTarget.dataset.value;
+            this.set('vertexSizeField', v)
+            this.fire('vertexsize', {
+                value: v
+            });
         },
-        handleVertexColor: function (e) {
-            this.fire('vertexcolor', {value: e.detail.color});
+        handleVertexSizeField: function(e) {
+            var v = e.currentTarget.value;
+            this.fire('vertexsize', {
+                value: v
+            });
         },
-        handleVertexStrokeSize: function (e) {
-            this.fire('vertexstrokesize', {value: e.currentTarget.dataset.value});
+        handleVertexColor: function(e) {
+            this.fire('vertexcolor', {
+                value: e.detail.color
+            });
         },
-        handleVertexStrokeColor: function (e) {
-            this.fire('vertexstrokecolor', {value: e.detail.color});
+        handleVertexStrokeSize: function(e) {
+            var v = e.currentTarget.dataset.value;
+            this.set('vertexStrokeSizeField', v)
+            this.fire('vertexstrokesize', {
+                value: v
+            });
         },
-        handleVertexLabelSize: function (e) {
-            this.fire('vertexlabelsize', {value: e.currentTarget.dataset.value});
+        handleVertexStrokeSizeField: function(e) {
+            var v = e.currentTarget.value;
+            this.fire('vertexstrokesize', {
+                value: v
+            });
         },
-        handleVertexSearch: function (e) {
+        handleVertexStrokeColor: function(e) {
+            this.fire('vertexstrokecolor', {
+                value: e.detail.color
+            });
+        },
+        handleVertexLabelSize: function(e) {
+            this.fire('vertexlabelsize', {
+                value: e.currentTarget.dataset.value
+            });
+        },
+        handleVertexSearch: function(e) {
             var input = e.currentTarget;
             input.style.color = '';
             if (e.which == 13) {
@@ -318,26 +335,44 @@
                 });
             }
         },
-        handleVertexNameField: function (e) {
+        handleVertexNameField: function(e) {
             if (e.which == 13) {
-                this.fire('vertexnamefield', {value: e.currentTarget.value});
+                this.fire('vertexnamefield', {
+                    value: e.currentTarget.value
+                });
             }
         },
 
 
-        handleEdgeShape: function (e) {
-            this.fire('edgeshape', {value: e.currentTarget.dataset.value});
+        handleEdgeShape: function(e) {
+            this.fire('edgeshape', {
+                value: e.currentTarget.dataset.value
+            });
         },
-        handleEdgeSize: function (e) {
-            this.fire('edgesize', {value: e.currentTarget.dataset.value});
+        handleEdgeSize: function(e) {
+            var v = e.currentTarget.dataset.value;
+            this.set('edgeSizeField', v);
+            this.fire('edgesize', {
+                value: v
+            });
         },
-        handleEdgeColor: function (e) {
-            this.fire('edgecolor', {value: e.detail.color});
+        handleEdgeSizeField: function(e) {
+            var v = e.currentTarget.value;
+            this.fire('edgesize', {
+                value: v
+            });
         },
-        handleEdgeLabelSize: function (e) {
-            this.fire('edgelabelsize', {value: e.currentTarget.dataset.value});
+        handleEdgeColor: function(e) {
+            this.fire('edgecolor', {
+                value: e.detail.color
+            });
         },
-        handleEdgeSearch: function (e) {
+        handleEdgeLabelSize: function(e) {
+            this.fire('edgelabelsize', {
+                value: e.currentTarget.dataset.value
+            });
+        },
+        handleEdgeSearch: function(e) {
             var input = e.currentTarget;
             input.style.color = '';
             if (e.which == 13) {
@@ -348,10 +383,12 @@
                 });
             }
         },
-        handleEdgeNameField: function (e) {
+        handleEdgeNameField: function(e) {
             if (e.which == 13) {
-                this.fire('edgenamefield', {value: e.currentTarget.value});
+                this.fire('edgenamefield', {
+                    value: e.currentTarget.value
+                });
             }
-        }
+        },
     });
 </script>

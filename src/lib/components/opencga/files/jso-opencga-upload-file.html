@@ -8,7 +8,6 @@
             box-sizing: border-box;
             width: 300px;
             padding: 20px 30px;
-
         }
 
         jso-study-select {
@@ -50,7 +49,6 @@
         .filename {
             word-break: break-all;
         }
-
     </style>
     <template>
         <div>
@@ -65,14 +63,16 @@
                 <label class="jso">File path:</label>
 
                 <div>
-                    /<span>{{selectedProject.name}}</span>/<span>{{selectedStudy.name}}</span>/<span>{{selectedFolder.name}}</span>
+                    /
+                    <span>{{selectedProject.name}}</span>/
+                    <span>{{selectedStudy.name}}</span>/
+                    <span>{{selectedFolder.name}}</span>
                 </div>
                 <br>
             </div>
             <div hidden$="{{hideBioformats}}">
                 <label class="jso">Bioformat:</label>
-                <jso-opencga-bioformat id="bioformatSelect"
-                                       bioformats="{{bioformats}}"></jso-opencga-bioformat>
+                <jso-opencga-bioformat id="bioformatSelect" bioformats="{{bioformats}}"></jso-opencga-bioformat>
             </div>
         </div>
         <br>
@@ -86,8 +86,7 @@
 
             <div class="filename">{{fileName}}</div>
 
-            <input type="file" hidden id="fileInput" required on-change="handleInputChange"
-                   disabled$="{{uploading}}">
+            <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
 
             <br>
 
@@ -139,7 +138,7 @@
             },
             bioformats: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
@@ -165,14 +164,14 @@
                 value: true
             }
         },
-        ready: function (e) {
+        ready: function(e) {
             if (this.bioformats.length == 0) {
                 console.log("No bioformats selected")
-                /*** Check number of bioformats in order to show the bioformat chooser ***/
+                    /*** Check number of bioformats in order to show the bioformat chooser ***/
                 this.checkBioformats();
             }
         },
-        checkBioformats: function () {
+        checkBioformats: function() {
             var numberOfBioformats = 0;
             var bioformatIdx;
             for (var i = 0; i < this.bioformats.length; i++) {
@@ -188,18 +187,18 @@
             }
 
         },
-        handleBrowseClick: function (e) {
+        handleBrowseClick: function(e) {
             if (this.uploading == false) {
                 this.$.fileInput.click();
             }
         },
-        handleInputChange: function () {
+        handleInputChange: function() {
             if (this.uploading == false) {
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
             }
         },
-        handleForm: function () {
+        handleForm: function() {
             var me = this;
             if (this.uploading == false) {
                 var selStudy;
@@ -242,7 +241,7 @@
                         fileFormat: 'PLAIN',
                         bioFormat: selBioformat.value,
                         description: '',
-                        callbackProgress: function (chunk, total, response) {
+                        callbackProgress: function(chunk, total, response) {
                             me.percentProgress = Math.round((chunk.id / total) * 100);
                             if (chunk.last) {
                                 me.percentProgress = 100;
@@ -254,10 +253,10 @@
                                 me.fire('file-uploaded');
 
                                 var uploadedFile = response.response[0].result[0];
-//                                me._indexFile(uploadedFile);
+                                //                                me._indexFile(uploadedFile);
                             }
                         },
-                        error: function (msg) {
+                        error: function(msg) {
                             me.$.fileInput.value = null;
                             me.fileName = '';
                             me.uploading = false;
@@ -271,23 +270,22 @@
                 }
             }
         },
-        percentProgressChanged: function (neo, old) {
+        percentProgressChanged: function(neo, old) {
             this.$.progressBar.style.width = neo + '%';
         },
-        selectedProjectChanged: function (neo, old) {
-        },
-        selectedStudyChanged: function (neo, old) {
+        selectedProjectChanged: function(neo, old) {},
+        selectedStudyChanged: function(neo, old) {
             this.fileName = "None";
             if (this.selectedStudy == null)
                 this.showSelectStudy = true;
             else
                 this.showSelectStudy = false;
         },
-        selectedFolderChanged: function (neo, old) {
+        selectedFolderChanged: function(neo, old) {
             this.fileName = "None";
         },
 
-        _indexFile: function (file) {
+        _indexFile: function(file) {
             console.log(file.id);
             if (!this.disableIndex) {
                 OpencgaManager.files.index({
@@ -297,7 +295,7 @@
                         storageEngine: "mongodb"
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 console.log("index");
                                 console.log(response);
@@ -305,7 +303,7 @@
                                 //                                me.message = response.response[0].errorMsg;
                             }
                         },
-                        error: function () {
+                        error: function() {
                             alert('Server error, try again later.');
                         }
                     }

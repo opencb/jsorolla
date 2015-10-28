@@ -55,6 +55,10 @@
             border-bottom: 1px solid var(--divider-color);
         }
 
+        #help, #user {
+            border-bottom: none !important;
+        }
+
         div.title {
             font-size: 30px;
             text-overflow: ellipsis;
@@ -117,6 +121,11 @@
             color: var(--accent-color);
             font-weight: normal;
         }
+
+        #icon{
+            margin-top:0px !important;
+            margin-bottom:0px !important;
+        }
     </style>
     <template>
         <div id="tools">
@@ -138,7 +147,7 @@
                 <div on-click="handleMenu">
                     <content select=".menu-button"></content>
                 </div>
-                <div data-option="home" on-click="handleMenu">
+                <div id="icon" data-option="home" on-click="handleMenu">
                     <content select=".icon"></content>
                 </div>
                 <div class="title" data-option="home" on-click="handleMenu">
@@ -170,7 +179,7 @@
                     <span class="option-text"> jobs </span>
                 </div>
 
-                <div title="profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideLogin, isLogged)}}">
+                <div title="profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideSignup, hideLogin, isLogged)}}">
                     <i class="fa fa-user"></i>
                     <span class="option-text"> profile </span>
                 </div>
@@ -315,8 +324,8 @@
             }
             return !isLogged
         },
-        computeProfile: function(userText, hideLogin, isLogged) {
-            if (hideLogin || userText == 'anonymous') {
+        computeProfile: function(userText, hideSignup, hideLogin, isLogged) {
+            if (hideSignup || hideLogin || userText == 'anonymous') {
                 return true;
             }
             return !isLogged
