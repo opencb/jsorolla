@@ -15,7 +15,6 @@
         }
 
         .job {
-
         }
 
         .capitalize {
@@ -65,6 +64,21 @@
             color: #000;
             cursor: pointer;
         }
+
+        .delete-job:hover {
+            color: red !important;
+            margin-right: 2px;
+        }
+
+        .relaunch-job:hover {
+            color: green !important;
+            margin-right: 2px;
+        }
+
+        .info-job:hover {
+            color: blue !important;
+        }
+
     </style>
     <template>
         <div horizontal layout>
@@ -82,8 +96,9 @@
             </div>
             <div vertical layout class="bar" on-click="{{handleBarClick}}">
                 <template is="dom-if" if="{{!isRunning(job)}}">
-                    <i class="fa fa-trash-o" title="Delete Job" on-click="handleDeleteJob"></i>
-                    <i class="fa fa-refresh" title="Relaunch Job" on-click="handleRelaunchJob"></i>
+                    <i class="fa fa-trash-o delete-job" title="Delete Job" on-click="handleDeleteJob"></i>
+                    <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob"></i>
+                    <i class="fa fa-info info-job" title="Job information" on-click="handleJobInformation"></i>
                 </template>
             </div>
         </div>
@@ -203,6 +218,10 @@
                 })
 
             }
+        },
+
+        handleJobInformation: function (e) {
+            e.stopPropagation();
         }
 
     })
