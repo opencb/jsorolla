@@ -40,6 +40,7 @@
     <template>
         <div id="header" class="horizontal layout">
             <label class="jso">Tool name:</label>
+
             <div class="jso-select" style="width:150px;">
                 <select id="toolFilterSelect" on-change="handleFilterSelect">
                     <option value="all">all</option>
@@ -51,7 +52,7 @@
         </div>
         <div id="content">
             <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
-                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect">
+                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}">
                 </jso-opencga-job-list-item>
             </template>
         </div>
@@ -89,6 +90,12 @@
             toolFilterValue: {
                 type: String,
                 value: 'all'
+            },
+            study: {
+                type: Object,
+                value: function () {
+                    return {};
+                }
             }
         },
         handleSelect: function (e) {

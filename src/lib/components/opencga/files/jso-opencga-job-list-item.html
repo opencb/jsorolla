@@ -82,7 +82,8 @@
             </div>
             <div vertical layout class="bar" on-click="{{handleBarClick}}">
                 <template is="dom-if" if="{{!isRunning(job)}}">
-                    <i class="fa fa-trash-o" on-click="handleDeleteJob" data-job="{{job.id}}"></i>
+                    <i class="fa fa-trash-o" title="Delete Job" on-click="handleDeleteJob"></i>
+                    <i class="fa fa-refresh" title="Relaunch Job" on-click="handleRelaunchJob"></i>
                 </template>
             </div>
         </div>
@@ -101,6 +102,12 @@
             visitsHidden: {
                 type: Boolean,
                 value: false
+            },
+            study: {
+                type: Object,
+                value: function () {
+                    return {};
+                }
             }
         },
         created: function () {
@@ -135,10 +142,7 @@
             return "capitalize " + job.status;
         },
         computeToolName: function (job) {
-            // if (job.toolName.toLowerCase() == "pathiways") {
-                // return "PATHiVAR";
-            // }
-            return job.toolName + ' - ' + job.execution ;
+            return job.toolName;
         },
         handleBarClick: function (e) {
             e.stopPropagation();
@@ -151,7 +155,7 @@
             return job.status == "RUNNING";
         },
         handleDeleteJob: function (e) {
-            var jobId = e.currentTarget.dataJob;
+            var jobId = this.job.id;
             e.stopPropagation();
 
             if (confirm("Are you sure?")) {
@@ -170,6 +174,37 @@
                     }
                 });
             }
+        },
+        handleRelaunchJob: function (e) {
+            e.stopPropagation();
+
+            if (confirm("You are going to relaunch this Job. Are you sure?")) {
+
+                var query = {
+                    sid: Cookies("bioinfo_sid"),
+                    studyId: this.study.id,
+                    toolId: this.job.toolName,
+                    name: this.job.name,
+                    description: this.job.description,
+                    "input": this.job.input[0],
+                    "panel": this.job.input[1],
+                    output: this.job.outDirId
+                };
+
+                OpencgaManager.jobs.create({
+                    query: query,
+                    request: {
+                        //method: 'POST',
+                        success: function (response) {
+                        },
+                        error: function () {
+                        }
+                    }
+                })
+
+            }
         }
-    });
+
+    })
+    ;
 </script>
