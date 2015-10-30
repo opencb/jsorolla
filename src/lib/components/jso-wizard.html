@@ -4,17 +4,17 @@
             display: block;
             position: relative;
             box-sizing: border-box;
+            height: 100%;
+            width: 100%;
         }
 
         #wizard-content {
-            height: 650px;
+            height: 100%;
         }
 
         .container {
             background-color: var(--light-primary-color);
             color: var(--primary-text-color);
-            position: relative;
-            height: 85%;
         }
 
         .file {
@@ -47,7 +47,7 @@
         }
 
         .header {
-            margin: 10px;
+            margin-bottom: 10px;
             box-sizing: border-box;
             height: 40px;
             padding: 7px 10px;
@@ -74,32 +74,37 @@
         }
     </style>
     <template>
-        <div id="wizard-content">
+        <div id="wizard-content" class="vertical layout">
             <div class="header">
                 <div class="horizontal layout">
-                    <div class="flex" hidden="{{handleHiddenStep1(step)}}"> </div>
+                    <div class="flex" hidden="{{handleHiddenStep1(step)}}"></div>
                     <div class="prev flex" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}">
                         <label><i class="fa fa-angle-double-left"></i>&nbsp;Step&nbsp;<span>{{stepPrev}}</span></label>
                     </div>
                     <label class="title">Step &nbsp;
                         <span>{{step}}</span>
                     </label>
+
                     <div class="flex next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
                         <label>Step&nbsp;
                             <span>{{stepNext}}</span>&nbsp;<i class="fa fa-angle-double-right"></i></label>
                     </div>
-                    <div class="flex" hidden="{{handleHiddenStepEnd(step)}}"> </div>
+                    <div class="flex" hidden="{{handleHiddenStepEnd(step)}}"></div>
                 </div>
             </div>
 
-            <div class="container">
-                <content id="container"></content>
+            <div class="container flex">
+                <content id="container" class="flex"></content>
             </div>
 
             <div class="footer">
                 <div id="wizard-bottom" class="horizontal layout end-justified">
-                    <div class="jso-btn jso-btn-shdw file" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}"><i class="fa fa-angle-double-left"></i>&nbsp; Previous</div>
-                    <div class="jso-btn jso-btn-shdw file" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">Next &nbsp;<i class="fa fa-angle-double-right"></i></div>
+                    <div class="jso-btn jso-btn-shdw file" on-click="handlePrevStepButton"
+                         hidden="{{!handleHiddenStep1(step)}}"><i class="fa fa-angle-double-left"></i>&nbsp; Previous
+                    </div>
+                    <div class="jso-btn jso-btn-shdw file" on-click="handleNextStepButton"
+                         hidden="{{!handleHiddenStepEnd(step)}}">Next &nbsp;<i class="fa fa-angle-double-right"></i>
+                    </div>
                     <div hidden="{{handleHiddenStepEnd(step)}}"> &nbsp; </div>
                 </div>
             </div>
@@ -118,39 +123,39 @@
                 },
                 steps: {
                     type: Array,
-                    value: function() {
+                    value: function () {
                         return [];
                     }
                 }
             },
-            ready: function() {
+            ready: function () {
                 var steps = Polymer.dom(this).querySelectorAll('.step');
 
                 this.set('steps', steps);
                 this.stepChanged(1, 0);
                 this.stepNext = 2;
             },
-            created: function() {
+            created: function () {
                 this.steps = [];
             },
-            handleHiddenStep1: function(step) {
+            handleHiddenStep1: function (step) {
                 return step != 1;
             },
-            handleHiddenStepEnd: function(step) {
+            handleHiddenStepEnd: function (step) {
                 return step != this.steps.length;
             },
-            handlePrevStepButton: function(e) {
+            handlePrevStepButton: function (e) {
                 this.step = (this.step <= 1) ? 1 : this.step - 1;
                 console.log(this.step);
                 this.stepNext = this.step + 1
                 this.stepPrev = this.step - 1;
             },
-            handleNextStepButton: function(e) {
+            handleNextStepButton: function (e) {
                 this.step = (this.step >= this.steps.length) ? this.steps.length : this.step + 1;
                 this.stepNext = this.step + 1
                 this.stepPrev = this.step - 1;
             },
-            stepChanged: function(neo, old) {
+            stepChanged: function (neo, old) {
                 if (this.steps && this.steps.length > 0) {
 
                     for (var i = 0; i < this.steps.length; i++) {
