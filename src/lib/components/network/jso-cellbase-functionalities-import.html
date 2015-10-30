@@ -27,9 +27,11 @@
         }
 
         .selbox {
+            box-sizing: border-box;
             overflow-y: auto;
             border: 1px solid #d3d3d3;
             background-color: #FFF;
+            height: 150px;
         }
 
         .footer {
@@ -44,10 +46,6 @@
 
         .capitalize {
             text-transform: capitalize;
-        }
-
-        #tissuesContent {
-            margin-left: 20px;
         }
     </style>
     <template>
@@ -68,24 +66,32 @@
             <div id="right" class="flex">
                 <label class="jso">Functional information:</label>
 
-                <div class="selbox" style="height:329px;">
-                    <div id="functionsContent">
-                        <template is="dom-repeat" items={{funcList}}>
-                            <label class="jso-control">
-                                <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
-                                <span>{{item.boxLabel}}</span>
-                            </label>
-                        </template>
-                    </div>
-                    <div id="tissuesContent" hidden$="{{!showTissues}}">
-                        <template is="dom-repeat" items={{tissues}}>
-                            <label class="jso-control">
-                                <input type="checkbox" value$="{{item}}">
-                                <span class="capitalize">{{item}}</span>
-                            </label>
-                        </template>
-                    </div>
+                <div id="functionsContent" class="selbox">
+                    <template is="dom-repeat" items={{funcList}}>
+                        <label class="jso-control">
+                            <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
+                            <span>{{item.boxLabel}}</span>
+                        </label>
+                    </template>
                 </div>
+
+                <div style="margin-top: 10px;" class="horizontal layout center">
+                    <label class="jso">Tissue gene expression:</label>
+                    <div class="flex"></div>
+                    <label class="jso-control">
+                        <input id="collapseTissuesCheckbox" type="checkbox">
+                        <span>Collapse tissues in one attribute</span>
+                    </label>
+                </div>
+                <div id="tissuesContent" class="selbox">
+                    <template is="dom-repeat" items={{tissues}}>
+                        <label class="jso-control">
+                            <input type="checkbox" value$="{{item}}">
+                            <span class="capitalize">{{item}}</span>
+                        </label>
+                    </template>
+                </div>
+
             </div>
         </div>
 
@@ -112,10 +118,6 @@
             },
             items: {
                 type: Array
-            },
-            showTissues: {
-                type: Boolean,
-                value: false
             }
         },
         ready: function() {
@@ -153,10 +155,6 @@
                 boxLabel: "GO Molecular function",
                 name: "goMolecularFunction",
                 selected: false,
-            }, {
-                boxLabel: "Tissue gene expression",
-                name: "tissues",
-                selected: false,
             }];
             this.tissues = ["abdomen", "adipose tissue", "adrenal cortex", "adrenal gland cortex", "aorta", "articular cartilage", "atrial myocardium", "beta cell islets", "bladder", "blood", "bone", "bone marrow", "brain",
                 "bronchial epithelium", "cardiac ventricle", "caudate nucleus", "central nervous system", "cerebellum", "cerebral cortex", "cerebrospinal fluid", "cervix", "colon", "colon mucosa", "conjunctiva", "connective tissue",
@@ -171,14 +169,6 @@
         handleItemSelect: function(e) {
             var item = e.model.item;
             item.selected = !item.selected;
-
-            if (item.name === 'tissues') {
-                if (item.selected) {
-                    this.set('showTissues', true);
-                } else {
-                    this.set('showTissues', false);
-                }
-            }
         },
         handleGo: function() {
             if (this.loading == false) {
@@ -199,6 +189,7 @@
                 queries.push(attributes[attributeName]);
             }
 
+            // check other options
             var options = {};
             var oneSelectedFlag = false;
             var els = this.$.functionsContent.querySelectorAll('input[type=checkbox]');
@@ -211,26 +202,30 @@
                     options[cb.value] = false;
                 }
             }
-            if (options.tissues) {
-                var oneTissueSelectedFlag = false;
-                options.selectedTissues = {};
-                var els = this.$.tissuesContent.querySelectorAll('input[type=checkbox]');
-                for (var i = 0; i < els.length; i++) {
-                    var cb = els[i];
-                    if (cb.checked) {
-                        options.selectedTissues[cb.value] = true;
-                        oneTissueSelectedFlag = true;
-                    }
-                }
-                if (!oneTissueSelectedFlag) {
-                    options.tissues = false;
+
+            // check tissues
+            options.selectedTissues = {};
+            var oneTissueSelectedFlag = false;
+            var els = this.$.tissuesContent.querySelectorAll('input[type=checkbox]');
+            for (var i = 0; i < els.length; i++) {
+                var cb = els[i];
+                if (cb.checked) {
+                    options.selectedTissues[cb.value] = true;
+                    oneTissueSelectedFlag = true;
                 }
             }
-            if (!oneSelectedFlag) {
-                this.message = "No functional information selected.";
+            if (!oneTissueSelectedFlag) {
+                options.tissues = false;
+            } else {
+                options.tissues = true;
+            }
+            options.collapseTissues = this.$.collapseTissuesCheckbox.checked;
+
+            if (!oneSelectedFlag && !oneTissueSelectedFlag) {
+                this.message = "No information selected.";
                 return;
             }
-            if (oneSelectedFlag && queries.length > 0) {
+            if ((oneSelectedFlag || oneTissueSelectedFlag) && queries.length > 0) {
                 var columns = [];
                 this.loading = true;
                 this.message = "Retrieving data...";

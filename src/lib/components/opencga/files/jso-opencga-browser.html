@@ -368,7 +368,9 @@
             if (neo) neo.selected = true;
         },
         handleStudyClick: function(e) {
-            this.files = [];
+            if (this.selectedStudy !== e.currentTarget.selectedStudy) {
+                this.files = [];
+            }
             this.set('selectedProject', e.currentTarget);
             this.set('selectedStudy', e.currentTarget.selectedStudy);
         },

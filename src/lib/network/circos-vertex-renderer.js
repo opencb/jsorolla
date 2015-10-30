@@ -85,7 +85,7 @@ CircosVertexRenderer.prototype = {
     },
     set: function(attr, value, update) {
         if (!isNaN(value)) {
-            value = parseFloat(val);
+            value = parseFloat(value);
         }
         this[attr] = value;
 

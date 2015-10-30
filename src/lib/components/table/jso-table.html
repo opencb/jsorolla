@@ -1344,7 +1344,10 @@
                                 this.setAttribute('readonly', '');
                                 var val = this.value;
                                 rowData.attributes[column.name] = val;
-                                me.fire('update-row', rowData);
+                                me.fire('update-row', {
+                                    row: rowData,
+                                    column: column
+                                });
                             }
                         });
                         input.value = value;

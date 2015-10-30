@@ -78,8 +78,13 @@
             var includes = [];
             if (args.tissues) {
                 includes.push('expressionValues');
-                for (key in args.selectedTissues) {
-                    infoMap[key] = {}
+                if (args.collapseTissues === true) {
+                    infoMap.tissueGeneName = {};
+                    infoMap.tissueGeneExpression = {};
+                } else {
+                    for (key in args.selectedTissues) {
+                        infoMap[key] = {}
+                    }
                 }
             }
             if (args.drugs) {
@@ -102,14 +107,37 @@
                         if (r.result.length > 0) {
                             var expressionValues = r.result[0].expressionValues;
                             var drugInteractions = r.result[0].drugInteractions;
-                            var tissues = {};
                             var drugs = [];
                             if (args.tissues) {
                                 if (expressionValues != null) {
-                                    for (var j = 0; j < expressionValues.length; j++) {
-                                        var ev = expressionValues[j];
-                                        if (args.selectedTissues[ev.factorValue] === true) {
-                                            infoMap[ev.factorValue][queries[i]] = [ev.expression];
+                                    if (args.collapseTissues === true) {
+                                        var tissuesFound = {};
+                                        for (var j = 0; j < expressionValues.length; j++) {
+                                            var ev = expressionValues[j];
+                                            if (args.selectedTissues[ev.factorValue] === true) {
+                                                tissuesFound[ev.factorValue] = ev.expression;
+                                            }
+                                        }
+                                        var collapsedTissuesExpression = [];
+                                        var collapsedTissuesNames = [];
+                                        for (var tn in args.selectedTissues) {
+                                            if (args.selectedTissues[tn] === true) {
+                                                if (tissuesFound[tn] != null) {
+                                                    collapsedTissuesExpression.push(tissuesFound[tn]);
+                                                } else {
+                                                    collapsedTissuesExpression.push('none');
+                                                }
+                                                collapsedTissuesNames.push(tn);
+                                            }
+                                        }
+                                        infoMap.tissueGeneExpression[queries[i]] = collapsedTissuesExpression;
+                                        infoMap.tissueGeneName[queries[i]] = collapsedTissuesNames;
+                                    } else {
+                                        for (var j = 0; j < expressionValues.length; j++) {
+                                            var ev = expressionValues[j];
+                                            if (args.selectedTissues[ev.factorValue] === true) {
+                                                infoMap[ev.factorValue][queries[i]] = [ev.expression];
+                                            }
                                         }
                                     }
                                 }

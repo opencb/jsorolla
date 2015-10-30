@@ -6,7 +6,6 @@
             position: absolute;
             box-sizing: border-box;
             background-color: #FFFFFF;
-
             top: 0px;
             right: 320px;
             width: 500px;
@@ -82,9 +81,7 @@
                 <div id="left" class="vertical layout">
 
                     <label class="jso">Attribute name:</label>
-                    <jso-select-box id="columnSelectBox" style="height: 202px;"
-                                    options="{{columns}}"
-                                    on-select="handleColumnSelect">
+                    <jso-select-box id="columnSelectBox" style="height: 202px;" options="{{columns}}" on-select="handleColumnSelect">
                     </jso-select-box>
 
                 </div>
@@ -106,7 +103,7 @@
                                     <div class="jso-select flex" style="margin-left:5px;">
                                         <select on-change="handleSelect">
                                             <template is="dom-repeat" items={{uitem.options}} as="option">
-                                                <option value="{{option}}">{{option}}</option>
+                                                <option value="{{option}}" selected$="{{isSelected(uitem.render,option)}}">{{option}}</option>
                                             </template>
                                         </select>
                                     </div>
@@ -151,10 +148,13 @@
                 type: Array,
             }
         },
-        handleSelect: function (e) {
+        handleSelect: function(e) {
             e.model.uitem.render = e.currentTarget.value;
         },
-        _updateUniqueValues: function () {
+        isSelected: function(selected, option) {
+            return selected === option;
+        },
+        _updateUniqueValues: function() {
             var me = this;
             if (this.selectedColumn && this.selectedColumn.name != '') {
                 var uniqueMap = {};
@@ -175,7 +175,11 @@
                         }
 
                         if (value) {
-                            uniqueItems.push({attribute: value, render: render, options: this.options});
+                            uniqueItems.push({
+                                attribute: value,
+                                render: render,
+                                options: this.options
+                            });
                         }
                     }
                 }

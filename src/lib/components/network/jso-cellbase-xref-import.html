@@ -1,5 +1,5 @@
 <link rel="import" href="jso-cellbase-attribute-import-behavior.html">
-<dom-module id="jso-cellbase-attribute-import">
+<dom-module id="jso-cellbase-xref-import">
     <style>
         :host {
             display: block;
@@ -90,7 +90,7 @@
 </dom-module>
 <script>
     Polymer({
-        is: "jso-cellbase-attribute-import",
+        is: "jso-cellbase-xref-import",
         behaviors: [JsoCellbaseAttributeImportBehavior],
         properties: {
             selectedList: {
@@ -305,6 +305,7 @@
             var columns = [];
             var columnsMap = {};
             var dbnamesMap = {};
+            var resultMap = {};
 
             var databasesSelectedFlag = false;
 
@@ -338,6 +339,7 @@
                 for (var i = 0; i < this.items.length; i++) {
                     var attributes = this.items[i].attributes;
                     queries.push(attributes[attributeName]);
+                    resultMap[attributes[attributeName]] = {};
                 }
 
                 if (queries.length > 0) {
@@ -345,75 +347,54 @@
                     this.loading = true;
                     this.message = "Retrieving data...";
 
-                    CellBaseManager.get({
-                        host: CELLBASE_HOST,
-                        species: species,
-                        category: 'feature',
-                        subCategory: 'id',
-                        query: queries.toString(),
-                        resource: 'xref',
-                        params: {
-                            dbname: Object.keys(dbnamesMap),
-                        },
-                        success: function(data) {
-                            var attributes;
-                            for (var r = 0; r < data.response.length; r++) {
-                                var response = data.response[r];
-                                var xrefs = response.result;
-                                attributes = me.items[r].attributes;
-                                if (xrefs.length > 0) {
-                                    for (var i = 0; i < xrefs.length; i++) {
-                                        var xref = xrefs[i];
+                    var queriesList = this._groupQueries(queries);
+                    callCount = 0;
+                    for (var j = 0; j < queriesList.length; j++) {
+                        var ql = queriesList[j];
+                        callCount++;
+                        CellBaseManager.get({
+                            host: CELLBASE_HOST,
+                            species: species,
+                            category: 'feature',
+                            subCategory: 'id',
+                            query: ql.toString(),
+                            resource: 'xref',
+                            params: {
+                                dbname: Object.keys(dbnamesMap),
+                            },
+                            success: function(data) {
+                                callCount--;
+                                me._processSuccess(data, columnsMap, resultMap);
 
-                                        var mapId1 = xref.dbName + 'id';
-                                        var mapId2 = xref.dbName + 'description';
-
-                                        var index1 = columnsMap[mapId1];
-                                        var index2 = columnsMap[mapId2];
-
-                                        if (index1 != null) {
-                                            if (i == 0) {
-                                                attributes[mapId1] = '';
-                                            }
-                                            if (!attributes[mapId1]) {
-                                                attributes[mapId1] = '';
-                                            }
-                                            if (attributes[mapId1] === '') {
-                                                attributes[mapId1] += xref.id;
+                                if (callCount == 0) {
+                                    for (var i = 0; i < me.items.length; i++) {
+                                        var item = me.items[i];
+                                        for (var j = 0; j < columns.length; j++) {
+                                            var c = columns[j];
+                                            var value = resultMap[item.attributes[attributeName]][c.name];
+                                            if (value != null) {
+                                                item.attributes[c.name] = value;
                                             } else {
-                                                attributes[mapId1] += ',' + xref.id;
-                                            }
-                                        }
-                                        if (index2 != null) {
-                                            if (i == 0) {
-                                                attributes[mapId2] = '';
-                                            }
-                                            if (!attributes[mapId2]) {
-                                                attributes[mapId2] = '';
-                                            }
-                                            if (attributes[mapId2] === '') {
-                                                attributes[mapId2] += xref.description;
-                                            } else {
-                                                attributes[mapId2] += ',' + xref.description;
+                                                item.attributes[c.name] = item.attributes[attributeName];
                                             }
                                         }
                                     }
+                                    me.fire('add-columns', columns);
+
+                                    me.loading = false;
+                                    me.message = "Information has been saved as attributes";
+
+                                    if (callbackFunction) {
+                                        callbackFunction();
+                                    }
                                 }
+                            },
+                            error: function(e, req) {
+                                me.loading = false;
+                                me.message = "Server error, try again later.";
                             }
-                            //                            for (var i = 0; i < columns.length; i++) {
-                            //                                var column = columns[i];
-                            //                                me.attributeManager.addColumn(column);
-                            //                            }
-                            me.fire('add-columns', columns);
-
-                            me.loading = false;
-                            me.message = "Information has been saved as attributes";
-
-                            if (callbackFunction) {
-                                callbackFunction();
-                            }
-                        }
-                    });
+                        });
+                    }
                 } else {
                     this.message = "Node list is empty";
                 }
@@ -421,6 +402,60 @@
                 this.message = "Please select at least one database";
 
             }
-        }
+        },
+        _processSuccess: function(data, columnsMap, resultMap) {
+            var query;
+            for (var r = 0; r < data.response.length; r++) {
+                var response = data.response[r];
+                var xrefs = response.result;
+                var queryRes = resultMap[response.id];
+                if (xrefs.length > 0) {
+                    for (var i = 0; i < xrefs.length; i++) {
+                        var xref = xrefs[i];
+
+                        var mapId1 = xref.dbName + 'id';
+                        var mapId2 = xref.dbName + 'description';
+
+                        var index1 = columnsMap[mapId1];
+                        var index2 = columnsMap[mapId2];
+
+                        if (index1 != null) {
+                            if (i == 0) {
+                                queryRes[mapId1] = '';
+                            }
+                            if (!queryRes[mapId1]) {
+                                queryRes[mapId1] = '';
+                            }
+                            if (queryRes[mapId1] === '') {
+                                queryRes[mapId1] += xref.id;
+                            } else {
+                                queryRes[mapId1] += ',' + xref.id;
+                            }
+                        }
+                        if (index2 != null) {
+                            if (i == 0) {
+                                queryRes[mapId2] = '';
+                            }
+                            if (!queryRes[mapId2]) {
+                                queryRes[mapId2] = '';
+                            }
+                            if (queryRes[mapId2] === '') {
+                                queryRes[mapId2] += xref.description;
+                            } else {
+                                queryRes[mapId2] += ',' + xref.description;
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        _groupQueries: function(queries) {
+            var groupSize = 50;
+            var queriesLists = [];
+            while (queries.length > 0) {
+                queriesLists.push(queries.splice(0, groupSize));
+            }
+            return queriesLists;
+        },
     });
 </script>

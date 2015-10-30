@@ -32,9 +32,7 @@
 
         .footer > * {
             margin-left: 5px;
-
         }
-
     </style>
     <template>
         <form id="main" class="flex horizontal layout">
@@ -42,8 +40,7 @@
             <div id="left">
                 <label class="jso" style="margin-top: 2px;">Species:</label>
 
-                <jso-select-box id="species" options="{{species}}" name-attribute="id"
-                                title-attribute="_title">
+                <jso-select-box id="species" options="{{species}}" name-attribute="id" title-attribute="_title">
                 </jso-select-box>
 
                 <label class="jso" style="margin-top: 10px;">Attributes:</label>
@@ -53,28 +50,22 @@
 
                 <label class="jso" style="margin-top: 10px;">Input:</label>
 
-                <form>
-                    <label class="jso-control">
-                        <input type="radio" checked="{{checkSelectedMode(selectedMode,'nodes')}}" name="mode"
-                               on-change="handleSelectNodesList">
-                        <span>Network nodes</span>
-                    </label>
-                    <label class="jso-control">
-                        <input type="radio" checked="{{checkSelectedMode(selectedMode,'selection')}}" name="mode"
-                               on-change="handleSelectSelectionList">
-                        <span>Network selection</span>
-                    </label>
-                    <label class="jso-control">
-                        <input type="radio" checked="{{checkSelectedMode(selectedMode,'text')}}" name="mode"
-                               on-change="handleSelectTextList">
-                        <span>List from text</span>
-                    </label>
+                <label class="jso-control">
+                    <input type="radio" checked="{{checkSelectedMode(selectedMode,'nodes')}}" name="mode" on-change="handleSelectNodesList">
+                    <span>Network nodes</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" checked="{{checkSelectedMode(selectedMode,'selection')}}" name="mode" on-change="handleSelectSelectionList">
+                    <span>Network selection</span>
+                </label>
+                <label class="jso-control">
+                    <input type="radio" checked="{{checkSelectedMode(selectedMode,'text')}}" name="mode" on-change="handleSelectTextList">
+                    <span>List from text</span>
+                </label>
 
-                    <div class="jso-btn jso-btn-shdw" style="width:150px;margin-top: 3px;"
-                         on-click="handleSelectFileList">
-                        List from file ...
-                    </div>
-                </form>
+                <div class="jso-btn jso-btn-shdw" style="width:150px;margin-top: 3px;" on-click="handleSelectFileList">
+                    List from file ...
+                </div>
             </div>
 
             <textarea class="jso flex" id="textarea"></textarea>
@@ -120,15 +111,15 @@
                     type: Boolean
                 }
             },
-            checkSelectedMode: function (selectedMode, v) {
+            checkSelectedMode: function(selectedMode, v) {
                 return selectedMode === v;
             },
-            getSpecies: function (callback) {
+            getSpecies: function(callback) {
                 CellBaseManager.get({
                     host: CELLBASE_HOST,
                     category: "meta",
                     subCategory: "species",
-                    success: function (r) {
+                    success: function(r) {
                         var list = [];
                         var taxonomies = r.response[0].result[0];
                         for (var taxonomy in taxonomies) {
@@ -150,10 +141,10 @@
                     }
                 });
             },
-            created: function () {
+            created: function() {
                 var me = this;
-                this.async(function () {
-                    this.getSpecies(function (species) {
+                this.async(function() {
+                    this.getSpecies(function(species) {
                         me.species = species;
                     });
                 }, 50);
@@ -162,17 +153,17 @@
                 'handleSelectionChange(selected.splices)',
                 'handleNodesChange(items.splices)'
             ],
-            handleEditSelect: function (e) {
+            handleEditSelect: function(e) {
                 this.columnSelected = e.detail;
             },
-            handleSpeciesSelect: function (e) {
+            handleSpeciesSelect: function(e) {
                 this.speciesSelected = e.target.templateInstance.model.spe;
             },
-            handleItemSelect: function (e) {
+            handleItemSelect: function(e) {
                 var item = e.target.templateInstance.model.item;
                 item.selected = !item.selected;
             },
-            handleSelectNodesList: function () {
+            handleSelectNodesList: function() {
                 this.selectedMode = 'nodes';
                 var value = '';
                 for (var i = 0; i < this.items.length; i++) {
@@ -181,12 +172,12 @@
                 }
                 this.$.textarea.value = value;
             },
-            handleNodesChange: function () {
+            handleNodesChange: function() {
                 if (this.selectedMode == 'nodes') {
                     this.handleSelectNodesList();
                 }
             },
-            handleSelectSelectionList: function () {
+            handleSelectSelectionList: function() {
                 this.selectedMode = 'selection';
                 var value = '';
                 for (var i = 0; i < this.selected.length; i++) {
@@ -195,23 +186,23 @@
                 }
                 this.$.textarea.value = value;
             },
-            handleSelectionChange: function () {
+            handleSelectionChange: function() {
                 if (this.selectedMode == 'selection') {
                     this.handleSelectSelectionList();
                 }
             },
-            handleSelectTextList: function () {
+            handleSelectTextList: function() {
                 this.$.textarea.value = '';
                 this.selectedMode = 'text';
             },
-            handleSelectFileList: function () {
+            handleSelectFileList: function() {
                 this.$.inputFile.click();
             },
-            handleInputFileChange: function (e) {
+            handleInputFileChange: function(e) {
                 var me = this;
                 var file = this.$.inputFile.files[0];
                 var reader = new FileReader();
-                reader.onload = function (evt) {
+                reader.onload = function(evt) {
                     me.selectedMode = 'file';
                     var content = evt.target.result;
                     me.$.textarea.value = content;
@@ -219,25 +210,27 @@
                 reader.readAsText(file);
                 e.currentTarget.value = null;
             },
-            handleGo: function () {
+            handleGo: function() {
                 var me = this;
                 var queryList = this.$.textarea.value.split('\n');
                 if (this.$.species.selected != null && queryList.length > 0) {
-                    this.getGraph(this.$.species.selected, queryList, function (graph) {
+                    this.getGraph(this.$.species.selected, queryList, function(graph) {
                         me.loading = false;
                         me.message = "Information has been saved as nodes and edges";
-                        me.fire('graph', {graph: graph});
+                        me.fire('graph', {
+                            graph: graph
+                        });
                     });
                 } else {
                     this.message = "Please select one species and one attribute";
                 }
             },
 
-            getGraph: function (species, idList, successFunction) {
+            getGraph: function(species, idList, successFunction) {
                 var me = this;
 
                 var graph = new JsoGraph();
-//                _this.progress.updateProgress(0.1, 'Requesting data');
+                //                _this.progress.updateProgress(0.1, 'Requesting data');
 
                 this.loading = true;
                 this.message = "Retrieving data...";
@@ -251,7 +244,7 @@
                         interactor: idList.join(','),
                         include: "interactorA.id,interactorB.id"
                     },
-                    success: function (data) {
+                    success: function(data) {
                         console.log(data)
                         var interactions = data.response[0].result;
 
@@ -291,9 +284,9 @@
                             edge.attributes.name = edge.id;
                             edge.attributes.relation = edge.relation;
                             graph.addEdge(edge);
-//                            var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
-//                            var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
-//                            me.networkViewer.createEdge(sourceVertex, targetVertex, edgeRelation);
+                            //                            var sourceVertex = me.networkViewer.createVertex(0, 0, sourceName);
+                            //                            var targetVertex = me.networkViewer.createVertex(0, 0, targetName);
+                            //                            me.networkViewer.createEdge(sourceVertex, targetVertex, edgeRelation);
                         }
                         successFunction(graph);
                     }

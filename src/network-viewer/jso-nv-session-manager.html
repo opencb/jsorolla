@@ -8,7 +8,7 @@
         .selbox {
             box-sizing: border-box;
             overflow-y: auto;
-            border: 1px solid #d3d3d3;
+            border: 1px solid var(--divider-color);
             background-color: #FFF;
         }
 
@@ -16,8 +16,12 @@
             padding: 2px 5px;
         }
 
+        .selitem:hover {
+            background-color: var(--hover-color);
+        }
+
         .selitem[data-checked] {
-            background-color: #ddd;
+            background-color: var(--selected-color);
         }
 
         .container {
@@ -59,7 +63,8 @@
             <label class="jso horizontal layout">
                 <div>Saved sessions:</div>
                 <div class="flex"></div>
-                <div><i hidden$="{{isMessageEmpty(message)}}" class="fa fa-circle-o-notch fa-spin"></i> <span>{{message}}</span>
+                <div><i hidden$="{{isMessageEmpty(message)}}" class="fa fa-circle-o-notch fa-spin"></i>
+                    <span>{{message}}</span>
                 </div>
             </label>
 
@@ -71,8 +76,7 @@
                     <div class="selitem">No sessions found.</div>
                 </template>
                 <template is="dom-repeat" items="{{sessions}}" as="session">
-                    <div class="selitem" on-click="handleSelectSession"
-                         data-checked$="{{isSessionChecked(selectedSessionKey,session.key)}}">
+                    <div class="selitem" on-click="handleSelectSession" data-checked$="{{isSessionChecked(selectedSessionKey,session.key)}}">
                         <div>{{session.name}}</div>
                         <div class="light">{{session.dateString}}</div>
                     </div>
@@ -111,13 +115,13 @@
             },
             sessions: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
             sessionMap: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {}
                 }
             },
@@ -143,7 +147,7 @@
                 value: ''
             }
         },
-        ready: function () {
+        ready: function() {
             var me = this;
             this.keyPrefix = 'NV_SESSION_MANAGER' + this.serializeVersion;
             this.networkViewer = this.domHost;
@@ -151,35 +155,38 @@
 
             if (this.cellMaps) {
                 if (this.cellMaps.$.jsoHeader) {
-                    this.cellMaps.$.jsoHeader.addEventListener('login', function (e) {
+                    this.cellMaps.$.jsoHeader.addEventListener('login', function(e) {
                         me.handleLogin();
                     });
-                    this.cellMaps.$.jsoHeader.addEventListener('logout', function (e) {
+                    this.cellMaps.$.jsoHeader.addEventListener('logout', function(e) {
                         me.handleLogout();
                     });
                 }
             }
 
+            setInterval(function() {
+                me.userDataChanged(me.userData);
+            }, 10000);
         },
-        hasSessions: function (logged, length) {
+        hasSessions: function(logged, length) {
             return logged && length == 0;
         },
-        isSessionChecked: function (selectedSessionKey, key) {
+        isSessionChecked: function(selectedSessionKey, key) {
             return selectedSessionKey === key;
         },
-        isMessageEmpty: function (message) {
+        isMessageEmpty: function(message) {
             return message === '';
         },
-        handleLogin: function () {
+        handleLogin: function() {
             this.logged = true;
             this._updateSessionsFromUserData();
         },
-        handleLogout: function () {
+        handleLogout: function() {
             this.logged = false;
             this.sessions = [];
             this.sessionMap = {};
         },
-        userDataChanged: function (neo, old) {
+        userDataChanged: function(neo, old) {
             var me = this;
             if (this.userData) {
 
@@ -191,7 +198,7 @@
                         sid: Cookies("bioinfo_sid")
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.studies = response.response[0].result;
                                 me.selectedStudy = me.studies[0];
@@ -201,43 +208,45 @@
                                 console.log(response.response[0].errorMsg);
                             }
                         },
-                        error: function () {
+                        error: function() {
                             console.log('Server error, try again later.');
                         }
                     }
                 })
             }
         },
-        selectedStudyChanged: function (o, n) {
+        selectedStudyChanged: function(o, n) {
             console.log("selected study changed")
             this.logged = true;
             this._updateSessionsFromUserData();
         },
-        handleAddSession: function (e) {
+        handleAddSession: function(e) {
             var me = this;
-            this.saveSession(this.networkViewer, this.sessionName, function () {
+            this.saveSession(this.networkViewer, this.sessionName, function() {
                 me.message = '';
                 me._updateSessionsFromUserData();
             });
         },
-        saveSession: function (networkViewer, name, callback) {
+        saveSession: function(networkViewer, name, callback) {
             if (this.logged) {
                 if (name != '') {
                     name = name.replace(/--/gi, "");
                     var sessionKey = this.keyPrefix + '--' + Date.now() + '--' + name;
                     if (!this.sessionMap[sessionKey]) {
                         this.message = 'saving session...';
-                        var fileContent = pako.gzip(JSON.stringify(networkViewer), {to: 'string'});
+                        var fileContent = pako.gzip(JSON.stringify(networkViewer), {
+                            to: 'string'
+                        });
                         this.uploadFile(fileContent, sessionKey, callback);
                     }
                 }
             }
         },
-        handleRemoveSession: function () {
+        handleRemoveSession: function() {
             var me = this;
             if (this.logged) {
                 this.message = 'deleting session...';
-                this.deleteFile(this.selectedSession.file, function (deleteMsg) {
+                this.deleteFile(this.selectedSession.file, function(deleteMsg) {
                     me.message = '';
                     me._updateSessionsFromUserData();
                     me.selectedSessionKey = null;
@@ -245,14 +254,14 @@
                 });
             }
         },
-        handleRemoveAllSessions: function () {
+        handleRemoveAllSessions: function() {
             var me = this;
             if (this.logged) {
                 if (this.sessions.length > 0 && confirm('All saved sessions will be deleted. Are you sure?')) {
                     this.message = 'deleting all sessions...';
                     for (var i = 0; i < this.sessions.length; i++) {
                         var session = this.sessions[i];
-                        this.deleteFile(session.file, function (deleteMsg) {
+                        this.deleteFile(session.file, function(deleteMsg) {
                             //TODO deleteFiles
                             me.message = '';
                             me.sessions = [];
@@ -264,31 +273,33 @@
                 }
             }
         },
-        handleLoadSession: function () {
+        handleLoadSession: function() {
             var me = this;
             if (this.logged) {
                 this.message = 'loading session...';
                 if (this.selectedSessionKey) {
                     var file = this.selectedSession.file;
-                    var content = this._getFileContent(file, function (content) {
+                    var content = this._getFileContent(file, function(content) {
                         me.message = '';
-                        me.networkViewer.loadJSON(JSON.parse(pako.ungzip(content, {to: 'string'})));
+                        me.networkViewer.loadJSON(JSON.parse(pako.ungzip(content, {
+                            to: 'string'
+                        })));
                     });
                 }
             }
         },
-        handleSelectSession: function (e) {
+        handleSelectSession: function(e) {
             this.selectedSessionKey = e.model.session.key;
             this.selectedSession = e.model.session;
         },
-        _updateSessionsFromUserData: function () {
+        _updateSessionsFromUserData: function() {
             this.message = 'updating list..'
             var me = this;
             if (this.selectedStudy != null) {
                 var studyId = this.selectedStudy.id;
-                this._getSessionsFolder(studyId, function (sessionsFolder) {
+                this._getSessionsFolder(studyId, function(sessionsFolder) {
                     if (sessionsFolder == null) {
-                        me._createSessionsFolder(studyId, function (sessionsFolder) {
+                        me._createSessionsFolder(studyId, function(sessionsFolder) {
                             me._processSessionsFiles(sessionsFolder);
                         });
                     } else {
@@ -297,9 +308,9 @@
                 });
             }
         },
-        _processSessionsFiles: function (sessionsFolder) {
+        _processSessionsFiles: function(sessionsFolder) {
             var me = this;
-            this._getSessionsFiles(sessionsFolder, function (sessionsFiles) {
+            this._getSessionsFiles(sessionsFolder, function(sessionsFiles) {
                 if (sessionsFiles != null) {
                     var sessions = [];
                     me.sessionMap = {};
@@ -320,7 +331,7 @@
                             }
                         }
                     }
-                    sessions.sort(function (a, b) {
+                    sessions.sort(function(a, b) {
                         return b.timeStamp - a.timeStamp;
                     });
                     me.sessions = sessions;
@@ -329,7 +340,7 @@
             });
         },
 
-        _getFileContent: function (file, callback) {
+        _getFileContent: function(file, callback) {
             var content;
             OpencgaManager.files.content({
                 id: file.id,
@@ -337,18 +348,18 @@
                     sid: Cookies('bioinfo_sid')
                 },
                 request: {
-                    success: function (response) {
+                    success: function(response) {
                         content = response;
                         callback(content);
                     },
-                    error: function () {
-//                            me.message = 'Server error, try again later.';
+                    error: function() {
+                        //                            me.message = 'Server error, try again later.';
                         callback(content);
                     }
                 }
             });
         },
-        _getSessionsFolder: function (studyId, callback) {
+        _getSessionsFolder: function(studyId, callback) {
             var me = this;
             var folder;
             OpencgaManager.files.search({
@@ -358,23 +369,23 @@
                     name: '.cellmaps_sessions'
                 },
                 request: {
-                    success: function (response) {
+                    success: function(response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             folder = response.response[0].result[0];
                         } else {
-//                                me.message = response.response[0].errorMsg;
+                            //                                me.message = response.response[0].errorMsg;
                         }
                         callback(folder);
                     },
-                    error: function () {
-//                            me.message = 'Server error, try again later.';
+                    error: function() {
+                        //                            me.message = 'Server error, try again later.';
                         callback(folder);
                     }
                 }
             });
         },
-        _createSessionsFolder: function (studyId, callback) {
+        _createSessionsFolder: function(studyId, callback) {
             var me = this;
             var folder;
             OpencgaManager.files.createFolder({
@@ -384,22 +395,22 @@
                     studyId: studyId
                 },
                 request: {
-                    success: function (response) {
+                    success: function(response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             folder = response.response[0].result[0];
                         } else {
-//                                me.message = response.response[0].errorMsg;
+                            //                                me.message = response.response[0].errorMsg;
                         }
                         callback(folder);
                     },
-                    error: function () {
-//                             me.message = 'Server error, try again later.';
+                    error: function() {
+                        //                             me.message = 'Server error, try again later.';
                         callback(folder);
                     }
                 }
             });
         },
-        _getSessionsFiles: function (folder, callback) {
+        _getSessionsFiles: function(folder, callback) {
             var me = this;
             var files;
             OpencgaManager.files.list({
@@ -409,7 +420,7 @@
                     studyId: this.selectedStudy.id
                 },
                 request: {
-                    success: function (response) {
+                    success: function(response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             files = response.response[0].result;
@@ -418,7 +429,7 @@
                         }
                         callback(files);
                     },
-                    error: function () {
+                    error: function() {
                         me.message = 'Server error, try again later.';
                         callback(files);
                     }
@@ -426,24 +437,24 @@
             });
             return files
         },
-        deleteFile: function (file, callback) {
+        deleteFile: function(file, callback) {
             OpencgaManager.files.delete({
                 id: file.id,
                 query: {
                     sid: Cookies('bioinfo_sid')
                 },
                 request: {
-                    success: function (response) {
+                    success: function(response) {
                         callback('success')
                     },
-                    error: function () {
+                    error: function() {
                         callback('error')
-//                            me.message = 'Server error, try again later.';
+                            //                            me.message = 'Server error, try again later.';
                     }
                 }
             });
         },
-        uploadFile: function (fileContent, fileName, callback) {
+        uploadFile: function(fileContent, fileName, callback) {
             var url = OpencgaManager.files.upload({
                 query: {
                     sid: Cookies("bioinfo_sid")
@@ -453,7 +464,9 @@
                 }
             });
 
-            var blob = new Blob([fileContent], {type: 'text/plain'});
+            var blob = new Blob([fileContent], {
+                type: 'text/plain'
+            });
 
             var formData = new FormData();
             var userId = Cookies("bioinfo_user");
@@ -482,7 +495,7 @@
 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
-            xhr.onloadend = function (e) {
+            xhr.onloadend = function(e) {
                 console.log('upload Done!');
                 callback();
             };

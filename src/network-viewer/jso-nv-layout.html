@@ -380,6 +380,12 @@
                             vertexId: vertexId
                         });
                     }
+                    if (targetElNetworkType === 'edge' || targetElNetworkType === 'edge-label') {
+                        var edgeId = this.getEdgeId(targetEl);
+                        this.fire('removeedge', {
+                            edgeId: edgeId
+                        });
+                    }
                     break;
                 case "selectbackground":
                     if (targetElNetworkType === 'background-image') {
@@ -509,7 +515,6 @@
             }
         },
         contextMenu: function(e) {
-
             //        console.log('metaKey ' + event.metaKey);
             //        console.log('ctrlKey ' + event.ctrlKey);
             //        console.log('shiftKey ' + event.shiftKey);
@@ -532,6 +537,14 @@
                         var vertexId = this.getVertexId(targetEl);
                         this.fire('rightclickvertex', {
                             vertexId: vertexId,
+                            x: downX,
+                            y: downY
+                        });
+                    }
+                    if (targetElNetworkType === 'edge' || targetElNetworkType === 'edge-label') {
+                        var edgeId = this.getEdgeId(targetEl);
+                        this.fire('rightclickedge', {
+                            edgeId: edgeId,
                             x: downX,
                             y: downY
                         });

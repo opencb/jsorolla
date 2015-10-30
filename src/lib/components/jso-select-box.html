@@ -32,6 +32,9 @@
         properties: {
             options: {
                 type: Array,
+                value: function() {
+                    return []
+                },
                 observer: 'optionsChanged'
             },
             selected: {

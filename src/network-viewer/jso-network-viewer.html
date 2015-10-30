@@ -73,7 +73,7 @@
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-color-table.html">
 <link rel="import" href="../lib/components/network/render-settings/jso-attribute-render-select-table.html">
 
-<link rel="import" href="../lib/components/network/jso-cellbase-attribute-import.html">
+<link rel="import" href="../lib/components/network/jso-cellbase-xref-import.html">
 <link rel="import" href="../lib/components/network/jso-cellbase-functionalities-import.html">
 <link rel="import" href="../lib/components/network/jso-cellbase-drugs-import.html">
 <link rel="import" href="../lib/components/network/jso-cellbase-diseases-import.html">
@@ -180,8 +180,8 @@
         </jso-nv-edition-bar>
 
         <jso-nv-layout id="networkLayout" mode="{{mode}}" scale="{{scale}}" tx="{{center.x}}" ty="{{center.y}}" zoom="{{zoom}}" graph="{{graph}}" background-color="{{backgroundColor}}" on-createvertex="handleCreateVertex" on-selectvertex="handleSelectVertex"
-        on-moveselectedvertices="handleMoveSelectedVertices" on-selectarea="handleSelectArea" on-createedge="handleCreateEdge" on-removevertex="handleRemoveVertex" on-leftclickvertex="handleLeftClickVertex" on-selectedge="handleSelectEdge" on-leftclickedge="handleLeftClickEdge"
-        on-rightclickvertex="handleRightClickVertex" on-rightclickbackgroundimage="handleRightClickBackgroundImage">
+        on-moveselectedvertices="handleMoveSelectedVertices" on-selectarea="handleSelectArea" on-createedge="handleCreateEdge" on-removevertex="handleRemoveVertex" on-removeedge="handleRemoveEdge" on-leftclickvertex="handleLeftClickVertex" on-selectedge="handleSelectEdge"
+        on-leftclickedge="handleLeftClickEdge" on-rightclickvertex="handleRightClickVertex" on-rightclickedge="handleRightClickEdge" on-rightclickbackgroundimage="handleRightClickBackgroundImage">
         </jso-nv-layout>
 
         <jso-nv-status-bar hidden$="{{hideStatusBar}}" last-loaded-file-name="{{lastLoadedFileName}}" vertices="{{vertices}}" edges="{{edges}}" selected-vertices="{{selectedVertices}}" selected-edges="{{selectedEdges}}" selection-color="{{vertexDefaults.selectionColor}}">
@@ -257,12 +257,12 @@
             </jso-panel>
 
 
-            <jso-panel hidden collapsible fixed movable closable id="cellbaseAttributeImportPanel">
+            <jso-panel hidden collapsible fixed movable closable id="cellbaseXrefImportPanel">
                 <div class="header">
                     Import external references
                 </div>
-                <jso-cellbase-attribute-import id="cellbaseAttributeImport" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns">
-                </jso-cellbase-attribute-import>
+                <jso-cellbase-xref-import id="cellbaseXrefImport" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns">
+                </jso-cellbase-xref-import>
             </jso-panel>
 
             <jso-panel hidden collapsible fixed movable closable id="functionalitiesPanel">
@@ -456,10 +456,8 @@
         </ul>
 
         <ul id="vertexcontextmenu" class="jso-context">
-            <li on-click="handleContextRemoveVertex">Delete</li>
-            <li data-divider hidden$="{{ vAttr.selected.length < 2 }}"></li>
-            <li on-click="handleContextRemoveSelectedVertices" hidden$="{{ vAttr.selected.length < 2 }}">Delete Selected
-            </li>
+            <li on-click="handleContextRemoveVertex">Delete node</li>
+            <li on-click="handleContextRemoveSelectedVertices" hidden$="{{checkContextOneSelected(selectedVertices.length)}}">Delete selected nodes</li>
             <li data-divider></li>
             <li on-click="handleContextSelectVerticesNeighbour">Select first neighbour nodes</li>
             <li on-click="handleContextSelectEdgesNeighbour">Select Adjacent edges</li>
@@ -470,6 +468,24 @@
             <li data-text>
                 <div class="attr-context" class="vertical layout">
                     <template is="dom-repeat" items="{{_lastContextVertexAttributes}}" as="attr">
+                        <div data-text>
+                            <span class="attrkey">{{attr.key}}</span>:
+                            <span class="attrvalue">{{attr.value}}</span>
+                        </div>
+                    </template>
+                </div>
+            </li>
+        </ul>
+        <ul id="edgecontextmenu" class="jso-context">
+            <li on-click="handleContextRemoveEdge">Delete edge</li>
+            <li on-click="handleContextRemoveSelectedEdges" hidden$="{{checkContextOneSelected(selectedEdges.length)}}">Delete selected edges</li>
+            <li data-divider></li>
+            <li data-text>
+                <u>Attributes</u>
+            </li>
+            <li data-text>
+                <div class="attr-context" class="vertical layout">
+                    <template is="dom-repeat" items="{{_lastContextEdgeAttributes}}" as="attr">
                         <div data-text>
                             <span class="attrkey">{{attr.key}}</span>:
                             <span class="attrvalue">{{attr.value}}</span>
@@ -599,6 +615,9 @@
             //            'vAttr.data': 'handleDataChanged',
         ],
         //                attributes="userData selectedStudy studies jsoHeader "
+        checkContextOneSelected: function(length) {
+            return length < 2;
+        },
         ready: function() {
             var me = this;
             this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
@@ -628,10 +647,10 @@
             this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
 
             document.body.addEventListener('click', function(e) {
+                me._hideVertexContextMenu();
+                me._hideEdgeContextMenu();
                 me.$.imagecontextmenu.style.opacity = "";
                 me.$.imagecontextmenu.style.visibility = "";
-                me.$.vertexcontextmenu.style.opacity = "";
-                me.$.vertexcontextmenu.style.visibility = "";
             });
 
             this._init();
@@ -697,12 +716,12 @@
                 var key;
                 for (key in this.vertexVisualSets) {
                     if (this.$.nodeRender) {
-                        // this.$.nodeRender.$[key].clean();
+                        this.$.nodeRender.$[key].clean();
                     }
                 }
                 for (key in this.edgeVisualSets) {
                     if (this.$.edgeRender) {
-                        // this.$.edgeRender.$[key].clean();
+                        this.$.edgeRender.$[key].clean();
                     }
                 }
             }
@@ -877,8 +896,10 @@
             this.resetZoom();
             this.set('center.x', o.center.x);
             this.set('center.y', o.center.y);
+            this.resetZoom();
             this.zoom = o.zoom;
         },
+
         toJSON: function() {
             return {
                 zoom: this.zoom,
@@ -1127,9 +1148,15 @@
         },
         handleVerticesUpdateRow: function(e) {
             this.$.nodeRender.refreshAttributes();
+            if (e.detail.column.name === this.vertexDefaults.labelAttribute) {
+                this.handleVertexDefaultLabelAttribute();
+            }
         },
         handleEdgesUpdateRow: function(e) {
             this.$.edgeRender.refreshAttributes();
+            if (e.detail.column.name === this.edgeDefaults.labelAttribute) {
+                this.handleEdgeDefaultLabelAttribute();
+            }
         },
         vertexSelectionColorChanged: function(neo, old) {
             for (var i = 0; i < this.selectedVertices.length; i++) {
@@ -1223,7 +1250,7 @@
             this.$.edgeSelectFilterPanel.show();
         },
         handleCellbaseMenu: function(e) {
-            this.$.cellbaseAttributeImportPanel.show();
+            this.$.cellbaseXrefImportPanel.show();
         },
         handleDrugsMenu: function(e) {
             this.$.drugsPanel.show();
@@ -1231,7 +1258,7 @@
         handleDiseasesMenu: function(e) {
             this.$.diseasesPanel.show();
         },
-        handleFunctionalitiesMenu:function(){
+        handleFunctionalitiesMenu: function() {
             this.$.functionalitiesPanel.show();
         },
         handleSessionStartMenu: function(e) {
@@ -1391,6 +1418,9 @@
         handleExportSvgMenu: function(e) {
             //                var svg = new XMLSerializer().serializeToString(this.$.networkLayout.$.svg);
             var svg = this.$.networkLayout.$.svgDiv.innerHTML.trim();
+            var bcrLayout = this.$.networkLayout.$.drawArea.getBoundingClientRect();
+            var toReplace = 'id="svg" width="100%" height="100%"';
+            svg = svg.replace(toReplace, 'id="svg" width="' + bcrLayout.width + '" height="' + bcrLayout.height + '"');
             var blob = new Blob([svg], {
                 type: "image/svg+xml"
             });
@@ -1437,7 +1467,6 @@
                     this.jsoHeader.anonymousSign();
                 }
             }
-            //TODO
             this.$.snowPanel.show();
         },
         handleNetworkMinerMenu: function(e) {
@@ -1635,6 +1664,10 @@
             var vertex = this.graph.getVertexById(e.detail.vertexId);
             this.removeVertex(vertex);
         },
+        handleRemoveEdge: function(e) {
+            var edge = this.graph.getEdgeById(e.detail.edgeId);
+            this.removeEdge(edge);
+        },
         handleLeftClickVertex: function(e) {
             var vertex = this.graph.getVertexById(e.detail.vertexId);
             this.$.editionBar.vertexColor = vertex.renderer.color;
@@ -1651,15 +1684,38 @@
             //                this.$.editionBar.edgeNameField = edge.renderer.labelText;
             this.$.editionBar.selectedBar = 'edge';
         },
-        handleRightClickVertex: function(e) {
+
+        /** Context Handlers **/
+        _hideVertexContextMenu: function() {
+            this.$.vertexcontextmenu.style.opacity = "";
+            this.$.vertexcontextmenu.style.visibility = "";
             this._lastContextVertexAttributes = [];
+        },
+        _hideEdgeContextMenu: function() {
+            this.$.edgecontextmenu.style.opacity = "";
+            this.$.edgecontextmenu.style.visibility = "";
+            this._lastContextEdgeAttributes = [];
+        },
+        _showVertexContextMenu: function(x, y) {
             var bcrnl = this.$.networkLayout.getBoundingClientRect();
             this.$.vertexcontextmenu.style.opacity = "1";
             this.$.vertexcontextmenu.style.visibility = "visible";
-            this.$.vertexcontextmenu.style.top = (bcrnl.top + e.detail.y + 10) + "px";
-            this.$.vertexcontextmenu.style.left = (bcrnl.left + e.detail.x + 10) + "px";
-            this._lastContextVertex = this.graph.getVertexById(e.detail.vertexId);
+            this.$.vertexcontextmenu.style.top = (bcrnl.top + y + 10) + "px";
+            this.$.vertexcontextmenu.style.left = (bcrnl.left + x + 10) + "px";
+        },
+        _showEdgeContextMenu: function(x, y) {
+            var bcrnl = this.$.networkLayout.getBoundingClientRect();
+            this.$.edgecontextmenu.style.opacity = "1";
+            this.$.edgecontextmenu.style.visibility = "visible";
+            this.$.edgecontextmenu.style.top = (bcrnl.top + y + 10) + "px";
+            this.$.edgecontextmenu.style.left = (bcrnl.left + x + 10) + "px";
+        },
+        handleRightClickVertex: function(e) {
+            this._hideEdgeContextMenu();
+            this._lastContextVertexAttributes = [];
+            this._showVertexContextMenu(e.detail.x, e.detail.y);
             var vertex = this.graph.getVertexById(e.detail.vertexId);
+            this._lastContextVertex = vertex;
             var attrs = [];
             for (var key in vertex.attributes) {
                 attrs.push({
@@ -1669,17 +1725,43 @@
             }
             this._lastContextVertexAttributes = attrs;
         },
-        /** Context Handlers **/
+        handleRightClickEdge: function(e) {
+            this._hideVertexContextMenu();
+            this._lastContextEdgeAttributes = [];
+            this._showEdgeContextMenu(e.detail.x, e.detail.y);
+            var edge = this.graph.getEdgeById(e.detail.edgeId);
+            this._lastContextEdge = edge;
+            var attrs = [];
+            for (var key in edge.attributes) {
+                attrs.push({
+                    key: key,
+                    value: edge.attributes[key]
+                });
+            }
+            this._lastContextEdgeAttributes = attrs;
+        },
         handleContextRemoveVertex: function(e) {
             if (confirm('Remove selected vertex?')) {
-                this.$.vertexcontextmenu.style.opacity = "";
-                this.$.vertexcontextmenu.style.visibility = "";
+                this._hideVertexContextMenu();
                 this.removeVertex(this._lastContextVertex);
+            }
+        },
+        handleContextRemoveEdge: function(e) {
+            if (confirm('Remove selected edge?')) {
+                this._hideEdgeContextMenu();
+                this.removeEdge(this._lastContextEdge);
             }
         },
         handleContextRemoveSelectedVertices: function(e) {
             if (confirm('Remove selected vertices?')) {
+                this._hideVertexContextMenu();
                 this.removeSelectedVertices();
+            }
+        },
+        handleContextRemoveSelectedEdges: function(e) {
+            if (confirm('Remove selected edges?')) {
+                this._hideVertexContextMenu();
+                this.removeSelectedEdges();
             }
         },
         handleContextSelectVerticesNeighbour: function(e) {
@@ -1712,6 +1794,7 @@
             this._hideImageContextMenu();
             this.removeBackGroundImage(this._lastImageElClicked);
         },
+
         /** network edit **/
         handleNetworkEditAddVertex: function(e) {
             var vertex = this.createVertex(null, null, e.detail.id);
@@ -1731,6 +1814,7 @@
             this.setLayout('Force directed');
         },
         handleReactomeGraph: function(e) {
+            this.startOver();
             this.setGraph(e.detail.graph);
             var cols = [{
                 name: "x",
@@ -1764,8 +1848,9 @@
             this.setLayout("Force directed");
         },
         handleKeggGraph: function(e) {
+            this.startOver();
             this.setGraph(e.detail.graph);
-            var cols = [{
+            var vertexCols = [{
                 name: "x",
                 title: "x",
                 type: "text",
@@ -1787,6 +1872,14 @@
                     return row.attributes[this.name];
                 }
             }];
+            var edgeCols = [{
+                name: "type",
+                title: "Type",
+                type: "text",
+                formula: function(row) {
+                    return row.attributes[this.name];
+                }
+            }];
             var map = e.detail.map;
             for (var i = 0; i < this.vertices.length; i++) {
                 var attributes = this.vertices[i].attributes;
@@ -1795,7 +1888,8 @@
                 attributes["x"] = map[attributes["id"]].x;
                 attributes["y"] = map[attributes["id"]].y;
             }
-            this._addColumns(cols, 'vertexColumns');
+            this._addColumns(vertexCols, 'vertexColumns');
+            this._addColumns(edgeCols, 'edgeColumns');
 
             this.vertexDefaults.labelAttribute = "name";
             this.handleVertexDefaultLabelAttribute();
@@ -1803,6 +1897,44 @@
             this.handleVertexDefaultXAttribute();
             this.handleVertexDefaultYAttribute();
             //            me.setLayout("Force directed");
+
+            var matches = {};
+            for (var i = 0; i < this.edges.length; i++) {
+                var edge = this.edges[i];
+                if (edge.attributes.relation === 'inhibition' || edge.attributes.relation === 'repression') {
+                    matches[edge.attributes.relation] = 'inhibited';
+                } else if (edge.attributes.relation === 'binding/association') {
+                    matches[edge.attributes.relation] = 'undirected';
+                } else {
+                    matches[edge.attributes.relation] = 'directed';
+                }
+            }
+            // for (var i = 0; i < this.edges.length; i++) {
+            //     var edge = this.edges[i];
+            //     if (edge.attributes.relation === 'inhibition' || edge.attributes.relation === 'repression') {
+            //         matches[edge.attributes.relation] = 'red';
+            //     } else if (edge.attributes.relation === 'binding/association') {
+            //         matches[edge.attributes.relation] = 'blue';
+            //     } else {
+            //         matches[edge.attributes.relation] = 'orange';
+            //     }
+            // }
+            this.$.edgeRender.applyVisualSet({
+                attribute: "relation",
+                displayProperty: "shape",
+                enabled: true,
+                matches: matches,
+                parse: "string",
+                type: "categorical"
+            });
+            // this.$.edgeRender.applyVisualSet({
+            //     attribute: "relation",
+            //     displayProperty: "color",
+            //     enabled: true,
+            //     matches: matches,
+            //     parse: "string",
+            //     type: "categorical"
+            // });
         },
         handleCommunityAttributes: function(e) {
             var attr = e.detail.attributes;
@@ -2114,6 +2246,11 @@
             }
             vertex.renderer.remove();
             this.graph.removeVertex(vertex);
+        },
+        removeEdge: function(edge) {
+            edge.renderer.remove();
+            this.graph.removeEdge(edge);
+            this.deselectAllEdges();
         },
         removeSelectedVertices: function() {
             for (var i = 0; i < this.selectedVertices.length; i++) {
