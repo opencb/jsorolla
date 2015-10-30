@@ -25,21 +25,23 @@
         }
 
         #content {
-            height: calc(100% - 30px);
+            height: calc(100% - 60px);
             /*height: 100%;*/
             overflow-y: auto;
             overflow-x: hidden;
         }
 
         jso-opencga-job-list-item {
+            margin: 2px;
             padding: 3px 7px;
-            border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+            border: 1px solid rgba(125, 125, 125, 0.3);
         }
 
     </style>
     <template>
         <div id="header" class="horizontal layout">
             <label class="jso">Tool name:</label>
+
             <div class="jso-select" style="width:150px;">
                 <select id="toolFilterSelect" on-change="handleFilterSelect">
                     <option value="all">all</option>
@@ -51,13 +53,13 @@
         </div>
         <div id="content">
             <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
-                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect">
+                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}">
                 </jso-opencga-job-list-item>
             </template>
         </div>
-        <!--<div id="footer" class="horizontal layout">-->
-
-        <!--</div>-->
+        <div id="footer" class="horizontal layout">
+            Total Jobs: <span>{{computeTotalJobs(jobs)}}</span>
+        </div>
 
     </template>
 </dom-module>
@@ -89,6 +91,12 @@
             toolFilterValue: {
                 type: String,
                 value: 'all'
+            },
+            study: {
+                type: Object,
+                value: function () {
+                    return {};
+                }
             }
         },
         handleSelect: function (e) {
@@ -121,6 +129,9 @@
         handleFilterSelect: function (e) {
             this.set('toolFilterValue', e.currentTarget.value);
             this.jobsChanged();
+        },
+        computeTotalJobs: function (jobs) {
+            return jobs.length;
         }
     });
 </script>

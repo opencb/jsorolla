@@ -1,0 +1,175 @@
+<dom-module id="jso-wizard">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            height: 100%;
+            width: 100%;
+        }
+
+        #wizard-content {
+            height: 100%;
+        }
+
+        .container {
+            background-color: var(--light-primary-color);
+            color: var(--primary-text-color);
+        }
+
+        .file {
+            text-align: center;
+            color: #445D76;
+            margin-top: 5px;
+            width: 100px;
+        }
+
+        .next {
+            text-align: right;
+            color: #6B6B6B;
+            font-size: 15px;
+        }
+
+        .next > label:hover {
+            background-color: #d3d3d3;
+            cursor: pointer;
+        }
+
+        .prev {
+            text-align: left;
+            color: #6B6B6B;
+            font-size: 15px;
+        }
+
+        .prev > label:hover {
+            background-color: #d3d3d3;
+            cursor: pointer;
+        }
+
+        .header {
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            height: 40px;
+            padding: 7px 10px;
+            background-color: var(--light-secondary-color);
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        .title {
+            font-size: 20px;
+            color: #445D76;
+        }
+
+        #wizard-bottom {
+            box-sizing: border-box;
+            height: 40px;
+            padding: 7px 10px;
+            background-color: var(--light-secondary-color);
+            border-top: 1px solid var(--divider-color);
+        }
+
+        #wizard-bottom > div {
+            margin-left: 10px;
+            width: 120px;
+        }
+    </style>
+    <template>
+        <div id="wizard-content" class="vertical layout">
+            <div class="header">
+                <div class="horizontal layout">
+                    <div class="flex" hidden="{{handleHiddenStep1(step)}}"></div>
+                    <div class="prev flex" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}">
+                        <label><i class="fa fa-angle-double-left"></i>&nbsp;Step&nbsp;<span>{{stepPrev}}</span></label>
+                    </div>
+                    <label class="title">Step &nbsp;
+                        <span>{{step}}</span>
+                    </label>
+
+                    <div class="flex next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
+                        <label>Step&nbsp;
+                            <span>{{stepNext}}</span>&nbsp;<i class="fa fa-angle-double-right"></i></label>
+                    </div>
+                    <div class="flex" hidden="{{handleHiddenStepEnd(step)}}"></div>
+                </div>
+            </div>
+
+            <div class="container flex">
+                <content id="container" class="flex"></content>
+            </div>
+
+            <div class="footer">
+                <div id="wizard-bottom" class="horizontal layout end-justified">
+                    <div class="jso-btn jso-btn-shdw file" on-click="handlePrevStepButton"
+                         hidden="{{!handleHiddenStep1(step)}}"><i class="fa fa-angle-double-left"></i>&nbsp; Previous
+                    </div>
+                    <div class="jso-btn jso-btn-shdw file" on-click="handleNextStepButton"
+                         hidden="{{!handleHiddenStepEnd(step)}}">Next &nbsp;<i class="fa fa-angle-double-right"></i>
+                    </div>
+                    <div hidden="{{handleHiddenStepEnd(step)}}"> &nbsp; </div>
+                </div>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "jso-wizard",
+            properties: {
+                step: {
+                    type: Number,
+                    value: 1,
+                    observer: 'stepChanged'
+                },
+                steps: {
+                    type: Array,
+                    value: function () {
+                        return [];
+                    }
+                }
+            },
+            ready: function () {
+                var steps = Polymer.dom(this).querySelectorAll('.step');
+
+                this.set('steps', steps);
+                this.stepChanged(1, 0);
+                this.stepNext = 2;
+            },
+            created: function () {
+                this.steps = [];
+            },
+            handleHiddenStep1: function (step) {
+                return step != 1;
+            },
+            handleHiddenStepEnd: function (step) {
+                return step != this.steps.length;
+            },
+            handlePrevStepButton: function (e) {
+                this.step = (this.step <= 1) ? 1 : this.step - 1;
+                console.log(this.step);
+                this.stepNext = this.step + 1
+                this.stepPrev = this.step - 1;
+            },
+            handleNextStepButton: function (e) {
+                this.step = (this.step >= this.steps.length) ? this.steps.length : this.step + 1;
+                this.stepNext = this.step + 1
+                this.stepPrev = this.step - 1;
+            },
+            stepChanged: function (neo, old) {
+                if (this.steps && this.steps.length > 0) {
+
+                    for (var i = 0; i < this.steps.length; i++) {
+                        if ((i + 1) == neo) {
+                            this.steps[i].hidden = false;
+
+                        } else {
+                            this.steps[i].hidden = true;
+                        }
+                    }
+
+                }
+            },
+
+        })
+    </script>
+</dom-module>
