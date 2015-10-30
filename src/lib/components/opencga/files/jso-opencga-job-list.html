@@ -58,7 +58,7 @@
             </template>
         </div>
         <div id="footer" class="horizontal layout">
-            Total Jobs: <span>{{computeJobs(jobs)}}</span>
+            Total Jobs: <span>{{computeTotalJobs(jobs)}}</span>
         </div>
 
     </template>
@@ -130,7 +130,7 @@
             this.set('toolFilterValue', e.currentTarget.value);
             this.jobsChanged();
         },
-        computeJobs: function (jobs) {
+        computeTotalJobs: function (jobs) {
             return jobs.length;
         }
     });
