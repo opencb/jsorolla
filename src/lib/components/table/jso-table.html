@@ -407,7 +407,8 @@
 
         <div class="horizontal layout center table-bbar">
             <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center flex">
-                <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i></div>
+                <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i>
+                </div>
                 <div class="jso-btn jso-btn-shdw" on-click="handlePreviousClick"><i class="fa fa-angle-left"></i></div>
                 <div class="jso-txt">Page</div>
                 <input type="text" class="jso" style="width:80px;" value="{{currentPage::input}}">
@@ -416,7 +417,8 @@
                 <div class="jso-txt">{{computePageTotal(pageSize, itemCount)}}</div>
 
                 <div class="jso-btn jso-btn-shdw" on-click="handleNextClick"><i class="fa fa-angle-right"></i></div>
-                <div class="jso-btn jso-btn-shdw" on-click="handleLastClick"><i class="fa fa-angle-double-right"></i></div>
+                <div class="jso-btn jso-btn-shdw" on-click="handleLastClick"><i class="fa fa-angle-double-right"></i>
+                </div>
 
                 <div class="flex"></div>
 
@@ -432,7 +434,7 @@
                 <span>Total: </span>
                 <span>{{itemCount}}</span>
             </div>
-            <div class="jso-btn jso-btn-shdw" on-click="handleColumnsMenuButton">
+            <div class="jso-btn jso-btn-shdw" on-click="handleColumnsMenuButton" hidden$="{{hideColumnSelector}}">
                 <i class="fa fa-bars"></i>
             </div>
         </div>
@@ -574,6 +576,11 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false,
+            },
+            hideColumnSelector: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
             }
         },
         observers: [
