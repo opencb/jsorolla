@@ -218,6 +218,7 @@
 
                     var request = new XMLHttpRequest();
                     request.onload = function() {
+                        debugger
                         var response;
                         var contentType = this.getResponseHeader('Content-Type');
                         if (contentType === 'application/json') {
@@ -270,7 +271,7 @@
                             });
                             me.message = "Done";
                         } else {
-                            me.message = "No communities found";
+                            me.message = "Server error, try again later.";
                         }
                         me.loading = false;
                     };

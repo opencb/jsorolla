@@ -2,15 +2,14 @@
 <link rel="import" href="jso-go-viewer.html">
 <link rel="import" href="jso-pvalue-button.html">
 <link rel="import" href="jso-fatigo-table.html">
+<link rel="import" href="jso-interactors-table.html">
 <dom-module id="jso-job-result">
     <style>
         :host {
             display: block;
             position: relative;
             box-sizing: border-box;
-
             margin: 0px auto 0px auto;
-
             transition: all 0.2s;
             background-color: #fcfcf9;
         }
@@ -31,7 +30,6 @@
         .level-0 {
             /*border: 1px solid grey;*/
             padding: 10px 20px;
-
         }
 
         .level-0 > .headerTitle {
@@ -62,7 +60,8 @@
             /*background-color: blue;*/
         }
 
-        .message, .file {
+        .message,
+        .file {
             color: #222;
             font-size: 16px;
         }
@@ -72,7 +71,8 @@
             margin-right: 10px;
         }
 
-        .message > label:after, .file > label:after {
+        .message > label:after,
+        .file > label:after {
             content: ':';
         }
 
@@ -128,8 +128,7 @@
         </div>
         <template is="dom-if" if="{{loading}}">
             <div class="loading">
-                <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
-                Loading results...
+                <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i> Loading results...
             </div>
         </template>
         <!--<template if="{{!loading}}">-->
@@ -142,14 +141,14 @@
                 <div class="headerTitle">There was an unexpected error:</div>
                 <div class="data">
                     This is maybe due to incorrect input. For more info about proper inputs, refer to the
-                    <a href="https://github.com/babelomics/babelomics/wiki" target="_blank">documentation</a>.
-                    You can also download the example file.
-                    <br>
-                    For detailed information you can download the log file:
-                    <div class="file"><label>Log output file:</label>
+                    <a href="https://github.com/babelomics/babelomics/wiki" target="_blank">documentation</a>. You can also download the example file.
+                    <br> For detailed information you can download the log file:
+                    <div class="file">
+                        <label>Log output file:</label>
                         <a href$="{{logOutputFile}}" download="log_output.txt">log_output.txt</a>
                     </div>
-                    <div class="file"><label>Log error file:</label>
+                    <div class="file">
+                        <label>Log error file:</label>
                         <a href$="{{logErrorFile}}" download="log_error.txt">log_error.txt</a>
                     </div>
                     If error persist, please contact babelomics crew at babelomics@cipf.es
@@ -176,7 +175,7 @@
                 },
                 createdElements: {
                     type: Object,
-                    value: function () {
+                    value: function() {
                         return {}
                     }
                 },
@@ -194,14 +193,18 @@
                 },
                 networkViewer: {
                     type: Object
+                },
+                selectedOption: {
+                    type: String,
+                    notify: true
                 }
             },
-            jobItemChanged: function (neo, old) {
+            jobItemChanged: function(neo, old) {
                 var me = this;
                 this.resultXML = null;
                 this.error = false;
                 this.loading = true;
-//                this.output = this.shadowRoot.querySelector("#output");
+                //                this.output = this.shadowRoot.querySelector("#output");
                 this.output = this.$.output;
                 while (this.output.firstChild) {
                     this.output.removeChild(this.output.firstChild);
@@ -223,24 +226,24 @@
                         sid: Cookies("bioinfo_sid")
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
 
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 me.filesList = response.response[0].result;
-                                me.getFileContent(function (content) {
+                                me.getFileContent(function(content) {
                                     me.loading = false;
                                     var root = me.output;
                                     me.parseXML(content, root);
                                 }, "result.xml");
                             }
                         },
-                        error: function () {
+                        error: function() {
                             me.message = 'Server error, try again later.';
                         }
                     }
                 })
             },
-            getFileContent: function (callback, fileName) {
+            getFileContent: function(callback, fileName) {
                 var me = this;
                 var fileId = null;
                 for (var result in this.filesList) {
@@ -257,12 +260,12 @@
                         },
                         request: {
                             async: false,
-                            success: function (response) {
-//                    var content = response.response[0]
+                            success: function(response) {
+                                //                    var content = response.response[0]
                                 /** I pass localDiv as parameter because I loose the div to render in a loop **/
                                 callback(response)
                             },
-                            error: function () {
+                            error: function() {
                                 this.message = 'Server error, try again later.';
                             }
                         }
@@ -285,23 +288,22 @@
                     this.error = true;
                 }
             },
-            prettyString: function (str) {
+            prettyString: function(str) {
                 return str.replace(/\s/g, "_").replace(/\(/g, "_").replace(/\)/g, "_");
             },
-            createElement: function (parent, htmlType, htmlContent) {
+            createElement: function(parent, htmlType, htmlContent) {
                 var el = document.createElement(htmlType);
                 el.classList.add('style-scope', 'jso-job-result');
                 var node = document.createTextNode(htmlContent);
                 el.appendChild(node);
                 parent.appendChild(el);
             },
-            parseXML: function (xml) {
+            parseXML: function(xml) {
                 var me = this;
                 if (window.DOMParser) {
                     var parser = new DOMParser();
                     var xmlDoc = parser.parseFromString(xml, "text/xml");
-                }
-                else {
+                } else {
                     var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
                     xmlDoc.async = false;
                     xmlDoc.loadXML(xml);
@@ -312,22 +314,23 @@
                 var divsJSON = me._renderJSON();
                 me.output.appendChild(divsJSON);
             },
-            getJobInfoHtml: function () {
+            getJobInfoHtml: function() {
                 var el = document.createElement("jso-job-info-widget");
                 el.classList.add('style-scope', 'jso-job-result');
                 el.jobItem = this.jobItem;
                 return el;
-//
-// this.$.output.appendChild(el.querySelector("div"));
+                //
+                // this.$.output.appendChild(el.querySelector("div"));
 
 
             },
-            parseResultXML: function (xmlDoc) {
+            parseResultXML: function(xmlDoc) {
 
                 var me = this;
 
                 var result = {
-                    input: [], output: []
+                    input: [],
+                    output: []
                 };
                 var output = xmlDoc.getElementsByTagName("output")[0].childNodes;
                 var input = xmlDoc.getElementsByTagName("input")[0].childNodes;
@@ -341,7 +344,7 @@
 
 
             },
-            parseOutput: function (output) {
+            parseOutput: function(output) {
                 var elements = [];
                 for (var i = 0; i < output.length; i++) {
                     var elemXML = output[i];
@@ -352,7 +355,7 @@
                 }
                 return elements;
             },
-            parseInput: function (input) {
+            parseInput: function(input) {
                 var elements = [];
 
 
@@ -380,7 +383,7 @@
 
                 return elements;
             },
-            _renderJSON: function () {
+            _renderJSON: function() {
                 var mainDiv = document.createElement("div");
                 mainDiv.classList.add('style-scope', 'jso-job-result');
                 var div = this.getJobInfoHtml();
@@ -395,20 +398,20 @@
                 }
                 return mainDiv;
             },
-            _createButton: function (pvalue) {
+            _createButton: function(pvalue) {
                 var me = this;
                 var button = document.createElement("div");
                 button.classList.add("button");
                 button.setAttribute("data-checked", "{{pvalue == " + pvalue + "}}");
                 button.innerHTML = pvalue;
 
-                button.addEventListener("click", function () {
+                button.addEventListener("click", function() {
                     me.pvalue = pvalue;
                 });
 
                 return button;
             },
-            _renderJsonElement: function (element, level) {
+            _renderJsonElement: function(element, level) {
 
                 var mainDiv = document.createElement("div");
                 var titleDiv = document.createElement("div");
@@ -449,7 +452,7 @@
 
                 return mainDiv;
             },
-            _getFileId: function (fileName) {
+            _getFileId: function(fileName) {
                 var fileId = -1;
                 for (var result in this.filesList) {
                     if (this.filesList[result].name == fileName) {
@@ -459,47 +462,43 @@
                 }
                 return fileId;
             },
-            _renderValue: function (element) {
+            _renderValue: function(element) {
                 var me = this;
                 var res = document.createElement("div");
                 res.classList.add('style-scope', 'jso-job-result');
                 switch (element.type) {
                     case "TEXT":
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            if (this.jobItem.toolName == "class-comparison"
-                                    || this.jobItem.toolName == "survival"
-                                    || this.jobItem.toolName == "correlation"
-                                    || this.jobItem.toolName == "burden"
-                                    || this.jobItem.toolName == "oncodrivefm"
-                                    || this.jobItem.toolName == "oncodriveclust") {
+                            if (this.jobItem.toolName == "class-comparison" || this.jobItem.toolName == "survival" || this.jobItem.toolName == "correlation" || this.jobItem.toolName == "burden" || this.jobItem.toolName == "oncodrivefm" ||
+                                this.jobItem.toolName == "oncodriveclust") {
                                 var fileRedirection = element.tags.split("(")[1].split(":")[0];
-                                me.getFileContent(function (content) {
+                                me.getFileContent(function(content) {
                                     var args = me._getRedirectionArgs(content);
-//                                    var lines = content.split("\n");
-//                                    var hash = {};
-//                                    for (var i = 0; i < lines.length; i++) {
-//                                        var line = lines[i];
-//                                        if (line == "") continue;
-//
-//                                        var splits = line.split("=");
-//                                        hash[splits[0]] = splits[1];
-//
-//                                    }
-//
-//                                    var args = {};
-//                                    var value, aux, valueAsFile;
-//                                    for (var key in hash) {
-//
-//                                        value = hash[key];
-//                                        aux = value.split("/");
-//                                        valueAsFile = aux[aux.length - 1];
-//                                        for (var i = 0; i < me.filesList.length; i++) {
-//                                            if (me.filesList[i].name == valueAsFile) {
-//                                                value = me.filesList[i];
-//                                            }
-//                                        }
-//                                        args[key] = value;
-//                                    }
+                                    //                                    var lines = content.split("\n");
+                                    //                                    var hash = {};
+                                    //                                    for (var i = 0; i < lines.length; i++) {
+                                    //                                        var line = lines[i];
+                                    //                                        if (line == "") continue;
+                                    //
+                                    //                                        var splits = line.split("=");
+                                    //                                        hash[splits[0]] = splits[1];
+                                    //
+                                    //                                    }
+                                    //
+                                    //                                    var args = {};
+                                    //                                    var value, aux, valueAsFile;
+                                    //                                    for (var key in hash) {
+                                    //
+                                    //                                        value = hash[key];
+                                    //                                        aux = value.split("/");
+                                    //                                        valueAsFile = aux[aux.length - 1];
+                                    //                                        for (var i = 0; i < me.filesList.length; i++) {
+                                    //                                            if (me.filesList[i].name == valueAsFile) {
+                                    //                                                value = me.filesList[i];
+                                    //                                            }
+                                    //                                        }
+                                    //                                        args[key] = value;
+                                    //                                    }
 
 
                                     //var button = me._createRedirectButton("Send to " + toolMenuName, hash.tool, args);
@@ -552,7 +551,7 @@
                             res.setAttribute("id", "nm-json-highChart");
                             res.classList.add("networkminer");
 
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 me.parseHighCharts(content, res);
 
                             }, element.value);
@@ -619,19 +618,15 @@
                     case "FILE":
 
                         if (element.tags.indexOf("REDIRECTION") >= 0) {
-                            if (this.jobItem.toolName == "affy-expression-normalization"
-                                    || this.jobItem.toolName == "agilent-expression-one-color-normalization"
-                                    || this.jobItem.toolName == "genepix-expression-one-color-normalization"
-                                    || this.jobItem.toolName == "agilent-expression-two-colors-normalization"
-                                    || this.jobItem.toolName == "genepix-expression-two-colors-normalization"
-                                    || this.jobItem.toolName == "preprocessing") {
+                            if (this.jobItem.toolName == "affy-expression-normalization" || this.jobItem.toolName == "agilent-expression-one-color-normalization" || this.jobItem.toolName == "genepix-expression-one-color-normalization" ||
+                                this.jobItem.toolName == "agilent-expression-two-colors-normalization" || this.jobItem.toolName == "genepix-expression-two-colors-normalization" || this.jobItem.toolName == "preprocessing") {
                                 var filesRedirection = element.tags.split(",");
                                 for (var i = 0; i < filesRedirection.length; i++) {
                                     var raw = filesRedirection[i];
 
-//                                    var fileRedirection = element.tags.split("(")[1].split(":")[0];
+                                    //                                    var fileRedirection = element.tags.split("(")[1].split(":")[0];
                                     var fileRedirection = raw.split("(")[1].split(":")[0];
-                                    me.getFileContent(function (content) {
+                                    me.getFileContent(function(content) {
 
                                         var lines = content.split("\n");
                                         var hash = {};
@@ -705,8 +700,8 @@
                             file.appendChild(a);
                         }
                         if (this.jobItem.toolName == "fatigo" || this.jobItem.toolName == "fatiscan") {
-//                            console.log(element.tags)
-//                            debugger
+                            //                            console.log(element.tags)
+                            //                            debugger
 
                             if (element.tags.indexOf("FATIGO_TABLE") >= 0 || element.tags.indexOf("GO_NETWORKVIEWER") >= 0 || element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
                                 console.log(file)
@@ -716,42 +711,38 @@
                             } else {
                                 res.appendChild(file);
                             }
-//                        } else if (this.jobItem.toolName == "fatiscan") {
-//                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
-//                                if (element.value.indexOf(me.pvalue) >= 0) {
-//                                    res.appendChild(file);
-//                                }
-//                            } else {
-//                                res.appendChild(file);
-//                            }
-                        }
-                        else {
+                            //                        } else if (this.jobItem.toolName == "fatiscan") {
+                            //                            if (element.tags.indexOf("LOGISTIC_TABLE") >= 0) {
+                            //                                if (element.value.indexOf(me.pvalue) >= 0) {
+                            //                                    res.appendChild(file);
+                            //                                }
+                            //                            } else {
+                            //                                res.appendChild(file);
+                            //                            }
+                        } else {
                             res.appendChild(file);
                         }
 
                         if (element.tags.indexOf("NETWORKMINERRANKED_TABLE") >= 0) {
-                            var dataArray = new Array();
+                            var dataArray = [];
                             var interactorsTable = document.createElement('jso-interactors-table');
                             interactorsTable.classList.add('style-scope', 'jso-job-result');
-
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 interactorsTable.typeTable = "NETWORKMINERRANKED_TABLE";
                                 interactorsTable.content = content;
-
                             }, element.value);
 
                             res.appendChild(interactorsTable);
 
                         }
                         if (element.tags.indexOf("NETWORKMINERNOTRANKED_TABLE") >= 0) {
-                            var dataArray = new Array();
+                            var dataArray = [];
                             var interactorsTable = document.createElement('jso-interactors-table');
                             interactorsTable.classList.add('style-scope', 'jso-job-result');
 
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 interactorsTable.typeTable = "NETWORKMINERNOTRANKED_TABLE";
                                 interactorsTable.content = content;
-
                             }, element.value);
 
                             res.appendChild(interactorsTable);
@@ -771,7 +762,7 @@
                             var interactomeViewer = document.createElement('jso-interactome-viewer');
                             interactomeViewer.classList.add('style-scope', 'jso-job-result');
 
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 interactomeViewer.set('intermediates', intermediatesArray);
                                 interactomeViewer.set('seedList', seedArray);
                                 interactomeViewer.set('jobResult', me);
@@ -786,7 +777,7 @@
                             var proteinViewer = document.createElement('jso-protein-viewer');
                             proteinViewer.classList.add('style-scope', 'jso-job-result');
 
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 proteinViewer.nodes = content.split("\n");
                                 proteinViewer.speciesSelection = "hsapiens";
                                 proteinViewer.nodeSelection = false;
@@ -816,8 +807,8 @@
                             }
 
                             if (table && dataset) {
-                                this.getFileContent(function (content) {
-                                    me.getFileContent(function (contentDataset) {
+                                this.getFileContent(function(content) {
+                                    me.getFileContent(function(contentDataset) {
                                         sortableTable.content = content;
                                         sortableTable.contentDataset = contentDataset;
                                         sortableTable.files = me.filesList;
@@ -826,8 +817,7 @@
 
 
                                 }, test + "_significative_table.txt");
-                            }
-                            else {
+                            } else {
                                 sortableTable.loading = false;
                             }
 
@@ -835,7 +825,7 @@
                         if (element.tags.indexOf("PREDICTOR_FEATURE_SELECTION_TABLE") >= 0) {
 
                             var sortableTable = document.createElement('jso-predictors-selection-table');
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 sortableTable.content = content;
 
                             }, element.value);
@@ -845,7 +835,7 @@
                         if (element.tags.indexOf("TABLE,NO_LINK") >= 0) {
                             var dataArray = new Array();
                             var columns = new Array();
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 var data = content.split("\n");
                                 for (var i = 0; i < data.length; i++) {
                                     if (i == 0) {
@@ -868,7 +858,7 @@
 
                             var sortableTable = document.createElement('sortable-table');
                             sortableTable.setAttribute("id", "tableId");
-//                            sortableTable.setAttribute("cellTemplate", "html");
+                            //                            sortableTable.setAttribute("cellTemplate", "html");
 
                             sortableTable.columns = columns;
                             sortableTable.data = dataArray;
@@ -879,51 +869,51 @@
                         }
                         if (element.tags.indexOf("ONCODRIVEFM-GENES") >= 0) {
 
-//                            if (element.value.indexOf("0.05") >= 0) {
+                            //                            if (element.value.indexOf("0.05") >= 0) {
 
-//                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            //                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
                             var sortableTable = document.createElement('jso-oncodrive-genes-table');
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 sortableTable.content = content;
 
                             }, element.value);
                             res.appendChild(sortableTable);
-//                            }
+                            //                            }
                         }
                         if (element.tags.indexOf("ONCODRIVEFM-PATHWAYS") >= 0) {
 
-//                            if (element.value.indexOf("0.05") >= 0) {
+                            //                            if (element.value.indexOf("0.05") >= 0) {
 
                             var sortableTable = document.createElement('jso-oncodrive-pathways-table');
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 sortableTable.content = content;
 
                             }, element.value);
                             res.appendChild(sortableTable);
-//                            }
+                            //                            }
                         }
                         if (element.tags.indexOf("ONCODRIVECLUST") >= 0) {
 
                             var sortableTable = document.createElement('jso-oncodriveclust-genes-table');
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 sortableTable.content = content;
 
                             }, element.value);
                             res.appendChild(sortableTable);
-//                            }
+                            //                            }
                         }
                         if (element.tags.indexOf("TABLE,BURDEN") >= 0) {
 
-//                            if (element.value.indexOf("0.05") >= 0) {
+                            //                            if (element.value.indexOf("0.05") >= 0) {
 
-//                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
+                            //                            var sortableTable = document.createElement('jso-oncodrive-genes-table');
                             var sortableTable = document.createElement('jso-generic-table');
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 sortableTable.content = content;
 
                             }, element.value);
                             res.appendChild(sortableTable);
-//                            }
+                            //                            }
                         }
 
                         if (element.tags.indexOf("FATIGO_TABLE") >= 0) {
@@ -931,7 +921,7 @@
                             if (element.value.indexOf(me.pvalue) >= 0) {
                                 var table = document.createElement('jso-fatigo-table');
                                 table.classList.add('style-scope', 'jso-job-result');
-                                this.getFileContent(function (content) {
+                                this.getFileContent(function(content) {
                                     table.content = content;
                                 }, element.value);
                                 res.appendChild(table);
@@ -943,7 +933,7 @@
                             if (element.value.indexOf(me.pvalue) >= 0) {
                                 var table = document.createElement('jso-logistic-table');
                                 table.classList.add('style-scope', 'jso-job-result');
-                                this.getFileContent(function (content) {
+                                this.getFileContent(function(content) {
                                     sortableTable.content = content;
 
                                 }, element.value);
@@ -958,7 +948,7 @@
                                 var columns = [];
 
                                 element.value = element.value.replace("${pvalue}", me.pvalue);
-                                this.getFileContent(function (content) {
+                                this.getFileContent(function(content) {
                                     var data = content.split("\n");
                                     var colNames = data[0].split("\t");
                                     for (var i = 0; i < colNames.length; i++) {
@@ -994,18 +984,17 @@
                                 pvalueButton.classList.add('style-scope', 'jso-job-result');
                                 pvalueButton.id = "pvalueButton";
                                 pvalueButton.pvalue = me.pvalue;
-                                pvalueButton.addEventListener('pvalue-click', function (e) {
+                                pvalueButton.addEventListener('pvalue-click', function(e) {
                                     me.pvalue = e.detail;
                                     me.jobItemChanged();
                                 });
                                 res.appendChild(pvalueButton);
 
                                 res.appendChild(table);
-                            }
-                            else {
+                            } else {
                                 var dataArray = [];
                                 var columns = [];
-                                this.getFileContent(function (content) {
+                                this.getFileContent(function(content) {
                                     var data = content.split("\n");
                                     var colNames = data[0].split("\t");
                                     for (var i = 0; i < colNames.length; i++) {
@@ -1089,17 +1078,17 @@
                             association.classList.add('style-scope', 'jso-job-result');
 
                             association.files = this.filesList;
-//                            var sortableTable = document.createElement('jso-generic-table');
-//                            this.getFileContent(function (content) {
-//                                sortableTable.content = content;
-//
-//                            }, element.value);
+                            //                            var sortableTable = document.createElement('jso-generic-table');
+                            //                            this.getFileContent(function (content) {
+                            //                                sortableTable.content = content;
+                            //
+                            //                            }, element.value);
                             res.appendChild(association);
 
                         }
                         if (element.tags == "TABLE") {
                             var sortableTable = document.createElement('jso-generic-table');
-                            this.getFileContent(function (content) {
+                            this.getFileContent(function(content) {
                                 sortableTable.content = content;
 
                             }, element.value);
@@ -1117,9 +1106,9 @@
                                 goViewer.set('jobResult', me);
                                 goViewer.set('networkViewer', me.networkViewer);
 
-                                this.getFileContent(function (sifContent) {
-                                    me.getFileContent(function (attrContent) {
-                                        me.getFileContent(function (attr2Content) {
+                                this.getFileContent(function(sifContent) {
+                                    me.getFileContent(function(attrContent) {
+                                        me.getFileContent(function(attr2Content) {
                                             goViewer.setContent(sifContent, attrContent, attr2Content);
                                         }, fileNames[0]);
                                     }, fileNames[1]);
@@ -1132,7 +1121,7 @@
                 }
                 return res;
             },
-            _getRedirectionArgs: function (content) {
+            _getRedirectionArgs: function(content) {
                 var lines = content.split("\n");
                 var hash = {};
                 for (var i = 0; i < lines.length; i++) {
@@ -1160,7 +1149,7 @@
                 }
                 return args;
             },
-            _createRedirectButton: function (buttonText, tool, args) {
+            _createRedirectButton: function(buttonText, tool, args) {
                 var me = this;
                 var button = document.createElement('jso-redirection');
                 button.classList.add('style-scope', 'jso-job-result');
@@ -1170,30 +1159,30 @@
                 button.buttonLabel = buttonText;
 
 
-//                var me = this;
-//                var button = document.createElement('div');
-//                button.setAttribute("class", "button action");
-//                button.setAttribute("style", "width: 200px; margin: 2px");
-//
-//                var elem = document.createTextNode(buttonText);
-//
-//                button.appendChild(elem);
-//                button.onclick = function () {
-//                    me.fire("redirection", {
-//                        tool: tool,
-//                        args: args
-//                    });
-//                }
-////                button.value = "click me!";
+                //                var me = this;
+                //                var button = document.createElement('div');
+                //                button.setAttribute("class", "button action");
+                //                button.setAttribute("style", "width: 200px; margin: 2px");
+                //
+                //                var elem = document.createTextNode(buttonText);
+                //
+                //                button.appendChild(elem);
+                //                button.onclick = function () {
+                //                    me.fire("redirection", {
+                //                        tool: tool,
+                //                        args: args
+                //                    });
+                //                }
+                ////                button.value = "click me!";
                 return button;
 
 
             },
-            buttonClick: function () {
+            buttonClick: function() {
                 this.selectedOption = 'snow';
                 //debugger
             },
-            prepareHMData: function (data) {
+            prepareHMData: function(data) {
                 var res = [];
 
                 for (var i = 0; i < data.length; i++) {
@@ -1206,10 +1195,10 @@
                 return res;
             },
 
-            createHeatMap: function (data, cols, rows, div) {
-//                console.log(cols);
-//                console.log(rows);
-//original height / original width x new width = new height
+            createHeatMap: function(data, cols, rows, div) {
+                //                console.log(cols);
+                //                console.log(rows);
+                //original height / original width x new width = new height
                 //               var z = rows.length / cols.length * 1000;
                 var heatMap = new Highcharts.Chart({
                     chart: {
@@ -1244,11 +1233,11 @@
                         }
                     },
                     colorAxis: {
-//                        stops: [
-//                            [min, '#0000ff'],
-//                            [mean, '#ffffff'],
-//                            [max, '#ff0000']
-//                        ]
+                        //                        stops: [
+                        //                            [min, '#0000ff'],
+                        //                            [mean, '#ffffff'],
+                        //                            [max, '#ff0000']
+                        //                        ]
                         minColor: '#0000ff',
                         maxColor: '#ff0000',
                         stops: [
@@ -1268,7 +1257,7 @@
                 });
 
             },
-            parseHighCharts: function (content, div) {
+            parseHighCharts: function(content, div) {
                 var json = JSON.parse(content);
                 var chartWidth = 600;
 
@@ -1276,12 +1265,12 @@
                 var elSizeAvg = document.createElement("div");
                 elSizeAvg.classList.add('style-scope', 'jso-job-result');
                 elSizeAvg.id = div.id + "_avg";
-//                this.$.output.querySelector("#" + divId).appendChild(elSizeAvg);
+                //                this.$.output.querySelector("#" + divId).appendChild(elSizeAvg);
                 div.appendChild(elSizeAvg);
                 var elSizeScore = document.createElement("div");
                 elSizeScore.classList.add('style-scope', 'jso-job-result');
                 elSizeScore.id = div.id + "_score";
-//                this.$.output.querySelector("#" + divId).appendChild(elSizeScore);
+                //                this.$.output.querySelector("#" + divId).appendChild(elSizeScore);
                 div.appendChild(elSizeScore);
                 /** Create data for charts **/
                 var sizeAvgList = new Array();
@@ -1307,15 +1296,14 @@
                     if (!j.significant) {
                         sizeAvgList.push(itemsSizeAvg);
                         sizeScoreList.push(itemsSizeScore);
-                    }
-                    else {
+                    } else {
                         sizeAvgListSig.push(itemsSizeAvg);
                         sizeScoreListSig.push(itemsSizeScore);
                     }
                 }
                 new Highcharts.Chart({
                     chart: {
-//                        renderTo: this.$.output.querySelector("#" + elSizeAvg.id),
+                        //                        renderTo: this.$.output.querySelector("#" + elSizeAvg.id),
                         renderTo: elSizeAvg,
                         type: 'scatter',
                         zoomType: 'xy',
@@ -1362,19 +1350,16 @@
                             }
                         }
                     },
-                    series: [
-                        {
-                            name: 'Size / Avg. node per component',
-                            color: 'rgba(119, 152, 191, .5)',
-                            data: sizeAvgList
-                        },
-                        {
-                            name: 'Selected',
-                            color: 'rgba(223, 83, 83, .5)',
-                            data: sizeAvgListSig
+                    series: [{
+                        name: 'Size / Avg. node per component',
+                        color: 'rgba(119, 152, 191, .5)',
+                        data: sizeAvgList
+                    }, {
+                        name: 'Selected',
+                        color: 'rgba(223, 83, 83, .5)',
+                        data: sizeAvgListSig
 
-                        }
-                    ]
+                    }]
                 });
                 new Highcharts.Chart({
                     chart: {
@@ -1424,24 +1409,21 @@
                             }
                         }
                     },
-                    series: [
-                        {
-                            name: 'Size / Score',
-                            color: 'rgba(119, 152, 191, .5)',
-                            data: sizeScoreList
-                        },
-                        {
-                            name: 'Selected',
-                            color: 'rgba(223, 83, 83, .5)',
-                            data: sizeScoreListSig
+                    series: [{
+                        name: 'Size / Score',
+                        color: 'rgba(119, 152, 191, .5)',
+                        data: sizeScoreList
+                    }, {
+                        name: 'Selected',
+                        color: 'rgba(223, 83, 83, .5)',
+                        data: sizeScoreListSig
 
-                        }
-                    ]
+                    }]
                 });
 
 
             },
-            _parseElem: function (elemXML, elements) {
+            _parseElem: function(elemXML, elements) {
                 var groups = elemXML.getAttribute("group").split(".");
                 if (groups.length == 1) { // Final Group
                     var group = groups[0];
@@ -1483,8 +1465,7 @@
                     var newElem = {};
                     if (this._containsGroup(elements, mainGroup)) {
                         newElem = this._getGroup(elements, mainGroup);
-                    }
-                    else {
+                    } else {
                         newElem.group = mainGroup;
                         newElem.data = [];
                         newElem.children = [];
@@ -1498,7 +1479,7 @@
 
                 }
             },
-            _getGroup: function (elements, group) {
+            _getGroup: function(elements, group) {
                 for (var i = 0; i < elements.length; i++) {
                     var elem = elements[i];
                     if (elem.group == group) {
@@ -1508,14 +1489,14 @@
                 }
                 return {};
             },
-            _containsGroup: function (elements, group) {
+            _containsGroup: function(elements, group) {
 
-                var passed = elements.some(function (elem, index, array) {
+                var passed = elements.some(function(elem, index, array) {
                     return elem.group == group;
                 })
                 return passed;
             },
-            _addValueToGroup: function (elements, group, value) {
+            _addValueToGroup: function(elements, group, value) {
                 for (var i = 0; i < elements.length; i++) {
                     var elem = elements[i];
                     if (elem.group == group) {
@@ -1524,7 +1505,7 @@
 
                 }
             },
-            handleClose: function () {
+            handleClose: function() {
                 this.fire('job-close');
             }
 

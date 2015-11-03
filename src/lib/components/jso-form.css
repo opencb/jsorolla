@@ -10,6 +10,7 @@
     </div>
 
 */
+
 .jso-formbox {
     border: 1px solid rgba(125, 125, 125, 0.4);
     margin: 0 5px 10px 5px;
@@ -31,6 +32,7 @@
 .jso-formtitle > * {
     margin-left: 5px;
 }
+
 
 /*.jso-formtitle > .actions > * {
     margin-left: 5px;
@@ -59,6 +61,7 @@
     padding: 0px;
 }
 
+
 /*
 
     radio and checkbox
@@ -69,6 +72,7 @@
     </label>
 
 */
+
 label.jso-control {
     color: inherit;
 }
@@ -121,10 +125,10 @@ label.jso-control > input[type=checkbox]:checked + span:before {
 label.jso-control > input[type=radio]:disabled + span,
 label.jso-control > input[type=radio]:disabled + span:before {
     color: rgba(125, 125, 125, 0.25);
-!important;
+    !important;
 }
 
 input[type=text]:disabled {
     color: rgba(125, 125, 125, 0.25);
-!important;
+    !important;
 }

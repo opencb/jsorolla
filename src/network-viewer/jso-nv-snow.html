@@ -11,6 +11,16 @@
             overflow-y: scroll;
             height: 500px;
         }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--divider-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
     </style>
     <template>
         <form id="main">
@@ -20,18 +30,15 @@
                     <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1">
                         Downregulated in fibroblasts from old individuals, compared to young
                     </div>
-                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="oldage_dn.txt"
-                         style="display:inline-block">
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="oldage_dn.txt" style="display:inline-block">
                         <i class="fa fa-download"></i>
                     </div>
                     <br>
 
-                    <div class="jso-btn jso-btn-shdw" style="display:inline-block;margin-top:5px;"
-                         on-click="loadExample2">
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block;margin-top:5px;" on-click="loadExample2">
                         Upregulated by induction of exogenous BRCA1 in EcR-293 cells
                     </div>
-                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="brca1_overexp_up.txt"
-                         style="display:inline-block">
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="brca1_overexp_up.txt" style="display:inline-block">
                         <i class="fa fa-download"></i>
                     </div>
                 </div>
@@ -41,13 +48,11 @@
                 <div class="jso-formtitle">Define your input data</div>
                 <div class="jso-formcontent horizontal layout">
                     <label class="jso-control">
-                        <input id="inputModeOneList" name="mode" type="radio" value="one_list"
-                               checked="checked" on-click="modeChanged">
+                        <input id="inputModeOneList" name="mode" type="radio" value="one_list" checked="checked" on-click="modeChanged">
                         <span>One list</span>
                     </label>
                     <label class="jso-control">
-                        <input id="inputModeTwoList" name="mode" class="fc-radioitem" type="radio" value="two_list"
-                               on-click="modeChanged">
+                        <input id="inputModeTwoList" name="mode" class="fc-radioitem" type="radio" value="two_list" on-click="modeChanged">
                         <span>Comparing two lists</span>
                     </label>
                 </div>
@@ -57,17 +62,7 @@
                 <div class="jso-formtitle">Select your input file</div>
                 <div class="jso-formcontent">
                     List 1:
-                    <jso-opencga-file-origin
-                            id="inputFile"
-                            selection-mode="file"
-                            allow-text-area
-                            allow-network
-                            bioformats="{{bioformats}}"
-                            projects="{{projects}}"
-
-                            columns="{{columns}}"
-                            items="{{items}}"
-                            selected="{{selected}}">
+                    <jso-opencga-file-origin id="inputFile" selection-mode="file" allow-text-area allow-network bioformats="{{bioformats}}" projects="{{projects}}" columns="{{columns}}" items="{{items}}" selected="{{selected}}">
                     </jso-opencga-file-origin>
 
 
@@ -120,13 +115,10 @@
                 <div class="jso-formcontent">
                     <div id="jso-interactomeDiv">
                         <div class="jso-select" style="width:200px;">
-                            <select name="interactome" id="interactome" class="fc-combobox" type="text"
-                                    value="Homo sapiens">
-                                <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa"
-                                        selected="selected">Homo sapiens
+                            <select name="interactome" id="interactome" class="fc-combobox" type="text" value="Homo sapiens">
+                                <option name="interactome_1" id="interactome_1" class="fc-combobox-item" value="hsa" selected="selected">Homo sapiens
                                 </option>
-                                <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus
-                                    musculus
+                                <option name="interactome_2" id="interactome_2" class="fc-combobox-item" value="mmu">Mus musculus
                                 </option>
                                 <option name="interactome_3" id="interactome_3" class="fc-combobox-item" value="dme">
                                     Drosophila melanogaster
@@ -150,13 +142,11 @@
                 <div class="jso-formcontent">
                     <div id="groupDiv">
                         <label class="jso-control">
-                            <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all"
-                                   checked="checked">
+                            <input id="group_1" name="group" class="fc-radioitem" type="radio" value="all" checked="checked">
                             <span>All ppis (all protein Protein-Protein Interactions detected experimentally)</span>
                         </label>
                         <label class="jso-control">
-                            <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated"
-                                   checked="checked">
+                            <input id="group_2" name="group" class="fc-radioitem" type="radio" value="curated" checked="checked">
                             <span>Curated (Protein-Protein Interactions detected with, at least, two different experimental methods)</span>
                         </label>
                     </div>
@@ -167,8 +157,7 @@
                 <div class="jso-formtitle">Side for statistical tests</div>
                 <div id="sideDiv" class="jso-formcontent">
                     <label class="jso-control">
-                        <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater"
-                               checked="checked">
+                        <input id="side_1" name="side" class="fc-radioitem" type="radio" value="greater" checked="checked">
                         <span>Greater</span>
                     </label>
                     <label class="jso-control">
@@ -182,8 +171,7 @@
                 <div class="jso-formtitle">Allow one external intermediate in the subnetwork</div>
                 <div id="intermediateDiv" class="jso-formcontent horizontal layout">
                     <label class="jso-control">
-                        <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1"
-                               checked="checked">
+                        <input id="intermediate_2" name="intermediate" class="fc-radioitem" type="radio" value="1" checked="checked">
                         <span>Yes</span>
                     </label>
                     <label class="jso-control">
@@ -198,14 +186,11 @@
                 <div class="jso-formcontent">
                     <label class="jso">Output folder:</label>
 
-                    <jso-opencga-file-origin
-                            id="outdir"
-                            selection-mode="folder"
-                            on-ok-click="handleOutputClickOk"
-                            projects="{{projects}}">
+                    <jso-opencga-file-origin id="outdir" selection-mode="folder" on-ok-click="handleOutputClickOk" projects="{{projects}}">
                     </jso-opencga-file-origin>
 
-                    <label class="jso">Job name:</label><br>
+                    <label class="jso">Job name:</label>
+                    <br>
                     <input class="jso" type="text" id="jobName" required style="width:150px;">
                     <br>
                     <label class="jso">Description:</label>
@@ -216,17 +201,25 @@
 
             <div class="horizontal layout center-justified">
                 <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
-                    <i class="fa fa-rocket"></i>
-                    &nbsp; Launch job
+                    <i class="fa fa-rocket"></i> &nbsp; Launch job
                 </div>
             </div>
-
-            <div class="message" style="margin-bottom:5px;">{{message}}</div>
+            <br>
         </form>
+        <div class="footer horizontal layout flex">
+            <div class="jso-txt">
+                <template is="dom-if" if="{{loading}}">
+                    <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
+                </template>
+                <span>{{message}}</span>
+                &nbsp;
+            </div>
+            <!-- <div class="flex"></div> -->
+        </div>
     </template>
     <script>
         Polymer({
-//            attributes="userData selectedOption selectedStudy studies networkViewer"
+            //            attributes="userData selectedOption selectedStudy studies networkViewer"
             is: "jso-nv-snow",
             properties: {
                 toolName: {
@@ -246,9 +239,8 @@
                 selected: {
                     type: Array
                 },
-
                 message: {
-                    type: String
+                    type: String,
                 },
                 selectedOutputFolder: {
                     type: Object
@@ -267,32 +259,35 @@
                 randoms: {
                     type: Number,
                     value: 500
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
                 }
             },
-            handleDownloadFile: function (e) {
+            handleDownloadFile: function(e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
-            modeChanged: function (e) {
+            modeChanged: function(e) {
                 if (this.$.inputModeOneList.checked)
                     this.$.list2Div.hidden = true;
                 else
                     this.$.list2Div.hidden = false;
 
             },
-            handleOutputClickOk: function (e) {
+            handleOutputClickOk: function(e) {
                 this.set('selectedOutputFolder', e.currentTarget.$.browser.selectedFile);
                 this.set('selectedOutputStudy', e.currentTarget.$.browser.selectedStudy.study);
             },
 
-            handleForm: function () {
-                this.message = '';
+            handleForm: function() {
                 this.launchJob();
             },
-            launchJob: function () {
+            launchJob: function() {
                 var me = this;
-//                if (!Utils.basicValidationForm(this)) {
-//                    return;
-//                }
+                //                if (!Utils.basicValidationForm(this)) {
+                //                    return;
+                //                }
                 if (this.selectedOutputFolder == null) {
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
@@ -307,7 +302,7 @@
                     toolId: this.toolName,
                     name: this.$.jobName.value,
                     description: this.$.description.value,
-//                    list1: this.$.inputFile.selectedFile.id,
+                    //                    list1: this.$.inputFile.selectedFile.id,
                     outdir: this.selectedOutputFolder.id,
                     "o-name": "result",
                     interactome: this.$.interactome.value,
@@ -344,49 +339,80 @@
                         query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
                     }
                 }
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me._close();
-
-                            } else {
-                                me.message = response.response[0].errorMsg;
+                if (this.loading === false) {
+                    this.loading = true;
+                    this.message = 'Launching job...';
+                    OpencgaManager.jobs.create({
+                        query: query,
+                        request: {
+                            //method: 'POST',
+                            success: function(response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var id = response.response[0].result[0].id;
+                                    me.message = id + ' created';
+                                    console.log(id + ' created');
+                                    me._clean();
+                                    me._close();
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                                me.loading = false;
+                            },
+                            error: function() {
+                                me.message = 'Server error, try again later.';
+                                me.loading = false;
                             }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
                         }
-                    }
-                })
-            },
-            _close: function () {
-                var jsoPanel = this.parentNode.parentNode;
-                if (jsoPanel instanceof JsoPanel) {
-                    jsoPanel.hidden = true;
+                    })
                 }
             },
+            _close: function() {
+                if (this._parentJsoPanel != null) {
+                    this._parentJsoPanel.hidden = true;
+                }
+            },
+            _clean: function() {
+                this.message = '';
+                this.$.inputFile.selectedFile = null;
+                this.$.outdir.selectedFile = null;
+            },
 
-            loadExample1: function (e) {
+            loadExample1: function(e) {
+                var me = this;
                 this.message = '';
                 this.$.jobName.value = "Downregulated";
                 this.$.description.value = "Downregulated in fibroblasts from old individuals, compared to young";
-                this.$.inputFile.selectedFile = {id: "example_oldage_dn.txt", path: "oldage_dn.txt", type: "FILE"};
+                this.$.inputFile.selectedFile = {
+                    id: "example_oldage_dn.txt",
+                    path: "oldage_dn.txt",
+                    type: "FILE"
+                };
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;
                 this.$.side_1.checked = true;
                 this.$.group_2.checked = true;
-//                this.$.randoms.value = 500;
-//                this.$.intermediate.value = 1;
+                //                this.$.randoms.value = 500;
+                //                this.$.intermediate.value = 1;
                 this.$.intermediate_2.checked = true;
                 var exampleFolder = "snow_downregulated";
-                this.createExampleFolder(exampleFolder);
+                this._searchExampleFolder(exampleFolder, function(searchFolder, study) {
+                    var f = searchFolder;
+                    if (f == null) {
+                        me._createExampleFolder(exampleFolder, study, function(createdFolder) {
+                            f = createdFolder;
+                            if (f != null) {
+                                me.set('selectedOutputFolder', f);
+                                me.set('selectedOutputStudy', study);
+                            }
+                        });
+                    } else {
+                        me.set('selectedOutputFolder', f);
+                        me.set('selectedOutputStudy', study);
+                    }
+                });
             },
-            loadExample2: function (e) {
+            loadExample2: function(e) {
+                var me = this;
                 this.message = '';
                 this.$.jobName.value = "Upregulated";
                 this.$.description.value = "Upregulated by induction of exogenous BRCA1 in EcR-293 cells";
@@ -399,59 +425,78 @@
                 this.$.type_3.checked = true;
                 this.$.side_1.checked = true;
                 this.$.group_2.checked = true;
-//                this.$.randoms.value = 500;
-//                this.$.intermediate.value = 1;
+                //                this.$.randoms.value = 500;
+                //                this.$.intermediate.value = 1;
                 this.$.intermediate_1.checked = true;
                 var exampleFolder = "snow_Upregulated";
-                this.createExampleFolder(exampleFolder);
+                this._searchExampleFolder(exampleFolder, function(searchFolder, study) {
+                    var f = searchFolder;
+                    if (f == null) {
+                        me._createExampleFolder(exampleFolder, study, function(createdFolder) {
+                            f = createdFolder;
+                            if (f != null) {
+                                me.set('selectedOutputFolder', f);
+                                me.set('selectedOutputStudy', study);
+                            }
+                        });
+                    } else {
+                        me.set('selectedOutputFolder', f);
+                        me.set('selectedOutputStudy', study);
+                    }
+                });
             },
 
-            createExampleFolder: function (exampleFolder) {
+            _createExampleFolder: function(exampleFolder, study, callback) {
                 var me = this;
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: study.id,
+                        folder: exampleFolder
+                    },
+                    request: {
+                        success: function(response) {
+                            var folder;
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            }
+                            callback(folder);
+                        },
+                        error: function() {
+                            alert('Server error, try again later.');
+                            callback();
+                        }
+                    }
+                });
+            },
+            _searchExampleFolder: function(exampleFolder, callback) {
+                var me = this;
+                var study = me.$.outdir.$.browser.projects[0].studies[0];
                 OpencgaManager.files.search({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        studyId: me.$.outdir.$.browser.selectedStudy.study.id,
+                        studyId: study.id,
                         name: exampleFolder
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
+                            var folder;
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.$.outdir.selectedFile = response.response[0].result[0];
-                                me.set('selectedOutputFolder', me.$.outdir.selectedFile);
-                                me.set('selectedOutputStudy', me.$.outdir.$.browser.selectedStudy.study);
-                                if (response.response[0].result.length == 0) {
-                                    OpencgaManager.files.createFolder({
-                                        query: {
-                                            sid: Cookies('bioinfo_sid'),
-                                            studyId: me.$.outdir.selectedStudy.id,
-                                            folder: exampleFolder
-
-                                        },
-                                        request: {
-                                            success: function (response) {
-                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                                    me.$.outdir.selectedFile = response.response[0].result[0];
-                                                    me.set('selectedOutputFolder', me.$.outdir.selectedFile);
-                                                    me.set('selectedOutputStudy', me.$.outdir.$.browser.selectedStudy.study);
-                                                } else {
-
-                                                }
-                                            },
-                                            error: function () {
-                                                alert('Server error, try again later.');
-                                            }
-                                        }
-                                    });
-                                }
+                                // me.$.outdir.selectedFile = response.response[0].result[0];
+                                // me.set('selectedOutputFolder', me.$.outdir.selectedFile);
+                                // me.set('selectedOutputStudy', me.$.outdir.$.browser.selectedStudy.study);
+                                folder = response.response[0].result[0];
                             }
+                            callback(folder, study);
                         },
-                        error: function () {
+                        error: function() {
                             alert('Server error, try again later.');
+                            callback();
                         }
                     }
                 });
             }
+
         });
     </script>
 </dom-module>

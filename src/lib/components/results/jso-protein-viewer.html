@@ -2,13 +2,12 @@
     <template>
         <link rel="stylesheet" href="../sortable-table.css">
         <style>
-
             jso-network-viewer {
                 height: 800px;
                 border: 1px solid #d3d3d3;
             }
-
             /*TODO temporal fix*/
+
             jso-network-viewer::shadow jso-nv-layout {
                 /*height: calc(100% - 126px);*/
             }
@@ -16,7 +15,8 @@
         <div id="networkWidget">
             <template if="{{speciesSelection == ''}}">
                 <div style="margin-bottom: 5px">
-                    <label>Species:</label> <div class="select">
+                    <label>Species:</label>
+                    <div class="select">
                         <select id="species" value="hsapiens" on-change="{{handleSpecies}}">
                             <template repeat="{{spe in species}}">
                                 <option value="{{spe.value}}">
@@ -37,36 +37,41 @@
                     <label>Select number of nodes in the bottom list of the differential expression result</label>
                     <input type="text" style="margin-right: 2px; width: 30px" value="{{networkNodesBottom}}">
                 </div>
-                <div class="button action"
-                     style="width: 110px; margin-top: 5px; margin-bottom: 5px; "
-                     on-click="{{nodesChanged}}">Draw network
+                <div class="button action" style="width: 110px; margin-top: 5px; margin-bottom: 5px; " on-click="{{nodesChanged}}">Draw network
                 </div>
             </template>
         </div>
 
-        <template if="{{jobResult.networkViewer}}">
-            <div horizontal layout>
+        <template is="dom-if" if="{{checkNetworkViewer(networkViewer)}}">
+            <br>
+            <div class="horizontal layout center">
                 <div>
-                    <input type="text" value="{{sessionName}}">
+                    <input class="jso" type="text" value="{{sessionName::input}}" placeholder="session name...">
                 </div>
-                <div class="button action" style="margin-left:5px" on-click="{{handleSaveSessionToCellMaps}}">
+                <div class="jso-btn jso-btn-shdw" style="margin-left:5px" on-click="handleSaveSessionToCellMaps">
                     Save network as Cell Maps session
                 </div>
-            </div>
-            <div horizontal layout>
-                <label>
-                    {{saveMessage}}
-                </label>
-                <template if="{{saveMessageOk}}">
-                    <div class="button action" on-click="{{handleOpenCellMapsSessionManager}}">
-                        Open Cell Maps session Manager
+                <template is="dom-if" if="{{saveInProgress}}">
+                    <div>
+                        &nbsp; <i class="fa fa-circle-o-notch fa-spin"></i> Saving session...
                     </div>
                 </template>
             </div>
+            <template is="dom-if" if="{{saveFinish}}">
+                <div class="jso-note jso-note-info">
+                    <div>
+                        Saved as <b>{{saveMessage}}</b>, you can go back to Cell Maps and load the network using the <b>session manager</b> inside File menu.
+                    </div>
+                    <br>
+                    <div class="jso-btn jso-btn-shdw" style="width:220px;" on-click="handleOpenCellMapsSessionManager">
+                        Open Cell Maps session Manager
+                    </div>
+                </div>
+            </template>
             <br>
         </template>
 
-        <jso-network-viewer id="networkViewer" lite="true"></jso-network-viewer>
+        <jso-network-viewer id="networkViewer" lite hide-node-render hide-edge-render></jso-network-viewer>
         </div>
         <label>You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
             <font-awesome icon="arrows"></font-awesome>
@@ -75,7 +80,7 @@
     </template>
     <script>
         Polymer({
-            created: function () {
+            created: function() {
 
                 this.ids = [];
                 this.networkNodesTop = 10;
@@ -88,14 +93,16 @@
                 this.saveMessage = "";
                 this.saveMessageOk = false;
             },
-            domReady: function () {
-                this.$.networkViewer.$.nodeRender.setAttribute('hidden', '');
-                this.$.networkViewer.$.edgeRender.setAttribute('hidden', '');
+            ready: function() {
+                this.async(function() {
+                    this.networkViewer.$.nodeRender.hidden = true;
+                    this.networkViewer.$.edgeRender.hidden = true;
+                });
             },
 
-            nodesChanged: function (oldV, newV) {
+            nodesChanged: function(oldV, newV) {
                 var me = this;
-                this.$.networkViewer.startOver();
+                this.networkViewer.startOver();
                 if (this.networkNodesTop == "" || isNaN(this.networkNodesTop))
                     this.networkNodesTop = 0;
                 if (this.networkNodesBottom == "" || isNaN(this.networkNodesBottom))
@@ -111,8 +118,8 @@
                     nodesMap[node] = true;
                 }
 
-                var intactImport = this.$.networkViewer.$.intactImport;
-                var cellbaseAttributeImport = this.$.networkViewer.$.cellbaseAttributeImport;
+                var intactImport = this.networkViewer.$.intactImport;
+                var cellbaseAttributeImport = this.networkViewer.$.cellbaseAttributeImport;
 
                 if (this.speciesSelection == "")
                     var species = Utils.getSpecies(this.$.species.value, SPECIES);
@@ -123,12 +130,12 @@
                 var xrefDatabase = species.dbname;
                 var xrefDatabaseId = xrefDatabase + "id";
                 console.log(this.nodesToRender);
-//                var species = "hsapiens";
-                intactImport.getGraph(species.value, this.nodesToRender, function (graph) {
+                //                var species = "hsapiens";
+                intactImport.getGraph(species.value, this.nodesToRender, function(graph) {
                     if (graph.vertices.length == 0) {
                         for (var i = 0; i < me.nodesToRender.length; i++) {
                             var node = me.nodesToRender[i];
-                            me.$.networkViewer.createVertex(0,0,node);
+                            me.$.networkViewer.createVertex(0, 0, node);
                         }
                         me.$.networkViewer.setLayout('Force directed');
                         return;
@@ -139,8 +146,8 @@
                     cellbaseAttributeImport.uncheckAllDatabases();
                     cellbaseAttributeImport.checkDatabase(xrefDatabase);
 
-                    cellbaseAttributeImport.retrieveData('id', species.value, function () {
-                        
+                    cellbaseAttributeImport.retrieveData('id', species.value, function() {
+
                         me.$.networkViewer.selectVertexDefaultLabelAttribute(xrefDatabaseId);
                         cellbaseAttributeImport.uncheckAllDatabases();
 
@@ -149,8 +156,7 @@
                             var val = row[xrefDatabaseId];
                             if (!val || val == '') {
                                 row[xrefDatabaseId] = row['id'];
-                            }
-                            else {
+                            } else {
                                 var vals = val.split(",");
                                 var newVals = [];
                                 for (var j = 0; j < vals.length; j++) {
@@ -171,22 +177,29 @@
 
 
             },
-            handleSaveSessionToCellMaps: function (e) {
-                var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.networkViewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
-                if (saved) {
-                    this.saveMessage = "Saved as " + this.sessionName + ", you can go back to Cell Maps and load the network using the session manager inside File menu.";
-                    this.sessionName = '';
-                    this.saveMessageOk = true;
-                } else {
-                    this.saveMessage = this.sessionName + 'already exists.';
-                    this.saveMessageOk = false;
+            handleSaveSessionToCellMaps: function(e) {
+                var me = this;
+                if (this.saveInProgress === false && this.sessionName != '') {
+                    this.saveFinish = false;
+                    this.saveInProgress = true;
+                    this.saveMessage = this.sessionName + ' - ' + this.jobResult.jobItem.name;
+                    this.jobResult.networkViewer.$.sessionManager.saveSession(this.networkViewer, this.saveMessage, function() {
+                        me.sessionName = '';
+                        me.saveInProgress = false;
+                        me.saveFinish = true;
+                    });
                 }
             },
-            handleOpenCellMapsSessionManager: function () {
-                this.jobResult.selectedOption = "";
-                this.jobResult.networkViewer.selectedMenu = "session-manager";
+            handleOpenCellMapsSessionManager: function() {
+                this.jobResult.selectedOption = "home";
+                this.jobResult.networkViewer.$.sessionManagerPanel.show();
+            },
+            checkNetworkViewer: function(networkViewer) {
+                if (networkViewer) {
+                    return true;
+                }
+                return false;
             }
         })
     </script>
 </polymer-element>
-

@@ -30,14 +30,15 @@
                 <div tabindex="-1" id="fileButton" class="jso-btn" style="border-width:0;">
                     File
                 </div>
-                <ul id="fileMenu" on-mousedown="handleClick">
-                    <li hidden$="{{lite}}" data-value="session-start">New session...</li>
-                    <li hidden$="{{lite}}" data-value="session-save">Save session...</li>
-                    <li hidden$="{{lite}}" data-value="session-open">Open session...</li>
-                    <li hidden$="{{lite}}" data-value="session-manage" id="manageSessionOption">Manage sessions...</li>
+                <ul id="fileMenu">
+                    <li hidden$="{{lite}}" on-click="handleClick" data-value="session-start">New session...</li>
+                    <li hidden$="{{lite}}" on-click="handleClick" data-value="session-save">Save session...</li>
+                    <li hidden$="{{lite}}" on-click="handleOpenSession">Open session...</li>
+                    <input type="file" style="position: fixed; top: -100em" id="openSessionInput" on-change="handleOpenSessionInputChange">
+                    <li hidden$="{{lite}}" on-click="handleClick" data-value="session-manage" id="manageSessionOption">Manage sessions...</li>
                     <li hidden$="{{lite}}" data-divider></li>
                     <li hidden$="{{lite}}" data-sub>Import
-                        <ul>
+                        <ul on-click="handleClick">
                             <li data-value="import-sif">Network from SIF...</li>
                             <li data-value="import-xlsx">Network from XLSX...</li>
                             <li data-value="import-text">Network from Text...</li>
@@ -64,7 +65,7 @@
                 <div tabindex="-1" id="networkButton" class="jso-btn" style="border-width:0;">
                     Network
                 </div>
-                <ul id="networkMenu" on-mousedown="handleClick">
+                <ul id="networkMenu" on-click="handleClick">
                     <li data-value="network-edit">Edit network...</li>
                     <li data-sub hidden$="{{lite}}">Import network
                         <ul>
@@ -118,7 +119,7 @@
                 <div tabindex="-1" id="attributesButton" class="jso-btn" style="border-width:0;">
                     Attributes
                 </div>
-                <ul id="attributesMenu" on-mousedown="handleClick">
+                <ul id="attributesMenu" on-click="handleClick">
                     <li data-value="nodes-edit">Edit node attributes...</li>
                     <li data-value="edges-edit">Edit edge attributes...</li>
                     <li data-divider>
@@ -136,7 +137,7 @@
             <!--<div tabindex="-1" id="renderingButton" class="jso-btn" style="border-width:0;">-->
             <!--Rendering-->
             <!--</div>-->
-            <!--<ul id="renderingMenu" on-mousedown="handleClick">-->
+            <!--<ul id="renderingMenu" on-click="handleClick">-->
             <!--&lt;!&ndash;<li data-value="node-list-rendering">Complex node attribute rendering</li>&ndash;&gt;-->
             <!--&lt;!&ndash;<li data-divider>&ndash;&gt;-->
             <!--</ul>-->
@@ -145,7 +146,7 @@
                 <div tabindex="-1" id="pluginsButton" class="jso-btn" style="border-width:0;">
                     Analysis
                 </div>
-                <ul id="pluginsMenu" on-mousedown="handleClick">
+                <ul id="pluginsMenu" on-click="handleClick">
                     <li data-sub>Network analysis
                         <ul>
                             <li data-value="intact">Network protein connectivity</li>
@@ -171,7 +172,7 @@
                 <div tabindex="-1" id="examplesButton" class="jso-btn" style="border-width:0;">
                     Examples
                 </div>
-                <ul id="examplesMenu" on-mousedown="handleClick">
+                <ul id="examplesMenu" on-click="handleClick">
                     <li data-value="example" data-subvalue="1">PPIs related to histone exchange and removal during nucleosome assembly and disassembly
                     </li>
                     <li data-value="example" data-subvalue="2">RAF MAK kinase cascade</li>
@@ -179,7 +180,7 @@
                     <li data-value="example" data-subvalue="4">PPI network with attributes</li>
                 </ul>
             </div>
-            <div hidden class="jso-btn" data-value="save" on-mousedown="handleClick">
+            <div hidden class="jso-btn" data-value="save" on-click="handleClick">
                 Save
             </div>
             <div hidden id="configureButton" class="jso-btn" style="margin-right:10px;float:right;border-width:0;" on-click="handleConfigureClick">
@@ -208,10 +209,20 @@
             }
         },
         handleClick: function(e) {
-            console.log(e.target)
-            console.log(e.target.dataset.value);
             if ('value' in e.target.dataset) {
                 this.fire(e.target.dataset.value, e.target.dataset);
+            }
+        },
+        handleOpenSession: function(e) {
+            this.$.openSessionInput.click();
+        },
+        handleOpenSessionInputChange: function(e) {
+            var file = e.currentTarget.files[0];
+            if (file != null) {
+                this.fire('session-open', {
+                    file: file,
+                    inputChangeEvent: e
+                });
             }
         },
         handleConfigureClick: function(e) {

@@ -5,15 +5,12 @@
             position: absolute;
             box-sizing: border-box;
             padding: 30px 100px;
-
             left: 0;
             right: 0;
             margin: 0px auto 0px auto;
-
             width: 500px;
             transition: all 0.2s;
             box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
-
             background-color: var(--light-primary-color);
             color: var(--primary-text-color);
         }
@@ -41,7 +38,7 @@
                 <i class="fa fa-life-ring"></i>
             </div>
         </div>
-        <form id="form" vertical layout on-keypress="{{handleFormKey}}">
+        <form id="form" vertical layout on-keypress="handleFormKey">
             <label class="jso">User ID</label>
             <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
             <br>
@@ -50,9 +47,15 @@
             <br>
             <br>
 
-            <div class="jso-btn jso-btn-shdw" on-click="{{handleForm}}">Send email with new password</div>
+            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Send email with new password</div>
         </form>
-        <div class="message">{{message}}</div>
+
+        <div class="horizontal layout center message">
+            <template is="dom-if" if="{{loading}}">
+                <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
+            </template>
+            <div >{{message}}</div>
+        </div>
     </template>
 </dom-module>
 <script>
@@ -70,38 +73,47 @@
             message: {
                 type: String,
                 value: ''
+            },
+            loading: {
+                type: Boolean,
+                value: false
             }
         },
-//        created: function () {
-//            this.user;
-//            this.email;
-//        },
-        handleFormKey: function (e) {
+        //        created: function () {
+        //            this.user;
+        //            this.email;
+        //        },
+        handleFormKey: function(e) {
             if (e.which == 13) {
                 this.handleForm();
             }
         },
-        handleForm: function (e) {
+        handleForm: function(e) {
             var me = this;
             this.message = '';
+            this.loading = false;
 
             if (this.$.form.checkValidity()) {
+                this.message = 'Processing request...';
+                this.loading = true;
                 OpencgaManager.users.resetPassword({
                     id: this.user,
                     query: {
                         email: this.email
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var userId = response.response[0].result[0].id;
                                 me.message = 'An email was sent with a new password';
                             } else {
                                 me.message = response.response[0].errorMsg;
                             }
+                            me.loading = false;
                         },
-                        error: function () {
+                        error: function() {
                             me.message = 'Server error, try again later.';
+                            me.loading = false;
                         }
                     }
                 });

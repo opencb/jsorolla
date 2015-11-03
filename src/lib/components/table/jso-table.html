@@ -428,18 +428,14 @@
                 <div class="jso-txt">{{itemCount}}</div>
             </div>
 
-
-            <div class="horizontal layout">
-                <div hidden$="{{enablePaging}}">Total:
-                    <span>{{itemCount}}</span>
-                </div>
-                <div class="jso-btn jso-btn-shdw" on-click="handleColumnsMenuButton">
-                    <i class="fa fa-bars"></i>
-                </div>
+            <div hidden$="{{enablePaging}}" class="flex">
+                <span>Total: </span>
+                <span>{{itemCount}}</span>
+            </div>
+            <div class="jso-btn jso-btn-shdw" on-click="handleColumnsMenuButton">
+                <i class="fa fa-bars"></i>
             </div>
         </div>
-
-
 
 
         <ul id="columnsMenu" class="jso-context" on-mouseleave="handleColumnsMenuLeave" on-wheel="handleMenuScroll">

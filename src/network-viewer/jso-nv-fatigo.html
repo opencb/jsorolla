@@ -21,17 +21,25 @@
         .db_options > input {
             width: 100px;
         }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--divider-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
     </style>
     <template>
         <form id="main">
             <div class="jso-formbox" style="margin-top:5px;">
                 <div class="jso-formtitle">Examples</div>
                 <div class="jso-formcontent">
-                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1"
-                         style="width:150px;">motor vs apoptosis
+                    <div class="jso-btn jso-btn-shdw" style="display:inline-block" on-click="loadExample1" style="width:150px;">motor vs apoptosis
                     </div>
-                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="example.zip"
-                         style="display:inline-block">
+                    <div class="jso-btn jso-btn-shdw" on-click="handleDownloadFile" data-example="example.zip" style="display:inline-block">
                         <i class="fa fa-download"></i>
                     </div>
                 </div>
@@ -41,13 +49,11 @@
                 <div class="jso-formtitle">Define your comparison</div>
                 <div class="jso-formcontent">
                     <label class="jso-control">
-                        <input type="radio" name="comparisonRadio" value="list2list" on-click="comparisonChange"
-                               checked>
+                        <input type="radio" name="comparisonRadio" value="list2list" on-click="comparisonChange" checked>
                         <span>Id list vs Id list</span>
                     </label>
                     <label class="jso-control">
-                        <input type="radio" name="comparisonRadio" value="list2genome" on-click="comparisonChange"
-                                >
+                        <input type="radio" name="comparisonRadio" value="list2genome" on-click="comparisonChange">
                         <span>Id List vs Rest of genome</span>
                     </label>
                     <label class="jso-control">
@@ -60,17 +66,7 @@
             <div class="jso-formbox">
                 <div class="jso-formtitle">Select your input file</div>
                 <div class="jso-formcontent">
-                    <jso-opencga-file-origin
-                            id="inputFile"
-                            selection-mode="file"
-                            allow-text-area
-                            allow-network
-                            bioformats="{{bioformats}}"
-                            projects="{{projects}}"
-
-                            columns="{{columns}}"
-                            items="{{items}}"
-                            selected="{{selected}}">
+                    <jso-opencga-file-origin id="inputFile" selection-mode="file" allow-text-area allow-network bioformats="{{bioformats}}" projects="{{projects}}" columns="{{columns}}" items="{{items}}" selected="{{selected}}">
                     </jso-opencga-file-origin>
                 </div>
             </div>
@@ -79,17 +75,7 @@
                 <div class="jso-formtitle">List 2</div>
                 <div class="jso-formcontent">
                     <div id="option1">
-                        <jso-opencga-file-origin
-                                id="inputFile2"
-                                selection-mode="file"
-                                allow-text-area
-                                allow-network
-                                bioformats="{{bioformats}}"
-                                projects="{{projects}}"
-
-                                columns="{{columns}}"
-                                items="{{items}}"
-                                selected="{{selected}}">
+                        <jso-opencga-file-origin id="inputFile2" selection-mode="file" allow-text-area allow-network bioformats="{{bioformats}}" projects="{{projects}}" columns="{{columns}}" items="{{items}}" selected="{{selected}}">
                         </jso-opencga-file-origin>
 
                     </div>
@@ -109,15 +95,12 @@
 
                     <div class="jso-select" style="width: 400px">
                         <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
-                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two
-                                tailed
+                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two tailed
                             </option>
                             <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
-                                Over-represented terms in list 1 (genome
-                                comparison)
+                                Over-represented terms in list 1 (genome comparison)
                             </option>
-                            <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented
-                                terms in list 2
+                            <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented terms in list 2
                             </option>
                         </select>
                     </div>
@@ -147,10 +130,8 @@
                 <div class="jso-formcontent">
                     <div id="databases">
                         <div class="jso-select" style="width: 250px">
-                            <select name="species" id="species" class="fc-combobox" type="text" value="none"
-                                    on-change="handleSpecies">
-                                <option name="species_1" id="species_1" class="fc-combobox-item" value="none"
-                                        selected="selected">Select an organism
+                            <select name="species" id="species" class="fc-combobox" type="text" value="none" on-change="handleSpecies">
+                                <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism
                                 </option>
                                 <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
                                 <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">
@@ -170,8 +151,7 @@
                                     Zebrafish (danio rerio)
                                 </option>
                                 <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">
-                                    Saccharomyces
-                                    cerevisiae
+                                    Saccharomyces cerevisiae
                                 </option>
                                 <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">
                                     Caenorhabditis elegans
@@ -198,11 +178,9 @@
                                 Filter terms by number of annotated ids in DB
                                 <br>
                                 <label class="jso">Minimum</label>
-                                <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="5" size="10">
+                                <input name="go_bp_min_num_genes" id="go_bp_min_num_genes" class="jso fc-int fc-text" type="text" value="5" size="10">
                                 <label class="jso">Maximum</label>
-                                <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="500" size="10">
+                                <input name="go_bp_max_num_genes" id="go_bp_max_num_genes" class="jso fc-int fc-text" type="text" value="500" size="10">
                                 <!--Filter terms by keywords-->
                                 <!--<input name="go_bp_keyword_list" id="go_bp_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                                 <!--<label class="jso-control">
@@ -223,13 +201,12 @@
                                 </div>
                             </div>
                             <div id="mfOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
+                                Filter terms by number of annotated ids in DB
+                                <br>
                                 <label class="jso">Minimum</label>
-                                <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="5" size="10">
+                                <input name="go_mf_min_num_genes" id="go_mf_min_num_genes" class="jso fc-int fc-text" type="text" value="5" size="10">
                                 <label class="jso">Maximum</label>
-                                <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="500" size="10">
+                                <input name="go_mf_max_num_genes" id="go_mf_max_num_genes" class="jso fc-int fc-text" type="text" value="500" size="10">
                                 <!--Filter terms by keywords-->
                                 <!--<input name="go_mf_keyword_list" id="go_mf_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                                 <!--<label class="jso-control">
@@ -250,13 +227,12 @@
                                 </div>
                             </div>
                             <div id="ccOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
+                                Filter terms by number of annotated ids in DB
+                                <br>
                                 <label class="jso">Minimum</label>
-                                <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="5" size="10">
+                                <input name="go_cc_min_num_genes" id="go_cc_min_num_genes" class="jso fc-int fc-text" type="text" value="5" size="10">
                                 <label class="jso">Maximum</label>
-                                <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="500" size="10">
+                                <input name="go_cc_max_num_genes" id="go_cc_max_num_genes" class="jso fc-int fc-text" type="text" value="500" size="10">
                                 <!--Filter terms by keywords-->
                                 <!--<input name="go_cc_keyword_list" id="go_cc_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                                 <!--<label class="jso-control">
@@ -272,21 +248,17 @@
                                     <span>GOSlim GOA</span>
                                 </label>
 
-                                <div id="go_slimOptionsButton" class="jso-btn jso-btn-shdw"
-                                     on-click="slimOptionsFunction">
+                                <div id="go_slimOptionsButton" class="jso-btn jso-btn-shdw" on-click="slimOptionsFunction">
                                     Show options...
                                 </div>
                             </div>
                             <div id="slimOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
+                                Filter terms by number of annotated ids in DB
+                                <br>
                                 <label class="jso">Minimum</label>
-                                <input name="go_slim_min_num_genes" id="go_slim_min_num_genes"
-                                       class="jso fc-int fc-text"
-                                       type="text" value="5" size="10">
+                                <input name="go_slim_min_num_genes" id="go_slim_min_num_genes" class="jso fc-int fc-text" type="text" value="5" size="10">
                                 <label class="jso">Maximum</label>
-                                <input name="go_slim_max_num_genes" id="go_slim_max_num_genes"
-                                       class="jso fc-int fc-text"
-                                       type="text" value="500" size="10">
+                                <input name="go_slim_max_num_genes" id="go_slim_max_num_genes" class="jso fc-int fc-text" type="text" value="500" size="10">
                                 <!--Filter terms by keywords-->
                                 <!--<input name="go_slim_keyword_list" id="go_slim_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                                 <!--<label class="jso-control">
@@ -302,20 +274,16 @@
                                     <span>Interpro</span>
                                 </label>
 
-                                <div id="interproOptionsButton" class="jso-btn jso-btn-shdw"
-                                     on-click="interproOptionsFunction">Show options...
+                                <div id="interproOptionsButton" class="jso-btn jso-btn-shdw" on-click="interproOptionsFunction">Show options...
                                 </div>
                             </div>
                             <div id="interproOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
+                                Filter terms by number of annotated ids in DB
+                                <br>
                                 <label class="jso">Minimum</label>
-                                <input name="interpro_min_num_genes" id="interpro_min_num_genes"
-                                       class="jso fc-int fc-text"
-                                       type="text" value="5" size="10">
+                                <input name="interpro_min_num_genes" id="interpro_min_num_genes" class="jso fc-int fc-text" type="text" value="5" size="10">
                                 <label class="jso">Maximum</label>
-                                <input name="interpro_max_num_genes" id="interpro_max_num_genes"
-                                       class="jso fc-int fc-text"
-                                       type="text" value="500" size="10">
+                                <input name="interpro_max_num_genes" id="interpro_max_num_genes" class="jso fc-int fc-text" type="text" value="500" size="10">
                                 <!--Filter terms by keywords-->
                                 <!--<input name="go_interpro_keyword_list" id="go_interpro_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                                 <!--<label class="jso-control">
@@ -331,19 +299,17 @@
                                     <span>Genome-Scale Metabolic Network</span>
                                 </label>
 
-                                <div id="reconOptionsButton" class="jso-btn jso-btn-shdw"
-                                     on-click="reconOptionsFunction">
+                                <div id="reconOptionsButton" class="jso-btn jso-btn-shdw" on-click="reconOptionsFunction">
                                     Show options...
                                 </div>
                             </div>
                             <div id="reconOptions" class="db_options" hidden>
-                                Filter terms by number of annotated ids in DB<br>
+                                Filter terms by number of annotated ids in DB
+                                <br>
                                 <label class="jso">Minimum</label>
-                                <input name="recon_min_num_genes" id="recon_min_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="5" size="10">
+                                <input name="recon_min_num_genes" id="recon_min_num_genes" class="jso fc-int fc-text" type="text" value="5" size="10">
                                 <label class="jso">Maximum</label>
-                                <input name="recon_max_num_genes" id="recon_max_num_genes" class="jso fc-int fc-text"
-                                       type="text" value="500" size="10">
+                                <input name="recon_max_num_genes" id="recon_max_num_genes" class="jso fc-int fc-text" type="text" value="500" size="10">
                                 <!--Filter terms by keywords-->
                                 <!--<input name="recon_keyword_list" id="recon_keyword_list" class="fc-textbox fc-text" type="text" value="" placeholder="(e.g. metabolism cancer)">-->
                                 <!--<label class="jso-control">
@@ -371,15 +337,7 @@
                             </label>
                         </div>
                         <div style="margin-left: 30px">
-                            <jso-opencga-file-origin
-                                    id="annotationsFile"
-                                    selection-mode="file"
-                                    bioformats="{{annotationBioformats}}"
-                                    projects="{{projects}}"
-
-                                    columns="{{columns}}"
-                                    items="{{items}}"
-                                    selected="{{selected}}">
+                            <jso-opencga-file-origin id="annotationsFile" selection-mode="file" bioformats="{{annotationBioformats}}" projects="{{projects}}" columns="{{columns}}" items="{{items}}" selected="{{selected}}">
                             </jso-opencga-file-origin>
                         </div>
                     </div>
@@ -393,14 +351,11 @@
                 <div class="jso-formcontent">
                     <label class="jso">Output folder:</label>
 
-                    <jso-opencga-file-origin
-                            id="outdir"
-                            selection-mode="folder"
-                            on-ok-click="handleOutputClickOk"
-                            projects="{{projects}}">
+                    <jso-opencga-file-origin id="outdir" selection-mode="folder" on-ok-click="handleOutputClickOk" projects="{{projects}}">
                     </jso-opencga-file-origin>
 
-                    <label class="jso">Job name:</label><br>
+                    <label class="jso">Job name:</label>
+                    <br>
                     <input class="jso" type="text" id="jobName" required style="width:150px;">
                     <br>
                     <label class="jso">Description:</label>
@@ -411,14 +366,21 @@
 
             <div class="horizontal layout center-justified">
                 <div class="jso-btn jso-btn-shdw jso-btn-big" on-click="handleForm">
-                    <i class="fa fa-rocket"></i>
-                    &nbsp; Launch job
+                    <i class="fa fa-rocket"></i> &nbsp; Launch job
                 </div>
             </div>
-
-            <div class="message" style="margin-bottom:5px;">{{message}}</div>
+            <br>
         </form>
-
+        <div class="footer horizontal layout flex">
+            <div class="jso-txt">
+                <template is="dom-if" if="{{loading}}">
+                    <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>
+                </template>
+                <span>{{message}}</span>
+                &nbsp;
+            </div>
+            <!-- <div class="flex"></div> -->
+        </div>
     </template>
     <script>
         Polymer({
@@ -454,42 +416,41 @@
                 bioformats: {
                     type: Array,
                     notify: true,
-                    value: [
-                        {
-                            value: 'IDLIST',
-                            text: 'ID list'
-                        },
-                        {
-                            value: 'IDLIST_RANKED',
-                            text: 'ID list ranked'
-                        }
-                    ]
+                    value: [{
+                        value: 'IDLIST',
+                        text: 'ID list'
+                    }, {
+                        value: 'IDLIST_RANKED',
+                        text: 'ID list ranked'
+                    }]
                 },
                 annotationBioformats: {
                     type: Array,
                     notify: true,
-                    value: [
-                        {
-                            value: 'ANNOTATION_GENEVSANNOTATION',
-                            text: 'Annotation genes'
-                        }
-                    ]
+                    value: [{
+                        value: 'ANNOTATION_GENEVSANNOTATION',
+                        text: 'Annotation genes'
+                    }]
                 },
                 randoms: {
                     type: Number,
                     value: 500
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
                 }
             },
-            handleDownloadFile: function (e) {
+            handleDownloadFile: function(e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
-            handleOutputClickOk: function (e) {
+            handleOutputClickOk: function(e) {
                 this.set('selectedOutputFolder', e.currentTarget.$.browser.selectedFile);
                 this.set('selectedOutputStudy', e.currentTarget.$.browser.selectedStudy.study);
             },
 
 
-            comparisonChange: function () {
+            comparisonChange: function() {
                 this.comparison = Polymer.dom(this.root).querySelector('input[name="comparisonRadio"]:checked').value;
                 this.list2 = false;
                 this.rest = false;
@@ -502,7 +463,7 @@
 
                     this.$.species.disabled = false;
                     this.$.your_annotations.disabled = false;
-//                    this.$.annotationsFile.disabled = false;
+                    //                    this.$.annotationsFile.disabled = false;
 
                 }
                 if (this.comparison == "list2genome") {
@@ -514,9 +475,9 @@
 
                     this.$.species.disabled = false;
 
-//                    this.$.your_annotations.disabled = true;
+                    //                    this.$.your_annotations.disabled = true;
                     this.$.your_annotations.disabled = false;
-//                    this.$.annotationsFile.disabled = true;
+                    //                    this.$.annotationsFile.disabled = true;
 
 
                 }
@@ -530,11 +491,11 @@
 
 
                     this.$.your_annotations.disabled = false;
-//                    this.$.annotationsFile.disabled = false;
+                    //                    this.$.annotationsFile.disabled = false;
                 }
             },
 
-            handleSpecies: function (e) {
+            handleSpecies: function(e) {
                 this.species = this.$.species.value;
                 if (this.species == "hsa") {
                     this.$.go_slim.disabled = false;
@@ -560,35 +521,35 @@
                 }
 
             },
-            bpOptionsFunction: function (e, b) {
+            bpOptionsFunction: function(e, b) {
                 this.$.bpOptions.hidden = !this.$.bpOptions.hidden;
             },
-            ccOptionsFunction: function () {
+            ccOptionsFunction: function() {
                 this.$.ccOptions.hidden = !this.$.ccOptions.hidden;
             },
-            mfOptionsFunction: function () {
+            mfOptionsFunction: function() {
                 this.$.mfOptions.hidden = !this.$.mfOptions.hidden;
             },
-            slimOptionsFunction: function () {
+            slimOptionsFunction: function() {
                 this.$.slimOptions.hidden = !this.$.slimOptions.hidden;
             },
-            interproOptionsFunction: function () {
+            interproOptionsFunction: function() {
                 this.$.interproOptions.hidden = !this.$.interproOptions.hidden;
             },
-            reconOptionsFunction: function () {
+            reconOptionsFunction: function() {
                 this.$.reconOptions.hidden = !this.$.reconOptions.hidden;
             },
 
-            handleForm: function () {
+            handleForm: function() {
                 this.message = '';
                 this.launchJob();
             },
 
-            launchJob: function () {
+            launchJob: function() {
                 var me = this;
-//                if (!Utils.basicValidationForm(this)) {
-//                    return;
-//                }
+                //                if (!Utils.basicValidationForm(this)) {
+                //                    return;
+                //                }
                 if (this.selectedOutputFolder == null) {
                     alert("Sorry. No output folder selected. Please select one. ");
                     return;
@@ -597,7 +558,7 @@
                     alert("Please fill job name input field.");
                     return;
                 }
-                this.comparison =  Polymer.dom(this.root).querySelector('input[name="comparisonRadio"]:checked').value;
+                this.comparison = Polymer.dom(this.root).querySelector('input[name="comparisonRadio"]:checked').value;
                 if (this.$.species.value == "none" && this.comparison != "list2rest") {
                     alert("Sorry. No species selected. Please select one. ");
                     return
@@ -609,7 +570,7 @@
                     name: this.$.jobName.value,
                     description: this.$.description.value,
                     outdir: this.selectedOutputFolder.id,
-//                    list1: "",
+                    //                    list1: "",
                     duplicates: this.$.duplicates.value,
                     "species": this.$.species.value,
                     fisher: this.$.fisher.value
@@ -621,12 +582,11 @@
                 }
                 if (this.$.inputFile.textAreaValue != "") {
                     query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
-                }
-                else if (this.$.inputFile.selectedFile !== undefined) {
+                } else if (this.$.inputFile.selectedFile !== undefined) {
                     query["list1"] = this.$.inputFile.selectedFile.id;
                 }
 
-                this.comparison =  Polymer.dom(this.root).querySelector('input[name="comparisonRadio"]:checked').value;
+                this.comparison = Polymer.dom(this.root).querySelector('input[name="comparisonRadio"]:checked').value;
                 if (this.comparison == "list2list") {
                     if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
                         alert("Sorry. No list 2 selected. Please select a file or write something in the text area");
@@ -638,8 +598,7 @@
                     if (this.$.inputFile2.textAreaValue != "") {
                         query["list2-text"] = this.$.inputFile2.textAreaValue.replace(/\n/g, ',');
                     }
-                }
-                else if (this.comparison == "list2genome") {
+                } else if (this.comparison == "list2genome") {
                     query["genome"] = "";
                 }
                 //else if (this.comparison == "list2rest") {
@@ -647,8 +606,7 @@
                     if (this.$.annotationsFile.selectedFile === undefined) {
                         alert("no annotation file selected")
                         return;
-                    }
-                    else
+                    } else
                         query["annotations"] = this.$.annotationsFile.selectedFile.id;
                 }
                 // }
@@ -686,34 +644,46 @@
                     query["recon-min-num-genes"] = this.$.recon_min_num_genes.value;
                     query["recon-max-num-genes"] = this.$.recon_max_num_genes.value;
                 }
-                OpencgaManager.jobs.create({
-                    query: query,
-                    request: {
-                        //method: 'POST',
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                var userId = response.response[0].result[0].id;
-                                me.message = userId + ' created';
-                                me.selectedOption = "jobLaunched"
-                            } else {
-                                me.message = response.response[0].errorMsg;
+                if (this.loading === false) {
+                    this.loading = true;
+                    this.message = 'Launching job...';
+                    OpencgaManager.jobs.create({
+                        query: query,
+                        request: {
+                            //method: 'POST',
+                            success: function(response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    var id = response.response[0].result[0].id;
+                                    me.message = id + ' created';
+                                    console.log(id + ' created');
+                                    me._clean();
+                                    me._close();
+                                } else {
+                                    me.message = response.response[0].errorMsg;
+                                }
+                                me.loading = false;
+                            },
+                            error: function() {
+                                me.message = 'Server error, try again later.';
+                                me.loading = false;
                             }
-                        },
-                        error: function () {
-                            me.message = 'Server error, try again later.';
                         }
-                    }
-                })
-            },
-
-            _close: function () {
-                var jsoPanel = this.parentNode.parentNode;
-                if (jsoPanel instanceof JsoPanel) {
-                    jsoPanel.hidden = true;
+                    });
                 }
             },
+            _close: function() {
+                if (this._parentJsoPanel != null) {
+                    this._parentJsoPanel.hidden = true;
+                }
+            },
+            _clean: function() {
+                this.message = '';
+                this.$.inputFile.selectedFile = null;
+                this.$.outdir.selectedFile = null;
+            },
 
-            loadExample1: function (e) {
+            loadExample1: function(e) {
+                var me = this;
                 this.message = '';
                 this.$.go_bp.disabled = false;
                 this.$.go_bp.checked = true;
@@ -722,8 +692,15 @@
                 this.$.species.value = "hsa";
                 this.go_bp = "gobp";
                 this.go_bp_propagation = "propagate";
-                this.$.inputFile.selectedFile = {id: "example_example.motor", path: "example.motor", type: "FILE"};
-                this.$.inputFile2.selectedFile = {id: "example_example.apoptosis", path: "example.apoptosis"};
+                this.$.inputFile.selectedFile = {
+                    id: "example_example.motor",
+                    path: "example.motor",
+                    type: "FILE"
+                };
+                this.$.inputFile2.selectedFile = {
+                    id: "example_example.apoptosis",
+                    path: "example.apoptosis"
+                };
                 this.annotations = "none";
                 this.go_bp_nannot_domain = "genome";
                 this.fisher = "two-tailed";
@@ -734,51 +711,70 @@
 
                 this.$.jobName.value = 'ex motor vs apoptosis'
                 var exampleFolder = "fati_motor_apop";
-                this.createExampleFolder(exampleFolder);
+                this._searchExampleFolder(exampleFolder, function(searchFolder, study) {
+                    var f = searchFolder;
+                    if (f == null) {
+                        me._createExampleFolder(exampleFolder, study, function(createdFolder) {
+                            f = createdFolder;
+                            if (f != null) {
+                                me.set('selectedOutputFolder', f);
+                                me.set('selectedOutputStudy', study);
+                            }
+                        });
+                    } else {
+                        me.set('selectedOutputFolder', f);
+                        me.set('selectedOutputStudy', study);
+                    }
+                });
 
             },
-            createExampleFolder: function (exampleFolder) {
+
+            _createExampleFolder: function(exampleFolder, study, callback) {
                 var me = this;
+                OpencgaManager.files.createFolder({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: study.id,
+                        folder: exampleFolder
+                    },
+                    request: {
+                        success: function(response) {
+                            var folder;
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                folder = response.response[0].result[0];
+                            }
+                            callback(folder);
+                        },
+                        error: function() {
+                            alert('Server error, try again later.');
+                            callback();
+                        }
+                    }
+                });
+            },
+            _searchExampleFolder: function(exampleFolder, callback) {
+                var me = this;
+                var study = me.$.outdir.$.browser.projects[0].studies[0];
                 OpencgaManager.files.search({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        studyId: me.$.outdir.$.browser.selectedStudy.study.id,
+                        studyId: study.id,
                         name: exampleFolder
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
+                            var folder;
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                me.$.outdir.selectedFile = response.response[0].result[0];
-                                me.set('selectedOutputFolder', me.$.outdir.selectedFile);
-                                me.set('selectedOutputStudy', me.$.outdir.$.browser.selectedStudy.study);
-                                if (response.response[0].result.length == 0) {
-                                    OpencgaManager.files.createFolder({
-                                        query: {
-                                            sid: Cookies('bioinfo_sid'),
-                                            studyId: me.$.outdir.selectedStudy.id,
-                                            folder: exampleFolder
-
-                                        },
-                                        request: {
-                                            success: function (response) {
-                                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                                    me.$.outdir.selectedFile = response.response[0].result[0];
-                                                    me.set('selectedOutputFolder', me.$.outdir.selectedFile);
-                                                    me.set('selectedOutputStudy', me.$.outdir.$.browser.selectedStudy.study);
-                                                } else {
-
-                                                }
-                                            },
-                                            error: function () {
-                                                alert('Server error, try again later.');
-                                            }
-                                        }
-                                    });
-                                }
+                                // me.$.outdir.selectedFile = response.response[0].result[0];
+                                // me.set('selectedOutputFolder', me.$.outdir.selectedFile);
+                                // me.set('selectedOutputStudy', me.$.outdir.$.browser.selectedStudy.study);
+                                folder = response.response[0].result[0];
                             }
+                            callback(folder, study);
                         },
-                        error: function () {
+                        error: function() {
                             alert('Server error, try again later.');
+                            callback();
                         }
                     }
                 });

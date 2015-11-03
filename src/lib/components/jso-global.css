@@ -287,10 +287,6 @@ textarea.jso {
     color: #444;
 }
 
-.jso-note > div:nth-child(1) {
-    font-weight: bold;
-}
-
 .jso-note::after {
     position: absolute;
     left: 10px;

@@ -1264,43 +1264,31 @@
         },
         handleSessionOpenMenu: function(e) {
             var me = this;
-            var input = document.createElement('input');
-            input.setAttribute("type", "file");
-            input.addEventListener("change", function(e) {
-                var file = e.currentTarget.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function(evt) {
+            var file = e.detail.file;
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        var jsonStr = pako.ungzip(evt.target.result, {
+                            to: 'string'
+                        });
+                        me.loadJSON(JSON.parse(jsonStr));
+                    } catch (err) {
+                        console.log('Unable to ungzip');
 
-                        try {
-                            var jsonStr = pako.ungzip(evt.target.result, {
-                                to: 'string'
-                            });
+                        /** **/
+                        var stringReader = new FileReader();
+                        stringReader.onload = function(evt2) {
+                            console.log('Readed as plain text');
+                            var jsonStr = evt2.target.result;
                             me.loadJSON(JSON.parse(jsonStr));
-                        } catch (err) {
-                            console.log('Unable to ungzip');
-
-                            /** **/
-                            var stringReader = new FileReader();
-                            stringReader.onload = function(evt2) {
-                                console.log('Readed as plain text');
-                                var jsonStr = evt2.target.result;
-                                me.loadJSON(JSON.parse(jsonStr));
-                            }
-                            stringReader.readAsText(file);
-                            /** **/
                         }
-
-                    };
-                    reader.readAsArrayBuffer(file);
-                }
-            });
-            var event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true
-            });
-            input.dispatchEvent(event);
+                        stringReader.readAsText(file);
+                        /** **/
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
         },
         handleSessionSaveMenu: function(e) {
             var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
@@ -2790,6 +2778,24 @@
                 handlers: {
                     'data:load': function(event) {
                         graph = event.graph;
+                    },
+                    'error:parse': function(event) {
+                        console.log(event)
+                    }
+                }
+            });
+            this.setGraph(graph);
+        },
+        loadText: function(textString, sourceCol, targetCol, relationCol, relationDefaultName) {
+            var graph;
+            new TextNetworkDataAdapter({
+                async: false,
+                dataSource: new StringDataSource(textString),
+                handlers: {
+                    'data:load': function(event) {
+                        var adapter = event.sender;
+                        graph = adapter.parseColumns(sourceCol, targetCol, relationCol, relationDefaultName);
+                        // graph = adapter.parseColumns(0, 1, -1, "r");
                     },
                     'error:parse': function(event) {
                         console.log(event)

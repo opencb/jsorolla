@@ -125,12 +125,15 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                 finalColumnNames[i] = "id";
             }
             if (this.ignoreColumns[i] !== true) {
-                this.columns.push({
-                    "name": finalColumnNames[i],
-                    "title": finalColumnNames[i],
-                    "type": "text",
-                    "defaultValue": ""
-                });
+                var column = {
+                    name: finalColumnNames[i].toString(),
+                    title: finalColumnNames[i].toString(),
+                    type: "text",
+                    formula: function(row) {
+                        return row.attributes[this.name];
+                    }
+                };
+                this.columns.push(column);
             }
         }
 

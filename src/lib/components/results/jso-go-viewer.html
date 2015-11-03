@@ -7,39 +7,42 @@
         jso-network-viewer {
             /*max-width: 1000px;*/
             height: 800px;
-
             border-color: rgb(217, 217, 217);
             border-style: solid;
             border-width: 1px;
         }
-
-
     </style>
     <template>
         <template is="dom-if" if="{{checkNetworkViewer(networkViewer)}}">
             <br>
-
-            <div class="horizontal layout">
+            <div class="horizontal layout center">
                 <div>
                     <input class="jso" type="text" value="{{sessionName::input}}" placeholder="session name...">
                 </div>
                 <div class="jso-btn jso-btn-shdw" style="margin-left:5px" on-click="handleSaveSessionToCellMaps">
                     Save network as Cell Maps session
                 </div>
-            </div>
-            <div class="horizontal layout">
-                <label class="jso">{{saveMessage}}</label>
-                <template is="dom-if" if="{{saveMessageOk}}">
-                    <div class="jso-btn jso-btn-shdw" on-click="handleOpenCellMapsSessionManager">
-                        Open Cell Maps session Manager
+                <template is="dom-if" if="{{saveInProgress}}">
+                    <div>
+                        &nbsp; <i class="fa fa-circle-o-notch fa-spin"></i> Saving session...
                     </div>
                 </template>
             </div>
+            <template is="dom-if" if="{{saveFinish}}">
+                <div class="jso-note jso-note-info">
+                    <div>
+                        Saved as <b>{{saveMessage}}</b>, you can go back to Cell Maps and load the network using the <b>session manager</b> inside File menu.
+                    </div>
+                    <br>
+                    <div class="jso-btn jso-btn-shdw" style="width:220px;" on-click="handleOpenCellMapsSessionManager">
+                        Open Cell Maps session Manager
+                    </div>
+                </div>
+            </template>
             <br>
         </template>
-        <jso-network-viewer id="networkViewer" lite hide-node-render hide-edge-render></jso-network-viewer>
-        <label class="jso">Colored nodes represent significant results: red for GOs overrepresented and blue for GOs
-            underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs
+        <jso-network-viewer id="viewer" lite hide-node-render hide-edge-render></jso-network-viewer>
+        <label class="jso">Colored nodes represent significant results: red for GOs overrepresented and blue for GOs underrepresented in the list 1, whereas white GOs represent the parents of the significant GOs
         </label>
         <br>
         <label class="jso">You can move the canvas using CTRL+CLICK or using the <b>Move</b> mode
@@ -60,7 +63,11 @@
                     type: String,
                     value: ''
                 },
-                saveMessageOk: {
+                saveInProgress: {
+                    type: Boolean,
+                    value: false
+                },
+                saveFinish: {
                     type: Boolean,
                     value: false
                 },
@@ -71,78 +78,43 @@
                     type: Object
                 }
             },
-            ready: function () {
-                this.async(function () {
-                    //                this.$.networkViewer.selectVerticesByAttribute("id", "all");
-                    //                this.$.networkViewer.setLayout("Force directed");
-                    this.$.networkViewer.setVertexDefaultPositionX(this.$.networkViewer.vertexDefaults.xAttribute, false, false);
-                    this.$.networkViewer.setVertexDefaultPositionY(this.$.networkViewer.vertexDefaults.yAttribute, false, true);
-                });
-            },
-            setContent: function (sifContent, attrContent, attr2Content) {
+            setContent: function(networkContent, attrContent, attr2Content) {
                 var me = this;
-                new TextNetworkDataAdapter({
-                    dataSource: new StringDataSource(sifContent),
-                    handlers: {
-                        'data:load': function (event) {
-                            var sifAdapter = event.sender;
-                            var graph = sifAdapter.parseColumns(0, 1, -1, "r");
-                            me.$.networkViewer.setGraph(graph);
-//                            me.$.networkViewer.selectVertex(me.$.networkViewer.graph.vertices[0]);
-
-
-                            new AttributeNetworkDataAdapter({
-//                                ignoreColumns: ?,
-                                dataSource: new StringDataSource(attrContent),
-                                handlers: {
-                                    'data:load': function (e) {
-                                        me.$.networkViewer.importVertexAttributeManager(e.columns, e.attributes);
-                                        me._applyVertexAttributes();
-                                    },
-                                    'error:parse': function (event) {
-                                        me.message = event.errorMsg;
-                                    }
-                                }
-                            });
-                        },
-                        'error:parse': function (event) {
-                            console.log("ERRORRRR");
-                        }
-                    }
-                });
-
+                this.async(function() {
+                    this.$.viewer.loadText(networkContent, 0, 1, -1, "r");
+                    this.$.viewer.loadNodeAttributes(attrContent);
+                    this.$.viewer.selectVertexDefaultLabelAttribute("name");
+                    var nodeRender = this.$.viewer.$.nodeRender;
+                    //attributeName, displayProperty
+                    nodeRender.applyDirect("color", "color");
+                    this.$.viewer.setVertexDefaultPositionX('x', false, false);
+                    this.$.viewer.setVertexDefaultPositionY('y', false, true);
+                }, 50);
             },
-            _applyVertexAttributes: function () {
-                this.$.networkViewer.vertexDefaults.labelAttribute = "name";
-                this.$.networkViewer.handleVertexDefaultLabelAttribute();
-
-                var nodeRender = this.$.networkViewer.$.nodeRender;
-
-                //attributeName, displayProperty
-                nodeRender.applyDirect("color", "color");
-            },
-            handleSaveSessionToCellMaps: function (e) {
-                var saved = this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.networkViewer, this.sessionName + ' - ' + this.jobResult.jobItem.name);
-                if (saved) {
-                    this.saveMessage = "Saved as " + this.sessionName + ", you can go back to Cell Maps and load the network using the session manager inside File menu.";
-                    this.sessionName = '';
-                    this.saveMessageOk = true;
-                } else {
-                    this.saveMessage = this.sessionName + 'already exists.';
-                    this.saveMessageOk = false;
+            handleSaveSessionToCellMaps: function(e) {
+                var me = this;
+                if (this.saveInProgress === false && this.sessionName != '') {
+                    this.saveFinish = false;
+                    this.saveInProgress = true;
+                    this.saveMessage = this.sessionName + ' - ' + this.jobResult.jobItem.name;
+                    this.jobResult.networkViewer.$.sessionManager.saveSession(this.networkViewer, this.saveMessage, function() {
+                        me.sessionName = '';
+                        me.saveInProgress = false;
+                        me.saveFinish = true;
+                    });
                 }
             },
-            handleOpenCellMapsSessionManager: function () {
-                this.jobResult.selectedOption = "";
-                this.jobResult.networkViewer.selectedMenu = "session-manager";
+            handleOpenCellMapsSessionManager: function() {
+                this.jobResult.selectedOption = "home";
+                this.jobResult.networkViewer.$.sessionManagerPanel.show();
             },
-            checkNetworkViewer: function (networkViewer) {
+            checkNetworkViewer: function(networkViewer) {
                 if (networkViewer) {
                     return true;
                 }
                 return false;
             }
+
         })
     </script>
 </dom-module>
-

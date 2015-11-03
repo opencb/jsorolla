@@ -154,7 +154,6 @@
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(response, "application/xml");
                 console.log(doc);
-                debugger
                 var entries = doc.querySelectorAll("entry");
                 var relations = doc.querySelectorAll("relation");
                 var reactions = doc.querySelectorAll("reaction");

@@ -9,69 +9,10 @@
             width: 1300px;
         }
 
-        /*@-moz-document url-prefix() {*/
-        /*sortable-table::shadow tbody tr td {*/
-        /*text-overflow: ellipsis !important;*/
-        /*}*/
-        /*}*/
-
-        /*sortable-table::shadow .column-term_size,*/
-        /*sortable-table::shadow .column-term_size_genome,*/
-        /*sortable-table::shadow .column-term_size_genome,*/
-        /*sortable-table::shadow .column-term_annotations_list_perc,*/
-        /*sortable-table::shadow .column-odds_ratio,*/
-        /*sortable-table::shadow .column-pvalue,*/
-        /*sortable-table::shadow .column-adj_pvalue {*/
-        /*width: 80px;*/
-        /*white-space: nowrap;*/
-        /*}*/
-
     </style>
     <template>
         <jso-table id="table" enable-paging>
         </jso-table>
-
-
-        <!--<template id="linkTemplate">-->
-        <!--<td>-->
-        <!--<a href="{{row['link']}}" target="_blank">{{row[column.name]}}</a>-->
-        <!--</td>-->
-        <!--</template>-->
-        <!--<template id="listTemplate">-->
-        <!--<td style="padding:0px;">-->
-        <!--<div horizontal layout style="max-height: 100px; overflow-y: auto; overflow-x: hidden">-->
-        <!--<div flex style="text-align: center;">-->
-        <!--<span style="color:#666">List 1:</span>-->
-
-        <!--<div class="idlist" title="{{row[column.name]}}">-->
-        <!--<template repeat="{{ item in row[column.name].list1}}">-->
-        <!--<div>{{item}}</div>-->
-        <!--</template>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<div flex style="text-align: center;">-->
-        <!--<span style="color:#666">List 2:</span>-->
-
-        <!--<div class="idlist" title="{{row[column.name]}}">-->
-        <!--<template repeat="{{ item in row[column.name].list2}}">-->
-        <!--<div>{{item}}</div>-->
-        <!--</template>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--&lt;!&ndash;<span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}</span>&ndash;&gt;-->
-        <!--&lt;!&ndash;<br>&ndash;&gt;-->
-        <!--&lt;!&ndash;<span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}</span>&ndash;&gt;-->
-        <!--</td>-->
-        <!--</template>-->
-        <!--<template id="listTemplatePerc">-->
-        <!--<td>-->
-        <!--<span title="{{row[column.name]}}">List 1: {{row[column.name].list1}}%</span>-->
-        <!--<br>-->
-        <!--<span title="{{row[column.name]}}">List 2: {{row[column.name].list2}}%</span>-->
-        <!--</td>-->
-        <!--</template>-->
-
     </template>
     <script>
         Polymer({
@@ -190,4 +131,3 @@
         })
     </script>
 </dom-module>
-

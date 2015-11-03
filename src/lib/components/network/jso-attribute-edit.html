@@ -622,7 +622,7 @@
             var selected = [];
             for (var i = 0; i < data.length; i++) {
                 var row = data[i];
-                if (row[column] === value) {
+                if (row.attributes[column] === value) {
                     selected.push(row);
                 }
             }
@@ -633,14 +633,14 @@
             if (notContains == true) {
                 for (var i = 0; i < data.length; i++) {
                     var row = data[i];
-                    if (row[column].indexOf(value) == -1) {
+                    if (row.attributes[column].indexOf(value) == -1) {
                         selected.push(row);
                     }
                 }
             } else {
                 for (var i = 0; i < data.length; i++) {
                     var row = data[i];
-                    if (row[column].indexOf(value) != -1) {
+                    if (row.attributes[column].indexOf(value) != -1) {
                         selected.push(row);
                     }
                 }
@@ -654,14 +654,14 @@
                     if (includeValue) {
                         for (var i = 0; i < data.length; i++) {
                             var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) >= parseFloat(value)) {
+                            if (!isNaN(row.attributes[column]) && parseFloat(row.attributes[column]) >= parseFloat(value)) {
                                 selected.push(row);
                             }
                         }
                     } else {
                         for (var i = 0; i < data.length; i++) {
                             var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) > parseFloat(value)) {
+                            if (!isNaN(row.attributes[column]) && parseFloat(row.attributes[column]) > parseFloat(value)) {
                                 selected.push(row);
                             }
                         }
@@ -670,14 +670,14 @@
                     if (includeValue) {
                         for (var i = 0; i < data.length; i++) {
                             var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) <= parseFloat(value)) {
+                            if (!isNaN(row.attributes[column]) && parseFloat(row.attributes[column]) <= parseFloat(value)) {
                                 selected.push(row);
                             }
                         }
                     } else {
                         for (var i = 0; i < data.length; i++) {
                             var row = data[i];
-                            if (!isNaN(row[column]) && parseFloat(row[column]) < parseFloat(value)) {
+                            if (!isNaN(row.attributes[column]) && parseFloat(row.attributes[column]) < parseFloat(value)) {
                                 selected.push(row);
                             }
                         }
