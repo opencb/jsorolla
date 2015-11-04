@@ -20,8 +20,8 @@
         .file {
             text-align: center;
             color: #445D76;
-            margin-top: 5px;
             width: 100px;
+            align-self: center;
         }
 
         .next {
@@ -46,7 +46,7 @@
             cursor: pointer;
         }
 
-        .header {
+        #header {
             margin-bottom: 10px;
             box-sizing: border-box;
             height: 40px;
@@ -75,16 +75,15 @@
     </style>
     <template>
         <div id="wizard-content" class="vertical layout">
-            <div class="header">
+            <div id="header">
                 <div class="horizontal layout">
                     <div class="flex" hidden="{{handleHiddenStep1(step)}}"></div>
                     <div class="prev flex" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}">
                         <label><i class="fa fa-angle-double-left"></i>&nbsp;Step&nbsp;<span>{{stepPrev}}</span></label>
                     </div>
-                    <label class="title">Step &nbsp;
+                     <!-- <label class="title">Step &nbsp;
                         <span>{{step}}</span>
-                    </label>
-
+                    </label> -->
                     <div class="flex next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
                         <label>Step&nbsp;
                             <span>{{stepNext}}</span>&nbsp;<i class="fa fa-angle-double-right"></i></label>
