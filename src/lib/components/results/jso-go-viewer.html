@@ -96,8 +96,8 @@
                 if (this.saveInProgress === false && this.sessionName != '') {
                     this.saveFinish = false;
                     this.saveInProgress = true;
-                    this.saveMessage = this.sessionName + ' - ' + this.jobResult.jobItem.name;
-                    this.jobResult.networkViewer.$.sessionManager.saveSession(this.networkViewer, this.saveMessage, function() {
+                    this.saveMessage = this.sessionName + '-' + this.jobResult.jobItem.name;
+                    this.jobResult.networkViewer.$.sessionManager.saveSession(this.$.viewer, this.saveMessage, function() {
                         me.sessionName = '';
                         me.saveInProgress = false;
                         me.saveFinish = true;

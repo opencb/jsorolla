@@ -6,13 +6,10 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-
             /*left: 0;*/
             /*right: 0;*/
             /*margin: 0px auto 0px auto;*/
-
             height: 100%;
-
             transition: all 0.2s;
             background-color: inherit;
             width: 600px;
@@ -30,7 +27,6 @@
             box-sizing: border-box;
             width: 175px;
             height: 100%;
-
             border-right: 1px solid rgba(130, 130, 130, 0.4);
         }
 
@@ -60,7 +56,8 @@
             box-sizing: border-box;
             width: 150px;
             height: 100%;
-            border-left: 1px solid rgba(130, 130, 130, 0.4);;
+            border-left: 1px solid rgba(130, 130, 130, 0.4);
+            ;
             word-wrap: break-word;
         }
 
@@ -73,18 +70,13 @@
             <div id="mainmenu">
                 <div id="mainmenucontent">
                     <template is="dom-repeat" items="{{projects}}" filter="isHidden">
-                        <jso-opencga-project-tree on-clickstudy="handleProjectTreeClick"
-                                                  project="{{item}}">
+                        <jso-opencga-project-tree on-clickstudy="handleProjectTreeClick" project="{{item}}">
                         </jso-opencga-project-tree>
                     </template>
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-job-list
-                        on-jobselect="handleJobSelect"
-                        study="{{selectedStudy.study}}"
-                        allowed-tools="{{allowedTools}}"
-                        jobs="{{jobs}}">
+                <jso-opencga-job-list on-jobselect="handleJobSelect" study="{{selectedStudy.study}}" allowed-tools="{{allowedTools}}" jobs="{{jobs}}">
                 </jso-opencga-job-list>
             </div>
             <!--<div id="maininfo">-->
@@ -116,7 +108,7 @@
             selectedJob: {
                 type: Object,
                 notify: true,
-                value: function () {
+                value: function() {
                     return null;
                 }
             },
@@ -130,36 +122,40 @@
             },
             allowedTools: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [];
                 }
             }
         },
-        ready: function () {
+        ready: function() {
             /** Periodical refresh **/
             var me = this;
-            this.async(function () {
-                setInterval(function () {
+            this.async(function() {
+                console.warn('OPENCGA does not modify user lastActivity after launch a job or job status is being modified. Remove this when OPENCGA supports it.');
+                setInterval(function() {
                     me.refreshJobs();
                 }, 5000);
             });
         },
-        projectsChanged: function (neo, old) {
-            this.async(function () {
-                if (this.selectedProject == null) {
-                    var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
-                    this.set('selectedProject', el);
-                }
-                if (this.selectedProject != null && this.selectedStudy == null) {
-                    var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
-                    this.set('selectedStudy', el);
-                }
-                if (this.selectedStudy) {
-                    this.refreshJobs();
-                }
+        projectsChanged: function(neo, old) {
+            this.async(function() {
+                this._setInitialSelection();
             }, 100);
         },
-        selectedStudyChanged: function (neo, old) {
+        _setInitialSelection: function() {
+            if (this.selectedProject == null) {
+                var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
+                this.set('selectedProject', el);
+            }
+            if (this.selectedProject != null && this.selectedStudy == null) {
+                var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
+                this.set('selectedStudy', el);
+            }
+            if (this.selectedStudy) {
+                this.refreshJobs();
+            }
+        },
+        selectedStudyChanged: function(neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;
 
@@ -170,32 +166,32 @@
             this.selectedJob = null;
             this.refreshJobs();
         },
-        selectedProjectChanged: function (neo, old) {
+        selectedProjectChanged: function(neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;
         },
-        handleProjectTreeClick: function (e) {
+        handleProjectTreeClick: function(e) {
             this.set('selectedProject', e.currentTarget);
             this.set('selectedStudy', e.currentTarget.selectedStudy);
         },
-        handleJobSelect: function (e) {
+        handleJobSelect: function(e) {
             this.selectedJob = e.detail;
         },
 
         /* Private methods */
-        computeAngleIcon: function (el) {
+        computeAngleIcon: function(el) {
             if (el) {
                 return false;
             }
             return true;
         },
-        refreshJobs: function () {
+        refreshJobs: function() {
             console.log('refreshJobs');
             if (this.selectedStudy != null) {
                 this._getJobs(this.selectedStudy.study.id);
             }
         },
-        _getJobs: function (studyId) {
+        _getJobs: function(studyId) {
             var me = this;
 
             OpencgaManager.studies.jobs({
@@ -205,35 +201,35 @@
                 },
                 request: {
                     async: true,
-                    success: function (response) {
+                    success: function(response) {
                         console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             var jobList = response.response[0].result;
 
                             if (me.allowedTools != null && me.allowedTools.length > 0) {
-                                jobList = jobList.filter(function (item) {
+                                jobList = jobList.filter(function(item) {
                                     return me.allowedTools.indexOf(item.toolName) != -1;
                                 })
                             }
-                            jobList.sort(function (a, b) {
+                            jobList.sort(function(a, b) {
                                 return b.date.localeCompare(a.date);
                             });
 
                             me.set('jobs', jobList);
-//                            me.jobs = response.response[0].result;
+                            //                            me.jobs = response.response[0].result;
 
                         } else {
                             console.log(response.response[0].errorMsg);
                         }
                     },
-                    error: function () {
+                    error: function() {
                         console.log('Server error, try again later.');
                     }
                 }
             });
 
         },
-        isHidden: function (project) {
+        isHidden: function(project) {
             if (this.showHidden) {
                 return true;
             } else {
