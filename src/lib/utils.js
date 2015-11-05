@@ -50,14 +50,14 @@ var Utils = {
         return result.charAt(0).toUpperCase() + result.slice(1);
     },
     closest: function(element, selector) {
+        var matches = (element.matches) ? 'matches' : 'msMatchesSelector';
         while (element) {
-			if (element.matches(selector)) {
-				break;
-			}
-
-			element = element.parentElement;
-		}
-		return element;
+            if (element[matches](selector)) {
+                break;
+            }
+            element = element.parentElement;
+        }
+        return element;
     },
     isFunction: function(s) {
         return typeof(s) === 'function' || s instanceof Function;

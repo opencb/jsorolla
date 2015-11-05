@@ -133,7 +133,9 @@
             this.async(function() {
                 console.warn('OPENCGA does not modify user lastActivity after launch a job or job status is being modified. Remove this when OPENCGA supports it.');
                 setInterval(function() {
-                    me.refreshJobs();
+                    if (Cookies('bioinfo_sid') != null) {
+                        me.refreshJobs();
+                    }
                 }, 5000);
             });
         },
