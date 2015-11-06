@@ -149,7 +149,7 @@
                                 <div class="horizontal layout center row">
                                     <div class="flex">{{uitem.attribute}}</div>
 
-                                    <div class="flex fakeselect horizontal layout center" on-click="handleFakeSelectClick" tabindex="-1" on-blur="handleSelectListBlur">
+                                    <div class="flex fakeselect horizontal layout center" on-click="handleFakeSelectClick">
                                         <div class="text">{{uitem.render}}</div>
                                         <div class="arrow" class="horizontal layout center"><i class="fa fa-angle-down"></i></div>
                                     </div>
@@ -186,7 +186,7 @@
             </div>
 
         </jso-panel>
-        <div id="selectlist" on-click="handleSelect">
+        <div id="selectlist" on-click="handleSelectClick">
             <template is="dom-repeat" items={{options}} as="option">
                 <jso-option value="{{option}}">{{option}}</jso-option>
             </template>
@@ -206,16 +206,20 @@
                 type: Object
             }
         },
-        handleSelect: function(e) {
+        ready: function() {
+            var me = this;
+            document.body.addEventListener('click', function() {
+                me.$.selectlist.style.display = '';
+            });
+        },
+        handleSelectClick: function(e) {
             // e.model.uitem.render = e.currentTarget.value;
             var idx = this._lastModel.index;
             this.set('uniqueItems.' + idx + '.render', e.target.value);
             this.$.selectlist.style.display = '';
         },
-        handleSelectListBlur: function() {
-            this.$.selectlist.style.display = '';
-        },
         handleFakeSelectClick: function(e) {
+            e.stopPropagation();
             // e.model.uitem.render = e.currentTarget.value;
             this._lastModel = e.model;
             var bcr = e.currentTarget.getBoundingClientRect();
