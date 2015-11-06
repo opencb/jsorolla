@@ -69,7 +69,7 @@
                 <div id="functionsContent" class="selbox">
                     <template is="dom-repeat" items={{funcList}}>
                         <label class="jso-control">
-                            <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
+                            <input type="checkbox" checked$="{{item.selected}}" value="{{item.name}}" on-click="handleItemSelect">
                             <span>{{item.boxLabel}}</span>
                         </label>
                     </template>
@@ -86,7 +86,7 @@
                 <div id="tissuesContent" class="selbox">
                     <template is="dom-repeat" items={{tissues}}>
                         <label class="jso-control">
-                            <input type="checkbox" value$="{{item}}">
+                            <input type="checkbox" value="{{item}}">
                             <span class="capitalize">{{item}}</span>
                         </label>
                     </template>

@@ -46,12 +46,12 @@
                 </div>
 
                 <div class="jso-select flex">
-                    <select style="margin-left: 5px;" value="{{chargeAttribute::input}}">
-                        <option value="none">None</option>
-                        <template is="dom-if" items="{{vertexColumns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
+                    <jso-select>
+                        <jso-option value="none">None</jso-option>
+                        <template is="dom-repeat" items="{{vertexColumns}}" as="column">
+                            <jso-option value="{{column.name}}">{{column.title}}</jso-option>
                         </template>
-                    </select>
+                    </jso-select>
                 </div>
             </div>
             <br>
@@ -65,12 +65,12 @@
                 </div>
 
                 <div class="jso-select flex">
-                    <select style="margin-left: 5px;" value="{{linkDistanceAttribute}}">
-                        <option value="none">None</option>
-                        <template is="dom-if" items="{{edgeColumns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
+                    <jso-select>
+                        <jso-option value="none">None</jso-option>
+                        <template is="dom-repeat" items="{{edgeColumns}}" as="column">
+                            <jso-option value="{{column.name}}">{{column.title}}</jso-option>
                         </template>
-                    </select>
+                    </jso-select>
                 </div>
             </div>
 
@@ -82,12 +82,12 @@
                 </div>
 
                 <div class="jso-select flex">
-                    <select style="margin-left: 5px;" value="{{linkStrengthAttribute}}">
-                        <option value="none">None</option>
-                        <template is="dom-if" items="{{edgeColumns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
+                    <jso-select>
+                        <jso-option value="none">None</jso-option>
+                        <template is="dom-repeat" items="{{edgeColumns}}" as="column">
+                            <jso-option value="{{column.name}}">{{column.title}}</jso-option>
                         </template>
-                    </select>
+                    </jso-select>
                 </div>
             </div>
             <br>

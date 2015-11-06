@@ -107,13 +107,11 @@
                         <label class="jso">Edit attribute for selected items</label>
 
                         <div class="vertical layout">
-                            <div class="jso-select">
-                                <select id="selectEdit">
-                                    <template is="dom-repeat" items={{columns}} as="column" filter="isColumnEditable">
-                                        <option value="{{column.name}}">{{column.title}}</option>
-                                    </template>
-                                </select>
-                            </div>
+                            <jso-select id="selectEdit">
+                                <template is="dom-repeat" items={{columns}} as="column" filter="isColumnEditable">
+                                    <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                                </template>
+                            </jso-select>
 
                             <div class="horizontal layout" style="margin-top: 3px;">
                                 <div class="flex">
@@ -135,13 +133,11 @@
                         <label class="jso" style="margin-top:10px;">Delete attribute</label>
 
                         <div class="horizontal layout">
-                            <div class="jso-select flex">
-                                <select id="selectDelete">
-                                    <template is="dom-repeat" items={{columns}} as="column" filter="isColumnEditable">
-                                        <option value="{{column.name}}">{{column.title}}</option>
-                                    </template>
-                                </select>
-                            </div>
+                            <jso-select id="selectDelete" style="width:173px;">
+                                <template is="dom-repeat" items={{columns}} as="column" filter="isColumnEditable">
+                                    <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                                </template>
+                            </jso-select>
                             <div class="jso-btn jso-btn-shdw remove" on-click="handleRemoveApply"></div>
                         </div>
                     </div>
@@ -196,13 +192,11 @@
 
                             <label class="jso">Attribute:</label>
 
-                            <div class="jso-select">
-                                <select id="filterAttributeSelect">
+                                <jso-select id="filterAttributeSelect">
                                     <template is="dom-repeat" items={{columns}} as="column">
-                                        <option value="{{column.name}}">{{column.title}}</option>
+                                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
                                     </template>
-                                </select>
-                            </div>
+                                </jso-select>
 
                             <label class="jso">Data type:</label>
 

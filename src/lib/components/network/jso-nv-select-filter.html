@@ -67,13 +67,11 @@
 
                 <label class="jso">Filter attribute:</label>
 
-                <div class="jso-select">
-                    <select id="filterAttributeSelect">
+                    <jso-select id="filterAttributeSelect">
                         <template is="dom-repeat" items="{{columns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
+                            <jso-option value="{{column.name}}">{{column.title}}</jso-option>
                         </template>
-                    </select>
-                </div>
+                    </jso-select>
 
 
                 <label class="jso">Filter data type:</label>

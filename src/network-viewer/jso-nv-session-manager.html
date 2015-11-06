@@ -212,7 +212,7 @@
             }
         },
         selectedStudyChanged: function(o, n) {
-            console.log("selected study changed")
+            // console.log("selected study changed")
             this.logged = true;
             this._updateSessionsFromUserData();
         },
@@ -367,7 +367,7 @@
                 },
                 request: {
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             folder = response.response[0].result[0];
                         } else {
@@ -418,7 +418,7 @@
                 },
                 request: {
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             files = response.response[0].result;
                         } else {

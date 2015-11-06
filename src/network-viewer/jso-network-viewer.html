@@ -48,6 +48,7 @@
 <link rel="import" href="../lib/components/jso-color-picker.html">
 <link rel="import" href="../lib/components/jso-color-menu.html">
 <link rel="import" href="../lib/components/jso-select-box.html">
+<link rel="import" href="../lib/components/jso-select.html">
 
 <link rel="import" href="jso-nv-bar.html">
 <link rel="import" href="jso-nv-tool-bar.html">
@@ -600,7 +601,7 @@
             },
             projects: {
                 type: Array
-            },
+            }
         },
         observers: [
             'selectedVerticesChanged(selectedVertices.splices)',
@@ -650,6 +651,7 @@
             });
 
             this._init();
+
         },
         _init: function() {
             this.resetZoom();
@@ -672,8 +674,8 @@
                 labelPositionX: 0,
                 labelPositionY: 0,
                 labelAttribute: 'id',
-                xAttribute: 'x',
-                yAttribute: 'y',
+                xAttribute: '',
+                yAttribute: '',
                 selectionColor: '#da6d1f',
                 filters: []
             };
@@ -894,6 +896,8 @@
             this.set('center.y', o.center.y);
             this.resetZoom();
             this.zoom = o.zoom;
+
+            this.saveLocalStorage();
         },
 
         toJSON: function() {
@@ -2738,7 +2742,7 @@
                         to: 'string'
                     });
                     me.loadJSON(JSON.parse(jsonStr));
-                    me.setLayout("Force directed");
+                    // me.setLayout("Force directed");
                 };
                 request.open('GET', './example-files/RAF_MAK_kinase_cascade.json.gz', true);
                 request.send();

@@ -43,12 +43,12 @@
             <label class="jso">Tool name:</label>
 
             <div class="jso-select" style="width:150px;">
-                <select id="toolFilterSelect" on-change="handleFilterSelect">
-                    <option value="all">all</option>
+                <jso-select id="toolFilterSelect" value="all" on-change="handleFilterSelect">
+                    <jso-option value="all">all</jso-option>
                     <template is="dom-repeat" items={{allowedTools}} as="toolName">
-                        <option value="{{toolName}}">{{toolName}}</option>
+                        <jso-option value="{{toolName}}">{{toolName}}</jso-option>
                     </template>
-                </select>
+                </jso-select>
             </div>
         </div>
         <div id="content">

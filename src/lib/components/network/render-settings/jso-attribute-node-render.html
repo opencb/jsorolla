@@ -90,22 +90,24 @@
         jso-color-picker {
             font-size: 10px;
         }
+
+        .default {
+            width: 75px;
+        }
+
     </style>
     <template>
         <div class="container vertical layout">
             <div class="horizontal layout">
                 <div class="jso-txt">Label attr:</div>
-                <div class="jso-select flex">
-                    <select on-change="handleLabelAttribute">
-                        <template is="dom-repeat" items="{{columns}}" as="column">
-                            <option value="{{column.name}}" selected$="{{isOptionSelected(column.name, defaults.labelAttribute)}}">{{column.title}}</option>
-                        </template>
-                    </select>
-                </div>
+                <jso-select class="flex" value="{{defaults.labelAttribute}}" on-change="handleLabelAttribute">
+                    <template is="dom-repeat" items="{{columns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
                 <!--<div class="jso-btn jso-btn-shdw showlabels" data-checked="{{showLabels}}"-->
                 <!--on-click="{{handleShowLabels}}"></div>-->
             </div>
-
             <div class="horizontal layout">
                 <div class="jso-txt">Label offset:</div>
                 <div class="flex">
@@ -119,7 +121,7 @@
             <!--labelSize-->
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'labelSize')}}">Label size:</div>
-                <div class="flex">
+                <div class="default">
                     <input class="jso" type="number" min="0" max="50" value={{defaults.labelSize::input}} on-change="handleLabelSize">
                 </div>
 
@@ -134,7 +136,7 @@
             <!--opacity-->
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'opacity')}}">Opacity:</div>
-                <div class="flex">
+                <div class="default">
                     <input class="jso" type="number" min="0" max="1" step="0.1" value={{defaults.opacity::input}} on-change="handleOpacity">
                 </div>
                 <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick" data-prop="opacity" data-exists$="{{visualSetExists(visualSets.opacity)}}" title$="{{visualSetBtnText(visualSets.opacity.attribute)}}">
@@ -148,14 +150,12 @@
             <!--shape-->
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'shape')}}">Shape:</div>
-                <div class="jso-select flex">
-                    <select on-change="handleShape">
-                        <option value="circle" selected$="{{isOptionSelected('circle', defaults.shape)}}">circle</option>
-                        <option value="ellipse" selected$="{{isOptionSelected('ellipse', defaults.shape)}}">ellipse</option>
-                        <option value="square" selected$="{{isOptionSelected('square', defaults.shape)}}">square</option>
-                        <option value="rectangle" selected$="{{isOptionSelected('rectangle', defaults.shape)}}">rectangle</option>
-                    </select>
-                </div>
+                <jso-select class="default" value="{{defaults.shape}}" on-change="handleShape">
+                    <jso-option value="circle">circle</jso-option>
+                    <jso-option value="ellipse">ellipse</jso-option>
+                    <jso-option value="square">square</jso-option>
+                    <jso-option value="rectangle">rectangle</jso-option>
+                </jso-select>
 
 
                 <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick" data-prop="shape" data-exists$="{{visualSetExists(visualSets.shape)}}" title$="{{visualSetBtnText(visualSets.shape.attribute)}}">
@@ -170,7 +170,7 @@
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'color')}}">Color:</div>
                 <!--<input flex type="color" value="{{defaults.color}}" list="colors" on-change="{{handleColor}}">-->
-                <jso-color-picker class="flex" color="{{defaults.color}}" on-color-click="handleColor"></jso-color-picker>
+                <jso-color-picker class="default" color="{{defaults.color}}" on-color-click="handleColor"></jso-color-picker>
 
                 <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick" data-prop="color" data-exists$="{{visualSetExists(visualSets.color)}}" title$="{{visualSetBtnText(visualSets.color.attribute)}}">
                     <span>{{visualSetBtnText(visualSets.color.attribute)}}</span>
@@ -185,7 +185,7 @@
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'strokeColor')}}">Stroke color:</div>
 
                 <!--<input flex type="color" value="{{defaults.strokeColor}}" on-change="{{handleStrokeColor}}">-->
-                <jso-color-picker class="flex" color="{{defaults.strokeColor}}" on-color-click="handleStrokeColor"></jso-color-picker>
+                <jso-color-picker class="default" color="{{defaults.strokeColor}}" on-color-click="handleStrokeColor"></jso-color-picker>
 
 
                 <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick" data-prop="strokeColor" data-exists$="{{visualSetExists(visualSets.strokeColor)}}" title$="{{visualSetBtnText(visualSets.strokeColor.attribute)}}">
@@ -198,7 +198,7 @@
             <!--size-->
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'size')}}">Size:</div>
-                <div class="flex">
+                <div class="default">
                     <input class="jso" type="number" min="1" max="200" value={{defaults.size::input}} on-change="handleSize">
                 </div>
 
@@ -212,7 +212,7 @@
             <!--strokeSize-->
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'strokeSize')}}">Stroke size:</div>
-                <div class="flex">
+                <div class="default">
                     <input class="jso" type="number" min="1" max="20" value={{defaults.strokeSize::input}} on-change="handleStrokeSize">
                 </div>
 
@@ -226,7 +226,7 @@
             <!--area-->
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'area')}}">Area:</div>
-                <div class="flex">
+                <div class="default">
                     <input class="jso" type="number" max="1" min="0" step="0.01" value={{defaults.area::input}} on-change="handleArea">
                 </div>
 
@@ -241,7 +241,7 @@
             <!--strokeArea-->
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'strokeArea')}}">Stroke area:</div>
-                <div class="flex">
+                <div class="default">
                     <input class="jso" type="number" max="1" min="0" step="0.01" value={{defaults.strokeArea::input}} on-change="handleStrokeArea">
                 </div>
 
@@ -255,25 +255,19 @@
 
             <div class="horizontal layout">
                 <div class="jso-txt">X:</div>
-                <div class="jso-select flex">
-                    <select on-change="handleXAttribute">
-                        <option value="none">Select...</option>
-                        <template is="dom-repeat" items="{{columns}}" as="column">
-                            <option value="{{column.name}}" selected$="{{isOptionSelected(column.name, defaults.xAttribute)}}">{{column.title}}</option>
-                        </template>
-                    </select>
-                </div>
+                <jso-select class="flex" value="{{defaults.xAttribute}}" on-change="handleXAttribute">
+                    <template is="dom-repeat" items="{{columns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
             </div>
             <div class="horizontal layout">
                 <div class="jso-txt">Y:</div>
-                <div class="jso-select flex">
-                    <select value="{{defaults.yAttribute}}" on-change="handleYAttribute">
-                        <option value="none">Select...</option>
-                        <template is="dom-repeat" items="{{columns}}" as="column">
-                            <option value="{{column.name}}" selected$="{{isOptionSelected(column.name, defaults.yAttribute)}}">{{column.title}}</option>
-                        </template>
-                    </select>
-                </div>
+                <jso-select class="flex" value="{{defaults.yAttribute}}" on-change="handleYAttribute">
+                    <template is="dom-repeat" items="{{columns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
             </div>
 
         </div>

@@ -188,7 +188,7 @@
             return true;
         },
         refreshJobs: function() {
-            console.log('refreshJobs');
+            // console.log('refreshJobs');
             if (this.selectedStudy != null) {
                 this._getJobs(this.selectedStudy.study.id);
             }
@@ -204,7 +204,7 @@
                 request: {
                     async: true,
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             var jobList = response.response[0].result;
 
