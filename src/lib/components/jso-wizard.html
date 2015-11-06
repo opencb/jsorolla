@@ -84,6 +84,9 @@
                      <!-- <label class="title">Step &nbsp;
                         <span>{{step}}</span>
                     </label> -->
+                      <div id="title" class="title horizontal layout" style="line-height:25px">Step&nbsp;<div>{{step}}</div>&nbsp;: &nbsp;
+                          <content select=".title"></content>
+                      </div>
                     <div class="flex next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
                         <label>Step&nbsp;
                             <span>{{stepNext}}</span>&nbsp;<i class="fa fa-angle-double-right"></i></label>
@@ -92,8 +95,11 @@
                 </div>
             </div>
 
-            <div class="container flex">
+            <!-- <div class="container flex">
                 <content id="container" class="flex"></content>
+            </div> -->
+             <div id="container" class="flex">
+                <content class=".container"></content>
             </div>
 
             <div class="footer">
@@ -125,17 +131,33 @@
                     value: function () {
                         return [];
                     }
-                }
+                },
+                stepName:{
+                  type: Number,
+                value: 1,
+                observer: 'stepNameChanged'
+              },
+              stepsNames: {
+                  type: Array,
+                  value: function () {
+                      return [];
+                  }
+              },
             },
             ready: function () {
                 var steps = Polymer.dom(this).querySelectorAll('.step');
+                var stepsNames = Polymer.dom(this).querySelectorAll('.stepName');
 
                 this.set('steps', steps);
                 this.stepChanged(1, 0);
                 this.stepNext = 2;
+
+                this.set('stepsNames', stepsNames);
+                this.stepNameChanged(1, 0);
             },
             created: function () {
                 this.steps = [];
+                this.stepsNames = [];
             },
             handleHiddenStep1: function (step) {
                 return step != 1;
@@ -146,11 +168,14 @@
             handlePrevStepButton: function (e) {
                 this.step = (this.step <= 1) ? 1 : this.step - 1;
                 console.log(this.step);
+                this.stepName = (this.stepName <= 1) ? 1 : this.stepName - 1;
+                console.log(this.stepName);
                 this.stepNext = this.step + 1
                 this.stepPrev = this.step - 1;
             },
             handleNextStepButton: function (e) {
                 this.step = (this.step >= this.steps.length) ? this.steps.length : this.step + 1;
+                this.stepName = (this.stepName >= this.stepsNames.length) ? this.stepsNames.length : this.stepName + 1;
                 this.stepNext = this.step + 1
                 this.stepPrev = this.step - 1;
             },
@@ -163,6 +188,20 @@
 
                         } else {
                             this.steps[i].hidden = true;
+                        }
+                    }
+
+                }
+            },
+            stepNameChanged: function (neo, old) {
+                if (this.stepsNames && this.stepsNames.length > 0) {
+
+                    for (var i = 0; i < this.stepsNames.length; i++) {
+                        if ((i + 1) == neo) {
+                            this.stepsNames[i].hidden = false;
+
+                        } else {
+                            this.stepsNames[i].hidden = true;
                         }
                     }
 
