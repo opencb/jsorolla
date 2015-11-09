@@ -1,6 +1,6 @@
 {
     "name": "jsorolla",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "homepage": "https://github.com/opencb/jsorolla",
     "authors": [
         "frasator <frasator@gmail.com>"
@@ -17,7 +17,7 @@
     "dependencies": {
         "polymer": "Polymer/polymer#1.2.1",
         "iron-flex-layout": "PolymerElements/iron-flex-layout#1.0.5",
-        "fontawesome": "~4.3.0",
+        "fontawesome": "*",
         "cookies-js": "~1.1.0",
         "crypto-js-evanvosberg": "3.1.4",
         "highcharts-release": "~4.0.4",
