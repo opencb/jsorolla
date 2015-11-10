@@ -39,19 +39,35 @@
             color: var(--default-primary-color);
         }
 
+        .huge-icon {
+            font-size: 30px;
+            font-weight: lighter !important;
+
+            margin: 2px;
+            padding: 10px;
+            height: 25px;
+        }
 
     </style>
     <template>
         <div class="horizontal layout">
-            <div class="horizontal layout flex">
-                <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
-                <div class="name flex" title$="{{file.name}}">{{file.name}}</div>
-            </div>
-            <div class="creationDate">{{computeDate(file)}}</div>
-            <div id="status">
-                <i class$="{{computeStatusIcon(file)}}"></i>
-                <span>{{computeStatus(file)}}</span>
-            </div>
+            <template is="dom-if" if="{{computeViewMode(viewMode, 'list')}}">
+                <div class="horizontal layout flex">
+                    <div class="icon"><i class$="{{computeIcon(file)}}"></i></div>
+                    <div class="name flex" title$="{{file.name}}">{{file.name}}</div>
+                </div>
+                <div class="creationDate">{{computeDate(file)}}</div>
+                <div id="status">
+                    <i class$="{{computeStatusIcon(file)}}"></i>
+                    <span>{{computeStatus(file)}}</span>
+                </div>
+            </template>
+            <template is="dom-if" if="{{computeViewMode(viewMode, 'icon')}}">
+                <div class="vertical layout flex icon">
+                    <div class="icon huge-icon"><i class$="{{computeIcon(file)}}"></i></div>
+                    <div class="name flex" title$="{{file.name}}">{{file.name}}</div>
+                </div>
+            </template>
         </div>
     </template>
 </dom-module>
@@ -66,6 +82,11 @@
             indexableBioFormats: {
                 type: Array,
                 value: ['VARIANT', 'ALIGNMENT']
+            },
+            viewMode: {
+                type: String,
+                value: 'list',
+                reflectToAttribute: true
             }
         },
         computeDate: function (file) {
@@ -77,6 +98,7 @@
                 "FOLDER": 'fa fa-folder',
                 "FILE": 'fa fa-file-o'
             };
+
             return iconMap[file.type];
         },
         computeStatusIcon: function (file) {
@@ -95,6 +117,9 @@
                 return file.index.status;
             }
             return '--';
+        },
+        computeViewMode: function (viewMode, value) {
+            return viewMode == value;
         }
     });
 </script>

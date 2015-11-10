@@ -160,6 +160,9 @@ var OpencgaManager = {
         },
         jobs: function(args) {
             return OpencgaManager._doRequest(args, 'studies', 'jobs');
+        },
+        samples: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'samples');
         }
     },
 

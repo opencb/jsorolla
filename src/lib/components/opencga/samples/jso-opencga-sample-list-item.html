@@ -1,0 +1,76 @@
+<dom-module id="jso-opencga-sample-list-item">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        :host:hover {
+            background-color: #ddd;
+        }
+
+        :host[selected] {
+            background-color: #ccc;
+        }
+
+        .name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #source {
+            color: #444;
+            width: 120px;
+            text-transform: capitalize;
+        }
+
+        .icon {
+
+            margin:2px;
+            padding: 10px;
+            height: 40px;
+            width: 100px;
+            border: 1px solid rgba(125, 125, 125, 0.3);
+        }
+
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <template is="dom-if" if="{{computeViewMode(viewMode,'list')}}">
+                <div class="horizontal layout flex">
+                    <div class="name flex" title$="{{sample.name}}">{{sample.name}}</div>
+                </div>
+                <div id="source">
+                    <span>{{sample.source}}</span>
+                </div>
+            </template>
+
+            <template is="dom-if" if="{{computeViewMode(viewMode,'icon')}}">
+                <div class="icon">
+                    <div class="name flex" title$="{{sample.name}}">{{sample.name}}</div>
+                </div>
+            </template>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-sample-list-item",
+        properties: {
+            sample: {
+                type: Object,
+                notify: true
+            },
+            viewMode: {
+                type: String,
+                value: 'list',
+                reflectToAttribute: true
+            }
+        },
+        computeViewMode: function (viewMode, value) {
+            return viewMode == value;
+        }
+    });
+</script>
