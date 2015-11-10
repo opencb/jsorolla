@@ -24,28 +24,35 @@
             height: 30px;
         }
 
-        #content[view-mode='list'] {
+        #content.list {
             height: calc(100% - 55px);
             overflow-y: auto;
             overflow-x: hidden;
         }
-
-        .name {
+        #content.icon {
+            height: calc(100% - 30px);
+            overflow-y: auto;
+            overflow-x: hidden;
         }
+
+        .name {}
 
         .creationDate {
             color: #444;
-            width: 120px;
+            width: 80px;
         }
 
         .status {
             color: #444;
-            width: 120px;
+            width: 95px;
         }
 
         jso-opencga-folder-list-item[view-mode='list'] {
             padding: 3px 7px;
             border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+        }
+        jso-opencga-folder-list-item[view-mode='icon'] {
+            margin:1px;
         }
 
         #createfolder {
@@ -66,31 +73,21 @@
     <template>
         <div id="bar" class="horizontal layout">
             <div class="bar horizontal layout flex">
-                <div class="jso-btn jso-btn-shdw"
-                     hidden$="{{checkBack(folder)}}"
-                     on-click="handleBack">
+                <div class="jso-btn jso-btn-shdw" hidden$="{{checkBack(folder)}}" on-click="handleBack">
                     <i class="fa fa-arrow-left"></i>
                 </div>
 
-                <div class="jso-btn jso-btn-shdw upload-btn"
-                     hidden$="{{isFolderMode(mode)}}"
-                     on-click="handleUploadFile">
+                <div class="jso-btn jso-btn-shdw upload-btn" hidden$="{{isFolderMode(mode)}}" on-click="handleUploadFile">
                     <i class="fa fa-cloud-upload"></i> Upload
                 </div>
 
-                <div class="jso-btn jso-btn-shdw"
-                     hidden$="{{checkFolder(folder)}}"
-                     on-click="handleCreateFolder">
+                <div class="jso-btn jso-btn-shdw" hidden$="{{checkFolder(folder)}}" on-click="handleCreateFolder">
                     <i class="fa fa-folder"></i> +
                 </div>
-                <div class="jso-btn jso-btn-shdw"
-                     hidden$="{{checkSelected(selected)}}"
-                     on-click="handleDeleteFile">
+                <div class="jso-btn jso-btn-shdw" hidden$="{{checkSelected(selected)}}" on-click="handleDeleteFile">
                     <i class="fa fa-trash"></i>
                 </div>
-                <div class="jso-btn jso-btn-shdw"
-                     hidden$="{{checkSelectedFile(selected)}}"
-                     on-click="handlePreviewFile">
+                <div class="jso-btn jso-btn-shdw" hidden$="{{checkSelectedFile(selected)}}" on-click="handlePreviewFile">
                     <i class="fa fa-eye"></i>
                 </div>
             </div>
@@ -101,9 +98,7 @@
                 <!--<div class="jso-btn jso-btn-shdw" on-click="handleIcon">-->
                 <!--<i class="fa fa-th"></i>-->
                 <!--</div>-->
-                <div class="jso-btn jso-btn-shdw"
-                     hidden$="{{handleHiddenIndex(selected)}}"
-                     on-click="handleIndexFile">
+                <div class="jso-btn jso-btn-shdw" hidden$="{{handleHiddenIndex(selected)}}" on-click="handleIndexFile">
                     <i class="fa fa-cog"></i>&nbsp;Index
                 </div>
             </div>
@@ -112,27 +107,20 @@
         <template is="dom-if" if="{{computeHeader(viewMode)}}">
             <div id="header" class="horizontal layout">
                 <div class="name flex">Name</div>
-                <div class="creationDate">Creation date</div>
+                <div class="creationDate">Date</div>
                 <div class="status">Status</div>
             </div>
         </template>
-        <div id="content" class$="{{computeClassViewMode(viewMode)}}" view-mode="{{viewMode}}">
+        <div id="content" class$="{{computeClassViewMode(viewMode)}}">
             <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
-                <jso-opencga-folder-list-item file="{{item}}"
-                                              on-dblclick="handleFileDblClick"
-                                              on-click="handleFileClick"
-                                              view-mode="{{viewMode}}">
+                <jso-opencga-folder-list-item file="{{item}}" on-dblclick="handleFileDblClick" on-click="handleFileClick" view-mode="{{viewMode}}">
                 </jso-opencga-folder-list-item>
             </template>
         </div>
 
         <jso-panel modal closable hidden id="createFolderModal">
             <div class="header"><i class="fa fa-folder"></i> &nbsp; Create folder</div>
-            <jso-opencga-create-folder
-                    class="container" id="createfolder"
-                    on-folder-created="handleFolderCreated"
-                    folder="{{folder}}"
-                    study="{{study}}">
+            <jso-opencga-create-folder class="container" id="createfolder" on-folder-created="handleFolderCreated" folder="{{folder}}" study="{{study}}">
             </jso-opencga-create-folder>
         </jso-panel>
 
@@ -151,14 +139,14 @@
             files: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
             selected: {
                 type: Object,
                 notify: true,
-                value: function () {
+                value: function() {
                     return null;
                 }
             },
@@ -178,29 +166,29 @@
                 value: false
             }
         },
-        handleUploadFile: function (e) {
+        handleUploadFile: function(e) {
             this.fire('upload-file');
         },
-        handleCreateFolder: function (e) {
+        handleCreateFolder: function(e) {
             if (this.$.createFolderModal.hasAttribute('hidden')) {
                 this.$.createFolderModal.removeAttribute('hidden');
             } else {
                 this.$.createFolderModal.setAttribute('hidden', '');
             }
         },
-        handleFolderCreated: function (e) {
+        handleFolderCreated: function(e) {
             this.$.createFolderModal.setAttribute('hidden', '');
         },
-        handleDeleteFile: function (e) {
+        handleDeleteFile: function(e) {
             if (confirm("Are you sure?")) {
                 this._deleteFile();
 
             }
         },
-        handleIndexFile: function (e) {
+        handleIndexFile: function(e) {
             this._indexFile();
         },
-        handleFileClick: function (e) {
+        handleFileClick: function(e) {
 
             this.selected = e.currentTarget.file;
             var sel = this.querySelector("jso-opencga-folder-list-item[selected]");
@@ -210,7 +198,7 @@
             e.currentTarget.setAttribute('selected', '');
             this.fire('fileselect', this.selected);
         },
-        handleFileDblClick: function (e) {
+        handleFileDblClick: function(e) {
             var file = e.currentTarget.file;
             if (file.type == 'FOLDER') {
                 this.fire('openfolder', file);
@@ -219,18 +207,18 @@
             }
 
         },
-        handlePreviewFile: function (e) {
+        handlePreviewFile: function(e) {
             if (this.selected) {
                 this.fire('previewfile', this.selected);
             }
         },
-        handleBack: function () {
+        handleBack: function() {
             this.fire('back');
         },
-        checkFolder: function (folder) {
+        checkFolder: function(folder) {
             return folder == null;
         },
-        checkBack: function (folder) {
+        checkBack: function(folder) {
             if (folder == null) {
                 return true
             } else {
@@ -240,33 +228,42 @@
             }
             return false;
         },
-        checkSelected: function (selected) {
+        checkSelected: function(selected) {
             return selected == null;
         },
-        checkSelectedFile: function (selected) {
+        checkSelectedFile: function(selected) {
             return selected == null || selected.type != "FILE";
         },
-        handleHiddenIndex: function (selected) {
+        handleHiddenIndex: function(selected) {
             if (selected == null) {
                 return true;
             } else {
                 if (selected.type == 'FOLDER') {
                     return true;
                 }
+                if (selected.index != null) {
+                    return true
+                } else {
+                    if(selected.bioformat !== "VARIANT" && selected.bioformat !== "ALIGNMENT"){
+                        return true
+                    }
+
+                }
             }
-            return selected.index != null;
+
+            return false;
         },
-        checkFilters: function (item) {
+        checkFilters: function(item) {
             return true;
-//            return item.bioformat == "VARIANT";
+            //            return item.bioformat == "VARIANT";
         },
-        isFolderMode: function (mode) {
+        isFolderMode: function(mode) {
             return mode === 'folder';
         },
 
 
         /**/
-        _deleteFile: function () {
+        _deleteFile: function() {
             var me = this;
             if (this.selected) {
                 OpencgaManager.files.delete({
@@ -275,7 +272,7 @@
                         sid: Cookies('bioinfo_sid'),
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 console.log("delete");
                                 console.log(response);
@@ -285,14 +282,14 @@
                                 console.log(response.response[0].errorMsg);
                             }
                         },
-                        error: function () {
+                        error: function() {
                             alert('Server error, try again later.');
                         }
                     }
                 });
             }
         },
-        _indexFile: function () {
+        _indexFile: function() {
             var me = this;
             if (this.selected) {
                 OpencgaManager.files.index({
@@ -303,7 +300,7 @@
 
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 console.log("index");
                                 console.log(response);
@@ -312,26 +309,28 @@
                                 console.log(response.response[0].errorMsg);
                             }
                         },
-                        error: function () {
+                        error: function() {
                             alert('Server error, try again later.');
                         }
                     }
                 });
             }
         },
-        computeHeader: function (viewMode) {
+        computeHeader: function(viewMode) {
             return viewMode == "list";
         },
-        computeViewModeIconClass: function (viewMode) {
+        computeViewModeIconClass: function(viewMode) {
             var iconClass = (this.viewMode == "list") ? "fa fa-th" : "fa fa-list";
             return iconClass;
         },
-        handleViewMode: function (e) {
+        handleViewMode: function(e) {
             this.viewMode = (this.viewMode == "list") ? "icon" : "list";
         },
-        computeClassViewMode: function (viewMode) {
+        computeClassViewMode: function(viewMode) {
             if (viewMode == "icon") {
-                return "horizontal layout wrap";
+                return this.viewMode + " horizontal layout wrap";
+            } else {
+                return this.viewMode;
             }
         }
     });
