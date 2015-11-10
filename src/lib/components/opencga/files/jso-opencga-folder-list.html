@@ -241,8 +241,17 @@
                 if (selected.type == 'FOLDER') {
                     return true;
                 }
+                if (selected.index != null) {
+                    return true
+                } else {
+                    if(selected.bioformat !== "VARIANT" && selected.bioformat !== "ALIGNMENT"){
+                        return true
+                    }
+
+                }
             }
-            return selected.index != null;
+
+            return false;
         },
         checkFilters: function(item) {
             return true;
