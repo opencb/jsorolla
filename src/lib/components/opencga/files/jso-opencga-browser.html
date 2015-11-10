@@ -24,8 +24,9 @@
         #botbar {
             box-sizing: border-box;
             height: 30px;
-            padding: 0 7px;
             line-height: 30px;
+            padding: 0 7px;
+            background-color: var(--light-secondary-color);
         }
 
         #topbar {
@@ -183,9 +184,8 @@
         </div>
 
 
-        <div id="botbar" class="horizontal layout">
+        <div id="botbar" class="horizontal layout center">
             <div class="flex"></div>
-
             <div hidden$="{{!checkFileModeOk(mode,selectedFile)}}" class="jso-btn jso-btn-shdw" style="width:100px;" on-click="handleFileModeOk">
                 OK
             </div>
