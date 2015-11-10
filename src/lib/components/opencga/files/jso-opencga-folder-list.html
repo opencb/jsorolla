@@ -29,6 +29,7 @@
             overflow-y: auto;
             overflow-x: hidden;
         }
+
         #content.icon {
             height: calc(100% - 30px);
             overflow-y: auto;
@@ -51,8 +52,10 @@
             padding: 3px 7px;
             border-bottom: 1px solid rgba(125, 125, 125, 0.3);
         }
+
         jso-opencga-folder-list-item[view-mode='icon'] {
-            margin:1px;
+            margin: 1px;
+            height: 70px;
         }
 
         #createfolder {
@@ -111,11 +114,13 @@
                 <div class="status">Status</div>
             </div>
         </template>
-        <div id="content" class$="{{computeClassViewMode(viewMode)}}">
-            <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
-                <jso-opencga-folder-list-item file="{{item}}" on-dblclick="handleFileDblClick" on-click="handleFileClick" view-mode="{{viewMode}}">
-                </jso-opencga-folder-list-item>
-            </template>
+        <div id="content" class$="{{viewMode}}">
+            <div class$="{{computeClassViewMode(viewMode)}}">
+                <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
+                    <jso-opencga-folder-list-item file="{{item}}" on-dblclick="handleFileDblClick" on-click="handleFileClick" view-mode="{{viewMode}}">
+                    </jso-opencga-folder-list-item>
+                </template>
+            </div>
         </div>
 
         <jso-panel modal closable hidden id="createFolderModal">
@@ -244,7 +249,7 @@
                 if (selected.index != null) {
                     return true
                 } else {
-                    if(selected.bioformat !== "VARIANT" && selected.bioformat !== "ALIGNMENT"){
+                    if (selected.bioformat !== "VARIANT" && selected.bioformat !== "ALIGNMENT") {
                         return true
                     }
 
@@ -328,9 +333,9 @@
         },
         computeClassViewMode: function(viewMode) {
             if (viewMode == "icon") {
-                return this.viewMode + " horizontal layout wrap";
+                return "horizontal layout wrap";
             } else {
-                return this.viewMode;
+                return "";
             }
         }
     });
