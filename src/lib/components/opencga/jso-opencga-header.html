@@ -55,7 +55,8 @@
             border-bottom: 1px solid var(--divider-color);
         }
 
-        #help, #user {
+        #help,
+        #user {
             border-bottom: none !important;
         }
 
@@ -122,9 +123,9 @@
             font-weight: normal;
         }
 
-        #icon{
-            margin-top:0px !important;
-            margin-bottom:0px !important;
+        #icon {
+            margin-top: 0px !important;
+            margin-bottom: 0px !important;
         }
     </style>
     <template>
@@ -174,30 +175,36 @@
                     <span class="option-text"> upload </span>
                 </div>
 
-                <div title="jobs" id="jobs" data-option="jobs" on-click="handleJobClick" hidden$="{{computeJobs(hideJobs, hideLogin, isLogged)}}">
+                <div title="Jobs" id="jobs" data-option="jobs" on-click="handleJobClick" hidden$="{{computeJobs(hideJobs, hideLogin, isLogged)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> jobs </span>
                 </div>
 
-                <div title="profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideSignup, hideLogin, isLogged)}}">
+                <div title="Profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideSignup, hideLogin, isLogged)}}">
                     <i class="fa fa-user"></i>
                     <span class="option-text"> profile </span>
                 </div>
 
-                <div title="logout" id="logout" on-click="handleLogoutClick" hidden$="{{computeLogout(hideLogin, isLogged)}}">
+                <div title="Logout" id="logout" on-click="handleLogoutClick" hidden$="{{computeLogout(hideLogin, isLogged)}}">
                     <i class="fa fa-sign-out"></i>
                     <span class="option-text"> logout </span>
                 </div>
 
-                <div title="sign up" id="signup" data-option="signup" on-click="handleMenu" hidden$="{{computeSignup(hideSignup, hideLogin, isLogged)}}">
+                <div title="Login as anonymous, data will be lost on logout." id="anonymous" on-click="anonymousSign" hidden$="{{computeAnonymous(showAnonymous, hideLogin, isLogged)}}">
+                    <i class="fa fa-paper-plane"></i>
+                    <span class="option-text"> Try </span>
+                </div>
+
+                <div title="Login" id="login" data-option="login" on-click="handleMenu" hidden$="{{computeLogin(hideLogin, isLogged)}}">
+                    <i class="fa fa-sign-in"></i>
+                    <span class="option-text"> Login </span>
+                </div>
+
+                <div title="Sign up" id="signup" data-option="signup" on-click="handleMenu" hidden$="{{computeSignup(hideSignup, hideLogin, isLogged)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> Sign up </span>
                 </div>
 
-                <div title="log in" id="login" data-option="login" on-click="handleMenu" hidden$="{{computeLogin(hideLogin, isLogged)}}">
-                    <i class="fa fa-sign-in"></i>
-                    <span class="option-text"> Sign in </span>
-                </div>
 
 
 
@@ -262,6 +269,10 @@
                 reflectToAttribute: true
             },
             isLogged: {
+                type: Boolean,
+                value: false
+            },
+            showAnonymous: {
                 type: Boolean,
                 value: false
             },
@@ -344,6 +355,12 @@
         },
         computeLogin: function(hideLogin, isLogged) {
             if (hideLogin) {
+                return true;
+            }
+            return isLogged
+        },
+        computeAnonymous: function(showAnonymous, hideLogin, isLogged) {
+            if (hideLogin || !showAnonymous) {
                 return true;
             }
             return isLogged
@@ -469,7 +486,7 @@
                         success: function(response) {
                             if ((response.response[0].errorMsg === '' || response.response[0].errorMsg == null) && response.response[0].result.length > 0) {
                                 me.userData = response.response[0].result[0];
-                                me.userText = me.userData.name;
+                                me.userText = me._checkUserName(me.userData);
                                 console.log("userData has been modified since last call");
                             }
                             if (response.response[0].errorMsg != null && response.response[0].errorMsg.indexOf('Invalid sessionId for user') !== -1) {
@@ -508,7 +525,13 @@
         },
         handleJobItemClick: function(e) {
             this.showJobs = false;
+        },
+        _checkUserName: function(userData) {
+            if (userData.email === 'anonymous@anonymous.anonymous') {
+                return 'anonymous';
+            } else {
+                return userData.name;
+            }
         }
-
     });
 </script>

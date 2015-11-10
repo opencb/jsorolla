@@ -127,13 +127,13 @@
                 <!--<i class="fa fa-search"></i></div>-->
                 <!--<ul id="vertexSearchMenu"></ul>-->
                 <!--</div>-->
-                <div class="jso-select" title="Select nodes by attribute" style="width:70px;margin-left: 5px;border-right-width: 0;">
-                    <select id="nodeSearchSelect">
+                <!-- <div class="jso-select" title="Select nodes by attribute" style="width:70px;margin-left: 5px;border-right-width: 0;"> -->
+                    <jso-select style="width:70px;margin-left: 5px;border-right-width: 0;" id="nodeSearchSelect" title="Select nodes by attribute">
                         <template is="dom-repeat" items={{vertexColumns}} as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
+                            <jso-option value="{{column.name}}">{{column.title}}</jso-option>
                         </template>
-                    </select>
-                </div>
+                    </jso-select>
+                <!-- </div> -->
                 <input on-keypress="handleVertexSearch" id="vertexSearchField" class="jso" type="text" placeholder="Search" style="width: 80px;border-right-width: 0;">
 
                 <div style="width:90px;" title="Selection color">

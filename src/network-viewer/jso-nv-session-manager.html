@@ -163,10 +163,6 @@
                     });
                 }
             }
-
-            setInterval(function() {
-                me.userDataChanged(me.userData);
-            }, 10000);
         },
         hasSessions: function(logged, length) {
             return logged && length == 0;
@@ -216,7 +212,7 @@
             }
         },
         selectedStudyChanged: function(o, n) {
-            console.log("selected study changed")
+            // console.log("selected study changed")
             this.logged = true;
             this._updateSessionsFromUserData();
         },
@@ -231,6 +227,7 @@
             if (this.logged) {
                 if (name != '') {
                     name = name.replace(/--/gi, "");
+                    name = name.replace(/ /gi, "_");
                     var sessionKey = this.keyPrefix + '--' + Date.now() + '--' + name;
                     if (!this.sessionMap[sessionKey]) {
                         this.message = 'saving session...';
@@ -370,7 +367,7 @@
                 },
                 request: {
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             folder = response.response[0].result[0];
                         } else {
@@ -421,7 +418,7 @@
                 },
                 request: {
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             files = response.response[0].result;
                         } else {
@@ -438,6 +435,7 @@
             return files
         },
         deleteFile: function(file, callback) {
+            var me = this;
             OpencgaManager.files.delete({
                 id: file.id,
                 query: {
@@ -445,16 +443,19 @@
                 },
                 request: {
                     success: function(response) {
-                        callback('success')
+                        me.fire('need-refresh');
+                        callback('success');
                     },
                     error: function() {
-                        callback('error')
-                            //                            me.message = 'Server error, try again later.';
+                        me.fire('need-refresh');
+                        callback('error');
+                        //                            me.message = 'Server error, try again later.';
                     }
                 }
             });
         },
         uploadFile: function(fileContent, fileName, callback) {
+            var me = this;
             var url = OpencgaManager.files.upload({
                 query: {
                     sid: Cookies("bioinfo_sid")
@@ -497,6 +498,7 @@
             xhr.open('POST', url, true);
             xhr.onloadend = function(e) {
                 console.log('upload Done!');
+                me.fire('need-refresh');
                 callback();
             };
             xhr.send(formData);

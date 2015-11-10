@@ -1,0 +1,112 @@
+<script>
+    JsoApplicationBehavior = {
+        properties: {
+            version: {
+                type: String,
+                reflectToAttribute: true
+            },
+            selectedOption: {
+                type: String,
+                value: "home",
+                notify: true,
+                reflectToAttribute: true,
+                observer: 'selectedOptionChanged'
+            },
+            userData: {
+                type: Object,
+                notify: true,
+                observer: 'userDataChanged'
+            },
+            projects: {
+                type: Array,
+                notify: true
+            }
+        },
+        selectedOptionChanged: function(neo, old) {
+            var menuItems = Polymer.dom(this.root).querySelectorAll('[menu-option]');
+            for (var i = 0; i < menuItems.length; i++) {
+                var item = menuItems[i];
+                var currentItemValues = item.getAttribute("menu-option").split(',');
+                if (currentItemValues.indexOf(neo) != -1) {
+                    item.removeAttribute("hidden");
+                } else {
+                    item.setAttribute('hidden', '');
+                }
+            }
+        },
+        handleMenuOption: function(e) {
+            var option = e.currentTarget.dataset['option'];
+            this.setMenu(option);
+        },
+        setMenu: function(option) {
+            if (option) {
+                this.selectedOption = option;
+            }
+        },
+        handleMenuPanel: function(e) {
+            var panel = this.$[e.currentTarget.dataset.panel];
+            panel.hidden = !panel.hidden;
+        },
+        handleLoggedOnlyMenuPanel: function(e) {
+            if (this.$.jsoHeader != null) {
+                var panel = this.$[e.currentTarget.dataset.panel];
+                if (this.$.jsoHeader.isLogged) {
+                    panel.hidden = !panel.hidden;
+                } else {
+                    this.selectedOption = 'login';
+                    this._lastLogedRequest = panel;
+                }
+            }
+        },
+        handlePanelHidden: function(e) {
+            var id = e.currentTarget.getAttribute('id');
+            var sel = '[data-panel=' + id + ']';
+            var el = Polymer.dom(this.$.menu).querySelector(sel);
+            if (e.currentTarget.hidden) {
+                el.removeAttribute('active')
+            } else {
+                el.setAttribute('active', '');
+            }
+        },
+        userDataChanged: function(neo, old) {
+            var me = this;
+            if (this.userData) {
+                var projectIds = [];
+                for (var i = 0; i < this.userData.projects.length; i++) {
+                    var p = this.userData.projects[i];
+                    projectIds.push(p.id);
+                }
+                var projects = [];
+                OpencgaManager.projects.studies({
+                    id: projectIds.join(','),
+                    query: {
+                        sid: Cookies("bioinfo_sid")
+                    },
+                    request: {
+                        success: function(response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                for (var i = 0; i < response.response.length; i++) {
+                                    var r = response.response[i];
+                                    me.userData.projects[i].studies = r.result;
+                                    projects.push(me.userData.projects[i]);
+                                }
+                                /* update projects property*/
+                                me.projects = projects;
+                            } else {
+                                console.log(response.error);
+                                console.log(response.response[0].errorMsg);
+                            }
+                            me.loading = false;
+                        },
+                        error: function() {
+                            console.log('Server error, try again later.');
+                            me.loading = false;
+                        }
+                    }
+                });
+            } else {
+                console.log("no user data")
+            }
+        },
+    };
+</script>

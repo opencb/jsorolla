@@ -71,6 +71,55 @@
             font-family: 'FontAwesome';
             content: ' \f106';
         }
+
+        .fakeselect {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            background-color: #FFF;
+            height: 23px;
+            line-height: 21px;
+            cursor: pointer;
+            outline: transparent solid 0px;
+            border: 1px solid var(--divider-color);
+            margin-left: 5px;
+        }
+
+        .fakeselect > .text {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0px 5px;
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+        .fakeselect > .arrow {
+            height: 100%;
+            box-sizing: border-box;
+            padding: 0px 5px;
+        }
+
+        #selectlist {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            box-sizing: border-box;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background-color: inherit;
+            border: 1px solid var(--divider-color);
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #selectlist > jso-option {
+            padding: 2px 4px;
+        }
+
+        #selectlist > jso-option:hover {
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
+        }
     </style>
     <template>
         <jso-panel id="panel" closable on-close="handleClose">
@@ -100,13 +149,16 @@
                                 <div class="horizontal layout center row">
                                     <div class="flex">{{uitem.attribute}}</div>
 
-                                    <div class="jso-select flex" style="margin-left:5px;">
-                                        <select on-change="handleSelect">
-                                            <template is="dom-repeat" items={{uitem.options}} as="option">
-                                                <option value="{{option}}" selected$="{{isSelected(uitem.render,option)}}">{{option}}</option>
-                                            </template>
-                                        </select>
+                                    <div class="flex fakeselect horizontal layout center" on-click="handleFakeSelectClick">
+                                        <div class="text">{{uitem.render}}</div>
+                                        <div class="arrow" class="horizontal layout center"><i class="fa fa-angle-down"></i></div>
                                     </div>
+                                    <!-- <div class="flex fakeselect">{{uitem.render}}</div> -->
+                                    <!-- <jso-select class="flex" on-change="handleSelect"> -->
+                                    <!-- <template is="dom-repeat" items={{uitem.options}} as="option"> -->
+                                    <!-- <jso-option value="{{option}}">{{option}}</jso-option> -->
+                                    <!-- </template> -->
+                                    <!-- </jso-select> -->
                                 </div>
                             </template>
                         </iron-list>
@@ -115,13 +167,11 @@
                     <div class="horizontal layout" style="margin-top:8px;">
                         <label class="jso">Edit default:</label>
 
-                        <div class="jso-select flex">
-                            <select value="{{defaultValue}}">
-                                <template is="dom-repeat" items={{options}} as="option">
-                                    <option value="{{option}}">{{option}}</option>
-                                </template>
-                            </select>
-                        </div>
+                        <jso-select style="width:230px" value="{{defaultValue}}">
+                            <template is="dom-repeat" items={{options}} as="option">
+                                <jso-option value="{{option}}">{{option}}</jso-option>
+                            </template>
+                        </jso-select>
                     </div>
 
 
@@ -136,6 +186,11 @@
             </div>
 
         </jso-panel>
+        <div id="selectlist" on-click="handleSelectClick">
+            <template is="dom-repeat" items={{options}} as="option">
+                <jso-option value="{{option}}">{{option}}</jso-option>
+            </template>
+        </div>
 
     </template>
 </dom-module>
@@ -146,10 +201,32 @@
         properties: {
             options: {
                 type: Array,
+            },
+            _lastModel: {
+                type: Object
             }
         },
-        handleSelect: function(e) {
-            e.model.uitem.render = e.currentTarget.value;
+        ready: function() {
+            var me = this;
+            document.body.addEventListener('click', function() {
+                me.$.selectlist.style.display = '';
+            });
+        },
+        handleSelectClick: function(e) {
+            // e.model.uitem.render = e.currentTarget.value;
+            var idx = this._lastModel.index;
+            this.set('uniqueItems.' + idx + '.render', e.target.value);
+            this.$.selectlist.style.display = '';
+        },
+        handleFakeSelectClick: function(e) {
+            e.stopPropagation();
+            // e.model.uitem.render = e.currentTarget.value;
+            this._lastModel = e.model;
+            var bcr = e.currentTarget.getBoundingClientRect();
+            this.$.selectlist.style.top = (bcr.top + bcr.height - 1) + 'px';
+            this.$.selectlist.style.left = bcr.left + 'px';
+            this.$.selectlist.style.width = bcr.width + 'px';
+            this.$.selectlist.style.display = 'block';
         },
         isSelected: function(selected, option) {
             return selected === option;

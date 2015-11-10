@@ -50,20 +50,20 @@ var Utils = {
         return result.charAt(0).toUpperCase() + result.slice(1);
     },
     closest: function(element, selector) {
+        var matches = (element.matches) ? 'matches' : 'msMatchesSelector';
         while (element) {
-			if (element.matches(selector)) {
-				break;
-			}
-
-			element = element.parentElement;
-		}
-		return element;
+            if (element[matches](selector)) {
+                break;
+            }
+            element = element.parentElement;
+        }
+        return element;
     },
     isFunction: function(s) {
         return typeof(s) === 'function' || s instanceof Function;
     },
     parseDate: function(strDate) {
-        return strDate.substring(0, 4) + "-" + strDate.substring(4, 6) + "-" + strDate.substring(6, 8) + " " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
+        return strDate.substring(4, 6) + "/" + strDate.substring(6, 8) + "/" + strDate.substring(0, 4) + " " + strDate.substring(8, 10) + ":" + strDate.substring(10, 12) + ":" + strDate.substring(12, 14);
     },
     genId: function(prefix) {
         prefix = prefix || '';

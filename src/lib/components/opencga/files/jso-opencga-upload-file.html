@@ -166,8 +166,8 @@
         },
         ready: function(e) {
             if (this.bioformats.length == 0) {
-                console.log("No bioformats selected")
-                    /*** Check number of bioformats in order to show the bioformat chooser ***/
+                /*** Check number of bioformats in order to show the bioformat chooser ***/
+                // console.log("No bioformats selected")
                 this.checkBioformats();
             }
         },
@@ -185,7 +185,6 @@
                 this.hideBioformats = true;
                 this.selectedBioformat = this.bioformats[bioformatIdx].value;
             }
-
         },
         handleBrowseClick: function(e) {
             if (this.uploading == false) {

@@ -25,7 +25,7 @@ var CellBaseManager = {
     get: function(args) {
         var success = args.success;
         var error = args.error;
-        var async = (args.async == false) ? false : true;
+        var async = (args.async == false) ? false: true;
 
         // remove XMLHttpRequest keys
         var ignoreKeys = ['success', 'error', 'async'];
@@ -40,7 +40,10 @@ var CellBaseManager = {
         if (typeof url === 'undefined') {
             return;
         }
-        console.log(url);
+        
+        if (window.CELLBASE_LOG != null && CELLBASE_LOG === true) {
+            console.log(url);
+        }
 
         var d;
         var request = new XMLHttpRequest();

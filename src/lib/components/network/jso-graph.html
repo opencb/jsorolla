@@ -5,13 +5,13 @@
             vertices: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
             verticesIndex: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {}
                 }
             },
@@ -22,13 +22,13 @@
             edges: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
             edgesIndex: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {}
                 }
             },
@@ -38,12 +38,12 @@
             },
             edgeDraw: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {}
                 }
             },
         },
-        clean: function () {
+        clean: function() {
             this.set('numberOfVertices', 0);
             this.set('numberOfEdges', 0);
             this.set('vertices', []);
@@ -52,7 +52,7 @@
             this.set('edgesIndex', {});
             this.set('edgeDraw', {});
         },
-        load: function (newGraph) {
+        load: function(newGraph) {
             this.set('numberOfVertices', newGraph.numberOfVertices);
             this.set('numberOfEdges', newGraph.numberOfEdges);
             this.set('vertices', newGraph.vertices);
@@ -61,7 +61,7 @@
             this.set('edgesIndex', newGraph.edgesIndex);
             this.set('edgeDraw', newGraph.edgeDraw);
         },
-        addEdge: function (edge) {
+        addEdge: function(edge) {
             if (edge.source == null || edge.target == null) {
                 return false
             }
@@ -97,7 +97,7 @@
             this.numberOfEdges++;
             return true;
         },
-        addVertex: function (vertex) {
+        addVertex: function(vertex) {
             if (vertex == null) {
                 return false
             }
@@ -111,7 +111,7 @@
             this.numberOfVertices++;
             return true;
         },
-        removeEdge: function (edge) {
+        removeEdge: function(edge) {
             if (edge == null) {
                 return false
             }
@@ -133,7 +133,7 @@
             this._rebuildEdgesIndex();
             return true;
         },
-        removeEdges: function (edges) {
+        removeEdges: function(edges) {
             for (var i = 0, l = edges.length; i < l; i++) {
                 var edge = edges[i];
                 if (this.containsEdge(edge)) {
@@ -151,7 +151,7 @@
             }
             this._rebuildEdges();
         },
-        removeVertex: function (vertex) {
+        removeVertex: function(vertex) {
             if (vertex == null) {
                 return false
             }
@@ -183,7 +183,7 @@
             this._rebuildVerticesIndex();
             return true;
         },
-        removeVertices: function (vertices) {
+        removeVertices: function(vertices) {
             for (var i = 0, l = vertices.length; i < l; i++) {
                 var vertex = vertices[i];
                 if (this.containsVertex(vertex)) {
@@ -211,7 +211,7 @@
             this._rebuildEdges();
             this._rebuildVertices();
         },
-        _rebuildVertices: function () {
+        _rebuildVertices: function() {
             var newVertices = [];
             for (var i = 0, l = this.vertices.length; i < l; i++) {
                 var vertex = this.vertices[i];
@@ -222,14 +222,14 @@
             this.set('vertices', newVertices);
             this._rebuildVerticesIndex();
         },
-        _rebuildVerticesIndex: function () {
+        _rebuildVerticesIndex: function() {
             this.verticesIndex = {};
             for (var i = 0, l = this.vertices.length; i < l; i++) {
                 var vertex = this.vertices[i];
                 this.verticesIndex[vertex.id] = i;
             }
         },
-        _rebuildEdges: function () {
+        _rebuildEdges: function() {
             var newEdges = [];
             for (var i = 0, l = this.edges.length; i < l; i++) {
                 var edge = this.edges[i];
@@ -240,21 +240,21 @@
             this.set('edges', newEdges);
             this._rebuildEdgesIndex();
         },
-        _rebuildEdgesIndex: function () {
+        _rebuildEdgesIndex: function() {
             this.edgesIndex = {};
             for (var i = 0, l = this.edges.length; i < l; i++) {
                 var edge = this.edges[i];
                 this.edgesIndex[edge.id] = i;
             }
         },
-        containsEdge: function (edge) {
+        containsEdge: function(edge) {
             if (typeof this.edgesIndex[edge.id] !== 'undefined') {
                 return true;
             } else {
                 return false;
             }
         },
-        containsVertex: function (vertex) {
+        containsVertex: function(vertex) {
             if (typeof this.verticesIndex[vertex.id] !== 'undefined') {
                 return true;
             } else {
@@ -262,14 +262,14 @@
             }
         },
         /**/
-        getVertexById: function (vertexId) {
+        getVertexById: function(vertexId) {
             return this.vertices[this.verticesIndex[vertexId]];
         },
-        getEdgeById: function (edgeId) {
+        getEdgeById: function(edgeId) {
             return this.edges[this.edgesIndex[edgeId]];
         },
         /**/
-        getAsSIF: function (separator) {
+        getAsSIF: function(separator) {
             if (typeof separator === 'undefined') {
                 separator = '\t';
             }
@@ -287,18 +287,19 @@
                 if (typeof vertex !== 'undefined') {
                     var line = "";
                     if (vertex.edges.length == 0) {
-                        line = vertex.id + separator + separator + "\n";
+                        line = vertex.id + "\n";
                     }
                     sifText += line;
                 }
             }
             return sifText;
         },
-        getAsSIFCustomRelation: function (relationColumn, separator) {
+        getAsSIFCustomRelation: function(relationColumn, separator) {
             if (typeof separator === 'undefined') {
                 separator = '\t';
             }
-            var sifText = '', edge, line;
+            var sifText = '',
+                edge, line;
             for (var i = 0; i < this.edges.length; i++) {
                 edge = this.edges[i];
                 line = "";
@@ -316,7 +317,7 @@
             }
             return sifText;
         },
-        getAsSIFNoRelation: function (separator) {
+        getAsSIFNoRelation: function(separator) {
             if (typeof separator === 'undefined') {
                 separator = '\t';
             }
@@ -341,11 +342,11 @@
             }
             return sifText;
         },
-        getAsDOT: function () {
+        getAsDOT: function() {
             var dotText = "graph network {\n" + this.getAsSIF(' ') + "}";
             return dotText;
         },
-        fromJSON: function (json) {
+        fromJSON: function(json) {
             //aux graph is used to avoid every node and edge update
             var auxGraph = new JsoGraph();
             for (var i = 0, l = json.vertices.length; i < l; i++) {
@@ -372,7 +373,7 @@
             }
             this.load(auxGraph);
         },
-        toJSON: function () {
+        toJSON: function() {
             return {
                 vertices: this.vertices,
                 edges: this.edges

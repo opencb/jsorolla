@@ -6,7 +6,6 @@
             position: absolute;
             box-sizing: border-box;
             background-color: #FFFFFF;
-
             top: 0px;
             right: 320px;
             width: 500px;
@@ -85,13 +84,15 @@
         }
 
         jso-color-menu[hide=true] {
-            visibility: hidden;
-            opacity: 0;
+            display: none;
+            /*visibility: hidden;
+            opacity: 0;*/
         }
 
         jso-color-menu[hide=false] {
-            visibility: visible;
-            opacity: 1;
+            display: block;
+            /*visibility: visible;
+            opacity: 1;*/
         }
 
         .head > .sort-asc:after {
@@ -103,6 +104,10 @@
             font-family: 'FontAwesome';
             content: ' \f106';
         }
+
+        input.jso[type="text"] {
+            width: 100%;
+        }
     </style>
     <template>
         <jso-panel id="panel" closable on-close="handleClose">
@@ -113,22 +118,18 @@
                 <div id="left" class="vertical layout">
 
                     <label class="jso">Attribute name:</label>
-                    <jso-select-box id="columnSelectBox" style="height: 100px;"
-                                    options="{{columns}}"
-                                    on-select="handleColumnSelect">
+                    <jso-select-box id="columnSelectBox" style="height: 100px;" options="{{columns}}" on-select="handleColumnSelect">
                     </jso-select-box>
 
 
                     <label class="jso" style="margin-top:8px;">Data type:</label>
-                    <jso-select-box id="typeSelectBox" options="{{attributeTypes}}"
-                                    on-select="handleAttributeTypeSelect">
+                    <jso-select-box id="typeSelectBox" options="{{attributeTypes}}" on-select="handleAttributeTypeSelect">
                     </jso-select-box>
 
                     <div hidden$="{{!allowListParse}}">
                         <label class="jso" style="margin-top:8px;">Parse data as:</label>
 
-                        <jso-select-box id="parseSelectBox" options="{{attributeParseOptions}}"
-                                        on-select="handleAttributeParseSelect">
+                        <jso-select-box id="parseSelectBox" options="{{attributeParseOptions}}" on-select="handleAttributeParseSelect">
                         </jso-select-box>
                     </div>
 
@@ -137,8 +138,8 @@
 
                     <div hidden$="{{!isContinuousType(attributeType)}}">
 
-                        <div class="horizontal layout flex head">
-                            <label class="jso flex sort-asc" on-click="handleAttributeValueHeaderClick">Attribute value</label>
+                        <div class="horizontal layout flex">
+                            <label class="jso flex" on-click="handleAttributeValueHeaderClick">Attribute value</label>
                             <label class="jso flex">Render value</label>
                             <label class="jso" style="width: 60px;text-align: right">Gradient</label>
                         </div>
@@ -147,9 +148,7 @@
                         <div class="flex horizontal layout" style="margin-bottom:5px;">
                             <div class="flex vertical layout">
                                 <template is="dom-repeat" items="{{points}}" as="point" index-as="index">
-                                    <jso-attribute-render-color-point
-                                            point="{{point}}" points="{{points}}" controlType="{{controlType}}"
-                                            index="{{index}}">
+                                    <jso-attribute-render-color-point point="{{point}}" points="{{points}}" controlType="{{controlType}}" index="{{index}}">
                                     </jso-attribute-render-color-point>
                                 </template>
                             </div>
@@ -188,11 +187,10 @@
                                 <div class="horizontal layout center row">
                                     <div class="flex">{{uitem.attribute}}</div>
                                     <div class="flex horizontal layout">
-                                        <div tabindex="-1" class="colorbox"
-                                             style$="{{_computeBackgroundColor(uitem.render)}}"
-                                             on-click="handleChangeFocusInUniqueColor"
-                                             on-focusout="handleChangeFocusOutUniqueColor"></div>
-                                        <input class="jso flex" type="text" value="{{uitem.render::input}}">
+                                        <div tabindex="-1" class="colorbox" style$="{{_computeBackgroundColor(uitem.render)}}" on-click="handleChangeFocusInUniqueColor" on-focusout="handleChangeFocusOutUniqueColor"></div>
+                                        <div class="flex">
+                                            <input class="jso" type="text" value="{{uitem.render::input}}">
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -200,8 +198,7 @@
                     </div>
 
 
-                    <div class="horizontal layout" hidden$="{{!isCategoricalType(attributeType)}}"
-                         style="margin-top:8px;">
+                    <div class="horizontal layout" hidden$="{{!isCategoricalType(attributeType)}}" style="margin-top:8px;">
                         <label class="jso">Edit default:</label>
                         <!--<div class="button action">Select all</div>-->
                         <!--<div class="button action">Deselect all</div>-->
@@ -219,8 +216,7 @@
                 <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleOk">OK</div>
             </div>
         </jso-panel>
-        <jso-color-menu id="colormenu" hidden$="{{hideColorMenu}}" class="flex"
-                        on-color-click="handleColorMenu"></jso-color-menu>
+        <jso-color-menu id="colormenu" hidden="{{hideColorMenu}}" class="flex" on-color-click="handleColorMenu"></jso-color-menu>
     </template>
     <script>
         Polymer({
@@ -232,7 +228,7 @@
                     value: true
                 }
             },
-            handleChangeFocusInUniqueColor: function (e) {
+            handleChangeFocusInUniqueColor: function(e) {
                 this.lastUniqueModel = e.model.uitem;
                 this.lastColorBox = e.currentTarget;
 
@@ -240,22 +236,22 @@
                 this.$.colormenu.style.left = e.currentTarget.getBoundingClientRect().left + "px";
                 this.hideColorMenu = !this.hideColorMenu;
             },
-            handleChangeFocusOutUniqueColor: function (e) {
+            handleChangeFocusOutUniqueColor: function(e) {
                 this.hideColorMenu = true;
             },
-            handleColorMenu: function (e) {
+            handleColorMenu: function(e) {
                 this.lastUniqueModel.render = e.detail.color;
                 this.lastColorBox.style.backgroundColor = e.detail.color;
                 this.lastColorBox.nextElementSibling.value = e.detail.color;
 
                 this.hideColorMenu = true;
             },
-            _computeBackgroundColor: function (value) {
+            _computeBackgroundColor: function(value) {
                 return 'background-color:' + value + ';';
             },
 
-            _updateUniqueInterpolatedValues: function (uniqueItems) {
-                this.points.sort(function (a, b) {
+            _updateUniqueInterpolatedValues: function(uniqueItems) {
+                this.points.sort(function(a, b) {
                     return parseFloat(a.value) - parseFloat(b.value);
                 });
 
@@ -333,14 +329,19 @@
         .remove[allowRemove] {
             visibility: inherit;
         }
+
+        input.jso[type="text"] {
+            width: 100%;
+        }
     </style>
     <template>
         <div class=" horizontal layout">
-            <input class="jso flex" type="number" value="{{point.value::input}}">
+            <div class="flex">
+                <input class="jso" type="number" value="{{point.value::input}}">
+            </div>
 
             <!--<input flex type="color" value="{{point.render}}">-->
-            <jso-color-picker id="colorPicker" class="flex" on-color-click="handleColorPicker"
-                              color="{{point.render}}"></jso-color-picker>
+            <jso-color-picker id="colorPicker" class="flex" on-color-click="handleColorPicker" color="{{point.render}}"></jso-color-picker>
 
             <div class="jso-btn jso-btn-shdw remove" allowRemove$="{{allowRemove}}" on-click="handleRemove"></div>
         </div>
@@ -365,13 +366,13 @@
                 type: Number
             }
         },
-        handleRemove: function () {
+        handleRemove: function() {
             this.splice('points', this.points.indexOf(this.point), 1);
         },
-        computeAllowRemove: function (index, points) {
+        computeAllowRemove: function(index, points) {
             return index != 0 && index != points.length - 1;
         },
-        handleColorPicker: function (e) {
+        handleColorPicker: function(e) {
             this.set('point.render', e.detail.color)
         }
     });

@@ -10,7 +10,8 @@
             padding: 5px;
         }
 
-        #main .horizontal.layout > div {
+        #main .horizontal.layout > div,
+        jso-select {
             margin: 0 0 4px 4px;
         }
 
@@ -45,14 +46,12 @@
                     <input class="jso" type="number" value="{{charge::input}}">
                 </div>
 
-                <div class="jso-select flex">
-                    <select style="margin-left: 5px;" value="{{chargeAttribute::input}}">
-                        <option value="none">None</option>
-                        <template is="dom-if" items="{{vertexColumns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
-                        </template>
-                    </select>
-                </div>
+                <jso-select style="width:114px;">
+                    <jso-option value="none">None</jso-option>
+                    <template is="dom-repeat" items="{{vertexColumns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
             </div>
             <br>
 
@@ -64,14 +63,12 @@
                     <input class="jso" type="number" min="0" value="{{linkDistance::input}}">
                 </div>
 
-                <div class="jso-select flex">
-                    <select style="margin-left: 5px;" value="{{linkDistanceAttribute}}">
-                        <option value="none">None</option>
-                        <template is="dom-if" items="{{edgeColumns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
-                        </template>
-                    </select>
-                </div>
+                <jso-select style="width:114px;">
+                    <jso-option value="none">None</jso-option>
+                    <template is="dom-repeat" items="{{edgeColumns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
             </div>
 
             <div class="horizontal layout">
@@ -81,14 +78,12 @@
                     <input class="jso" type="number" min="0" max="1" step="0.1" value="{{linkStrength::input}}">
                 </div>
 
-                <div class="jso-select flex">
-                    <select style="margin-left: 5px;" value="{{linkStrengthAttribute}}">
-                        <option value="none">None</option>
-                        <template is="dom-if" items="{{edgeColumns}}" as="column">
-                            <option value="{{column.name}}">{{column.title}}</option>
-                        </template>
-                    </select>
-                </div>
+                <jso-select style="width:114px;">
+                    <jso-option style="width:11" value="none">None</jso-option>
+                    <template is="dom-repeat" items="{{edgeColumns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
             </div>
             <br>
 
@@ -172,7 +167,7 @@
             },
 
         },
-        handleOk: function () {
+        handleOk: function() {
             this.fire('ok', {
                 charge: this.charge,
                 linkDistance: this.linkDistance,

@@ -67,7 +67,7 @@
                 <div id="diseasesContent" class="box">
                     <template is="dom-repeat" items={{diseasesOrigin}}>
                         <label class="jso-control">
-                            <input type="checkbox" checked$="{{item.selected}}" value$="{{item.name}}" on-click="handleItemSelect">
+                            <input type="checkbox" checked$="{{item.selected}}" value="{{item.name}}" on-click="handleItemSelect">
                             <span>{{item.title}}</span>
                         </label>
                     </template>

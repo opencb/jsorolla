@@ -351,7 +351,7 @@ CircosVertexRenderer.prototype = {
 
     /* Private methods */
     _setLabelText: function(text) {
-        this.labelText = text;
+        this.labelText = text.toString();
         this.labelLines = this.labelText.split(/\\n/);
     },
     _updateDrawParameters: function() {

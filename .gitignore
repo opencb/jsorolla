@@ -5,6 +5,8 @@ bower_components/
 grunt/
 bower_components/
 
+npm-debug.log
+
 ## IntelliJ
 *.iml
 *.ipr
