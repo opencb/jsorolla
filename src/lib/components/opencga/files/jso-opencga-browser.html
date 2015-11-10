@@ -186,6 +186,7 @@
             <div hidden$="{{!checkFileModeOk(mode,selectedFile)}}" class="jso-btn jso-btn-shdw" style="width:100px;" on-click="handleFileModeOk">
                 OK
             </div>
+            <content id="customButtons" select=".custom-button"></content>
         </div>
 
         <jso-panel modal movable closable hidden id="uploadFilePanel">
@@ -317,6 +318,11 @@
                     }
                 });
             }
+            var els = this.$.botbar.querySelectorAll('.custom-button');
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                el.setAttribute('hidden', '');
+            }
         },
         checkFileModeOk: function(mode, selectedFile) {
             if (mode === 'file' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FILE') {
@@ -375,6 +381,7 @@
         },
         handleFileSelect: function(e) {
             this.selectedFile = e.detail;
+            this._checkCustomButtons();
         },
         handleOpenFolder: function(e) {
             var me = this;
@@ -499,17 +506,21 @@
                 var bf = this.bioformats[i];
                 bfList.push(bf.value);
             }
+            var query = {
+                sid: Cookies('bioinfo_sid'),
+                //                    status:'READY,STAGED,MISSING',
+                status: 'READY',
+                type: 'FILE,FOLDER',
+                studyId: studyId
+            };
+            
+            if (this.mode === 'file' || this.mode === 'folder') {
+                query.bioformat = bfList.join(',') + ',NONE';
+            }
 
             OpencgaManager.files.list({
                 id: folderId,
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    //                    status:'READY,STAGED,MISSING',
-                    status: 'READY',
-                    bioformat: bfList.join(',') + ',NONE',
-                    type: 'FILE,FOLDER',
-                    studyId: studyId
-                },
+                query: query,
                 request: {
                     async: true,
                     success: function(response) {
@@ -545,10 +556,14 @@
                 // console.log(file);
 
                 if (this.mode == 'folder') {
-                    if (file.type == 'FILE') {
+                    if (file.type != 'FOLDER') {
                         continue;
                     }
                     filesFiltered.push(file);
+                } else if (this.mode == 'file') {
+                    if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
+                        continue;
+                    }
                 } else {
                     if (file.name.charAt(0) == '.') {
                         continue;
@@ -563,11 +578,6 @@
                         continue;
                     }
 
-                    if (this.mode == 'file') {
-                        if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
-                            continue;
-                        }
-                    }
                     filesFiltered.push(file);
                 }
             }
@@ -609,6 +619,18 @@
             }
 
 
+        },
+        _checkCustomButtons: function() {
+            var els = this.$.botbar.querySelectorAll('.custom-button');
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                var ext = el.getAttribute('file-ext');
+                if (Utils.endsWithIgnoreCase(this.selectedFile.name, ext)) {
+                    el.removeAttribute('hidden');
+                } else {
+                    el.setAttribute('hidden', '');
+                }
+            }
         }
     });
 </script>
