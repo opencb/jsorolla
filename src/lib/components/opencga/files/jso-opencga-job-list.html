@@ -36,6 +36,10 @@
             padding: 3px 7px;
             border: 1px solid rgba(125, 125, 125, 0.3);
         }
+
+        .file {
+            margin-left: 2px;
+        }
     </style>
     <template>
         <div id="header" class="horizontal layout">
@@ -47,17 +51,32 @@
                     <jso-option value="{{toolName}}">{{toolName}}</jso-option>
                 </template>
             </jso-select>
+            <div class="jso-btn jso-btn-shdw file" title="All" on-click="handleView" data-value="all">
+                All
+            </div>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="queued" >
+                <i class="fa fa-clock-o" style="color: #ff8c00;" title="Queued"></i>
+            </div>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="running">
+                <i class="fa fa-circle-o-notch" style="color: #298c63;" title="Running"></i>
+            </div>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready">
+                <i class="fa fa-check" style="color:#0068cc;" title="Ready"></i>
+            </div>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error">
+                <i class="fa fa-times" style="color:#b30000;" title="Error"></i>
+            </div>
         </div>
         <div id="content">
-            <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
-                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}">
-                </jso-opencga-job-list-item>
-            </template>
-        </div>
+                <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
+                    <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}">
+                    </jso-opencga-job-list-item>
+                </template>
+          </div>
         <div id="footer" class="horizontal layout center">
             <div>
                 Total Jobs:
-                <span>{{computeTotalJobs(jobs)}}</span>
+                <span>{{computeTotalJobs(filteredJobs)}}</span>
             </div>
         </div>
 
@@ -97,7 +116,39 @@
                 value: function() {
                     return {};
                 }
-            }
+            },
+            view: {
+                type: String,
+                value: 'all'
+            },
+            jobsReady: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+            },
+            jobsError: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+            },
+            jobsQueued: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+            },
+            jobsRunning: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+            },
         },
         handleSelect: function(e) {
             this.selected = e.currentTarget.job;
@@ -113,6 +164,7 @@
             return folder == null;
         },
         jobsChanged: function(neo, old) {
+
             var me = this;
             var jobs;
             if (this.toolFilterValue == 'all') {
@@ -124,7 +176,10 @@
                     return item.toolName === me.toolFilterValue;
                 });
             }
-            this.set('filteredJobs', jobs);
+
+            var statusFilterJobs = this._filterByStatus(jobs);
+            this.set('filteredJobs', statusFilterJobs);
+
         },
         handleFilterSelect: function(e) {
             this.set('toolFilterValue', e.currentTarget.value);
@@ -132,6 +187,30 @@
         },
         computeTotalJobs: function(jobs) {
             return jobs.length;
-        }
+        },
+        handleView: function(e) {
+            this.view = e.currentTarget.dataset.value;
+            this.jobsChanged();
+        },
+        _filterByStatus: function(filteredJobs){
+          if(this.view === "all"){
+            return filteredJobs;
+          }
+
+          var jobs = [];
+
+          for (var i = 0;  i < filteredJobs.length; i++){
+            var job = filteredJobs[i];
+
+            if(job.status.toLowerCase() === this.view){
+              jobs.push(job);
+            }
+          }
+
+          return jobs;
+        },
+        computeView: function(view, value) {
+            return view === value;
+        },
     });
 </script>
