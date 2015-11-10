@@ -24,7 +24,7 @@
             height: 30px;
         }
 
-        #content {
+        #content[view-mode='list'] {
             height: calc(100% - 55px);
             overflow-y: auto;
             overflow-x: hidden;
@@ -43,7 +43,7 @@
             width: 120px;
         }
 
-        jso-opencga-folder-list-item {
+        jso-opencga-folder-list-item[view-mode='list'] {
             padding: 3px 7px;
             border-bottom: 1px solid rgba(125, 125, 125, 0.3);
         }
@@ -95,7 +95,12 @@
                 </div>
             </div>
             <div class="horizontal layout">
-
+                <div class="jso-btn jso-btn-shdw" on-click="handleViewMode">
+                    <i class$="{{computeViewModeIconClass(viewMode)}}"></i>
+                </div>
+                <!--<div class="jso-btn jso-btn-shdw" on-click="handleIcon">-->
+                <!--<i class="fa fa-th"></i>-->
+                <!--</div>-->
                 <div class="jso-btn jso-btn-shdw"
                      hidden$="{{handleHiddenIndex(selected)}}"
                      on-click="handleIndexFile">
@@ -103,16 +108,20 @@
                 </div>
             </div>
         </div>
-        <div id="header" class="horizontal layout">
-            <div class="name flex">Name</div>
-            <div class="creationDate">Creation date</div>
-            <div class="status">Status</div>
-        </div>
-        <div id="content">
+
+        <template is="dom-if" if="{{computeHeader(viewMode)}}">
+            <div id="header" class="horizontal layout">
+                <div class="name flex">Name</div>
+                <div class="creationDate">Creation date</div>
+                <div class="status">Status</div>
+            </div>
+        </template>
+        <div id="content" class$="{{computeClassViewMode(viewMode)}}" view-mode="{{viewMode}}">
             <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
                 <jso-opencga-folder-list-item file="{{item}}"
                                               on-dblclick="handleFileDblClick"
-                                              on-click="handleFileClick">
+                                              on-click="handleFileClick"
+                                              view-mode="{{viewMode}}">
                 </jso-opencga-folder-list-item>
             </template>
         </div>
@@ -159,6 +168,10 @@
             mode: {
                 type: String,
                 reflectToAttribute: true,
+            },
+            viewMode: {
+                type: String,
+                value: 'list'
             }
         },
         handleUploadFile: function (e) {
@@ -302,5 +315,20 @@
                 });
             }
         },
+        computeHeader: function (viewMode) {
+            return viewMode == "list";
+        },
+        computeViewModeIconClass: function (viewMode) {
+            var iconClass = (this.viewMode == "list") ? "fa fa-th" : "fa fa-list";
+            return iconClass;
+        },
+        handleViewMode: function (e) {
+            this.viewMode = (this.viewMode == "list") ? "icon" : "list";
+        },
+        computeClassViewMode: function (viewMode) {
+            if (viewMode == "icon") {
+                return "horizontal layout wrap";
+            }
+        }
     });
 </script>

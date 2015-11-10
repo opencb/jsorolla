@@ -88,139 +88,142 @@ var OpencgaManager = {
     version: (typeof OPENCGA_VERSION === 'undefined') ? 'v1' : OPENCGA_VERSION,
 
     users: {
-        login: function(args) {
+        login: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'login');
         },
-        logout: function(args) {
+        logout: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'logout');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'info');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'update');
         },
-        updateEmail: function(args) {
+        updateEmail: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'change-email');
         },
-        updatePassword: function(args) {
+        updatePassword: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'change-password');
         },
-        resetPassword: function(args) {
+        resetPassword: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'reset-password');
         },
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'delete');
         }
     },
 
     projects: {
-        list: function(args) {
+        list: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'all-projects');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'info');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'update');
         },
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'delete');
         },
-        studies: function(args) {
+        studies: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'studies');
         }
     },
 
     studies: {
-        list: function(args) {
+        list: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'all-studies');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'info');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'update');
         },
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'delete');
         },
-        analysis: function(args) {
+        analysis: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'analysis');
         },
-        jobs: function(args) {
+        jobs: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'jobs');
+        },
+        samples: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'samples');
         }
     },
 
     files: {
-        list: function(args) {
+        list: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'list');
         },
-        fetch: function(args) {
+        fetch: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'fetch');
         },
-        alignments: function(args) {
+        alignments: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'alignments');
         },
-        variants: function(args) {
+        variants: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'variants');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
         },
-        info: function(args) {
+        info: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'delete');
         },
-        index: function(args) {
+        index: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'index');
         },
-        search: function(args) {
+        search: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'search');
         },
-        filesByFolder: function(args) {
+        filesByFolder: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'files');
         },
-        content: function(args) {
+        content: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content');
         },
-        contentGrep: function(args) {
+        contentGrep: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content-grep');
         },
-        createFolder: function(args) {
+        createFolder: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'create-folder');
         },
-        setHeader: function(args) {
+        setHeader: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'set-header');
         },
-        contentExample: function(args) {
+        contentExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content-example');
         },
-        downloadExample: function(args) {
+        downloadExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download-example');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'update');
         },
-        download: function(args) {
+        download: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download');
         },
-        upload: function(args) {
+        upload: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'upload');
         },
-        upload2: function(args) {
+        upload2: function (args) {
             /** Check if exists a file with the same name **/
             var query = {
                 sid: Cookies('bioinfo_sid'),
@@ -236,7 +239,7 @@ var OpencgaManager = {
             OpencgaManager.files.search({
                 query: query,
                 request: {
-                    success: function(response) {
+                    success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             if (response.response[0].result.length == 0) {
 
@@ -257,7 +260,7 @@ var OpencgaManager = {
                             args.error(response.response[0].errorMsg);
                         }
                     },
-                    error: function() {
+                    error: function () {
                         args.error('Server error, try again later.');
                     }
                 }
@@ -266,37 +269,37 @@ var OpencgaManager = {
 
     },
     jobs: {
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'jobs', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'jobs', 'delete');
         }
     },
     samples: {
-        search: function(args) {
+        search: function (args) {
             return OpencgaManager._doRequest(args, 'samples', 'search');
         }
     },
     util: {
-        proxy: function(args) {
+        proxy: function (args) {
             return OpencgaManager._doRequest(args, 'util', 'proxy');
         }
     },
     tools: {
-        search: function(args) {
+        search: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'search');
         },
-        info: function(args) {
+        info: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'info');
         },
-        help: function(args) {
+        help: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'help');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'update');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'delete');
         }
     },
@@ -307,7 +310,7 @@ var OpencgaManager = {
     //    create: function (args) {
     //        return OpencgaManager._doRequest(args, 'analysis', 'create');
     //},
-    _url: function(args, api, action) {
+    _url: function (args, api, action) {
         var host = OpencgaManager.host;
         if (typeof args.request.host !== 'undefined' && args.request.host != null) {
             host = args.request.host;
@@ -335,7 +338,7 @@ var OpencgaManager = {
         return url;
     },
 
-    _doRequest: function(args, api, action) {
+    _doRequest: function (args, api, action) {
         var url = OpencgaManager._url(args, api, action);
         if (args.request.url === true) {
             return url;
@@ -351,7 +354,7 @@ var OpencgaManager = {
 
             console.log(url);
             var request = new XMLHttpRequest();
-            request.onload = function() {
+            request.onload = function () {
                 var contentType = this.getResponseHeader('Content-Type');
                 if (contentType === 'application/json') {
                     args.request.success(JSON.parse(this.response), this);
@@ -359,7 +362,7 @@ var OpencgaManager = {
                     args.request.success(this.response, this);
                 }
             };
-            request.onerror = function() {
+            request.onerror = function () {
                 args.request.error(this);
             };
             request.open(method, url, async);
@@ -367,7 +370,7 @@ var OpencgaManager = {
             return url;
         }
     },
-    _uploadFile: function(args) {
+    _uploadFile: function (args) {
         var url = args.url;
         var inputFile = args.inputFile;
         var fileName = args.fileName;
@@ -392,22 +395,22 @@ var OpencgaManager = {
         var end;
 
 
-        var getResumeInfo = function(formData) {
+        var getResumeInfo = function (formData) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, false); //false = sync call
             xhr.send(formData);
             var response = JSON.parse(xhr.responseText);
             return response.response[0];
         };
-        var checkChunk = function(id, size, resumeInfo) {
+        var checkChunk = function (id, size, resumeInfo) {
             if (typeof resumeInfo[id] === 'undefined') {
                 return false;
-            } else if (resumeInfo[id].size != size /*|| resumeInfo[id].hash != hash*/ ) {
+            } else if (resumeInfo[id].size != size /*|| resumeInfo[id].hash != hash*/) {
                 return false;
             }
             return true;
         };
-        var processChunk = function(c) {
+        var processChunk = function (c) {
             var chunkBlob = blob.slice(c.start, c.end);
 
             if (checkChunk(c.id, chunkBlob.size, resumeInfo) == false) {
@@ -428,7 +431,7 @@ var OpencgaManager = {
                     formData.append("bioFormat", bioFormat);
                     formData.append("description", description);
                 }
-                uploadChunk(formData, c, function(chunkResponse) {
+                uploadChunk(formData, c, function (chunkResponse) {
                     callbackProgress(c, NUM_CHUNKS, chunkResponse);
                     if (!c.last) {
                         processChunk(chunkMap[(c.id + 1)]);
@@ -446,10 +449,10 @@ var OpencgaManager = {
             }
 
         };
-        var uploadChunk = function(formData, chunk, callback) {
+        var uploadChunk = function (formData, chunk, callback) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
-            xhr.onload = function(e) {
+            xhr.onload = function (e) {
                 chunk.done = true;
                 console.log("chunk done");
                 callback(JSON.parse(xhr.responseText));
@@ -529,32 +532,32 @@ var OpencgaManager = {
      * @param queryParams required: password, sid (sessionId)
      * @return sid (sessionId)
      */
-    login: function(userId, queryParams, args) {
+    login: function (userId, queryParams, args) {
         this._call(this.resourceTypes.USERS, userId, this.actions.LOGIN, queryParams, args);
     },
     /**
      * @param queryParams required: sid (sessionId)
      */
-    logout: function(userId, queryParams, args) {
+    logout: function (userId, queryParams, args) {
         this._call(this.resourceTypes.USERS, "", this.actions.LOGOUT, queryParams, args);
     },
     /**
      * @param queryParams required: {resource}Id, password, sid (sessionId)
      */
-    create: function(resourceType, queryParams, args) {
+    create: function (resourceType, queryParams, args) {
         this._call(resourceType, "", this.actions.CREATE, queryParam, args);
     },
     /**
      * @param queryParams required: sid (sessionId)
      */
-    upload: function(resourceType, queryParams, args) {
+    upload: function (resourceType, queryParams, args) {
         this._call(resourceType, "", this.actions.UPLOAD, queryParams, args);
     },
     /**
      * @param action restricted to OpencgaManager.actions.INFO, OpencgaManager.actions.FETCH
      * @param queryParams required: sid (sessionId)
      */
-    get: function(resourceType, resourceId, action, queryParams, args) {
+    get: function (resourceType, resourceId, action, queryParams, args) {
         //        resourceId = "7";
         _.extend(queryParams, {
             sid: "RNk4P0ttFGHyqLA3YGS8",
@@ -567,30 +570,30 @@ var OpencgaManager = {
     /**
      * @param queryParams required: sid (sessionId)
      */
-    list: function(resourceType, queryParams, args) {
+    list: function (resourceType, queryParams, args) {
         this._call(resourceType, "", this.actions.LIST, queryParams, args);
     },
     /**
      * @param queryParams required: sid (sessionId)
      */
-    update: function(resourceType, resourceId, queryParams, args) {
+    update: function (resourceType, resourceId, queryParams, args) {
         this._call(resourceType, resourceId, this.actions.UPDATE, queryParams, args);
     },
     /**
      * @param queryParams required: sid (sessionId)
      */
-    delete: function(resourceType, resourceId, queryParams, args) {
+    delete: function (resourceType, resourceId, queryParams, args) {
         this._call(resourceType, resourceId, this.actions.DELETE, queryParams, args);
     },
 
-    _call: function(resourceType, resourceId, action, queryParams, args) {
+    _call: function (resourceType, resourceId, action, queryParams, args) {
         var url = this._url(resourceType, resourceId, action, queryParams, args);
 
         if (typeof url === 'undefined' || url == null) {
             return;
         }
         console.log(url);
-        var async = (_.isUndefined(args.async) || _.isNull(args.async)) ? true: args.async;
+        var async = (_.isUndefined(args.async) || _.isNull(args.async)) ? true : args.async;
         var success = args.success;
         var error = args.error;
 
@@ -600,7 +603,7 @@ var OpencgaManager = {
             url: url,
             dataType: 'json', //still firefox 20 does not auto serialize JSON, You can force it to always do the parsing by adding dataType: 'json' to your call.
             async: async,
-            success: function(data, textStatus, jqXHR) {
+            success: function (data, textStatus, jqXHR) {
                 if ($.isPlainObject(data) || $.isArray(data)) {
                     //                    data.params = args.params;
                     //                    data.resource = args.resource;
@@ -616,7 +619,7 @@ var OpencgaManager = {
                     console.log(data)
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function (jqXHR, textStatus, errorThrown) {
                 console.log("CellBaseManager: Ajax call returned : " + errorThrown + '\t' + textStatus + '\t' + jqXHR.statusText + " END");
                 if (_.isFunction(error)) {
                     error(jqXHR, textStatus, errorThrown);
@@ -626,7 +629,7 @@ var OpencgaManager = {
         return url;
     },
 
-    _url2: function(resourceType, resourceId, action, queryParams, args) {
+    _url2: function (resourceType, resourceId, action, queryParams, args) {
         if (resourceId == undefined || resourceId == null) {
             resourceId = "";
         } else {
