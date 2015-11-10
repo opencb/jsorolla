@@ -30,10 +30,18 @@
             overflow-x: hidden;
         }
 
+        #content.list.info {
+            height: calc(100% - 105px);
+        }
+
         #content.icon {
             height: calc(100% - 30px);
             overflow-y: auto;
             overflow-x: hidden;
+        }
+
+        #content.icon.info {
+            height: calc(100% - 80px);
         }
 
         .name {}
@@ -72,6 +80,18 @@
         .bar > div {
             margin-right: 5px;
         }
+
+        #fileInfo {
+            height: 50px;
+            background-color: var(--light-secondary-color);
+            border-top: 1px solid var(--divider-color);
+            padding: 5px;
+        }
+
+        .data {
+            color: #666;
+            margin-right: 10px;
+        }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
@@ -95,6 +115,9 @@
                 </div>
             </div>
             <div class="horizontal layout">
+                <div class="jso-btn jso-btn-shdw" on-click="handleViewInfo" style="margin-right: 5px;" hidden$="{{checkSelected(selected)}}">
+                    <i class="fa fa-info"></i>
+                </div>
                 <div class="jso-btn jso-btn-shdw" on-click="handleViewMode" hidden$="{{disableIconView}}">
                     <i class$="{{computeViewModeIconClass(viewMode)}}"></i>
                 </div>
@@ -114,12 +137,41 @@
                 <div class="status">Status</div>
             </div>
         </template>
-        <div id="content" class$="{{viewMode}}">
+        <div id="content" class$="{{computeContentClass(viewMode,showInfo)}}">
             <div class$="{{computeClassViewMode(viewMode)}}">
                 <template is="dom-repeat" items="{{files}}" filter="checkFilters" observe="type">
                     <jso-opencga-folder-list-item file="{{item}}" on-dblclick="handleFileDblClick" on-click="handleFileClick" view-mode="{{viewMode}}">
                     </jso-opencga-folder-list-item>
                 </template>
+            </div>
+
+
+
+
+
+
+        </div>
+        <div id="fileInfo" class="vertical layout" hidden="{{!showInfo}}">
+            <div class="horizontal layout">
+                <i class="fa fa-file-o" hidden="{{isFile}}"></i>
+                <i class="fa fa-folder" hidden="{{!isFile}}"></i>&nbsp;
+                <span>{{fileName}}</span>
+            </div>
+            <div class="horizontal layout">
+                <div class="data">Type:&nbsp;
+                    <span>{{fileType}}</span>;
+                </div>
+                <div class="data">Bioformat:&nbsp;
+                    <span>{{fileBioformat}}</span>;
+                </div>
+                <div class="data">Status:&nbsp;
+                    <span>{{fileStatus}}</span>;
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <div class="data">Creation Date:&nbsp;
+                    <span>{{fileDate}}</span>;
+                </div>
             </div>
         </div>
 
@@ -166,7 +218,15 @@
                 type: String,
                 value: 'list'
             },
+            showInfo: {
+                type: Boolean,
+                value: false
+            },
             disableIconView: {
+                type: Boolean,
+                value: false
+            },
+            isFile: {
                 type: Boolean,
                 value: false
             }
@@ -202,6 +262,26 @@
             }
             e.currentTarget.setAttribute('selected', '');
             this.fire('fileselect', this.selected);
+
+            this.fileName = this.selected.name;
+            this.fileType = this.selected.type;
+            if (this.fileType == "FOLDER") {
+                this.isFile = true;
+            } else {
+                this.isFile = false;
+            }
+            this.fileBioformat = this.selected.bioformat;
+            if (this.selected.index && this.selected.bioformat == "VARIANT") {
+                this.fileStatus = this.selected.index.status;
+            } else {
+                this.fileStatus = "--";
+            }
+
+            var date = new Date(Date.parse(Utils.parseDate(this.selected.creationDate)));
+            this.fileDate = date.toLocaleString("en-us", {
+                month: "short"
+            }) + " " + date.getDate() + ", " + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
         },
         handleFileDblClick: function(e) {
             var file = e.currentTarget.file;
@@ -337,6 +417,22 @@
             } else {
                 return "";
             }
-        }
+        },
+        computeContentClass: function(viewMode, showInfo) {
+            if (showInfo) {
+                return viewMode + " info";
+            } else {
+                return viewMode;
+            }
+
+
+        },
+        handleViewInfo: function(e) {
+            if (this.selected!=null) {
+                this.showInfo = !this.showInfo;
+            }
+        },
+
+
     });
 </script>
