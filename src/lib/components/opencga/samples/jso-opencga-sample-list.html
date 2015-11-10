@@ -66,12 +66,10 @@
     <template>
         <div id="bar" class="horizontal layout">
             <div class="bar horizontal layout flex">
-                <div class="jso-btn jso-btn-shdw" on-click="handleList">
-                    <i class="fa fa-list"></i>
+                <div class="jso-btn jso-btn-shdw" on-click="handleViewMode">
+                    <i class$="{{computeViewModeIconClass(viewMode)}}"></i>
                 </div>
-                <div class="jso-btn jso-btn-shdw" on-click="handleIcon">
-                    <i class="fa fa-th"></i>
-                </div>
+
             </div>
         </div>
         <template is="dom-if" if="{{computeHeader(viewMode)}}">
@@ -143,14 +141,16 @@
         checkSelected: function (selected) {
             return selected == null;
         },
-        handleList: function (e) {
-            this.viewMode = "list";
-        },
-        handleIcon: function (e) {
-            this.viewMode = "icon";
-        },
         computeHeader: function (viewMode) {
             return viewMode == "list";
+        },
+        computeViewModeIconClass: function (viewMode) {
+            var iconClass = (this.viewMode == "list") ? "fa fa-th" : "fa fa-list";
+            console.log(iconClass);
+            return iconClass;
+        },
+        handleViewMode: function (e) {
+            this.viewMode = (this.viewMode == "list") ? "icon" : "list";
         },
         computeClassViewMode: function (viewMode) {
             if (viewMode == "icon") {
