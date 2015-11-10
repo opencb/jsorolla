@@ -95,7 +95,7 @@
                 </div>
             </div>
             <div class="horizontal layout">
-                <div class="jso-btn jso-btn-shdw" on-click="handleViewMode">
+                <div class="jso-btn jso-btn-shdw" on-click="handleViewMode" hidden$="{{disableIconView}}">
                     <i class$="{{computeViewModeIconClass(viewMode)}}"></i>
                 </div>
                 <!--<div class="jso-btn jso-btn-shdw" on-click="handleIcon">-->
@@ -172,6 +172,10 @@
             viewMode: {
                 type: String,
                 value: 'list'
+            },
+            disableIconView: {
+                type: Boolean,
+                value: false
             }
         },
         handleUploadFile: function (e) {
