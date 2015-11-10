@@ -10,7 +10,6 @@
             overflow-y: hidden;
             overflow-x: auto;
             border-top: 1px solid var(--divider-color);
-            border-bottom: 1px solid var(--divider-color);
         }
 
         .footer {
@@ -36,7 +35,6 @@
             background-color: var(--default-primary-color);
             color: var(--text-primary-color);
         }
-
     </style>
     <template>
 
@@ -83,6 +81,7 @@
             <div class="jso-dropdown flex">
                 <div tabindex="-1" class="jso-btn">{{computeIndex(targetColumnIndex)}}</div>
                 <ul on-mousedown="handleTargetColumnIndex">
+                    <li data-value="none">none</li>
                     <template is="dom-repeat" items="{{columnsNumbers}}">
                         <li data-value$="{{index}}">{{computeIndex(index)}}</li>
                     </template>
@@ -90,8 +89,7 @@
             </div>
         </div>
 
-        <jso-table id="table" enable-paging page-size="12" columns="{{columns}}"
-                   data="{{parsedData}}" style="height:436px"></jso-table>
+        <jso-table id="table" enable-paging page-size="12" columns="{{columns}}" data="{{parsedData}}" style="height:436px"></jso-table>
 
         <div class="footer horizontal layout center">
             <div class="jso-txt">{{message}}</div>
@@ -117,18 +115,18 @@
             },
             parsedData: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
             columns: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [{
                         name: 'source',
                         title: 'Source',
                         width: 300,
-                        formula: function (row) {
+                        formula: function(row) {
                             return row.source.id
                         }
                     }, {
@@ -139,7 +137,7 @@
                         name: 'target',
                         title: 'Target',
                         width: 300,
-                        formula: function (row) {
+                        formula: function(row) {
                             return row.target.id
                         }
                     }];
@@ -147,13 +145,13 @@
             },
             vertices: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
             edges: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -182,7 +180,7 @@
             },
             columnsNumbers: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -195,11 +193,11 @@
                 }
             },
         },
-        ready: function () {
+        ready: function() {
             this.graph = this.$.graph;
             this.parseCharacter = this.separators['Tab'];
         },
-        computeIndex: function (index) {
+        computeIndex: function(index) {
             var idx = parseInt(index);
             if (isNaN(idx)) {
                 return index;
@@ -207,19 +205,31 @@
                 return idx + 1;
             }
         },
-        handleOk: function () {
+        handleOk: function() {
             if (this.graph) {
                 this.selectedMenu = '';
-                this.fire('graph', {graph: this.graph, fileName: this.fileName});
+                this.fire('graph', {
+                    graph: this.graph,
+                    fileName: this.fileName
+                });
+                this.clean();
             }
         },
-        handleCancel: function () {
+        handleCancel: function() {
             this.selectedMenu = '';
+            this.clean();
         },
-        handleBrowseClick: function (e) {
+        clean: function() {
+            this.$.fileInput.value = '';
+            this.set('fileName', 'Choose file...');
+            this.set('message', '');
+            this.set('parsedData', []);
+        },
+
+        handleBrowseClick: function(e) {
             this.$.fileInput.click();
         },
-        handleInputChange: function (e) {
+        handleInputChange: function(e) {
             var me = this;
             var inputFile = this.$.fileInput.files[0];
             this.set('fileName', inputFile.name);
@@ -227,20 +237,22 @@
 
             if (this.$.fileInput.files.length > 0) {
                 this.adapter = new TextNetworkDataAdapter({
-                    dataSource: new FileDataSource({file: inputFile}),
+                    dataSource: new FileDataSource({
+                        file: inputFile
+                    }),
                     separator: this.parseCharacter,
                     handlers: {
-                        'data:load': function (event) {
+                        'data:load': function(event) {
                             me.processColumns();
                         },
-                        'error:parse': function (event) {
+                        'error:parse': function(event) {
                             me.message = event.errorMsg;
                         }
                     }
                 });
             }
         },
-        handleCharacterMenu: function (e) {
+        handleCharacterMenu: function(e) {
             this.parseCharacter = this.separators[e.target.dataset.value];
             this.parseCharacterText = e.target.dataset.value;
 
@@ -255,48 +267,54 @@
             this.parsedData = [];
 
         },
-        handleSourceColumnIndex: function (e) {
+        handleSourceColumnIndex: function(e) {
             if (e.target.dataset.value) {
                 this.sourceColumnIndex = parseInt(e.target.dataset.value);
                 this.processColumnNumbers();
             }
         },
-        handleRelationColumnIndex: function (e) {
+        handleRelationColumnIndex: function(e) {
             if (e.target.dataset.value) {
                 this.relationColumnIndex = e.target.dataset.value;
                 this.processColumnNumbers();
 
             }
         },
-        handleTargetColumnIndex: function (e) {
+        handleTargetColumnIndex: function(e) {
             if (e.target.dataset.value) {
-                this.targetColumnIndex = parseInt(e.target.dataset.value);
+                this.targetColumnIndex = e.target.dataset.value;
                 this.processColumnNumbers();
             }
         },
-        processColumns: function () {
-            this.columnsNumbers = [];
+        processColumns: function() {
+            this.set('columnsNumbers', []);
             for (var i = 0; i < this.adapter.columnLength; i++) {
-                this.columnsNumbers.push(i);
+                this.push('columnsNumbers', i);
             }
         },
-        processColumnNumbers: function () {
+        processColumnNumbers: function() {
             if (this.adapter) {
-                if (!(isNaN(this.sourceColumnIndex)) && !(isNaN(this.targetColumnIndex))) {
+                if (!(isNaN(this.sourceColumnIndex))) {
                     var relationDefaultName = 'none';
                     var columnIndex;
                     if (this.relationColumnIndex === 'none') {
                         columnIndex = -1;
                     } else {
-                        columnIndex = this.relationColumnIndex;
+                        columnIndex = parseInt(this.relationColumnIndex);
                     }
-                    var graph = this.adapter.parseColumns(this.sourceColumnIndex, this.targetColumnIndex, columnIndex, relationDefaultName);
+                    var targetColumnIndex;
+                    if (this.targetColumnIndex === 'none') {
+                        targetColumnIndex = -1;
+                    } else {
+                        targetColumnIndex = parseInt(this.targetColumnIndex);
+                    }
+                    var graph = this.adapter.parseColumns(parseInt(this.sourceColumnIndex), targetColumnIndex, columnIndex, relationDefaultName);
                     this.processData(graph);
                 }
             }
 
         },
-        processData: function (graph) {
+        processData: function(graph) {
             try {
                 var verticesLength = graph.vertices.length;
                 var edgesLength = graph.edges.length;

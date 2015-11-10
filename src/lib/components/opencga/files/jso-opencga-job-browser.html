@@ -109,7 +109,7 @@
                 type: Object,
                 notify: true,
                 value: function() {
-                    return null;
+                    return;
                 }
             },
             folder: {
@@ -140,6 +140,9 @@
             });
         },
         projectsChanged: function(neo, old) {
+            if (this.projects == null || this.projects.length === 0) {
+                this.reset();
+            }
             this.async(function() {
                 this._setInitialSelection();
             }, 100);
@@ -161,12 +164,11 @@
             if (old) old.selected = false;
             if (neo) neo.selected = true;
 
-            var me = this;
-            if (!neo) {
-                this.jobs = [];
+            this.selectedJob = undefined;
+            this.jobs = [];
+            if (neo != null) {
+                this.refreshJobs();
             }
-            this.selectedJob = null;
-            this.refreshJobs();
         },
         selectedProjectChanged: function(neo, old) {
             if (old) old.selected = false;
@@ -178,6 +180,13 @@
         },
         handleJobSelect: function(e) {
             this.selectedJob = e.detail;
+        },
+        reset: function() {
+            this.set('selectedProject', undefined);
+            this.set('selectedStudy', undefined);
+            this.set('selectedJob', undefined);
+            this.set('folder', undefined);
+            this.set('jobs', []);
         },
 
         /* Private methods */
@@ -217,7 +226,10 @@
                                 return b.date.localeCompare(a.date);
                             });
 
-                            me.set('jobs', jobList);
+                            console.warn('Remove this IF CHECK when OPENCGA supports it.');
+                            if (Cookies('bioinfo_sid') != null) {
+                                me.set('jobs', jobList);
+                            }
                             //                            me.jobs = response.response[0].result;
 
                         } else {

@@ -206,6 +206,11 @@
             handleOriginChange: function(e) {
                 this.dataOrigin = e.target.value;
                 this.textAreaValue = "";
+            },
+            reset: function() {
+                this.set('selectedFile', null);
+                this.set('selectedProject', null);
+                this.set('selectedStudy', null);
             }
         });
     </script>
