@@ -48,6 +48,12 @@
             height: 25px;
         }
 
+        .icon-mode-elem {
+            padding: 0 5px 0 2px;
+            max-width: 60px;
+            text-align: center;
+        }
+
     </style>
     <template>
         <div class="horizontal layout">
@@ -63,7 +69,7 @@
                 </div>
             </template>
             <template is="dom-if" if="{{computeViewMode(viewMode, 'icon')}}">
-                <div class="vertical layout flex icon">
+                <div class="vertical layout flex icon-mode-elem">
                     <div class="icon huge-icon"><i class$="{{computeIcon(file)}}"></i></div>
                     <div class="name flex" title$="{{file.name}}">{{file.name}}</div>
                 </div>
