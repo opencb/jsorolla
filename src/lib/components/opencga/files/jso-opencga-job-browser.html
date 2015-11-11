@@ -107,10 +107,7 @@
             },
             selectedJob: {
                 type: Object,
-                notify: true,
-                value: function() {
-                    return;
-                }
+                notify: true
             },
             folder: {
                 type: Object,
@@ -226,9 +223,10 @@
                                 return b.date.localeCompare(a.date);
                             });
 
-                            console.warn('Remove this IF CHECK when OPENCGA supports it.');
                             if (Cookies('bioinfo_sid') != null) {
                                 me.set('jobs', jobList);
+                            } else {
+                                console.warn('Remove this IF CHECK when OPENCGA updates lastActivity for job status.');
                             }
                             //                            me.jobs = response.response[0].result;
 
@@ -250,6 +248,5 @@
                 return project.name.charAt(0) != ".";
             }
         }
-
     });
 </script>

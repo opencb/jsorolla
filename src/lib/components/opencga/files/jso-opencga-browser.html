@@ -364,9 +364,8 @@
             if (old) old.selected = false;
             if (neo) neo.selected = true;
 
-            this.selectedFile = undefined;
+            this.selectedFile = null;
             this.files = [];
-
             if (neo != null) {
                 this._showStudyFolder();
             }
@@ -622,9 +621,7 @@
                 }
             });
 
-
             if (data) {
-
                 this.contentData = data;
                 this.$.filePreview.hidden = false;
             }
