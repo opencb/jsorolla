@@ -178,9 +178,14 @@
             this._updateSessionsFromUserData();
         },
         handleLogout: function() {
-            this.logged = false;
             this.sessions = [];
             this.sessionMap = {};
+            this.selectedSession = undefined;
+            this.selectedSessionKey = undefined;
+            this.sessionName = '';
+            this.logged = false;
+            this.selectedStudy = undefined;
+            this.message = '';
         },
         userDataChanged: function(neo, old) {
             var me = this;
