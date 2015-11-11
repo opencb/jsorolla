@@ -23,7 +23,7 @@
         }
 
         #content.infoError {
-            height: 170px;
+            height: 180px;
         }
 
         .job {}
@@ -101,7 +101,6 @@
 
         .errorFile {
             border: 1px solid #d3d3d3;
-            /*padding: 1px;*/
         }
 
         #fileInfo {
@@ -162,7 +161,7 @@
                             <span>{{jobErrorDescription}}</span>;
                         </div>
                     </div>
-                    <div class="horizontal layout">
+                    <div class="horizontal layout" style="margin-top:5px;">
                         <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="errorLog">Error Log&nbsp;
                         </div>
                         <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="outLog">Out Log
@@ -260,7 +259,7 @@
         handleBarClick: function(e) {
             e.stopPropagation();
         },
-        handleVisits: function(job) {
+        handleVisits: function (job) {
             return job.visits > 0;
         },
         isRunning: function(job) {
