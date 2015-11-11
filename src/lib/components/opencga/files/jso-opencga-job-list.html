@@ -54,28 +54,28 @@
             <div class="jso-btn jso-btn-shdw file" title="All" on-click="handleView" data-value="all" data-checked$="{{computeView(view, 'all')}}">
                 All
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="queued" data-checked$="{{computeView(view, 'queued')}}">
-                <i class="fa fa-clock-o" style="color: #ff8c00;" title="Queued"></i>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="queued" data-checked$="{{computeView(view, 'queued')}}" title="Queued">
+                <i class="fa fa-clock-o" style="color: #ff8c00;"></i>
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="running" data-checked$="{{computeView(view, 'running')}}">
-                <i class="fa fa-circle-o-notch" style="color: #298c63;" title="Running"></i>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="running" data-checked$="{{computeView(view, 'running')}}" title="Running">
+                <i class="fa fa-circle-o-notch" style="color: #298c63;"></i>
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready" data-checked$="{{computeView(view, 'ready')}}">
-                <i class="fa fa-check" style="color:#0068cc;" title="Ready"></i>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready" data-checked$="{{computeView(view, 'ready')}}" title="Ready">
+                <i class="fa fa-check" style="color:#0068cc;"></i>
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}">
-                <i class="fa fa-times" style="color:#b30000;" title="Error"></i>
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}" title="Error">
+                <i class="fa fa-times" style="color:#b30000;"></i>
             </div>
             <div class="flex" style="margin-left:5px;">
-                <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search...">
+                <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
             </div>
         </div>
         <div id="content">
-                <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
-                    <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}">
-                    </jso-opencga-job-list-item>
-                </template>
-          </div>
+            <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
+                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}">
+                </jso-opencga-job-list-item>
+            </template>
+        </div>
         <div id="footer" class="horizontal layout center">
             <div>
                 Total Jobs:
@@ -97,6 +97,9 @@
             jobs: {
                 type: Array,
                 notify: true,
+                value: function() {
+                    return [];
+                },
                 observer: 'jobsChanged'
             },
             filteredJobs: {
@@ -124,34 +127,11 @@
                 type: String,
                 value: 'all'
             },
-            jobsReady: {
-                type: Array,
-                notify: true,
-                value: function() {
-                    return [];
-                },
-            },
-            jobsError: {
-                type: Array,
-                notify: true,
-                value: function() {
-                    return [];
-                },
-            },
-            jobsQueued: {
-                type: Array,
-                notify: true,
-                value: function() {
-                    return [];
-                },
-            },
-            jobsRunning: {
-                type: Array,
-                notify: true,
-                value: function() {
-                    return [];
-                },
-            },
+            search: {
+                type: String,
+                value: "",
+                observer: 'searchNameChanged'
+            }
         },
         handleSelect: function(e) {
             this.selected = e.currentTarget.job;
@@ -165,6 +145,9 @@
         },
         checkFolder: function(folder) {
             return folder == null;
+        },
+        searchNameChanged: function(neo, old) {
+            this.jobsChanged();
         },
         jobsChanged: function(neo, old) {
 
@@ -183,6 +166,10 @@
             var statusFilterJobs = this._filterByStatus(jobs);
             this.set('filteredJobs', statusFilterJobs);
 
+            console.log(this.search);
+            var searchFilterJobs = this._filterBySearch(statusFilterJobs);
+            this.set('filteredJobs', searchFilterJobs);
+
         },
         handleFilterSelect: function(e) {
             this.set('toolFilterValue', e.currentTarget.value);
@@ -195,25 +182,38 @@
             this.view = e.currentTarget.dataset.value;
             this.jobsChanged();
         },
-        _filterByStatus: function(filteredJobs){
-          if(this.view === "all"){
-            return filteredJobs;
-          }
-
-          var jobs = [];
-
-          for (var i = 0;  i < filteredJobs.length; i++){
-            var job = filteredJobs[i];
-
-            if(job.status.toLowerCase() === this.view){
-              jobs.push(job);
+        _filterByStatus: function(filteredJobs) {
+            if (this.view === "all") {
+                return filteredJobs;
             }
-          }
 
-          return jobs;
+            var jobs = [];
+
+            for (var i = 0; i < filteredJobs.length; i++) {
+                var job = filteredJobs[i];
+
+                if (job.status.toLowerCase() === this.view) {
+                    jobs.push(job);
+                }
+            }
+
+            return jobs;
         },
         computeView: function(view, value) {
             return view === value;
         },
+        _filterBySearch: function(filteredJobs) {
+            if (this.search == "") {
+                return filteredJobs;
+            }
+            var jobs = [];
+            for (var i = 0; i < filteredJobs.length; i++) {
+                var job = filteredJobs[i];
+                if (job.name.toLowerCase().search(this.search.toLowerCase()) >= 0 || job.toolName.toLowerCase().search(this.search.toLowerCase()) >= 0) {
+                     jobs.push(job);
+                }
+            }
+            return jobs;
+        }
     });
 </script>
