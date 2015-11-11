@@ -164,8 +164,8 @@
                 <div class="data">Bioformat:&nbsp;
                     <span>{{fileBioformat}}</span>;
                 </div>
-                <div class="data">Status:&nbsp;
-                    <span>{{fileStatus}}</span>;
+                <div class="data">Index:&nbsp;
+                    <span>{{computeIndex(selected)}}</span>;
                 </div>
             </div>
             <div class="horizontal layout">
@@ -271,11 +271,12 @@
                 this.isFile = false;
             }
             this.fileBioformat = this.selected.bioformat;
-            if (this.selected.index && this.selected.bioformat == "VARIANT") {
-                this.fileStatus = this.selected.index.status;
-            } else {
-                this.fileStatus = "--";
-            }
+            // if (this.selected.index && (this.selected.bioformat == "VARIANT" || this.selected.bioformat == "ALIGNMENT")) {
+                // this.fileStatus = this.selected.index.status;
+                // this.fileIndex =
+            // } else {
+                // this.fileStatus = "--";
+            // }
 
             var date = new Date(Date.parse(Utils.parseDate(this.selected.creationDate)));
             this.fileDate = date.toLocaleString("en-us", {
@@ -428,11 +429,17 @@
 
         },
         handleViewInfo: function(e) {
-            if (this.selected!=null) {
+            if (this.selected != null) {
                 this.showInfo = !this.showInfo;
             }
         },
+        computeIndex: function(selected) {
+            if (selected && selected.index && (selected.bioformat == "VARIANT" || selected.bioformat == "ALIGNMENT")) {
+                return "yes";
+            }
 
+            return "--";
+        }
 
     });
 </script>

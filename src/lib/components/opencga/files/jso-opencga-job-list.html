@@ -51,19 +51,19 @@
                     <jso-option value="{{toolName}}">{{toolName}}</jso-option>
                 </template>
             </jso-select>
-            <div class="jso-btn jso-btn-shdw file" title="All" on-click="handleView" data-value="all">
+            <div class="jso-btn jso-btn-shdw file" title="All" on-click="handleView" data-value="all" data-checked$="{{computeView(view, 'all')}}">
                 All
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="queued" >
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="queued" data-checked$="{{computeView(view, 'queued')}}">
                 <i class="fa fa-clock-o" style="color: #ff8c00;" title="Queued"></i>
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="running">
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="running" data-checked$="{{computeView(view, 'running')}}">
                 <i class="fa fa-circle-o-notch" style="color: #298c63;" title="Running"></i>
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready">
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready" data-checked$="{{computeView(view, 'ready')}}">
                 <i class="fa fa-check" style="color:#0068cc;" title="Ready"></i>
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error">
+            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}">
                 <i class="fa fa-times" style="color:#b30000;" title="Error"></i>
             </div>
         </div>
