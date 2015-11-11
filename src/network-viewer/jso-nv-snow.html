@@ -265,6 +265,27 @@
                     value: false
                 }
             },
+            ready: function() {
+                var me = this;
+                this.networkViewer = this.domHost;
+                this.cellMaps = this.networkViewer.domHost;
+
+                if (this.cellMaps) {
+                    if (this.cellMaps.$.jsoHeader) {
+                        this.cellMaps.$.jsoHeader.addEventListener('login', function(e) {
+                            me._clean();
+                        });
+                        this.cellMaps.$.jsoHeader.addEventListener('logout', function(e) {
+                            me._clean();
+                        });
+                    }
+                }
+                if (this._parentJsoPanel != null) {
+                    this._parentJsoPanel.addEventListener('close', function() {
+                        me._clean();
+                    });
+                }
+            },
             handleDownloadFile: function(e) {
                 Utils.downloadExampleFile(this.toolName, e.currentTarget.dataset.example);
             },
@@ -351,7 +372,6 @@
                                     var id = response.response[0].result[0].id;
                                     me.message = id + ' created';
                                     console.log(id + ' created');
-                                    me._clean();
                                     me._close();
                                 } else {
                                     me.message = response.response[0].errorMsg;
@@ -367,14 +387,15 @@
                 }
             },
             _close: function() {
+                this._clean();
                 if (this._parentJsoPanel != null) {
                     this._parentJsoPanel.hidden = true;
                 }
             },
             _clean: function() {
                 this.message = '';
-                this.$.inputFile.selectedFile = null;
-                this.$.outdir.selectedFile = null;
+                this.$.inputFile.reset();
+                this.$.outdir.reset();
             },
 
             loadExample1: function(e) {

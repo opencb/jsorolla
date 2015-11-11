@@ -37,7 +37,7 @@ function TextNetworkDataAdapter(args) {
     this.rawData;
 
     if (this.async) {
-        this.dataSource.on('success', function (data) {
+        this.dataSource.on('success', function(data) {
             _this.rawData = data;
             _this.parse(data);
         });
@@ -55,11 +55,11 @@ function TextNetworkDataAdapter(args) {
 
 };
 
-TextNetworkDataAdapter.prototype.getGraph = function () {
+TextNetworkDataAdapter.prototype.getGraph = function() {
     return this.graph;
 };
 
-TextNetworkDataAdapter.prototype.parse = function (data) {
+TextNetworkDataAdapter.prototype.parse = function(data) {
     try {
         if (typeof data === 'undefined') {
             data = this.rawData;
@@ -82,19 +82,28 @@ TextNetworkDataAdapter.prototype.parse = function (data) {
                     }
 
                     if (fields.length !== firstLineColumnLength) {
-                        this.trigger('error:parse', {errorMsg: 'Different number of columns.', sender: this});
+                        this.trigger('error:parse', {
+                            errorMsg: 'Different number of columns.',
+                            sender: this
+                        });
                     }
                 }
             }
         }
-        this.trigger('data:load', {graph: this.lines, sender: this});
+        this.trigger('data:load', {
+            lines: this.lines,
+            sender: this
+        });
     } catch (e) {
         console.log(e);
-        this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
+        this.trigger('error:parse', {
+            errorMsg: 'Parse error',
+            sender: this
+        });
     }
 };
 
-TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetIndex, relationIndex, relationDefaultName) {
+TextNetworkDataAdapter.prototype.parseColumns = function(sourceIndex, targetIndex, relationIndex, relationDefaultName) {
     this.graph = new JsoGraph();
     this.addedVertex = {};
     this.addedEdges = {};
@@ -109,9 +118,9 @@ TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetInd
         var sourceName = fields[sourceIndex];
         var targetName = fields[targetIndex];
         var edgeName;
-        if(relationIndex < 0){
+        if (relationIndex < 0) {
             edgeName = relationDefaultName;
-        }else{
+        } else {
             edgeName = fields[relationIndex];
         }
 
@@ -124,30 +133,34 @@ TextNetworkDataAdapter.prototype.parseColumns = function (sourceIndex, targetInd
             this.addedVertex[sourceName] = sourceVertex;
         }
 
-        /** create target vertex **/
-        if (typeof this.addedVertex[targetName] === 'undefined') {
-            var targetVertex = new Vertex({
-                id: targetName
-            });
-            this.graph.addVertex(targetVertex);
-            this.addedVertex[targetName] = targetVertex;
+        /** Check if target column is not defined, so only the source will be added**/
+        if (targetIndex > -1) {
+
+            /** create target vertex **/
+            if (typeof this.addedVertex[targetName] === 'undefined') {
+                var targetVertex = new Vertex({
+                    id: targetName
+                });
+                this.graph.addVertex(targetVertex);
+                this.addedVertex[targetName] = targetVertex;
+            }
+            var edgeId = sourceName + '_' + edgeName + '_' + targetName;
+
+            /** create edge **/
+            if (typeof this.addedEdges[edgeId] === 'undefined') {
+                var edge = new Edge({
+                    id: edgeId,
+                    relation: edgeName,
+                    source: this.addedVertex[sourceName],
+                    target: this.addedVertex[targetName],
+                    weight: 1,
+                    directed: true
+                });
+                this.graph.addEdge(edge);
+                this.addedEdges[edgeId] = edge;
+            }
         }
 
-        var edgeId = sourceName + '_' + edgeName + '_' + targetName;
-
-        /** create edge **/
-        if (typeof this.addedEdges[edgeId] === 'undefined') {
-            var edge = new Edge({
-                id: edgeId,
-                relation: edgeName,
-                source: this.addedVertex[sourceName],
-                target: this.addedVertex[targetName],
-                weight: 1,
-                directed: true
-            });
-            this.graph.addEdge(edge);
-            this.addedEdges[edgeId] = edge;
-        }
 
     }
 

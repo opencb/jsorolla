@@ -113,11 +113,20 @@
                     graph: this.graph,
                     fileName: this.fileName
                 });
+                this.clean();
             }
         },
         handleCancel: function() {
             this.selectedMenu = '';
+            this.clean();
         },
+        clean: function() {
+            this.$.fileInput.value = '';
+            this.set('fileName', 'Choose file...');
+            this.set('message', '');
+            this.set('parsedData', []);
+        },
+
         handleBrowseClick: function(e) {
             this.$.fileInput.click();
         },

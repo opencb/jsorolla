@@ -338,6 +338,9 @@
             this.fire('ok-click');
         },
         projectsChanged: function(neo, old) {
+            if (this.projects == null || this.projects.length === 0) {
+                this.reset();
+            }
             this.async(function() {
                 this._setInitialSelection();
             }, 100);
@@ -361,12 +364,11 @@
             if (old) old.selected = false;
             if (neo) neo.selected = true;
 
-            if (!neo) {
-                this.files = [];
-            }
             this.selectedFile = null;
             this.files = [];
-            this._showStudyFolder();
+            if (neo != null) {
+                this._showStudyFolder();
+            }
         },
         selectedProjectChanged: function(neo, old) {
             if (old) old.selected = false;
@@ -447,6 +449,16 @@
         },
         handleLoading: function(e) {
             this.fire("loading")
+        },
+        reset: function() {
+            this.set('selectedProject', undefined);
+            this.set('selectedStudy', undefined);
+            this.set('selectedFile', undefined);
+            this.set('folder', undefined);
+            this.set('folders', []);
+            this.set('files', []);
+            this.set('contentData', '');
+            this.set('loading', false);
         },
 
 
@@ -609,14 +621,10 @@
                 }
             });
 
-
             if (data) {
-
                 this.contentData = data;
                 this.$.filePreview.hidden = false;
             }
-
-
         },
         _checkCustomButtons: function() {
             var els = this.$.botbar.querySelectorAll('.custom-button');

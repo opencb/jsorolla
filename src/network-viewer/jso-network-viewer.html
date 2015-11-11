@@ -391,37 +391,31 @@
 
             <!--Menu file-->
             <div style="position:fixed;z-index:10">
-                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-sif')}}">
-                    <jso-panel modal fixed style>
-                        <div class="header">
-                            Import a network SIF file
-                        </div>
-                        <jso-sif-network-file-open class="container" selected-menu="{{selectedMenu}}" on-graph="handleImportSif">
-                        </jso-sif-network-file-open>
-                    </jso-panel>
-                </template>
+                <jso-panel modal fixed style hidden="{{!computeSelectedMenu(selectedMenu, 'import-sif')}}">
+                    <div class="header">
+                        Import a network SIF file
+                    </div>
+                    <jso-sif-network-file-open id="importSif" class="container" selected-menu="{{selectedMenu}}" on-graph="handleImportSif">
+                    </jso-sif-network-file-open>
+                </jso-panel>
 
 
-                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-text')}}">
-                    <jso-panel modal fixed>
-                        <div class="header">
-                            Import a network Text file
-                        </div>
-                        <jso-text-network-file-open class="container" selected-menu="{{selectedMenu}}" on-graph="handleImportText">
-                        </jso-text-network-file-open>
-                    </jso-panel>
-                </template>
+                <jso-panel modal fixed hidden="{{!computeSelectedMenu(selectedMenu, 'import-text')}}">
+                    <div class="header">
+                        Import a network Text file
+                    </div>
+                    <jso-text-network-file-open id="importText" class="container" selected-menu="{{selectedMenu}}" on-graph="handleImportText">
+                    </jso-text-network-file-open>
+                </jso-panel>
 
 
-                <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-xlsx')}}">
-                    <jso-panel modal fixed>
-                        <div class="header">
-                            Import a network XLSX file
-                        </div>
-                        <jso-xlsx-network-file-open class="container" selected-menu="{{selectedMenu}}" on-graph="handleImportText">
-                        </jso-xlsx-network-file-open>
-                    </jso-panel>
-                </template>
+                <jso-panel modal fixed hidden="{{!computeSelectedMenu(selectedMenu, 'import-xlsx')}}">
+                    <div class="header">
+                        Import a network XLSX file
+                    </div>
+                    <jso-xlsx-network-file-open id="importXLSX" class="container" selected-menu="{{selectedMenu}}" on-graph="handleImportText">
+                    </jso-xlsx-network-file-open>
+                </jso-panel>
 
 
                 <template is="dom-if" if="{{computeSelectedMenu(selectedMenu, 'import-node-attributes')}}">

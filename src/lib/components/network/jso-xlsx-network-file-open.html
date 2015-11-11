@@ -10,7 +10,6 @@
             overflow-y: hidden;
             overflow-x: auto;
             border-top: 1px solid var(--divider-color);
-            border-bottom: 1px solid var(--divider-color);
         }
 
         .footer {
@@ -89,8 +88,7 @@
         </div>
 
 
-        <jso-table id="table" enable-paging page-size="12" columns="{{columns}}"
-                   data="{{parsedData}}" style="height:436px"></jso-table>
+        <jso-table id="table" enable-paging page-size="12" columns="{{columns}}" data="{{parsedData}}" style="height:436px"></jso-table>
 
         <div class="footer horizontal layout center">
             <div class="jso-txt">{{message}}</div>
@@ -117,29 +115,29 @@
             },
             parsedData: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
             columns: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [{
                         name: 'source',
                         title: 'Source',
-                        width:300,
-                        formula: function (row) {
+                        width: 300,
+                        formula: function(row) {
                             return row.source.id
                         }
                     }, {
                         name: 'relation',
                         title: 'Relation',
-                        width:300
+                        width: 300
                     }, {
                         name: 'target',
                         title: 'Target',
-                        width:300,
-                        formula: function (row) {
+                        width: 300,
+                        formula: function(row) {
                             return row.target.id
                         }
                     }];
@@ -147,13 +145,13 @@
             },
             vertices: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
             edges: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -175,7 +173,7 @@
             },
             columnsNumbers: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -184,10 +182,10 @@
                 value: 'Choose a sheet'
             },
         },
-        ready: function () {
+        ready: function() {
             this.graph = this.$.graph;
         },
-        computeIndex: function (index) {
+        computeIndex: function(index) {
             var idx = parseInt(index);
             if (isNaN(idx)) {
                 return index;
@@ -195,19 +193,32 @@
                 return idx + 1;
             }
         },
-        handleOk: function () {
+        handleOk: function() {
             if (this.graph) {
                 this.selectedMenu = '';
-                this.fire('graph', {graph: this.graph, fileName: this.fileName});
+                this.fire('graph', {
+                    graph: this.graph,
+                    fileName: this.fileName
+                });
+                this.clean();
             }
         },
-        handleCancel: function () {
+        handleCancel: function() {
             this.selectedMenu = '';
+            this.clean();
         },
-        handleBrowseClick: function (e) {
+        clean: function() {
+            this.$.fileInput.value = '';
+            this.set('fileName', 'Choose file...');
+            this.set('message', '');
+            this.set('parsedData', []);
+            this.set('selectedSheet', 'Choose a sheet');
+        },
+
+        handleBrowseClick: function(e) {
             this.$.fileInput.click();
         },
-        handleInputChange: function (e) {
+        handleInputChange: function(e) {
             var me = this;
             var inputFile = this.$.fileInput.files[0];
             this.set('fileName', inputFile.name);
@@ -215,14 +226,17 @@
 
             if (this.$.fileInput.files.length > 0) {
                 this.adapter = new XLSXNetworkDataAdapter({
-                    dataSource: new FileDataSource({file: inputFile, type: 'binary'}),
+                    dataSource: new FileDataSource({
+                        file: inputFile,
+                        type: 'binary'
+                    }),
                     separator: this.parseCharacter,
                     handlers: {
-                        'data:load': function (event) {
+                        'data:load': function(event) {
                             me.adapter = event.sender;
                             me.processWorkbook(event.sender);
                         },
-                        'error:parse': function (event) {
+                        'error:parse': function(event) {
                             me.message = event.errorMsg;
                         }
                     }
@@ -230,10 +244,10 @@
             }
         },
 
-        processWorkbook: function () {
+        processWorkbook: function() {
             this.set('sheets', Object.keys(this.adapter.xlsx.Sheets));
         },
-        handleSheetMenu: function (e) {
+        handleSheetMenu: function(e) {
             var me = this;
             this.selectedSheet = e.target.dataset.value;
 
@@ -248,42 +262,42 @@
                 dataSource: new StringDataSource(csv),
                 separator: ',',
                 handlers: {
-                    'data:load': function (event) {
+                    'data:load': function(event) {
                         me.processColumns(event.sender);
                     },
-                    'error:parse': function (event) {
+                    'error:parse': function(event) {
                         me.message = event.errorMsg;
                     }
                 }
             });
         },
-        handleSourceColumnIndex: function (e) {
+        handleSourceColumnIndex: function(e) {
             if (e.target.dataset.value) {
                 this.sourceColumnIndex = parseInt(e.target.dataset.value);
                 this.processColumnNumbers();
             }
         },
-        handleRelationColumnIndex: function (e) {
+        handleRelationColumnIndex: function(e) {
             if (e.target.dataset.value) {
                 this.relationColumnIndex = e.target.dataset.value;
                 this.processColumnNumbers();
 
             }
         },
-        handleTargetColumnIndex: function (e) {
+        handleTargetColumnIndex: function(e) {
             if (e.target.dataset.value) {
                 this.targetColumnIndex = parseInt(e.target.dataset.value);
                 this.processColumnNumbers();
             }
         },
-        processColumns: function (textAdapter) {
+        processColumns: function(textAdapter) {
             this.textAdapter = textAdapter;
-            this.columnsNumbers = [];
+            this.set('columnsNumbers', []);
             for (var i = 0; i < textAdapter.columnLength; i++) {
-                this.columnsNumbers.push(i);
+                this.push('columnsNumbers', i);
             }
         },
-        processColumnNumbers: function () {
+        processColumnNumbers: function() {
             if (this.textAdapter) {
                 if (!(isNaN(this.sourceColumnIndex)) && !(isNaN(this.targetColumnIndex))) {
                     var relationDefaultName = 'none';
@@ -298,7 +312,7 @@
                 }
             }
         },
-        processData: function (graph) {
+        processData: function(graph) {
             try {
                 var verticesLength = graph.vertices.length;
                 var edgesLength = graph.edges.length;
