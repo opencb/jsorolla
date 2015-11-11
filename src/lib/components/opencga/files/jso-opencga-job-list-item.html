@@ -68,7 +68,7 @@
 
         .bar > * {
             margin: 1px;
-            color: #d3d3d3;
+            color: #666;
         }
 
         .bar > *:hover {
@@ -88,6 +88,16 @@
 
         .info-job:hover {
             color: blue !important;
+            margin-right: 2px;
+        }
+
+        .report-error {
+            color: #000 !important;
+            margin-right: 2px;
+        }
+
+        .download {
+            color: #000 !important;
         }
 
         .data {
@@ -110,8 +120,8 @@
 
         .wrapped-text {
             white-space: pre-wrap;
-
         }
+
         #filePreview .container {
             width: 800px;
             height: 600px;
@@ -121,8 +131,8 @@
         }
     </style>
     <template>
-        <div horizontal layout id="content" class$="{{computeClass(showInfo)}}">
-            <div flex id="job">
+        <div id="content" class$="{{computeClass(showInfo)}}">
+            <div id="job">
                 <!--<div flex id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">-->
                 <div>
                     <i class$="{{computeStatusIcon(job)}}"></i>
@@ -134,13 +144,13 @@
                     <span class="date">{{computeDate(job)}}</span>
                 </div>
             </div>
-            <div id="fileInfo" class="vertical layout" hidden="{{!showInfo}}">
+            <div id="fileInfo" class="vertical layout flex" hidden="{{!showInfo}}">
                 <div class="horizontal layout">
                     <div class="data">Description:&nbsp;
                         <span>{{jobDescription}}</span>;
                     </div>
                 </div>
-                <div class="horizontal layout">
+                <!-- <div class="horizontal layout">
                     <div class="data">Inputs:&nbsp;
                         <span>{{jobInput}}</span>;
                     </div>
@@ -149,8 +159,8 @@
                     <div class="data">Outputs:&nbsp;
                         <span>{{jobOutput}}</span>;
                     </div>
-                </div>
-                <div id="jobError" class="vertical layout" hidden>
+                </div> -->
+                <div id="jobError" class="vertical layout" hidden$="{{showError}}">
                     <div class="horizontal layout">
                         <div class="data">Error:&nbsp;
                             <span>{{jobError}}</span>;
@@ -170,11 +180,13 @@
                 </div>
 
             </div>
-            <div vertical layout class="bar" on-click="{{handleBarClick}}">
+            <div class="bar" on-click="{{handleBarClick}}" id="bar">
                 <template is="dom-if" if="{{!isRunning(job)}}">
                     <i class="fa fa-trash-o delete-job" title="Delete Job" on-click="handleDeleteJob"></i>
                     <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob"></i>
                     <i class="fa fa-info info-job" title="Job information" on-click="handleJobInformation"></i>
+                    <!-- <i class="fa fa-download" title="Download" hidden="{{!showInfo}}"></i>
+                    <i class="fa fa-envelope-o" title="Report Error" hidden$="{{showError}}"></i> -->
                 </template>
             </div>
             <jso-panel modal fixed closable hidden id="filePreview">
@@ -182,7 +194,7 @@
                     <i class="fa fa-eye"></i> File Preview
                 </div>
                 <div class="container">
-                  <code class="wrapped-text">{{contentData}}</code>
+                    <code class="wrapped-text">{{contentData}}</code>
                 </div>
             </jso-panel>
         </div>
@@ -211,6 +223,10 @@
             showInfo: {
                 type: Boolean,
                 value: false
+            },
+            showError: {
+                type: Boolean,
+                value: true
             },
             errorFiles: {
                 type: Array,
@@ -259,7 +275,7 @@
         handleBarClick: function(e) {
             e.stopPropagation();
         },
-        handleVisits: function (job) {
+        handleVisits: function(job) {
             return job.visits > 0;
         },
         isRunning: function(job) {
@@ -319,15 +335,17 @@
 
 
             if (this.job.error) {
-                this.$.jobError.hidden = false;
+                this.showError = false;
                 this.jobError = this.job.error;
                 this.jobErrorDescription = this.job.errorDescription;
                 this.errorFiles = this._getErrorFiles(this.job.output);
             } else {
-                this.$.jobError.hidden = true;
+                this.showError = true;
             }
 
             this.showInfo = !this.showInfo;
+            if(this.showInfo ==false){
+              this.showError = true;}
 
             this.jobDescription = this.job.description;
             this.jobInput = this.job.input;
@@ -336,12 +354,12 @@
         computeClass: function(showInfo) {
             if (showInfo) {
                 if (this.job.error) {
-                    return "infoError";
+                    return "infoError vertical layout";
                 } else {
-                    return "info";
+                    return "info vertical layout";
                 }
             } else {
-                return "";
+                return "vertical layout";
             }
 
 
@@ -349,12 +367,12 @@
         handleViewErrorFile: function(e) {
             e.stopPropagation();
             if (this.errorFiles != null) {
-              if(e.currentTarget.dataset.value=="errorLog"){
+                if (e.currentTarget.dataset.value == "errorLog") {
 
-                this.contentData = this._getErrorFilesContent(this.errorFiles[0].id);
-              }else if (e.currentTarget.dataset.value=="outLog"){
-                this.contentData = this._getErrorFilesContent(this.errorFiles[1].id);
-              }
+                    this.contentData = this._getErrorFilesContent(this.errorFiles[0].id);
+                } else if (e.currentTarget.dataset.value == "outLog") {
+                    this.contentData = this._getErrorFilesContent(this.errorFiles[1].id);
+                }
 
             }
             this.$.filePreview.hidden = false;
@@ -378,8 +396,8 @@
 
             if (data) {
                 return data;
-            } else{
-              return "";
+            } else {
+                return "";
             }
 
         },
