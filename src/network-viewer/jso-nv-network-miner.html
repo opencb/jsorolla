@@ -325,11 +325,11 @@
                 //                    alert("Sorry. No input selected. Please select a file or write something in the text area");
                 //                    return;
                 //                }
-                if (this.$.inputFile.selectedFile === undefined) {
+                if (this.$.inputFile.selectedFile == null) {
                     alert("Sorry. No input selected. Please select a file.");
                     return;
                 }
-                if (this.$.inputFile.selectedFile !== undefined) {
+                if (this.$.inputFile.selectedFile != null) {
                     query["list"] = this.$.inputFile.selectedFile.id;
                 }
                 if (this.$.inputFile.textAreaValue != "") {
@@ -337,7 +337,7 @@
                 }
 
 
-                if (this.$.seedList.selectedFile !== undefined) {
+                if (this.$.seedList.selectedFile != null) {
                     query["seedlist"] = this.$.seedList.selectedFile.id;
                 }
                 if (this.$.seedList.textAreaValue != "") {

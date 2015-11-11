@@ -31,7 +31,7 @@
         }
 
         #content.list.info {
-            height: calc(100% - 105px);
+            height: calc(100% - 115px);
         }
 
         #content.icon {
@@ -41,7 +41,7 @@
         }
 
         #content.icon.info {
-            height: calc(100% - 80px);
+            height: calc(100% - 90px);
         }
 
         .name {}
@@ -59,6 +59,10 @@
         jso-opencga-folder-list-item[view-mode='list'] {
             padding: 3px 7px;
             border-bottom: 1px solid rgba(125, 125, 125, 0.3);
+        }
+
+        jso-opencga-folder-list-item[view-mode='list']:last-of-type {
+            border-bottom-width: 0px;
         }
 
         jso-opencga-folder-list-item[view-mode='icon'] {
@@ -82,14 +86,18 @@
         }
 
         #fileInfo {
-            height: 50px;
+            box-sizing: border-box;
+            height: 60px;
             background-color: var(--light-secondary-color);
             border-top: 1px solid var(--divider-color);
             padding: 5px;
         }
 
         .data {
-            color: #666;
+            color: var(--secondary-text-color);
+        }
+
+        .value {
             margin-right: 10px;
         }
     </style>
@@ -144,13 +152,8 @@
                     </jso-opencga-folder-list-item>
                 </template>
             </div>
-
-
-
-
-
-
         </div>
+
         <div id="fileInfo" class="vertical layout" hidden="{{!showInfo}}">
             <div class="horizontal layout">
                 <i class="fa fa-file-o" hidden="{{isFile}}"></i>
@@ -158,20 +161,16 @@
                 <span>{{fileName}}</span>
             </div>
             <div class="horizontal layout">
-                <div class="data">Type:&nbsp;
-                    <span>{{fileType}}</span>;
-                </div>
-                <div class="data">Bioformat:&nbsp;
-                    <span>{{fileBioformat}}</span>;
-                </div>
-                <div class="data">Index:&nbsp;
-                    <span>{{computeIndex(selected)}}</span>;
-                </div>
+                <span class="data">Type: </span>
+                <span class="value">{{fileType}}</span>
+                <span class="data">Bioformat: </span>
+                <span class="value">{{fileBioformat}}</span>
+                <span class="data">Status: </span>
+                <span class="value">{{computeIndex(selected)}}</span>
             </div>
             <div class="horizontal layout">
-                <div class="data">Creation Date:&nbsp;
-                    <span>{{fileDate}}</span>;
-                </div>
+                <span class="data">Creation Date:</span>
+                <span>{{fileDate}}</span>
             </div>
         </div>
 
@@ -272,10 +271,10 @@
             }
             this.fileBioformat = this.selected.bioformat;
             // if (this.selected.index && (this.selected.bioformat == "VARIANT" || this.selected.bioformat == "ALIGNMENT")) {
-                // this.fileStatus = this.selected.index.status;
-                // this.fileIndex =
+            // this.fileStatus = this.selected.index.status;
+            // this.fileIndex =
             // } else {
-                // this.fileStatus = "--";
+            // this.fileStatus = "--";
             // }
 
             var date = new Date(Date.parse(Utils.parseDate(this.selected.creationDate)));
