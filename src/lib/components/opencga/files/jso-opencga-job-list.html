@@ -43,10 +43,10 @@
     </style>
     <template>
         <div id="header" class="horizontal layout">
-            <label class="jso">Tool name:</label>
+            <!-- <label class="jso">Tool:</label> -->
 
             <jso-select id="toolFilterSelect" value="all" style="width:150px;" on-change="handleFilterSelect">
-                <jso-option value="all">All</jso-option>
+                <jso-option value="all">Select tool</jso-option>
                 <template is="dom-repeat" items={{allowedTools}} as="toolName">
                     <jso-option value="{{toolName}}">{{toolName}}</jso-option>
                 </template>
@@ -65,6 +65,9 @@
             </div>
             <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}">
                 <i class="fa fa-times" style="color:#b30000;" title="Error"></i>
+            </div>
+            <div class="flex" style="margin-left:5px;">
+                <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search...">
             </div>
         </div>
         <div id="content">

@@ -23,6 +23,10 @@
             background-color: var(--default-primary-color);
             color: var(--text-primary-color);
         }
+
+        .tool {
+            color: var(--secondary-text-color);
+        }
     </style>
     <template>
         <div id="bar" class="horizontal layout flex">
@@ -161,9 +165,15 @@
                     <!--</li>-->
                     <li data-sub>Functional analysis
                         <ul>
-                            <li data-value="snow">Network enrichment</li>
-                            <li data-value="network-miner">Gene set network enrichment</li>
-                            <li data-value="fatigo">Single enrichment</li>
+                            <li data-value="snow">Network enrichment
+                                <span class="tool"> - SNOW</span>
+                            </li>
+                            <li data-value="network-miner">Gene set network enrichment
+                                <span class="tool"> - Network Miner</span>
+                            </li>
+                            <li data-value="fatigo">Single enrichment
+                                <span class="tool"> - Fatigo</span>
+                            </li>
                         </ul>
                     </li>
                 </ul>
