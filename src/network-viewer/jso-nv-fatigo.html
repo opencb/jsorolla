@@ -94,34 +94,34 @@
                     <label>Fisher exact test</label>
 
                     <div class="jso-select" style="width: 400px">
-                        <select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
-                            <option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two tailed
-                            </option>
-                            <option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
+                        <jso-select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
+                            <jso-option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two tailed
+                            </jso-option>
+                            <jso-option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
                                 Over-represented terms in list 1 (genome comparison)
-                            </option>
-                            <option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented terms in list 2
-                            </option>
-                        </select>
+                            </jso-option>
+                            <jso-option name="fisher_3" id="fisher_3" class="fc-combobox-item" value="less">Over-represented terms in list 2
+                            </jso-option>
+                        </jso-select>
                     </div>
                     <br>
                     <label>Remove duplicates</label>
 
                     <div class="jso-select" style="width: 400px">
-                        <select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
-                            <option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">
+                        <jso-select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
+                            <jso-option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">
                                 Never
-                            </option>
-                            <option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">
+                            </jso-option>
+                            <jso-option name="duplicates_2" id="duplicates_2" class="fc-combobox-item" value="each">
                                 Remove on each list separately
-                            </option>
-                            <option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">
+                            </jso-option>
+                            <jso-option name="duplicates_3" id="duplicates_3" class="fc-combobox-item" value="all">
                                 Remove on each list and common ids
-                            </option>
-                            <option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">
+                            </jso-option>
+                            <jso-option name="duplicates_4" id="duplicates_4" class="fc-combobox-item" value="ref">
                                 Remove from list2 those appearing in list1 (complementary list)
-                            </option>
-                        </select>
+                            </jso-option>
+                        </jso-select>
                     </div>
                 </div>
             </div>
@@ -130,36 +130,36 @@
                 <div class="jso-formcontent">
                     <div id="databases">
                         <div class="jso-select" style="width: 250px">
-                            <select name="species" id="species" class="fc-combobox" type="text" value="none" on-change="handleSpecies">
-                                <option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism
-                                </option>
-                                <!--<option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</option>-->
-                                <option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">
+                            <jso-select name="species" id="species" class="fc-combobox" type="text" value="none" on-change="handleSpecies">
+                                <jso-option name="species_1" id="species_1" class="fc-combobox-item" value="none" selected="selected">Select an organism
+                                </jso-option>
+                                <!--<jso-option name="species_1" id="species_1" class="fc-combobox-item" value="none" >Select an organism</jso-option>-->
+                                <jso-option name="species_2" id="species_2" class="fc-combobox-item" value="hsa">
                                     Human (homo sapiens)
-                                </option>
-                                <option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">
+                                </jso-option>
+                                <jso-option name="species_3" id="species_3" class="fc-combobox-item" value="mmu">
                                     Mouse (musmusculus)
-                                </option>
-                                <option name="species_4" id="species_4" class="fc-combobox-item" value="rno">
+                                </jso-option>
+                                <jso-option name="species_4" id="species_4" class="fc-combobox-item" value="rno">
                                     Rat (rattusnorvegicus)
-                                </option>
-                                <option name="species_5" id="species_5" class="fc-combobox-item" value="dme">
+                                </jso-option>
+                                <jso-option name="species_5" id="species_5" class="fc-combobox-item" value="dme">
                                     Fruitfly (drosophila melanogaster)
-                                </option>
-                                <!--<option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</option>-->
-                                <option name="species_7" id="species_7" class="fc-combobox-item" value="dre">
+                                </jso-option>
+                                <!--<jso-option name="species_6" id="species_6" class="fc-combobox-item" value="bta">Cow (bos taurus)</jso-option>-->
+                                <jso-option name="species_7" id="species_7" class="fc-combobox-item" value="dre">
                                     Zebrafish (danio rerio)
-                                </option>
-                                <option name="species_8" id="species_8" class="fc-combobox-item" value="sce">
+                                </jso-option>
+                                <jso-option name="species_8" id="species_8" class="fc-combobox-item" value="sce">
                                     Saccharomyces cerevisiae
-                                </option>
-                                <option name="species_9" id="species_9" class="fc-combobox-item" value="cel">
+                                </jso-option>
+                                <jso-option name="species_9" id="species_9" class="fc-combobox-item" value="cel">
                                     Caenorhabditis elegans
-                                </option>
-                                <option name="species_10" id="species_10" class="fc-combobox-item" value="ath">
+                                </jso-option>
+                                <jso-option name="species_10" id="species_10" class="fc-combobox-item" value="ath">
                                     Arabidopsis thaliana
-                                </option>
-                            </select>
+                                </jso-option>
+                            </jso-select>
                         </div>
                         <br>
 

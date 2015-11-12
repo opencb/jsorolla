@@ -49,11 +49,13 @@
         .creationDate {
             color: #444;
             width: 80px;
+            text-align: center;
         }
 
         .status {
             color: #444;
             width: 95px;
+            text-align: center;
         }
 
         jso-opencga-folder-list-item[view-mode='list'] {
@@ -99,6 +101,10 @@
 
         .value {
             margin-right: 10px;
+        }
+
+        .lowercase{
+            text-transform: lowercase;
         }
     </style>
     <template>
@@ -161,15 +167,15 @@
                 <span>{{fileName}}</span>
             </div>
             <div class="horizontal layout">
-                <span class="data">Type: </span>
-                <span class="value">{{fileType}}</span>
-                <span class="data">Bioformat: </span>
-                <span class="value">{{fileBioformat}}</span>
-                <span class="data">Status: </span>
+                <span class="data">Type: &nbsp;</span>
+                <span class="value lowercase">{{fileType}}</span>
+                <span class="data">Bioformat: &nbsp;</span>
+                <span class="value lowercase">{{fileBioformat}}</span>
+                <span class="data">Status: &nbsp;</span>
                 <span class="value">{{computeIndex(selected)}}</span>
             </div>
             <div class="horizontal layout">
-                <span class="data">Creation Date:</span>
+                <span class="data">Creation Date: &nbsp;</span>
                 <span>{{fileDate}}</span>
             </div>
         </div>
@@ -424,8 +430,6 @@
             } else {
                 return viewMode;
             }
-
-
         },
         handleViewInfo: function(e) {
             if (this.selected != null) {
@@ -436,7 +440,6 @@
             if (selected && selected.index && (selected.bioformat == "VARIANT" || selected.bioformat == "ALIGNMENT")) {
                 return "yes";
             }
-
             return "--";
         }
 

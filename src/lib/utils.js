@@ -455,6 +455,56 @@ var Utils = {
     clone: function(obj) {
         return JSON.parse(JSON.stringify(obj));
     },
+    timeDiff: function(timeStart, timeEnd) {
+        var ts = new Date(Date.parse(timeStart));
+        var te = new Date(Date.parse(timeEnd));
+
+        if (isNaN(ts) || isNaN(te)) {
+            return "";
+        }
+
+        if (ts < te) {
+            var milisec_diff = te - ts;
+        } else {
+            var milisec_diff = ts - te;
+        }
+
+        var days = Math.floor(milisec_diff / 1000 / 60 / (60 * 24));
+        var daysMessage = days + " Days ";
+        if (days === 0) {
+            daysMessage = '';
+        }
+        var date_diff = new Date(milisec_diff);
+        var hours = date_diff.getHours() - 1;
+        var hoursMessage = hours + " hour";
+        var minutesMessage = date_diff.getMinutes() + " minute";
+        var secondsMessage = date_diff.getSeconds() + " second";
+        if (hours !== 1) {
+            hoursMessage += 's ';
+        } else {
+            hoursMessage += ' ';
+        }
+        if (date_diff.getMinutes() !== 1) {
+            minutesMessage += 's ';
+        } else {
+            minutesMessage += ' ';
+        }
+        if (date_diff.getSeconds() !== 1) {
+            secondsMessage += 's ';
+        } else {
+            secondsMessage += ' ';
+        }
+        if (hours === 0) {
+            hoursMessage = '';
+        }
+        if (date_diff.getMinutes() === 0) {
+            minutesMessage = '';
+        }
+        if (date_diff.getSeconds() === 0) {
+            secondsMessage = '';
+        }
+        return daysMessage + hoursMessage + minutesMessage + secondsMessage;
+    },
     deleteIndexedDB: function() {
         window.indexedDB.webkitGetDatabaseNames().onsuccess = function(sender, args) {
             var r = sender.target.result;

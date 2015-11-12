@@ -174,8 +174,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-folder-list on-fileselect="handleFileSelect" on-openfolder="handleOpenFolder" on-upload-file="handleUploadFile" on-back="handleBackFolder" on-need-refresh="refreshFolderFiles" on-previewfile="handlePreviewFile" study="{{selectedStudy.study}}"
-                folder="{{folder}}" files="{{files}}" mode="{{mode}}" disable-icon-view="{{disableIconView}}">
+                <jso-opencga-folder-list on-fileselect="handleFileSelect" on-openfolder="handleOpenFolder" on-upload-file="handleUploadFile" on-back="handleBackFolder" on-need-refresh="refreshFolderFiles" on-previewfile="handlePreviewFile" study="{{selectedStudy.study}}" folder="{{folder}}" files="{{files}}" mode="{{mode}}" disable-icon-view="{{disableIconView}}">
                 </jso-opencga-folder-list>
             </div>
         </div>
@@ -193,8 +192,7 @@
             <div class="header">
                 <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
             </div>
-            <jso-opencga-upload-file showbioformats class="container" id="uploadFile" on-file-uploaded="handleFileUploaded" projects="{{projects}}" selected-project="{{selectedProject.project}}" selected-study="{{selectedStudy.study}}" selected-folder="{{folder}}"
-            bioformats="{{bioformats}}"></jso-opencga-upload-file>
+            <jso-opencga-upload-file showbioformats class="container" id="uploadFile" on-file-uploaded="handleFileUploaded" projects="{{projects}}" selected-project="{{selectedProject.project}}" selected-study="{{selectedStudy.study}}" selected-folder="{{folder}}" bioformats="{{bioformats}}"></jso-opencga-upload-file>
         </jso-panel>
 
         <jso-panel modal closable hidden id="createProjectPanel">
@@ -304,6 +302,11 @@
                 reflectToAttribute: true,
                 value: ""
             },
+            enableSelectOk: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
             loading: {
                 type: Boolean,
                 value: false
@@ -325,11 +328,13 @@
             }
         },
         checkFileModeOk: function(mode, selectedFile) {
-            if (mode === 'file' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FILE') {
-                return true;
-            }
-            if (mode === 'folder' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FOLDER') {
-                return true;
+            if (this.enableSelectOk == true) {
+                if (mode === 'file' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FILE') {
+                    return true;
+                }
+                if (mode === 'folder' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FOLDER') {
+                    return true;
+                }
             }
             return false;
         },
@@ -460,7 +465,6 @@
             this.set('contentData', '');
             this.set('loading', false);
         },
-
 
         /* Private methods */
         computeAngleIcon: function(el) {

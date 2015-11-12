@@ -20,6 +20,12 @@
             projects: {
                 type: Array,
                 notify: true
+            },
+            maintenance: {
+                type: String,
+                value: '',
+                reflectToAttribute: true,
+                observer: 'checkMaintenance'
             }
         },
         selectedOptionChanged: function(neo, old) {
@@ -109,5 +115,59 @@
                 console.log("no user data")
             }
         },
+        checkMaintenance: function(neo) {
+            var me = this;
+            if (neo != null && neo !== '') {
+
+                var currentDate = new Date();
+                var split = this.maintenance.split(",");
+                var startDate = Date.parse(split[0]);
+                var endDate = Date.parse(split[1]);
+                if (currentDate < startDate || (currentDate >= startDate && currentDate <= endDate)) {
+                    var maintenance = Polymer.dom(this).querySelector('#maintenance');
+                    if (maintenance == null) {
+                        var maintenance = document.createElement('div');
+                        maintenance.classList.add('jso-note', 'jso-note-warn');
+                        maintenance.setAttribute('id', 'maintenance');
+                        maintenance.style.position = 'fixed';
+                        maintenance.style.left = '0';
+                        maintenance.style.right = '0';
+                        maintenance.style.top = '10px';
+                        maintenance.style.zIndex = '10000';
+                        maintenance.style.fontSize = '16px';
+                        maintenance.style.width = '500px';
+                        maintenance.style.margin = '0 auto';
+                        maintenance.style.boxShadow = '0px 0px 6px 3px rgba(0, 0, 0, 0.30)';
+                    }
+
+                    if (currentDate < startDate) {
+                        var diffMessage = Utils.timeDiff(split[0], split[1]);
+                        var msg = ['There will be a <b>', diffMessage,
+                            '</b> downtime on this site for maintenance from: <br><br> <b>',
+                            new Date(startDate).toString(), '</b> to <br> <b>' + new Date(endDate).toString(), '</b><br><br>',
+                            'We apologize for any inconvenience.',
+                            '<br> <div style="font-size:14px;text-align:right;">Click to dimiss this message.</div>'
+                        ];
+                        maintenance.addEventListener('click', function() {
+                            Polymer.dom(me.root).removeChild(maintenance);
+                        });
+                        Polymer.dom(this.root).appendChild(maintenance);
+                    }
+
+                    if (currentDate >= startDate && currentDate <= endDate) {
+                        var diffMessage = Utils.timeDiff(currentDate, split[1]);
+                        var msg = ['This site is under maintenance we will be back in: <b><br><br>',
+                            diffMessage, '</b> <br><br>',
+                            'We apologize for any inconvenience.',
+                        ];
+                        document.body.removeChild(this);
+                        document.body.appendChild(maintenance);
+                        document.body.style.backgroundColor = '#333';
+                    }
+
+                    maintenance.innerHTML = msg.join(' ');
+                }
+            }
+        }
     };
 </script>

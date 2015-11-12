@@ -27,12 +27,14 @@
         .creationDate {
             color: #444;
             width: 80px;
+            text-align: center;
         }
 
         #status {
             color: #444;
             width: 80px;
             text-transform: capitalize;
+            text-align: center;
         }
 
         .fa-cog {
@@ -42,7 +44,6 @@
         .huge-icon {
             font-size: 30px;
             font-weight: lighter !important;
-
             margin: 2px;
             padding: 10px;
             height: 25px;
@@ -53,7 +54,6 @@
             width: 60px;
             text-align: center;
         }
-
     </style>
     <template>
         <div class="horizontal layout">
@@ -95,11 +95,13 @@
                 reflectToAttribute: true
             }
         },
-        computeDate: function (file) {
+        computeDate: function(file) {
             var date = new Date(Date.parse(Utils.parseDate(file.creationDate)));
-            return date.toLocaleString("en-us", {month: "short"}) + " " + date.getDate() + ", " + date.getFullYear();
+            return date.toLocaleString("en-us", {
+                month: "short"
+            }) + " " + date.getDate() + ", " + date.getFullYear();
         },
-        computeIcon: function (file) {
+        computeIcon: function(file) {
             var iconMap = {
                 "FOLDER": 'fa fa-folder',
                 "FILE": 'fa fa-file-o'
@@ -107,7 +109,7 @@
 
             return iconMap[file.type];
         },
-        computeStatusIcon: function (file) {
+        computeStatusIcon: function(file) {
             var iconMap = {
                 "INDEXING": 'fa fa-cog fa-spin',
                 "READY": 'fa fa-check',
@@ -118,13 +120,13 @@
             }
             return '';
         },
-        computeStatus: function (file) {
+        computeStatus: function(file) {
             if (file.index && this.indexableBioFormats.indexOf(file.bioformat) != -1) {
                 return file.index.status;
             }
             return '--';
         },
-        computeViewMode: function (viewMode, value) {
+        computeViewMode: function(viewMode, value) {
             return viewMode == value;
         }
     });
