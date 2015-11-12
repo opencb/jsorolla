@@ -39,6 +39,16 @@
                     item.setAttribute('hidden', '');
                 }
             }
+
+            var optionItems = Polymer.dom(this.root).querySelectorAll('[data-option]');
+            for (var i = 0; i < optionItems.length; i++) {
+                var el = optionItems[i];
+                if (el.dataset.option === this.selectedOption) {
+                    el.setAttribute('active', '');
+                } else {
+                    el.removeAttribute('active')
+                }
+            }
         },
         handleMenuOption: function(e) {
             var option = e.currentTarget.dataset['option'];
