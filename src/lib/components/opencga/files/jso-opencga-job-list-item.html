@@ -101,10 +101,9 @@
         }
 
         .data {
-            color: #666;
-            margin-right: 10px;
+            color: var(--secondary-text-color);
         }
-
+      
         .errorFile:hover {
             color: red;
         }
@@ -146,30 +145,27 @@
             </div>
             <div id="fileInfo" class="vertical layout flex" hidden="{{!showInfo}}">
                 <div class="horizontal layout">
-                    <div class="data">Description:&nbsp;
-                        <span>{{jobDescription}}</span>;
-                    </div>
+                    <span class="data">Description:&nbsp;</span>
+                        <span class="value">{{jobDescription}}</span>
                 </div>
                 <!-- <div class="horizontal layout">
                     <div class="data">Inputs:&nbsp;
-                        <span>{{jobInput}}</span>;
+                        <span class="value">{{jobInput}}</span>;
                     </div>
                 </div>
                 <div class="horizontal layout">
                     <div class="data">Outputs:&nbsp;
-                        <span>{{jobOutput}}</span>;
+                        <span class="value">{{jobOutput}}</span>;
                     </div>
                 </div> -->
                 <div id="jobError" class="vertical layout" hidden$="{{showError}}">
                     <div class="horizontal layout">
-                        <div class="data">Error:&nbsp;
-                            <span>{{jobError}}</span>;
-                        </div>
+                        <span class="data">Error:&nbsp;</span>
+                            <span class="value">{{jobError}}</span>
                     </div>
                     <div class="horizontal layout">
-                        <div class="data">Error Description:&nbsp;
-                            <span>{{jobErrorDescription}}</span>;
-                        </div>
+                        <span class="data">Error Description:&nbsp;</span>
+                            <span class="value">{{jobErrorDescription}}</span>
                     </div>
                     <div class="horizontal layout" style="margin-top:5px;">
                         <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="errorLog">Error Log&nbsp;

@@ -167,6 +167,18 @@
                 this.refreshJobs();
             }
         },
+        selectStudyById:function(studyId){
+           var els = this.querySelectorAll('jso-opencga-study-tree');
+           for (var i=0; i<els.length; i++){
+           if(els[i].study.id === studyId){
+             this.set('selectedStudy',els[i]);
+             break;
+           }
+
+         }
+
+        },
+
         selectedProjectChanged: function(neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;

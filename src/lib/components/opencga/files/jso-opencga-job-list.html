@@ -63,7 +63,7 @@
             <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready" data-checked$="{{computeView(view, 'ready')}}" title="Ready">
                 <i class="fa fa-check" style="color:#0068cc;"></i>
             </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}" title="Error">
+            <div id="errorBtn" class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}" title="Error" hidden>
                 <i class="fa fa-times" style="color:#b30000;"></i>
             </div>
             <div class="flex" style="margin-left:5px;">
@@ -121,7 +121,8 @@
                 type: Object,
                 value: function() {
                     return {};
-                }
+                },
+                observer: 'studyChanged'
             },
             view: {
                 type: String,
@@ -152,6 +153,19 @@
         jobsChanged: function(neo, old) {
 
             var me = this;
+            var error = 0;
+            for (var i = 0; i < this.jobs.length; i++) {
+                var job = this.jobs[i];
+                if (job.status == "ERROR") {
+                    error++;
+                }
+            }
+
+            if (error == 0) {
+                this.$.errorBtn.hidden = true;
+            } else {
+                this.$.errorBtn.hidden = false;
+            }
             var jobs;
             if (this.toolFilterValue == 'all') {
                 var jobs = this.jobs.filter(function(item) {
@@ -210,10 +224,15 @@
             for (var i = 0; i < filteredJobs.length; i++) {
                 var job = filteredJobs[i];
                 if (job.name.toLowerCase().search(this.search.toLowerCase()) >= 0 || job.toolName.toLowerCase().search(this.search.toLowerCase()) >= 0) {
-                     jobs.push(job);
+                    jobs.push(job);
                 }
             }
             return jobs;
+        },
+        studyChanged: function(neo, old){
+          if(neo){
+            this.view = "all";  
+          }
         }
     });
 </script>
