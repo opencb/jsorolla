@@ -14,8 +14,19 @@
             background-color: var(--selected-color);
         }
 
-        .job {
+        #content {
+            height: 70px;
         }
+
+        #content.info {
+            height: 125px;
+        }
+
+        #content.infoError {
+            height: 180px;
+        }
+
+        .job {}
 
         .capitalize {
             text-transform: capitalize;
@@ -43,7 +54,6 @@
 
         .READY {
             color: #0068cc;
-
         }
 
         .date {
@@ -53,11 +63,12 @@
 
         .bar {
             width: 15px;
+            margin-top: 8px;
         }
 
         .bar > * {
             margin: 1px;
-            color: #d3d3d3;
+            color: #666;
         }
 
         .bar > *:hover {
@@ -77,12 +88,51 @@
 
         .info-job:hover {
             color: blue !important;
+            margin-right: 2px;
         }
 
+        .report-error {
+            color: #000 !important;
+            margin-right: 2px;
+        }
+
+        .download {
+            color: #000 !important;
+        }
+
+        .data {
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .errorFile:hover {
+            color: red;
+        }
+
+        .errorFile {
+            border: 1px solid #d3d3d3;
+        }
+
+        #fileInfo {
+            font-size: 12px;
+            margin: 5px;
+        }
+
+        .wrapped-text {
+            white-space: pre-wrap;
+        }
+
+        #filePreview .container {
+            width: 800px;
+            height: 600px;
+            padding: 10px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
     </style>
     <template>
-        <div horizontal layout>
-            <div flex id="job">
+        <div id="content" class$="{{computeClass(showInfo)}}">
+            <div id="job">
                 <!--<div flex id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">-->
                 <div>
                     <i class$="{{computeStatusIcon(job)}}"></i>
@@ -94,13 +144,59 @@
                     <span class="date">{{computeDate(job)}}</span>
                 </div>
             </div>
-            <div vertical layout class="bar" on-click="{{handleBarClick}}">
+            <div id="fileInfo" class="vertical layout flex" hidden="{{!showInfo}}">
+                <div class="horizontal layout">
+                    <div class="data">Description:&nbsp;
+                        <span>{{jobDescription}}</span>;
+                    </div>
+                </div>
+                <!-- <div class="horizontal layout">
+                    <div class="data">Inputs:&nbsp;
+                        <span>{{jobInput}}</span>;
+                    </div>
+                </div>
+                <div class="horizontal layout">
+                    <div class="data">Outputs:&nbsp;
+                        <span>{{jobOutput}}</span>;
+                    </div>
+                </div> -->
+                <div id="jobError" class="vertical layout" hidden$="{{showError}}">
+                    <div class="horizontal layout">
+                        <div class="data">Error:&nbsp;
+                            <span>{{jobError}}</span>;
+                        </div>
+                    </div>
+                    <div class="horizontal layout">
+                        <div class="data">Error Description:&nbsp;
+                            <span>{{jobErrorDescription}}</span>;
+                        </div>
+                    </div>
+                    <div class="horizontal layout" style="margin-top:5px;">
+                        <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="errorLog">Error Log&nbsp;
+                        </div>
+                        <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="outLog">Out Log
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="bar" on-click="{{handleBarClick}}" id="bar">
                 <template is="dom-if" if="{{!isRunning(job)}}">
                     <i class="fa fa-trash-o delete-job" title="Delete Job" on-click="handleDeleteJob"></i>
                     <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob"></i>
                     <i class="fa fa-info info-job" title="Job information" on-click="handleJobInformation"></i>
+                    <!-- <i class="fa fa-download" title="Download" hidden="{{!showInfo}}"></i>
+                    <i class="fa fa-envelope-o" title="Report Error" hidden$="{{showError}}"></i> -->
                 </template>
             </div>
+            <jso-panel modal fixed closable hidden id="filePreview">
+                <div class="header">
+                    <i class="fa fa-eye"></i> File Preview
+                </div>
+                <div class="container">
+                    <code class="wrapped-text">{{contentData}}</code>
+                </div>
+            </jso-panel>
         </div>
 
 
@@ -120,24 +216,41 @@
             },
             study: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {};
                 }
-            }
+            },
+            showInfo: {
+                type: Boolean,
+                value: false
+            },
+            showError: {
+                type: Boolean,
+                value: true
+            },
+            errorFiles: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            },
+            contentData: {
+                type: String,
+                value: "",
+            },
         },
-        created: function () {
-        },
-        computeDate: function (job) {
+        created: function() {},
+        computeDate: function(job) {
             return Utils.parseDate(job.date);
         },
-        computeIcon: function (job) {
+        computeIcon: function(job) {
             var iconMap = {
                 "READY": 'check fa fa-check',
                 "FILE": 'fa fa-file-o'
             };
             return iconMap[job.status];
         },
-        computeStatusIcon: function (job) {
+        computeStatusIcon: function(job) {
             var iconMap = {
                 "PREPARED": 'PREPARED fa fa-clock-o',
                 "READY": 'READY fa fa-check',
@@ -147,29 +260,28 @@
             };
             return iconMap[job.status];
         },
-        computeStatus: function (job) {
+        computeStatus: function(job) {
             if (job.status === "DONE") {
                 return "Finishing";
             }
             return job.status.toLowerCase();
         },
-        computeStatusClass: function (job) {
+        computeStatusClass: function(job) {
             return "capitalize " + job.status;
         },
-        computeToolName: function (job) {
+        computeToolName: function(job) {
             return job.toolName;
         },
-        handleBarClick: function (e) {
+        handleBarClick: function(e) {
             e.stopPropagation();
         },
-        handleVisits: function (job) {
-            return job.visits > 0
-                    ;
+        handleVisits: function(job) {
+            return job.visits > 0;
         },
-        isRunning: function (job) {
+        isRunning: function(job) {
             return job.status == "RUNNING";
         },
-        handleDeleteJob: function (e) {
+        handleDeleteJob: function(e) {
             var jobId = this.job.id;
             e.stopPropagation();
 
@@ -180,17 +292,17 @@
                         sid: Cookies("bioinfo_sid")
                     },
                     request: {
-                        success: function (response) {
+                        success: function(response) {
 
                         },
-                        error: function () {
+                        error: function() {
                             console.log('Server error, try again later.');
                         }
                     }
                 });
             }
         },
-        handleRelaunchJob: function (e) {
+        handleRelaunchJob: function(e) {
             e.stopPropagation();
 
             if (confirm("You are going to relaunch this Job. Are you sure?")) {
@@ -210,20 +322,113 @@
                     query: query,
                     request: {
                         //method: 'POST',
-                        success: function (response) {
-                        },
-                        error: function () {
-                        }
+                        success: function(response) {},
+                        error: function() {}
                     }
                 })
 
             }
         },
 
-        handleJobInformation: function (e) {
+        handleJobInformation: function(e) {
             e.stopPropagation();
-        }
 
-    })
-    ;
+
+            if (this.job.error) {
+                this.showError = false;
+                this.jobError = this.job.error;
+                this.jobErrorDescription = this.job.errorDescription;
+                this.errorFiles = this._getErrorFiles(this.job.output);
+            } else {
+                this.showError = true;
+            }
+
+            this.showInfo = !this.showInfo;
+            if(this.showInfo ==false){
+              this.showError = true;}
+
+            this.jobDescription = this.job.description;
+            this.jobInput = this.job.input;
+            this.jobOutput = this.job.output;
+        },
+        computeClass: function(showInfo) {
+            if (showInfo) {
+                if (this.job.error) {
+                    return "infoError vertical layout";
+                } else {
+                    return "info vertical layout";
+                }
+            } else {
+                return "vertical layout";
+            }
+
+
+        },
+        handleViewErrorFile: function(e) {
+            e.stopPropagation();
+            if (this.errorFiles != null) {
+                if (e.currentTarget.dataset.value == "errorLog") {
+
+                    this.contentData = this._getErrorFilesContent(this.errorFiles[0].id);
+                } else if (e.currentTarget.dataset.value == "outLog") {
+                    this.contentData = this._getErrorFilesContent(this.errorFiles[1].id);
+                }
+
+            }
+            this.$.filePreview.hidden = false;
+        },
+        _getErrorFilesContent: function(fileId) {
+
+            var data;
+            OpencgaManager.files.content({
+                id: fileId,
+                query: {
+                    sid: Cookies('bioinfo_sid')
+                },
+                request: {
+                    async: false,
+                    success: function(response) {
+                        data = response;
+                    },
+                    error: function() {}
+                }
+            });
+
+            if (data) {
+                return data;
+            } else {
+                return "";
+            }
+
+        },
+        _getErrorFiles: function(jobOutput) {
+
+            var errorFiles = [];
+
+            OpencgaManager.files.info({
+                id: jobOutput.join(","),
+                query: {
+                    sid: Cookies('bioinfo_sid')
+                },
+                request: {
+                    async: false,
+                    success: function(response) {
+                        if (response.response) {
+                            for (var i = 0; i < response.response.length; i++) {
+                                var file = response.response[i].result[0];
+                                if (file.name.startsWith("sge_err")) {
+                                    errorFiles[0] = file;
+                                } else if (file.name.startsWith("sge_out")) {
+                                    errorFiles[1] = file;
+                                }
+                            }
+                        }
+                    },
+                    error: function() {}
+                }
+            });
+            return errorFiles;
+        },
+
+    });
 </script>

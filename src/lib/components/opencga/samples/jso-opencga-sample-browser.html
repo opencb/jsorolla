@@ -175,7 +175,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-sample-list on-fileselect="handleFileSelect"
+                <jso-opencga-sample-list on-sampleselected="handleSampleSelect"
                                          study="{{selectedStudy.study}}"
                                          samples="{{samples}}">
                 </jso-opencga-sample-list>
@@ -186,10 +186,7 @@
         <div id="botbar" class="horizontal layout">
             <div class="flex"></div>
 
-            <div hidden$="{{!checkFileModeOk(mode,selectedFile)}}" class="jso-btn jso-btn-shdw" style="width:100px;"
-                 on-click="handleFileModeOk">
-                OK
-            </div>
+
         </div>
 
         <jso-panel modal closable hidden id="createProjectPanel">
@@ -243,11 +240,11 @@
                 notify: true,
                 observer: 'selectedStudyChanged'
             },
-            selectedFile: {
+            selectedSamples: {
                 type: Object,
                 notify: true,
                 value: function () {
-                    return null;
+                    return [];
                 }
             },
             folder: {
@@ -260,10 +257,6 @@
                 value: function () {
                     return []
                 }
-            },
-            files: {
-                type: Array,
-                notify: true
             },
             samples: {
                 type: Array,
@@ -316,19 +309,7 @@
                 });
             }
         },
-        checkFileModeOk: function (mode, selectedFile) {
-            if (mode === 'file' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FILE') {
-                return true;
-            }
-            if (mode === 'folder' && selectedFile != null && selectedFile.id != null && selectedFile.type == 'FOLDER') {
-                return true;
-            }
-            return false;
-        },
-        handleFileModeOk: function (e) {
-            this._parentJsoPanel.hidden = true;
-            this.fire('ok-click');
-        },
+
         projectsChanged: function (neo, old) {
             this.async(function () {
                 this._setInitialSelection();
@@ -356,7 +337,7 @@
             if (!neo) {
                 this.files = [];
             }
-            this.selectedFile = null;
+            this.selectedSamples = [];
             this.files = [];
             this._showStudyFolder();
         },
@@ -371,24 +352,8 @@
             this.set('selectedProject', e.currentTarget);
             this.set('selectedStudy', e.currentTarget.selectedStudy);
         },
-        handleFileSelect: function (e) {
-            this.selectedFile = e.detail;
-        },
-        handleOpenFolder: function (e) {
-            var me = this;
-            this.folder = e.detail;
-            this.push('folders', this.folder);
-            this.files = [];
-            this.refreshFolderFiles();
-        },
-        refreshFolderFiles: function () {
-            var me = this;
-            this.loading = true;
-            this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function (files) {
-                me.files = files;
-                me.loading = false;
-                //                console.log(files);
-            });
+        handleSampleSelect: function (e) {
+            this.selectedSamples = e.detail;
         },
         handleStudyBreadcrum: function (e) {
             this.files = [];
@@ -426,10 +391,6 @@
             this.$.createStudyPanel.hidden = !this.$.createProjectPanel.hidden;
         },
 
-        handleFileUploaded: function (e) {
-            this.refreshFolderFiles();
-            this.$.uploadFilePanel.hidden = true;
-        },
         handleProjectCreated: function (e) {
             this.$.createProjectPanel.hidden = true;
         },
@@ -484,44 +445,6 @@
                 }
             });
         },
-        _getFilesInFolder: function (studyId, folderId, callback) {
-            var me = this;
-            var files;
-
-            var bfList = [];
-            for (var i = 0; i < this.bioformats.length; i++) {
-                var bf = this.bioformats[i];
-                bfList.push(bf.value);
-            }
-
-            OpencgaManager.files.list({
-                id: folderId,
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    //                    status:'READY,STAGED,MISSING',
-                    status: 'READY',
-                    bioformat: bfList.join(',') + ',NONE',
-                    type: 'FILE,FOLDER',
-                    studyId: studyId
-                },
-                request: {
-                    async: true,
-                    success: function (response) {
-                        // console.log(response);
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            files = me._filterFiles(response.response[0].result);
-                            //                            files = response.response[0].result;
-                            callback(files);
-                        } else {
-                            console.log(response.response[0].errorMsg);
-                        }
-                    },
-                    error: function () {
-                        console.log('Server error, try again later.');
-                    }
-                }
-            });
-        },
         _getSamples: function (studyId, callback) {
             var me = this;
             var samples;
@@ -549,88 +472,13 @@
                 }
             });
         },
-        _filterFiles: function (files) {
-            var bfList = [];
-            for (var i = 0; i < this.bioformats.length; i++) {
-                var bf = this.bioformats[i];
-                bfList.push(bf.value);
-            }
 
-            files.sort(function (a, b) {
-                return b.creationDate.localeCompare(a.creationDate);
-            });
-            var filesFiltered = [];
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                console.log(file.name + ' ' + file.id);
-                console.log(file);
-
-
-                if (this.mode == 'folder') {
-                    if (file.type == 'FILE') {
-                        continue;
-                    }
-                    filesFiltered.push(file);
-                } else {
-                    if (file.name.charAt(0) == '.') {
-                        continue;
-                    }
-                    if (Utils.endsWith(file.name, '.snappy')) {
-                        continue;
-                    }
-                    if (file.bioformat == 'ALIGNMENT' && (Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz'))) {
-                        continue;
-                    }
-                    if (file.bioformat == 'VARIANT' && file.format == 'AVRO') {
-                        continue;
-                    }
-
-                    if (this.mode == 'file') {
-                        if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
-                            continue;
-                        }
-                    }
-                    filesFiltered.push(file);
-                }
-            }
-            return filesFiltered;
-        },
         isHidden: function (project) {
             if (this.showHidden) {
                 return true;
             } else {
                 return project.name.charAt(0) != ".";
             }
-        },
-        handlePreviewFile: function (e) {
-            var file = e.detail;
-
-            var data;
-            OpencgaManager.files.content({
-                id: file.id,
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    limit: 100
-                },
-                request: {
-                    async: false,
-                    success: function (response) {
-                        data = response;
-                    },
-                    error: function () {
-
-                    }
-                }
-            });
-
-
-            if (data) {
-
-                this.contentData = data;
-                this.$.filePreview.hidden = false;
-            }
-
-
         }
     });
 </script>

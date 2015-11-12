@@ -65,7 +65,7 @@
     </style>
     <template>
         <div id="bar" class="horizontal layout">
-            <div class="bar horizontal layout flex">
+            <div class="bar horizontal layout flex end-justified">
                 <div class="jso-btn jso-btn-shdw" on-click="handleViewMode">
                     <i class$="{{computeViewModeIconClass(viewMode)}}"></i>
                 </div>
@@ -80,9 +80,7 @@
         </template>
         <div id="content" class$="{{computeClassViewMode(viewMode)}}">
             <template is="dom-repeat" items="{{samples}}" class="wrap">
-                <jso-opencga-sample-list-item sample="{{item}}"
-                                              on-dblclick="handleFileDblClick"
-                                              on-click="handleFileClick" view-mode="{{viewMode}}">
+                <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}">
                 </jso-opencga-sample-list-item>
             </template>
         </div>
@@ -105,10 +103,10 @@
                 }
             },
             selected: {
-                type: Object,
+                type: Array,
                 notify: true,
                 value: function () {
-                    return null;
+                    return [];
                 }
             },
             study: {
@@ -119,24 +117,23 @@
                 value: 'list'
             }
         },
-        handleFileClick: function (e) {
+        handleSampleClick: function (e) {
 
-            this.selected = e.currentTarget.file;
-            var sel = this.querySelector("jso-opencga-folder-list-item[selected]");
-            if (sel) {
-                sel.removeAttribute('selected');
-            }
-            e.currentTarget.setAttribute('selected', '');
-            this.fire('fileselect', this.selected);
-        },
-        handleFileDblClick: function (e) {
-            var file = e.currentTarget.file;
-            if (file.type == 'FOLDER') {
-                this.fire('openfolder', file);
-            } else if (file.type == "FILE") {
-                this.fire('previewfile', file);
+            var selected = e.currentTarget;
+
+            selected.toggleAttribute("selected");
+
+            var selectedEls = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+
+            var selectedSamples = [];
+
+            for (var i = 0; i < selectedEls.length; i++) {
+                var el = selectedEls[i];
+                selectedSamples.push(el.sample);
             }
 
+            this.set("selected", selectedSamples);
+            this.fire('sampleselected', this.selected);
         },
         checkSelected: function (selected) {
             return selected == null;
