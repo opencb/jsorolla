@@ -332,7 +332,7 @@
                 if (selected.type == 'FOLDER') {
                     return true;
                 }
-                if (selected.index != null) {
+                if (selected.index != null && selected.index.status !== 'NONE') {
                     return true
                 } else {
                     if (selected.bioformat !== "VARIANT" && selected.bioformat !== "ALIGNMENT") {
@@ -437,8 +437,8 @@
             }
         },
         computeIndex: function(selected) {
-            if (selected && selected.index && (selected.bioformat == "VARIANT" || selected.bioformat == "ALIGNMENT")) {
-                return "yes";
+            if (selected != null && selected.index != null && (selected.bioformat == "VARIANT" || selected.bioformat == "ALIGNMENT")) {
+                return selected.index.status;
             }
             return "--";
         }
