@@ -1,0 +1,81 @@
+<dom-module id="jso-tooltip">
+    <style>
+        :host {
+            display: inline;
+            position: relative;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        #messageInfo {
+            position: fixed;
+            z-index: 200000;
+            /*box-sizing: border-box;*/
+            box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.30);
+            /*border: 1px solid #d3d3d3;*/
+            /*width: 200px;*/
+            /*height: 100px;*/
+            /*font-size: 12px;*/
+            /*background-color: var(--light-primary-color);*/
+        }
+
+        #title {
+            height: 20px;
+            padding: 2px;
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
+        }
+
+        #infoMessage {
+            padding: 2px;
+            color: var(--primary-text-color);
+            text-align: left;
+        }
+
+    </style>
+    <template>
+
+        <i class="fa fa-info" on-click="showInfo"></i></div>
+        <div id="messageInfo" hidden>
+            <content></content>
+            <!-- <div id="title" class="horizontal layout">&nbsp;
+                <content select=".title"></content>
+            </div>
+            <div id="infoMessage" class="flex">
+                <content class=".infoMessage"></content>
+            </div> -->
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "jso-tooltip",
+            properties: {
+
+            },
+            showInfo: function(e) {
+                this._getPosition();
+                this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
+            },
+            _getPosition: function() {
+                var bcr = this.getBoundingClientRect();
+                var windowHeight = window.innerHeight;
+                var windowWidth = window.innerWidth;
+                if ((windowHeight - (bcr.top + bcr.height + 100)) >= 0) {
+                    this.$.messageInfo.style.top = (bcr.top + bcr.height) + 'px';
+                } else {
+                    this.$.messageInfo.style.top = (bcr.top - 100) + 'px';
+
+                }
+                if ((windowWidth - (bcr.left + bcr.width + 200)) >= 0) {
+                    this.$.messageInfo.style.left = (bcr.left + bcr.width) + 'px';
+                } else {
+                    this.$.messageInfo.style.left = (bcr.left - 200) + 'px';
+                }
+
+            }
+
+        })
+    </script>
+</dom-module>
