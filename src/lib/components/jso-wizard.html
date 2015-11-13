@@ -79,14 +79,17 @@
                 <div class="horizontal layout">
                     <div class="flex" hidden="{{handleHiddenStep1(step)}}"></div>
                     <div class="prev flex" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}">
-                        <label><i class="fa fa-angle-double-left"></i>&nbsp;Step&nbsp;<span>{{stepPrev}}</span></label>
+                        <label><i class="fa fa-angle-double-left"></i>&nbsp;Step&nbsp;
+                            <span>{{stepPrev}}</span>
+                        </label>
                     </div>
-                     <!-- <label class="title">Step &nbsp;
+                    <!-- <label class="title">Step &nbsp;
                         <span>{{step}}</span>
                     </label> -->
-                      <div id="title" class="title horizontal layout" style="line-height:25px">Step&nbsp;<div>{{step}}</div>&nbsp;: &nbsp;
-                          <content select=".title"></content>
-                      </div>
+                    <div id="title" class="title horizontal layout" style="line-height:25px">Step&nbsp;
+                        <div>{{step}}</div>&nbsp;: &nbsp;
+                        <content select=".title"></content>
+                    </div>
                     <div class="flex next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
                         <label>Step&nbsp;
                             <span>{{stepNext}}</span>&nbsp;<i class="fa fa-angle-double-right"></i></label>
@@ -98,17 +101,15 @@
             <!-- <div class="container flex">
                 <content id="container" class="flex"></content>
             </div> -->
-             <div id="container" class="flex">
+            <div id="container" class="flex">
                 <content class=".container"></content>
             </div>
 
             <div class="footer">
                 <div id="wizard-bottom" class="horizontal layout end-justified">
-                    <div class="jso-btn jso-btn-shdw file" on-click="handlePrevStepButton"
-                         hidden="{{!handleHiddenStep1(step)}}"><i class="fa fa-angle-double-left"></i>&nbsp; Previous
+                    <div class="jso-btn jso-btn-shdw file" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}"><i class="fa fa-angle-double-left"></i>&nbsp; Previous
                     </div>
-                    <div class="jso-btn jso-btn-shdw file" on-click="handleNextStepButton"
-                         hidden="{{!handleHiddenStepEnd(step)}}">Next &nbsp;<i class="fa fa-angle-double-right"></i>
+                    <div class="jso-btn jso-btn-shdw file" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">Next &nbsp;<i class="fa fa-angle-double-right"></i>
                     </div>
                     <div hidden="{{handleHiddenStepEnd(step)}}"> &nbsp; </div>
                 </div>
@@ -128,23 +129,23 @@
                 },
                 steps: {
                     type: Array,
-                    value: function () {
+                    value: function() {
                         return [];
                     }
                 },
-                stepName:{
-                  type: Number,
-                value: 1,
-                observer: 'stepNameChanged'
-              },
-              stepsNames: {
-                  type: Array,
-                  value: function () {
-                      return [];
-                  }
-              },
+                stepName: {
+                    type: Number,
+                    value: 1,
+                    observer: 'stepNameChanged'
+                },
+                stepsNames: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
             },
-            ready: function () {
+            ready: function() {
                 var steps = Polymer.dom(this).querySelectorAll('.step');
                 var stepsNames = Polymer.dom(this).querySelectorAll('.stepName');
 
@@ -155,17 +156,17 @@
                 this.set('stepsNames', stepsNames);
                 this.stepNameChanged(1, 0);
             },
-            created: function () {
+            created: function() {
                 this.steps = [];
                 this.stepsNames = [];
             },
-            handleHiddenStep1: function (step) {
+            handleHiddenStep1: function(step) {
                 return step != 1;
             },
-            handleHiddenStepEnd: function (step) {
+            handleHiddenStepEnd: function(step) {
                 return step != this.steps.length;
             },
-            handlePrevStepButton: function (e) {
+            handlePrevStepButton: function(e) {
                 this.step = (this.step <= 1) ? 1 : this.step - 1;
                 console.log(this.step);
                 this.stepName = (this.stepName <= 1) ? 1 : this.stepName - 1;
@@ -173,13 +174,13 @@
                 this.stepNext = this.step + 1
                 this.stepPrev = this.step - 1;
             },
-            handleNextStepButton: function (e) {
+            handleNextStepButton: function(e) {
                 this.step = (this.step >= this.steps.length) ? this.steps.length : this.step + 1;
                 this.stepName = (this.stepName >= this.stepsNames.length) ? this.stepsNames.length : this.stepName + 1;
                 this.stepNext = this.step + 1
                 this.stepPrev = this.step - 1;
             },
-            stepChanged: function (neo, old) {
+            stepChanged: function(neo, old) {
                 if (this.steps && this.steps.length > 0) {
 
                     for (var i = 0; i < this.steps.length; i++) {
@@ -193,7 +194,7 @@
 
                 }
             },
-            stepNameChanged: function (neo, old) {
+            stepNameChanged: function(neo, old) {
                 if (this.stepsNames && this.stepsNames.length > 0) {
 
                     for (var i = 0; i < this.stepsNames.length; i++) {
@@ -207,6 +208,11 @@
 
                 }
             },
+            goToStep: function(step) {
+                this.step = step;
+                this.stepName= step;
+
+            }
 
         })
     </script>
