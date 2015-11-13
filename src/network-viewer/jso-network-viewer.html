@@ -1142,7 +1142,7 @@
         },
         handleVerticesUpdateRow: function(e) {
             this.$.nodeRender.refreshAttributes();
-            if (e.detail.column.name === this.vertexDefaults.labelAttribute) {
+            if (e.detail.column != null && e.detail.column.name === this.vertexDefaults.labelAttribute) {
                 this.handleVertexDefaultLabelAttribute();
             }
         },
