@@ -300,7 +300,7 @@ GenomeViewer.prototype = {
                 resource: 'all',
                 async: false,
                 success: function (data) {
-                    chromosomes = saveChromosomes(data.response.result.chromosomes);
+                    chromosomes = saveChromosomes(data.response[0].result[0].chromosomes);
                 },
                 error: function (data) {
                     console.log('Could not get chromosome list');
@@ -1027,5 +1027,3 @@ GenomeViewer.prototype = {
         this.trackExists(trackId);
     }
 };
-
-
