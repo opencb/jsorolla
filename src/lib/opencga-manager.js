@@ -85,7 +85,7 @@
 var OpencgaManager = {
     // host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
     // host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080/opencga/rest' : OPENCGA_HOST,
-    host: OPENCGA_HOST,
+    host: window.OPENCGA_HOST,
     version: (typeof OPENCGA_VERSION === 'undefined') ? 'v1' : OPENCGA_VERSION,
 
     users: {
