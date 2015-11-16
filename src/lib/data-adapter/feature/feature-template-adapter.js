@@ -95,7 +95,13 @@ FeatureTemplateAdapter.prototype = {
         _.extend(params, args.params);
 
         /** 1 region check **/
-        var region = this._computeLimitedRegion(args.region);
+        var region = args.region;
+        var limitedRegion = this._computeLimitedRegion(region.chromosome);
+        if (region.start > limitedRegion || region.end < 1) {
+            return;
+        }
+        region.start = (region.start < 1) ? 1 : region.start;
+        region.end = (region.end > limitedRegion) ? limitedRegion : region.end;
 
         /** 2 category check **/
         var categories = ["cat_" + Utils.queryString(this.templateVariables) + Utils.queryString(params)];
@@ -252,6 +258,12 @@ FeatureTemplateAdapter.prototype = {
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
     _groupQueries: function (uncachedRegions) {
+        // modify region end to chromosome length.
+        for (var i = 0; i < uncachedRegions.length; i++) {
+            var r = uncachedRegions[i];
+            this._computeRegionSize(r);
+        }
+
         var groupSize = 50;
         var queriesLists = [];
         while (uncachedRegions.length > 0) {
@@ -260,6 +272,12 @@ FeatureTemplateAdapter.prototype = {
         return queriesLists;
     },
     _singleQueries: function (uncachedRegions) {
+        // modify region end to chromosome length.
+        for (var i = 0; i < uncachedRegions.length; i++) {
+            var r = uncachedRegions[i];
+            this._computeRegionSize(r);
+        }
+
         var queriesLists = [];
         for (var i = 0; i < uncachedRegions.length; i++) {
             var region = uncachedRegions[i];
@@ -300,27 +318,26 @@ FeatureTemplateAdapter.prototype = {
         return regions;
     },
 
-    _computeLimitedRegion: function (region) {
+    _computeLimitedRegion: function (chromosome) {
         var regionLimit = 300000000;
 
-        if (this.species != null && this.species.chromosomes[region.chromosome] != null) {
-            regionLimit = this.species.chromosomes[region.chromosome].end;
+        if (this.species != null && this.species.chromosomes[chromosome] != null) {
+            regionLimit = this.species.chromosomes[chromosome].end;
         }
 
         if (this.chromosomeSizes != null &&
-            this.chromosomeSizes[region.chromosome] != null &&
-            !isNaN(this.chromosomeSizes[region.chromosome])
+            this.chromosomeSizes[chromosome] != null &&
+            !isNaN(this.chromosomeSizes[chromosome])
         ) {
-            regionLimit = this.chromosomeSizes[region.chromosome];
+            regionLimit = this.chromosomeSizes[chromosome];
         }
 
-        if (region.start > regionLimit || region.end < 1) {
-            return;
+        return regionLimit;
+    },
+    _computeRegionSize: function (region) {
+        var limitedRegion = this._computeLimitedRegion(region.chromosome);
+        if (region.end > limitedRegion) {
+            region.end = limitedRegion;
         }
-
-        region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > regionLimit) ? regionLimit : region.end;
-
-        return region;
     }
 };
