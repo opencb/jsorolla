@@ -584,10 +584,21 @@
                 if (file.name.charAt(0) == '.') {
                     continue;
                 }
-                if (Utils.endsWith(file.name, '.snappy')) {
-                    continue;
-                }
-                if (file.bioformat == 'ALIGNMENT' && (Utils.endsWith(file.name, '.bam.bai') || Utils.endsWith(file.name, '.bam.coverage.json.gz'))) {
+                // if (Utils.endsWith(file.name, '.snappy')) {
+                // continue;
+                // }
+                if (
+                    // file.bioformat == 'ALIGNMENT' &&
+                    (
+                        Utils.endsWith(file.name, '.annot.json.gz') ||
+                        Utils.endsWith(file.name, '.file.json.gz') ||
+                        Utils.endsWith(file.name, '.variants.stats.json.gz') ||
+                        Utils.endsWith(file.name, '.source.stats.json.gz') ||
+                        Utils.endsWith(file.name, '.bam.bai') ||
+                        Utils.endsWith(file.name, '.bam.coverage.json.gz') ||
+                        Utils.endsWith(file.name, '.bam.mean-coverage.json.gz')
+                    )
+                ) {
                     continue;
                 }
                 if (file.bioformat == 'VARIANT' && file.format == 'AVRO') {
@@ -634,13 +645,22 @@
             var els = this.$.botbar.querySelectorAll('.custom-button');
             for (var i = 0; i < els.length; i++) {
                 var el = els[i];
-                var ext = el.getAttribute('file-ext');
-                if (Utils.endsWithIgnoreCase(this.selectedFile.name, ext)) {
+                var found = false;
+                var exts = el.getAttribute('file-ext').split(',');
+                for (var j = 0; j < exts.length; j++) {
+                    var ext = exts[j];
+                    if (Utils.endsWithIgnoreCase(this.selectedFile.name, ext)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
                     el.removeAttribute('hidden');
                 } else {
                     el.setAttribute('hidden', '');
                 }
             }
+
         }
     });
 </script>

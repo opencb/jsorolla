@@ -716,7 +716,7 @@ AlignmentRenderer.drawBamDifferences = function (refString, differences, size, m
                 for (var j = 0; j < difference.length; j++) {
                     var char = difference.seq[j];
                     var refPos = difference.pos + j;
-                    console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
+                    // console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
                     if (char != refString.charAt(refPos)) {
                         var t = SVG.addChild(text, "tspan", {
                             "x": x,
