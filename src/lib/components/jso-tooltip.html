@@ -1,0 +1,88 @@
+<dom-module id="jso-tooltip">
+    <style>
+        :host {
+            display: inline;
+            position: relative;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        #messageInfo {
+            position: fixed;
+            z-index: 200000;
+            box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.30);
+            width: 200px;
+            height: 100px;
+            margin: 0px;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .closeInfo{
+            cursor: pointer;
+            margin-left: 190px;
+        }
+    </style>
+    <template>
+
+        <i class="fa fa-info" on-click="showInfo"></i></div>
+        <div id="messageInfo" class$="{{computeClass(type)}}" hidden>
+                <div class="closeInfo" on-click="handleClose"><i class="fa fa-times"></i>
+
+                </div>
+            <content></content>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "jso-tooltip",
+            properties: {
+
+                type: {
+                    type: String,
+                    reflectToAttribute: true
+                }
+            },
+            showInfo: function(e) {
+                this._getPosition();
+                this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
+            },
+            _getPosition: function() {
+                var bcr = this.getBoundingClientRect();
+                var windowHeight = window.innerHeight;
+                var windowWidth = window.innerWidth;
+                // var msg=this.$.messageInfo.getBoundingClientRect();
+                if ((windowHeight - (bcr.top + bcr.height + 100)) >= 0) {
+                    this.$.messageInfo.style.top = (bcr.top + bcr.height) + 'px';
+                } else {
+                    this.$.messageInfo.style.top = (bcr.top - 100) + 'px';
+                    // this.$.messageInfo.style.bottom = (bcr.bottom + bcr.height) + 'px';
+                }
+                if ((windowWidth - (bcr.left + bcr.width + 200)) >= 0) {
+                    this.$.messageInfo.style.left = (bcr.left + bcr.width) + 'px';
+                } else {
+                    this.$.messageInfo.style.left = (bcr.left - 200) + 'px';
+                    // this.$.messageInfo.style.right = (bcr.right + bcr.width) + 'px';
+
+                }
+
+            },
+            computeClass: function(type) {
+                if (type == "info") {
+                    return "jso-note jso-note-info";
+                } else if (type == "warn") {
+                    return "jso-note jso-note-warn";
+                } else if (type == "error") {
+                    return "jso-note jso-note-warn";
+                }
+            },
+            handleClose: function() {
+              this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
+            },
+
+
+        })
+    </script>
+</dom-module>
