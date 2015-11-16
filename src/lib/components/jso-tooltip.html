@@ -10,40 +10,27 @@
         #messageInfo {
             position: fixed;
             z-index: 200000;
-            /*box-sizing: border-box;*/
             box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.30);
-            /*border: 1px solid #d3d3d3;*/
-            /*width: 200px;*/
-            /*height: 100px;*/
-            /*font-size: 12px;*/
-            /*background-color: var(--light-primary-color);*/
+            width: 200px;
+            height: 100px;
+            margin: 0px;
+            overflow-x: auto;
+            overflow-y: auto;
         }
 
-        #title {
-            height: 20px;
-            padding: 2px;
-            background-color: var(--default-primary-color);
-            color: var(--text-primary-color);
+        .closeInfo{
+            cursor: pointer;
+            margin-left: 190px;
         }
-
-        #infoMessage {
-            padding: 2px;
-            color: var(--primary-text-color);
-            text-align: left;
-        }
-
     </style>
     <template>
 
         <i class="fa fa-info" on-click="showInfo"></i></div>
-        <div id="messageInfo" hidden>
+        <div id="messageInfo" class$="{{computeClass(type)}}" hidden>
+                <div class="closeInfo" on-click="handleClose"><i class="fa fa-times"></i>
+
+                </div>
             <content></content>
-            <!-- <div id="title" class="horizontal layout">&nbsp;
-                <content select=".title"></content>
-            </div>
-            <div id="infoMessage" class="flex">
-                <content class=".infoMessage"></content>
-            </div> -->
         </div>
 
     </template>
@@ -53,6 +40,10 @@
             is: "jso-tooltip",
             properties: {
 
+                type: {
+                    type: String,
+                    reflectToAttribute: true
+                }
             },
             showInfo: function(e) {
                 this._getPosition();
@@ -62,19 +53,35 @@
                 var bcr = this.getBoundingClientRect();
                 var windowHeight = window.innerHeight;
                 var windowWidth = window.innerWidth;
+                // var msg=this.$.messageInfo.getBoundingClientRect();
                 if ((windowHeight - (bcr.top + bcr.height + 100)) >= 0) {
                     this.$.messageInfo.style.top = (bcr.top + bcr.height) + 'px';
                 } else {
                     this.$.messageInfo.style.top = (bcr.top - 100) + 'px';
-
+                    // this.$.messageInfo.style.bottom = (bcr.bottom + bcr.height) + 'px';
                 }
                 if ((windowWidth - (bcr.left + bcr.width + 200)) >= 0) {
                     this.$.messageInfo.style.left = (bcr.left + bcr.width) + 'px';
                 } else {
                     this.$.messageInfo.style.left = (bcr.left - 200) + 'px';
+                    // this.$.messageInfo.style.right = (bcr.right + bcr.width) + 'px';
+
                 }
 
-            }
+            },
+            computeClass: function(type) {
+                if (type == "info") {
+                    return "jso-note jso-note-info";
+                } else if (type == "warn") {
+                    return "jso-note jso-note-warn";
+                } else if (type == "error") {
+                    return "jso-note jso-note-warn";
+                }
+            },
+            handleClose: function() {
+              this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
+            },
+
 
         })
     </script>
