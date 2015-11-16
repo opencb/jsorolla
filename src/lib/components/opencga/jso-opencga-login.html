@@ -121,12 +121,12 @@
                 request: {
                     success: function (response) {
                         console.log(response);
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                        if (response.error === '' || response.error == null) {
                             Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
                             Cookies.set('bioinfo_user', response.response[0].result[0].userId);
                             me.fire('login', {status: true});
                         } else {
-                            me.message = response.response[0].errorMsg;
+                            me.message = response.error.split(":")[1];
                             //Delete all cookies
                             Cookies.expire('bioinfo_sid');
                             Cookies.expire('bioinfo_user');
