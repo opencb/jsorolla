@@ -103,10 +103,10 @@
                 }
             },
             selected: {
-                type: Array,
+                type: Object,
                 notify: true,
                 value: function () {
-                    return [];
+                    return {};
                 }
             },
             study: {
@@ -120,19 +120,14 @@
         handleSampleClick: function (e) {
 
             var selected = e.currentTarget;
-
-            selected.toggleAttribute("selected");
-
-            var selectedEls = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
-
-            var selectedSamples = [];
-
-            for (var i = 0; i < selectedEls.length; i++) {
-                var el = selectedEls[i];
-                selectedSamples.push(el.sample);
+            var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+            for (var i = 0; i < sel.length; i++) {
+                sel[i].removeAttribute("selected");
             }
 
-            this.set("selected", selectedSamples);
+            selected.setAttribute("selected", "");
+
+            this.set("selected", selected.sample);
             this.fire('sampleselected', this.selected);
         },
         checkSelected: function (selected) {

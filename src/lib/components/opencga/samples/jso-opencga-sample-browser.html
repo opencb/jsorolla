@@ -244,7 +244,7 @@
                 type: Object,
                 notify: true,
                 value: function () {
-                    return [];
+                    return {};
                 }
             },
             folder: {
@@ -353,7 +353,7 @@
             this.set('selectedStudy', e.currentTarget.selectedStudy);
         },
         handleSampleSelect: function (e) {
-            this.selectedSamples = e.detail;
+            this.selectedSample = e.detail;
         },
         handleStudyBreadcrum: function (e) {
             this.files = [];
