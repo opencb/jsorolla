@@ -570,40 +570,33 @@
                 var file = files[i];
                 // console.log(file.name + ' ' + file.id);
                 // console.log(file);
-
-                if (this.mode == 'folder') {
-                    if (file.type != 'FOLDER') {
-                        continue;
-                    }
-                    filesFiltered.push(file);
-                } else if (this.mode == 'file') {
-                    if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
-                        continue;
-                    }
-                }
-                if (file.name.charAt(0) == '.') {
-                    continue;
-                }
-                // if (Utils.endsWith(file.name, '.snappy')) {
-                // continue;
-                // }
                 if (
                     // file.bioformat == 'ALIGNMENT' &&
                     (
+                        file.name.charAt(0) == '.' ||
                         Utils.endsWith(file.name, '.annot.json.gz') ||
                         Utils.endsWith(file.name, '.file.json.gz') ||
                         Utils.endsWith(file.name, '.variants.stats.json.gz') ||
                         Utils.endsWith(file.name, '.source.stats.json.gz') ||
                         Utils.endsWith(file.name, '.bam.bai') ||
                         Utils.endsWith(file.name, '.bam.coverage.json.gz') ||
-                        Utils.endsWith(file.name, '.bam.mean-coverage.json.gz')
+                        Utils.endsWith(file.name, '.bam.mean-coverage.json.gz') ||
+                        (file.bioformat == 'VARIANT' && file.format == 'AVRO') ||
+                        Utils.endsWith(file.name, '.snappy')
                     )
                 ) {
                     continue;
                 }
-                if (file.bioformat == 'VARIANT' && file.format == 'AVRO') {
-                    continue;
+                if (this.mode == 'folder') {
+                    if (file.type != 'FOLDER') {
+                        continue;
+                    }
+                } else if (this.mode == 'file') {
+                    if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
+                        continue;
+                    }
                 }
+                
                 filesFiltered.push(file);
             }
             return filesFiltered;
