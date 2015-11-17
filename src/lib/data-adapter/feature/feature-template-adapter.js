@@ -45,7 +45,6 @@
 
  */
 
-
 function FeatureTemplateAdapter(args) {
 
     _.extend(this, Backbone.Events);
@@ -53,6 +52,7 @@ function FeatureTemplateAdapter(args) {
     this.templateVariables = {};
     this.multiRegions = true;
     this.histogramMultiRegions = true;
+    this.chromosomeSizes;
 
     _.extend(this, args);
 
@@ -62,15 +62,15 @@ function FeatureTemplateAdapter(args) {
 }
 
 FeatureTemplateAdapter.prototype = {
-    setSpecies: function(species) {
+    setSpecies: function (species) {
         this.species = species;
         this.configureCache();
     },
-    setHost: function(host) {
+    setHost: function (host) {
         this.configureCache();
         this.host = host;
     },
-    configureCache: function() {
+    configureCache: function () {
         var speciesString = '';
         if (this.species != null) {
             var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
@@ -86,7 +86,7 @@ FeatureTemplateAdapter.prototype = {
         this.cache = new FeatureChunkCache(this.cacheConfig);
     },
 
-    getData: function(args) {
+    getData: function (args) {
         var _this = this;
 
         var params = {};
@@ -96,16 +96,12 @@ FeatureTemplateAdapter.prototype = {
 
         /** 1 region check **/
         var region = args.region;
-        var regionLimit = 300000000;
-        if (this.species != null && this.species.chromosomes[region.chromosome] != null) {
-            regionLimit = this.species.chromosomes[args.region.chromosome].end;
-        }
-        if (region.start > regionLimit || region.end < 1) {
+        var limitedRegion = this._computeLimitedRegion(region.chromosome);
+        if (region.start > limitedRegion || region.end < 1) {
             return;
         }
-
         region.start = (region.start < 1) ? 1 : region.start;
-        region.end = (region.end > regionLimit) ? regionLimit : region.end;
+        region.end = (region.end > limitedRegion) ? limitedRegion : region.end;
 
         /** 2 category check **/
         var categories = ["cat_" + Utils.queryString(this.templateVariables) + Utils.queryString(params)];
@@ -128,7 +124,7 @@ FeatureTemplateAdapter.prototype = {
          * by the Cache TODO????
          * Cached chunks will be returned by the args.dataReady Callback.
          */
-        this.cache.get(region, categories, dataType, chunkSize, function(cachedChunks, uncachedRegions) {
+        this.cache.get(region, categories, dataType, chunkSize, function (cachedChunks, uncachedRegions) {
 
             var category = categories[0];
             var categoriesName = "";
@@ -155,7 +151,6 @@ FeatureTemplateAdapter.prototype = {
                 }
             }
 
-
             /** Uncached regions found **/
             if (queriesList.length > 0) {
                 args.webServiceCallCount = 0;
@@ -169,7 +164,7 @@ FeatureTemplateAdapter.prototype = {
                     request._queryRegion = queryRegion;
                     request._originalRegion = region;
 
-                    request.onload = function() {
+                    request.onload = function () {
                         args.webServiceCallCount--;
                         if (request.status !== 400) {
                             var response;
@@ -187,7 +182,7 @@ FeatureTemplateAdapter.prototype = {
                             console.log("request.status: " + request.status);
                         }
                         if (args.webServiceCallCount === 0) {
-                            chunks.sort(function(a, b) {
+                            chunks.sort(function (a, b) {
                                 return a.chunkKey.localeCompare(b.chunkKey)
                             });
                             args.done({
@@ -198,7 +193,7 @@ FeatureTemplateAdapter.prototype = {
                             });
                         }
                     };
-                    request.onerror = function() {
+                    request.onerror = function () {
                         console.log('Server error');
                         args.done();
                     };
@@ -211,7 +206,6 @@ FeatureTemplateAdapter.prototype = {
                     request.open('GET', url, true);
                     console.log(url);
                     request.send();
-
 
                 }
             } else
@@ -227,7 +221,7 @@ FeatureTemplateAdapter.prototype = {
         });
     },
 
-    _success: function(response, categories, dataType, queryRegion, originalRegion, chunkSize) {
+    _success: function (response, categories, dataType, queryRegion, originalRegion, chunkSize) {
         //var timeId = Utils.randomString(4) + this.resource + " save";
         //console.time(timeId);
         /** time log **/
@@ -263,7 +257,13 @@ FeatureTemplateAdapter.prototype = {
      * [ r1,r2,r3,r4,r5,r6,r7,r8 ]
      * [ [r1,r2,r3,r4], [r5,r6,r7,r8] ]
      */
-    _groupQueries: function(uncachedRegions) {
+    _groupQueries: function (uncachedRegions) {
+        // modify region end to chromosome length.
+        for (var i = 0; i < uncachedRegions.length; i++) {
+            var r = uncachedRegions[i];
+            this._computeRegionSize(r);
+        }
+
         var groupSize = 50;
         var queriesLists = [];
         while (uncachedRegions.length > 0) {
@@ -271,7 +271,13 @@ FeatureTemplateAdapter.prototype = {
         }
         return queriesLists;
     },
-    _singleQueries: function(uncachedRegions) {
+    _singleQueries: function (uncachedRegions) {
+        // modify region end to chromosome length.
+        for (var i = 0; i < uncachedRegions.length; i++) {
+            var r = uncachedRegions[i];
+            this._computeRegionSize(r);
+        }
+
         var queriesLists = [];
         for (var i = 0; i < uncachedRegions.length; i++) {
             var region = uncachedRegions[i];
@@ -280,7 +286,7 @@ FeatureTemplateAdapter.prototype = {
         return queriesLists;
     },
 
-    _getSpeciesQueryString: function(species) {
+    _getSpeciesQueryString: function (species) {
         if (species == null) {
             return '';
         }
@@ -291,7 +297,7 @@ FeatureTemplateAdapter.prototype = {
         }
     },
 
-    _getRegionsFromQueryRegions: function(queryRegion) {
+    _getRegionsFromQueryRegions: function (queryRegion) {
         var regions = [];
         var regionSplit = queryRegion.split(',');
         for (var i = 0; i < regionSplit.length; i++) {
@@ -301,7 +307,7 @@ FeatureTemplateAdapter.prototype = {
         return regions;
     },
 
-    _getRegionsFromHistogramChunks: function(intervals, chromosome) {
+    _getRegionsFromHistogramChunks: function (intervals, chromosome) {
         var regions = [];
         for (var i = 0; i < intervals.length; i++) {
             var interval = intervals[i];
@@ -311,4 +317,27 @@ FeatureTemplateAdapter.prototype = {
         }
         return regions;
     },
+
+    _computeLimitedRegion: function (chromosome) {
+        var regionLimit = 300000000;
+
+        if (this.species != null && this.species.chromosomes[chromosome] != null) {
+            regionLimit = this.species.chromosomes[chromosome].end;
+        }
+
+        if (this.chromosomeSizes != null &&
+            this.chromosomeSizes[chromosome] != null &&
+            !isNaN(this.chromosomeSizes[chromosome])
+        ) {
+            regionLimit = this.chromosomeSizes[chromosome];
+        }
+
+        return regionLimit;
+    },
+    _computeRegionSize: function (region) {
+        var limitedRegion = this._computeLimitedRegion(region.chromosome);
+        if (region.end > limitedRegion) {
+            region.end = limitedRegion;
+        }
+    }
 };

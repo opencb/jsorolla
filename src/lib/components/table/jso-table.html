@@ -146,7 +146,7 @@
             /*box-sizing: border-box;*/
             overflow-x: auto;
             /*overflow-y: scroll;*/
-            height: calc(100% - 31px);
+            height: calc(100% - 28px);
             background-color: #fafafa;
         }
 
@@ -393,7 +393,7 @@
             </div>
         </div>
 
-        <div id="wrap" style="overflow-x: scroll;width:100%;">
+        <div id="wrap" style="overflow-x: scroll;overflow-y:hidden; width:100%;">
             <div id="header" class="table-header" on-contextmenu="handleColumnsMenu">
                 <div id="headerRow"></div>
                 <div class="scrollfix"></div>
@@ -406,7 +406,7 @@
         </div>
 
 
-        <div class="horizontal layout center table-bbar">
+        <div class="horizontal layout center table-bbar" style="height:30px;">
             <div id="pager" hidden$="{{!enablePaging}}" class="table-pager horizontal layout center flex">
                 <div class="jso-btn jso-btn-shdw" on-click="handleFirstClick"><i class="fa fa-angle-double-left"></i>
                 </div>
@@ -606,12 +606,14 @@
         },
         /* LISTENERS */
         handleScroll: function(e) {
-            e.preventDefault();
-            if (e.deltaY > 0) {
-                this.handleNextClick();
-            }
-            if (e.deltaY < 0) {
-                this.handlePreviousClick();
+            if (this.enablePaging == true) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.handleNextClick();
+                }
+                if (e.deltaY < 0) {
+                    this.handlePreviousClick();
+                }
             }
         },
         handleColumnsMenu: function(e) {
@@ -1516,7 +1518,6 @@
             if (fileName != null && fileName != "") {
                 saveAs(blob, fileName);
             }
-
         }
     })
 </script>

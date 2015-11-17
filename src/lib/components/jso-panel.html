@@ -273,7 +273,9 @@
                 this._hasfooter = this.$.footer.childElementCount > 0;
 
                 var child = this.$.container.querySelector('.container');
-                child._parentJsoPanel = this;
+                if(child != null){
+                    child._parentJsoPanel = this;
+                }
             },
             hiddenChanged: function(neo, old) {
                 // check if is not hidden
