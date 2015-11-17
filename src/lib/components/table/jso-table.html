@@ -383,6 +383,7 @@
             background-color: inherit !important;
             color: inherit !important;
         }
+
     </style>
     <template>
         <div id="loading" hidden$="{{!loading}}">
@@ -434,7 +435,10 @@
                 <span>Total: </span>
                 <span>{{itemCount}}</span>
             </div>
-            <div class="jso-btn jso-btn-shdw" on-click="handleColumnsMenuButton" hidden$="{{hideColumnSelector}}">
+            <div class="jso-btn" on-click="handleExportCSVMenuButton">
+                <i class="fa fa-download"></i>
+            </div>
+            <div class="jso-btn" on-click="handleColumnsMenuButton" hidden$="{{hideColumnSelector}}">
                 <i class="fa fa-bars"></i>
             </div>
         </div>
@@ -452,7 +456,6 @@
                 </li>
             </template>
         </ul>
-
     </template>
 </dom-module>
 <script>
@@ -852,7 +855,6 @@
             this._createHeaderRow();
             this._createFilterRow();
 
-
             this.$.header.style.width = totalColWidth + 'px';
             this.$.filter.style.width = totalColWidth + 'px';
             this.$.list.style.width = totalColWidth + 'px';
@@ -1066,7 +1068,6 @@
 
             function stopDrag(e) {
 
-
                 document.documentElement.removeEventListener('mousemove', doDrag, false);
                 document.documentElement.removeEventListener('mouseup', stopDrag, false);
 
@@ -1080,7 +1081,6 @@
                     parentColumn.width += dif;
                     parentColumn = parentColumn._parentColumn;
                 }
-
 
                 function resizeChildren(columns, d) {
 
@@ -1096,7 +1096,6 @@
                 }
 
                 resizeChildren(elem._column.columns, dif);
-
 
                 me.updateColumns();
                 me.viewDataChanged();
@@ -1452,9 +1451,7 @@
         },
         handleLoading: function(neo, old) {},
 
-
         selectElem: function(elem, compareFunction) {
-
 
             var selected = null;
 
@@ -1471,6 +1468,54 @@
                 this._clearSelection();
             }
 
+        },
+        handleExportCSVMenuButton: function(e) {
+            e.stopPropagation();
+            var CSV = "#";
+            var separator = ";";
+            for (var i = 0; i < this.columns.length; i++) {
+              if(this.columns[i].type === "action"){
+                continue;
+              }
+              CSV += this.columns[i].title + separator;
+            }
+            CSV += "\n";
+            for (var i = 0; i < this.data.length; i++) {
+                var data = this.data[i];
+                for (var j = 0; j < this.columns.length; j++) {
+                    var column = this.columns[j];
+
+                    if(column.type === "action"){
+                      continue;
+                    }
+
+                    var key = column.name;
+                    var value = (column.defaultValue) ? column.defaultValue : "";
+
+                    if (column.formula) {
+                        value = column.formula(data);
+                    } else {
+                        // if (isSubCol == true) {
+                        //     value = this._deepValue(rowData, column.ak);
+                        // } else {
+                        value = data[key];
+                        // }
+                    }
+
+                    CSV += value + separator;
+                }
+                CSV += "\n";
+            }
+
+            var blob = new Blob([CSV], {
+                type: "text/plain;charset=utf-8"
+            });
+
+            var initialFileName = 'data.csv';
+            var fileName = window.prompt("Please enter file name", initialFileName);
+            if (fileName != null && fileName != "") {
+                saveAs(blob, fileName);
+            }
 
         }
     })
