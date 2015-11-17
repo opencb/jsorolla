@@ -17,15 +17,27 @@
             overflow-x: auto;
             overflow-y: auto;
         }
-
+.default{
+  background-color: #d3d3d3;
+  padding: 5px;
+}
         .closeInfo{
             cursor: pointer;
             margin-left: 190px;
         }
+        .info{
+          color: #6b4dff;
+        }
+        .warn{
+          color: #ffbf00;
+        }
+        .error{
+          color: red;
+        }
     </style>
     <template>
 
-        <i class="fa fa-info" on-click="showInfo"></i></div>
+        <i class$="{{computeIcon(type)}}" on-click="showInfo"></i></div>
         <div id="messageInfo" class$="{{computeClass(type)}}" hidden>
                 <div class="closeInfo" on-click="handleClose"><i class="fa fa-times"></i>
 
@@ -42,7 +54,8 @@
 
                 type: {
                     type: String,
-                    reflectToAttribute: true
+                    reflectToAttribute: true,
+                    value:""
                 }
             },
             showInfo: function(e) {
@@ -75,7 +88,20 @@
                 } else if (type == "warn") {
                     return "jso-note jso-note-warn";
                 } else if (type == "error") {
-                    return "jso-note jso-note-warn";
+                    return "jso-note jso-note-error";
+                } else {
+                  return "default";
+                }
+            },
+            computeIcon: function(type) {
+                if (type == "info") {
+                  return "fa fa-info"+" "+"info";
+                } else if (type == "warn") {
+                    return "fa fa-exclamation-triangle"+" "+"warn";
+                } else if (type == "error") {
+                    return "fa fa-exclamation-circle"+" "+"error";
+                } else {
+                  return "fa fa-comment-o";
                 }
             },
             handleClose: function() {

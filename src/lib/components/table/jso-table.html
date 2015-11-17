@@ -435,7 +435,7 @@
                 <span>Total: </span>
                 <span>{{itemCount}}</span>
             </div>
-            <div class="jso-btn" on-click="handleExportCSVMenuButton">
+            <div class="jso-btn" on-click="handleExportCSVMenuButton" hidden$="{{!exportable}}">
                 <i class="fa fa-download"></i>
             </div>
             <div class="jso-btn" on-click="handleColumnsMenuButton" hidden$="{{hideColumnSelector}}">
@@ -584,6 +584,12 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
+            },
+            exportable:{
+              type: Boolean,
+              reflectToAttribute: true,
+              value: false
+
             }
         },
         observers: [
