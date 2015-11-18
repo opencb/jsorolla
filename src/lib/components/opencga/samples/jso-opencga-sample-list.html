@@ -24,14 +24,27 @@
             height: 30px;
         }
 
-        #content {
+        #content.list {
             height: calc(100% - 55px);
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-        .name {
+        #content.list.info {
+            height: calc(100% - 115px);
         }
+
+        #content.icon {
+            height: calc(100% - 30px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        #content.icon.info {
+            height: calc(100% - 90px);
+        }
+
+        .name {}
 
         .source {
             color: #444;
@@ -48,6 +61,15 @@
             border-bottom: 1px solid rgba(125, 125, 125, 0.3);
         }
 
+        jso-opencga-sample-list-item[view-mode='list']:last-of-type {
+            border-bottom-width: 0px;
+        }
+
+        jso-opencga-sample-list-item[view-mode='icon'] {
+            margin: 1px;
+            height: 70px;
+        }
+
         #createfolder {
             box-sizing: border-box;
             width: 300px;
@@ -62,10 +84,33 @@
         .bar > div {
             margin-right: 5px;
         }
+
+        #fileInfo {
+            box-sizing: border-box;
+            height: 60px;
+            background-color: var(--light-secondary-color);
+            border-top: 1px solid var(--divider-color);
+            padding: 5px;
+        }
+
+        .data {
+            color: var(--secondary-text-color);
+        }
+
+        .value {
+            margin-right: 10px;
+        }
+
+        .lowercase {
+            text-transform: lowercase;
+        }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
             <div class="bar horizontal layout flex end-justified">
+                <div class="jso-btn jso-btn-shdw" on-click="handleViewInfo" style="margin-right: 5px;" hidden$="{{checkSelected(selected)}}">
+                    <i class="fa fa-info"></i>
+                </div>
                 <div class="jso-btn jso-btn-shdw" on-click="handleViewMode">
                     <i class$="{{computeViewModeIconClass(viewMode)}}"></i>
                 </div>
@@ -78,11 +123,27 @@
                 <div class="source">Source</div>
             </div>
         </template>
-        <div id="content" class$="{{computeClassViewMode(viewMode)}}">
-            <template is="dom-repeat" items="{{samples}}" class="wrap">
-                <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}">
-                </jso-opencga-sample-list-item>
-            </template>
+        <div id="content" class$="{{computeContentClass(viewMode,showInfo)}}">
+            <div class$="{{computeClassViewMode(viewMode)}}">
+                <template is="dom-repeat" items="{{samples}}" class="wrap">
+                    <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}">
+                    </jso-opencga-sample-list-item>
+                </template>
+            </div>
+        </div>
+        <div id="fileInfo" class="vertical layout" hidden="{{!showInfo}}">
+            <div class="horizontal layout">
+                <i class="fa fa-file-o"></i>&nbsp;
+                <span>{{sampleName}}</span>
+            </div>
+            <div class="horizontal layout">
+                <span class="data">Source: &nbsp;</span>
+                <span class="value lowercase">{{sampleSource}}</span>
+            </div>
+            <div class="horizontal layout">
+                <span class="data">Description: &nbsp;</span>
+                <span>{{sampleDescription}}</span>
+            </div>
         </div>
     </template>
 </dom-module>
@@ -98,15 +159,15 @@
             samples: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
             selected: {
                 type: Object,
                 notify: true,
-                value: function () {
-                    return {};
+                value: function() {
+                    return null;
                 }
             },
             study: {
@@ -115,9 +176,13 @@
             viewMode: {
                 type: String,
                 value: 'list'
-            }
+            },
+            showInfo: {
+                type: Boolean,
+                value: false
+            },
         },
-        handleSampleClick: function (e) {
+        handleSampleClick: function(e) {
 
             var selected = e.currentTarget;
             var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
@@ -129,25 +194,41 @@
 
             this.set("selected", selected.sample);
             this.fire('sampleselected', this.selected);
+
+            this.sampleName = this.selected.name;
+            this.sampleSource = this.selected.source;
+            this.sampleDescription = this.selected.description;
         },
-        checkSelected: function (selected) {
+        checkSelected: function(selected) {
             return selected == null;
         },
-        computeHeader: function (viewMode) {
+        computeHeader: function(viewMode) {
             return viewMode == "list";
         },
-        computeViewModeIconClass: function (viewMode) {
+        computeViewModeIconClass: function(viewMode) {
             var iconClass = (this.viewMode == "list") ? "fa fa-th" : "fa fa-list";
             console.log(iconClass);
             return iconClass;
         },
-        handleViewMode: function (e) {
+        handleViewMode: function(e) {
             this.viewMode = (this.viewMode == "list") ? "icon" : "list";
         },
-        computeClassViewMode: function (viewMode) {
+        computeClassViewMode: function(viewMode) {
             if (viewMode == "icon") {
                 return "horizontal layout wrap";
             }
-        }
+        },
+        computeContentClass: function(viewMode, showInfo) {
+            if (showInfo) {
+                return viewMode + " info";
+            } else {
+                return viewMode;
+            }
+        },
+        handleViewInfo: function(e) {
+            if (this.selected != null) {
+                this.showInfo = !this.showInfo;
+            }
+        },
     });
 </script>
