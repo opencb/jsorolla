@@ -135,7 +135,13 @@
             }
         },
         handleSelect: function(e) {
+            e.stopPropagation();
             this.selected = e.currentTarget.job;
+
+            if(this.selected.status === "ERROR"){
+              e.currentTarget.handleJobInformation(e);
+            }
+
             var sel = this.querySelector("jso-opencga-job-list-item[selected]");
             if (sel) {
                 sel.removeAttribute('selected');
@@ -231,7 +237,7 @@
         },
         studyChanged: function(neo, old){
           if(neo){
-            this.view = "all";  
+            this.view = "all";
           }
         }
     });
