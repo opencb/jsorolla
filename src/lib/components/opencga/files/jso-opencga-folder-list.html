@@ -277,12 +277,6 @@
                 this.isFile = false;
             }
             this.fileBioformat = this.selected.bioformat;
-            // if (this.selected.index && (this.selected.bioformat == "VARIANT" || this.selected.bioformat == "ALIGNMENT")) {
-            // this.fileStatus = this.selected.index.status;
-            // this.fileIndex =
-            // } else {
-            // this.fileStatus = "--";
-            // }
 
             var date = new Date(Date.parse(Utils.parseDate(this.selected.creationDate)));
             this.fileDate = date.toLocaleString("en-us", {
