@@ -70,13 +70,6 @@
             height: 70px;
         }
 
-        #createfolder {
-            box-sizing: border-box;
-            width: 300px;
-            background-color: #fafafa;
-            padding: 20px 30px;
-        }
-
         .upload-btn {
             color: var(--default-primary-color);
         }
@@ -175,12 +168,12 @@
                 type: Object,
                 notify: true,
                 value: function() {
-                    return null;
+                    return {};
                 }
             },
             study: {
                 type: Object,
-                observer:"studyChanged"
+                observer: "studyChanged"
             },
             viewMode: {
                 type: String,
@@ -244,10 +237,17 @@
                 this.showInfo = !this.showInfo;
             }
         },
+<<<<<<< HEAD
         studyChanged: function(e){
           this.sampleName = "";
           this.sampleSource = "";
           this.sampleDescription = "";
+          this.set("selected", undefined);
+
+          var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+          for (var i = 0; i < sel.length; i++) {
+              sel[i].removeAttribute("selected");
+          }
         },
         samplesChanged: function(neo,old){
           console.log(this.search);
@@ -271,5 +271,19 @@
             }
             return filteredSamples;
         },
+=======
+        studyChanged: function(e) {
+            this.sampleName = "";
+            this.sampleSource = "";
+            this.sampleDescription = "";
+
+            this.set("selected", undefined);
+
+            var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+            for (var i = 0; i < sel.length; i++) {
+                sel[i].removeAttribute("selected");
+            }
+        }
+>>>>>>> 0035569fca790a0d7e29646ef3f3ed5c489d176e
     });
 </script>
