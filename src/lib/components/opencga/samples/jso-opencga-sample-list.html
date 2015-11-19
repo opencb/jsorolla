@@ -237,7 +237,7 @@
                 this.showInfo = !this.showInfo;
             }
         },
-<<<<<<< HEAD
+
         studyChanged: function(e){
           this.sampleName = "";
           this.sampleSource = "";
@@ -271,19 +271,6 @@
             }
             return filteredSamples;
         },
-=======
-        studyChanged: function(e) {
-            this.sampleName = "";
-            this.sampleSource = "";
-            this.sampleDescription = "";
 
-            this.set("selected", undefined);
-
-            var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
-            for (var i = 0; i < sel.length; i++) {
-                sel[i].removeAttribute("selected");
-            }
-        }
->>>>>>> 0035569fca790a0d7e29646ef3f3ed5c489d176e
     });
 </script>
