@@ -38,7 +38,7 @@
             },
             file: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return null;
                 },
                 observer: 'fileChanged'
@@ -46,11 +46,6 @@
             contentData: {
                 type: String,
                 value: ""
-            },
-            view: {
-                type: Boolean,
-                value: false,
-                observer: 'viewChanged'
             },
             _start: {
                 type: Number,
@@ -71,20 +66,16 @@
         },
         listeners: {
             'scroll': 'handleScroll'
-        }
-        ,
-        ready: function () {
-        }
-        ,
-        viewChanged: function (neo, old) {
-            if (neo && this.file != null) {
-                this._start = 0;
-                this._limit = 100;
-                this.loadPage();
+        },
+        ready: function() {
+            var me = this;
+            if (this._parentJsoPanel) {
+                this._parentJsoPanel.addEventListener('close', function(e) {
+                    me._clear();
+                });
             }
-        }
-        ,
-        loadPage: function () {
+        },
+        loadPage: function() {
 
             var data;
             OpencgaManager.files.content({
@@ -96,10 +87,10 @@
                 },
                 request: {
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         data = response;
                     },
-                    error: function () {
+                    error: function() {
 
                     }
                 }
@@ -107,12 +98,12 @@
 
             if (data) {
                 this.contentData =
-                        this.contentData = this.contentData + data;
+                    this.contentData = this.contentData + data;
             } else {
                 this._end = true;
             }
         },
-        handleScroll: function (e) {
+        handleScroll: function(e) {
             var el = e.currentTarget;
             if (el.offsetHeight + el.scrollTop >= el.scrollHeight) {
                 if (!this._end) {
@@ -122,9 +113,18 @@
                 }
             }
         },
-        fileChanged: function (neo, old) {
+        fileChanged: function(neo, old) {
+            if (neo != null) {
+                this._clear();
+                this.loadPage();
+            }
+        },
+        _clear: function() {
             this.contentData = "";
+            this._start = 0;
+            this._limit = 100;
+            this._end = false;
+            this.scrollTop = 0;
         }
-    })
-    ;
+    });
 </script>

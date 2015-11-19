@@ -221,12 +221,12 @@
             </div>
         </jso-panel>
 
-        <jso-panel modal closable hidden id="filePreviewPanel" on-close="handleFilePreviewClose">
+        <jso-panel modal closable hidden id="filePreviewPanel">
             <div class="header">
                 <i class="fa fa-eye"></i> File Preview
             </div>
             <jso-opencga-file-preview class="container" id="filePreview"
-                                      file="{{selectedFile}}"></jso-opencga-file-preview>
+                                      ></jso-opencga-file-preview>
             <!--<div class="container">-->
             <!--<code class="wrapped-text">{{contentData}}</code>-->
             <!--</div>-->
@@ -619,9 +619,8 @@
             }
         },
         handlePreviewFile: function (e) {
-            this.$.filePreviewPanel.hidden = false;
-            this.$.filePreview.view = true;
-
+            this.$.filePreviewPanel.show();
+            this.$.filePreview.file = this.selectedFile;
         },
         _checkCustomButtons: function () {
             var els = this.$.botbar.querySelectorAll('.custom-button');
@@ -643,9 +642,6 @@
                 }
             }
 
-        },
-        handleFilePreviewClose: function (e) {
-            this.$.filePreview.view = false;
         }
     });
 </script>
