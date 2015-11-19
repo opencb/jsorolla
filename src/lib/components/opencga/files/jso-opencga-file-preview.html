@@ -68,9 +68,12 @@
             'scroll': 'handleScroll'
         },
         ready: function() {
-          if(this._parentJsoPanel){
-            
-          }
+            var me = this;
+            if (this._parentJsoPanel) {
+                this._parentJsoPanel.addEventListener('close', function(e) {
+                    me._clear();
+                });
+            }
         },
         loadPage: function() {
 
@@ -112,11 +115,16 @@
         },
         fileChanged: function(neo, old) {
             if (neo != null) {
-                this.contentData = "";
-                this._start = 0;
-                this._limit = 100;
+                this._clear();
                 this.loadPage();
             }
+        },
+        _clear: function() {
+            this.contentData = "";
+            this._start = 0;
+            this._limit = 100;
+            this._end = false;
+            this.scrollTop = 0;
         }
     });
 </script>

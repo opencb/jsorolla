@@ -221,7 +221,7 @@
             </div>
         </jso-panel>
 
-        <jso-panel modal closable hidden id="filePreviewPanel" on-close="handleFilePreviewClose">
+        <jso-panel modal closable hidden id="filePreviewPanel">
             <div class="header">
                 <i class="fa fa-eye"></i> File Preview
             </div>
@@ -619,9 +619,8 @@
             }
         },
         handlePreviewFile: function (e) {
-            this.$.filePreviewPanel.hidden = false;
+            this.$.filePreviewPanel.show();
             this.$.filePreview.file = this.selectedFile;
-
         },
         _checkCustomButtons: function () {
             var els = this.$.botbar.querySelectorAll('.custom-button');
@@ -643,8 +642,6 @@
                 }
             }
 
-        },
-        handleFilePreviewClose: function (e) {
         }
     });
 </script>
