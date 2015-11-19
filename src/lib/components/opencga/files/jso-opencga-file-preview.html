@@ -1,0 +1,130 @@
+<dom-module id="jso-opencga-file-preview">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .container {
+            width: 800px;
+            height: 600px;
+            padding: 10px;
+        }
+
+        .wrapped-text {
+            white-space: pre-wrap;
+        }
+    </style>
+    <template>
+
+        <div class="container">
+            <code class="wrapped-text">{{contentData}}</code>
+        </div>
+
+
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-file-preview",
+        properties: {
+            selectedStudy: {
+                type: Object,
+                observer: 'selectedStudyChanged'
+            },
+            file: {
+                type: Object,
+                value: function () {
+                    return null;
+                },
+                observer: 'fileChanged'
+            },
+            contentData: {
+                type: String,
+                value: ""
+            },
+            view: {
+                type: Boolean,
+                value: false,
+                observer: 'viewChanged'
+            },
+            _start: {
+                type: Number,
+                value: 0
+            },
+            _limit: {
+                type: Number,
+                value: 100
+            },
+            _pageSize: {
+                type: Number,
+                value: 100
+            },
+            _end: {
+                type: Boolean,
+                value: false
+            }
+        },
+        listeners: {
+            'scroll': 'handleScroll'
+        }
+        ,
+        ready: function () {
+        }
+        ,
+        viewChanged: function (neo, old) {
+            if (neo && this.file != null) {
+                this._start = 0;
+                this._limit = 100;
+                this.loadPage();
+            }
+        }
+        ,
+        loadPage: function () {
+
+            var data;
+            OpencgaManager.files.content({
+                id: this.file.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    limit: this._limit,
+                    start: this._start
+                },
+                request: {
+                    async: false,
+                    success: function (response) {
+                        data = response;
+                    },
+                    error: function () {
+
+                    }
+                }
+            });
+
+            if (data) {
+                this.contentData =
+                        this.contentData = this.contentData + data;
+            } else {
+                this._end = true;
+            }
+        },
+        handleScroll: function (e) {
+            var el = e.currentTarget;
+            if (el.offsetHeight + el.scrollTop >= el.scrollHeight) {
+                if (!this._end) {
+                    this._start = this._limit;
+                    this._limit = this._start + this._pageSize;
+                    this.loadPage();
+                }
+            }
+        },
+        fileChanged: function (neo, old) {
+            this.contentData = "";
+        }
+    })
+    ;
+</script>
