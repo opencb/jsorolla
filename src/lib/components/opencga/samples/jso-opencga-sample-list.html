@@ -171,7 +171,8 @@
                 }
             },
             study: {
-                type: Object
+                type: Object,
+                observer:"studyChanged"
             },
             viewMode: {
                 type: String,
@@ -230,5 +231,10 @@
                 this.showInfo = !this.showInfo;
             }
         },
+        studyChanged: function(e){
+          this.sampleName = "";
+          this.sampleSource = "";
+          this.sampleDescription = "";
+        }
     });
 </script>

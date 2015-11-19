@@ -103,7 +103,7 @@
             margin-right: 10px;
         }
 
-        .lowercase{
+        .lowercase {
             text-transform: lowercase;
         }
     </style>
@@ -213,7 +213,8 @@
                 }
             },
             study: {
-                type: Object
+                type: Object,
+                observer: 'studyChanged'
             },
             mode: {
                 type: String,
@@ -352,7 +353,6 @@
             return mode === 'folder';
         },
 
-
         /**/
         _deleteFile: function() {
             var me = this;
@@ -437,10 +437,21 @@
             }
         },
         computeIndex: function(selected) {
-            if (selected != null && selected.index != null && (selected.bioformat == "VARIANT" || selected.bioformat == "ALIGNMENT")) {
-                return selected.index.status;
+            if (this.fileName != "") {
+                if (selected != null && selected.index != null && (selected.bioformat == "VARIANT" || selected.bioformat == "ALIGNMENT")) {
+                    return selected.index.status;
+                } else {
+                    return "--";
+                }
             }
-            return "--";
+            return "";
+
+        },
+        studyChanged: function() {
+            this.fileName = "";
+            this.fileType = "";
+            this.fileBioformat = "";
+            this.fileDate = "";
         }
 
     });
