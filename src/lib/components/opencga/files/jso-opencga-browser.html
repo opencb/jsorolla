@@ -226,7 +226,7 @@
                 <i class="fa fa-eye"></i> File Preview
             </div>
             <jso-opencga-file-preview class="container" id="filePreview"
-                                      file="{{selectedFile}}"></jso-opencga-file-preview>
+                                      ></jso-opencga-file-preview>
             <!--<div class="container">-->
             <!--<code class="wrapped-text">{{contentData}}</code>-->
             <!--</div>-->
@@ -620,7 +620,7 @@
         },
         handlePreviewFile: function (e) {
             this.$.filePreviewPanel.hidden = false;
-            this.$.filePreview.view = true;
+            this.$.filePreview.file = this.selectedFile;
 
         },
         _checkCustomButtons: function () {
@@ -645,7 +645,6 @@
 
         },
         handleFilePreviewClose: function (e) {
-            this.$.filePreview.view = false;
         }
     });
 </script>
