@@ -72,7 +72,7 @@
         </div>
         <div id="content">
             <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
-                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}">
+                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}"  disable-relaunch="{{disableRelaunch}}">
                 </jso-opencga-job-list-item>
             </template>
         </div>
@@ -132,6 +132,11 @@
                 type: String,
                 value: "",
                 observer: 'searchNameChanged'
+            },
+            disableRelaunch: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
             }
         },
         handleSelect: function(e) {

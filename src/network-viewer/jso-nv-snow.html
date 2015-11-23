@@ -337,11 +337,11 @@
                     json: 1
                 };
 
-                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                if (this.$.inputFile.selectedFile == null && this.$.inputFile.textAreaValue == "") {
                     alert("Sorry. No input selected. Please select a file or write something in the text area");
                     return;
                 }
-                if (this.$.inputFile.selectedFile !== undefined) {
+                if (this.$.inputFile.selectedFile != null) {
                     query["list1"] = this.$.inputFile.selectedFile.id;
                 }
                 if (this.$.inputFile.textAreaValue != "") {
@@ -349,11 +349,11 @@
                 }
 
                 if (this.$.inputModeTwoList.checked) {
-                    if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
+                    if (this.$.inputFile2.selectedFile == null && this.$.inputFile2.textAreaValue == "") {
                         alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
                         return;
                     }
-                    if (this.$.inputFile2.selectedFile !== undefined) {
+                    if (this.$.inputFile2.selectedFile != null) {
                         query["list2"] = this.$.inputFile2.selectedFile.id;
                     }
                     if (this.$.inputFile2.textAreaValue != "") {

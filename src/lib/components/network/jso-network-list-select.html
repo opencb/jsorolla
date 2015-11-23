@@ -51,7 +51,7 @@
                 </div>
                 <div style="margin-left: 3px;">
                     <label class="jso" style="margin-top: 5px;">List:</label>
-                    <textarea  id="textarea" class="jso" style="height:150px;width:200px;"></textarea>
+                    <textarea id="textarea" class="jso" style="height:150px;width:200px;"></textarea>
                 </div>
             </div>
 
@@ -60,9 +60,10 @@
     <script>
         Polymer({
             is: "jso-network-list-select",
-            properties:{
+            properties: {
                 textAreaValue: {
                     type: String,
+                    notify: true,
                     value: ''
                 },
                 columnSelected: {
@@ -78,23 +79,23 @@
                     type: Array
                 },
             },
-            ready: function () {
+            ready: function() {
                 this.columnSelected = "id";
                 this.selectNodes = "nodes";
             },
-            handleRadio: function (e) {
+            handleRadio: function(e) {
                 this.selectNodes = e.target.getAttribute("value");
             },
-            handleBoxSelect: function (e) {
+            handleBoxSelect: function(e) {
                 this.columnSelected = e.detail;
             },
-//            handleNodesChange: function () {
-//                this.handleApply();
-//            },
-//            handleSelectionChange: function () {
-//                this.handleApply();
-//            },
-            handleNodesList: function () {
+            //            handleNodesChange: function () {
+            //                this.handleApply();
+            //            },
+            //            handleSelectionChange: function () {
+            //                this.handleApply();
+            //            },
+            handleNodesList: function() {
                 this.selectedMode = 'nodes';
                 var value = '';
                 for (var i = 0; i < this.items.length; i++) {
@@ -105,18 +106,18 @@
 
                 this.textAreaValue = this.$.textarea.value;
             },
-            handleSelectionList: function () {
+            handleSelectionList: function() {
                 this.selectedMode = 'selection';
                 var value = '';
                 for (var i = 0; i < this.selected.length; i++) {
                     var attributes = this.selected[i].attributes;
                     value += attributes[this.$.columns.selected.name] + '\n';
                 }
-                this.$.textarea.value =  value.trim();
+                this.$.textarea.value = value.trim();
 
                 this.textAreaValue = this.$.textarea.value;
             },
-            handleApply: function (e) {
+            handleApply: function(e) {
                 if (this.columnSelected !== "") {
                     if (this.selectNodes == "nodes") {
                         this.handleNodesList();

@@ -82,13 +82,14 @@
             z-index: 0;
             overflow-x: hidden;
             overflow-y: hidden;
+            border: 1px solid #d3d3d3;
         }
 
         #gv {
             position: relative;
             box-sizing: border-box;
-            border: 1px solid #d3d3d3;
             width: 100%;
+            border-bottom: 1px solid #d3d3d3;
         }
     </style>
     <template>
@@ -123,43 +124,65 @@
                     nofity: true
                 }
             },
-            _resizing: false,
+            // _resizing: false,
 
             hiddenChanged: function(neo, old) {
-                if (neo == false && this.genomeViewer == null) {
-                    this.createGenomeViewer();
-                    this.genomeViewer.draw();
-                    this.genomeViewer.toggleAutoHeight(true);
-                }
+                // if (neo == false && this.genomeViewer == null) {
+                //     this.createGenomeViewer();
+                //     this.genomeViewer.draw();
+                //     this.genomeViewer.toggleAutoHeight(true);
+                // }
             },
             created: function() {
                 var me = this;
-                var after_resize = (function() {
-                    var timer = 0;
-                    return function(callback, ms) {
-                        clearTimeout(timer);
-                        timer = setTimeout(callback, ms);
-                    };
-                })();
-                window.addEventListener("resize", function(e) {
-                    after_resize(function() {
-                        console.log(' new Size ----------> ' + me.getBoundingClientRect().width)
-                        me.genomeViewer.setWidth(me.getBoundingClientRect().width);
-                    }, 300);
-                });
+                // var after_resize = (function() {
+                //     var timer = 0;
+                //     return function(callback, ms) {
+                //         clearTimeout(timer);
+                //         timer = setTimeout(callback, ms);
+                //     };
+                // })();
+                // window.addEventListener("resize", function(e) {
+                //     after_resize(function() {
+                //         console.log(' new Size ----------> ' + me.getBoundingClientRect().width)
+                //         me.genomeViewer.setWidth(me.getBoundingClientRect().width);
+                //     }, 300);
+                // });
+
+                this.async(function() {
+                    var w = this.getBoundingClientRect().width;
+                    if (w !== 0) {
+                        this.set('width', w);
+                    }
+
+                    window.setInterval(function() {
+                        var w = me.getBoundingClientRect().width;
+                        if (
+                            me.genomeViewer != null &&
+                            me.genomeViewer.rendered === true &&
+                            me.genomeViewer._checkChangingRegion() &&
+                            w !== 0 &&
+                            w !== me.width
+                        ) {
+                            me.set('width', w);
+                            me.genomeViewer.setWidth(w);
+                        }
+                    }, 500);
+                }, 100);
             },
             createGenomeViewer: function(config) {
+
+                var w = this.getBoundingClientRect().width;
+                if (w == 0) {
+                    w = this.width;
+                }
+
                 if (config != null) {
                     config.target = this.$.gv;
+                    config.width = w;
                     this.genomeViewer = new GenomeViewer(config);
                     this.addOverviewTracks();
                 } else {
-
-                    var w = this.getBoundingClientRect().width;
-                    if (w == 0) {
-                        w = this.width;
-                    }
-
                     this.genomeViewer = new GenomeViewer({
                         cellBaseHost: CELLBASE_HOST,
                         cellBaseVersion: 'v3',
@@ -278,7 +301,6 @@
                     })
                 });
                 this.genomeViewer.addTrack(sequenceTrack);
-
 
                 var geneTrack = new GeneTrack({
                     title: 'Gene',
