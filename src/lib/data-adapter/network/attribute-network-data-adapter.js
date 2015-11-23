@@ -130,7 +130,7 @@ AttributeNetworkDataAdapter.prototype.parse = function (data) {
                     title: finalColumnNames[i].toString(),
                     type: "text",
                     formula: function(row) {
-                        return row.attributes[this.name];
+                        return row[this.name];
                     }
                 };
                 this.columns.push(column);

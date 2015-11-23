@@ -179,7 +179,7 @@
             <div class="bar" on-click="{{handleBarClick}}" id="bar">
                 <template is="dom-if" if="{{!isRunning(job)}}">
                     <i class="fa fa-trash-o delete-job" title="Delete Job" on-click="handleDeleteJob"></i>
-                    <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob"></i>
+                    <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob" hidden$="{{disableRelaunch}}"></i>
                     <i class="fa fa-info info-job" title="Job information" on-click="handleJobInformation"></i>
                     <!-- <i class="fa fa-download" title="Download" hidden="{{!showInfo}}"></i>
                     <i class="fa fa-envelope-o" title="Report Error" hidden$="{{showError}}"></i> -->
@@ -242,6 +242,11 @@
                 type: String,
                 value: "",
             },
+            disableRelaunch: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
+            }
         },
         created: function() {},
         computeDate: function(job) {

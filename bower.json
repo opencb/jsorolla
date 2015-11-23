@@ -19,7 +19,7 @@
     "backbone": "~1.1.2",
     "cookies-js": "~1.1.0",
     "crypto-js-evanvosberg": "3.1.4",
-    "d3": "~3.5.3",
+    "d3": "3.5.3",
     "fontawesome": "*",
     "highcharts-release": "~4.0.4",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#1.0.5",
