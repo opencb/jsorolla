@@ -191,18 +191,54 @@ VCFValidator.prototype.parseData = function (line) {
 
     var id = columns[2];
 
-
-
-
     // ref
 
     var ref = columns[3];
-    if(ref == ""){
-      this.addLog("error", "Reference allele must not be empty");
+    if (ref == "") {
+        this.addLog("error", "Reference allele must not be empty");
     }
 
-    if(!this._regExp["actg"].test(ref)){
-      this.addLog("error", "Reference allele must match the regular expression /^[ACTGN]+$/");
+    if (!this._regExp["actg"].test(ref)) {
+        this.addLog("error", "Reference allele must match the regular expression /^[ACTGN]+$/");
+    }
+
+    // alt
+    var alt = columns[4];
+
+    if (alt == "") {
+        this.addLog("error", "Alternate allele must not be empty");
+    }
+
+    var altSplits = alt.split(",");
+    var altSplitsUnique = altSplits.filter(function (item, pos) {
+        return altSplits.indexOf(item) == pos;
+    });
+
+    if (altSplits.length != altSplitsUnique.length) {
+        this.addLog("error", "Alternate must contain each allele only once")
+    }
+
+    if (altSplitsUnique.indexOf(ref) >= 0) {
+        this.addLog("error", "The reference allele must not be in the list of alternate alleles")
+    }
+
+    for (var i = 0; i < altSplits.length; i++) {
+        var altElem = altSplits[i];
+        if (altElem.length != ref.length) {
+            if (altElem.charAt(0) != ref.charAt(0)) {
+                this.addLog("error", "The first base of each allele must match the reference if their lengths are different");
+            }
+        }
+    }
+
+    // Qual
+    var qual = columns[5];
+    if (qual != ".") {
+        var qualFloat = parseFloat(qual);
+        if (isNaN(qualFloat) || qualFloat < 0) {
+            this.addLog("error", "Quality must be a non-negative float");
+        }
+
     }
 
 }
