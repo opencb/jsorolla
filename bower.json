@@ -30,6 +30,7 @@
     "polymer": "Polymer/polymer#1.2.2",
     "qtip2": "~2.2.1",
     "underscore": "~1.7.0",
-    "uri.js": "~1.16.0"
+    "uri.js": "~1.16.0",
+    "pdfmake": "~0.1.20"
   }
 }
