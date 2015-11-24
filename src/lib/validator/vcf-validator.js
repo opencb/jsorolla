@@ -205,8 +205,8 @@ VCFValidator.prototype.parseData = function (line) {
     // alt
     var alt = columns[4];
 
-    if (alt == "") {
-        this.addLog("error", "Alternate allele must not be empty");
+    if (alt == undefined) {
+        debugger
     }
 
     var altSplits = alt.split(",");
@@ -226,7 +226,7 @@ VCFValidator.prototype.parseData = function (line) {
         var altElem = altSplits[i];
         if (altElem.length != ref.length) {
             if (altElem.charAt(0) != ref.charAt(0)) {
-                this.addLog("error", "The first base of each allele must match the reference if their lengths are different");
+                this.addLog("warning", "The first base of each allele must match the reference if their lengths are different");
             }
         }
     }
