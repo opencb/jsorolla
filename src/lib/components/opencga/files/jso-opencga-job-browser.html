@@ -227,28 +227,28 @@
                 request: {
                     async: true,
                     success: function(response) {
-                        // console.log(response);
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var jobList = response.response[0].result;
+                        if (me.selectedStudy.study.id === studyId) {
+                            // console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var jobList = response.response[0].result;
+                                if (me.allowedTools != null && me.allowedTools.length > 0) {
+                                    jobList = jobList.filter(function(item) {
+                                        return me.allowedTools.indexOf(item.toolName) != -1;
+                                    })
+                                }
+                                jobList.sort(function(a, b) {
+                                    return b.date.localeCompare(a.date);
+                                });
 
-                            if (me.allowedTools != null && me.allowedTools.length > 0) {
-                                jobList = jobList.filter(function(item) {
-                                    return me.allowedTools.indexOf(item.toolName) != -1;
-                                })
-                            }
-                            jobList.sort(function(a, b) {
-                                return b.date.localeCompare(a.date);
-                            });
-
-                            if (Cookies('bioinfo_sid') != null) {
-                                me.set('jobs', jobList);
+                                if (Cookies('bioinfo_sid') != null) {
+                                    me.set('jobs', jobList);
+                                } else {
+                                    console.warn('Remove this IF CHECK when OPENCGA updates lastActivity for job status.');
+                                }
+                                //                            me.jobs = response.response[0].result;
                             } else {
-                                console.warn('Remove this IF CHECK when OPENCGA updates lastActivity for job status.');
+                                console.log(response.response[0].errorMsg);
                             }
-                            //                            me.jobs = response.response[0].result;
-
-                        } else {
-                            console.log(response.response[0].errorMsg);
                         }
                     },
                     error: function() {
