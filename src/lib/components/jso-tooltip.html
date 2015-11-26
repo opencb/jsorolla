@@ -59,6 +59,7 @@
                 }
             },
             showInfo: function(e) {
+                e.stopPropagation();
                 this._getPosition();
                 this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
             },
@@ -104,7 +105,8 @@
                   return "fa fa-comment-o";
                 }
             },
-            handleClose: function() {
+            handleClose: function(e) {
+              e.stopPropagation();
               this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
             },
 
