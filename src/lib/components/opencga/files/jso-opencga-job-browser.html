@@ -64,6 +64,12 @@
         jso-opencga-job-list {
             height: 100%;
         }
+
+        #loading {
+            position: absolute;
+            left: 180px;
+            top: 35px;
+        }
     </style>
     <template>
         <div id="main" class="flex">
@@ -82,6 +88,9 @@
             <!--<div id="maininfo">-->
 
             <!--</div>-->
+        </div>
+        <div id="loading" hidden$="{{!loading}}">
+            <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
         </div>
     </template>
 
@@ -127,8 +136,13 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
+            },
+            loading: {
+                type: Boolean,
+                value: false
             }
         },
+        _lastStudyIdCalled: null,
         ready: function() {
             /** Periodical refresh **/
             var me = this;
@@ -218,6 +232,9 @@
         },
         _getJobs: function(studyId) {
             var me = this;
+            if(this._lastStudyIdCalled !== studyId){
+                this.loading = true;
+            }
 
             OpencgaManager.studies.jobs({
                 id: studyId,
@@ -227,6 +244,7 @@
                 request: {
                     async: true,
                     success: function(response) {
+                        me._lastStudyIdCalled = studyId;
                         if (me.selectedStudy.study.id === studyId) {
                             // console.log(response);
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
@@ -239,6 +257,8 @@
                                 jobList.sort(function(a, b) {
                                     return b.date.localeCompare(a.date);
                                 });
+
+                                me.loading = false;
 
                                 if (Cookies('bioinfo_sid') != null) {
                                     me.set('jobs', jobList);
