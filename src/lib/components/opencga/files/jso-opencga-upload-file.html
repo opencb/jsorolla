@@ -49,14 +49,28 @@
             word-break: break-all;
         }
 
-        jso-validator {
-            width: 500px;
-            margin-left: 10px;
+        .left {
+            padding-right: 10px;
+        }
+
+        .right {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            width: 440px;
+            border: 1px solid rgba(130, 130, 130, 0.4);
+        }
+
+        .right > .title {
+            border-bottom: 1px solid rgba(130, 130, 130, 0.4);
+            padding: 3px;
+            text-align: center;
+            font-size: 14px;
         }
     </style>
     <template>
         <div class="horizontal layout">
-            <div class="vertical layout">
+            <div class="vertical layout left">
                 <div>
                     <div hidden$="{{!showSelectStudy}}">
                         <label class="jso">Studies:</label>
@@ -112,7 +126,10 @@
                 <span>{{message}}</span>
             </div>
 
-            <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
+            <div class="right vertical layout">
+                <div class="title">Validation Log</div>
+                <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
+            </div>
 
         </div>
 
@@ -221,8 +238,11 @@
         },
         handleInputChange: function() {
             if (this.uploading == false) {
+
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
+
+                this.status = "validation";
             }
         },
         handleForm: function() {

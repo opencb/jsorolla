@@ -40,7 +40,12 @@
         }
 
         .item {
+            /*display: block;*/
+            /*position: relative;*/
+            /*box-sizing: border-box;*/
             height: auto;
+            margin-left: 1px;
+            margin-right: 1px;
             margin-bottom: 10px;
             padding: 3px;
         }
@@ -59,6 +64,8 @@
             position: relative;
             height: 292px;
             overflow-y: auto;
+            /*background-color: #FAFAFA;*/
+            background-color: white;
         }
 
         .count {
@@ -74,9 +81,13 @@
             bottom: 0px;
             left: 0px;
             height: 2px;
-            width: 100%;
+            /*width: 100%;*/
             background-color: blue;
             /*margin-top: 10px;*/
+        }
+
+        .header > div {
+            padding-left: 2px;
         }
     </style>
     <template>
@@ -222,7 +233,7 @@
         },
         progressChanged: function(neo, old) {
             console.log("progress : " + neo);
-            this.$.progressBar.style.width = neo + '%';
+            // this.$.progressBar.style.width = neo + '%';
         },
 
     })
