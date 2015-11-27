@@ -13,6 +13,7 @@ function VCFValidator(options) {
     this._headerElements = [];
     this._samples = [];
     this._columnsSize = 0;
+    this._refTag = false;
 
     this._regExp = {
         "headerId": /ID=(\w+)/,
@@ -31,6 +32,10 @@ VCFValidator.prototype.validateLine = function (line) {
     if (this._header) { // parse Header
         this.parseHeader(line);
     } else {
+        if (!this._refTag) {
+            this._checkReferenceTag();
+            this._refTag = true;
+        }
         if (!this._fileFormat) {
             this.addLog("error", "The file format declaration must be present");
             this._fileFormat = true;
@@ -306,4 +311,16 @@ VCFValidator.prototype.parseData = function (line) {
             }
         }
     }
+}
+
+VCFValidator.prototype._checkReferenceTag = function () {
+
+    for (var i = 0; i < this._headerElements.length; i++) {
+        var headerElement = this._headerElements[i];
+        if (headerElement.id === "reference") {
+            return;
+        }
+    }
+    this.addLog("warning", "The tag 'reference' must be present");
+
 }
