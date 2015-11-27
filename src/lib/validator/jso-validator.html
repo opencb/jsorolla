@@ -1,0 +1,240 @@
+<script src="../../../bower_components/client-line-navigator/line-navigator.js"></script>
+<script src="../../../bower_components/client-line-navigator/file-navigator.js"></script>
+<script src="validator.js"></script>
+<script src="vcf-validator.js"></script>
+
+<dom-module name="jso-validator" noscript>
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            height: 100%;
+        }
+
+        .line {
+            width: 40px;
+        }
+
+        .type {
+            width: 60px;
+        }
+
+        .msg {
+            word-wrap: break-word;
+        }
+
+        .type[type="error"],
+        .error-count {
+            color: #bf4747;
+        }
+
+        .type[type="info"],
+        .info-count {
+            color: #6b4dff;
+        }
+
+        .type[type="warning"],
+        .warning-count {
+            color: #ffbf00;
+        }
+
+        .item {
+            /*display: block;*/
+            /*position: relative;*/
+            /*box-sizing: border-box;*/
+            height: auto;
+            margin-left: 1px;
+            margin-right: 1px;
+            margin-bottom: 10px;
+            padding: 3px;
+        }
+
+        .item[type="error"] {
+            background-color: rgba(191, 71, 71, 0.15);
+            border: 1px solid rgba(191, 71, 71, 0.3)
+        }
+
+        .item[type="warning"] {
+            background-color: rgba(255, 191, 0, 0.15);
+            border: 1px solid rgba(255, 191, 0, 0.3);
+        }
+
+        .log {
+            position: relative;
+            height: 292px;
+            overflow-y: auto;
+            /*background-color: #FAFAFA;*/
+            background-color: white;
+        }
+
+        .count {
+            width: 75px;
+        }
+
+        .count > span {
+            color: black;
+        }
+
+        .uploadprogress {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            height: 2px;
+            /*width: 100%;*/
+            background-color: blue;
+            /*margin-top: 10px;*/
+        }
+
+        .header > div {
+            padding-left: 2px;
+        }
+    </style>
+    <template>
+
+        <div class="vertical layout log">
+            <div class="header horizontal layout">
+                <div class="line"> Line </div>
+                <div class="type"> Type </div>
+                <div class="msg flex"> Message </div>
+
+            </div>
+            <template is="dom-repeat" items="{{log}}">
+                <div class="horizontal layout item" type$="{{item.type}}">
+                    <div class="line">{{item.line}}</div>
+                    <div class="type" type$="{{item.type}}">{{item.type}}</div>
+                    <div class="msg flex">{{item.msg}}</div>
+                </div>
+            </template>
+        </div>
+        <div id="progressBar" class="uploadprogress"></div>
+        <div class="counts horizontal layout">
+            <div class="error-count count">Errors:
+                <span>{{errorCount}}</span>
+            </div>
+            <div class="warning-count count">Warning:
+                <span>{{warningCount}}</span>
+            </div>
+            <div class="info-count count">Info:
+                <span>{{infoCount}}</span>
+            </div>
+
+        </div>
+
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-validator",
+        properties: {
+            file: {
+                type: Object,
+                value: function() {
+                    return {};
+                },
+                observer: 'fileChanged'
+            },
+            bioformats: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            },
+            validator: {
+                type: Object,
+                value: function() {
+                    return new Validator({});
+                },
+                observer: 'validatorChanged'
+            },
+            log: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            },
+            errorCount: {
+                type: Number,
+                value: 0
+            },
+            warningCount: {
+                type: Number,
+                value: 0
+            },
+            infoCount: {
+                type: Number,
+                value: 0
+            },
+            progress: {
+                type: Number,
+                value: 0,
+                observer: 'progressChanged'
+            }
+        },
+        ready: function() {
+
+        },
+        reset: function() {
+            this.progress = 0;
+
+        },
+        validate: function() {
+            this.set("log", []);
+            this.errorCount = 0;
+            this.warningCount = 0;
+            this.infoCount = 0;
+            this.validator.validate();
+        },
+        setFile: function(file) {
+            this.fileChanged(file);
+        },
+        validatorChanged: function(neo, old) {
+            var me = this;
+            neo.on("end", function(e) {
+                me.fire("end");
+            });
+
+            neo.on("err", function(e) {
+                me.fire("err");
+            });
+
+            neo.on("log", function(e) {
+                switch (e.type) {
+                    case "error":
+                        me.errorCount++;
+                        break;
+                    case "warning":
+                        me.warningCount++;
+                        break;
+                }
+                me.push("log", e);
+            });
+
+            neo.on("progress", function(e) {
+                me.progress = e;
+            })
+
+            neo.init();
+
+        },
+        fileChanged: function(neo, old) {
+            if (neo && this.validator) {
+                this.validator.init();
+                this.validator.file = neo;
+            }
+        },
+        computeLog: function(validator) {
+            if (validator) {
+                return validator.log;
+            } else {
+                return [];
+            }
+        },
+        progressChanged: function(neo, old) {
+            console.log("progress : " + neo);
+            // this.$.progressBar.style.width = neo + '%';
+        },
+
+    })
+</script>

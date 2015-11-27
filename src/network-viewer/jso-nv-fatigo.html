@@ -94,7 +94,7 @@
                     <label>Fisher exact test</label>
 
                     <div class="jso-select" style="width: 400px">
-                        <jso-select name="fisher" id="fisher" class="fc-combobox" type="text" value="">
+                        <jso-select name="fisher" id="fisher" class="fc-combobox" type="text" value="two-tailed">
                             <jso-option name="fisher_1" id="fisher_1" class="fc-combobox-item" value="two-tailed">Two tailed
                             </jso-option>
                             <jso-option name="fisher_2" id="fisher_2" class="fc-combobox-item" value="greater">
@@ -108,7 +108,7 @@
                     <label>Remove duplicates</label>
 
                     <div class="jso-select" style="width: 400px">
-                        <jso-select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="">
+                        <jso-select name="duplicates" id="duplicates" class="fc-combobox" type="text" value="never">
                             <jso-option name="duplicates_1" id="duplicates_1" class="fc-combobox-item" value="never">
                                 Never
                             </jso-option>
@@ -597,13 +597,13 @@
                     fisher: this.$.fisher.value
                 };
 
-                if (this.$.inputFile.selectedFile === undefined && this.$.inputFile.textAreaValue == "") {
+                if (this.$.inputFile.selectedFile == null && this.$.inputFile.textAreaValue == "") {
                     alert("Sorry. No input selected. Please select a file or write something in the text area");
                     return;
                 }
                 if (this.$.inputFile.textAreaValue != "") {
                     query["list1-text"] = this.$.inputFile.textAreaValue.replace(/\n/g, ',');
-                } else if (this.$.inputFile.selectedFile !== undefined) {
+                } else if (this.$.inputFile.selectedFile != null) {
                     query["list1"] = this.$.inputFile.selectedFile.id;
                 }
 

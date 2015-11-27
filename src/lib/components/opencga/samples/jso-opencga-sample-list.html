@@ -70,13 +70,6 @@
             height: 70px;
         }
 
-        #createfolder {
-            box-sizing: border-box;
-            width: 300px;
-            background-color: #fafafa;
-            padding: 20px 30px;
-        }
-
         .upload-btn {
             color: var(--default-primary-color);
         }
@@ -108,6 +101,9 @@
     <template>
         <div id="bar" class="horizontal layout">
             <div class="bar horizontal layout flex end-justified">
+              <div class="">
+                  <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
+              </div>
                 <div class="jso-btn jso-btn-shdw" on-click="handleViewInfo" style="margin-right: 5px;" hidden$="{{checkSelected(selected)}}">
                     <i class="fa fa-info"></i>
                 </div>
@@ -125,7 +121,7 @@
         </template>
         <div id="content" class$="{{computeContentClass(viewMode,showInfo)}}">
             <div class$="{{computeClassViewMode(viewMode)}}">
-                <template is="dom-repeat" items="{{samples}}" class="wrap">
+                <template is="dom-repeat" items="{{filteredSamples}}" class="wrap">
                     <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}">
                     </jso-opencga-sample-list-item>
                 </template>
@@ -161,18 +157,23 @@
                 notify: true,
                 value: function() {
                     return [];
-                }
+                },
+                observer: 'samplesChanged'
+            },
+            filteredSamples:{
+              type: Array,
+              notify: true,
             },
             selected: {
                 type: Object,
                 notify: true,
                 value: function() {
-                    return null;
+                    return {};
                 }
             },
             study: {
                 type: Object,
-                observer:"studyChanged"
+                observer: "studyChanged"
             },
             viewMode: {
                 type: String,
@@ -182,6 +183,11 @@
                 type: Boolean,
                 value: false
             },
+            search: {
+                type: String,
+                value: "",
+                observer: 'searchNameChanged'
+            }
         },
         handleSampleClick: function(e) {
 
@@ -231,10 +237,40 @@
                 this.showInfo = !this.showInfo;
             }
         },
+
         studyChanged: function(e){
           this.sampleName = "";
           this.sampleSource = "";
           this.sampleDescription = "";
-        }
+          this.set("selected", undefined);
+
+          var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+          for (var i = 0; i < sel.length; i++) {
+              sel[i].removeAttribute("selected");
+          }
+        },
+        samplesChanged: function(neo,old){
+          console.log(this.search);
+          var searchFilterSamples = this._filterBySearch(this.samples);
+          this.set('filteredSamples', searchFilterSamples);
+          this.studyChanged();
+        },
+        searchNameChanged: function(neo, old) {
+           this.samplesChanged();
+        },
+        _filterBySearch: function(samples) {
+            if (this.search == "") {
+                return samples;
+            }
+            var filteredSamples = [];
+            for (var i = 0; i < samples.length; i++) {
+                var sample = samples[i];
+                if (sample.name.toLowerCase().search(this.search.toLowerCase()) >= 0) {
+                    filteredSamples.push(sample);
+                }
+            }
+            return filteredSamples;
+        },
+
     });
 </script>

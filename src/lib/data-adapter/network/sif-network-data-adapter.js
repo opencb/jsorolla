@@ -28,12 +28,10 @@ function SIFNetworkDataAdapter(args) {
     this.separator = "\t";
     this.graph = new JsoGraph();
 
-
     //set instantiation args, must be last
     _.extend(this, args);
 
     this.on(this.handlers);
-
 
     if (this.async) {
         this.dataSource.on('success', function (data) {
@@ -63,8 +61,8 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
         var lines = data.split(/\n/);
         this.addedVertex = {};
         this.addedEdges = {};
-//        console.log('SIFParse number lines: ' + lines.length);
-//        console.log(lines);
+        //        console.log('SIFParse number lines: ' + lines.length);
+        //        console.log(lines);
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i];
             if ((line != null) && (line.length > 0)) {
@@ -76,7 +74,7 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
                 if (fields[0].substr(0, 1) != "#") {
 
                     var sourceName = fields[0];
-                    var edgeName = fields[1];
+                    var edgeName = (fields[1] === '') ? "r" : fields[1];
                     var targetName;
 
                     /** create source vertex **/
@@ -121,9 +119,15 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
             }
         }
         console.timeEnd("SIFParse");
-        this.trigger('data:load', {graph: this.graph, sender: this});
+        this.trigger('data:load', {
+            graph: this.graph,
+            sender: this
+        });
     } catch (e) {
         console.log(e);
-        this.trigger('error:parse', {errorMsg: 'Parse error', sender: this});
+        this.trigger('error:parse', {
+            errorMsg: 'Parse error',
+            sender: this
+        });
     }
 };

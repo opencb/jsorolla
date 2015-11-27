@@ -76,7 +76,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-job-list on-jobselect="handleJobSelect" study="{{selectedStudy.study}}" allowed-tools="{{allowedTools}}" jobs="{{jobs}}">
+                <jso-opencga-job-list on-jobselect="handleJobSelect" study="{{selectedStudy.study}}" allowed-tools="{{allowedTools}}" jobs="{{jobs}}" disable-relaunch="{{disableRelaunch}}">
                 </jso-opencga-job-list>
             </div>
             <!--<div id="maininfo">-->
@@ -122,6 +122,11 @@
                 value: function() {
                     return [];
                 }
+            },
+            disableRelaunch: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
             }
         },
         ready: function() {
@@ -167,15 +172,15 @@
                 this.refreshJobs();
             }
         },
-        selectStudyById:function(studyId){
-           var els = this.querySelectorAll('jso-opencga-study-tree');
-           for (var i=0; i<els.length; i++){
-           if(els[i].study.id === studyId){
-             this.set('selectedStudy',els[i]);
-             break;
-           }
+        selectStudyById: function(studyId) {
+            var els = this.querySelectorAll('jso-opencga-study-tree');
+            for (var i = 0; i < els.length; i++) {
+                if (els[i].study.id === studyId) {
+                    this.set('selectedStudy', els[i]);
+                    break;
+                }
 
-         }
+            }
 
         },
 

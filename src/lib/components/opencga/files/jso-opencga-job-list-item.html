@@ -120,7 +120,7 @@
             white-space: pre-wrap;
         }
 
-        #filePreview .container {
+        #filePreviewPanel .container {
             width: 800px;
             height: 600px;
             padding: 10px;
@@ -178,19 +178,21 @@
             <div class="bar" on-click="{{handleBarClick}}" id="bar">
                 <template is="dom-if" if="{{!isRunning(job)}}">
                     <i class="fa fa-trash-o delete-job" title="Delete Job" on-click="handleDeleteJob"></i>
-                    <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob"></i>
+                    <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob" hidden$="{{disableRelaunch}}"></i>
                     <i class="fa fa-info info-job" title="Job information" on-click="handleJobInformation"></i>
                     <!-- <i class="fa fa-download" title="Download" hidden="{{!showInfo}}"></i>
                     <i class="fa fa-envelope-o" title="Report Error" hidden$="{{showError}}"></i> -->
                 </template>
             </div>
-            <jso-panel modal fixed closable hidden id="filePreview">
+            <jso-panel modal fixed closable hidden id="filePreviewPanel">
                 <div class="header">
                     <i class="fa fa-eye"></i> File Preview
                 </div>
-                <div class="container">
+                <!-- <div class="container">
                     <code class="wrapped-text">{{contentData}}</code>
-                </div>
+
+                </div>  -->
+                <jso-opencga-file-preview class="container" id="filePreview"></jso-opencga-file-preview>
             </jso-panel>
         </div>
 
@@ -223,16 +225,27 @@
                 type: Boolean,
                 value: true
             },
+            // errorFiles: {
+            //     type: Array,
+            //     value: function() {
+            //         return [];
+            //     }
+            // },
             errorFiles: {
-                type: Array,
+                type: Object,
                 value: function() {
-                    return [];
+                    return {};
                 }
             },
             contentData: {
                 type: String,
                 value: "",
             },
+            disableRelaunch: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
+            }
         },
         created: function() {},
         computeDate: function(job) {
@@ -362,42 +375,17 @@
             e.stopPropagation();
             if (this.errorFiles != null) {
                 if (e.currentTarget.dataset.value == "errorLog") {
-
-                    this.contentData = this._getErrorFilesContent(this.errorFiles[0].id);
+                    this.$.filePreview.file = this.errorFiles.err;
                 } else if (e.currentTarget.dataset.value == "outLog") {
-                    this.contentData = this._getErrorFilesContent(this.errorFiles[1].id);
+                    this.$.filePreview.file = this.errorFiles.out;
                 }
 
             }
-            this.$.filePreview.hidden = false;
-        },
-        _getErrorFilesContent: function(fileId) {
-
-            var data;
-            OpencgaManager.files.content({
-                id: fileId,
-                query: {
-                    sid: Cookies('bioinfo_sid')
-                },
-                request: {
-                    async: false,
-                    success: function(response) {
-                        data = response;
-                    },
-                    error: function() {}
-                }
-            });
-
-            if (data) {
-                return data;
-            } else {
-                return "";
-            }
-
+            this.$.filePreviewPanel.hidden = false;
         },
         _getErrorFiles: function(jobOutput) {
 
-            var errorFiles = [];
+            var errorFiles = {};
 
             OpencgaManager.files.info({
                 id: jobOutput.join(","),
@@ -411,9 +399,9 @@
                             for (var i = 0; i < response.response.length; i++) {
                                 var file = response.response[i].result[0];
                                 if (file.name.startsWith("sge_err")) {
-                                    errorFiles[0] = file;
+                                    errorFiles["err"] = file;
                                 } else if (file.name.startsWith("sge_out")) {
-                                    errorFiles[1] = file;
+                                    errorFiles["out"] = file;
                                 }
                             }
                         }
