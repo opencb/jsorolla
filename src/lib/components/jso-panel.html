@@ -246,7 +246,6 @@
                     type: Boolean,
                     reflectToAttribute: true,
                     observer: 'hiddenChanged'
-
                 },
                 _hasfooter: {
                     type: Boolean,
@@ -294,6 +293,10 @@
             show: function() {
                 this.hidden = false;
                 this.hiddenChanged(false);
+            },
+            hide: function() {
+                this.hidden = true;
+                this.hiddenChanged(true);
             },
             isContainerHidden: function(collapsible, collapsed) {
                 if (collapsible && collapsed) {

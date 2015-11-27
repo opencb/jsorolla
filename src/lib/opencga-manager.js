@@ -89,76 +89,76 @@ var OpencgaManager = {
     version: (typeof OPENCGA_VERSION === 'undefined') ? 'v1' : OPENCGA_VERSION,
 
     users: {
-        login: function(args) {
+        login: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'login');
         },
-        logout: function(args) {
+        logout: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'logout');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'info');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'update');
         },
-        updateEmail: function(args) {
+        updateEmail: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'change-email');
         },
-        updatePassword: function(args) {
+        updatePassword: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'change-password');
         },
-        resetPassword: function(args) {
+        resetPassword: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'reset-password');
         },
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'delete');
         }
     },
 
     projects: {
-        list: function(args) {
+        list: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'all-projects');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'info');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'update');
         },
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'delete');
         },
-        studies: function(args) {
+        studies: function (args) {
             return OpencgaManager._doRequest(args, 'projects', 'studies');
         }
     },
 
     studies: {
-        list: function(args) {
+        list: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'all-studies');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'info');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'update');
         },
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'delete');
         },
-        analysis: function(args) {
+        analysis: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'analysis');
         },
-        jobs: function(args) {
+        jobs: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'jobs');
         },
         samples: function (args) {
@@ -167,64 +167,64 @@ var OpencgaManager = {
     },
 
     files: {
-        list: function(args) {
+        list: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'list');
         },
-        fetch: function(args) {
+        fetch: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'fetch');
         },
-        alignments: function(args) {
+        alignments: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'alignments');
         },
-        variants: function(args) {
+        variants: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'variants');
         },
-        read: function(args) {
+        read: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
         },
-        info: function(args) {
+        info: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'info');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'delete');
         },
-        index: function(args) {
+        index: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'index');
         },
-        search: function(args) {
+        search: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'search');
         },
-        filesByFolder: function(args) {
+        filesByFolder: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'files');
         },
-        content: function(args) {
+        content: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content');
         },
-        contentGrep: function(args) {
+        contentGrep: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content-grep');
         },
-        createFolder: function(args) {
+        createFolder: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'create-folder');
         },
-        setHeader: function(args) {
+        setHeader: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'set-header');
         },
-        contentExample: function(args) {
+        contentExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'content-example');
         },
-        downloadExample: function(args) {
+        downloadExample: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download-example');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'update');
         },
-        download: function(args) {
+        download: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'download');
         },
-        upload: function(args) {
+        upload: function (args) {
             return OpencgaManager._doRequest(args, 'files', 'upload');
         },
-        upload2: function(args) {
+        upload2: function (args) {
             /** Check if exists a file with the same name **/
             var query = {
                 sid: Cookies('bioinfo_sid'),
@@ -240,7 +240,7 @@ var OpencgaManager = {
             OpencgaManager.files.search({
                 query: query,
                 request: {
-                    success: function(response) {
+                    success: function (response) {
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                             if (response.response[0].result.length == 0) {
 
@@ -261,7 +261,7 @@ var OpencgaManager = {
                             args.error(response.response[0].errorMsg);
                         }
                     },
-                    error: function() {
+                    error: function () {
                         args.error('Server error, try again later.');
                     }
                 }
@@ -270,37 +270,37 @@ var OpencgaManager = {
 
     },
     jobs: {
-        create: function(args) {
+        create: function (args) {
             return OpencgaManager._doRequest(args, 'jobs', 'create');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'jobs', 'delete');
         }
     },
     samples: {
-        search: function(args) {
+        search: function (args) {
             return OpencgaManager._doRequest(args, 'samples', 'search');
         }
     },
     util: {
-        proxy: function(args) {
+        proxy: function (args) {
             return OpencgaManager._doRequest(args, 'util', 'proxy');
         }
     },
     tools: {
-        search: function(args) {
+        search: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'search');
         },
-        info: function(args) {
+        info: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'info');
         },
-        help: function(args) {
+        help: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'help');
         },
-        update: function(args) {
+        update: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'update');
         },
-        delete: function(args) {
+        delete: function (args) {
             return OpencgaManager._doRequest(args, 'tools', 'delete');
         }
     },
@@ -311,7 +311,7 @@ var OpencgaManager = {
     //    create: function (args) {
     //        return OpencgaManager._doRequest(args, 'analysis', 'create');
     //},
-    _url: function(args, api, action) {
+    _url: function (args, api, action) {
         var host = OpencgaManager.host;
         if (typeof args.request.host !== 'undefined' && args.request.host != null) {
             host = args.request.host;
@@ -339,7 +339,7 @@ var OpencgaManager = {
         return url;
     },
 
-    _doRequest: function(args, api, action) {
+    _doRequest: function (args, api, action) {
         var url = OpencgaManager._url(args, api, action);
         if (args.request.url === true) {
             return url;
@@ -357,23 +357,37 @@ var OpencgaManager = {
                 console.log(url);
             }
             var request = new XMLHttpRequest();
-            request.onload = function() {
+            request.onload = function () {
                 var contentType = this.getResponseHeader('Content-Type');
                 if (contentType === 'application/json') {
-                    args.request.success(JSON.parse(this.response), this);
+                    var json = JSON.parse(this.response);
+                    if (json.error === '' || json.error == null) {
+                        args.request.success(json, this);
+                    } else {
+                        if (window.OPENCGA_LOG != null && OPENCGA_LOG === true) {
+                            console.log('! ----    OpencgaManager -------');
+                            console.log(json.error);
+                            console.log(json);
+                            console.log('! ----    OpencgaManager -------');
+                        }
+                        args.request.error(json, this);
+                    }
                 } else {
                     args.request.success(this.response, this);
                 }
             };
-            request.onerror = function() {
-                args.request.error(this);
+            request.onerror = function (e) {
+                args.request.error({
+                    error: 'Request error.',
+                    errorEvent: e
+                }, this);
             };
             request.open(method, url, async);
             request.send();
             return url;
         }
     },
-    _uploadFile: function(args) {
+    _uploadFile: function (args) {
         var url = args.url;
         var inputFile = args.inputFile;
         var fileName = args.fileName;
@@ -397,15 +411,14 @@ var OpencgaManager = {
         var start;
         var end;
 
-
-        var getResumeInfo = function(formData) {
+        var getResumeInfo = function (formData) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, false); //false = sync call
             xhr.send(formData);
             var response = JSON.parse(xhr.responseText);
             return response.response[0];
         };
-        var checkChunk = function(id, size, resumeInfo) {
+        var checkChunk = function (id, size, resumeInfo) {
             if (typeof resumeInfo[id] === 'undefined') {
                 return false;
             } else if (resumeInfo[id].size != size /*|| resumeInfo[id].hash != hash*/ ) {
@@ -413,7 +426,7 @@ var OpencgaManager = {
             }
             return true;
         };
-        var processChunk = function(c) {
+        var processChunk = function (c) {
             var chunkBlob = blob.slice(c.start, c.end);
 
             if (checkChunk(c.id, chunkBlob.size, resumeInfo) == false) {
@@ -434,7 +447,7 @@ var OpencgaManager = {
                     formData.append("bioFormat", bioFormat);
                     formData.append("description", description);
                 }
-                uploadChunk(formData, c, function(chunkResponse) {
+                uploadChunk(formData, c, function (chunkResponse) {
                     callbackProgress(c, NUM_CHUNKS, chunkResponse);
                     if (!c.last) {
                         processChunk(chunkMap[(c.id + 1)]);
@@ -452,10 +465,10 @@ var OpencgaManager = {
             }
 
         };
-        var uploadChunk = function(formData, chunk, callback) {
+        var uploadChunk = function (formData, chunk, callback) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
-            xhr.onload = function(e) {
+            xhr.onload = function (e) {
                 chunk.done = true;
                 console.log("chunk done");
                 callback(JSON.parse(xhr.responseText));
@@ -1553,7 +1566,6 @@ var OpencgaManager = {
 //        //	console.log(url);
 //    }
 // };
-
 
 // OpencgaManager.httpMethods[OpencgaManager.actions.LOGIN] = "GET";
 // OpencgaManager.httpMethods[OpencgaManager.actions.LOGOUT] = "GET";

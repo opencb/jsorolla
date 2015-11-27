@@ -103,7 +103,7 @@
         .data {
             color: var(--secondary-text-color);
         }
-      
+
         .errorFile:hover {
             color: red;
         }
@@ -113,7 +113,6 @@
         }
 
         #fileInfo {
-            font-size: 12px;
             margin: 5px;
         }
 
@@ -146,7 +145,7 @@
             <div id="fileInfo" class="vertical layout flex" hidden="{{!showInfo}}">
                 <div class="horizontal layout">
                     <span class="data">Description:&nbsp;</span>
-                        <span class="value">{{jobDescription}}</span>
+                    <span class="value">{{jobDescription}}</span>
                 </div>
                 <!-- <div class="horizontal layout">
                     <div class="data">Inputs:&nbsp;
@@ -161,14 +160,14 @@
                 <div id="jobError" class="vertical layout" hidden$="{{showError}}">
                     <div class="horizontal layout">
                         <span class="data">Error:&nbsp;</span>
-                            <span class="value">{{jobError}}</span>
+                        <span class="value">{{jobError}}</span>
                     </div>
                     <div class="horizontal layout">
                         <span class="data">Error Description:&nbsp;</span>
-                            <span class="value">{{jobErrorDescription}}</span>
+                        <span class="value">{{jobErrorDescription}}</span>
                     </div>
                     <div class="horizontal layout" style="margin-top:5px;">
-                        <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="errorLog">Error Log&nbsp;
+                        <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="errorLog" style="margin-right:5px;">Error Log
                         </div>
                         <div class="data errorFile jso-btn jso-btn-shdw" title="View File" on-click="handleViewErrorFile" data-value="outLog">Out Log
                         </div>
@@ -329,7 +328,6 @@
         handleJobInformation: function(e) {
             e.stopPropagation();
 
-
             if (this.job.error) {
                 this.showError = false;
                 this.jobError = this.job.error;
@@ -340,8 +338,9 @@
             }
 
             this.showInfo = !this.showInfo;
-            if(this.showInfo ==false){
-              this.showError = true;}
+            if (this.showInfo == false) {
+                this.showError = true;
+            }
 
             this.jobDescription = this.job.description;
             this.jobInput = this.job.input;
@@ -357,7 +356,6 @@
             } else {
                 return "vertical layout";
             }
-
 
         },
         handleViewErrorFile: function(e) {

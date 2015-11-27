@@ -5,11 +5,9 @@
             position: absolute;
             box-sizing: border-box;
             padding: 30px 100px;
-
             left: 0;
             right: 0;
             margin: 0px auto 0px auto;
-
             width: 500px;
             transition: all 0.2s;
             box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.30);
@@ -31,10 +29,10 @@
             margin-top: 20px;
         }
 
-        .shortcut{
+        .shortcut {
             cursor: pointer;
             color: var(--dark-primary-color);
-            float:right;
+            float: right;
         }
 
         .shortcut:hover {
@@ -91,24 +89,24 @@
                 reflectToAttribute: true
             },
         },
-        handleFormKey: function (e) {
+        handleFormKey: function(e) {
             if (e.which == 13) {
                 this.handleForm();
             }
         },
-        handleRemember: function (e) {
+        handleRemember: function(e) {
             this.fire("remember", {});
         },
-        handleSignup: function (e) {
+        handleSignup: function(e) {
             this.fire("signup", {});
         },
-        handleForm: function (e) {
+        handleForm: function(e) {
             this.message = '';
             if (this.$.form.checkValidity()) {
                 this._login();
             }
         },
-        _login: function () {
+        _login: function() {
             var me = this;
             console.log(this.user)
             console.log(this.password)
@@ -119,23 +117,23 @@
                     password: CryptoJS.SHA1(this.password).toString()
                 },
                 request: {
-                    success: function (response) {
-                        console.log(response);
-                        if (response.error === '' || response.error == null) {
-                            Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
-                            Cookies.set('bioinfo_user', response.response[0].result[0].userId);
-                            me.fire('login', {status: true});
-                        } else {
-                            me.message = response.error.split(":")[1];
-                            //Delete all cookies
-                            Cookies.expire('bioinfo_sid');
-                            Cookies.expire('bioinfo_user');
-                        }
+                    success: function(response) {
+                        Cookies.set('bioinfo_sid', response.response[0].result[0].sessionId);
+                        Cookies.set('bioinfo_user', response.response[0].result[0].userId);
+                        me.fire('login', {
+                            status: true
+                        });
                         me.user = null;
                         me.password = null;
                     },
-                    error: function () {
-                        me.message = 'Server error, try again later.';
+                    error: function(response) {
+                        //Delete all cookies
+                        Cookies.expire('bioinfo_sid');
+                        Cookies.expire('bioinfo_user');
+                        me.message = response.error.split(":")[1];
+                        if(response.errorEvent){
+                            me.message = 'Server error, try again later.';
+                        }
                     }
                 }
             });
