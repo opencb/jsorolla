@@ -37,6 +37,7 @@
 
         .msg {
             word-wrap: break-word;
+            min-height: 23px;
         }
 
         .type[type="error"],
@@ -92,7 +93,7 @@
         .uploadbar {
             position: relative;
             height: 20px;
-            background-color: white;
+            background-color: var(--light-primary-color);
             line-height: 20px;
             border-top: 1px solid var(--divider-color);
         }
@@ -103,7 +104,7 @@
             left: 0px;
             height: 100%;
             width: 100%;
-            background-color: #eaeaea;
+            background-color: var(--divider-color);
             /*margin-top: 10px;*/
         }
 
@@ -119,6 +120,14 @@
         .header > div {
             padding-left: 2px;
         }
+
+        .wrapped-text {
+            white-space: pre-wrap;
+            min-height: 100px;
+            max-width: 800px;
+            padding: 10px;
+            overflow-y: auto;
+        }
     </style>
     <template>
 
@@ -130,10 +139,11 @@
         </div>
         <div class="log">
             <template is="dom-repeat" items="{{log}}">
-                <div class="horizontal layout item" type$="{{item.type}}">
+                <div class="horizontal layout item" type$="{{item.type}}" on-mouseover="handleLogHover" on-mouseout="handleLogHoverOut">
                     <div class="line">{{item.line}}</div>
                     <div class="type" type$="{{item.type}}">{{item.type}}</div>
                     <div class="msg flex">{{item.msg}}</div>
+                    <div class="jso-btn view" line="{{item.line}}" on-click="handleLogViewClick" hidden>View</div>
                 </div>
             </template>
         </div>
@@ -150,6 +160,12 @@
 
         </div>
 
+        <jso-panel modal movable closable hidden id="linePreview" on-close="handleCloseLinePreview">
+            <div class="header">
+                <i class="fa fa-view"></i> &nbsp; View line
+            </div>
+            <div class="container wrapped-text">{{linePreview}}</div>
+        </jso-panel>
 
         <div class="uploadbar" hidden$="{{!uploading}}">
             <div id="progressBar" class="uploadprogress"></div>
@@ -275,6 +291,44 @@
         },
         computeSpin: function(progress) {
             return progress >= 100 || progress <= 0;
+        },
+        handleLogViewClick: function(e) {
+            var me = this;
+            var elem = e.currentTarget;
+            var line = elem.line - 1;
+            this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
+                if (err) {
+                    return;
+                }
+
+                if (lines.length > 0) {
+                    me.linePreview = lines[0];
+                    me.$.linePreview.show();
+                }
+
+                if (eof) {
+                    return;
+                }
+
+            });
+        },
+        handleLogHover: function(e) {
+
+            var elem = e.currentTarget;
+
+            var view = elem.getElementsByClassName("view")[0];
+            view.hidden = false;
+        },
+        handleLogHoverOut: function(e) {
+
+            var elem = e.currentTarget;
+
+            var view = elem.getElementsByClassName("view")[0];
+            view.hidden = true;
+        },
+        handleCloseLinePreview: function(e) {
+            this.linePreview = "";
         }
+
     })
 </script>

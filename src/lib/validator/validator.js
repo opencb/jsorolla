@@ -8,7 +8,6 @@ function Validator(options) {
 
     this.log = [];
     this.line = 0;
-    this.chunkSize = 1000;
     this.progress = 0;
     this._readBytes = 0;
     this._events = {};
@@ -31,7 +30,7 @@ Validator.prototype = {
 
         var indexToStartWith = 0;
 
-        this._navigator.readLines(indexToStartWith, this.chunkSize, function linesReadHandler(err, index, lines, eof, progress) {
+        this._navigator.readSomeLines(indexToStartWith, function linesReadHandler(err, index, lines, eof, progress) {
             if (err) {
                 me._emit("err");
                 return;
