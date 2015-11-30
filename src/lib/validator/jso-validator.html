@@ -12,6 +12,21 @@
             height: 100%;
         }
 
+        #header,
+        #footer {
+            box-sizing: border-box;
+            background-color: var(--light-secondary-color);
+            padding: 3px 7px;
+        }
+
+        #header {
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        #footer {
+            border-top: 1px solid var(--divider-color);
+        }
+
         .line {
             width: 40px;
         }
@@ -31,22 +46,20 @@
 
         .type[type="info"],
         .info-count {
-            color: #6b4dff;
+            color: #4790bf;
         }
 
         .type[type="warning"],
         .warning-count {
-            color: #ffbf00;
+            color: #bf9947;
         }
 
         .item {
             /*display: block;*/
             /*position: relative;*/
             /*box-sizing: border-box;*/
-            height: auto;
-            margin-left: 1px;
-            margin-right: 1px;
-            margin-bottom: 10px;
+            /*height: auto;*/
+            margin: 3px;
             padding: 3px;
         }
 
@@ -62,28 +75,45 @@
 
         .log {
             position: relative;
-            height: 292px;
+            height: 200px;
             overflow-y: auto;
             /*background-color: #FAFAFA;*/
             background-color: white;
         }
 
         .count {
-            width: 75px;
+            padding: 0 5px;
         }
 
         .count > span {
             color: black;
         }
 
+        .uploadbar {
+            position: relative;
+            height: 20px;
+            background-color: white;
+            line-height: 20px;
+            border-top: 1px solid var(--divider-color);
+        }
+
         .uploadprogress {
             position: absolute;
-            bottom: 0px;
+            top: 0px;
             left: 0px;
-            height: 2px;
-            /*width: 100%;*/
-            background-color: blue;
+            height: 100%;
+            width: 100%;
+            background-color: #eaeaea;
             /*margin-top: 10px;*/
+        }
+
+        .uploadtext {
+            position: absolute;
+            text-align: center;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
         }
 
         .header > div {
@@ -92,13 +122,13 @@
     </style>
     <template>
 
-        <div class="vertical layout log">
-            <div class="header horizontal layout">
-                <div class="line"> Line </div>
-                <div class="type"> Type </div>
-                <div class="msg flex"> Message </div>
+        <div id="header" class="horizontal layout">
+            <div class="line"> Line </div>
+            <div class="type"> Type </div>
+            <div class="msg flex"> Message </div>
 
-            </div>
+        </div>
+        <div class="log">
             <template is="dom-repeat" items="{{log}}">
                 <div class="horizontal layout item" type$="{{item.type}}">
                     <div class="line">{{item.line}}</div>
@@ -107,8 +137,7 @@
                 </div>
             </template>
         </div>
-        <div id="progressBar" class="uploadprogress"></div>
-        <div class="counts horizontal layout">
+        <div id="footer" class="counts horizontal layout">
             <div class="error-count count">Errors:
                 <span>{{errorCount}}</span>
             </div>
@@ -121,6 +150,15 @@
 
         </div>
 
+
+        <div class="uploadbar" hidden$="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <div class="uploadtext">
+                <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
+                <span>{{progress}}</span> %
+            </div>
+            <br>
+        </div>
 
     </template>
 </dom-module>
@@ -212,7 +250,7 @@
             });
 
             neo.on("progress", function(e) {
-                me.progress = e;
+                me.progress = Math.ceil(e);
             })
 
             neo.init();
@@ -233,8 +271,10 @@
         },
         progressChanged: function(neo, old) {
             console.log("progress : " + neo);
-            // this.$.progressBar.style.width = neo + '%';
+            this.$.progressBar.style.width = neo + '%';
         },
-
+        computeSpin: function(progress) {
+            return progress >= 100 || progress <= 0;
+        }
     })
 </script>
