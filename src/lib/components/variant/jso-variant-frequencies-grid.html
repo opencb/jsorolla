@@ -11,9 +11,10 @@
         }
 
         #mafChart {
-            width: 100%;
+            /*width: 100%;*/
             border: 1px solid rgba(125, 125, 125, 0.4);
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
         }
 
     </style>
@@ -128,33 +129,63 @@
                 console.log(cat);
 
                 var chart = new Highcharts.Chart({
+                    // chart: {
+                    //     renderTo: this.$.mafChart,
+                    //     type: 'bar'
+                    // },
+                    // title: {
+                    //     text: 'Minor Allele Frequency'
+                    // },
+                    // xAxis: {
+                    //     min: 0,
+                    //     categories: cat,
+                    //     title: {
+                    //         text: null
+                    //     }
+                    // },
+                    // yAxis: {
+                    //     min: 0,
+                    //     max: 1,
+                    //     labels: {
+                    //         overflow: 'justify'
+                    //     }
+                    // },
+                    // plotOptions: {
+                    //     bar: {
+                    //         dataLabels: {
+                    //             enabled: true
+                    //         }
+                    //     }
+                    // },
+                    // legend: {
+                    //     layout: 'vertical',
+                    //     align: 'right',
+                    //     verticalAlign: 'top',
+                    //     x: -40,
+                    //     y: 100,
+                    //     floating: true,
+                    //     borderWidth: 1,
+                    //     backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    //     shadow: true
+                    // },
+                    // series: [{
+                    //     name: 'MAF',
+                    //     data: data
+                    // }
+                    // ]
+
                     chart: {
+                        polar: true,
+                        type: 'line',
                         renderTo: this.$.mafChart,
-                        type: 'bar'
+                        width: 800,
+                        height: 350
+                    },
+                    credits: {
+                        enabled: false
                     },
                     title: {
                         text: 'Minor Allele Frequency'
-                    },
-                    xAxis: {
-                        min: 0,
-                        categories: cat,
-                        title: {
-                            text: null
-                        }
-                    },
-                    yAxis: {
-                        min: 0,
-                        max: 1,
-                        labels: {
-                            overflow: 'justify'
-                        }
-                    },
-                    plotOptions: {
-                        bar: {
-                            dataLabels: {
-                                enabled: true
-                            }
-                        }
                     },
                     legend: {
                         layout: 'vertical',
@@ -167,16 +198,26 @@
                         backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
                         shadow: true
                     },
+                    xAxis: {
+                        categories: cat,
+                        tickmarkPlacement: 'on',
+                        lineWidth: 1
+                    },
+
+                    yAxis: {
+                        gridLineInterpolation: 'polygon',
+                        lineWidth: 0,
+                        min:0,
+                        max: 0.5
+                    },
+
                     series: [{
+                        type: 'area',
                         name: 'MAF',
                         data: data
-                    }
-                    ]
+                    }]
                 });
             }
         }
     });
 </script>
-
-
-
