@@ -8,6 +8,7 @@
         }
 
         :host[modal] {
+            z-index: 100 !important;
             position: fixed;
             box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
         }
@@ -272,7 +273,7 @@
                 this._hasfooter = this.$.footer.childElementCount > 0;
 
                 var child = this.$.container.querySelector('.container');
-                if(child != null){
+                if (child != null) {
                     child._parentJsoPanel = this;
                 }
             },

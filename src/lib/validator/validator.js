@@ -49,6 +49,7 @@ Validator.prototype = {
             me._emit("progress", [me.progress]);
 
             if (eof) {
+                me._emit("progress", [100]);
                 me._emit("end");
                 return;
             }

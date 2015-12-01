@@ -51,11 +51,8 @@
             word-break: break-all;
         }
 
-        .left {
-            padding-right: 30px;
-        }
-
         .right {
+            padding-left: 30px;
             display: block;
             position: relative;
             box-sizing: border-box;
@@ -90,7 +87,7 @@
                     </div>
                     <div hidden$="{{hideBioformats}}">
                         <label class="jso">Bioformat:</label>
-                        <jso-opencga-bioformat id="bioformatSelect" bioformats="{{bioformats}}"></jso-opencga-bioformat>
+                        <jso-opencga-bioformat id="bioformatSelect" bioformats="{{bioformats}}" on-selected-bioformat-change="handleSelectedBioformatChange"></jso-opencga-bioformat>
                     </div>
                 </div>
                 <br>
@@ -124,8 +121,8 @@
                 <span>{{message}}</span>
             </div>
 
-            <div class="right vertical layout">
-                <label class="jso">Validation Log:</label>
+            <div hidden$="{{hideValidationLog}}" class="right vertical layout">
+                <label class="jso">File validation log:</label>
                 <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
             </div>
 
@@ -195,10 +192,10 @@
                 type: String,
                 value: 'validation'
             },
-            disableValidation: {
+            hideValidationLog: {
                 type: Boolean,
-                value: false,
-                reflectToAttribute: true
+                value: true,
+                observer: 'hideValidationLogChanged'
             }
         },
         ready: function(e) {
@@ -209,10 +206,12 @@
                 this.checkBioformats();
             }
 
-            this._parentJsoPanel.addEventListener("close", function(e) {
-                me.status = "validation";
-                me.$.validator.reset();
-            })
+            if (this._parentJsoPanel) {
+                this._parentJsoPanel.addEventListener("close", function(e) {
+                    me.status = "validation";
+                    me.$.validator.reset();
+                });
+            }
         },
         checkBioformats: function() {
             var numberOfBioformats = 0;
@@ -227,6 +226,9 @@
             if (numberOfBioformats == 1) {
                 this.hideBioformats = true;
                 this.selectedBioformat = this.bioformats[bioformatIdx];
+                if (this.selectedBioformat.validator != null) {
+                    this.hideValidationLog = false;
+                }
             }
             if (numberOfBioformats == 0) {
                 this.hideBioformats = true;
@@ -234,6 +236,19 @@
                     value: 'NONE',
                     text: 'NONE'
                 };
+                this.hideValidationLog = true;
+            }
+        },
+        handleSelectedBioformatChange: function(e) {
+            if (this.$.bioformatSelect.selectedBioformat != null && this.$.bioformatSelect.selectedBioformat.validator != null) {
+                this.hideValidationLog = false;
+            } else {
+                this.hideValidationLog = true;
+            }
+        },
+        hideValidationLogChanged: function(e) {
+            if (this._parentJsoPanel) {
+                this._parentJsoPanel._center();
             }
         },
         handleBrowseClick: function(e) {
@@ -384,8 +399,8 @@
             }
 
             /* Validate bioformat */
-            if (selBioformat != null) {
-                var file = this.$.fileInput.files[0];
+            var file = this.$.fileInput.files[0];
+            if (selBioformat != null && file != null) {
                 this.$.validator.reset();
                 var validator;
 
@@ -411,9 +426,6 @@
                 // this.status = "update";
                 this.handleForm();
             }
-        },
-        computeStatusButton: function(status, value) {
-            return status != value;
         }
 
     });

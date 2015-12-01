@@ -35,11 +35,6 @@
             width: 60px;
         }
 
-        .msg {
-            word-wrap: break-word;
-            min-height: 23px;
-        }
-
         .type[type="error"],
         .error-count {
             color: #bf4747;
@@ -131,11 +126,10 @@
     </style>
     <template>
 
-        <div id="header" class="horizontal layout">
-            <div class="line"> Line </div>
-            <div class="type"> Type </div>
-            <div class="msg flex"> Message </div>
-
+        <div id="header" class="horizontal layout center">
+            <div class="line">Line </div>
+            <div class="type">Type</div>
+            <div class="msg flex">Message</div>
         </div>
         <div class="log">
             <template is="dom-repeat" items="{{log}}">
@@ -231,7 +225,6 @@
         },
         reset: function() {
             this.progress = 0;
-
         },
         validate: function() {
             this.set("log", []);
