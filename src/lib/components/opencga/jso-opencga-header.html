@@ -2,12 +2,6 @@
 <link rel="import" href="jso-opencga-signup.html">
 <link rel="import" href="jso-opencga-profile.html">
 <link rel="import" href="jso-opencga-remember.html">
-<!--
-
-<link rel="import" href="jso-job-list.html">
-<link rel="import" href="jso-job-launched.html">
-
--->
 
 <dom-module id="jso-opencga-header">
     <style>
@@ -22,12 +16,11 @@
         .main {
             position: relative;
             height: 60px;
-            line-height: 60px;
             font-size: 18px;
             margin: 0;
             padding: 0;
             text-transform: none;
-            box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 4px -4px rgba(0, 0, 0, 0.3);
             /*background-color: inherit;*/
             background-color: var(--dark-primary-color);
             color: var(--text-primary-color);
@@ -40,19 +33,47 @@
         }
 
         #left > div,
-        #right > div {
+        #right > div,
+        #menu-wrapper >::content > .menu div.option {
             box-sizing: border-box;
-            margin-right: 5px;
-            margin-top: 15px;
-            margin-bottom: 15px;
             cursor: pointer;
             text-align: center;
-            line-height: 30px;
-            padding: 0 5px;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        #right > div:hover {
-            border-bottom: 1px solid var(--divider-color);
+        #left > div >::content > * {
+            margin-left: 10px;
+            padding: 0 0 1px 0;
+        }
+
+        #right > div,
+        #menu-wrapper >::content > .menu div.option {
+            margin-right: 5px;
+            padding: 0 5px 1px 5px;
+        }
+
+        :host[small] #left > div,
+        :host[small] #right > div,
+        :host[small] #menu-wrapper >::content > .menu div.option {
+            border-bottom-width: 1px;
+        }
+
+        #right > div:hover,
+        #menu-wrapper >::content > .menu div.option:hover {
+            border-bottom-color: var(--divider-color);
+        }
+
+        #menu-wrapper >::content > .menu div.option[active] {
+            font-weight: normal;
+            border-bottom-color: var(--accent-color);
+        }
+
+        :host[small] #right > div:hover,
+        :host[small] #menu-wrapper >::content > .menu div.option:hover {
+            border-bottom-width: 1px;
         }
 
         #help,
@@ -69,19 +90,10 @@
 
         div.description {
             font-size: 18px;
-            padding-left: 10px;
-            padding-bottom: 10px;
         }
 
         div.description:hover {
             cursor: default;
-        }
-
-        jso-job-list {
-            height: calc(100vh - 160px);
-            width: 250px;
-            right: 0px;
-            top: 0px;
         }
 
         @media (max-width: 1250px) {
@@ -90,8 +102,6 @@
             }
             div.description {
                 font-size: 14px;
-                padding-left: 5px;
-                padding-bottom: 5px;
             }
             .option-text {
                 font-size: 0.9em;
@@ -104,8 +114,6 @@
             }
             div.description {
                 font-size: 13px;
-                padding-left: 3px;
-                padding-bottom: 3px;
             }
             .option-text {
                 font-size: 0.8em;
@@ -127,6 +135,25 @@
             margin-top: 0px !important;
             margin-bottom: 0px !important;
         }
+        /*small*/
+
+        :host[small] .main {
+            height: 32px;
+            font-size: 15px;
+            box-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.3);
+        }
+
+        :host[small] #tools {
+            top: 32px;
+        }
+
+        :host[small] div.title {
+            font-size: 22px;
+        }
+
+        :host[small] div.description {
+            font-size: 15px;
+        }
     </style>
     <template>
         <div id="tools">
@@ -143,8 +170,8 @@
             </jso-opencga-remember>
         </div>
 
-        <div class="main horizontal layout">
-            <div id="left" class="horizontal layout start-justified">
+        <div class="main horizontal layout center">
+            <div id="left" class="horizontal layout start-justified center">
                 <div on-click="handleMenu">
                     <content select=".menu-button"></content>
                 </div>
@@ -154,30 +181,22 @@
                 <div class="title" data-option="home" on-click="handleMenu">
                     <content select=".title"></content>
                 </div>
-                <div id="description" class="description">
+                <div id="description" class="description" data-option="home" on-click="handleMenu">
                     <content select=".description"></content>
                 </div>
-                <div style="cursor:default;">
-                    <content select=".announce"></content>
-                </div>
             </div>
-            <div id="center" class="horizontal layout flex">
-                <div hidden$="{{computeMenu(showMenuOnLogin, isLogged)}}" class="horizontal layout flex">
+            <div id="center" class="horizontal layout flex center">
+                <div id="menu-wrapper" hidden$="{{computeMenu(showMenuOnLogin, isLogged)}}" class="horizontal layout flex">
                     <content select=".menu"></content>
                 </div>
             </div>
-            <div id="right" class="horizontal layout end-justified">
+            <div id="right" class="horizontal layout end-justified center">
                 <div id="user" hidden$="{{computeUser(hideLogin, isLogged)}}">
                     <span class="option-text">{{userText}}</span>
                 </div>
 
                 <div title="Upload" id="projects" data-option="projects" on-click="handleMenu" hidden$="{{computeBrowse(hideBrowse, hideLogin, isLogged)}}">
                     <span class="option-text"> upload </span>
-                </div>
-
-                <div title="Jobs" id="jobs" data-option="jobs" on-click="handleJobClick" hidden$="{{computeJobs(hideJobs, hideLogin, isLogged)}}">
-                    <i class="fa fa-pencil-square-o"></i>
-                    <span class="option-text"> jobs </span>
                 </div>
 
                 <div title="Profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideSignup, hideLogin, isLogged)}}">
@@ -206,33 +225,12 @@
                 </div>
 
 
-
-
                 <div id="help">
                     <content select=".helpmenu"></content>
                 </div>
             </div>
         </div>
     </template>
-
-    <!--<div class="content">-->
-
-
-    <!--<template if="{{ selectedOption == 'jobLaunched' }}">-->
-    <!--<jso-job-launched></jso-job-launched>-->
-    <!--</template>-->
-
-    <!--<template if="{{ showJobs ||  selectedOption == 'jobLaunched' }}">-->
-    <!--<jso-job-list-->
-    <!--jobItem="{{jobItem}}"-->
-    <!--on-job-item-click="{{handleJobItemClick}}"-->
-    <!--userData="{{userData}}"-->
-    <!--selectedOption="{{selectedOption}}"-->
-    <!--selectedStudy="{{selectedStudy}}"-->
-    <!--allowedTools="{{allowedTools}}"-->
-    <!--showJobs="{{showJobs}}"></jso-job-list>-->
-    <!--</template>-->
-    <!--</div>-->
 
     </template>
 </dom-module>
@@ -276,11 +274,6 @@
                 type: Boolean,
                 value: false
             },
-            hideJobs: {
-                type: Boolean,
-                value: false,
-                reflectToAttribute: true
-            },
             hideBrowse: {
                 type: Boolean,
                 value: false,
@@ -306,6 +299,11 @@
             },
             allowedTools: {
                 type: Array
+            },
+            small: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
             }
         },
 
@@ -316,7 +314,6 @@
             return false;
         },
 
-
         computeUser: function(hideLogin, isLogged) {
             if (hideLogin) {
                 return true;
@@ -325,12 +322,6 @@
         },
         computeBrowse: function(hideBrowse, hideLogin, isLogged) {
             if (hideLogin || hideBrowse) {
-                return true;
-            }
-            return !isLogged
-        },
-        computeJobs: function(hideJobs, hideLogin, isLogged) {
-            if (hideLogin || hideJobs) {
                 return true;
             }
             return !isLogged
@@ -365,7 +356,6 @@
             }
             return isLogged
         },
-
 
         selectedOptionChanged: function(neo, old) {
             var menuItems = Polymer.dom(this.root).querySelectorAll('[menu-option]');
@@ -522,9 +512,6 @@
                     }
                 });
             }
-        },
-        handleJobItemClick: function(e) {
-            this.showJobs = false;
         },
         _checkUserName: function(userData) {
             if (userData.email === 'anonymous@anonymous.anonymous') {

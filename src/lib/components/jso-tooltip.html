@@ -1,7 +1,7 @@
 <dom-module id="jso-tooltip">
     <style>
         :host {
-            display: inline;
+            display: inline-block;
             position: relative;
             box-sizing: border-box;
             cursor: pointer;
@@ -17,31 +17,36 @@
             overflow-x: auto;
             overflow-y: auto;
         }
-.default{
-  background-color: #d3d3d3;
-  padding: 5px;
-}
-        .closeInfo{
+
+        .default {
+            background-color: var(--light-primary-color);
+            padding: 5px;
+        }
+
+        .closeInfo {
+            position: absolute;
+            top: 5px;
+            right: 5px;
             cursor: pointer;
-            margin-left: 190px;
         }
-        .info{
-          color: #6b4dff;
+
+        .info {
+            color: #6b4dff;
         }
-        .warn{
-          color: #ffbf00;
+
+        .warn {
+            color: #ffbf00;
         }
-        .error{
-          color: #bf4747;
+
+        .error {
+            color: #bf4747;
         }
     </style>
     <template>
 
-        <i class$="{{computeIcon(type)}}" on-click="showInfo"></i></div>
+        <span on-click="showInfo"><i class$="{{computeIcon(type, icon)}}"></i> {{text}}</span>
         <div id="messageInfo" class$="{{computeClass(type)}}" hidden>
-                <div class="closeInfo" on-click="handleClose"><i class="fa fa-times"></i>
-
-                </div>
+            <i class="fa fa-times closeInfo" on-click="handleClose"></i>
             <content></content>
         </div>
 
@@ -51,11 +56,20 @@
         Polymer({
             is: "jso-tooltip",
             properties: {
-
                 type: {
                     type: String,
                     reflectToAttribute: true,
-                    value:""
+                    value: ""
+                },
+                icon: {
+                    type: String,
+                    reflectToAttribute: true,
+                    value: ""
+                },
+                text: {
+                    type: String,
+                    reflectToAttribute: true,
+                    value: ""
                 }
             },
             showInfo: function(e) {
@@ -90,24 +104,26 @@
                 } else if (type == "error") {
                     return "jso-note jso-note-error";
                 } else {
-                  return "default";
+                    return "default";
                 }
             },
-            computeIcon: function(type) {
-                if (type == "info") {
-                  return "fa fa-info"+" "+"info";
-                } else if (type == "warn") {
-                    return "fa fa-exclamation-triangle"+" "+"warn";
-                } else if (type == "error") {
-                    return "fa fa-exclamation-circle"+" "+"error";
+            computeIcon: function(type, icon) {
+                if (icon != null && icon !== '') {
+                    return 'fa fa-' + icon;
                 } else {
-                  return "fa fa-comment-o";
+                    if (type == "info") {
+                        return "fa fa-info " + "info";
+                    } else if (type == "warn") {
+                        return "fa fa-exclamation-triangle " + "warn";
+                    } else if (type == "error") {
+                        return "fa fa-exclamation-circle " + "error";
+                    }
+                    return "fa fa-comment-o";
                 }
             },
             handleClose: function() {
-              this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
+                this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
             },
-
 
         })
     </script>

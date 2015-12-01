@@ -26,6 +26,11 @@
                 value: '',
                 reflectToAttribute: true,
                 observer: 'checkMaintenance'
+            },
+            smallHeader: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
             }
         },
         selectedOptionChanged: function(neo, old) {
@@ -62,6 +67,7 @@
         handleMenuPanel: function(e) {
             var panel = this.$[e.currentTarget.dataset.panel];
             panel.hidden = !panel.hidden;
+
         },
         handleLoggedOnlyMenuPanel: function(e) {
             if (this.$.jsoHeader != null) {

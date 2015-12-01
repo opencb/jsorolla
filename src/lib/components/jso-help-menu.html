@@ -2,7 +2,6 @@
     <style>
         :host {
             display: block;
-            position: relative;
             box-sizing: border-box;
             text-align: center;
             margin-right: 5px;
@@ -24,7 +23,7 @@
         }
 
         .menu {
-            position: absolute;
+            position: fixed;
             visibility: hidden;
             opacity: 0;
             transition: all 0.25s;
@@ -44,24 +43,23 @@
             opacity: 1;
         }
 
-        .menu > ::content a {
+        .menu >::content a {
             padding: 2px 5px;
             display: block;
             text-decoration: none;
             color: var(--text-primary-color);
         }
 
-        .menu > ::content a:hover {
+        .menu >::content a:hover {
             background-color: var(--accent-color);
             cursor: pointer;
         }
-
     </style>
     <template>
-        <div class="text" tabindex="-1">
+        <div id="drop" class="text" tabindex="-1">
             <i class="fa fa-question-circle"></i>
         </div>
-        <div class="menu">
+        <div id="dropmenu" class="menu">
             <content></content>
         </div>
     </template>
@@ -69,6 +67,16 @@
 
 <script>
     Polymer({
-        is: "jso-help-menu"
+        is: "jso-help-menu",
+        ready: function() {
+            var me = this;
+            this.$.drop.addEventListener('focus', function() {
+                var bcr = me.getBoundingClientRect();
+                var bcrd = me.$.drop.getBoundingClientRect();
+                var bcrdm = me.$.dropmenu.getBoundingClientRect();
+                me.$.dropmenu.style.left = (bcr.left - bcrdm.width + bcrd.width) + 'px';
+                me.$.dropmenu.style.top = (bcr.top + bcrd.height) + 'px';
+            });
+        }
     });
 </script>

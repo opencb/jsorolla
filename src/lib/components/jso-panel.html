@@ -273,7 +273,7 @@
                 this._hasfooter = this.$.footer.childElementCount > 0;
 
                 var child = this.$.container.querySelector('.container');
-                if(child != null){
+                if (child != null) {
                     child._parentJsoPanel = this;
                 }
             },
@@ -443,13 +443,13 @@
             },
             _updateLastWindow: function() {
                 if (lastWindow_) {
-                    if (!lastWindow_.expanded) {
+                    if (!lastWindow_.expanded && lastWindow_.movable) {
                         lastWindow_.style["z-index"] = '1';
                     }
                 }
                 lastWindow_ = this;
                 if (lastWindow_) {
-                    if (!lastWindow_.expanded) {
+                    if (!lastWindow_.expanded && lastWindow_.movable) {
                         lastWindow_.style["z-index"] = '2';
                     }
                 }

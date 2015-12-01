@@ -63,7 +63,7 @@ GENE_BIOTYPE_COLORS = {
     "transcribed_unprocessed_pseudogene": "#666666",
     "unitary_pseudogene": "#666666",
     "unprocessed_pseudogene": "#666666",
-    "": "orangered",
+    // "": "orangered",
     "other": "#000000"
 };
 
@@ -716,4 +716,3 @@ FEATURE_TYPES = {
         histogramColor: "#ff6500"
     }
 };
-

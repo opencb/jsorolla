@@ -167,11 +167,11 @@
                             me.set('width', w);
                             me.genomeViewer.setWidth(w);
                         }
-                    }, 500);
+                    }, 1000);
+
                 }, 100);
             },
             createGenomeViewer: function(config) {
-
                 var w = this.getBoundingClientRect().width;
                 if (w == 0) {
                     w = this.width;
