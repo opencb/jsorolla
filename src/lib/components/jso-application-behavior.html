@@ -30,7 +30,10 @@
             smallHeader: {
                 type: Boolean,
                 value: false,
-                reflectToAttribute: true
+                reflectToAttribute: true,
+            },
+            _lastLogedRequest: {
+                type: Object
             }
         },
         selectedOptionChanged: function(neo, old) {
@@ -59,9 +62,19 @@
             var option = e.currentTarget.dataset['option'];
             this.setMenu(option);
         },
+        handleLoggedOnlyMenuOption: function(e) {
+            if (this.$.jsoHeader != null) {
+                var option = e.currentTarget.dataset['option'];
+                if (this.$.jsoHeader.isLogged) {
+                    this.setMenu(option);
+                } else {
+                    this.selectedOption = 'login';
+                }
+            }
+        },
         setMenu: function(option) {
             if (option) {
-                this.selectedOption = option;
+                this.set('selectedOption', option);
             }
         },
         handleMenuPanel: function(e) {

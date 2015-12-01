@@ -1,0 +1,93 @@
+<script>
+    JsoOpencgaManagerBehavior = {
+        properties: {
+
+        },
+        /**
+         * Get files information given a file Id.
+         */
+        _getFileBean: function(fileId, cb) {
+            OpencgaManager.files.info({
+                id: fileId,
+                query: {
+                    sid: Cookies('bioinfo_sid')
+                },
+                request: {
+                    success: function(response) {
+                        cb(response.response[0].result[0])
+                    },
+                    error: function(response) {}
+                }
+            });
+        },
+        /**
+         * Get files information given a file ids array.
+         */
+        _getFilesBeans: function(fileIds, cb) {
+            OpencgaManager.files.info({
+                id: fileIds,
+                query: {
+                    sid: Cookies('bioinfo_sid')
+                },
+                request: {
+                    success: function(response) {
+                        var fileBeans = [];
+                        for (var i = 0; i < response.response.length; i++) {
+                            var res = response.response[i];
+                            var file = res.result[0];
+                            fileBeans.push(file);
+                        }
+                        cb(fileBeans)
+                    },
+                    error: function(response) {}
+                }
+            });
+        },
+        /**
+         * Get content given a file Id.
+         */
+        _getFileContent: function(fileId, cb) {
+            OpencgaManager.files.content({
+                id: fileId,
+                query: {
+                    sid: Cookies('bioinfo_sid')
+                },
+                request: {
+                    async: true,
+                    success: function(response) {
+                        cb(response);
+                    },
+                    error: function(response) {
+
+                    }
+                }
+            });
+        },
+        _getFileURL: function(fileId) {
+            return OpencgaManager.files.download({
+                id: fileId,
+                query: {
+                    sid: Cookies("bioinfo_sid")
+                },
+                request: {
+                    url: true
+                }
+            });
+        },
+        /**
+         * Download the file given a file Id.
+         */
+        _downloadFile: function(fileId) {
+            var url = this._getFileURL(fileId);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = this.textFile.name;
+            var event = new MouseEvent('click', {
+                'view': window,
+                'bubbles': true,
+                'cancelable': true
+            });
+            link.dispatchEvent(event);
+        }
+    };
+</script>

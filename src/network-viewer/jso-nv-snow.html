@@ -373,6 +373,7 @@
                                     me.message = id + ' created';
                                     console.log(id + ' created');
                                     me._close();
+                                    me.fire('job-launched');
                                 } else {
                                     me.message = response.response[0].errorMsg;
                                 }

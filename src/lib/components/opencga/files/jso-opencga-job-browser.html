@@ -64,6 +64,12 @@
         jso-opencga-job-list {
             height: 100%;
         }
+
+        #loading {
+            position: absolute;
+            left: 180px;
+            top: 35px;
+        }
     </style>
     <template>
         <div id="main" class="flex">
@@ -82,6 +88,9 @@
             <!--<div id="maininfo">-->
 
             <!--</div>-->
+        </div>
+        <div id="loading" hidden$="{{!loading}}">
+            <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
         </div>
     </template>
 
@@ -127,8 +136,13 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
+            },
+            loading: {
+                type: Boolean,
+                value: false
             }
         },
+        _lastStudyIdCalled: null,
         ready: function() {
             /** Periodical refresh **/
             var me = this;
@@ -138,7 +152,7 @@
                     if (Cookies('bioinfo_sid') != null) {
                         me.refreshJobs();
                     }
-                }, 5000);
+                }, 10000);
             });
         },
         projectsChanged: function(neo, old) {
@@ -218,6 +232,9 @@
         },
         _getJobs: function(studyId) {
             var me = this;
+            if(this._lastStudyIdCalled !== studyId){
+                this.loading = true;
+            }
 
             OpencgaManager.studies.jobs({
                 id: studyId,
@@ -227,28 +244,31 @@
                 request: {
                     async: true,
                     success: function(response) {
-                        // console.log(response);
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            var jobList = response.response[0].result;
+                        me._lastStudyIdCalled = studyId;
+                        if (me.selectedStudy.study.id === studyId) {
+                            // console.log(response);
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var jobList = response.response[0].result;
+                                if (me.allowedTools != null && me.allowedTools.length > 0) {
+                                    jobList = jobList.filter(function(item) {
+                                        return me.allowedTools.indexOf(item.toolName) != -1;
+                                    })
+                                }
+                                jobList.sort(function(a, b) {
+                                    return b.date.localeCompare(a.date);
+                                });
 
-                            if (me.allowedTools != null && me.allowedTools.length > 0) {
-                                jobList = jobList.filter(function(item) {
-                                    return me.allowedTools.indexOf(item.toolName) != -1;
-                                })
-                            }
-                            jobList.sort(function(a, b) {
-                                return b.date.localeCompare(a.date);
-                            });
+                                me.loading = false;
 
-                            if (Cookies('bioinfo_sid') != null) {
-                                me.set('jobs', jobList);
+                                if (Cookies('bioinfo_sid') != null) {
+                                    me.set('jobs', jobList);
+                                } else {
+                                    console.warn('Remove this IF CHECK when OPENCGA updates lastActivity for job status.');
+                                }
+                                //                            me.jobs = response.response[0].result;
                             } else {
-                                console.warn('Remove this IF CHECK when OPENCGA updates lastActivity for job status.');
+                                console.log(response.response[0].errorMsg);
                             }
-                            //                            me.jobs = response.response[0].result;
-
-                        } else {
-                            console.log(response.response[0].errorMsg);
                         }
                     },
                     error: function() {

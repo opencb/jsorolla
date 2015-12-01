@@ -11,9 +11,9 @@
         #header,
         #bar {
             box-sizing: border-box;
-            background-color: rgba(125, 125, 125, 0.1);
+            background-color: var(--light-secondary-color);
             padding: 3px 7px;
-            border-bottom: 1px solid rgba(125, 125, 125, 0.5);
+            border-bottom: 1px solid var(--divider-color);
         }
 
         #header {
@@ -333,7 +333,6 @@
                     if (selected.bioformat !== "VARIANT" && selected.bioformat !== "ALIGNMENT") {
                         return true
                     }
-
                 }
             }
 

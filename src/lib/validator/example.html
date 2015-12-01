@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Example</title>
+    <script type="text/javascript" src="validator.js"></script>
+    <script type="text/javascript" src="vcf-validator.js"></script>
+    <script type="text/javascript" src="../../../bower_components/client-line-navigator/line-navigator.js"></script>
+    <script type="text/javascript" src="../../../bower_components/client-line-navigator/file-navigator.js"></script>
+</head>
+
+<body>
+
+    <input type="file" name="name" value="" id="file">
+    <button type="button" onclick="handleClick()">Validate</button>
+
+    <table id="table"></table>
+
+    <script type="text/javascript">
+        function handleClick() {
+            file = document.getElementById("file").files[0];
+
+            var vcf_validator = new VCFValidator({
+                file: file
+            });
+
+            console.time("Test performance");
+            vcf_validator.validate()
+
+            vcf_validator.on("end", function(e) {
+                console.log(this);
+                console.timeEnd("Test performance");
+
+                var table = document.getElementById("table");
+                table.innerHTML = "";
+
+                for (var i = 0; i < this.log.length; i++) {
+                    var log = this.log[i];
+                    var tr = document.createElement("tr");
+                    var line = document.createElement("td");
+                    var type = document.createElement("td");
+                    var msg = document.createElement("td");
+
+                    line.appendChild(document.createTextNode(log.line))
+                    type.appendChild(document.createTextNode(log.type))
+                    msg.appendChild(document.createTextNode(log.msg))
+
+                    tr.appendChild(line);
+                    tr.appendChild(type);
+                    tr.appendChild(msg);
+
+                    table.appendChild(tr);
+
+                }
+
+            });
+        }
+    </script>
+</body>
+
+</html>

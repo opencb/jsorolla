@@ -8,6 +8,7 @@
         }
 
         :host[modal] {
+            z-index: 100 !important;
             position: fixed;
             box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
         }
@@ -246,7 +247,6 @@
                     type: Boolean,
                     reflectToAttribute: true,
                     observer: 'hiddenChanged'
-
                 },
                 _hasfooter: {
                     type: Boolean,
@@ -294,6 +294,10 @@
             show: function() {
                 this.hidden = false;
                 this.hiddenChanged(false);
+            },
+            hide: function() {
+                this.hidden = true;
+                this.hiddenChanged(true);
             },
             isContainerHidden: function(collapsible, collapsed) {
                 if (collapsible && collapsed) {

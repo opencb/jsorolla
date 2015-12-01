@@ -163,14 +163,15 @@
         properties: {
             bioformats: {
                 type: Array,
-                observer: 'selectedBioformatChanged'
+                observer: 'bioformatsChanged'
             },
             hideBioformats: {
                 type: Boolean,
                 value: false
             },
             selectedBioformat: {
-                type: Object
+                type: Object,
+                observer: 'selectedDioformatsChanged'
             }
         },
         isChecked: function(bioformats, bioformat) {
@@ -181,7 +182,7 @@
                 return false
             }
         },
-        selectedBioformatChanged: function(neo, old) {
+        bioformatsChanged: function(neo, old) {
             var radios = Polymer.dom(this).querySelectorAll('input[name="bioformat"]');
             for (var i = 0; i < radios.length; i++) {
                 var radio = radios[i];
@@ -197,6 +198,9 @@
                 }
             }
         },
+        selectedDioformatsChanged: function(neo, old) {
+            this.fire('selected-bioformat-change');
+        },
         handleRadioChange: function(e) {
             this.set('selectedBioformat', e.model.bioformat);
         },
@@ -210,7 +214,6 @@
             //                selectedBioformat = radioButton.value;
             //            return selectedBioformat;
         }
-
 
     });
 </script>
