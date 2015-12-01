@@ -119,8 +119,10 @@
         },
 
         handleSelect: function(e) {
-            this.select(e.target);
-            this.hideList();
+            if (e.target.tagName === 'JSO-OPTION') {
+                this.select(e.target);
+                this.hideList();
+            }
         },
         select: function(option, notify) {
             if (this.selectedOption !== option) {
@@ -158,7 +160,7 @@
             position: relative;
             box-sizing: border-box;
             word-break: break-all;
-            height:20px;
+            height: 20px;
         }
     </style>
     <template>

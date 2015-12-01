@@ -52,7 +52,7 @@
         }
 
         .left {
-            padding-right: 10px;
+            padding-right: 30px;
         }
 
         .right {
@@ -60,14 +60,10 @@
             position: relative;
             box-sizing: border-box;
             width: 440px;
-            border: 1px solid rgba(130, 130, 130, 0.4);
         }
 
-        .right > .title {
-            border-bottom: 1px solid rgba(130, 130, 130, 0.4);
-            padding: 3px;
-            text-align: center;
-            font-size: 14px;
+        #validator {
+            border: 1px solid var(--divider-color);
         }
     </style>
     <template>
@@ -112,8 +108,8 @@
 
                     <br>
 
-                    <div class="jso-btn jso-btn-shdw" on-click="handleForm" hidden$="{{computeStatusButton(status, 'update')}}">Upload</div>
-                    <div class="jso-btn jso-btn-shdw" on-click="handleValidate" hidden$="{{computeStatusButton(status, 'validation')}}">Validate</div>
+                    <div class="jso-btn jso-btn-shdw" on-click="handleValidate">Upload</div>
+                    <!-- <div class="jso-btn jso-btn-shdw" on-click="handleValidate" hidden$="{{computeStatusButton(status, 'validation')}}">Validate</div> -->
                 </form>
                 <br>
 
@@ -129,7 +125,7 @@
             </div>
 
             <div class="right vertical layout">
-                <div class="title">Validation Log</div>
+                <label class="jso">Validation Log:</label>
                 <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
             </div>
 
@@ -199,7 +195,7 @@
                 type: String,
                 value: 'validation'
             },
-            enableValidation: {
+            disableValidation: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
@@ -230,7 +226,14 @@
             }
             if (numberOfBioformats == 1) {
                 this.hideBioformats = true;
-                this.selectedBioformat = this.bioformats[bioformatIdx].value;
+                this.selectedBioformat = this.bioformats[bioformatIdx];
+            }
+            if (numberOfBioformats == 0) {
+                this.hideBioformats = true;
+                this.selectedBioformat = {
+                    value: 'NONE',
+                    text: 'NONE'
+                };
             }
         },
         handleBrowseClick: function(e) {
@@ -247,9 +250,24 @@
                 this.status = "validation";
             }
         },
+
         handleForm: function() {
             var me = this;
             if (this.uploading == false) {
+
+                /* Check bioformat */
+                var selBioformat;
+                if (this.$.bioformatSelect.selectedBioformat != null) {
+                    selBioformat = this.$.bioformatSelect.selectedBioformat;
+                }
+                if (this.selectedBioformat != null) {
+                    selBioformat = this.selectedBioformat;
+                }
+                if (selBioformat == null) {
+                    alert("Please select a bioformat");
+                    return;
+                }
+
                 var selStudy;
                 if (this.$.studySelect.selectedStudy != null) {
                     selStudy = this.$.studySelect.selectedStudy;
@@ -262,17 +280,6 @@
                     return;
                 }
 
-                var selBioformat;
-                if (this.$.bioformatSelect.selectedBioformat != null) {
-                    selBioformat = this.$.bioformatSelect.selectedBioformat;
-                }
-                if (this.selectedBioformat != null) {
-                    selBioformat = this.selectedBiormat;
-                }
-                if (selBioformat == null) {
-                    alert("Please select a bioformat");
-                    return;
-                }
                 var folder = "";
                 if (this.selectedFolder != null) {
                     folder = this.selectedFolder.path;
@@ -363,16 +370,20 @@
         },
 
         handleValidate: function(e) {
-
+            /* Check bioformat */
             var selBioformat;
-
             if (this.$.bioformatSelect.selectedBioformat != null) {
                 selBioformat = this.$.bioformatSelect.selectedBioformat;
             }
             if (this.selectedBioformat != null) {
-                selBioformat = this.selectedBiormat;
+                selBioformat = this.selectedBioformat;
+            }
+            if (selBioformat == null) {
+                alert("Please select a bioformat");
+                return;
             }
 
+            /* Validate bioformat */
             if (selBioformat != null) {
                 var file = this.$.fileInput.files[0];
                 this.$.validator.reset();
@@ -392,14 +403,14 @@
                 this.$.validator.setFile(file);
                 this.$.validator.validate();
             }
+
         },
 
         handleValidatorEnd: function(e) {
-
             if (!this.$.validator.errorCount > 0) {
-                this.status = "update";
+                // this.status = "update";
+                this.handleForm();
             }
-
         },
         computeStatusButton: function(status, value) {
             return status != value;

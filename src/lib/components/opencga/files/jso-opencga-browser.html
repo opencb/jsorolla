@@ -520,10 +520,14 @@
             var files;
 
             var bfList = [];
-            for (var i = 0; i < this.bioformats.length; i++) {
-                var bf = this.bioformats[i];
-                bfList.push(bf.value);
+            if (this.bioformats > 0) {
+                var bfList = ['NONE'];
+                for (var i = 0; i < this.bioformats.length; i++) {
+                    var bf = this.bioformats[i];
+                    bfList.push(bf.value);
+                }
             }
+
             var query = {
                 sid: Cookies('bioinfo_sid'),
                 //                    status:'READY,STAGED,MISSING',
@@ -532,8 +536,8 @@
                 studyId: studyId
             };
 
-            if (this.mode === 'file' || this.mode === 'folder') {
-                query.bioformat = bfList.join(',') + ',NONE';
+            if (bfList > 0 && (this.mode === 'file' || this.mode === 'folder')) {
+                query.bioformat = bfList.join(',');
             }
 
             OpencgaManager.files.list({
@@ -589,11 +593,12 @@
                 ) {
                     continue;
                 }
+
                 if (this.mode == 'folder') {
                     if (file.type != 'FOLDER') {
                         continue;
                     }
-                } else if (this.mode == 'file') {
+                } else if (this.mode == 'file' && bfList > 0) {
                     if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
                         continue;
                     }

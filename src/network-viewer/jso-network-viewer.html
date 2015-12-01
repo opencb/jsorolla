@@ -616,8 +616,10 @@
                 this.$.networkLayout.style.height = "calc(100% - " + h + "px)";
             });
 
-            this.$.nodeRenderPanel.hidden = this.hideNodeRender;
-            this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
+            this.async(function() {
+                this.$.nodeRenderPanel.hidden = this.hideNodeRender;
+                this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
+            }, 200);
 
             document.body.addEventListener('click', function(e) {
                 me._hideVertexContextMenu();
@@ -2803,7 +2805,7 @@
             var e;
             new AttributeNetworkDataAdapter({
                 async: false,
-                useFirstLineAsColumnNames:useFirstLineAsColumnNames,
+                useFirstLineAsColumnNames: useFirstLineAsColumnNames,
                 dataSource: new StringDataSource(attrString),
                 handlers: {
                     'data:load': function(event) {
