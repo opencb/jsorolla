@@ -8,23 +8,25 @@
 
         jso-table {
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+            overflow-y: hidden;
         }
 
         #mafChart {
-            /*width: 100%;*/
             border: 1px solid rgba(125, 125, 125, 0.4);
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
             margin: 0 auto;
+            overflow-x: scroll;
+            width: 40%;
+            height: 350px;
         }
-
+        #table{
+            width: 60%;
+        }
     </style>
     <template>
-        <div hidden$="{{isEmpty}}" class="vertical layout">
+        <div hidden$="{{isEmpty}}" class="horizontal layout">
             <jso-table id="table"></jso-table>
-            <br>
-
-            <div id="mafChart" class="horizontal layout end-justified"></div>
-            <br>
+            <div id="mafChart" style></div>
         </div>
         <div hidden$="{{!isEmpty}}" style="padding:20px 50px;">
             No frequencies found.
@@ -44,49 +46,72 @@
                 type: Boolean
             }
         },
-        ready: function () {
+        ready: function() {
             this.$.table.columns = this._columns;
         },
-        _columns: [
-            {name: "study", title: "Study"},
-            {name: "pop", title: "Population"},
-            {name: "superPop", title: "SuperPopulation"},
-            {name: "refAllele", title: "Ref. Allele"},
-            {name: "altAllele", title: "Alt. Allele"},
-            {
-                name: "refAlleleFreq", title: "Ref. Allele Freq.",
-                cellTemplate: 'alleleFreqCT',
-                formula: function (row) {
-                    var val = ".";
-                    if (row.refAlleleFreq != null) {
-                        val = row.refAlleleFreq.toFixed(3);
-                    }
-                    return val;
+        _columns: [{
+            name: "study",
+            title: "Study"
+        }, {
+            name: "pop",
+            title: "Population"
+        }, {
+            name: "superPop",
+            title: "SuperPopulation"
+        }, {
+            name: "refAllele",
+            title: "Ref. Allele",
+            width: 50
+        }, {
+            name: "altAllele",
+            title: "Alt. Allele",
+            width: 50
+        }, {
+            name: "refAlleleFreq",
+            title: "Ref. Allele Freq.",
+            cellTemplate: 'alleleFreqCT',
+            formula: function(row) {
+                var val = ".";
+                if (row.refAlleleFreq != null) {
+                    val = row.refAlleleFreq.toFixed(3);
                 }
+                return val;
             },
-            {
-                name: "altAlleleFreq", title: "Alt. Allele Freq.",
-//                cellTemplate: 'alleleFreqCT',
-                formula: function (row) {
-                    var val = ".";
-                    if (row.altAlleleFreq != null) {
-                        val = row.altAlleleFreq.toFixed(3);
-                    }
-                    return val;
+            width: 70
+        }, {
+            name: "altAlleleFreq",
+            title: "Alt. Allele Freq.",
+            //                cellTemplate: 'alleleFreqCT',
+            formula: function(row) {
+                var val = ".";
+                if (row.altAlleleFreq != null) {
+                    val = row.altAlleleFreq.toFixed(3);
                 }
+                return val;
             },
-            {
-                name: "maf", title: "MAF",
-//                cellTemplate: 'alleleFreqCT',
-                formula: function (row) {
-                    return Math.min(row.refAlleleFreq, row.altAlleleFreq).toFixed(3);
-                }
+            width: 70
+        }, {
+            name: "maf",
+            title: "MAF",
+            //                cellTemplate: 'alleleFreqCT',
+            formula: function(row) {
+                return Math.min(row.refAlleleFreq, row.altAlleleFreq).toFixed(3);
             },
-            {name: "refHomGenotypeFreq", title: "0/0"},
-            {name: "hetGenotypeFreq", title: "0/1"},
-            {name: "altHomGenotypeFreq", title: "1/1"}
-        ],
-        rowChanged: function (neo, old) {
+            width: 70
+        }, {
+            name: "refHomGenotypeFreq",
+            title: "0/0",
+            width: 50
+        }, {
+            name: "hetGenotypeFreq",
+            title: "0/1",
+            width: 50
+        }, {
+            name: "altHomGenotypeFreq",
+            title: "1/1",
+            width: 70
+        }],
+        rowChanged: function(neo, old) {
             var me = this;
 
             this.$.table.currentPage = 1;
@@ -94,16 +119,16 @@
             if (neo) {
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
-//                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
+                    //                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
                     version: 'v3',
                     species: 'hsapiens',
                     category: 'genomic',
                     subCategory: 'variant',
                     resource: 'full_annotation',
-//                    query: "19:45411941:T:C",
+                    //                    query: "19:45411941:T:C",
                     query: variant,
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         try {
                             me.$.table.data = response.response[0].result[0].populationFrequencies;
                             me.isEmpty = (me.$.table.data.length > 0) ? false : true;
@@ -114,7 +139,6 @@
                     }
                 });
 
-
                 var data = [];
                 var cat = [];
                 for (var i = 0; i < me.$.table.data.length; i++) {
@@ -122,7 +146,6 @@
                     var maf = parseFloat(Math.min(elem.refAlleleFreq, elem.altAlleleFreq).toFixed(3));
                     data.push(maf);
                     cat.push(elem.study + "/" + elem.pop);
-
 
                 }
                 console.log(data);
@@ -177,27 +200,23 @@
                     chart: {
                         polar: true,
                         type: 'line',
-                        renderTo: this.$.mafChart,
-                        width: 800,
-                        height: 350
+                        renderTo: this.$.mafChart
                     },
                     credits: {
                         enabled: false
                     },
                     title: {
-                        text: 'Minor Allele Frequency'
+                        text: 'Minor Allele Frequency',
+                        x: -80
+                    },
+                    pane: {
+                        size: '50%'
                     },
                     legend: {
-                        layout: 'vertical',
                         align: 'right',
-                        verticalAlign: 'top',
-                        x: -40,
-                        y: 100,
-                        floating: true,
-                        borderWidth: 1,
-                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                        shadow: true
+                        verticalAlign: 'bottom',
                     },
+
                     xAxis: {
                         categories: cat,
                         tickmarkPlacement: 'on',
@@ -207,7 +226,7 @@
                     yAxis: {
                         gridLineInterpolation: 'polygon',
                         lineWidth: 0,
-                        min:0,
+                        min: 0,
                         max: 0.5
                     },
 
