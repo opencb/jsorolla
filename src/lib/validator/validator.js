@@ -4,21 +4,29 @@ function Validator(options) {
         return new Validator(options);
     }
 
-    this.file = options.file;
-    this._navigator = new FileNavigator(this.file);
+    this.file = options.file ? options.file : null;
 
     this.log = [];
     this.line = 0;
-    this._totalBytes = this.file.size;
+    this.progress = 0;
     this._readBytes = 0;
     this._events = {};
 }
 
 Validator.prototype = {
+    init: function () {
+        this.file = null;
+        this.log = [];
+        this.line = 0;
+        this.progress = 0;
+        this._readBytes = 0;
+    },
 
     validate: function () {
-
         var me = this;
+
+        this._navigator = new FileNavigator(this.file);
+        this._totalBytes = this.file.size;
 
         var indexToStartWith = 0;
 
@@ -35,8 +43,10 @@ Validator.prototype = {
 
                 me.line++;
                 me._readBytes += line.length;
+                me.progress = (me._readBytes / me._totalBytes) * 100;
                 me.validateLine(line);
             }
+            me._emit("progress", [me.progress]);
 
             if (eof) {
                 me._emit("end");
@@ -51,15 +61,14 @@ Validator.prototype = {
     validateLine: function (line) {
         return true;
     },
-    progress: function () {
-        return (this._readBytes / this._totalBytes) * 100;
-    },
     addLog: function (type, msg) {
-        this.log.push({
+        var log = {
             type: type,
             msg: msg,
             line: this.line
-        });
+        };
+        this.log.push(log);
+        this._emit("log", [log]);
     },
     on: function (eventName, cb) {
         this._events[eventName] = cb;

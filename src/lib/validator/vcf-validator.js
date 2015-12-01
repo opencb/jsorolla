@@ -13,13 +13,15 @@ function VCFValidator(options) {
     this._headerElements = [];
     this._samples = [];
     this._columnsSize = 0;
+    this._refTag = false;
 
     this._regExp = {
         "headerId": /ID=(\w+)/,
         "headerNumber": /Number=(\w+|\.)/,
         "headerType": /Type=(\w+)/,
         "headerDesc": /Description=\"(.+)\"/,
-        "actg": /^[ACGTN]+$/
+        "actg": /^[ACGTN]+$/,
+        "gt": /^(\.|\d+)([|/](\.|\d+))?/
     }
 }
 
@@ -30,6 +32,10 @@ VCFValidator.prototype.validateLine = function (line) {
     if (this._header) { // parse Header
         this.parseHeader(line);
     } else {
+        if (!this._refTag) {
+            this._checkReferenceTag();
+            this._refTag = true;
+        }
         if (!this._fileFormat) {
             this.addLog("error", "The file format declaration must be present");
             this._fileFormat = true;
@@ -205,8 +211,8 @@ VCFValidator.prototype.parseData = function (line) {
     // alt
     var alt = columns[4];
 
-    if (alt == "") {
-        this.addLog("error", "Alternate allele must not be empty");
+    if (alt == undefined) {
+        debugger
     }
 
     var altSplits = alt.split(",");
@@ -226,7 +232,7 @@ VCFValidator.prototype.parseData = function (line) {
         var altElem = altSplits[i];
         if (altElem.length != ref.length) {
             if (altElem.charAt(0) != ref.charAt(0)) {
-                this.addLog("error", "The first base of each allele must match the reference if their lengths are different");
+                this.addLog("warning", "The first base of each allele must match the reference if their lengths are different");
             }
         }
     }
@@ -240,5 +246,81 @@ VCFValidator.prototype.parseData = function (line) {
         }
 
     }
+
+    // Filter
+
+    var filter = columns[6];
+
+    // Info
+    var info = columns[7];
+
+    if (!columns.length > 8) {
+        return;
+    }
+
+    // Format
+    var format = columns[8];
+
+    if (this._samples.length > 0 && format == "") {
+        this.addLog("eror", "Must not be empty if the file contains any samples");
+    }
+
+    if (format != "" && !format.startsWith("GT")) {
+        this.addLog("error", "GT must be the first field");
+    }
+
+    var formatSplits = format.split(":");
+
+    // Samples
+    var samplesData = [];
+
+    for (var i = 9; i < columns.length; i++) {
+        samplesData.push(columns[i]);
+    }
+
+    for (var i = 0; i < samplesData.length; i++) {
+        var sampleData = samplesData[i];
+
+        if (sampleData == "") {
+            this.addLog("error", "Sample fields must be not empty");
+        } else {
+            var sampleDataSplit = sampleData.split(":");
+            var gt = sampleDataSplit[0];
+            if (!this._regExp["gt"].test(gt)) {
+                this.addLog("error", "GT must match the regular expression ^(\.|\d+)([|/]?)");
+            } else {
+                var gtGroups = this._regExp["gt"].exec(gt);
+                if (gtGroups.length == 2) { // GT = 0,1
+                    var gtAllele = parseInt(gtGroups[1]);
+                    if (gtAllele > altSplits.length) {
+                        this.addLog("error", "An allele index must not be greater than the number of alleles in that variant");
+                    }
+                } else if (gtGroups.length == 4) { // GT = 0/0,0/1,....
+                    var gtAllele0 = parseInt(gtGroups[1]);
+                    var gtAllele1 = parseInt(gtGroups[3]);
+
+                    if (gtAllele0 > altSplits.length || gtAllele1 > altSplits.length) {
+                        this.addLog("error", "An allele index must not be greater than the number of alleles in that variant");
+                    }
+
+                }
+            }
+
+            if (sampleDataSplit.length != formatSplits.length) {
+                this.addLog("error", "The number of sub-fields can not be greater than the number in the FORMAT column. Expected : " + formatSplits.length + ", found: " + sampleDataSplit.length);
+            }
+        }
+    }
+}
+
+VCFValidator.prototype._checkReferenceTag = function () {
+
+    for (var i = 0; i < this._headerElements.length; i++) {
+        var headerElement = this._headerElements[i];
+        if (headerElement.id === "reference") {
+            return;
+        }
+    }
+    this.addLog("warning", "The tag 'reference' must be present");
 
 }

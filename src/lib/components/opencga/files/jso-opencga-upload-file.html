@@ -1,12 +1,13 @@
 <link rel="import" href="jso-opencga-study-select.html">
 <link rel="import" href="jso-opencga-bioformat.html">
+<link rel="import" href="../../../validator/jso-validator.html">
+
 <dom-module id="jso-opencga-upload-file">
     <style>
         :host {
             display: block;
             position: relative;
             box-sizing: border-box;
-            width: 300px;
             padding: 20px 30px;
         }
 
@@ -49,60 +50,87 @@
         .filename {
             word-break: break-all;
         }
+
+        .left {
+            padding-right: 30px;
+        }
+
+        .right {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            width: 440px;
+        }
+
+        #validator {
+            border: 1px solid var(--divider-color);
+        }
     </style>
     <template>
-        <div>
-            <div hidden$="{{!showSelectStudy}}">
-                <label class="jso">Studies:</label>
-                <jso-opencga-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
-                </jso-opencga-study-select>
-                <br>
-            </div>
-
-            <div hidden$="{{showSelectStudy}}">
-                <label class="jso">File path:</label>
-
+        <div class="horizontal layout">
+            <div class="vertical layout left">
                 <div>
-                    /
-                    <span>{{selectedProject.name}}</span>/
-                    <span>{{selectedStudy.name}}</span>/
-                    <span>{{selectedFolder.name}}</span>
+                    <div hidden$="{{!showSelectStudy}}">
+                        <label class="jso">Studies:</label>
+                        <jso-opencga-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
+                        </jso-opencga-study-select>
+                        <br>
+                    </div>
+
+                    <div hidden$="{{showSelectStudy}}">
+                        <label class="jso">File path:</label>
+
+                        <div>
+                            /
+                            <span>{{selectedProject.name}}</span>/
+                            <span>{{selectedStudy.name}}</span>/
+                            <span>{{selectedFolder.name}}</span>
+                        </div>
+                        <br>
+                    </div>
+                    <div hidden$="{{hideBioformats}}">
+                        <label class="jso">Bioformat:</label>
+                        <jso-opencga-bioformat id="bioformatSelect" bioformats="{{bioformats}}"></jso-opencga-bioformat>
+                    </div>
                 </div>
                 <br>
+
+                <form id="form">
+                    <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
+                        <span>Choose file...</span>
+                    </div>
+                    <br>
+                    <label class="jso">Selected file name:</label>
+
+                    <div class="filename">{{fileName}}</div>
+
+                    <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
+
+                    <br>
+
+                    <div class="jso-btn jso-btn-shdw" on-click="handleValidate">Upload</div>
+                    <!-- <div class="jso-btn jso-btn-shdw" on-click="handleValidate" hidden$="{{computeStatusButton(status, 'validation')}}">Validate</div> -->
+                </form>
+                <br>
+
+                <div class="uploadbar" hidden$="{{!uploading}}">
+                    <div id="progressBar" class="uploadprogress"></div>
+                    <div class="uploadtext">
+                        <i class="fa fa-spinner fa-spin"></i>
+                        <span>{{percentProgress}}</span> %
+                    </div>
+                    <br>
+                </div>
+                <span>{{message}}</span>
             </div>
-            <div hidden$="{{hideBioformats}}">
-                <label class="jso">Bioformat:</label>
-                <jso-opencga-bioformat id="bioformatSelect" bioformats="{{bioformats}}"></jso-opencga-bioformat>
+
+            <div class="right vertical layout">
+                <label class="jso">Validation Log:</label>
+                <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
             </div>
+
         </div>
-        <br>
 
-        <form id="form">
-            <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
-                <span>Choose file...</span>
-            </div>
-            <br>
-            <label class="jso">Selected file name:</label>
-
-            <div class="filename">{{fileName}}</div>
-
-            <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
-
-            <br>
-
-            <div class="jso-btn jso-btn-shdw" on-click="handleForm">Upload</div>
-        </form>
-        <br>
-
-        <div class="uploadbar" hidden$="{{!uploading}}">
-            <div id="progressBar" class="uploadprogress"></div>
-            <div class="uploadtext">
-                <i class="fa fa-spinner fa-spin"></i>
-                <span>{{percentProgress}}</span> %
-            </div>
-            <br>
-        </div>
-        <span>{{message}}</span>
     </template>
 
 </dom-module>
@@ -162,14 +190,29 @@
             showSelectStudy: {
                 type: Boolean,
                 value: true
+            },
+            status: {
+                type: String,
+                value: 'validation'
+            },
+            disableValidation: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
             }
         },
         ready: function(e) {
+            var me = this;
             if (this.bioformats.length == 0) {
                 /*** Check number of bioformats in order to show the bioformat chooser ***/
                 // console.log("No bioformats selected")
                 this.checkBioformats();
             }
+
+            this._parentJsoPanel.addEventListener("close", function(e) {
+                me.status = "validation";
+                me.$.validator.reset();
+            })
         },
         checkBioformats: function() {
             var numberOfBioformats = 0;
@@ -183,7 +226,14 @@
             }
             if (numberOfBioformats == 1) {
                 this.hideBioformats = true;
-                this.selectedBioformat = this.bioformats[bioformatIdx].value;
+                this.selectedBioformat = this.bioformats[bioformatIdx];
+            }
+            if (numberOfBioformats == 0) {
+                this.hideBioformats = true;
+                this.selectedBioformat = {
+                    value: 'NONE',
+                    text: 'NONE'
+                };
             }
         },
         handleBrowseClick: function(e) {
@@ -193,13 +243,31 @@
         },
         handleInputChange: function() {
             if (this.uploading == false) {
+
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
+
+                this.status = "validation";
             }
         },
+
         handleForm: function() {
             var me = this;
             if (this.uploading == false) {
+
+                /* Check bioformat */
+                var selBioformat;
+                if (this.$.bioformatSelect.selectedBioformat != null) {
+                    selBioformat = this.$.bioformatSelect.selectedBioformat;
+                }
+                if (this.selectedBioformat != null) {
+                    selBioformat = this.selectedBioformat;
+                }
+                if (selBioformat == null) {
+                    alert("Please select a bioformat");
+                    return;
+                }
+
                 var selStudy;
                 if (this.$.studySelect.selectedStudy != null) {
                     selStudy = this.$.studySelect.selectedStudy;
@@ -212,17 +280,6 @@
                     return;
                 }
 
-                var selBioformat;
-                if (this.$.bioformatSelect.selectedBioformat != null) {
-                    selBioformat = this.$.bioformatSelect.selectedBioformat;
-                }
-                if (this.selectedBioformat != null) {
-                    selBioformat = this.selectedBiormat;
-                }
-                if (selBioformat == null) {
-                    alert("Please select a bioformat");
-                    return;
-                }
                 var folder = "";
                 if (this.selectedFolder != null) {
                     folder = this.selectedFolder.path;
@@ -310,6 +367,54 @@
             } else {
                 console.log("Disabled Index");
             }
+        },
+
+        handleValidate: function(e) {
+            /* Check bioformat */
+            var selBioformat;
+            if (this.$.bioformatSelect.selectedBioformat != null) {
+                selBioformat = this.$.bioformatSelect.selectedBioformat;
+            }
+            if (this.selectedBioformat != null) {
+                selBioformat = this.selectedBioformat;
+            }
+            if (selBioformat == null) {
+                alert("Please select a bioformat");
+                return;
+            }
+
+            /* Validate bioformat */
+            if (selBioformat != null) {
+                var file = this.$.fileInput.files[0];
+                this.$.validator.reset();
+                var validator;
+
+                if (selBioformat.validator) {
+                    if (typeof selBioformat.validator !== "function") {
+                        alert("Validator '" + selBioformat.validator + "' not recognized.");
+                        return;
+                    }
+                    validator = new selBioformat.validator({});
+                } else {
+                    validator = new Validator({});
+                }
+
+                this.$.validator.validator = validator;
+                this.$.validator.setFile(file);
+                this.$.validator.validate();
+            }
+
+        },
+
+        handleValidatorEnd: function(e) {
+            if (!this.$.validator.errorCount > 0) {
+                // this.status = "update";
+                this.handleForm();
+            }
+        },
+        computeStatusButton: function(status, value) {
+            return status != value;
         }
+
     });
 </script>

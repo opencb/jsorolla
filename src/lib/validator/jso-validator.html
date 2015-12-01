@@ -1,0 +1,334 @@
+<script src="../../../bower_components/client-line-navigator/line-navigator.js"></script>
+<script src="../../../bower_components/client-line-navigator/file-navigator.js"></script>
+<script src="validator.js"></script>
+<script src="vcf-validator.js"></script>
+
+<dom-module name="jso-validator" noscript>
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            height: 100%;
+        }
+
+        #header,
+        #footer {
+            box-sizing: border-box;
+            background-color: var(--light-secondary-color);
+            padding: 3px 7px;
+        }
+
+        #header {
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        #footer {
+            border-top: 1px solid var(--divider-color);
+        }
+
+        .line {
+            width: 40px;
+        }
+
+        .type {
+            width: 60px;
+        }
+
+        .msg {
+            word-wrap: break-word;
+            min-height: 23px;
+        }
+
+        .type[type="error"],
+        .error-count {
+            color: #bf4747;
+        }
+
+        .type[type="info"],
+        .info-count {
+            color: #4790bf;
+        }
+
+        .type[type="warning"],
+        .warning-count {
+            color: #bf9947;
+        }
+
+        .item {
+            /*display: block;*/
+            /*position: relative;*/
+            /*box-sizing: border-box;*/
+            /*height: auto;*/
+            margin: 3px;
+            padding: 3px;
+        }
+
+        .item[type="error"] {
+            background-color: rgba(191, 71, 71, 0.15);
+            border: 1px solid rgba(191, 71, 71, 0.3)
+        }
+
+        .item[type="warning"] {
+            background-color: rgba(255, 191, 0, 0.15);
+            border: 1px solid rgba(255, 191, 0, 0.3);
+        }
+
+        .log {
+            position: relative;
+            height: 200px;
+            overflow-y: auto;
+            /*background-color: #FAFAFA;*/
+            background-color: white;
+        }
+
+        .count {
+            padding: 0 5px;
+        }
+
+        .count > span {
+            color: black;
+        }
+
+        .uploadbar {
+            position: relative;
+            height: 20px;
+            background-color: var(--light-primary-color);
+            line-height: 20px;
+            border-top: 1px solid var(--divider-color);
+        }
+
+        .uploadprogress {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+            background-color: var(--divider-color);
+            /*margin-top: 10px;*/
+        }
+
+        .uploadtext {
+            position: absolute;
+            text-align: center;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .header > div {
+            padding-left: 2px;
+        }
+
+        .wrapped-text {
+            white-space: pre-wrap;
+            min-height: 100px;
+            max-width: 800px;
+            padding: 10px;
+            overflow-y: auto;
+        }
+    </style>
+    <template>
+
+        <div id="header" class="horizontal layout">
+            <div class="line"> Line </div>
+            <div class="type"> Type </div>
+            <div class="msg flex"> Message </div>
+
+        </div>
+        <div class="log">
+            <template is="dom-repeat" items="{{log}}">
+                <div class="horizontal layout item" type$="{{item.type}}" on-mouseover="handleLogHover" on-mouseout="handleLogHoverOut">
+                    <div class="line">{{item.line}}</div>
+                    <div class="type" type$="{{item.type}}">{{item.type}}</div>
+                    <div class="msg flex">{{item.msg}}</div>
+                    <div class="jso-btn view" line="{{item.line}}" on-click="handleLogViewClick" hidden>View</div>
+                </div>
+            </template>
+        </div>
+        <div id="footer" class="counts horizontal layout">
+            <div class="error-count count">Errors:
+                <span>{{errorCount}}</span>
+            </div>
+            <div class="warning-count count">Warning:
+                <span>{{warningCount}}</span>
+            </div>
+            <div class="info-count count">Info:
+                <span>{{infoCount}}</span>
+            </div>
+
+        </div>
+
+        <jso-panel modal movable closable hidden id="linePreview" on-close="handleCloseLinePreview">
+            <div class="header">
+                <i class="fa fa-view"></i> &nbsp; View line
+            </div>
+            <div class="container wrapped-text">{{linePreview}}</div>
+        </jso-panel>
+
+        <div class="uploadbar" hidden$="{{!uploading}}">
+            <div id="progressBar" class="uploadprogress"></div>
+            <div class="uploadtext">
+                <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
+                <span>{{progress}}</span> %
+            </div>
+            <br>
+        </div>
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-validator",
+        properties: {
+            file: {
+                type: Object,
+                value: function() {
+                    return {};
+                },
+                observer: 'fileChanged'
+            },
+            bioformats: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            },
+            validator: {
+                type: Object,
+                value: function() {
+                    return new Validator({});
+                },
+                observer: 'validatorChanged'
+            },
+            log: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            },
+            errorCount: {
+                type: Number,
+                value: 0
+            },
+            warningCount: {
+                type: Number,
+                value: 0
+            },
+            infoCount: {
+                type: Number,
+                value: 0
+            },
+            progress: {
+                type: Number,
+                value: 0,
+                observer: 'progressChanged'
+            }
+        },
+        ready: function() {
+
+        },
+        reset: function() {
+            this.progress = 0;
+
+        },
+        validate: function() {
+            this.set("log", []);
+            this.errorCount = 0;
+            this.warningCount = 0;
+            this.infoCount = 0;
+            this.validator.validate();
+        },
+        setFile: function(file) {
+            this.fileChanged(file);
+        },
+        validatorChanged: function(neo, old) {
+            var me = this;
+            neo.on("end", function(e) {
+                me.fire("end");
+            });
+
+            neo.on("err", function(e) {
+                me.fire("err");
+            });
+
+            neo.on("log", function(e) {
+                switch (e.type) {
+                    case "error":
+                        me.errorCount++;
+                        break;
+                    case "warning":
+                        me.warningCount++;
+                        break;
+                }
+                me.push("log", e);
+            });
+
+            neo.on("progress", function(e) {
+                me.progress = Math.ceil(e);
+            })
+
+            neo.init();
+
+        },
+        fileChanged: function(neo, old) {
+            if (neo && this.validator) {
+                this.validator.init();
+                this.validator.file = neo;
+            }
+        },
+        computeLog: function(validator) {
+            if (validator) {
+                return validator.log;
+            } else {
+                return [];
+            }
+        },
+        progressChanged: function(neo, old) {
+            console.log("progress : " + neo);
+            this.$.progressBar.style.width = neo + '%';
+        },
+        computeSpin: function(progress) {
+            return progress >= 100 || progress <= 0;
+        },
+        handleLogViewClick: function(e) {
+            var me = this;
+            var elem = e.currentTarget;
+            var line = elem.line - 1;
+            this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
+                if (err) {
+                    return;
+                }
+
+                if (lines.length > 0) {
+                    me.linePreview = lines[0];
+                    me.$.linePreview.show();
+                }
+
+                if (eof) {
+                    return;
+                }
+
+            });
+        },
+        handleLogHover: function(e) {
+
+            var elem = e.currentTarget;
+
+            var view = elem.getElementsByClassName("view")[0];
+            view.hidden = false;
+        },
+        handleLogHoverOut: function(e) {
+
+            var elem = e.currentTarget;
+
+            var view = elem.getElementsByClassName("view")[0];
+            view.hidden = true;
+        },
+        handleCloseLinePreview: function(e) {
+            this.linePreview = "";
+        }
+
+    })
+</script>
