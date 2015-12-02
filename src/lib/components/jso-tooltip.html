@@ -11,8 +11,8 @@
             position: fixed;
             z-index: 200000;
             box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.30);
-            width: 200px;
-            height: 100px;
+            min-width: 200px;
+            min-height: 100px;
             margin: 0px;
             overflow-x: auto;
             overflow-y: auto;
@@ -43,8 +43,7 @@
         }
     </style>
     <template>
-
-        <span on-click="showInfo"><i class$="{{computeIcon(type, icon)}}"></i> {{text}}</span>
+        <span on-click="showInfo"><i on-click="showInfo" class$="{{computeIcon(type, icon)}}"></i> {{text}}</span>
         <div id="messageInfo" class$="{{computeClass(type)}}" hidden>
             <i class="fa fa-times closeInfo" on-click="handleClose"></i>
             <content></content>
@@ -72,28 +71,32 @@
                     value: ""
                 }
             },
+            listeners: {
+                click: 'showInfoThis'
+            },
             showInfo: function(e) {
                 e.stopPropagation();
-                this._getPosition();
                 this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
+                this._getPosition();
+            },
+            showInfoThis: function(e) {
+                if (e.target === this) {
+                    this.showInfo(e);
+                }
             },
             _getPosition: function() {
                 var bcr = this.getBoundingClientRect();
+                var msg = this.$.messageInfo.getBoundingClientRect();
                 var windowHeight = window.innerHeight;
                 var windowWidth = window.innerWidth;
-                // var msg=this.$.messageInfo.getBoundingClientRect();
-                if ((windowHeight - (bcr.top + bcr.height + 100)) >= 0) {
-                    this.$.messageInfo.style.top = (bcr.top + bcr.height) + 'px';
-                } else {
-                    this.$.messageInfo.style.top = (bcr.top - 100) + 'px';
-                    // this.$.messageInfo.style.bottom = (bcr.bottom + bcr.height) + 'px';
-                }
-                if ((windowWidth - (bcr.left + bcr.width + 200)) >= 0) {
-                    this.$.messageInfo.style.left = (bcr.left + bcr.width) + 'px';
-                } else {
-                    this.$.messageInfo.style.left = (bcr.left - 200) + 'px';
-                    // this.$.messageInfo.style.right = (bcr.right + bcr.width) + 'px';
 
+                this.$.messageInfo.style.top = (bcr.bottom) + 'px';
+                this.$.messageInfo.style.left = (bcr.left) + 'px';
+                if ((bcr.bottom + msg.height) > window.innerHeight) {
+                    this.$.messageInfo.style.top = (bcr.top - msg.height) + 'px';
+                }
+                if ((bcr.right + msg.width) > window.innerWidth) {
+                    this.$.messageInfo.style.left = (bcr.left - msg.width) + 'px';
                 }
 
             },
@@ -123,8 +126,8 @@
                 }
             },
             handleClose: function(e) {
-              e.stopPropagation();
-              this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
+                e.stopPropagation();
+                this.$.messageInfo.hidden = !this.$.messageInfo.hidden;
             },
 
         })

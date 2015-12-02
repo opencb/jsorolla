@@ -36,7 +36,7 @@
                 type: Object
             }
         },
-        selectedOptionChanged: function(neo, old) {
+        selectedOptionChanged: function (neo, old) {
             var menuItems = Polymer.dom(this.root).querySelectorAll('[menu-option]');
             for (var i = 0; i < menuItems.length; i++) {
                 var item = menuItems[i];
@@ -58,11 +58,11 @@
                 }
             }
         },
-        handleMenuOption: function(e) {
+        handleMenuOption: function (e) {
             var option = e.currentTarget.dataset['option'];
             this.setMenu(option);
         },
-        handleLoggedOnlyMenuOption: function(e) {
+        handleLoggedOnlyMenuOption: function (e) {
             if (this.$.jsoHeader != null) {
                 var option = e.currentTarget.dataset['option'];
                 if (this.$.jsoHeader.isLogged) {
@@ -72,17 +72,17 @@
                 }
             }
         },
-        setMenu: function(option) {
+        setMenu: function (option) {
             if (option) {
                 this.set('selectedOption', option);
             }
         },
-        handleMenuPanel: function(e) {
+        handleMenuPanel: function (e) {
             var panel = this.$[e.currentTarget.dataset.panel];
             panel.hidden = !panel.hidden;
 
         },
-        handleLoggedOnlyMenuPanel: function(e) {
+        handleLoggedOnlyMenuPanel: function (e) {
             if (this.$.jsoHeader != null) {
                 var panel = this.$[e.currentTarget.dataset.panel];
                 if (this.$.jsoHeader.isLogged) {
@@ -93,7 +93,7 @@
                 }
             }
         },
-        handlePanelHidden: function(e) {
+        handlePanelHidden: function (e) {
             var id = e.currentTarget.getAttribute('id');
             var sel = '[data-panel=' + id + ']';
             var el = Polymer.dom(this.$.menu).querySelector(sel);
@@ -103,7 +103,7 @@
                 el.setAttribute('active', '');
             }
         },
-        userDataChanged: function(neo, old) {
+        userDataChanged: function (neo, old) {
             var me = this;
             if (this.userData) {
                 var projectIds = [];
@@ -118,7 +118,7 @@
                         sid: Cookies("bioinfo_sid")
                     },
                     request: {
-                        success: function(response) {
+                        success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 for (var i = 0; i < response.response.length; i++) {
                                     var r = response.response[i];
@@ -133,7 +133,7 @@
                             }
                             me.loading = false;
                         },
-                        error: function() {
+                        error: function () {
                             console.log('Server error, try again later.');
                             me.loading = false;
                         }
@@ -144,7 +144,7 @@
                 console.log("no user data")
             }
         },
-        checkMaintenance: function(neo) {
+        checkMaintenance: function (neo) {
             var me = this;
             if (neo != null && neo !== '') {
                 var currentDate = new Date();
@@ -176,7 +176,7 @@
                             'We apologize for any inconvenience.',
                             '<br> <div style="font-size:14px;text-align:right;">Click to dimiss this message.</div>'
                         ];
-                        maintenance.addEventListener('click', function() {
+                        maintenance.addEventListener('click', function () {
                             Polymer.dom(me.root).removeChild(maintenance);
                         });
                         Polymer.dom(this.root).appendChild(maintenance);
@@ -196,6 +196,20 @@
                     maintenance.innerHTML = msg.join(' ');
                 }
             }
+        },
+        checkShowMenuOnLogin: function () {
+                var menuButtons = this.querySelectorAll("[show-on-login]");
+                if (this.$.jsoHeader != null) {
+                    for (var i = 0; i < menuButtons.length; i++) {
+                        var elem = menuButtons[i];
+                        if (!this.$.jsoHeader.isLogged) {
+                            elem.hidden = true;
+                        } else {
+                            elem.hidden = false;
+                        }
+                    }
+                }
+
         }
     };
 </script>
