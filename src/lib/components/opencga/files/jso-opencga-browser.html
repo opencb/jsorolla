@@ -597,7 +597,7 @@
                     if (file.type != 'FOLDER') {
                         continue;
                     }
-                } else if (this.mode == 'file' && bfList > 0) {
+                } else if (this.mode == 'file' && bfList.length > 0) {
                     if (file.type == 'FILE' && bfList.indexOf(file.bioformat) == -1) {
                         continue;
                     }
