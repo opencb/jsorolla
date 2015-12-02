@@ -81,7 +81,6 @@
             var url = this._getFileURL(fileId);
             var link = document.createElement('a');
             link.href = url;
-            link.download = this.textFile.name;
             var event = new MouseEvent('click', {
                 'view': window,
                 'bubbles': true,
