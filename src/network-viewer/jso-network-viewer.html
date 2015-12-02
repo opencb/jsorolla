@@ -593,6 +593,10 @@
         },
         ready: function() {
             var me = this;
+
+            this.$.nodeRenderPanel.hidden = this.hideNodeRender;
+            this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
+
             this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
             this.graph = this.$.graph;
@@ -615,11 +619,6 @@
                 }
                 this.$.networkLayout.style.height = "calc(100% - " + h + "px)";
             });
-
-            this.async(function() {
-                this.$.nodeRenderPanel.hidden = this.hideNodeRender;
-                this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
-            }, 200);
 
             document.body.addEventListener('click', function(e) {
                 me._hideVertexContextMenu();
