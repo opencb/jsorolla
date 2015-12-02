@@ -34,7 +34,7 @@
 
         #left > div,
         #right > div,
-        #menu-wrapper >::content > .menu div.option {
+        #menu-wrapper > ::content > .menu div.option {
             box-sizing: border-box;
             cursor: pointer;
             text-align: center;
@@ -44,35 +44,35 @@
             text-overflow: ellipsis;
         }
 
-        #left > div >::content > * {
+        #left > div > ::content > * {
             margin-left: 10px;
             padding: 0 0 1px 0;
         }
 
         #right > div,
-        #menu-wrapper >::content > .menu div.option {
+        #menu-wrapper > ::content > .menu div.option {
             margin-right: 5px;
             padding: 0 5px 1px 5px;
         }
 
         :host[small] #left > div,
         :host[small] #right > div,
-        :host[small] #menu-wrapper >::content > .menu div.option {
+        :host[small] #menu-wrapper > ::content > .menu div.option {
             border-bottom-width: 1px;
         }
 
         #right > div:hover,
-        #menu-wrapper >::content > .menu div.option:hover {
+        #menu-wrapper > ::content > .menu div.option:hover {
             border-bottom-color: var(--divider-color);
         }
 
-        #menu-wrapper >::content > .menu div.option[active] {
+        #menu-wrapper > ::content > .menu div.option[active] {
             font-weight: normal;
             border-bottom-color: var(--accent-color);
         }
 
         :host[small] #right > div:hover,
-        :host[small] #menu-wrapper >::content > .menu div.option:hover {
+        :host[small] #menu-wrapper > ::content > .menu div.option:hover {
             border-bottom-width: 1px;
         }
 
@@ -100,9 +100,11 @@
             div.title {
                 font-size: 24px;
             }
+
             div.description {
                 font-size: 14px;
             }
+
             .option-text {
                 font-size: 0.9em;
             }
@@ -112,9 +114,11 @@
             div.title {
                 font-size: 20px;
             }
+
             div.description {
                 font-size: 13px;
             }
+
             .option-text {
                 font-size: 0.8em;
             }
@@ -135,6 +139,7 @@
             margin-top: 0px !important;
             margin-bottom: 0px !important;
         }
+
         /*small*/
 
         :host[small] .main {
@@ -157,7 +162,8 @@
     </style>
     <template>
         <div id="tools">
-            <jso-opencga-login id="jsoLogin" hide-signup$={{hideSignup}} menu-option="login" on-login="handleLogin" on-remember="handleRemember" on-signup="handleSignup">
+            <jso-opencga-login id="jsoLogin" hide-signup$={{hideSignup}} menu-option="login" on-login="handleLogin"
+                               on-remember="handleRemember" on-signup="handleSignup">
             </jso-opencga-login>
 
             <jso-opencga-signup id="jsoSignup" on-login="handleLogin" menu-option="signup">
@@ -186,7 +192,8 @@
                 </div>
             </div>
             <div id="center" class="horizontal layout flex center">
-                <div id="menu-wrapper" hidden$="{{computeMenu(showMenuOnLogin, isLogged)}}" class="horizontal layout flex">
+                <div id="menu-wrapper" hidden$="{{computeMenu(showMenuOnLogin, isLogged)}}"
+                     class="horizontal layout flex">
                     <content select=".menu"></content>
                 </div>
             </div>
@@ -195,31 +202,37 @@
                     <span class="option-text">{{userText}}</span>
                 </div>
 
-                <div title="Upload" id="projects" data-option="projects" on-click="handleMenu" hidden$="{{computeBrowse(hideBrowse, hideLogin, isLogged)}}">
+                <div title="Upload" id="projects" data-option="projects" on-click="handleMenu"
+                     hidden$="{{computeBrowse(hideBrowse, hideLogin, isLogged)}}">
                     <span class="option-text"> upload </span>
                 </div>
 
-                <div title="Profile" id="profile" data-option="profile" on-click="handleMenu" hidden$="{{computeProfile(userText, hideSignup, hideLogin, isLogged)}}">
+                <div title="Profile" id="profile" data-option="profile" on-click="handleMenu"
+                     hidden$="{{computeProfile(userText, hideSignup, hideLogin, isLogged)}}">
                     <i class="fa fa-user"></i>
                     <span class="option-text"> profile </span>
                 </div>
 
-                <div title="Logout" id="logout" on-click="handleLogoutClick" hidden$="{{computeLogout(hideLogin, isLogged)}}">
+                <div title="Logout" id="logout" on-click="handleLogoutClick"
+                     hidden$="{{computeLogout(hideLogin, isLogged)}}">
                     <i class="fa fa-sign-out"></i>
                     <span class="option-text"> logout </span>
                 </div>
 
-                <div title="Login as anonymous, data will be lost on logout." id="anonymous" on-click="anonymousSign" hidden$="{{computeAnonymous(showAnonymous, hideLogin, isLogged)}}">
+                <div title="Login as anonymous, data will be lost on logout." id="anonymous" on-click="anonymousSign"
+                     hidden$="{{computeAnonymous(showAnonymous, hideLogin, isLogged)}}">
                     <i class="fa fa-paper-plane"></i>
                     <span class="option-text"> Try </span>
                 </div>
 
-                <div title="Login" id="login" data-option="login" on-click="handleMenu" hidden$="{{computeLogin(hideLogin, isLogged)}}">
+                <div title="Login" id="login" data-option="login" on-click="handleMenu"
+                     hidden$="{{computeLogin(hideLogin, isLogged)}}">
                     <i class="fa fa-sign-in"></i>
                     <span class="option-text"> Login </span>
                 </div>
 
-                <div title="Sign up" id="signup" data-option="signup" on-click="handleMenu" hidden$="{{computeSignup(hideSignup, hideLogin, isLogged)}}">
+                <div title="Sign up" id="signup" data-option="signup" on-click="handleMenu"
+                     hidden$="{{computeSignup(hideSignup, hideLogin, isLogged)}}">
                     <i class="fa fa-pencil-square-o"></i>
                     <span class="option-text"> Sign up </span>
                 </div>
@@ -261,6 +274,7 @@
                 value: false,
                 reflectToAttribute: true
             },
+            /* @Deprecated */
             showMenuOnLogin: {
                 type: Boolean,
                 value: false,
@@ -307,57 +321,57 @@
             }
         },
 
-        computeMenu: function(showMenuOnLogin, isLogged) {
+        computeMenu: function (showMenuOnLogin, isLogged) {
             if (showMenuOnLogin) {
                 return !isLogged;
             }
             return false;
         },
 
-        computeUser: function(hideLogin, isLogged) {
+        computeUser: function (hideLogin, isLogged) {
             if (hideLogin) {
                 return true;
             }
             return !isLogged
         },
-        computeBrowse: function(hideBrowse, hideLogin, isLogged) {
+        computeBrowse: function (hideBrowse, hideLogin, isLogged) {
             if (hideLogin || hideBrowse) {
                 return true;
             }
             return !isLogged
         },
-        computeProfile: function(userText, hideSignup, hideLogin, isLogged) {
+        computeProfile: function (userText, hideSignup, hideLogin, isLogged) {
             if (hideSignup || hideLogin || userText == 'anonymous') {
                 return true;
             }
             return !isLogged
         },
-        computeLogout: function(hideLogin, isLogged) {
+        computeLogout: function (hideLogin, isLogged) {
             if (hideLogin) {
                 return true;
             }
             return !isLogged
         },
-        computeSignup: function(hideSignup, hideLogin, isLogged) {
+        computeSignup: function (hideSignup, hideLogin, isLogged) {
             if (hideLogin || hideSignup) {
                 return true;
             }
             return isLogged
         },
-        computeLogin: function(hideLogin, isLogged) {
+        computeLogin: function (hideLogin, isLogged) {
             if (hideLogin) {
                 return true;
             }
             return isLogged
         },
-        computeAnonymous: function(showAnonymous, hideLogin, isLogged) {
+        computeAnonymous: function (showAnonymous, hideLogin, isLogged) {
             if (hideLogin || !showAnonymous) {
                 return true;
             }
             return isLogged
         },
 
-        selectedOptionChanged: function(neo, old) {
+        selectedOptionChanged: function (neo, old) {
             var menuItems = Polymer.dom(this.root).querySelectorAll('[menu-option]');
             for (var i = 0; i < menuItems.length; i++) {
                 var item = menuItems[i];
@@ -370,7 +384,7 @@
             }
         },
         //TODO
-        ready: function() {
+        ready: function () {
             if (!this.hideLogin) {
                 if (Cookies("bioinfo_sid") && Cookies("bioinfo_user")) {
                     this.sessionInitiated();
@@ -379,32 +393,32 @@
                 }
             }
         },
-        handleRemember: function(e) {
+        handleRemember: function (e) {
             this.selectedOption = 'remember';
         },
-        handleSignup: function(e) {
+        handleSignup: function (e) {
             this.selectedOption = 'signup';
         },
-        handleMenu: function(e) {
+        handleMenu: function (e) {
             var option = e.currentTarget.dataset['option'];
             console.log(option);
             if (option) {
                 this.selectedOption = option;
             }
         },
-        handleJobClick: function(e) {
+        handleJobClick: function (e) {
             this.showJobs = !this.showJobs;
         },
-        handleLogoutClick: function(e) {
+        handleLogoutClick: function (e) {
             this.sessionFinished();
         },
-        handleSupportMenu: function(e) {
+        handleSupportMenu: function (e) {
             this.$.helpMenu.classList.toggle('help-menu-shown');
         },
-        handleHelpMenuMouseOut: function() {
+        handleHelpMenuMouseOut: function () {
             this.$.helpMenu.classList.remove('help-menu-shown');
         },
-        handleLogin: function(e) {
+        handleLogin: function (e) {
             if (e.detail.status) {
                 this.sessionInitiated();
             } else {
@@ -412,12 +426,12 @@
             }
             this.fire('session-change');
         },
-        demoLogin: function(username) {
+        demoLogin: function (username) {
             this.$.jsoLogin.user = username;
             this.$.jsoLogin.password = "demo";
             this.$.jsoLogin._login();
         },
-        anonymousSign: function() {
+        anonymousSign: function () {
             this.$.jsoSignup.user = "anonymous" + Utils.randomString(40);
             this.$.jsoSignup.name = "anonymous";
             this.$.jsoSignup.email = "anonymous@anonymous.anonymous";
@@ -425,7 +439,7 @@
             this.$.jsoSignup.password = "anonymous";
             this.$.jsoSignup._signup();
         },
-        sessionInitiated: function(e) {
+        sessionInitiated: function (e) {
             var me = this;
 
             this.isLogged = true;
@@ -434,13 +448,13 @@
             /**START OPENCGA CHECK**/
             if (!this.userInfoInterval) {
                 this.getUserInfo(); //first call
-                this.userInfoInterval = setInterval(function() {
+                this.userInfoInterval = setInterval(function () {
                     me.getUserInfo();
                 }, this.checkTimeInterval);
             }
             this.fire("login");
         },
-        sessionFinished: function(e) {
+        sessionFinished: function (e) {
             this.userData = null;
             this.showJobs = false;
             this.selectedOption = 'home';
@@ -453,7 +467,7 @@
             this.userInfoInterval = null;
             this.fire("logout");
         },
-        getUserInfo: function(force) {
+        getUserInfo: function (force) {
             var me = this;
             var lastActivity = null;
             if (force != true) {
@@ -473,7 +487,7 @@
                         lastActivity: lastActivity
                     },
                     request: {
-                        success: function(response) {
+                        success: function (response) {
                             if ((response.response[0].errorMsg === '' || response.response[0].errorMsg == null) && response.response[0].result.length > 0) {
                                 me.userData = response.response[0].result[0];
                                 me.userText = me._checkUserName(me.userData);
@@ -483,14 +497,14 @@
                                 me.sessionFinished()
                             }
                         },
-                        error: function() {
+                        error: function () {
                             console.log('Server error, try again later.');
                         }
                     }
                 });
             }
         },
-        logout: function() {
+        logout: function () {
             var me = this;
             var user = Cookies('bioinfo_user');
             if (!user) {
@@ -503,17 +517,17 @@
                         sid: Cookies('bioinfo_sid')
                     },
                     request: {
-                        success: function(response) {
+                        success: function (response) {
                             console.log(response);
                         },
-                        error: function() {
+                        error: function () {
                             console.log('Server error, try again later.');
                         }
                     }
                 });
             }
         },
-        _checkUserName: function(userData) {
+        _checkUserName: function (userData) {
             if (userData.email === 'anonymous@anonymous.anonymous') {
                 return 'anonymous';
             } else {
