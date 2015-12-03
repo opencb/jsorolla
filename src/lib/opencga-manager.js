@@ -83,10 +83,8 @@
  *    http://cafetal:8080/opencga/rest/files/17/fetch?sid=eUZtTdnA9EU89vjACyAe&region=20%3A80000-82000&view_as_pairs=false&include_coverage=true&process_differences=false
  */
 var OpencgaManager = {
-    // host: (typeof OPENCGA_HOST === 'undefined') ? 'http://ws.bioinfo.cipf.es/opencga/rest' : OPENCGA_HOST,
-    // host: (typeof OPENCGA_HOST === 'undefined') ? 'http://cafetal:8080/opencga/rest' : OPENCGA_HOST,
-    host: window.OPENCGA_HOST,
-    version: (typeof OPENCGA_VERSION === 'undefined') ? 'v1' : OPENCGA_VERSION,
+    host: (typeof window.OPENCGA_HOST === 'undefined') ? 'http://ws1.babelomics.org/opencga-0.7' : window.OPENCGA_HOST,
+    version: (typeof window.OPENCGA_VERSION === 'undefined') ? 'v1' : window.OPENCGA_VERSION,
 
     users: {
         login: function (args) {
