@@ -13,7 +13,6 @@
 
         jso-table::shadow #list {
             min-height: 200px;
-            /*height: 100%;*/
         }
 
         jso-table::shadow {
@@ -33,18 +32,14 @@
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
             margin: 0 auto;
             overflow-x: scroll;
-            width: 40%;
             height: 350px;
         }
 
-        /*#table {*/
-        /*width: 100%;*/
-        /*}*/
     </style>
     <template>
         <div hidden$="{{isEmpty}}" class="horizontal layout">
             <jso-table id="table" enable-export></jso-table>
-            <div id="mafChart"></div>
+            <div id="mafChart" hidden></div>
         </div>
         <div hidden$="{{!isEmpty}}" style="padding:20px 50px;">
             No frequencies found.
@@ -175,11 +170,7 @@
                 var polarChart = new Highcharts.Chart({
                     chart: {
                         polar: true,
-//                        type: 'line',
-//                        renderTo: this.$.overview,
                         renderTo: this.$.mafChart,
-//                        width: 510,
-//                        height: 300
 
                     },
                     credits: {
@@ -217,6 +208,7 @@
                     }]
 
                 });
+                this.$.mafChart.hidden = false;
 
 
             }
