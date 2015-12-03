@@ -11,6 +11,23 @@
             overflow-y: hidden;
         }
 
+        jso-table::shadow #list {
+            min-height: 200px;
+            /*height: 100%;*/
+        }
+
+        jso-table::shadow {
+            font-size: 11px;
+        }
+
+        jso-table::shadow .table-row {
+            height: 25px;
+        }
+
+        jso-table::shadow .table-header-field > .name.jso-table {
+            padding: 4px 0;
+        }
+
         #mafChart {
             border: 1px solid rgba(125, 125, 125, 0.4);
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
@@ -19,14 +36,15 @@
             width: 40%;
             height: 350px;
         }
-        #table{
-            width: 60%;
-        }
+
+        /*#table {*/
+        /*width: 100%;*/
+        /*}*/
     </style>
     <template>
         <div hidden$="{{isEmpty}}" class="horizontal layout">
-            <jso-table id="table"></jso-table>
-            <div id="mafChart" style></div>
+            <jso-table id="table" enable-export></jso-table>
+            <div id="mafChart"></div>
         </div>
         <div hidden$="{{!isEmpty}}" style="padding:20px 50px;">
             No frequencies found.
@@ -46,18 +64,21 @@
                 type: Boolean
             }
         },
-        ready: function() {
+        ready: function () {
             this.$.table.columns = this._columns;
         },
         _columns: [{
             name: "study",
-            title: "Study"
+            title: "Study",
+            width: 150
         }, {
             name: "pop",
-            title: "Population"
+            title: "Population",
+            width: 150
         }, {
             name: "superPop",
-            title: "SuperPopulation"
+            title: "SuperPopulation",
+            width: 150
         }, {
             name: "refAllele",
             title: "Ref. Allele",
@@ -70,7 +91,7 @@
             name: "refAlleleFreq",
             title: "Ref. Allele Freq.",
             cellTemplate: 'alleleFreqCT',
-            formula: function(row) {
+            formula: function (row) {
                 var val = ".";
                 if (row.refAlleleFreq != null) {
                     val = row.refAlleleFreq.toFixed(3);
@@ -82,7 +103,7 @@
             name: "altAlleleFreq",
             title: "Alt. Allele Freq.",
             //                cellTemplate: 'alleleFreqCT',
-            formula: function(row) {
+            formula: function (row) {
                 var val = ".";
                 if (row.altAlleleFreq != null) {
                     val = row.altAlleleFreq.toFixed(3);
@@ -94,24 +115,24 @@
             name: "maf",
             title: "MAF",
             //                cellTemplate: 'alleleFreqCT',
-            formula: function(row) {
+            formula: function (row) {
                 return Math.min(row.refAlleleFreq, row.altAlleleFreq).toFixed(3);
             },
             width: 70
         }, {
             name: "refHomGenotypeFreq",
             title: "0/0",
-            width: 50
+            width: 30
         }, {
             name: "hetGenotypeFreq",
             title: "0/1",
-            width: 50
+            width: 30
         }, {
             name: "altHomGenotypeFreq",
             title: "1/1",
-            width: 70
+            width: 30
         }],
-        rowChanged: function(neo, old) {
+        rowChanged: function (neo, old) {
             var me = this;
 
             this.$.table.currentPage = 1;
@@ -128,7 +149,7 @@
                     //                    query: "19:45411941:T:C",
                     query: variant,
                     async: false,
-                    success: function(response) {
+                    success: function (response) {
                         try {
                             me.$.table.data = response.response[0].result[0].populationFrequencies;
                             me.isEmpty = (me.$.table.data.length > 0) ? false : true;
@@ -151,91 +172,53 @@
                 console.log(data);
                 console.log(cat);
 
-                var chart = new Highcharts.Chart({
-                    // chart: {
-                    //     renderTo: this.$.mafChart,
-                    //     type: 'bar'
-                    // },
-                    // title: {
-                    //     text: 'Minor Allele Frequency'
-                    // },
-                    // xAxis: {
-                    //     min: 0,
-                    //     categories: cat,
-                    //     title: {
-                    //         text: null
-                    //     }
-                    // },
-                    // yAxis: {
-                    //     min: 0,
-                    //     max: 1,
-                    //     labels: {
-                    //         overflow: 'justify'
-                    //     }
-                    // },
-                    // plotOptions: {
-                    //     bar: {
-                    //         dataLabels: {
-                    //             enabled: true
-                    //         }
-                    //     }
-                    // },
-                    // legend: {
-                    //     layout: 'vertical',
-                    //     align: 'right',
-                    //     verticalAlign: 'top',
-                    //     x: -40,
-                    //     y: 100,
-                    //     floating: true,
-                    //     borderWidth: 1,
-                    //     backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                    //     shadow: true
-                    // },
-                    // series: [{
-                    //     name: 'MAF',
-                    //     data: data
-                    // }
-                    // ]
-
+                var polarChart = new Highcharts.Chart({
                     chart: {
                         polar: true,
-                        type: 'line',
-                        renderTo: this.$.mafChart
+//                        type: 'line',
+//                        renderTo: this.$.overview,
+                        renderTo: this.$.mafChart,
+//                        width: 510,
+//                        height: 300
+
                     },
                     credits: {
                         enabled: false
                     },
+                    legend: {
+                        enabled: false
+                    },
                     title: {
-                        text: 'Minor Allele Frequency',
+                        text: "Minor Allele Frequency",
                         x: -80
                     },
-                    pane: {
-                        size: '50%'
-                    },
-                    legend: {
-                        align: 'right',
-                        verticalAlign: 'bottom',
-                    },
-
                     xAxis: {
+//                        categories: ['Sift', 'Polyphen', 'Phylop', 'Phastcons'],
                         categories: cat,
                         tickmarkPlacement: 'on',
-                        lineWidth: 1
+                        lineWidth: 1,
                     },
 
                     yAxis: {
                         gridLineInterpolation: 'polygon',
                         lineWidth: 0,
-                        min: 0,
                         max: 0.5
                     },
 
                     series: [{
                         type: 'area',
-                        name: 'MAF',
-                        data: data
+                        name: "MAF",
+
+//                        data: [this._parseFloat(row.sift), 1 - this._parseFloat(row.polyphen), this._parseFloat(row.phylop),
+//                            this._parseFloat(row.phastcons)
+//                        ],
+                        data: data,
+                        pointPlacement: 'on'
                     }]
+
                 });
+
+
             }
         }
     });
