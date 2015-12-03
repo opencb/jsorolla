@@ -1527,14 +1527,17 @@
                 saveAs(blob, fileName);
             }
         },
-        exportToTable: function () {
+        exportToTable: function (start, end) {
+            start = start || 0;
+            end = end || this.data.length;
+
             var table = document.createElement("table");
 
             table.classList.add("jso-table");
 
             var thead = this._createTableHeader();
 
-            var tbody = this._createTableBody();
+            var tbody = this._createTableBody(start, end);
 
             table.appendChild(thead);
             table.appendChild(tbody);
@@ -1568,11 +1571,12 @@
 
         },
 
-        _createTableBody: function () {
+        _createTableBody: function (start, end) {
+
             var tbody = document.createElement("tbody");
             tbody.classList.add("jso-table");
 
-            for (var i = 0; this.data && i < this.data.length; i++) {
+            for (var i = start; this.data && i < end; i++) {
                 var rowData = this.data[i];
                 var elem = this._createTableRow(rowData);
                 tbody.appendChild(elem);
