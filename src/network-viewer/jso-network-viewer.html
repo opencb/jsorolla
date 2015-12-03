@@ -490,23 +490,28 @@
             },
             hideToolBar: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: 'computeHeight'
             },
             hideEditionBar: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: 'computeHeight'
             },
             hideStatusBar: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: 'computeHeight'
             },
             hideNodeRender: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: 'handleHideNodeRender'
             },
             hideEdgeRender: {
                 type: Boolean,
-                value: false
+                value: false,
+                observer: 'handleHideEdgeRender'
             },
             userData: {
                 type: Object,
@@ -579,6 +584,7 @@
                 type: Array
             }
         },
+        _computingHeigth: false,
         observers: [
             'selectedVerticesChanged(selectedVertices.splices)',
             'selectedEdgesChanged(selectedEdges.splices)',
@@ -594,15 +600,23 @@
         ready: function() {
             var me = this;
 
-            this.$.nodeRenderPanel.hidden = this.hideNodeRender;
-            this.$.edgeRenderPanel.hidden = this.hideEdgeRender;
-
             this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
             this.graph = this.$.graph;
             this.set('selectedVertices', []);
             this.set('selectedEdges', []);
 
+            this.computeHeight();
+
+            document.body.addEventListener('click', function(e) {
+                me._hideVertexContextMenu();
+                me._hideEdgeContextMenu();
+                me.$.imagecontextmenu.style.opacity = "";
+                me.$.imagecontextmenu.style.visibility = "";
+            });
+            this._init();
+        },
+        computeHeight: function() {
             this.async(function() {
                 var h = 126;
                 if (this.hideBar) {
@@ -619,16 +633,22 @@
                 }
                 this.$.networkLayout.style.height = "calc(100% - " + h + "px)";
             });
-
-            document.body.addEventListener('click', function(e) {
-                me._hideVertexContextMenu();
-                me._hideEdgeContextMenu();
-                me.$.imagecontextmenu.style.opacity = "";
-                me.$.imagecontextmenu.style.visibility = "";
-            });
-
-            this._init();
-
+        },
+        handleHideNodeRender: function(neo, old) {
+            // console.log('handleHideNodeRender');
+            if (neo == true) {
+                this.$.nodeRenderPanel.hide();
+            } else if (neo == false) {
+                this.$.nodeRenderPanel.show();
+            }
+        },
+        handleHideEdgeRender: function(neo, old) {
+            // console.log('handleHideEdgeRender');
+            if (neo == true) {
+                this.$.edgeRenderPanel.hide();
+            } else if (neo == false) {
+                this.$.edgeRenderPanel.show();
+            }
         },
         _init: function() {
             this.resetZoom();

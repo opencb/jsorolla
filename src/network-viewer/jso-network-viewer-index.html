@@ -1,64 +1,78 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <meta charset="utf-8">
-    <title>Network Viewer</title>
-    <script>
-        CELLBASE_VERSION = "v3";
-        CELLBASE_HOST = "http://bioinfodev.hpc.cam.ac.uk/cellbase";
+    <head>
+        <meta charset="utf-8">
+        <title>Network Viewer</title>
+        <script>
+            CELLBASE_VERSION = "v3";
+            CELLBASE_HOST = "http://bioinfodev.hpc.cam.ac.uk/cellbase";
 
-        OPENCGA_VERSION = "v1";
-        OPENCGA_HOST = "http://test.babelomics.org/opencga-0.7-dev";
-    </script>
+            OPENCGA_VERSION = "v1";
+            OPENCGA_HOST = "http://test.babelomics.org/opencga-0.7-dev";
+        </script>
 
-    <!--Fonts-->
-    <link href='../../styles/fonts/fonts.css' rel='stylesheet' type='text/css'>
-    <link href='../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+        <!--Fonts-->
+        <link href='../../styles/fonts/fonts.css' rel='stylesheet' type='text/css'>
+        <link href='../../bower_components/fontawesome/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
 
-    <!--CSS-->
-    <link href='../lib/components/jso-global.css' rel='stylesheet' type='text/css'>
-    <link href='../lib/components/jso-form.css' rel='stylesheet' type='text/css'>
-    <link href='../lib/components/jso-dropdown.css' rel='stylesheet' type='text/css'>
+        <!--CSS-->
+        <link href='../lib/components/jso-global.css' rel='stylesheet' type='text/css'>
+        <link href='../lib/components/jso-form.css' rel='stylesheet' type='text/css'>
+        <link href='../lib/components/jso-dropdown.css' rel='stylesheet' type='text/css'>
 
-    <!--Web Components-->
-    <script src="../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
-    <link rel="import" href="jso-network-viewer.html">
+        <!--Web Components-->
+        <script src="../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+        <link rel="import" href="jso-network-viewer.html">
 
-    <style>
-        html {
-            overflow: hidden;
-            height: 100%;
-        }
+        <style>
+            html {
+                overflow: hidden;
+                height: 100%;
+            }
 
-        html,
-        body {
-            position: relative;
-            margin: 0px;
-            height: 100%;
-        }
-    </style>
-    <link rel="import" href="nv-theme.html">
-</head>
+            html,
+            body {
+                position: relative;
+                margin: 0px;
+                height: 100%;
+            }
+        </style>
+        <link rel="import" href="nv-theme.html">
+    </head>
 
-<body>
+    <body>
 
-    <!-- <jso-network-viewer></jso-network-viewer> -->
-    <!-- <jso-network-viewer lite></jso-network-viewer> -->
-    <jso-network-viewer lite hide-node-render hide-edge-render></jso-network-viewer>
-    <!-- <jso-network-viewer hide-bar hide-tool-bar hide-edition-bar hide-status-bar hide-node-render hide-edge-render></jso-network-viewer> -->
-    <script>
-        var networkViewer = document.body.querySelector('jso-network-viewer');
-        networkViewer.addEventListener('hoververtex', function(e) {
-            var x = e.detail.e.clientX;
-            var y = e.detail.e.clientY;
-            console.log(x + '-' + y);
-        });
-        networkViewer.addEventListener('hoverleave', function(e) {
-            console.log(e)
-        });
-    </script>
+        <jso-network-viewer></jso-network-viewer>
+        <!-- <jso-network-viewer lite></jso-network-viewer> -->
+        <!-- <jso-network-viewer lite hide-node-render hide-edge-render></jso-network-viewer> -->
+        <!-- <jso-network-viewer hide-bar hide-tool-bar hide-edition-bar hide-status-bar hide-node-render hide-edge-render></jso-network-viewer> -->
+        <script>
+            // var networkViewer = document.createElement('jso-network-viewer');
+            // networkViewer.setAttribute('hide-node-render', '');
+            // networkViewer.setAttribute('hide-edge-render', '');
+            // networkViewer.setAttribute('hide-bar', '');
+            // networkViewer.setAttribute('hide-tool-bar', '');
+            // networkViewer.setAttribute('hide-edition-bar', '');
+            // networkViewer.setAttribute('hide-status-bar', '');
+            // document.body.appendChild(networkViewer);
 
-</body>
+            var networkViewer = document.body.querySelector('jso-network-viewer');
+            networkViewer.addEventListener('hoververtex', function(e) {
+                var x = e.detail.e.clientX;
+                var y = e.detail.e.clientY;
+                console.log(x + '-' + y);
+            });
+            networkViewer.addEventListener('hoverleave', function(e) {
+                console.log(e)
+            });
+
+            // setTimeout(function() {
+            //     networkViewer.setAttribute('hide-node-render', '');
+            //     networkViewer.setAttribute('hide-edge-render', '');
+            // }, 2000);
+        </script>
+
+    </body>
 
 </html>
