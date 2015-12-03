@@ -5,42 +5,26 @@
             position: relative;
             width: 100%;
         }
+
+        jso-table {
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+            overflow-y: hidden;
+        }
+
+        jso-table::shadow {
+            font-size: 11px;
+        }
+
+        jso-table::shadow .table-row {
+            height: 25px;
+        }
+
+        jso-table::shadow .table-header-field > .name.jso-table {
+            padding: 4px 0;
+        }
+
     </style>
     <template>
-        <!--<sortable-table class="bootstrap"-->
-        <!--id="effectGrid"-->
-        <!--footerTemplate="defaultPager"-->
-        <!--pageSize="10"-->
-        <!--page="{{page}}"-->
-        <!--columns="{{ columns }}"-->
-        <!--loading="true"-->
-        <!--data="{{data}}">-->
-
-        <!--<template id="proteinSubstitutionScoresTemplate">-->
-        <!--<td>-->
-        <!--{{value.score}} - {{value.description}}-->
-        <!--</td>-->
-        <!--</template>-->
-        <!--<template id="seqOntologyTemplate">-->
-        <!--<td>-->
-        <!--<a href="http://www.sequenceontology.org/browser/current_svn/term/{{value.soAccession}}"-->
-        <!--target="_blank">{{value.soName}}</a>-->
-        <!--</td>-->
-        <!--</template>-->
-        <!--<template id="ensemblGeneIdTemplate">-->
-        <!--<td>-->
-        <!--<a href="http://www.ensembl.org/Homo_sapiens/Location/View?g={{value}}"-->
-        <!--target="_blank">{{value}}</a>-->
-        <!--</td>-->
-        <!--</template>-->
-        <!--<template id="ensemblTranscriptIdTemplate">-->
-        <!--<td>-->
-        <!--<a href="http://www.ensembl.org/Homo_sapiens/Location/View?t={{value}}"-->
-        <!--target="_blank">{{value}}</a>-->
-        <!--</td>-->
-        <!--</template>-->
-        <!--</sortable-table>-->
-
         <jso-table id="table" hidden$="{{isEmpty}}"
                    on-rowclick="handleRowClick"></jso-table>
         <div hidden$="{{!isEmpty}}" style="padding:20px 50px;">
@@ -73,12 +57,14 @@
             {
                 name: "ensemblGeneId",
                 title: "Ensembl Gene Id",
-                cellTemplate: "ensemblGeneIdTemplate"
+                cellTemplate: "ensemblGeneIdTemplate",
+                width: 150
             },
             {
                 name: "ensemblTranscriptId",
                 title: "Ensembl Transcript Id",
-                cellTemplate: 'ensemblTranscriptIdTemplate'
+                cellTemplate: 'ensemblTranscriptIdTemplate',
+                width: 150
             },
             {
                 name: "so",
@@ -91,7 +77,8 @@
                         aux.soAccession = row.soAccession;
                     }
                     return aux.soName;
-                }
+                },
+                width: 300
             },
             {
                 name: "relativePosition",
@@ -99,7 +86,8 @@
             },
             {
                 name: "codon",
-                title: "Codon"
+                title: "Codon",
+                width: 60
             },
             {
                 name: "strand",
@@ -111,53 +99,59 @@
             },
             {
                 name: "cDnaPosition",
-                title: "cDna Position"
+                title: "cDna Position",
+                width: 80
             },
             {
                 name: "cdsPosition",
-                title: "cds Position"
+                title: "cds Position",
+                width: 80
             },
             {
                 name: "aaPosition",
-                title: "AA Position"
+                title: "AA Position",
+                width: 80
             },
             {
                 name: "aaChange",
-                title: "AA Change"
+                title: "AA Change",
+                width: 80
+
             },
             {
                 name: "sift",
                 title: "Sift",
-                cellTemplate: 'proteinSubstitutionScoresTemplate',
                 formula: function (row) {
                     var pss = row.proteinSubstitutionScores;
 
                     if (pss != null && pss.length > 0) {
                         for (var i = 0; i < pss.length; i++) {
                             var elem = pss[i];
-                            if (elem.source == "Sift") {
+                            if (elem.source.toLowerCase() == "sift") {
                                 return elem.score;
                             }
                         }
                     }
                     return "";
-                }
+                },
+                width: 80
             },
             {
-                name: "polyphen", title: "Polyphen", cellTemplate: 'proteinSubstitutionScoresTemplate',
+                name: "polyphen", title: "Polyphen",
                 formula: function (row) {
                     var pss = row.proteinSubstitutionScores;
 
                     if (pss != null && pss.length > 0) {
                         for (var i = 0; i < pss.length; i++) {
                             var elem = pss[i];
-                            if (elem.source == "Polyphen") {
+                            if (elem.source.toLowerCase() == "polyphen") {
                                 return elem.score;
                             }
                         }
                     }
                     return "";
-                }
+                },
+                width: 100
             }
         ],
 
@@ -165,7 +159,7 @@
             var me = this;
             this.$.table.currentPage = 1;
             if (neo) {
-                var variant = neo.chromosome+ ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
 //                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
                     version: 'v3',

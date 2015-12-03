@@ -8,29 +8,36 @@
 
         jso-table {
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+            overflow-y: hidden;
         }
 
-        label.jso {
-            display: block;
-            margin-left: 10px;
-            font-size: 15px;
+        jso-table::shadow {
+            font-size: 11px;
+        }
+
+        jso-table::shadow .table-row {
+            height: 25px;
+        }
+
+        jso-table::shadow .table-header-field > .name.jso-table {
+            padding: 4px 0;
         }
     </style>
     <template>
         <label class="jso">Cosmic:</label>
-        <jso-table id="cosmicTable" hidden$="{{isCosmicEmpty}}"></jso-table>
+        <jso-table id="cosmicTable" hidden$="{{isCosmicEmpty}}" enable-export></jso-table>
         <div hidden$="{{!isCosmicEmpty}}" style="padding:20px 50px;">
             No results found.
         </div>
         <br>
         <label class="jso">GWAS:</label>
-        <jso-table id="gwasTable" hidden$="{{isGwasEmpty}}"></jso-table>
+        <jso-table id="gwasTable" hidden$="{{isGwasEmpty}}" enable-export></jso-table>
         <div hidden$="{{!isGwasEmpty}}" style="padding:20px 50px;">
             No results found.
         </div>
         <br>
         <label class="jso">Clinvar:</label>
-        <jso-table id="clinvarTable" hidden$="{{isClinvarEmpty}}"></jso-table>
+        <jso-table id="clinvarTable" hidden$="{{isClinvarEmpty}}" enable-export></jso-table>
         <div hidden$="{{!isClinvarEmpty}}" style="padding:20px 50px;">
             No results found.
         </div>
@@ -77,7 +84,8 @@
             },
             {
                 name: "mutationSomaticStatus",
-                title: "Muutation somatic status"
+                title: "Mutation somatic status",
+                width: 300
             },
             {
                 name: "primaryHistology",
@@ -116,9 +124,7 @@
             {
                 name: "traits",
                 title: "Traits",
-//                formula: function (row) {
-//                    return row.traits.join(', ');
-//                }
+                width: 300
             }
         ],
         _clinvarColumns: [
@@ -128,25 +134,22 @@
             },
             {
                 name: "clinicalSignificance",
-                title: "Clinical significance"
+                title: "Clinical significance",
+                width: 100
             },
             {
                 name: "geneName",
-                title: "Gene name",
-//                formula: function (row) {
-//                    return row.geneName.join(', ');
-//                }
+                title: "Gene name"
             },
             {
                 name: "reviewStatus",
-                title: "Review status"
+                title: "Review status",
+                width: 300
             },
             {
                 name: "traits",
                 title: "Traits",
-//                formula: function (row) {
-//                    return row.traits.join(', ');
-//                }
+                width: 300
             }
         ],
         rowChanged: function (neo, old) {
@@ -159,66 +162,64 @@
             if (neo) {
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 variant =
-                CellBaseManager.get({
-//                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
-                    version: 'v3',
-                    species: 'hsapiens',
-                    category: 'genomic',
-                    subCategory: 'variant',
-                    resource: 'full_annotation',
-                    query: variant,
-//                    query: '19:45411941:T:C',
-                    async: false,
-                    success: function (response) {
-                        try {
-                            var dataCosmic = [];
-                            var dataGwas = [];
-                            var dataClinvar = [];
+                        CellBaseManager.get({
+                            version: 'v3',
+                            species: 'hsapiens',
+                            category: 'genomic',
+                            subCategory: 'variant',
+                            resource: 'full_annotation',
+                            query: variant,
+                            async: false,
+                            success: function (response) {
+                                try {
+                                    var dataCosmic = [];
+                                    var dataGwas = [];
+                                    var dataClinvar = [];
 
-                            var clinicalData = response.response[0].result[0].clinical;
+                                    var clinicalData = response.response[0].result[0].clinical;
 
-                            if(!clinicalData){
-                                return;
-                            }
+                                    if (!clinicalData) {
+                                        return;
+                                    }
 
-                            if (clinicalData.cosmic != null) {
-                                for (var i = 0; i < clinicalData.cosmic.length; i++) {
-                                    var cosmic = clinicalData.cosmic[i];
-                                    dataCosmic.push(cosmic);
+                                    if (clinicalData.cosmic != null) {
+                                        for (var i = 0; i < clinicalData.cosmic.length; i++) {
+                                            var cosmic = clinicalData.cosmic[i];
+                                            dataCosmic.push(cosmic);
+                                        }
+                                    }
+                                    if (clinicalData.gwas != null) {
+                                        for (var i = 0; i < clinicalData.gwas.length; i++) {
+                                            var gwas = clinicalData.gwas[i];
+                                            dataGwas.push(gwas);
+                                        }
+                                    }
+                                    if (clinicalData.clinvar != null) {
+                                        for (var i = 0; i < clinicalData.clinvar.length; i++) {
+                                            var clinvar = clinicalData.clinvar[i];
+                                            dataClinvar.push(clinvar);
+                                        }
+                                    }
+                                    me.$.cosmicTable.data = dataCosmic;
+                                    me.$.gwasTable.data = dataGwas;
+                                    me.$.clinvarTable.data = dataClinvar;
+
+                                    me.isCosmicEmpty = (me.$.cosmicTable.data.length > 0) ? false : true;
+                                    me.isGwasEmpty = (me.$.gwasTable.data.length > 0) ? false : true;
+                                    me.isClinvarEmpty = (me.$.clinvarTable.data.length > 0) ? false : true;
+
+                                } catch (e) {
+                                    console.log(e);
+                                    me.$.cosmicTable.data = [];
+                                    me.$.gwasTable.data = [];
+                                    me.$.clinvarTable.data = [];
+
+                                    me.isCosmicEmpty = true;
+                                    me.isGwasEmpty = true;
+                                    me.isClinvarEmpty = true;
                                 }
                             }
-                            if (clinicalData.gwas != null) {
-                                for (var i = 0; i < clinicalData.gwas.length; i++) {
-                                    var gwas = clinicalData.gwas[i];
-                                    dataGwas.push(gwas);
-                                }
-                            }
-                            if (clinicalData.clinvar != null) {
-                                for (var i = 0; i < clinicalData.clinvar.length; i++) {
-                                    var clinvar = clinicalData.clinvar[i];
-                                    dataClinvar.push(clinvar);
-                                }
-                            }
-                            me.$.cosmicTable.data = dataCosmic;
-                            me.$.gwasTable.data = dataGwas;
-                            me.$.clinvarTable.data = dataClinvar;
-
-                            me.isCosmicEmpty = (me.$.cosmicTable.data.length > 0) ? false : true;
-                            me.isGwasEmpty = (me.$.gwasTable.data.length > 0) ? false : true;
-                            me.isClinvarEmpty = (me.$.clinvarTable.data.length > 0) ? false : true;
-
-                        } catch (e) {
-                            console.log(e);
-                            me.$.cosmicTable.data = [];
-                            me.$.gwasTable.data = [];
-                            me.$.clinvarTable.data = [];
-
-                            me.isCosmicEmpty = true;
-                            me.isGwasEmpty = true;
-                            me.isClinvarEmpty = true;
-                        }
-                    }
-                });
+                        });
             }
         }
     });
