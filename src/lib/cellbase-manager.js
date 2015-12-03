@@ -20,8 +20,8 @@
  */
 
 var CellBaseManager = {
-    host: (typeof CELLBASE_HOST === 'undefined') ? 'http://bioinfo.hpc.cam.ac.uk/cellbase' : CELLBASE_HOST,
-    version: 'v3',
+    host: (typeof window.CELLBASE_HOST === 'undefined') ? 'http://bioinfo.hpc.cam.ac.uk/cellbase' : window.CELLBASE_HOST,
+    version: (typeof window.CELLBASE_VERSION === 'undefined') ? 'v3' : window.CELLBASE_VERSION,
     get: function(args) {
         var success = args.success;
         var error = args.error;
@@ -40,7 +40,7 @@ var CellBaseManager = {
         if (typeof url === 'undefined') {
             return;
         }
-        
+
         if (window.CELLBASE_LOG != null && CELLBASE_LOG === true) {
             console.log(url);
         }

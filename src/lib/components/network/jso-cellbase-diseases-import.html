@@ -112,15 +112,9 @@
         is: "jso-cellbase-diseases-import",
         behaviors: [JsoCellbaseAttributeImportBehavior],
         properties: {
-            species: {
-                type: Array
-            },
             selectedList: {
                 type: String,
                 value: 'ext'
-            },
-            message: {
-                type: String
             },
             showResult: {
                 type: Boolean,
@@ -151,33 +145,6 @@
         handleItemSelect: function(e) {
             var item = e.model.item;
             item.selected = !item.selected;
-        },
-        getSpecies: function(callback) {
-            CellBaseManager.get({
-                host: CELLBASE_HOST,
-                category: "meta",
-                subCategory: "species",
-                success: function(r) {
-                    var list = [];
-                    var taxonomies = r.response[0].result[0];
-                    for (var taxonomy in taxonomies) {
-                        var newSpecies = [];
-                        for (var i = 0; i < taxonomies[taxonomy].length; i++) {
-                            var species = taxonomies[taxonomy][i];
-                            for (var j = 0; j < species.assemblies.length; j++) {
-                                var s = Utils.clone(species)
-                                s.assembly = species.assemblies[j];
-                                s._title = s.scientificName + " " + s.assembly.name
-                                delete s.assemblies;
-                                newSpecies.push(s);
-                                list.push(s);
-                            }
-                        }
-                        taxonomies[taxonomy] = newSpecies;
-                    }
-                    callback(list);
-                }
-            });
         },
         ready: function() {
             var me = this;
