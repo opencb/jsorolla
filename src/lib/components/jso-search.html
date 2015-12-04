@@ -1,0 +1,179 @@
+<dom-module id="jso-search">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            font-size: 13px;
+            width: 150px;
+            height: 23px;
+        }
+
+        #list {
+            position: absolute;
+            background-color: var(--light-primary-color);
+            width: 100%;
+            z-index: 1;
+            box-sizing: border-box;
+            display: none;
+            left: 0;
+            top: calc(100% - 1px);
+            border: 1px solid var(--divider-color);
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #input {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding-left: 25px;
+        }
+
+        #icon {
+            color: var(--secondary-text-color);
+            position: absolute;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .result-item {
+            padding: 2px 4px;
+        }
+
+        .result-item[hover] {
+            background-color: var(--selected-color);
+        }
+
+        .result-item:hover {
+            background-color: var(--default-primary-color);
+            color: var(--text-primary-color);
+        }
+    </style>
+    <template>
+        <input id="input" class="jso" type="text" placeholder="{{placeholder}}" on-blur="hideList" on-focus="handleFocus" on-keyup="handleKeyUp">
+        <div id="icon" class="horizontal layout center">
+            <i style="margin-left:7px;" class="fa fa-search"></i>
+        </div>
+        <div id="list" on-click="handleSelect">
+            <template is="dom-repeat" items="{{results}}">
+                <div class="result-item" on-mousedown="handleResultClickSelect">{{item}}</div>
+            </template>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-search',
+        properties: {
+            placeholder: {
+                type: String,
+                reflectToAttribute: true,
+                value: 'Search...'
+            },
+            url: {
+                type: String
+            },
+            results: {
+                type: Array
+            },
+            lastQuery: {
+                type: String,
+                value: ''
+            },
+        },
+
+        ready: function() {},
+        toggleList: function(e) {
+            if (this.$.list.style.display === '') {
+                this.showList(e);
+            } else {
+                this.hideList();
+            }
+        },
+        showList: function(e) {
+            this.$.list.style.display = 'block';
+
+        },
+        hideList: function() {
+            this.$.list.style.display = '';
+        },
+        handleKeyUp: function(e) {
+            // 40 - down arrow;
+            // 38 - up arrow;
+            if (e.keyCode == 38 || e.keyCode == 40) {
+                var result = this.$.list.querySelector('.result-item[hover]');
+                if (result == null) {
+                    this.$.list.querySelector('.result-item').setAttribute('hover', '');
+                } else {
+                    result.removeAttribute('hover');
+                    if (e.keyCode == 40 && result.nextElementSibling != null) {
+                        if (result.nextElementSibling.classList.contains('result-item')) {
+                            result.nextElementSibling.setAttribute('hover', '');
+                        }
+                    } else if (e.keyCode == 38 && result.previousElementSibling != null) {
+                        if (result.previousElementSibling.classList.contains('result-item')) {
+                            result.previousElementSibling.setAttribute('hover', '');
+                        }
+                    }
+                }
+            } else if (e.keyCode === 27) {
+                this.$.input.blur();
+            } else if (e.keyCode !== 13) {
+                var query = e.currentTarget.value;
+                this._getResults(query);
+            } else if (e.keyCode === 13) {
+                var result = this.$.list.querySelector('.result-item[hover]');
+                if (result != null) {
+                    this.fire('select', result.innerHTML);
+                }
+            }
+        },
+        _getResults: function(query) {
+            var me = this;
+            if (query.length > 1) {
+                this.lastQuery = query;
+                this.searchFunction(query, function(result) {
+                    var results = me.parseFunction(result);
+                    if (results.length > 0) {
+                        me.showList();
+                    }
+                    me.set('results', results);
+                });
+            }
+            if (query.length <= 1) {
+                this.hideList();
+            }
+        },
+        handleFocus: function() {
+            console.log(this.lastQuery);
+            this._getResults(this.lastQuery);
+        },
+        handleResultKeySelect: function(e) {
+            if (e.which === 13) {
+                this.fire('select', e.currentTarget.innerHTML);
+            }
+        },
+        handleResultClickSelect: function(e) {
+            this.fire('select', e.currentTarget.innerHTML);
+        },
+
+        /*custom functions*/
+        setSearchFunction(fn) {
+            this.searchFunction = fn;
+        },
+        setParseFunction(fn) {
+            this.parseFunction = fn;
+        },
+
+        searchFunction: function(query, cb) {
+            cb(['Please', 'implement', ' a search function']);
+        },
+        parseFunction: function(result) {
+            return result;
+        }
+    });
+</script>
