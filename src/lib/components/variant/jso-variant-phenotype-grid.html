@@ -179,6 +179,13 @@
                                     var clinicalData = response.response[0].result[0].clinical;
 
                                     if (!clinicalData) {
+                                        me.$.cosmicTable.data = [];
+                                        me.$.gwasTable.data = [];
+                                        me.$.clinvarTable.data = [];
+
+                                        me.isCosmicEmpty = true;
+                                        me.isGwasEmpty = true;
+                                        me.isClinvarEmpty = true;
                                         return;
                                     }
 
