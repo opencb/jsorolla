@@ -47,7 +47,8 @@
         .result-item[hover] {
             background-color: var(--selected-color);
         }
-        .result-item:hover{
+
+        .result-item:hover {
             background-color: var(--default-primary-color);
             color: var(--text-primary-color);
         }
@@ -133,7 +134,7 @@
         },
         _getResults: function(query) {
             var me = this;
-            if (query.length > 2) {
+            if (query.length > 1) {
                 this.lastQuery = query;
                 this.searchFunction(query, function(result) {
                     var results = me.parseFunction(result);
@@ -143,7 +144,7 @@
                     me.set('results', results);
                 });
             }
-            if (query.length <= 2) {
+            if (query.length <= 1) {
                 this.hideList();
             }
         },
