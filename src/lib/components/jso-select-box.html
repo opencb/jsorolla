@@ -17,6 +17,10 @@
         .item[data-checked] {
             background-color: #ddd;
         }
+        .item:hover {
+            background-color: var(--hover-color);
+        }
+
     </style>
     <template>
         <template is="dom-repeat" items="{{options}}" as="option">
@@ -66,6 +70,7 @@
         },
         handleSelect: function(e) {
             this.set('selected', e.model.option);
+            e.currentTarget.setAttribute("data-checked","");
             this.fire('select', this.selected);
         },
         isSelected: function(selected, current) {
