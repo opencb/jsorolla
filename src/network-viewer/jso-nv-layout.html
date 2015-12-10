@@ -438,6 +438,9 @@
                         var width = parseFloat(this.$.selectHelp.getAttribute('width'));
                         var height = parseFloat(this.$.selectHelp.getAttribute('height'));
 
+                        if (width == 0 && height == 0) {
+                            this.fire('selectback');
+                        }
                         this.fire('selectarea', {
                             x: x,
                             y: y,
@@ -569,7 +572,6 @@
             this.moveHandlers = [];
         },
 
-
         /* NEW HANDLERS */
         /**/
         _handleUp: function(e) {
@@ -651,20 +653,30 @@
         _handleUpSelectVertex: function(e) {
             var me = this;
             var targetEl = e.target;
+            var br = this.getBoundingClientRect();
+            var downX = e.clientX - br.left;
+            var downY = e.clientY - br.top;
 
             var vertexId = this.getVertexId(targetEl);
             this.fire('leftclickvertex', {
-                vertexId: vertexId
+                vertexId: vertexId,
+                x: downX,
+                y: downY
             });
             this._handleUp();
         },
         _handleUpSelectEdge: function(e) {
             var me = this;
             var targetEl = e.target;
+            var br = this.getBoundingClientRect();
+            var downX = e.clientX - br.left;
+            var downY = e.clientY - br.top;
 
             var edgeId = this.getEdgeId(targetEl);
             this.fire('leftclickedge', {
-                edgeId: edgeId
+                edgeId: edgeId,
+                x: downX,
+                y: downY
             });
             this._handleUp();
         },

@@ -87,6 +87,105 @@
                 'cancelable': true
             });
             link.dispatchEvent(event);
-        }
+        },
+        uploadFile: function(studyId, path, fileName, fileContent, callback) {
+            var me = this;
+            if (path.charAt(path.length - 1) !== '/') {
+                path = path + '/';
+            }
+
+            var url = OpencgaManager.files.upload({
+                query: {
+                    sid: Cookies("bioinfo_sid")
+                },
+                request: {
+                    url: true
+                }
+            });
+
+            var blob = new Blob([fileContent], {
+                type: 'text/plain'
+            });
+
+            var formData = new FormData();
+            var userId = Cookies("bioinfo_user");
+            var studyId = studyId;
+            // var relativeFilePath = '.cellmaps_sessions/' + fileName;
+            var relativeFilePath = path + fileName;
+            var fileFormat = 'PLAIN';
+            var bioFormat = 'NONE';
+            var description = '';
+            var chunkId = 0;
+
+            formData.append('chunk_content', blob);
+            formData.append('chunk_id', chunkId);
+            formData.append('chunk_size', blob.size);
+            /*formData.append('chunk_hash', hash);*/
+            formData.append("filename", fileName);
+            formData.append('userId', userId);
+            formData.append('studyId', studyId);
+            formData.append('relativeFilePath', relativeFilePath);
+            /*formData.append('chunk_gzip', );*/
+
+            formData.append("last_chunk", true);
+            formData.append("total_size", blob.size);
+            formData.append("fileFormat", fileFormat);
+            formData.append("bioFormat", bioFormat);
+            formData.append("description", description);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.onloadend = function(e) {
+                console.log('upload Done!');
+                callback();
+            };
+            xhr.send(formData);
+        },
+        _updateFileAttributes: function(fileId, attributes, cb) {
+            OpencgaManager.files.update({
+                id: fileId,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    attributes: encodeURIComponent(JSON.stringify(attributes))
+                },
+                request: {
+                    success: function(response) {
+                        cb(response.response[0].result[0])
+                    },
+                    error: function(response) {}
+                }
+            });
+        },
+        _getJobBean: function(jobId, cb) {
+            OpencgaManager.jobs.info({
+                id: jobId,
+                query: {
+                    sid: Cookies('bioinfo_sid')
+                },
+                request: {
+                    success: function(response) {
+                        cb(response.response[0].result[0])
+                    },
+                    error: function(response) {}
+                }
+            });
+        },
+        _createFolder: function(studyId, path, folderName, cb) {
+            var me = this;
+            var folder;
+            OpencgaManager.files.createFolder({
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    folder: path + folderName,
+                    studyId: studyId
+                },
+                request: {
+                    success: function(response) {
+                        cb(response.response[0].result[0]);
+                    },
+                    error: function() {}
+                }
+            });
+        },
     };
 </script>

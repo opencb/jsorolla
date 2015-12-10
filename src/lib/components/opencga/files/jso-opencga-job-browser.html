@@ -232,7 +232,7 @@
         },
         _getJobs: function(studyId) {
             var me = this;
-            if(this._lastStudyIdCalled !== studyId){
+            if (this._lastStudyIdCalled !== studyId) {
                 this.loading = true;
             }
 
@@ -251,7 +251,12 @@
                                 var jobList = response.response[0].result;
                                 if (me.allowedTools != null && me.allowedTools.length > 0) {
                                     jobList = jobList.filter(function(item) {
-                                        return me.allowedTools.indexOf(item.toolName) != -1;
+                                        if(me.allowedTools.indexOf(item.toolName) != -1){
+                                            return true;
+                                        }
+                                        if(me.allowedTools.indexOf(item.toolName + '.' + item.execution) != -1){
+                                            return true;
+                                        }
                                     })
                                 }
                                 jobList.sort(function(a, b) {

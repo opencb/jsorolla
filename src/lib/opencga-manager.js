@@ -273,6 +273,9 @@ var OpencgaManager = {
         },
         delete: function (args) {
             return OpencgaManager._doRequest(args, 'jobs', 'delete');
+        },
+        info: function (args) {
+            return OpencgaManager._doRequest(args, 'jobs', 'info');
         }
     },
     samples: {

@@ -321,9 +321,9 @@
                                 me.$.fileInput.value = null;
                                 me.fileName = '';
                                 me.fire('need-refresh');
-                                me.fire('file-uploaded');
 
                                 var uploadedFile = response.response[0].result[0];
+                                me.fire('file-uploaded', uploadedFile);
                                 //                                me._indexFile(uploadedFile);
                             }
                         },

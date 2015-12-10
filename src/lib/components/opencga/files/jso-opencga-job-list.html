@@ -72,7 +72,7 @@
         </div>
         <div id="content">
             <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
-                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}"  disable-relaunch="{{disableRelaunch}}">
+                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}" disable-relaunch="{{disableRelaunch}}">
                 </jso-opencga-job-list-item>
             </template>
         </div>
@@ -143,8 +143,8 @@
             e.stopPropagation();
             this.selected = e.currentTarget.job;
 
-            if(this.selected.status === "ERROR"){
-              e.currentTarget.handleJobInformation(e);
+            if (this.selected.status === "ERROR") {
+                e.currentTarget.handleJobInformation(e);
             }
 
             var sel = this.querySelector("jso-opencga-job-list-item[selected]");
@@ -180,11 +180,21 @@
             var jobs;
             if (this.toolFilterValue == 'all') {
                 var jobs = this.jobs.filter(function(item) {
-                    return me.allowedTools.indexOf(item.toolName) != -1;
+                    if (me.allowedTools.indexOf(item.toolName) != -1) {
+                        return true;
+                    }
+                    if (me.allowedTools.indexOf(item.toolName + '.' + item.execution) != -1) {
+                        return true;
+                    }
                 });
             } else {
                 var jobs = this.jobs.filter(function(item) {
-                    return item.toolName === me.toolFilterValue;
+                    if (item.toolName === me.toolFilterValue) {
+                        return true;
+                    }
+                    if (item.toolName + '.' + item.execution === me.toolFilterValue) {
+                        return true;
+                    }
                 });
             }
 
@@ -240,10 +250,10 @@
             }
             return jobs;
         },
-        studyChanged: function(neo, old){
-          if(neo){
-            this.view = "all";
-          }
+        studyChanged: function(neo, old) {
+            if (neo) {
+                this.view = "all";
+            }
         }
     });
 </script>
