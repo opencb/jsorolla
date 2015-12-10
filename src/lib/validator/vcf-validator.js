@@ -15,13 +15,20 @@ function VCFValidator(options) {
     this._columnsSize = 0;
     this._refTag = false;
 
+    this._duplicates = {};
+    this._sorted = true;
+
+    this._prevChrPos = null;
+
     this._regExp = {
         "headerId": /ID=(\w+)/,
         "headerNumber": /Number=(\w+|\.)/,
         "headerType": /Type=(\w+)/,
         "headerDesc": /Description=\"(.+)\"/,
         "actg": /^[ACGTN]+$/,
-        "gt": /^(\.|\d+)([|/](\.|\d+))?/
+        "gt": /^(\.|\d+)([|/](\.|\d+))?$/,
+        "alpha": /^(\w+)$/,
+        "idSemiColon": /^(\w+(;\w+)?)$/
     }
 }
 
@@ -135,6 +142,8 @@ VCFValidator.prototype.parseHeader = function (line) {
                 this._samples.push(splits[i]);
             }
         }
+    } else {
+        this.addLog("error", "All header lines must be prefixed by '##");
     }
 }
 
@@ -193,9 +202,29 @@ VCFValidator.prototype.parseData = function (line) {
         this.addLog("error", "Position must be numeric");
     }
 
+
+    // Check duplicates
+    var chr_pos = chr + "_" + pos;
+    if (chr_pos in this._duplicates) {
+        this.addLog("warning", "There must be no chromosome+position duplicates");
+    }
+
+    this._duplicates[chr_pos] = null;
+
     // Id
 
     var id = columns[2];
+
+    if (id != ".") {
+        if (!this._regExp["alpha"].test(id)) {
+            this.addLog("error", "ID must be alphanumeric");
+        }
+
+        if (!this._regExp["idSemiColon"].test(id)) {
+            this.addLog("error", "If more than one ID is specified, the must be semo-colon separated");
+        }
+    }
+
 
     // ref
 
@@ -230,6 +259,11 @@ VCFValidator.prototype.parseData = function (line) {
 
     for (var i = 0; i < altSplits.length; i++) {
         var altElem = altSplits[i];
+
+        if (!this._regExp["actg"].test(altElem)) {
+            this.addLog("error", "Alternate allele must match the regular expression /^[ACTGN]+$/")
+        }
+
         if (altElem.length != ref.length) {
             if (altElem.charAt(0) != ref.charAt(0)) {
                 this.addLog("warning", "The first base of each allele must match the reference if their lengths are different");
