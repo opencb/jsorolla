@@ -187,5 +187,39 @@
                 }
             });
         },
+        _deleteFile: function(fileId, cb) {
+            OpencgaManager.files.delete({
+                id: fileId,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                },
+                request: {
+                    success: function(response) {
+                        cb(response.response[0].result[0]);
+                    },
+                    error: function() {}
+                }
+            });
+        },
+        _deleteJob: function(jobId, cb, deleteFiles) {
+            if (deleteFiles !== false) {
+                deleteFiles = true;
+            }
+            OpencgaManager.jobs.delete({
+                id: jobId,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    deleteFiles: deleteFiles
+                },
+                request: {
+                    success: function(response) {
+                        cb(response.response[0].result[0]);
+                    },
+                    error: function() {
+                        cb()
+                    }
+                }
+            });
+        }
     };
 </script>

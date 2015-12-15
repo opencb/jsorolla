@@ -78,7 +78,7 @@ label.jso-btn > input[type=checkbox] + span {
     outline: transparent solid 0px;
     box-sizing: border-box;
     line-height: 21px;
-    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, 0.2);
     padding: 0px 5px;
     background-color: #fff;
     font-size: inherit;
@@ -102,7 +102,6 @@ input.jso[type=color] {
 }
 
 .jso-btn.jso-btn-shdw {
-    border: 1px solid #ddd;
     background-color: #FFFFFF;
     text-align: center;
     box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
@@ -118,6 +117,9 @@ input.jso[type=color] {
 .jso-btn:hover {
     background-color: #f5f5f5;
     /*background-color: #ebeef3;*/
+}
+.jso-btn.jso-btn-shdw:hover {
+    box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.3);
 }
 
 .jso-btn:active {
