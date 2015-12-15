@@ -58,8 +58,8 @@
             <div class="horizontal layout">
                 <div class="jso-btn jso-btn-shdw" style="width:150px;" on-click="buttonHandler">File browser</div>
                 <div id="selection" style="line-height: 25px;" class="labelSelection">
-                    <span>{{selectedProject.name}}</span> /
-                    <span>{{selectedStudy.name}}</span> /
+                    <span>{{computeSelectedName(selectedProject)}}</span>
+                    <span>{{computeSelectedName(selectedStudy)}}</span>
                     <span>{{selectedFile.path}}</span>
                 </div>
             </div>
@@ -147,14 +147,12 @@
                     type: Object,
                 },
 
-
                 bioformats: {
                     type: Array
                 },
                 projects: {
                     type: Array
                 },
-
 
                 // network Viewer
                 columns: {
@@ -211,6 +209,13 @@
                 this.set('selectedFile', null);
                 this.set('selectedProject', null);
                 this.set('selectedStudy', null);
+            },
+            computeSelectedName: function(object) {
+                if (object != null) {
+                    return object.name + '/'
+                } else {
+                    return '';
+                }
             }
         });
     </script>

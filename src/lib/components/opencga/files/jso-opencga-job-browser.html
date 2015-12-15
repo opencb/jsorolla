@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-job-list on-jobselect="handleJobSelect" study="{{selectedStudy.study}}" allowed-tools="{{allowedTools}}" jobs="{{jobs}}" disable-relaunch="{{disableRelaunch}}">
+                <jso-opencga-job-list id="jobList" on-jobselect="handleJobSelect" study="{{selectedStudy.study}}" allowed-tools="{{allowedTools}}" jobs="{{jobs}}" disable-relaunch="{{disableRelaunch}}" hide-status-filter="{{hideStatusFilter}}" hide-tool-filter="{{hideToolFilter}}" view="{{view}}">
                 </jso-opencga-job-list>
             </div>
             <!--<div id="maininfo">-->
@@ -136,6 +136,20 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
+            },
+            hideStatusFilter: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
+            },
+            hideToolFilter: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
+            },
+            view: {
+                type: String,
+                reflectToAttribute: true
             },
             loading: {
                 type: Boolean,
@@ -251,10 +265,10 @@
                                 var jobList = response.response[0].result;
                                 if (me.allowedTools != null && me.allowedTools.length > 0) {
                                     jobList = jobList.filter(function(item) {
-                                        if(me.allowedTools.indexOf(item.toolName) != -1){
+                                        if (me.allowedTools.indexOf(item.toolName) != -1) {
                                             return true;
                                         }
-                                        if(me.allowedTools.indexOf(item.toolName + '.' + item.execution) != -1){
+                                        if (me.allowedTools.indexOf(item.toolName + '.' + item.execution) != -1) {
                                             return true;
                                         }
                                     })

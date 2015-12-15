@@ -27,7 +27,7 @@
         #content {
             height: calc(100% - 60px);
             /*height: 100%;*/
-            overflow-y: auto;
+            overflow-y: scroll;
             overflow-x: hidden;
         }
 
@@ -44,27 +44,28 @@
     <template>
         <div id="header" class="horizontal layout">
             <!-- <label class="jso">Tool:</label> -->
-
-            <jso-select id="toolFilterSelect" value="all" style="width:150px;" on-change="handleFilterSelect">
+            <jso-select hidden$="{{hideToolFilter}}" id="toolFilterSelect" value="all" style="width:150px;" on-change="handleFilterSelect">
                 <jso-option value="all">Select tool</jso-option>
                 <template is="dom-repeat" items={{allowedTools}} as="toolName">
-                    <jso-option value="{{toolName}}">{{toolName}}</jso-option>
+                    <jso-option value="{{toolName}}">{{computeToolName(toolName)}}</jso-option>
                 </template>
             </jso-select>
-            <div class="jso-btn jso-btn-shdw file" title="All" on-click="handleView" data-value="all" data-checked$="{{computeView(view, 'all')}}">
-                All
-            </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="queued" data-checked$="{{computeView(view, 'queued')}}" title="Queued">
-                <i class="fa fa-clock-o" style="color: #ff8c00;"></i>
-            </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="running" data-checked$="{{computeView(view, 'running')}}" title="Running">
-                <i class="fa fa-circle-o-notch" style="color: #298c63;"></i>
-            </div>
-            <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready" data-checked$="{{computeView(view, 'ready')}}" title="Ready">
-                <i class="fa fa-check" style="color:#0068cc;"></i>
-            </div>
-            <div id="errorBtn" class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}" title="Error" hidden>
-                <i class="fa fa-times" style="color:#b30000;"></i>
+            <div hidden$="{{hideStatusFilter}}" class="horizontal layout">
+                <div class="jso-btn jso-btn-shdw file" title="All" on-click="handleView" data-value="all" data-checked$="{{computeView(view, 'all')}}">
+                    All
+                </div>
+                <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="queued" data-checked$="{{computeView(view, 'queued')}}" title="Queued">
+                    <i class="fa fa-clock-o" style="color: #ff8c00;"></i>
+                </div>
+                <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="running" data-checked$="{{computeView(view, 'running')}}" title="Running">
+                    <i class="fa fa-circle-o-notch" style="color: #298c63;"></i>
+                </div>
+                <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready" data-checked$="{{computeView(view, 'ready')}}" title="Ready">
+                    <i class="fa fa-check" style="color:#0068cc;"></i>
+                </div>
+                <div id="errorBtn" class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}" title="Error" hidden>
+                    <i class="fa fa-times" style="color:#b30000;"></i>
+                </div>
             </div>
             <div class="flex" style="margin-left:5px;">
                 <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
@@ -78,7 +79,7 @@
         </div>
         <div id="footer" class="horizontal layout center">
             <div>
-                Total Jobs:
+                Total:
                 <span>{{computeTotalJobs(filteredJobs)}}</span>
             </div>
         </div>
@@ -126,7 +127,9 @@
             },
             view: {
                 type: String,
-                value: 'all'
+                reflectToAttribute: true,
+                value: 'all',
+                observer: 'viewChanged'
             },
             search: {
                 type: String,
@@ -137,6 +140,16 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
+            },
+            hideStatusFilter: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
+            },
+            hideToolFilter: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
             }
         },
         handleSelect: function(e) {
@@ -144,7 +157,7 @@
             this.selected = e.currentTarget.job;
 
             if (this.selected.status === "ERROR") {
-                e.currentTarget.handleJobInformation(e);
+                e.currentTarget._checkShowError();
             }
 
             var sel = this.querySelector("jso-opencga-job-list-item[selected]");
@@ -213,9 +226,21 @@
         computeTotalJobs: function(jobs) {
             return jobs.length;
         },
+        computeToolName: function(toolName) {
+            var split = toolName.split('.');
+            if (split.length > 1) {
+                return split[1];
+            } else {
+                return toolName;
+            }
+        },
         handleView: function(e) {
             this.view = e.currentTarget.dataset.value;
-            this.jobsChanged();
+        },
+        viewChanged: function(neo, old) {
+            if (neo != null) {
+                this.jobsChanged();
+            }
         },
         _filterByStatus: function(filteredJobs) {
             if (this.view === "all") {
@@ -252,7 +277,7 @@
         },
         studyChanged: function(neo, old) {
             if (neo) {
-                this.view = "all";
+                // this.view = "all";
             }
         }
     });

@@ -14,20 +14,6 @@
             background-color: var(--selected-color);
         }
 
-        #content {
-            height: 70px;
-        }
-
-        #content.info {
-            height: 125px;
-        }
-
-        #content.infoError {
-            height: 180px;
-        }
-
-        .job {}
-
         .capitalize {
             text-transform: capitalize;
         }
@@ -61,11 +47,6 @@
             font-size: 0.9em;
         }
 
-        .bar {
-            width: 15px;
-            margin-top: 8px;
-        }
-
         .bar > * {
             margin: 1px;
             color: #666;
@@ -78,22 +59,18 @@
 
         .delete-job:hover {
             color: red !important;
-            margin-right: 2px;
         }
 
         .relaunch-job:hover {
             color: green !important;
-            margin-right: 2px;
         }
 
         .info-job:hover {
             color: blue !important;
-            margin-right: 2px;
         }
 
         .report-error {
             color: #000 !important;
-            margin-right: 2px;
         }
 
         .download {
@@ -131,15 +108,23 @@
     <template>
         <div id="content" class$="{{computeClass(showInfo)}}">
             <div id="job">
-                <!--<div flex id="job" on-mouseenter="{{handleMouseEnter}}" on-click="{{handleClick}}">-->
                 <div>
                     <i class$="{{computeStatusIcon(job)}}"></i>
                     <span style="white-space: nowrap">{{job.name}}</span>
                 </div>
-                <div class="capitalize">{{computeToolName(job)}}</div>
-                <div>
-                    <span class$="{{computeStatusClass(job)}}">{{computeStatus(job)}}</span>
-                    <span class="date">{{computeDate(job)}}</span>
+                <div class="horizontal layout center">
+                    <span style="padding-right:5px;" class="capitalize">{{computeToolName(job)}}</span>
+                    <span style="padding-right:5px;" class$="{{computeStatusClass(job)}}">{{computeStatus(job)}}</span>
+                    <span style="padding-right:5px;" class="date flex">{{computeDate(job)}}</span>
+                    <div class="bar" id="bar">
+                        <template is="dom-if" if="{{!isRunning(job)}}">
+                            <i class="fa fa-trash-o delete-job" title="Delete Job" on-click="handleDeleteJob"></i>
+                            <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob" hidden$="{{disableRelaunch}}"></i>
+                            <i class="fa fa-info info-job" title="Job information" on-click="handleJobInformation"></i>
+                            <!-- <i class="fa fa-download" title="Download" hidden="{{!showInfo}}"></i>
+                            <i class="fa fa-envelope-o" title="Report Error" hidden$="{{showError}}"></i> -->
+                        </template>
+                    </div>
                 </div>
             </div>
             <div id="fileInfo" class="vertical layout flex" hidden="{{!showInfo}}">
@@ -157,7 +142,7 @@
                         <span class="value">{{jobOutput}}</span>;
                     </div>
                 </div> -->
-                <div id="jobError" class="vertical layout" hidden$="{{showError}}">
+                <div id="jobError" class="vertical layout" hidden$="{{!showError}}">
                     <div class="horizontal layout">
                         <span class="data">Error:&nbsp;</span>
                         <span class="value">{{jobError}}</span>
@@ -174,15 +159,6 @@
                     </div>
                 </div>
 
-            </div>
-            <div class="bar" on-click="{{handleBarClick}}" id="bar">
-                <template is="dom-if" if="{{!isRunning(job)}}">
-                    <i class="fa fa-trash-o delete-job" title="Delete Job" on-click="handleDeleteJob"></i>
-                    <i class="fa fa-refresh relaunch-job" title="Relaunch Job" on-click="handleRelaunchJob" hidden$="{{disableRelaunch}}"></i>
-                    <i class="fa fa-info info-job" title="Job information" on-click="handleJobInformation"></i>
-                    <!-- <i class="fa fa-download" title="Download" hidden="{{!showInfo}}"></i>
-                    <i class="fa fa-envelope-o" title="Report Error" hidden$="{{showError}}"></i> -->
-                </template>
             </div>
             <jso-panel modal fixed closable hidden id="filePreviewPanel">
                 <div class="header">
@@ -223,7 +199,7 @@
             },
             showError: {
                 type: Boolean,
-                value: true
+                value: false
             },
             // errorFiles: {
             //     type: Array,
@@ -278,10 +254,10 @@
             return "capitalize " + job.status;
         },
         computeToolName: function(job) {
+            if (job.execution != null) {
+                return job.execution;
+            }
             return job.toolName;
-        },
-        handleBarClick: function(e) {
-            e.stopPropagation();
         },
         handleVisits: function(job) {
             return job.visits > 0;
@@ -290,9 +266,8 @@
             return job.status == "RUNNING";
         },
         handleDeleteJob: function(e) {
-            var jobId = this.job.id;
             e.stopPropagation();
-
+            var jobId = this.job.id;
             if (confirm("Are you sure?")) {
                 var aux = OpencgaManager.jobs.delete({
                     id: jobId,
@@ -312,7 +287,6 @@
         },
         handleRelaunchJob: function(e) {
             e.stopPropagation();
-
             if (confirm("You are going to relaunch this Job. Are you sure?")) {
 
                 var query = {
@@ -341,24 +315,26 @@
         handleJobInformation: function(e) {
             e.stopPropagation();
 
-            if (this.job.error) {
-                this.showError = false;
-                this.jobError = this.job.error;
-                this.jobErrorDescription = this.job.errorDescription;
-                this.errorFiles = this._getErrorFiles(this.job.output);
-            } else {
-                this.showError = true;
-            }
-
-            this.showInfo = !this.showInfo;
-            if (this.showInfo == false) {
-                this.showError = true;
-            }
-
             this.jobDescription = this.job.description;
             this.jobInput = this.job.input;
             this.jobOutput = this.job.output;
+
+            this.showInfo = !this.showInfo;
+            if (this.showInfo) {
+                this._checkShowError();
+            }
         },
+
+        _checkShowError: function() {
+            if (this.job.error) {
+                this.showInfo = true;
+                this.showError = true;
+                this.jobError = this.job.error;
+                this.jobErrorDescription = this.job.errorDescription;
+                this.errorFiles = this._getErrorFiles(this.job.output);
+            }
+        },
+
         computeClass: function(showInfo) {
             if (showInfo) {
                 if (this.job.error) {
