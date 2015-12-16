@@ -83,10 +83,9 @@
             lastQuery: {
                 type: String,
                 value: ''
-            },
+            }
         },
 
-        ready: function() {},
         toggleList: function(e) {
             if (this.$.list.style.display === '') {
                 this.showList(e);
@@ -162,13 +161,12 @@
         },
 
         /*custom functions*/
-        setSearchFunction(fn) {
+        setSearchFunction: function(fn) {
             this.searchFunction = fn;
         },
-        setParseFunction(fn) {
+        setParseFunction: function(fn) {
             this.parseFunction = fn;
         },
-
         searchFunction: function(query, cb) {
             cb(['Please', 'implement', ' a search function']);
         },

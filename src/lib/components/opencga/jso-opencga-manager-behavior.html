@@ -88,58 +88,34 @@
             });
             link.dispatchEvent(event);
         },
-        uploadFile: function(studyId, path, fileName, fileContent, callback) {
-            var me = this;
-            if (path.charAt(path.length - 1) !== '/') {
-                path = path + '/';
-            }
-
-            var url = OpencgaManager.files.upload({
-                query: {
-                    sid: Cookies("bioinfo_sid")
-                },
-                request: {
-                    url: true
-                }
-            });
-
+        _uploadFile: function(studyId, path, fileName, fileContent, bioFormat, callback) {
             var blob = new Blob([fileContent], {
                 type: 'text/plain'
             });
-
-            var formData = new FormData();
-            var userId = Cookies("bioinfo_user");
-            var studyId = studyId;
-            // var relativeFilePath = '.cellmaps_sessions/' + fileName;
-            var relativeFilePath = path + fileName;
-            var fileFormat = 'PLAIN';
-            var bioFormat = 'NONE';
-            var description = '';
-            var chunkId = 0;
-
-            formData.append('chunk_content', blob);
-            formData.append('chunk_id', chunkId);
-            formData.append('chunk_size', blob.size);
-            /*formData.append('chunk_hash', hash);*/
-            formData.append("filename", fileName);
-            formData.append('userId', userId);
-            formData.append('studyId', studyId);
-            formData.append('relativeFilePath', relativeFilePath);
-            /*formData.append('chunk_gzip', );*/
-
-            formData.append("last_chunk", true);
-            formData.append("total_size", blob.size);
-            formData.append("fileFormat", fileFormat);
-            formData.append("bioFormat", bioFormat);
-            formData.append("description", description);
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', url, true);
-            xhr.onloadend = function(e) {
-                console.log('upload Done!');
-                callback();
+            var config = {
+                inputFile: blob,
+                fileName: fileName,
+                userId: Cookies("bioinfo_user"),
+                sid: Cookies("bioinfo_sid"),
+                studyId: studyId,
+                relativeFilePath: path + fileName,
+                fileFormat: 'PLAIN',
+                bioFormat: bioFormat,
+                description: '',
+                callbackProgress: function(chunk, total, response) {
+                    var percentProgress = Math.round((chunk.id / total) * 100);
+                    console.log(percentProgress);
+                    if (chunk.last) {
+                        var uploadedFile = response.response[0].result[0];
+                        callback(uploadedFile);
+                    }
+                },
+                error: function(msg) {
+                    console.log(msg);
+                    callback();
+                }
             };
-            xhr.send(formData);
+            OpencgaManager.files.upload2(config);
         },
         _updateFileAttributes: function(fileId, attributes, cb) {
             OpencgaManager.files.update({
