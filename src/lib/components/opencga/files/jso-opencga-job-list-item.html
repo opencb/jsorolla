@@ -181,7 +181,7 @@
         properties: {
             job: {
                 type: Object,
-                notify: true
+                notify: true,
             },
             visitsHidden: {
                 type: Boolean,
@@ -387,6 +387,10 @@
             });
             return errorFiles;
         },
+        handleViewChange: function(){
+          this.showInfo = false;
+          this.showError = false;
+        }
 
     });
 </script>

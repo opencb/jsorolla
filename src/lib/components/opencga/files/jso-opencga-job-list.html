@@ -63,7 +63,7 @@
                 <div class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="ready" data-checked$="{{computeView(view, 'ready')}}" title="Ready">
                     <i class="fa fa-check" style="color:#0068cc;"></i>
                 </div>
-                <div id="errorBtn" class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}" title="Error" hidden>
+                <div id="errorBtn" class="jso-btn jso-btn-shdw file" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}" title="Error">
                     <i class="fa fa-times" style="color:#b30000;"></i>
                 </div>
             </div>
@@ -73,7 +73,7 @@
         </div>
         <div id="content">
             <template is="dom-repeat" items="{{filteredJobs}}" observe="status">
-                <jso-opencga-job-list-item job="{{item}}" on-click="handleSelect" study="{{study}}" disable-relaunch="{{disableRelaunch}}">
+                <jso-opencga-job-list-item class="jobItem" job="{{item}}" on-click="handleSelect" study="{{study}}" disable-relaunch="{{disableRelaunch}}">
                 </jso-opencga-job-list-item>
             </template>
         </div>
@@ -177,19 +177,22 @@
         jobsChanged: function(neo, old) {
 
             var me = this;
-            var error = 0;
-            for (var i = 0; i < this.jobs.length; i++) {
-                var job = this.jobs[i];
-                if (job.status == "ERROR") {
-                    error++;
-                }
-            }
 
-            if (error == 0) {
-                this.$.errorBtn.hidden = true;
-            } else {
-                this.$.errorBtn.hidden = false;
-            }
+            //Para que desaparezca el filtro de error cuando no hay errores
+            // var error = 0;
+            // for (var i = 0; i < this.jobs.length; i++) {
+            //     var job = this.jobs[i];
+            //     if (job.status == "ERROR") {
+            //         error++;
+            //     }
+            // }
+            //
+            // if (error == 0) {
+            //     this.$.errorBtn.hidden = true;
+            // } else {
+            //     this.$.errorBtn.hidden = false;
+            // }
+
             var jobs;
             if (this.toolFilterValue == 'all') {
                 var jobs = this.jobs.filter(function(item) {
@@ -236,6 +239,12 @@
         },
         handleView: function(e) {
             this.view = e.currentTarget.dataset.value;
+            var jobItems = document.getElementsByClassName('jobItem');
+            for (var i = 0; i < jobItems.length; i++) {
+                if (jobItems[i].$.fileInfo.hidden == false) {
+                    jobItems[i].handleViewChange();
+                }
+            }
         },
         viewChanged: function(neo, old) {
             if (neo != null) {
