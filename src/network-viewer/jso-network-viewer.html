@@ -166,7 +166,7 @@
         <jso-nv-edition-bar id="editionBar" hidden$="{{hideEditionBar}}" selection-color="{{vertexDefaults.selectionColor}}" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-vertexshape="handleVertexShape" on-vertexopacity="handleVertexOpacity" on-vertexsize="handleVertexSize" on-vertexcolor="handleVertexColor" on-vertexstrokesize="handleVertexStrokeSize" on-vertexstrokecolor="handleVertexStrokeColor" on-vertexlabelsize="handleVertexLabelSize" on-vertexsearch="handleVertexSearch" on-vertexnamefield="handleVertexNameField" on-edgeshape="handleEdgeShape" on-edgesize="handleEdgeSize" on-edgecolor="handleEdgeColor" on-edgelabelsize="handleEdgeLabelSize" on-edgesearch="handleEdgeSearch" on-edgenamefield="handleEdgeNameField">
         </jso-nv-edition-bar>
 
-        <jso-nv-layout id="networkLayout" mode="{{mode}}" scale="{{scale}}" tx="{{center.x}}" ty="{{center.y}}" zoom="{{zoom}}" graph="{{graph}}" background-color="{{backgroundColor}}" on-createvertex="handleCreateVertex" on-selectvertex="handleSelectVertex" on-moveselectedvertices="handleMoveSelectedVertices" on-selectarea="handleSelectArea" on-createedge="handleCreateEdge" on-removevertex="handleRemoveVertex" on-removeedge="handleRemoveEdge" on-leftclickvertex="handleLeftClickVertex" on-selectedge="handleSelectEdge" on-leftclickedge="handleLeftClickEdge" on-rightclickvertex="handleRightClickVertex" on-rightclickedge="handleRightClickEdge" on-rightclickbackgroundimage="handleRightClickBackgroundImage">
+        <jso-nv-layout id="networkLayout" mode="{{mode}}" scale="{{scale}}" tx="{{center.x}}" ty="{{center.y}}" zoom="{{zoom}}" graph="{{graph}}" background-color="{{backgroundColor}}" disable-context-menu="{{disableContextMenu}}" on-createvertex="handleCreateVertex" on-selectvertex="handleSelectVertex" on-moveselectedvertices="handleMoveSelectedVertices" on-selectarea="handleSelectArea" on-createedge="handleCreateEdge" on-removevertex="handleRemoveVertex" on-removeedge="handleRemoveEdge" on-leftclickvertex="handleLeftClickVertex" on-selectedge="handleSelectEdge" on-leftclickedge="handleLeftClickEdge" on-rightclickvertex="handleRightClickVertex" on-rightclickedge="handleRightClickEdge" on-rightclickbackgroundimage="handleRightClickBackgroundImage">
         </jso-nv-layout>
 
         <jso-nv-status-bar hidden$="{{hideStatusBar}}" last-loaded-file-name="{{lastLoadedFileName}}" vertices="{{vertices}}" edges="{{edges}}" selected-vertices="{{selectedVertices}}" selected-edges="{{selectedEdges}}" selection-color="{{vertexDefaults.selectionColor}}">
@@ -512,6 +512,11 @@
                 type: Boolean,
                 value: false,
                 observer: 'handleHideEdgeRender'
+            },
+            disableContextMenu: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false,
             },
             userData: {
                 type: Object,

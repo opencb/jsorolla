@@ -127,7 +127,7 @@
             } else if (e.keyCode === 13) {
                 var result = this.$.list.querySelector('.result-item[hover]');
                 if (result != null) {
-                    this.fire('select', result.innerHTML);
+                    this.fire('item-select', result.innerHTML);
                 }
             }
         },
@@ -153,11 +153,11 @@
         },
         handleResultKeySelect: function(e) {
             if (e.which === 13) {
-                this.fire('select', e.currentTarget.innerHTML);
+                this.fire('item-select', e.currentTarget.innerHTML);
             }
         },
         handleResultClickSelect: function(e) {
-            this.fire('select', e.currentTarget.innerHTML);
+            this.fire('item-select', e.currentTarget.innerHTML);
         },
 
         /*custom functions*/

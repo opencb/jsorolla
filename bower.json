@@ -26,7 +26,7 @@
     "iron-list": "PolymerElements/iron-list#1.0.2",
     "jquery": "1.11.3",
     "js-xlsx": "~0.7.11",
-    "pako": "~0.2.5",
+    "pako": "~0.2.8",
     "polymer": "Polymer/polymer#1.2.2",
     "qtip2": "~2.2.1",
     "underscore": "~1.7.0",
