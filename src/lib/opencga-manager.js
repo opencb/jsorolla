@@ -446,10 +446,21 @@ var OpencgaManager = {
                     formData.append("total_size", SIZE);
                     formData.append("fileFormat", fileFormat);
                     formData.append("bioFormat", bioFormat);
+                    console.log(bioFormat);
                     formData.append("description", description);
                 }
                 uploadChunk(formData, c, function (chunkResponse) {
-                    callbackProgress(c, NUM_CHUNKS, chunkResponse);
+                    /* FIX--------- Remove this "FIX block" after the server fix */
+                    /* Bioformat is modified on server due to BioformatDetector bug */
+                    /* https://github.com/opencb/opencga/blob/develop/opencga-analysis/src/main/java/org/opencb/opencga/analysis/files/FileMetadataReader.java#L123 */
+                    /* Remove this ASAP, Server bioformatDetector should be invoked if no bioformat is provided. */
+                    OpencgaManager.__fix_fileBioformat(chunkResponse, bioFormat, function (f) {
+                        callbackProgress(c, NUM_CHUNKS, f);
+                    });
+                    /* FIX-END----- Remove this "FIX block" after the server fix */
+
+                    /* SAVE the next line!! Uncomment this line after the FIX!!! */
+                    // callbackProgress(c, NUM_CHUNKS, chunkResponse);
                     if (!c.last) {
                         processChunk(chunkMap[(c.id + 1)]);
                     } else {
@@ -510,6 +521,29 @@ var OpencgaManager = {
         }
         processChunk(chunkMap[0]);
 
+    },
+    __fix_fileBioformat: function (chunkResponse, bioFormat, cb) {
+        // THIS IS A TEMPORAL FIX, REMOVE THIS FUNCTION ASAP
+        if (chunkResponse.response[0].result != null) {
+            var file = chunkResponse.response[0].result[0];
+            OpencgaManager.files.update({
+                id: file.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    bioformat: bioFormat
+                },
+                request: {
+                    success: function (response) {
+                        var f = response.response[0].result[0];
+                        chunkResponse.response[0].result[0] = f;
+                        cb(chunkResponse);
+                    },
+                    error: function (response) {}
+                }
+            });
+        } else {
+            cb(chunkResponse);
+        }
     }
 };
 
