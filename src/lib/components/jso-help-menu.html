@@ -70,12 +70,21 @@
         is: "jso-help-menu",
         ready: function() {
             var me = this;
+            var bcrdm = me.$.dropmenu.getBoundingClientRect();
+            this.$.dropmenu.style.right = (-(bcrdm.width + 400)) + 'px';
             this.$.drop.addEventListener('focus', function() {
                 var bcr = me.getBoundingClientRect();
                 var bcrd = me.$.drop.getBoundingClientRect();
                 var bcrdm = me.$.dropmenu.getBoundingClientRect();
-                me.$.dropmenu.style.left = (bcr.left - bcrdm.width + bcrd.width) + 'px';
-                me.$.dropmenu.style.top = (bcr.top + bcrd.height) + 'px';
+                me.$.dropmenu.style.right = (0) + 'px';
+                me.$.dropmenu.style.top = (bcr.top + bcrd.height + 5) + 'px';
+            });
+            this.$.drop.addEventListener('blur', function() {
+                var bcr = me.getBoundingClientRect();
+                var bcrd = me.$.drop.getBoundingClientRect();
+                var bcrdm = me.$.dropmenu.getBoundingClientRect();
+                me.$.dropmenu.style.right = (-(bcrdm.width + 400)) + 'px';
+                me.$.dropmenu.style.top = (bcr.top + bcrd.height + 5) + 'px';
             });
         }
     });
