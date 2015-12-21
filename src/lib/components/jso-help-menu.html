@@ -43,14 +43,17 @@
             opacity: 1;
         }
 
-        .menu >::content a {
+        .menu >::content a ,
+        .menu >::content div {
             padding: 2px 5px;
             display: block;
             text-decoration: none;
             color: var(--text-primary-color);
         }
 
-        .menu >::content a:hover {
+
+        .menu >::content a:hover,
+        .menu >::content div:hover {
             background-color: var(--dark-button-color);
             cursor: pointer;
         }
@@ -68,9 +71,17 @@
 <script>
     Polymer({
         is: "jso-help-menu",
+        properties: {
+            menuWidth: {
+                type: Number,
+                reflectToAttribute:true,
+                value: 200
+            }
+        },
         ready: function() {
             var me = this;
             var bcrdm = me.$.dropmenu.getBoundingClientRect();
+            this.$.dropmenu.style.width = this.menuWidth + 'px';
             this.$.dropmenu.style.right = (-(bcrdm.width + 400)) + 'px';
             this.$.drop.addEventListener('focus', function() {
                 var bcr = me.getBoundingClientRect();
