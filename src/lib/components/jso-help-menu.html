@@ -43,14 +43,13 @@
             opacity: 1;
         }
 
-        .menu >::content a ,
+        .menu >::content a,
         .menu >::content div {
             padding: 2px 5px;
             display: block;
             text-decoration: none;
             color: var(--text-primary-color);
         }
-
 
         .menu >::content a:hover,
         .menu >::content div:hover {
@@ -74,7 +73,7 @@
         properties: {
             menuWidth: {
                 type: Number,
-                reflectToAttribute:true,
+                reflectToAttribute: true,
                 value: 200
             }
         },
@@ -84,19 +83,29 @@
             this.$.dropmenu.style.width = this.menuWidth + 'px';
             this.$.dropmenu.style.right = (-(bcrdm.width + 400)) + 'px';
             this.$.drop.addEventListener('focus', function() {
-                var bcr = me.getBoundingClientRect();
-                var bcrd = me.$.drop.getBoundingClientRect();
-                var bcrdm = me.$.dropmenu.getBoundingClientRect();
-                me.$.dropmenu.style.right = (0) + 'px';
-                me.$.dropmenu.style.top = (bcr.top + bcrd.height + 5) + 'px';
+                me.handleFocus();
             });
             this.$.drop.addEventListener('blur', function() {
-                var bcr = me.getBoundingClientRect();
-                var bcrd = me.$.drop.getBoundingClientRect();
-                var bcrdm = me.$.dropmenu.getBoundingClientRect();
-                me.$.dropmenu.style.right = (-(bcrdm.width + 400)) + 'px';
-                me.$.dropmenu.style.top = (bcr.top + bcrd.height + 5) + 'px';
+                me.handleBlur();
             });
+        },
+        handleFocus: function() {
+            this.async(function() {
+                var bcr = this.getBoundingClientRect();
+                var bcrd = this.$.drop.getBoundingClientRect();
+                var bcrdm = this.$.dropmenu.getBoundingClientRect();
+                this.$.dropmenu.style.right = (0) + 'px';
+                this.$.dropmenu.style.top = (bcr.top + bcrd.height + 5) + 'px';
+            }, 200);
+        },
+        handleBlur: function() {
+            this.async(function() {
+                var bcr = this.getBoundingClientRect();
+                var bcrd = this.$.drop.getBoundingClientRect();
+                var bcrdm = this.$.dropmenu.getBoundingClientRect();
+                this.$.dropmenu.style.right = (-(bcrdm.width + 400)) + 'px';
+                this.$.dropmenu.style.top = (bcr.top + bcrd.height + 5) + 'px';
+            }, 200);
         }
     });
 </script>
