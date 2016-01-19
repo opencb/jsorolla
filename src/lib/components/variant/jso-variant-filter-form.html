@@ -46,7 +46,6 @@
             background: #e4e7e9;
             font-size: 16px;
             line-height: 22px;
-
             margin: 10px;
             padding: 5px;
         }
@@ -55,7 +54,8 @@
             width: 70px;
         }
 
-        input.segregation, .segregationValue {
+        input.segregation,
+        .segregationValue {
             margin-left: 3px;
         }
 
@@ -72,7 +72,6 @@
             resize: none;
             width: 100%;
         }
-
     </style>
     <template>
         <div id="filter_form">
@@ -96,23 +95,23 @@
                         <div class="segregation segregationValue flex">. / .</div>
                     </div>
                     <div id="segregation" class="vertical layout">
-                        <template is="dom-repeat" items="{{samplesView}}">
+                        <template is="dom-repeat" items="{{samples}}">
                             <div class="horizontal layout">
-                                <div class="segregation sampleName">{{item}}</div>
+                                <div class="segregation sampleName">{{item.name}}</div>
                                 <label class="jso-control flex">
-                                    <input type="checkbox" name="{{item}}" value="0/0,0|0">
+                                    <input type="checkbox" name="{{item.id}}" value="0/0,0|0">
                                     <span></span>
                                 </label>
                                 <label class="jso-control flex">
-                                    <input type="checkbox" name="{{item}}" value="0/1,0|1,1/0,1|0">
+                                    <input type="checkbox" name="{{item.id}}" value="0/1,0|1,1/0,1|0">
                                     <span></span>
                                 </label>
                                 <label class="jso-control flex">
-                                    <input type="checkbox" name="{{item}}" value="1/1,1|1">
+                                    <input type="checkbox" name="{{item.id}}" value="1/1,1|1">
                                     <span></span>
                                 </label>
                                 <label class="jso-control flex">
-                                    <input type="checkbox" name="{{item}}" value="-1/-1,-1|-1">
+                                    <input type="checkbox" name="{{item.id}}" value="-1/-1,-1|-1">
                                     <span></span>
                                 </label>
                             </div>
@@ -127,13 +126,11 @@
                 </div>
                 <div class="jso-formcontent">
                     <label class="jso">Chromosomal location:</label>
-                    <textarea class="jso" id="region" name="region" placeholder="1:1-1000000,2:1-1000000"
-                              value="{{regionValue::change}}" rows="3" required>
+                    <textarea class="jso" id="region" name="region" placeholder="1:1-1000000,2:1-1000000" value="{{regionValue::change}}" rows="3" required>
                     </textarea>
 
                     <label class="jso">Gene:</label>
-                    <textarea class="jso" id="gene" name="gene" placeholder="BRCA2,PPL"
-                              value="{{geneValue::change}}" rows="3" required>
+                    <textarea class="jso" id="gene" name="gene" placeholder="BRCA2,PPL" value="{{geneValue::change}}" rows="3" required>
                     </textarea>
 
 
@@ -157,34 +154,34 @@
 
                     <div class="">
                         <label class="jso">European american MAF</label>
-                        <input id="esp6500_eur_amer" type="text"/>
+                        <input id="esp6500_eur_amer" type="text" />
                     </div>
                     <div class="">
                         <label class="jso">African american MAF</label>
-                        <input id="esp6500_afr_amer" type="text"/>
+                        <input id="esp6500_afr_amer" type="text" />
                     </div>
 
                     <br>
                     <label class="jso" style="font-weight: bold">1000 Genomes population phase 1</label>
                     <div class="">
                         <label class="jso">All populations MAF</label>
-                        <input id="1000GENOMES_all" type="text"/>
+                        <input id="1000GENOMES_all" type="text" />
                     </div>
                     <div class="">
                         <label class="jso">African MAF</label>
-                        <input id="1000GENOMES_afr" type="text"/>
+                        <input id="1000GENOMES_afr" type="text" />
                     </div>
                     <div class="">
                         <label class="jso">American MAF</label>
-                        <input id="1000GENOMES_amr" type="text"/>
+                        <input id="1000GENOMES_amr" type="text" />
                     </div>
                     <div class="">
                         <label class="jso">Asian MAF</label>
-                        <input id="1000GENOMES_asn" type="text"/>
+                        <input id="1000GENOMES_asn" type="text" />
                     </div>
                     <div class="">
                         <label class="jso">European MAF</label>
-                        <input id="1000GENOMES_eur" type="text"/>
+                        <input id="1000GENOMES_eur" type="text" />
                     </div>
                 </div>
             </div>
@@ -203,12 +200,13 @@
                         <select name="sift_op" id="sift_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
-                            <option value="<" selected><</option>
-                            <!--<option value="<="><=</option>-->
-                            <option value=">">></option>
-                            <!--<option value=">=">>=</option>-->
+                            <option value="<" selected>
+                                <</option>
+                                    <!--<option value="<="><=</option>-->
+                                    <option value=">">></option>
+                                    <!--<option value=">=">>=</option>-->
                         </select>
-                        <input type="text" id="sift" name="sift"/>
+                        <input type="text" id="sift" name="sift" />
 
                         <label class="jso">Polyphen</label>
                     </div>
@@ -216,12 +214,13 @@
                         <select name="polyphen_op" id="polyphen_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
-                            <option value="<" selected><</option>
-                            <!--<option value="<="><=</option>-->
-                            <option value=">">></option>
-                            <!--<option value=">=">>=</option>-->
+                            <option value="<" selected>
+                                <</option>
+                                    <!--<option value="<="><=</option>-->
+                                    <option value=">">></option>
+                                    <!--<option value=">=">>=</option>-->
                         </select>
-                        <input type="text" id="polyphen" name="polyphen"/>
+                        <input type="text" id="polyphen" name="polyphen" />
                     </div>
                 </div>
             </div>
@@ -240,10 +239,11 @@
                         <select name="phylop_op" id="phylop_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
-                            <option value="<" selected><</option>
-                            <!--<option value="<="><=</option>-->
-                            <option value=">">></option>
-                            <!--<option value=">=">>=</option>-->
+                            <option value="<" selected>
+                                <</option>
+                                    <!--<option value="<="><=</option>-->
+                                    <option value=">">></option>
+                                    <!--<option value=">=">>=</option>-->
                         </select>
                         <input type="text" id="phylop" name="phylop" flex/>
                     </div>
@@ -255,10 +255,11 @@
                         <select name="phastcons_op" id="phastcons_op">
                             <!--<option value="==">==</option>-->
                             <!--<option value="!=">!=</option>-->
-                            <option value="<" selected><</option>
-                            <!--<option value="<="><=</option>-->
-                            <option value=">">></option>
-                            <!--<option value=">=">>=</option>-->
+                            <option value="<" selected>
+                                <</option>
+                                    <!--<option value="<="><=</option>-->
+                                    <option value=">">></option>
+                                    <!--<option value=">=">>=</option>-->
                         </select>
                         <input type="text" id="phastcons" name="phastcons" flex/>
                     </div>
@@ -339,11 +340,11 @@
     Polymer({
         is: "jso-variant-filter-form",
         properties: {
-//            geneValue: null,
-//            snpValue: '',
-//            floatDecimals: 3,
-//            expanded: false,
-//            parseFunction: null,
+            //            geneValue: null,
+            //            snpValue: '',
+            //            floatDecimals: 3,
+            //            expanded: false,
+            //            parseFunction: null,
             url: {
                 type: String,
                 notify: true,
@@ -353,18 +354,23 @@
                 type: Object,
                 observer: 'fileChanged'
             },
-            samples: {
+            study: {
                 type: Object,
-                notify: true,
-                value: function () {
-                    return {}
+                value: function() {
+                    return {};
                 }
-
+            },
+            samples: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                }
             },
             samplesView: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -385,77 +391,31 @@
             },
             consequenceTypes: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return CONSEQUENCE_TYPES;
                 }
             }
         },
-        fileChanged: function (neo, old) {
+        fileChanged: function(neo, old) {
             if (neo) {
                 var me = this;
-                //http://bioinfoint.hpc.cam.ac.uk/opencga/webservices/rest/v1/samples/search?sid=zdBAYiHWhAPcu7EXD8UI&id=16,17,18,19&studyId=11
-                OpencgaManager.samples.search({
-                    query: {
-                        sid: Cookies("bioinfo_sid"),
-                        studyId: this.file.attributes.variantSource.studyId,
-                        id: this.file.sampleIds.join()
-                    },
-                    request: {
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                if (response.response[0].result.length > 0) {
-                                    me.samplesView = [];
-                                    for (var i = 0; i < response.response[0].result.length; i++) {
-                                        var sample = response.response[0].result[i];
-                                        me.samples[sample.name] = sample.id;
 
-                                    }
-                                    /** for correct viz **/
-                                    var samplesPosition = me.file.attributes.variantSource.samplesPosition;
-                                    for (var sample in  samplesPosition) {
-                                        me.push('samplesView', sample);
-                                    }
-                                }
-                                else {
-                                    alert("There has been an unexpected error, please contact BierApp crew");
-                                }
-
-                            } else {
-                                alert(response.error);
-                            }
-                        },
-                        error: function () {
-                            console.log('Server error, try again later.');
-                        }
-                    }
-                });
-
-
-//                var samplesPosition = this.file.attributes.variantSource.samplesPosition;
-//                for (var sample in  samplesPosition) {
-//                    this.samples[sample] = this.file.sampleIds[samplesPosition[sample]];
-//                    debugger
-////                    this.samplesView.push(sample);
-//                    this.push('samplesView', sample);
-//                }
-////                debugger
-//                this.set("samplesView", this.samplesView.slice())
             }
         },
-        handleFeatureSelected: function (e) {
+        handleFeatureSelected: function(e) {
             var item = e.detail;
             if (item) {
-                var values = this.$.gene.value.split(',').filter(function (el) {
+                var values = this.$.gene.value.split(',').filter(function(el) {
                     return el.length != 0
                 });
                 values.push(item.name);
-                values = values.filter(function (item, index, inputArray) {
+                values = values.filter(function(item, index, inputArray) {
                     return inputArray.indexOf(item) == index;
                 });
                 this.$.gene.value = values.join(",");
             }
         },
-        clearForm: function () {
+        clearForm: function() {
             /* samples */
 
             for (var sample in this.samples) {
@@ -473,7 +433,7 @@
             }
             var els = this.$.consequenceTypes.querySelectorAll("textarea");
         },
-        submitForm: function () {
+        submitForm: function() {
             var query = {};
             var regions = [];
 
@@ -481,126 +441,124 @@
                 regions = this.regionValue.split(",");
             }
 
-//            if (this.geneValue) {
-//                var gene = this.geneValue.toUpperCase();
-//                CellBaseManager.get({
-//                    species: 'hsapiens',
-//                    category: 'feature',
-//                    subCategory: 'gene',
-//                    query: gene,
-//                    resource: "info",
-//                    async: false,
-//                    params: {
-//                        include: 'chromosome,start,end'
-//                    },
-//                    success: function (data) {
-//                        for (var i = 0; i < data.response.length; i++) {
-//                            var queryResult = data.response[i];
-//                            var region = new Region(queryResult.result[0]);
-//                            regions.push(region.toString());
-//                        }
-//                    }
-//                });
-//            }
+            //            if (this.geneValue) {
+            //                var gene = this.geneValue.toUpperCase();
+            //                CellBaseManager.get({
+            //                    species: 'hsapiens',
+            //                    category: 'feature',
+            //                    subCategory: 'gene',
+            //                    query: gene,
+            //                    resource: "info",
+            //                    async: false,
+            //                    params: {
+            //                        include: 'chromosome,start,end'
+            //                    },
+            //                    success: function (data) {
+            //                        for (var i = 0; i < data.response.length; i++) {
+            //                            var queryResult = data.response[i];
+            //                            var region = new Region(queryResult.result[0]);
+            //                            regions.push(region.toString());
+            //                        }
+            //                    }
+            //                });
+            //            }
 
-            // Genotypes
-            var genotypes = [];
-
-            for (var sample in  this.samples) {
-                var els = this.$.segregation.querySelectorAll("input[name='" + sample + "']:checked");
-                var gtValues = [];
-                for (var j = 0; j < els.length; j++) {
-                    var el = els[j];
-                    gtValues.push(el.value);
-                }
-                if (gtValues.length > 0) {
-                    var aux = this.samples[sample] + ":" + gtValues.join(",");
-                    genotypes.push(aux);
-                }
-            }
-
-
-            if (genotypes.length > 0) {
-                query.genotype = genotypes.join(";").replace(new RegExp("\/", "gi"), "%2f");
-            }
-
-            // Consequence Types
-            var cts = [];
-            var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
-            for (var i = 0; i < els.length; i++) {
-                var ctInput = els[i];
-                cts.push(ctInput.value);
-            }
-            if (cts.length > 0) {
-                query["annot-ct"] = cts.join(",");
-            }
-
-            // Protein Substitution Scores
-            var sift = parseFloat(this.$.sift.value);
-            var polyphen = parseFloat(this.$.polyphen.value);
-            var phylop = parseFloat(this.$.phylop.value);
-            var phastcons = parseFloat(this.$.phastcons.value);
-
-            if (sift) {
-                sift = this.$.sift_op.value + parseFloat(this.$.sift.value);
-                query.sift = sift;
-            }
-            if (polyphen) {
-                polyphen = this.$.polyphen_op.value + parseFloat(this.$.polyphen.value);
-                query.polyphen = polyphen;
-            }
-            if (phylop || phastcons) {
-                // protein_substitution
-//                query.conserved_region=phylop:<0.2
-                query.conserved_region = "";
-                if (phylop) {
-                    query.conserved_region = "phylop:" + this.$.phylop_op.value + parseFloat(this.$.phylop.value);
-                }
-                if (phylop && phastcons)
-                    query.conserved_region += ",";
-                if (phastcons) {
-                    query.conserved_region += "phastCons:" + this.$.phastcons_op.value + parseFloat(this.$.phastcons.value);
-                }
-            }
-
+            // // Genotypes
+            // var genotypes = [];
+            //
+            // for (var sample in this.samples) {
+            //     var els = this.$.segregation.querySelectorAll("input[name='" + sample + "']:checked");
+            //     var gtValues = [];
+            //     for (var j = 0; j < els.length; j++) {
+            //         var el = els[j];
+            //         gtValues.push(el.value);
+            //     }
+            //     if (gtValues.length > 0) {
+            //         var aux = this.samples[sample] + ":" + gtValues.join(",");
+            //         genotypes.push(aux);
+            //     }
+            // }
+            //
+            // if (genotypes.length > 0) {
+            //     query.genotype = genotypes.join(";").replace(new RegExp("\/", "gi"), "%2f");
+            // }
+            //
+            // // Consequence Types
+            // var cts = [];
+            // var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
+            // for (var i = 0; i < els.length; i++) {
+            //     var ctInput = els[i];
+            //     cts.push(ctInput.value);
+            // }
+            // if (cts.length > 0) {
+            //     query["annot-ct"] = cts.join(",");
+            // }
+            //
+            // // Protein Substitution Scores
+            // var sift = parseFloat(this.$.sift.value);
+            // var polyphen = parseFloat(this.$.polyphen.value);
+            // var phylop = parseFloat(this.$.phylop.value);
+            // var phastcons = parseFloat(this.$.phastcons.value);
+            //
+            // if (sift) {
+            //     sift = this.$.sift_op.value + parseFloat(this.$.sift.value);
+            //     query.sift = sift;
+            // }
+            // if (polyphen) {
+            //     polyphen = this.$.polyphen_op.value + parseFloat(this.$.polyphen.value);
+            //     query.polyphen = polyphen;
+            // }
+            // if (phylop || phastcons) {
+            //     // protein_substitution
+            //     //                query.conserved_region=phylop:<0.2
+            //     query.conserved_region = "";
+            //     if (phylop) {
+            //         query.conserved_region = "phylop:" + this.$.phylop_op.value + parseFloat(this.$.phylop.value);
+            //     }
+            //     if (phylop && phastcons)
+            //         query.conserved_region += ",";
+            //     if (phastcons) {
+            //         query.conserved_region += "phastCons:" + this.$.phastcons_op.value + parseFloat(this.$.phastcons.value);
+            //     }
+            // }
 
             var regionQuery = regions.join(",");
             query.region = regionQuery;
 
-            var geneQuery = this.geneValue.toUpperCase();
-            if (geneQuery != '') {
-                query.gene = geneQuery;
-            }
+            // var geneQuery = this.geneValue.toUpperCase();
+            // if (geneQuery != '') {
+            //     query.gene = geneQuery;
+            // }
 
             console.log(query);
             this.search(query);
         },
 
-        search: function (query) {
+        search: function(query) {
             query.sid = Cookies("bioinfo_sid");
 
             //TODO fsalavert: fix
-//            query.sessionId = Cookies("bioinfo_sid");
-            var url = OpencgaManager.files.fetch({
-                id: this.file.id,
+            //            query.sessionId = Cookies("bioinfo_sid");
+            var url = OpencgaManager.studies.variants({
+                id: this.study.id,
                 query: query,
                 request: {
                     url: true
                 }
             });
+
             this.url = url;
             console.log(url);
 
         },
-        handleBrowseClick: function (e) {
+        handleBrowseClick: function(e) {
             this.$.fileInput.click();
 
         },
-        handleInputChange: function (e) {
+        handleInputChange: function(e) {
             var me = this;
             var inputFile = this.$.fileInput.files[0];
             this.fileName = inputFile.name;
-
 
             var bedRegions = [];
 
@@ -612,7 +570,7 @@
 
                 var reader = new FileReader();
 
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     var data = e.target.result;
                     var lines = data.split("\n");
                     for (var i = 0; i < lines.length; i++) {
