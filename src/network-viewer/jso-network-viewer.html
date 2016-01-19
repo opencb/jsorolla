@@ -160,7 +160,7 @@
         <jso-nv-bar id="nvbar" lite="{{lite}}" hidden$="{{hideBar}}" columns="{{vertexColumns}}" on-session-start="handleSessionStartMenu" on-session-open="handleSessionOpenMenu" on-session-save="handleSessionSaveMenu" on-session-manage="handleSessionManageMenu" on-import-sif="handleImportSifMenu" on-import-text="handleImportTextMenu" on-import-xlsx="handleImportXlsxMenu" on-import-node-attributes="handleImportNodeAttrMenu" on-import-edge-attributes="handleImportEdgeAttrMenu" on-export-sif="handleExportSifMenu" on-export-svg="handleExportSvgMenu" on-export-png="handleExportPngMenu" on-export-node-attributes="handleExportNodeAttrMenu" on-export-edge-attributes="handleExportEdgeAttrMenu" on-nodes-select-all="handleSelectMenu" on-nodes-select-first-neighbourhood="handleSelectMenu" on-nodes-select-invert="handleSelectMenu" on-edges-select-all="handleSelectMenu" on-edges-select-adjacent="handleSelectMenu" on-network-select-all="handleSelectMenu" on-layout-force-directed="handleLayoutMenu" on-layout-tree="handleLayoutMenu" on-layout-configure-force-directed="handleLayoutMenu" on-layout-circle="handleLayoutMenu" on-layout-random="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu" on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu" on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu" on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu" on-functionalities="handleFunctionalitiesMenu">
         </jso-nv-bar>
 
-        <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage" on-reset-zoom="handleResetZoom">
+        <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage" on-reset-zoom="handleResetZoom" on-center-network="handleCenterNetwork">
         </jso-nv-tool-bar>
 
         <jso-nv-edition-bar id="editionBar" hidden$="{{hideEditionBar}}" selection-color="{{vertexDefaults.selectionColor}}" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-vertexshape="handleVertexShape" on-vertexopacity="handleVertexOpacity" on-vertexsize="handleVertexSize" on-vertexcolor="handleVertexColor" on-vertexstrokesize="handleVertexStrokeSize" on-vertexstrokecolor="handleVertexStrokeColor" on-vertexlabelsize="handleVertexLabelSize" on-vertexsearch="handleVertexSearch" on-vertexnamefield="handleVertexNameField" on-edgeshape="handleEdgeShape" on-edgesize="handleEdgeSize" on-edgecolor="handleEdgeColor" on-edgelabelsize="handleEdgeLabelSize" on-edgesearch="handleEdgeSearch" on-edgenamefield="handleEdgeNameField">
@@ -296,7 +296,7 @@
 
             <jso-panel hidden collapsible fixed movable closable id="communitiesStructureDetectionPanel">
                 <div class="header">
-                    Network analysis: Communities structure detection
+                    Network analysis: Community structure detection
                 </div>
                 <jso-communities-structure-detection id="communitiesStructureDetection" items="{{vertices}}" columns="{{vertexColumns}}" graph="{{graph}}" on-community="handleCommunityAttributes" on-apply-community="handleApplyCommunity" class="container">
                 </jso-communities-structure-detection>
@@ -806,11 +806,15 @@
             this.saveLocalStorage();
         },
         resetZoom: function() {
-            this.zoom = 25;
-            this.set('center.x', 0);
-            this.set('center.y', 0);
-        },
+            // Deprecated
 
+            // this.zoom = 25;
+            // this.set('center.x', 0);
+            // this.set('center.y', 0);
+        },
+        centerNetwork: function() {
+            this.$.networkLayout.centerNetwork();
+        },
         loadLocalStorage: function() {
             var item = localStorage.getItem(this.serializeKey);
             if (item !== null && item !== "null") {
@@ -1564,6 +1568,9 @@
         handleResetZoom: function() {
             this.resetZoom();
         },
+        handleCenterNetwork: function() {
+            this.centerNetwork();
+        },
         handleImportBackgroundImage: function(e) {
             this.$.networkLayout.addBackgroundImage(e.detail.image);
         },
@@ -1599,9 +1606,28 @@
             this.setSelectedVerticesDisplayAttr('labelSize', e.detail.value);
         },
         handleVertexSearch: function(e) {
-            this.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
+            var str = e.detail.columnName;
+            if (e.detail.columnName === 'all') {
+                str += ' attributes';
+                var selected = [];
+                for (var i = 0; i < this.graph.vertices.length; i++) {
+                    var vertex = this.graph.vertices[i];
+                    for (var att in vertex.attributes) {
+                        if (vertex.attributes[att].indexOf(e.detail.value) != -1) {
+                            selected.push(vertex);
+                            break;
+                        }
+                    }
+                }
+                this.set('selectedVertices', selected);
+            } else {
+                str += ' attribute';
+                this.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
+            }
             if (this.selectedVertices.length == 0) {
-                e.detail.inputEl.style.color = '#ff0000';
+                Utils.msg('Search results', 'Your search using ' + str + ' "' + e.detail.value + '" using did not match any node.');
+            } else {
+                Utils.msg('Search results', this.selectedVertices.length + ' nodes found using ' + str + '. The found nodes has been selected.');
             }
         },
         handleVertexNameField: function(e) {
@@ -1951,7 +1977,7 @@
                     var attributes = vertex.attributes;
                     attributes["degree"] = obj.degree;
                     attributes["betweenness"] = obj.betweenness;
-                    attributes["closenessCentrality"] = obj.closenessCentrality;
+                    attributes["closeness"] = obj.closeness;
                     attributes["clusteringCoefficient"] = obj.clusteringCoefficient;
                 }
             }
