@@ -17,7 +17,7 @@
         <!--<div class="title">-->
         <!--Variant Browser-->
         <!--</div>-->
-        <jso-table id="table" enable-paging enable-remote enable-select request="{{request}}" on-rowclick="handleRowClick"></jso-table>
+        <jso-table id="table" enable-resize enable-paging enable-remote enable-select request="{{request}}" on-rowclick="handleRowClick"></jso-table>
     </template>
 
 </dom-module>
@@ -85,12 +85,12 @@
         }, {
             name: 'genes',
             title: 'Genes',
-            //                width: 100,
+            width: 100,
             defaultValue: '.'
         }, {
             name: 'ct',
             title: 'Conseq. Type',
-            //                width: 100
+            width: 300
         }, {
             name: 'sift',
             title: 'SIFT',
@@ -114,8 +114,195 @@
         }, {
             name: 'phenotype',
             title: 'Phenotype',
-            defaultValue: 'TODO'
+            defaultValue: '.',
+            width: 400,
+            columns: [{
+                name: "clinvar",
+                title: "Clinvar",
+                width: 200,
+                formula: function(row) {
+                    if (row.phenotype && row.phenotype.clinvar) {
+                        return row.phenotype.clinvar;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "cosmic",
+                title: "Cosmic",
+                width: 200,
+                formula: function(row) {
+                    if (row.phenotype && row.phenotype.cosmic) {
+                        return row.phenotype.cosmic;
+                    } else {
+                        return ".";
+                    }
+                }
+            }]
+        }, {
+            name: 'ESP_6500',
+            title: 'ESP 650',
+            defaultValue: '.',
+            width: 100,
+            columns: [{
+                name: "EA",
+                title: "Eur.Ame.",
+                width: 50,
+                formula: function(row) {
+                    if (row['ESP_6500'] && row['ESP_6500'].EA) {
+                        return row['ESP_6500'].EA;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "AA",
+                title: "Afr.Ame",
+                width: 50,
+                formula: function(row) {
+                    if (row['ESP_6500'] && row['ESP_6500'].AA) {
+                        return row['ESP_6500'].AA;
+                    } else {
+                        return ".";
+                    }
+                }
+            }]
+
+        }, {
+            name: '1000GENOMES_phase_1',
+            title: '1000G MAF(phase 1)',
+            defaultValue: '.',
+            width: 250,
+            columns: [{
+                name: "ALL",
+                title: "ALL",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ALL) {
+                        return row['1000GENOMES_phase_1'].ALL;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "AMR",
+                title: "AMR",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AMR) {
+                        return row['1000GENOMES_phase_1'].AMR;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "ASN",
+                title: "ASN",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ASN) {
+                        return row['1000GENOMES_phase_1'].ASN;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "AFR",
+                title: "AFR",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AFR) {
+                        return row['1000GENOMES_phase_1'].AFR;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "EUR",
+                title: "EUR",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].EUR) {
+                        return row['1000GENOMES_phase_1'].EUR;
+                    } else {
+                        return ".";
+                    }
+                }
+            }]
+        }, {
+            name: '1000G_PHASE_3',
+            title: '1000G MAF(phase 3)',
+            defaultValue: '.',
+            width: 300,
+            columns: [{
+                name: "ALL",
+                title: "ALL",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].ALL) {
+                        return row['1000G_PHASE_3'].ALL;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "AMR",
+                title: "AMR",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].AMR) {
+                        return row['1000G_PHASE_3'].AMR;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "SAS",
+                title: "SAS",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].SAS) {
+                        return row['1000G_PHASE_3'].SAS;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "EAS",
+                title: "EAS",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].EAS) {
+                        return row['1000G_PHASE_3'].EAS;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "AFR",
+                title: "AFR",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].AFR) {
+                        return row['1000G_PHASE_3'].AFR;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "EUR",
+                title: "EUR",
+                width: 50,
+                formula: function(row) {
+                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].EUR) {
+                        return row['1000G_PHASE_3'].EUR;
+                    } else {
+                        return ".";
+                    }
+                }
+            }]
         }],
+
         fileChanged: function(neo, old) {
             this.$.table.clear();
             this._updateColumns();
@@ -125,6 +312,7 @@
             // var samples = this.file.attributes.variantSource.samples;
             var sampleColumns = [];
             var colWidth = 100;
+
             for (var i = 0; i < this.samples.length; i++) {
                 var sample = this.samples[i].name;
                 sampleColumns.push({
@@ -135,6 +323,7 @@
             }
             this._columns[3].columns = sampleColumns;
             this._columns[3].width = sampleColumns.length * colWidth;
+
             this.$.table.columns = this._columns;
         },
         handleRowClick: function(e) {
@@ -163,6 +352,158 @@
 
             for (var i = 0; i < data.length; i++) {
                 var variant = data[i];
+
+                if (variant.annotation) {
+                    var annotation = variant.annotation;
+
+                    // consequenceTypes
+                    if (annotation.consequenceTypes != null) {
+                        var ctsAux = {};
+                        var siftAux = null;
+                        var polyphenAux = null;
+                        var genesAux = {};
+
+                        for (var j = 0; j < annotation.consequenceTypes.length; j++) {
+                            var ct = annotation.consequenceTypes[j];
+                            if (ct.sequenceOntologyTerms) {
+                                for (var k = 0; k < ct.sequenceOntologyTerms.length; k++) {
+                                    var so = ct.sequenceOntologyTerms[k].name;
+                                    ctsAux[so] = so;
+                                }
+                            }
+
+                            // SIFT & Polyphen
+                            if (ct.proteinVariantAnnotation) {
+                                if (ct.proteinVariantAnnotation.substitutionScores && (siftAux == null || polyphenAux == null)) {
+                                    if (ct.proteinVariantAnnotation.substitutionScores[0] && ct.proteinVariantAnnotation.substitutionScores[1]) {
+                                        polyphenAux = ct.proteinVariantAnnotation.substitutionScores[0].score;
+                                        siftAux = ct.proteinVariantAnnotation.substitutionScores[1].score;
+                                    }
+                                }
+                            }
+
+                            // genes
+                            if (ct.geneName) {
+                                var gn = ct.geneName;
+                                genesAux[gn] = gn;
+                            }
+                        }
+
+                        var cts = Object.keys(ctsAux);
+                        if (cts.length > 0) {
+                            variant.ct = cts.join(",");
+                        }
+                        var genes = Object.keys(genesAux);
+                        if (genes.length > 0) {
+                            variant.genes = genes.join(",");
+                        }
+
+                        variant.sift = siftAux;
+                        variant.polyphen = polyphenAux;
+                    }
+
+                    // Conservation
+                    if (annotation.conservation != null) {
+                        var phylopAux = null;
+                        var phastConsAux = null;
+                        for (var j = 0; j < annotation.conservation.length; j++) {
+                            var cons = annotation.conservation[j];
+                            if (cons.source == "phastCons") {
+                                phastConsAux = cons.score.toFixed(3);
+                            } else if (cons.source == "phylop") {
+                                phylopAux = cons.score.toFixed(3);
+                            }
+                        }
+                        variant.phylop = phylopAux;
+                        variant.phastCons = phastConsAux;
+
+                    }
+
+                    // Population Frequencies
+                    if (annotation.populationFrequencies != null) {
+                      variant['ESP_6500'] = {};
+                      variant['1000GENOMES_phase_1'] = {};
+                      variant['1000G_PHASE_3'] = {};
+                        for (var j = 0; j < annotation.populationFrequencies.length; j++) {
+                            var freq = annotation.populationFrequencies[j];
+                            if (freq.study == "ESP_6500") {
+                                if (freq.population == "European_American") {
+                                    variant['ESP_6500'].EA = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "African_American") {
+                                    variant['ESP_6500'].AA = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                }
+
+                            } else if (freq.study == "1000GENOMES_phase_1") {
+                                if (freq.population == "AFR") {
+                                    variant['1000GENOMES_phase_1'].AFR = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "AMR") {
+                                    variant['1000GENOMES_phase_1'].AMR = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "ASN") {
+                                    variant['1000GENOMES_phase_1'].ASN = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "EUR") {
+                                    variant['1000GENOMES_phase_1'].EUR = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "ALL") {
+                                    variant['1000GENOMES_phase_1'].ALL = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                }
+
+                            } else if (freq.study == "1000G_PHASE_3") {
+                                if (freq.population == "1000G_PHASE_3_ALL") {
+                                    variant['1000G_PHASE_3'].ALL = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "1000G_PHASE_3_SAS") {
+                                    variant['1000G_PHASE_3'].SAS = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "1000G_PHASE_3_EAS") {
+                                    variant['1000G_PHASE_3'].EAS = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "1000G_PHASE_3_AMR") {
+                                    variant['1000G_PHASE_3'].AMR = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "1000G_PHASE_3_AFR") {
+                                    variant['1000G_PHASE_3'].AFR = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                } else if (freq.population == "1000G_PHASE_3_EUR") {
+                                    variant['1000G_PHASE_3'].EUR = Math.min(freq.refAlleleFreq, freq.altAlleleFreq);
+                                }
+                            }
+                        }
+                    }
+
+                    // Phenotype
+                    if (annotation.variantTraitAssociation != null) {
+                        var phenClinvarAux = {};
+                        var phenCosmicAux = {};
+                        var vta = annotation.variantTraitAssociation;
+                        // Clinvar
+                        if (vta.clinvar != null) {
+                            for (var k = 0; k < vta.clinvar.length; k++) {
+                                // phenClinvar.push(vta.clinvar[k].traits);
+                                var phen = vta.clinvar[k].traits;
+                                for (var l = 0; l < phen.length; l++) {
+                                    var p = phen[l].toLowerCase();
+                                    phenClinvarAux[p] = p;
+                                }
+                            }
+                        }
+                        // Cosmic
+                        if (vta.cosmic != null) {
+                            for (var k = 0; k < vta.cosmic.length; k++) {
+                                // phenCosmic.push(vta.cosmic[0].primaryHistology);
+                                var phen = vta.cosmic[0].primaryHistology.toLowerCase();
+                                phenCosmicAux[phen] = phen;
+                            }
+                        }
+
+                        variant.phenotype = {};
+                        // variant.phenotype.clinvar = phenClinvar.join(",");
+                        // variant.phenotype.cosmic = phenCosmic.join(",");
+
+                        var phenCosmic = Object.keys(phenCosmicAux);
+                        if (phenCosmic.length > 0) {
+                            variant.phenotype.cosmic = phenCosmic.join(",");
+                        }
+                        var phenClinvar = Object.keys(phenClinvarAux);
+                        if (phenClinvar.length > 0) {
+                            variant.phenotype.clinvar = phenClinvar.join(",");
+                        }
+                    }
+
+                }
                 // var samples = {};
                 //
                 // var se = variant.sourceEntries[sourceEntryId];
