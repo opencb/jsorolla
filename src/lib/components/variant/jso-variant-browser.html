@@ -60,7 +60,6 @@
         jso-variant-effect-grid {
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
         }
-
     </style>
     <template>
         <div class="title color-2">
@@ -69,10 +68,9 @@
             <span>{{file.name}}</span>
         </div>
         <div class="horizontal layout">
-            <jso-variant-filter-form url="{{url}}" file="{{file}}"></jso-variant-filter-form>
+            <jso-variant-filter-form url="{{url}}" file="{{file}}" study="{{study}}" samples="{{samples}}"></jso-variant-filter-form>
             <div id="right" class="flex">
-                <jso-variant-grid url="{{url}}" file="{{file}}"
-                                  on-rowclick="handleRowClick"></jso-variant-grid>
+                <jso-variant-grid url="{{url}}" file="{{file}}" study="{{study}}" samples="{{samples}}" on-rowclick="handleRowClick"></jso-variant-grid>
 
                 <div id="menu" class="color-2 color-hover-2 horizontal layout">
                     <div on-click="handleMenuClick" data-option="gv">Genomic context</div>
@@ -106,25 +104,49 @@
                 file: {
                     type: Object
                 },
+                study: {
+                    type: Object,
+                    value: function() {
+                        return {};
+                    }
+                },
+                samples: {
+                    type: Array,
+                    notify: true,
+                    value: function() {
+                        return [];
+                    }
+                },
                 selectedMenuTool: {
                     type: Object,
                     observer: 'selectedMenuChanged'
                 }
             },
-            created: function () {
-                var observer = new MutationObserver(function (mutations) {
+            created: function() {
+                var observer = new MutationObserver(function(mutations) {
                     if (this.hasAttribute('hidden')) {
                         this.$.gv.setAttribute('hidden', '');
                     } else {
                         this.$.gv.removeAttribute('hidden');
                     }
                 }.bind(this));
-                observer.observe(this, {attributes: true, attributeFilter: ['hidden']});
+                observer.observe(this, {
+                    attributes: true,
+                    attributeFilter: ['hidden']
+                });
             },
-            ready: function () {
+            ready: function() {
                 this.selectedMenuTool = this.$.menu.querySelector('div');
+
+                this.async(function() {
+                    this.$.gv.createGenomeViewer();
+                    var seq = this.$.gv.genomeViewer.trackListPanel.tracks[2];
+                    this.$.gv.genomeViewer.draw();
+
+                    this.genomeViewer = this.$.gv.genomeViewer;
+                });
             },
-            selectedMenuChanged: function (neo, old) {
+            selectedMenuChanged: function(neo, old) {
                 if (old) {
                     old.removeAttribute('selected');
                     this.$[old.dataset.option].setAttribute('hidden', '');
@@ -134,24 +156,24 @@
                     this.$[neo.dataset.option].removeAttribute('hidden');
                 }
             },
-            handleMenuClick: function (e) {
+            handleMenuClick: function(e) {
                 this.selectedMenuTool = e.currentTarget;
             },
-            handleRowClick: function (e) {
+            handleRowClick: function(e) {
                 this.$.gv.genomeViewer.setRegion(e.detail.row);
                 this.$.effect.row = e.detail.row;
                 this.$.frequency.row = e.detail.row;
                 this.$.phenotype.row = e.detail.row;
                 this.$.stats.row = e.detail.row;
             },
-            _old_ready: function () {
+            _old_ready: function() {
                 var me = this;
 
             },
-            selectedTabChanged: function (oldValue, newValue) {
+            selectedTabChanged: function(oldValue, newValue) {
                 console.log(newValue);
             },
-            handleDataGridSelected: function (oldValue, newValue) {
+            handleDataGridSelected: function(oldValue, newValue) {
 
                 var me = this;
                 var reg = newValue.chromosome + ":" + newValue.start + "-" + newValue.end;

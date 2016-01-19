@@ -17,8 +17,7 @@
         <!--<div class="title">-->
         <!--Variant Browser-->
         <!--</div>-->
-        <jso-table id="table" enable-paging enable-remote enable-select request="{{request}}"
-                   on-rowclick="handleRowClick"></jso-table>
+        <jso-table id="table" enable-paging enable-remote enable-select request="{{request}}" on-rowclick="handleRowClick"></jso-table>
     </template>
 
 </dom-module>
@@ -36,91 +35,98 @@
                 type: Object,
                 observer: 'fileChanged'
             },
+            study: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
+            },
+            samples: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                }
+            },
             request: {
                 type: Object
             }
         },
-        _columns: [
-            {
-                name: 'variant',
-                title: "Variant",
-                width: 100,
-                formula: function (row) {
-                    return row.chromosome + ":" + row.start;
-                }
-            }, {
-                name: 'alleles',
-                title: 'Alleles',
-                width: 100,
-                formula: function (row) {
-                    return row.reference + ">" + row.alternate;
-                }
-            }, {
-                name: 'snpId',
-                title: 'SNP Id',
-                width: 100,
-                defaultValue: '.',
-                formula: function (row) {
-                    return row.id;
-                }
-            }, {
-                name: 'samples',
-                title: 'Samples',
-                width: 100
-            },
-            {
-                name: 'controls',
-                title: 'Controls',
-                width: 100
-            },
-            {
-                name: 'genes',
-                title: 'Genes',
-//                width: 100,
-                defaultValue: '.'
-            }, {
-                name: 'ct',
-                title: 'Conseq. Type',
-//                width: 100
-            }, {
-                name: 'sift',
-                title: 'SIFT',
-                width: 70,
-                defaultValue: '.',
-            }, {
-                name: 'polyphen',
-                title: 'Polyphen',
-                width: 70,
-                defaultValue: '.'
-            },
-            {
-                name: 'phylop',
-                title: 'phyloP',
-                width: 70,
-                defaultValue: '.'
-            }, {
-                name: 'phastCons',
-                title: 'PhastCons',
-                width: 70,
-                defaultValue: '.'
-            },
-            {
-                name: 'phenotype',
-                title: 'Phenotype',
-                defaultValue: 'TODO'
+        _columns: [{
+            name: 'variant',
+            title: "Variant",
+            width: 100,
+            formula: function(row) {
+                return row.chromosome + ":" + row.start;
             }
-        ],
-        fileChanged: function (neo, old) {
+        }, {
+            name: 'alleles',
+            title: 'Alleles',
+            width: 100,
+            formula: function(row) {
+                return row.reference + ">" + row.alternate;
+            }
+        }, {
+            name: 'snpId',
+            title: 'SNP Id',
+            width: 100,
+            defaultValue: '.',
+            formula: function(row) {
+                return row.id;
+            }
+        }, {
+            name: 'samples',
+            title: 'Samples',
+            width: 100
+        }, {
+            name: 'controls',
+            title: 'Controls',
+            width: 100
+        }, {
+            name: 'genes',
+            title: 'Genes',
+            //                width: 100,
+            defaultValue: '.'
+        }, {
+            name: 'ct',
+            title: 'Conseq. Type',
+            //                width: 100
+        }, {
+            name: 'sift',
+            title: 'SIFT',
+            width: 70,
+            defaultValue: '.',
+        }, {
+            name: 'polyphen',
+            title: 'Polyphen',
+            width: 70,
+            defaultValue: '.'
+        }, {
+            name: 'phylop',
+            title: 'phyloP',
+            width: 70,
+            defaultValue: '.'
+        }, {
+            name: 'phastCons',
+            title: 'PhastCons',
+            width: 70,
+            defaultValue: '.'
+        }, {
+            name: 'phenotype',
+            title: 'Phenotype',
+            defaultValue: 'TODO'
+        }],
+        fileChanged: function(neo, old) {
             this.$.table.clear();
             this._updateColumns();
 
         },
-        _updateColumns: function () {
-            var samples = this.file.attributes.variantSource.samples;
+        _updateColumns: function() {
+            // var samples = this.file.attributes.variantSource.samples;
             var sampleColumns = [];
             var colWidth = 100;
-            for (var i = 0; i < samples.length; i++) {
-                var sample = samples[i];
+            for (var i = 0; i < this.samples.length; i++) {
+                var sample = this.samples[i].name;
                 sampleColumns.push({
                     name: sample,
                     title: sample,
@@ -131,10 +137,10 @@
             this._columns[3].width = sampleColumns.length * colWidth;
             this.$.table.columns = this._columns;
         },
-        handleRowClick: function (e) {
+        handleRowClick: function(e) {
             console.log(e.detail.row);
         },
-        urlChanged: function (neo, old) {
+        urlChanged: function(neo, old) {
             var me = this;
             if (neo != '') {
                 this.request = {
@@ -146,137 +152,132 @@
 
             }
         },
-        _parse: function (response) {
+        _parse: function(response) {
             var me = this;
             var file = this.file;
             var data = response.response[0].result;
             console.log(data);
-            var fileId = file.attributes.variantSource.fileId;
-            var studyId = file.attributes.variantSource.studyId;
-            var sourceEntryId = studyId + "_" + fileId;
+            // var fileId = file.attributes.variantSource.fileId;
+            // var studyId = file.attributes.variantSource.studyId;
+            // var sourceEntryId = studyId + "_" + fileId;
 
             for (var i = 0; i < data.length; i++) {
                 var variant = data[i];
-                var samples = {};
-
-                var se = variant.sourceEntries[sourceEntryId];
-
-                // Parse Samples Gt
-                for (var sample in se.samplesData) {
-//                            samples.push({sample: se.sampleData[sample].GT});
-                    samples[sample] = se.samplesData[sample].GT
-                }
-                variant.samples = samples;
-
-
-                var ctsAux = {};
-                var genesAux = {};
-
-
-                if (variant.annotation.consequenceTypes != null) {
-
-                    var sif = -1;
-                    var sifDesc = "";
-                    var poly = -1;
-                    var polyDesc = "";
-
-                    var auxSift = [];
-                    var auxPoly = [];
-                    for (var j = 0; j < variant.annotation.consequenceTypes.length; j++) {
-                        var ct = variant.annotation.consequenceTypes[j];
-                        var soTerms = ct.soTerms;
-                        for (var k = 0; k < soTerms.length; k++) {
-                            var sot = soTerms[k];
-                            if (sot.soName != null) {
-                                ctsAux[sot.soName] = true;
-                            }
-
-                        }
-
-
-                        if (ct.proteinSubstitutionScores != null && ct.proteinSubstitutionScores.length > 0) {
-
-                            for (var k = 0, l = ct.proteinSubstitutionScores.length; k < l; k++) {
-                                var pss = ct.proteinSubstitutionScores[k];
-                                switch (pss.source) {
-                                    case 'Sift':
-//                                        auxSift = pss;
-                                        auxSift.push(pss.score);
-                                        break;
-                                    case 'Polyphen':
-                                        auxPoly.push(pss.score);
-//                                        auxPoly = pss;
-                                        break;
-                                }
-                            }
-
-//                            if (auxPoly != null && auxSift != null) {
-//                                if (auxPoly > poly) {
-//                                    sif = auxSift;
-//                                    poly = auxPoly;
-//
-//                                    sifDesc = auxSift.description;
-//                                    polyDesc = auxPoly.description;
-//                                }
-//                            }
-                        }
-
-                    }
-//                    variant.sift = auxSift.join();
-//                    variant.polyphen = auxPoly.join();
-                    variant.sift = auxSift[0];
-                    variant.polyphen = auxPoly[0];
-
-
-//                    if (sif != -1 && poly != -1) {
-//
-//                        if (sifDesc) {
-//                            variant.sift = sif + " (" + sifDesc + ")";
-//                        } else {
-//                            variant.sift = sif;
-//                        }
-//
-//                        if (polyDesc) {
-//                            variant.polyphen = poly + " (" + polyDesc + ")";
-//                        } else {
-//                            variant.polyphen = poly;
-//                        }
-//                    }
-                }
-
-                if (variant.annotation.xrefs != null) {
-                    for (var j = 0; j < variant.annotation.xrefs.length; j++) {
-                        var xref = variant.annotation.xrefs[j];
-
-                        if (xref.src == "HGNC") {
-                            genesAux[xref.id] = true;
-                        }
-
-                    }
-                }
-                if (variant.annotation.conservedRegionScores != null) {
-                    for (var j = 0; j < variant.annotation.conservedRegionScores.length; j++) {
-                        var cons = variant.annotation.conservedRegionScores[j];
-                        variant[cons.source] = Utils.formatNumber(cons.score);
-                    }
-                }
-
-
-                var cts = Object.keys(ctsAux);
-                if (cts.length > 0) {
-                    variant.ct = cts.join(",");
-
-                }
-
-                var genes = Object.keys(genesAux);
-                if (genes.length > 0) {
-                    variant.genes = genes.join(",");
-                }
+                // var samples = {};
+                //
+                // var se = variant.sourceEntries[sourceEntryId];
+                //
+                // // Parse Samples Gt
+                // for (var sample in se.samplesData) {
+                //     //                            samples.push({sample: se.sampleData[sample].GT});
+                //     samples[sample] = se.samplesData[sample].GT
+                // }
+                // variant.samples = samples;
+                //
+                // var ctsAux = {};
+                // var genesAux = {};
+                //
+                // if (variant.annotation.consequenceTypes != null) {
+                //
+                //     var sif = -1;
+                //     var sifDesc = "";
+                //     var poly = -1;
+                //     var polyDesc = "";
+                //
+                //     var auxSift = [];
+                //     var auxPoly = [];
+                //     for (var j = 0; j < variant.annotation.consequenceTypes.length; j++) {
+                //         var ct = variant.annotation.consequenceTypes[j];
+                //         var soTerms = ct.soTerms;
+                //         for (var k = 0; k < soTerms.length; k++) {
+                //             var sot = soTerms[k];
+                //             if (sot.soName != null) {
+                //                 ctsAux[sot.soName] = true;
+                //             }
+                //
+                //         }
+                //
+                //         if (ct.proteinSubstitutionScores != null && ct.proteinSubstitutionScores.length > 0) {
+                //
+                //             for (var k = 0, l = ct.proteinSubstitutionScores.length; k < l; k++) {
+                //                 var pss = ct.proteinSubstitutionScores[k];
+                //                 switch (pss.source) {
+                //                     case 'Sift':
+                //                         //                                        auxSift = pss;
+                //                         auxSift.push(pss.score);
+                //                         break;
+                //                     case 'Polyphen':
+                //                         auxPoly.push(pss.score);
+                //                         //                                        auxPoly = pss;
+                //                         break;
+                //                 }
+                //             }
+                //
+                //             //                            if (auxPoly != null && auxSift != null) {
+                //             //                                if (auxPoly > poly) {
+                //             //                                    sif = auxSift;
+                //             //                                    poly = auxPoly;
+                //             //
+                //             //                                    sifDesc = auxSift.description;
+                //             //                                    polyDesc = auxPoly.description;
+                //             //                                }
+                //             //                            }
+                //         }
+                //
+                //     }
+                //     //                    variant.sift = auxSift.join();
+                //     //                    variant.polyphen = auxPoly.join();
+                //     variant.sift = auxSift[0];
+                //     variant.polyphen = auxPoly[0];
+                //
+                //     //                    if (sif != -1 && poly != -1) {
+                //     //
+                //     //                        if (sifDesc) {
+                //     //                            variant.sift = sif + " (" + sifDesc + ")";
+                //     //                        } else {
+                //     //                            variant.sift = sif;
+                //     //                        }
+                //     //
+                //     //                        if (polyDesc) {
+                //     //                            variant.polyphen = poly + " (" + polyDesc + ")";
+                //     //                        } else {
+                //     //                            variant.polyphen = poly;
+                //     //                        }
+                //     //                    }
+                // }
+                //
+                // if (variant.annotation.xrefs != null) {
+                //     for (var j = 0; j < variant.annotation.xrefs.length; j++) {
+                //         var xref = variant.annotation.xrefs[j];
+                //
+                //         if (xref.src == "HGNC") {
+                //             genesAux[xref.id] = true;
+                //         }
+                //
+                //     }
+                // }
+                // if (variant.annotation.conservedRegionScores != null) {
+                //     for (var j = 0; j < variant.annotation.conservedRegionScores.length; j++) {
+                //         var cons = variant.annotation.conservedRegionScores[j];
+                //         variant[cons.source] = Utils.formatNumber(cons.score);
+                //     }
+                // }
+                //
+                // var cts = Object.keys(ctsAux);
+                // if (cts.length > 0) {
+                //     variant.ct = cts.join(",");
+                //
+                // }
+                //
+                // var genes = Object.keys(genesAux);
+                // if (genes.length > 0) {
+                //     variant.genes = genes.join(",");
+                // }
             }
 
             return data;
         },
-        _parseTotal: function (response) {
+        _parseTotal: function(response) {
             return response.response[0].numTotalResults;
         }
     });
