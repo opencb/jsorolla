@@ -56,11 +56,19 @@ SIFNetworkDataAdapter.prototype.parse = function (data) {
     var _this = this;
 
     try {
+        /* Detect separator: if tab is found use tab, space instead*/
+        if (data.indexOf('\t') != -1) {
+            this.separator = '\t';
+        } else {
+            this.separator = ' ';
+        }
+
         console.time("SIFParse");
         data = data.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
         var lines = data.split(/\n/);
         this.addedVertex = {};
         this.addedEdges = {};
+
         //        console.log('SIFParse number lines: ' + lines.length);
         //        console.log(lines);
         for (var i = 0; i < lines.length; i++) {
