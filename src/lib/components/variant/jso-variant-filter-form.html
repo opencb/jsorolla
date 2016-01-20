@@ -441,27 +441,27 @@
                 regions = this.regionValue.split(",");
             }
 
-            //            if (this.geneValue) {
-            //                var gene = this.geneValue.toUpperCase();
-            //                CellBaseManager.get({
-            //                    species: 'hsapiens',
-            //                    category: 'feature',
-            //                    subCategory: 'gene',
-            //                    query: gene,
-            //                    resource: "info",
-            //                    async: false,
-            //                    params: {
-            //                        include: 'chromosome,start,end'
-            //                    },
-            //                    success: function (data) {
-            //                        for (var i = 0; i < data.response.length; i++) {
-            //                            var queryResult = data.response[i];
-            //                            var region = new Region(queryResult.result[0]);
-            //                            regions.push(region.toString());
-            //                        }
-            //                    }
-            //                });
-            //            }
+            if (this.geneValue) {
+                var gene = this.geneValue.toUpperCase();
+                CellBaseManager.get({
+                    species: 'hsapiens',
+                    category: 'feature',
+                    subCategory: 'gene',
+                    query: gene,
+                    resource: "info",
+                    async: false,
+                    params: {
+                        include: 'chromosome,start,end'
+                    },
+                    success: function(data) {
+                        for (var i = 0; i < data.response.length; i++) {
+                            var queryResult = data.response[i];
+                            var region = new Region(queryResult.result[0]);
+                            regions.push(region.toString());
+                        }
+                    }
+                });
+            }
 
             // // Genotypes
             // var genotypes = [];
@@ -484,16 +484,16 @@
             // }
             //
             // // Consequence Types
-            // var cts = [];
-            // var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
-            // for (var i = 0; i < els.length; i++) {
-            //     var ctInput = els[i];
-            //     cts.push(ctInput.value);
-            // }
-            // if (cts.length > 0) {
-            //     query["annot-ct"] = cts.join(",");
-            // }
-            //
+            var cts = [];
+            var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
+            for (var i = 0; i < els.length; i++) {
+                var ctInput = els[i];
+                cts.push(ctInput.value);
+            }
+            if (cts.length > 0) {
+                query["annot-ct"] = cts.join(",");
+            }
+
             // // Protein Substitution Scores
             // var sift = parseFloat(this.$.sift.value);
             // var polyphen = parseFloat(this.$.polyphen.value);
@@ -525,10 +525,10 @@
             var regionQuery = regions.join(",");
             query.region = regionQuery;
 
-            // var geneQuery = this.geneValue.toUpperCase();
-            // if (geneQuery != '') {
-            //     query.gene = geneQuery;
-            // }
+            var geneQuery = this.geneValue.toUpperCase();
+            if (geneQuery != '') {
+                query.gene = geneQuery;
+            }
 
             console.log(query);
             this.search(query);
@@ -536,7 +536,7 @@
 
         search: function(query) {
             query.sid = Cookies("bioinfo_sid");
-
+            query.skipCount=false;
             //TODO fsalavert: fix
             //            query.sessionId = Cookies("bioinfo_sid");
             var url = OpencgaManager.studies.variants({
