@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 
 <script src="../../bower_components/d3/d3.min.js"></script>
+<script src="../../bower_components/cytoscape/dist/cytoscape.min.js"></script>
 <script src="../../bower_components/pako/dist/pako.min.js"></script>
 
 <script src="../../bower_components/js-xlsx/dist/jszip.js"></script>
@@ -157,7 +158,7 @@
     </style>
     <template>
 
-        <jso-nv-bar id="nvbar" lite="{{lite}}" hidden$="{{hideBar}}" columns="{{vertexColumns}}" on-session-start="handleSessionStartMenu" on-session-open="handleSessionOpenMenu" on-session-save="handleSessionSaveMenu" on-session-manage="handleSessionManageMenu" on-import-sif="handleImportSifMenu" on-import-text="handleImportTextMenu" on-import-xlsx="handleImportXlsxMenu" on-import-node-attributes="handleImportNodeAttrMenu" on-import-edge-attributes="handleImportEdgeAttrMenu" on-export-sif="handleExportSifMenu" on-export-svg="handleExportSvgMenu" on-export-png="handleExportPngMenu" on-export-node-attributes="handleExportNodeAttrMenu" on-export-edge-attributes="handleExportEdgeAttrMenu" on-nodes-select-all="handleSelectMenu" on-nodes-select-first-neighbourhood="handleSelectMenu" on-nodes-select-invert="handleSelectMenu" on-edges-select-all="handleSelectMenu" on-edges-select-adjacent="handleSelectMenu" on-network-select-all="handleSelectMenu" on-layout-force-directed="handleLayoutMenu" on-layout-tree="handleLayoutMenu" on-layout-configure-force-directed="handleLayoutMenu" on-layout-circle="handleLayoutMenu" on-layout-random="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu" on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu" on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu" on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu" on-functionalities="handleFunctionalitiesMenu">
+        <jso-nv-bar id="nvbar" lite="{{lite}}" hidden$="{{hideBar}}" columns="{{vertexColumns}}" on-session-start="handleSessionStartMenu" on-session-open="handleSessionOpenMenu" on-session-save="handleSessionSaveMenu" on-session-manage="handleSessionManageMenu" on-import-sif="handleImportSifMenu" on-import-text="handleImportTextMenu" on-import-xlsx="handleImportXlsxMenu" on-import-node-attributes="handleImportNodeAttrMenu" on-import-edge-attributes="handleImportEdgeAttrMenu" on-export-sif="handleExportSifMenu" on-export-svg="handleExportSvgMenu" on-export-png="handleExportPngMenu" on-export-node-attributes="handleExportNodeAttrMenu" on-export-edge-attributes="handleExportEdgeAttrMenu" on-nodes-select-all="handleSelectMenu" on-nodes-select-first-neighbourhood="handleSelectMenu" on-nodes-select-invert="handleSelectMenu" on-edges-select-all="handleSelectMenu" on-edges-select-adjacent="handleSelectMenu" on-network-select-all="handleSelectMenu" on-layout-force-directed="handleLayoutMenu" on-layout-tree="handleLayoutMenu" on-layout-configure-force-directed="handleLayoutMenu" on-layout-circle="handleLayoutMenu" on-layout-random="handleLayoutMenu" on-layout-grid="handleLayoutMenu" on-layout-concentric="handleLayoutMenu" on-layout-breadthfirst="handleLayoutMenu" on-layout-cose="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu" on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu" on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu" on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu" on-functionalities="handleFunctionalitiesMenu">
         </jso-nv-bar>
 
         <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage" on-reset-zoom="handleResetZoom" on-center-network="handleCenterNetwork">
@@ -1560,6 +1561,18 @@
                 case 'layout-random':
                     this.setLayout('Random');
                     break;
+                case 'layout-grid':
+                    this.setLayout('Grid');
+                    break;
+                case 'layout-concentric':
+                    this.setLayout('Concentric');
+                    break;
+                case 'layout-breadthfirst':
+                    this.setLayout('Breadthfirst');
+                    break;
+                case 'layout-cose':
+                    this.setLayout('Cose');
+                    break;
                 default:
                     console.log(e.detail.value + " not defined");
             }
@@ -2267,11 +2280,9 @@
             this.deselectAllEdges();
         },
         removeSelectedVertices: function() {
-            for (var i = 0; i < this.selectedVertices.length; i++) {
-                var vertex = this.selectedVertices[i];
-                this._removeVertex(vertex);
-            }
+            this.graph.removeVertices(this.selectedVertices);
             this.deselectAllVertices();
+            this.refreshGraphView(this.graph, true);
         },
         removeSelectedEdges: function() {
             var edgesToDelete = [];
@@ -2524,6 +2535,70 @@
                         alert("Please select only one vertex to use it as root");
                     }
                     break;
+                case 'Grid':
+                    GraphLayout.grid({
+                        network: me,
+                        width: width,
+                        height: height - 100,
+                        end: function(eles) {
+                            for (var i = 0, l = eles.length; i < l; i++) {
+                                var e = eles[i];
+                                if (e.group() === 'nodes') {
+                                    var position = e.position();
+                                    me.setVertexCoords(e.id(), position.x, position.y);
+                                }
+                            }
+                        }
+                    });
+                    break;
+                case 'Concentric':
+                    GraphLayout.concentric({
+                        network: me,
+                        width: width,
+                        height: height - 100,
+                        end: function(eles) {
+                            for (var i = 0, l = eles.length; i < l; i++) {
+                                var e = eles[i];
+                                if (e.group() === 'nodes') {
+                                    var position = e.position();
+                                    me.setVertexCoords(e.id(), position.x, position.y);
+                                }
+                            }
+                        }
+                    });
+                    break;
+                case 'Breadthfirst':
+                    GraphLayout.breadthfirst({
+                        network: me,
+                        width: width,
+                        height: height - 100,
+                        end: function(eles) {
+                            for (var i = 0, l = eles.length; i < l; i++) {
+                                var e = eles[i];
+                                if (e.group() === 'nodes') {
+                                    var position = e.position();
+                                    me.setVertexCoords(e.id(), position.x, position.y);
+                                }
+                            }
+                        }
+                    });
+                    break;
+                case 'Cose':
+                    GraphLayout.cose({
+                        network: me,
+                        width: width,
+                        height: height - 100,
+                        end: function(eles) {
+                            for (var i = 0, l = eles.length; i < l; i++) {
+                                var e = eles[i];
+                                if (e.group() === 'nodes') {
+                                    var position = e.position();
+                                    me.setVertexCoords(e.id(), position.x, position.y);
+                                }
+                            }
+                        }
+                    });
+                    break;
                 default:
                     console.log(dot);
                     //                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
@@ -2651,13 +2726,13 @@
             this._createAttrColumns();
             this.graph.load(graph);
         },
-        refreshGraphView: function(graph) {
+        refreshGraphView: function(graph, keepTranslate) {
             if (graph == null) {
                 graph = this.graph;
             }
 
-            this.$.networkLayout.clean();
             this.$.networkLayout.removeDom();
+            this.$.networkLayout.clean(keepTranslate);
 
             var edges = graph.edges;
             var vertices = graph.vertices;
