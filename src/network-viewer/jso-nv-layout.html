@@ -151,11 +151,13 @@
             this.$.frontSvg.appendChild(this.$.scaleFrontGroup);
             this.zoomChanged();
         },
-        clean: function() {
-            this.tx = 0;
-            this.ty = 0;
-            this.x = 0;
-            this.y = 0;
+        clean: function(keepTranslate) {
+            if (keepTranslate !== true) {
+                this.tx = 0;
+                this.ty = 0;
+                this.x = 0;
+                this.y = 0;
+            }
 
             while (this.$.scaleFrontGroup.firstChild) {
                 this.$.scaleFrontGroup.removeChild(this.$.scaleFrontGroup.firstChild);
