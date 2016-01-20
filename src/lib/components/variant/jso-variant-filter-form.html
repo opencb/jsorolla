@@ -72,6 +72,43 @@
             resize: none;
             width: 100%;
         }
+
+        jso-tooltip::shadow #messageInfo::shadow {
+            height: 300px;
+            width: 500px;
+            background-color: #e2e9e9;
+            border: 1px solid #e2e9e9;
+            color: black;
+            font-style: normal;
+        }
+
+        jso-tooltip::shadow .closeInfo::shadow {
+            margin-left: 490px;
+        }
+
+        #filterHistoryTable > div:hover {
+            background-color: #8ba7a7;
+            border: 1px solid #8ba7a7;
+        }
+
+        .tit {
+            margin-top: 10px;
+            border-bottom: 1px solid #445D76;
+            font-weight: bold;
+        }
+
+        .name {
+            width: 300px;
+        }
+
+        .num {
+            width: 100px;
+        }
+
+        .clear-but {
+            width: 100px;
+            background-color: #f0f4f4 !important;
+        }
     </style>
     <template>
         <div id="filter_form">
@@ -79,6 +116,25 @@
             <!--Filters-->
             <!--</div>-->
             <div id="bar" class="horizontal layout center-justified">
+                <jso-tooltip id="filterHistoryTooltip" class="jso-btn jso-btn-shdw" title="Filters History" icon="filter">
+                    <div class="jso-btn jso-btn-shdw clear-but" title="Clear Filters History" on-click="clearFiltersHistory">
+                        Clear
+                    </div>
+                    <div class="horizontal layout flex">
+                        <span class="tit num"> Date </span>
+                        <span class="name tit"> Name </span>
+                        <span class="tit num"> Found</span>
+                    </div>
+                    <div id="filterHistoryTable">
+                        <template is="dom-repeat" items="{{historyFilters}}">
+                            <div class="horizontal layout flex" on-click="loadFilter" data-filter="{{item.filter}}" title="{{item.name}}">
+                                <span class="num">{{item.date}} </span>
+                                <span id="filter-name" class="name">{{item.name}} </span>
+                                <span class="num">{{item.finded}}</span>
+                            </div>
+                        </template>
+                    </div>
+                </jso-tooltip>
                 <div class="jso-btn jso-btn-shdw flex" on-click="clearForm">Clear</div>
                 <div class="jso-btn jso-btn-shdw flex" on-click="submitForm">Search</div>
             </div>
@@ -431,12 +487,39 @@
                 value: function() {
                     return CONSEQUENCE_TYPES;
                 }
+            },
+            historyFilters: {
+                type: Array,
+                value: function() {
+                    return [];
+                },
+            },
+            hash: {
+                type: Object,
+                value: function() {
+                    return {};
+                },
+            },
+            fileId: {
+                type: Number,
+                value: 0
             }
         },
+        ready: function() {
+            if (localStorage.bioinfo_bierApp_filter_history) {
+                this.hash = JSON.parse(localStorage.bioinfo_bierApp_filter_history);
+                if (Array.isArray(this.hash)) {
+                    localStorage.bioinfo_bierApp_filter_history = "";
+                    this.hash = {};
+                }
+            }
+        },
+
         fileChanged: function(neo, old) {
             if (neo) {
-                var me = this;
-
+                this.historyFilters = JSON.parse(localStorage.bioinfo_bierApp_filter_history)[neo.id];
+                this.set('fileId', neo.id);
+                this.clearForm();
             }
         },
         handleFeatureSelected: function(e) {
@@ -487,16 +570,16 @@
 
             // Sift
             this.$.sift.value = "";
-            this.$.sift_op.value="<";
+            this.$.sift_op.value = "<";
             // Polyphen
             this.$.polyphen.value = "";
-            this.$.polyphen_op.value="<";
+            this.$.polyphen_op.value = "<";
             // Phylop
             this.$.phylop.value = "";
-            this.$.phylop_op.value="<";
+            this.$.phylop_op.value = "<";
             // Phastcons
             this.$.phastcons.value = "";
-            this.$.phastcons_op.value="<";
+            this.$.phastcons_op.value = "<";
 
             /* Consequence Types */
             var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
@@ -505,8 +588,6 @@
                 el.checked = false;
             }
             // var els = this.$.consequenceTypes.querySelectorAll("textarea");
-
-            
 
         },
         submitForm: function() {
@@ -629,6 +710,75 @@
 
             console.log(query);
             this.search(query);
+
+            /* Filter History */
+            var filterHistory = [];
+            if (this.fileId in this.hash) {
+                filterHistory = this.hash[this.fileId];
+            }
+            this.set("historyFilters", filterHistory);
+
+            var newFilter = JSON.stringify(query);
+            var _load = -1;
+            for (var i = 0; i < this.historyFilters.length && _load == -1; i++) { // Check if the fitler has been selected from the history
+                var elem = this.historyFilters[i];
+                if (elem != null) {
+                    var oldFilter = JSON.stringify(this.historyFilters[i].filter);
+                    if (newFilter == oldFilter) {
+                        _load = i;
+                    }
+                }
+            }
+
+            if (_load == -1) { // This filter is new (has not been selected from the history)
+                if (query.region != null || query.gene != null || query.type != null || query.sift != null || query.polyphen != null || query.phylop != null || query.phastcons != null || query.ct != null) {
+                    var dateAux = new Date();
+                    var minAux = dateAux.getMinutes();
+                    if (minAux < 10) {
+                        minAux = "0" + minAux;
+                    }
+                    var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
+                    name = this.loadForm(query);
+                    var finded = "TODO";
+                    var hf = {};
+                    hf = {
+                        date: date,
+                        name: name,
+                        filter: query,
+                        finded: finded
+                    };
+
+                    var filters = new FilterHistory(5, filterHistory);
+                    filters.unshift(hf);
+                    this.set("historyFilters", filters);
+                    this.hash[this.fileId] = this.historyFilters;
+
+                    localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+                }
+            } else { // HistoryFilter contains this filter. We need to change the date and push to top
+                var pos = _load;
+
+                var filters = new FilterHistory(5, this.historyFilters);
+                var filter = filters[pos];
+                var dateAux = new Date();
+                var minAux = dateAux.getMinutes();
+                if (minAux < 10) {
+                    minAux = "0" + minAux;
+                }
+                var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
+
+                filter.date = date;
+
+                var aux = filters[pos];
+                filters[pos] = filters[0];
+                filters[0] = aux;
+
+                this.set("historyFilters", filters);
+                this.hash[this.fileId] = this.historyFilters;
+
+                localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+
+            }
         },
 
         search: function(query) {
@@ -694,6 +844,108 @@
                 reader.readAsText(inputFile);
 
             }
+        },
+        loadForm: function(hf) {
+            var filterName = [];
+            // for (var i = 0; i < this.samples.length; i++) {
+            //     var sampleName = this.samples[i].name;
+            //     var els = this.$.segregation.querySelectorAll("input[name='" + sampleName + "']");
+            //
+            //     for (var j = 0; j < els.length; j++) {
+            //     }
+            // }
+            if (hf.region != "" && hf.region != null) {
+                this.$.region.value = hf.region;
+                filterName.push("Chromosomal Location: (" + hf.region + ") ");
+            }
+            if (hf.gene != "" && hf.gene != null) {
+                this.$.gene.value = hf.gene;
+                filterName.push("Genes: (" + hf.gene + ") ");
+            }
+
+            // var types = this.$.type_op.querySelectorAll("input");
+            // for (var i = 0; i < hf.types.length; i++) {
+            //     var type = hf.types[i];
+            //     var typeName = "";
+            //     var aux = 0;
+            //     for (var i = 0; i < hf.types.length; i++) {
+            //         var t = hf.types[i];
+            //         for (var j = 0; j < els.length; j++) {
+            //             var el = els[j];
+            //             if (t == el.dataset.consequence) {
+            //                 el.checked = true;
+            //                 if (aux == 0) {
+            //                     typeName += el.dataset.consequence;
+            //                     aux++;
+            //                 } else {
+            //                     typeName += " or " + el.dataset.consequence;
+            //                     aux++;
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     filterName.push("Type: (" + typeName + ")");
+            // }
+
+            if (hf.sift != "" && hf.sift != null) {
+                this.$.sift.value = hf.sift;
+                this.$.sift_op.value = hf.sift_op;
+                filterName.push("Sift " + hf.sift_op + " " + hf.sift + " ");
+            }
+            if (hf.polyphen != "" && hf.polyphen != null) {
+                this.$.polyphen.value = hf.polyphen;
+                this.$.polyphen_op.value = hf.polyphen_op;
+                filterName.push("Polyphen " + hf.polyphen_op + " " + hf.polyphen + " ");
+            }
+            if (hf.phylop != "" && hf.phylop != null) {
+                this.$.phylop.value = hf.phylop;
+                this.$.phylop_op.value = hf.phylop_op;
+                filterName.push("Phylop " + hf.phylop_op + " " + hf.phylop + " ");
+            }
+            if (hf.phastcons != "" && hf.phastcons != null) {
+                this.$.phastcons.value = hf.phastcons;
+                this.$.phastcons_op.value = hf.phastcons_op;
+                filterName.push("Phastcons " + hf.phastcons_op + " " + hf.phastcons + " ");
+            }
+
+            // if (hf.ct != null) {
+            //     var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']");
+            //     var ctName = "";
+            //     var aux = 0;
+            //     for (var i = 0; i < hf.ct.length; i++) {
+            //         var cons = hf.ct[i];
+            //         for (var j = 0; j < els.length; j++) {
+            //             var el = els[j];
+            //             if (cons == el.dataset.consequence) {
+            //                 el.checked = true;
+            //                 if (aux == 0) {
+            //                     ctName += el.dataset.consequence;
+            //                     aux++;
+            //                 } else {
+            //                     ctName += " or " + el.dataset.consequence;
+            //                     aux++;
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     filterName.push("Consequence Types: (" + ctName + ")");
+            // }
+            return filterName.join(" AND ");
+        },
+        loadFilter: function(e) {
+            e.stopPropagation();
+            this.clearForm();
+            this.loadForm(e.currentTarget.dataFilter);
+            this.$.filterHistoryTooltip.handleClose(e);
+            this.submitForm();
+
+        },
+        clearFiltersHistory: function(e) {
+            e.stopPropagation();
+            this.historyFilters = [];
+            delete(this.hash[this.fileId]);
+            localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+
         }
     });
 </script>
