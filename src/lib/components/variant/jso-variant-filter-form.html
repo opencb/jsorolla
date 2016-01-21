@@ -130,7 +130,7 @@
                             <div class="horizontal layout flex" on-click="loadFilter" data-filter="{{item.filter}}" title="{{item.name}}">
                                 <span class="num">{{item.date}} </span>
                                 <span id="filter-name" class="name">{{item.name}} </span>
-                                <span class="num">{{item.finded}}</span>
+                                <span class="num">{{item.found}}</span>
                             </div>
                         </template>
                     </div>
@@ -197,6 +197,17 @@
                     <!--<div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick">{{fileName}}</div>-->
                     <!--<input type="file" hidden id="fileInput" on-change="handleInputChange">-->
 
+                </div>
+            </div>
+
+            <div class="jso-formbox">
+                <div class="jso-formtitle">
+                    SNPId
+                </div>
+                <div id="type_op" class="jso-formcontent">
+                    <label class="jso">SNPId:</label>
+                    <textarea class="jso" id="snpId" name="snpId" placeholder="rs9988179,rs140361978" value="{{snpIdValue::change}}" rows="3" required>
+                    </textarea>
                 </div>
             </div>
 
@@ -477,6 +488,11 @@
                 notify: true,
                 value: ''
             },
+            snpIdValue: {
+                type: String,
+                notify: true,
+                value: ''
+            },
             fileName: {
                 type: String,
                 notify: true,
@@ -503,6 +519,10 @@
             fileId: {
                 type: Number,
                 value: 0
+            },
+            numTotalResults: {
+                type: Object,
+                observer: "resultsChanged"
             }
         },
         ready: function() {
@@ -522,6 +542,10 @@
                 this.clearForm();
             }
         },
+
+        resultsChanged: function(neo, old) {
+        },
+
         handleFeatureSelected: function(e) {
             var item = e.detail;
             if (item) {
@@ -551,6 +575,9 @@
 
             // Gen
             this.$.gene.value = "";
+
+            // SNPId
+            this.$.snpId.value = "";
 
             // Type
             var types = this.$.type_op.querySelectorAll("input:checked");
@@ -599,6 +626,14 @@
             }
             var regionQuery = regions.join(",");
             query["region"] = regionQuery;
+
+            // SNPId
+            var ids = [];
+            if (this.snpIdValue) {
+                ids = this.snpIdValue.split(",");
+            }
+            var idsQuery = ids.join(",");
+            query["ids"] = idsQuery;
 
             // Genes
             if (this.geneValue) {
@@ -713,73 +748,76 @@
             // this.clearForm();
 
             /* Filter History */
-            var filterHistory = [];
-            if (this.fileId in this.hash) {
-                filterHistory = this.hash[this.fileId];
-            }
-            this.set("historyFilters", filterHistory);
+            var me=this;
+            setTimeout(function() {
+                var filterHistory = [];
+                if (me.fileId in me.hash) {
+                    filterHistory = me.hash[me.fileId];
+                }
+                me.set("historyFilters", filterHistory);
 
-            var newFilter = JSON.stringify(query);
-            var _load = -1;
-            for (var i = 0; i < this.historyFilters.length && _load == -1; i++) { // Check if the fitler has been selected from the history
-                var elem = this.historyFilters[i];
-                if (elem != null) {
-                    var oldFilter = JSON.stringify(this.historyFilters[i].filter);
-                    if (newFilter == oldFilter) {
-                        _load = i;
+                var newFilter = JSON.stringify(query);
+                var _load = -1;
+                for (var i = 0; i < me.historyFilters.length && _load == -1; i++) { // Check if the fitler has been selected from the history
+                    var elem = me.historyFilters[i];
+                    if (elem != null) {
+                        var oldFilter = JSON.stringify(me.historyFilters[i].filter);
+                        if (newFilter == oldFilter) {
+                            _load = i;
+                        }
                     }
                 }
-            }
 
-            if (_load == -1) { // This filter is new (has not been selected from the history)
-                if (query.region != null || query.gene != null || query.type != null || query.sift != null || query.polyphen != null || query.phylop != null || query.phastcons != null || query.ct != null) {
+                if (_load == -1) { // This filter is new (has not been selected from the history)
+                    if (query.segregation != null || query.region != "" || query.gene != null || query.ids != "" || query.type != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+                        var dateAux = new Date();
+                        var minAux = dateAux.getMinutes();
+                        if (minAux < 10) {
+                            minAux = "0" + minAux;
+                        }
+                        var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
+                        name = me.loadForm(query);
+                        var found = me.numTotalResults;
+                        var hf = {};
+                        hf = {
+                            date: date,
+                            name: name,
+                            filter: query,
+                            found: found
+                        };
+
+                        var filters = new FilterHistory(5, filterHistory);
+                        filters.unshift(hf);
+                        me.set("historyFilters", filters);
+                        me.hash[me.fileId] = me.historyFilters;
+
+                        localStorage.bioinfo_bierApp_filter_history = JSON.stringify(me.hash);
+                    }
+                } else { // HistoryFilter contains this filter. We need to change the date and push to top
+                    var pos = _load;
+
+                    var filters = new FilterHistory(5, me.historyFilters);
+                    var filter = filters[pos];
                     var dateAux = new Date();
                     var minAux = dateAux.getMinutes();
                     if (minAux < 10) {
                         minAux = "0" + minAux;
                     }
                     var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
-                    name = this.loadForm(query);
-                    var finded = "TODO";
-                    var hf = {};
-                    hf = {
-                        date: date,
-                        name: name,
-                        filter: query,
-                        finded: finded
-                    };
 
-                    var filters = new FilterHistory(5, filterHistory);
-                    filters.unshift(hf);
-                    this.set("historyFilters", filters);
-                    this.hash[this.fileId] = this.historyFilters;
+                    filter.date = date;
 
-                    localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+                    var aux = filters[pos];
+                    filters[pos] = filters[0];
+                    filters[0] = aux;
+
+                    me.set("historyFilters", filters);
+                    me.hash[this.fileId] = me.historyFilters;
+
+                    localStorage.bioinfo_bierApp_filter_history = JSON.stringify(me.hash);
+
                 }
-            } else { // HistoryFilter contains this filter. We need to change the date and push to top
-                var pos = _load;
-
-                var filters = new FilterHistory(5, this.historyFilters);
-                var filter = filters[pos];
-                var dateAux = new Date();
-                var minAux = dateAux.getMinutes();
-                if (minAux < 10) {
-                    minAux = "0" + minAux;
-                }
-                var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
-
-                filter.date = date;
-
-                var aux = filters[pos];
-                filters[pos] = filters[0];
-                filters[0] = aux;
-
-                this.set("historyFilters", filters);
-                this.hash[this.fileId] = this.historyFilters;
-
-                localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
-
-            }
+            }, 100);
         },
 
         search: function(query) {
@@ -887,6 +925,12 @@
                 filterName.push("Genes: (" + hf.gene + ") ");
             }
 
+            // SNPId
+            if (hf.ids != "" && hf.ids != null) {
+                this.$.snpId.value = hf.ids;
+                filterName.push("SNPId: (" + hf.ids + ") ");
+            }
+
             // Types
             if (hf.type != "" && hf.type != null) {
                 var type_op = this.$.type_op.querySelectorAll("input");
@@ -952,7 +996,6 @@
 
             // Consequence Types
             if (hf["annot-ct"] != "" && hf["annot-ct"] != null) {
-                debugger
                 var ctName = [];
                 var cts = hf["annot-ct"].split(",");
                 var ct_op = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']");

@@ -68,9 +68,9 @@
             <span>{{file.name}}</span>
         </div>
         <div class="horizontal layout">
-            <jso-variant-filter-form url="{{url}}" file="{{file}}" study="{{study}}" samples="{{samples}}"></jso-variant-filter-form>
+            <jso-variant-filter-form url="{{url}}" file="{{file}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}"></jso-variant-filter-form>
             <div id="right" class="flex">
-                <jso-variant-grid url="{{url}}" file="{{file}}" study="{{study}}" samples="{{samples}}" on-rowclick="handleRowClick"></jso-variant-grid>
+                <jso-variant-grid url="{{url}}" file="{{file}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}" on-rowclick="handleRowClick"></jso-variant-grid>
 
                 <div id="menu" class="color-2 color-hover-2 horizontal layout">
                     <div on-click="handleMenuClick" data-option="gv">Genomic context</div>
@@ -185,6 +185,9 @@
                 this.$.jsoVariantStats.stats = newValue.sourceEntries[me.studyId + "_" + me.fileId].stats;
 
                 this.$.gvEl.genomeViewer.setRegion(region);
+            },
+            handleNumTotalResultsChanged: function(e) {
+                debugger
             }
         })
     </script>

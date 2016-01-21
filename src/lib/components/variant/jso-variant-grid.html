@@ -61,6 +61,10 @@
             },
             request: {
                 type: Object
+            },
+            numTotalResults: {
+                type: Number,
+                notify: true
             }
         },
         _columns: [{
@@ -360,8 +364,15 @@
             if (neo != '') {
                 this.request = {
                     url: this.url,
-                    parse: this._parse,
-                    parseTotal: this._parseTotal,
+                    parse: function(response) {
+                        return me._parse(response);
+                    },
+                    parseTotal: function(response) {
+
+                        var total = me._parseTotal(response);
+                        me.numTotalResults = total;
+                        return total;
+                    },
                     file: this.file
                 };
 
@@ -554,7 +565,8 @@
             return data;
         },
         _parseTotal: function(response) {
-            return response.response[0].numTotalResults;
+            var total = response.response[0].numTotalResults;
+            return total;
         }
     });
 </script>
