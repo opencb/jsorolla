@@ -325,7 +325,7 @@
             </jso-panel>
 
 
-            <jso-panel hidden collapsible fixed movable closable id="sessionManagerPanel">
+            <jso-panel hidden collapsible fixed movable closable id="sessionManagerPanel" on-hidden="handleSessionManagerHidden">
                 <div class="header">
                     User session manager
                 </div>
@@ -814,7 +814,12 @@
             // this.set('center.y', 0);
         },
         centerNetwork: function() {
-            this.$.networkLayout.centerNetwork();
+            if (this.vertices.length > 0) {
+                this.$.networkLayout.centerNetwork();
+            } else {
+                this.zoom = 25;
+                this.refreshGraphView();
+            }
         },
         loadLocalStorage: function() {
             var item = localStorage.getItem(this.serializeKey);
@@ -1196,8 +1201,9 @@
                         vertex.renderer.select(this.vertexDefaults.selectionColor);
                     }
                 }
+                this.notifyPath('selectedVertices.length', this.selectedVertices.length);
             }
-            console.timeEnd("selectedVerticesChanged")
+            console.timeEnd("selectedVerticesChanged");
         },
         selectedEdgesChanged: function(changeRecord) {
             //            console.log('selectedEdgesChanged');
@@ -1334,6 +1340,9 @@
             //                });
             //                link.dispatchEvent(event);
             //            }
+        },
+        handleSessionManagerHidden: function() {
+            this.fire('session-manager-hidden', this.$.sessionManagerPanel);
         },
         handleSessionManageMenu: function(e) {
             this.$.sessionManagerPanel.show();
@@ -2469,164 +2478,167 @@
             return values;
         },
         setLayout: function(type, e) {
-            var me = this;
-            this.x = 0;
-            this.y = 0;
-            var graph = this.graph;
-            var dot = graph.getAsDOT();
-            var clientRect = this.$.networkLayout.getBoundingClientRect();
-            var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
-            var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
-            switch (type) {
-                case "Circle":
-                    if (e && typeof e.attributeName !== 'undefined') {
-                        GraphLayout.circle(me, width, height, this.getOrderedIdsByAttribute(e.attributeName));
-                    } else {
-                        GraphLayout.circle(me, width, height);
-                    }
-                    break;
-                case "Random":
-                    GraphLayout.random2d(me, width, height);
-                    break;
-                case "none":
-                    break;
-                case "Force directed":
-                    GraphLayout.force({
-                        network: me,
-                        width: width,
-                        height: height,
-                        end: function(verticesArray) {
-                            for (var i = 0, l = verticesArray.length; i < l; i++) {
-                                var v = verticesArray[i];
-                                me.setVertexCoords(v.id, v.x, v.y);
-                            }
+            if (this.vertices.length > 0) {
+
+                var me = this;
+                this.x = 0;
+                this.y = 0;
+                var graph = this.graph;
+                var dot = graph.getAsDOT();
+                var clientRect = this.$.networkLayout.getBoundingClientRect();
+                var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+                var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+                switch (type) {
+                    case "Circle":
+                        if (e && typeof e.attributeName !== 'undefined') {
+                            GraphLayout.circle(me, width, height, this.getOrderedIdsByAttribute(e.attributeName));
+                        } else {
+                            GraphLayout.circle(me, width, height);
                         }
-                    });
-                    break;
-                case "Force directed (simulation)":
-                    GraphLayout.force({
-                        network: me,
-                        width: width,
-                        height: height,
-                        simulation: true,
-                        end: function(verticesArray) {
-                            for (var i = 0, l = verticesArray.length; i < l; i++) {
-                                var v = verticesArray[i];
-                                me.setVertexCoords(v.id, v.x, v.y);
-                            }
-                        }
-                    });
-                    break;
-                case "Tree":
-                    if (this.vAttr.selected.length == 1) {
-                        GraphLayout.tree({
+                        break;
+                    case "Random":
+                        GraphLayout.random2d(me, width, height);
+                        break;
+                    case "none":
+                        break;
+                    case "Force directed":
+                        GraphLayout.force({
                             network: me,
                             width: width,
-                            height: height - 100,
-                            root: this.graph.getVertexById(this.vAttr.selected[0].id),
+                            height: height,
                             end: function(verticesArray) {
                                 for (var i = 0, l = verticesArray.length; i < l; i++) {
                                     var v = verticesArray[i];
-                                    me.setVertexCoords(v.name, -v.x + (width), v.y + 50);
+                                    me.setVertexCoords(v.id, v.x, v.y);
                                 }
                             }
                         });
-                    } else {
-                        alert("Please select only one vertex to use it as root");
-                    }
-                    break;
-                case 'Grid':
-                    GraphLayout.grid({
-                        network: me,
-                        width: width,
-                        height: height - 100,
-                        end: function(eles) {
-                            for (var i = 0, l = eles.length; i < l; i++) {
-                                var e = eles[i];
-                                if (e.group() === 'nodes') {
-                                    var position = e.position();
-                                    me.setVertexCoords(e.id(), position.x, position.y);
+                        break;
+                    case "Force directed (simulation)":
+                        GraphLayout.force({
+                            network: me,
+                            width: width,
+                            height: height,
+                            simulation: true,
+                            end: function(verticesArray) {
+                                for (var i = 0, l = verticesArray.length; i < l; i++) {
+                                    var v = verticesArray[i];
+                                    me.setVertexCoords(v.id, v.x, v.y);
                                 }
                             }
+                        });
+                        break;
+                    case "Tree":
+                        if (this.vAttr.selected.length == 1) {
+                            GraphLayout.tree({
+                                network: me,
+                                width: width,
+                                height: height - 100,
+                                root: this.graph.getVertexById(this.vAttr.selected[0].id),
+                                end: function(verticesArray) {
+                                    for (var i = 0, l = verticesArray.length; i < l; i++) {
+                                        var v = verticesArray[i];
+                                        me.setVertexCoords(v.name, -v.x + (width), v.y + 50);
+                                    }
+                                }
+                            });
+                        } else {
+                            alert("Please select only one vertex to use it as root");
                         }
-                    });
-                    break;
-                case 'Concentric':
-                    GraphLayout.concentric({
-                        network: me,
-                        width: width,
-                        height: height - 100,
-                        end: function(eles) {
-                            for (var i = 0, l = eles.length; i < l; i++) {
-                                var e = eles[i];
-                                if (e.group() === 'nodes') {
-                                    var position = e.position();
-                                    me.setVertexCoords(e.id(), position.x, position.y);
+                        break;
+                    case 'Grid':
+                        GraphLayout.grid({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
                                 }
                             }
-                        }
-                    });
-                    break;
-                case 'Breadthfirst':
-                    GraphLayout.breadthfirst({
-                        network: me,
-                        width: width,
-                        height: height - 100,
-                        end: function(eles) {
-                            for (var i = 0, l = eles.length; i < l; i++) {
-                                var e = eles[i];
-                                if (e.group() === 'nodes') {
-                                    var position = e.position();
-                                    me.setVertexCoords(e.id(), position.x, position.y);
+                        });
+                        break;
+                    case 'Concentric':
+                        GraphLayout.concentric({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
                                 }
                             }
-                        }
-                    });
-                    break;
-                case 'Cose':
-                    GraphLayout.cose({
-                        network: me,
-                        width: width,
-                        height: height - 100,
-                        end: function(eles) {
-                            for (var i = 0, l = eles.length; i < l; i++) {
-                                var e = eles[i];
-                                if (e.group() === 'nodes') {
-                                    var position = e.position();
-                                    me.setVertexCoords(e.id(), position.x, position.y);
+                        });
+                        break;
+                    case 'Breadthfirst':
+                        GraphLayout.breadthfirst({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
                                 }
                             }
-                        }
-                    });
-                    break;
-                default:
-                    console.log(dot);
-                    //                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
-                    ////                var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
-                    ////                var url = "http://ws-beta.bioinfo.cipf.es/opencga-staging/rest/utils/network/layout/" + type.toLowerCase() + ".coords";
-                    //                $.ajax({
-                    //                    async: false,
-                    //                    type: "POST",
-                    //                    url: url,
-                    //                    dataType: "json",
-                    //                    data: {
-                    //                        dot: dot
-                    //                    },
-                    //                    cache: false,
-                    //                    success: function (data) {
-                    //                        console.log('Layout back')
-                    //                        for (var vertexId in data) {
-                    //                            var x = _this.getLayoutWidth() * (0.05 + 0.85 * data[vertexId].x);
-                    //                            var y = _this.getLayoutHeight() * (0.05 + 0.85 * data[vertexId].y);
-                    //                            _this.setVertexCoords(vertexId, x, y);
-                    //                        }
-                    //                    },
-                    //                    error: function (data) {
-                    //                        debugger
-                    //                    },
-                    //
-                    //                });
-                    break;
+                        });
+                        break;
+                    case 'Cose':
+                        GraphLayout.cose({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
+                                }
+                            }
+                        });
+                        break;
+                    default:
+                        console.log(dot);
+                        //                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
+                        ////                var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
+                        ////                var url = "http://ws-beta.bioinfo.cipf.es/opencga-staging/rest/utils/network/layout/" + type.toLowerCase() + ".coords";
+                        //                $.ajax({
+                        //                    async: false,
+                        //                    type: "POST",
+                        //                    url: url,
+                        //                    dataType: "json",
+                        //                    data: {
+                        //                        dot: dot
+                        //                    },
+                        //                    cache: false,
+                        //                    success: function (data) {
+                        //                        console.log('Layout back')
+                        //                        for (var vertexId in data) {
+                        //                            var x = _this.getLayoutWidth() * (0.05 + 0.85 * data[vertexId].x);
+                        //                            var y = _this.getLayoutHeight() * (0.05 + 0.85 * data[vertexId].y);
+                        //                            _this.setVertexCoords(vertexId, x, y);
+                        //                        }
+                        //                    },
+                        //                    error: function (data) {
+                        //                        debugger
+                        //                    },
+                        //
+                        //                });
+                        break;
+                }
             }
         },
         handleForceDirectedConfig: function(e) {
