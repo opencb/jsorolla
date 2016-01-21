@@ -12,11 +12,22 @@
             border-bottom: thin solid #edebe3;
             /*margin: 7px 5px;*/
         }
+
+        jso-table {
+            overflow-y: auto;
+            border: 1px solid #d3d3d3;
+        }
+
+        jso-table::shadow #list {
+            height: 300px;
+            overflow-x: auto
+        }
+
+        jso-table::shadow {
+            font-size: 11px;
+        }
     </style>
     <template>
-        <!--<div class="title">-->
-        <!--Variant Browser-->
-        <!--</div>-->
         <jso-table id="table" enable-resize enable-paging enable-remote enable-select request="{{request}}" on-rowclick="handleRowClick"></jso-table>
     </template>
 
@@ -69,7 +80,7 @@
         }, {
             name: 'snpId',
             title: 'SNP Id',
-            width: 100,
+            width: 80,
             defaultValue: '.',
             // formula: function(row) {
             //     return row.id;
@@ -77,21 +88,17 @@
         }, {
             name: 'genes',
             title: 'Genes',
-            width: 100,
+            width: 150,
             defaultValue: '.'
         }, {
             name: 'type',
             title: 'Type',
-            width: 100,
+            width: 50,
             defaultValue: '.'
         }, {
             name: 'samples',
             title: 'Samples',
             width: 100
-                // }, {
-                //     name: 'controls',
-                //     title: 'Controls',
-                //     width: 100
         }, {
             name: 'ct',
             title: 'Conseq. Type',
@@ -99,51 +106,23 @@
         }, {
             name: 'sift',
             title: 'SIFT',
-            width: 70,
+            width: 50,
             defaultValue: '.',
         }, {
             name: 'polyphen',
             title: 'Polyphen',
-            width: 70,
+            width: 50,
             defaultValue: '.'
         }, {
             name: 'phylop',
             title: 'phyloP',
-            width: 70,
+            width: 50,
             defaultValue: '.'
         }, {
             name: 'phastCons',
             title: 'PhastCons',
-            width: 70,
+            width: 57,
             defaultValue: '.'
-        }, {
-            name: 'phenotype',
-            title: 'Phenotype',
-            defaultValue: '.',
-            width: 400,
-            columns: [{
-                name: "clinvar",
-                title: "Clinvar",
-                width: 200,
-                formula: function(row) {
-                    if (row.phenotype && row.phenotype.clinvar) {
-                        return row.phenotype.clinvar;
-                    } else {
-                        return ".";
-                    }
-                }
-            }, {
-                name: "cosmic",
-                title: "Cosmic",
-                width: 200,
-                formula: function(row) {
-                    if (row.phenotype && row.phenotype.cosmic) {
-                        return row.phenotype.cosmic;
-                    } else {
-                        return ".";
-                    }
-                }
-            }]
         }, {
             name: 'ESP_6500',
             title: 'ESP 650',
@@ -306,8 +285,46 @@
                     }
                 }
             }]
+        }, {
+            name: 'phenotype',
+            title: 'Phenotype',
+            defaultValue: '.',
+            width: 600,
+            columns: [{
+                name: "clinvar",
+                title: "Clinvar",
+                width: 200,
+                formula: function(row) {
+                    if (row.phenotype && row.phenotype.clinvar) {
+                        return row.phenotype.clinvar;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "cosmic",
+                title: "Cosmic",
+                width: 200,
+                formula: function(row) {
+                    if (row.phenotype && row.phenotype.cosmic) {
+                        return row.phenotype.cosmic;
+                    } else {
+                        return ".";
+                    }
+                }
+            }, {
+                name: "gwas",
+                title: "GWAS",
+                width: 200,
+                formula: function(row) {
+                    if (row.phenotype && row.phenotype.cosmic) {
+                        return row.phenotype.cosmic;
+                    } else {
+                        return ".";
+                    }
+                }
+            }]
         }],
-
         fileChanged: function(neo, old) {
             this.$.table.clear();
             this._updateColumns();
@@ -316,7 +333,7 @@
         _updateColumns: function() {
             // var samples = this.file.attributes.variantSource.samples;
             var sampleColumns = [];
-            var colWidth = 100;
+            var colWidth = 80;
 
             for (var i = 0; i < this.samples.length; i++) {
                 var sample = this.samples[i].name;
@@ -484,7 +501,7 @@
                                 var phen = vta.clinvar[k].traits;
                                 for (var l = 0; l < phen.length; l++) {
                                     var p = phen[l].toLowerCase();
-                                    if (p != "not specified" && p!="allhighlypenetrant") {
+                                    if (p != "not specified" && p != "allhighlypenetrant") {
                                         phenClinvarAux[p] = p;
                                     }
                                 }
