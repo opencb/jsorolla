@@ -769,7 +769,8 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                    if (query.segregation != null || query.region != "" || query.gene != null || query.ids != "" || query.type != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+                  debugger
+                    if (query.segregation != null || query.region != "" || query.gene != null || query.ids != "" || query.type != "" || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
                         if (minAux < 10) {
