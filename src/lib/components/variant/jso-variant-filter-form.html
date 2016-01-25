@@ -74,7 +74,7 @@
         }
 
         jso-tooltip::shadow #messageInfo::shadow {
-            height: 300px;
+            height: 200px;
             width: 500px;
             background-color: #e2e9e9;
             border: 1px solid #e2e9e9;
@@ -89,6 +89,13 @@
         #filterHistoryTable > div:hover {
             background-color: #8ba7a7;
             border: 1px solid #8ba7a7;
+        }
+
+        #filter-name {
+            text-overflow: ellipsis;
+            width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .tit {
@@ -108,6 +115,20 @@
         .clear-but {
             width: 100px;
             background-color: #f0f4f4 !important;
+        }
+
+        .minimize:hover {
+            background-color: #e4e7e9;
+            border-bottom: 1px solid #e4e7e9;
+            padding: 0 2px;
+            cursor: pointer;
+        }
+
+        .importBut {
+            width: 65px;
+            font-size: 12px;
+            color: #445D76;
+            margin: 3px;
         }
     </style>
     <template>
@@ -139,10 +160,15 @@
                 <div class="jso-btn jso-btn-shdw flex" on-click="submitForm">Search</div>
             </div>
             <div class="jso-formbox">
-                <div class="jso-formtitle">
-                    Segregation
+                <div class="jso-formtitle horizontal layout">
+                    <div class="flex">
+                        Segregation
+                    </div>
+                    <div class="minimize" on-click="minimizeFormbox" data-id="segregationContent">
+                        <i class="fa fa-minus"></i>
+                    </div>
                 </div>
-                <div class="jso-formcontent">
+                <div class="jso-formcontent" id="segregationContent">
                     <div id="segregationHeader" class="horizontal layout">
                         <div class="segregation sampleName"></div>
                         <div class="segregation segregationValue flex">0/0</div>
@@ -177,16 +203,32 @@
             </div>
 
             <div class="jso-formbox">
-                <div class="jso-formtitle">
-                    Position
+                <div class="jso-formtitle horizontal layout">
+                    <div class="flex">
+                        Position
+                    </div>
+                    <div class="minimize" on-click="minimizeFormbox" data-id="positionContent">
+                        <i class="fa fa-minus"></i>
+                    </div>
                 </div>
-                <div class="jso-formcontent">
+                <div class="jso-formcontent" id="positionContent">
                     <label class="jso">Chromosomal location:</label>
                     <textarea class="jso" id="region" name="region" placeholder="1:1-1000000,2:1-1000000" value="{{regionValue::change}}" rows="3" required>
                     </textarea>
 
+                    <div class="horizontal layout">
+                        <label class="jso" class="flex" style="margin-top: 4px;">Import from BED:</label>
+                        <div class="jso-btn jso-btn-shdw importBut" on-click="handleGenesImportBed"><i class="fa fa-plus-square-o"></i>&nbsp; Import
+                        </div>
+                    </div>
+                    <input type="file" style="margin:3px; font-size: 12px;" id="geneBedFileInput">
+
                     <label class="jso">Gene:</label>
                     <textarea class="jso" id="gene" name="gene" placeholder="BRCA2,PPL" value="{{geneValue::change}}" rows="3" required>
+                    </textarea>
+
+                    <label class="jso">SNPId:</label>
+                    <textarea class="jso" id="snpId" name="snpId" placeholder="rs9988179,rs140361978" value="{{snpIdValue::change}}" rows="3" required>
                     </textarea>
 
                     <!--<jso-cellbase-search-field style="margin-top:5px;" placeholder="Search gene"-->
@@ -201,19 +243,13 @@
             </div>
 
             <div class="jso-formbox">
-                <div class="jso-formtitle">
-                    SNPId
-                </div>
-                <div id="type_op" class="jso-formcontent">
-                    <label class="jso">SNPId:</label>
-                    <textarea class="jso" id="snpId" name="snpId" placeholder="rs9988179,rs140361978" value="{{snpIdValue::change}}" rows="3" required>
-                    </textarea>
-                </div>
-            </div>
-
-            <div class="jso-formbox">
-                <div class="jso-formtitle">
-                    Type
+                <div class="jso-formtitle horizontal layout">
+                    <div class="flex">
+                        Type
+                    </div>
+                    <div class="minimize" on-click="minimizeFormbox" data-id="type_op">
+                        <i class="fa fa-minus"></i>
+                    </div>
                 </div>
                 <div id="type_op" class="jso-formcontent">
                     <div style="margin-left:5px" class="horizontal layout">
@@ -245,10 +281,15 @@
                 </div>
             </div>
             <div class="jso-formbox">
-                <div class="jso-formtitle">
-                    Population Freqs.
+                <div class="jso-formtitle horizontal layout">
+                    <div class="flex">
+                        Population Freqs.
+                    </div>
+                    <div class="minimize" on-click="minimizeFormbox" data-id="populationContent">
+                        <i class="fa fa-minus"></i>
+                    </div>
                 </div>
-                <div class="jso-formcontent vertical layout">
+                <div class="jso-formcontent vertical layout" id="populationContent">
 
                     <label class="jso" style="font-weight: bold">ESP 6500</label>
 
@@ -288,11 +329,16 @@
 
             <div class="jso-formbox">
 
-                <div class="jso-formtitle">
-                    Protein Substitution Scores
+                <div class="jso-formtitle horizontal layout">
+                    <div class="flex">
+                        Protein Substitution Scores
+                    </div>
+                    <div class="minimize" on-click="minimizeFormbox" data-id="proteinContent">
+                        <i class="fa fa-minus"></i>
+                    </div>
                 </div>
 
-                <div class="jso-formcontent vertical layout">
+                <div class="jso-formcontent vertical layout" id="proteinContent">
 
                     <label class="jso">SIFT</label>
 
@@ -329,10 +375,15 @@
         </div>
 
         <div class="jso-formbox">
-            <div class="jso-formtitle">
-                Conservation
+            <div class="jso-formtitle horizontal layout">
+                <div class="flex">
+                    Conservation
+                </div>
+                <div class="minimize" on-click="minimizeFormbox" data-id="conservationContent">
+                    <i class="fa fa-minus"></i>
+                </div>
             </div>
-            <div class="jso-formcontent vertical layout">
+            <div class="jso-formcontent vertical layout" id="conservationContent">
 
                 <div>
                     <label class="jso">PhyloP</label>
@@ -373,8 +424,13 @@
 
 
         <div class="jso-formbox">
-            <div class="jso-formtitle">
-                Consequence Type
+            <div class="jso-formtitle horizontal layout">
+                <div class="flex">
+                    Consequence Type
+                </div>
+                <div class="minimize" on-click="minimizeFormbox" data-id="consequenceTypes">
+                    <i class="fa fa-minus"></i>
+                </div>
             </div>
             <div id="consequenceTypes" class="jso-formcontent">
                 <template is="dom-repeat" items="{{consequenceTypes}}">
@@ -543,8 +599,7 @@
             }
         },
 
-        resultsChanged: function(neo, old) {
-        },
+        resultsChanged: function(neo, old) {},
 
         handleFeatureSelected: function(e) {
             var item = e.detail;
@@ -748,7 +803,7 @@
             // this.clearForm();
 
             /* Filter History */
-            var me=this;
+            var me = this;
             setTimeout(function() {
                 var filterHistory = [];
                 if (me.fileId in me.hash) {
@@ -769,7 +824,6 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                  debugger
                     if (query.segregation != null || query.region != "" || query.gene != null || query.ids != "" || query.type != "" || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
@@ -818,7 +872,7 @@
                     localStorage.bioinfo_bierApp_filter_history = JSON.stringify(me.hash);
 
                 }
-            }, 100);
+            }, 500);
         },
 
         search: function(query) {
@@ -839,52 +893,52 @@
             console.log(url);
 
         },
-        handleBrowseClick: function(e) {
-            this.$.fileInput.click();
-
-        },
-        handleInputChange: function(e) {
-            var me = this;
-            var inputFile = this.$.fileInput.files[0];
-            this.fileName = inputFile.name;
-
-            var bedRegions = [];
-
-            if (this.regionValue) {
-                bedRegions = this.regionValue.split(",");
-            }
-
-            if (inputFile != null) {
-
-                var reader = new FileReader();
-
-                reader.onload = function(e) {
-                    var data = e.target.result;
-                    var lines = data.split("\n");
-                    for (var i = 0; i < lines.length; i++) {
-                        var line = lines[i];
-                        if (line.indexOf("#") < 0 && line != '') {
-                            var fields = line.split("\t");
-                            var chr = fields[0];
-                            var start = parseInt(fields[1]);
-                            var end = parseInt(fields[2]);
-
-                            if (start <= end) {
-                                var r = chr + ":" + start + "-" + end;
-                                bedRegions.push(r);
-                            }
-                        }
-                    }
-
-                    me.regionValue = bedRegions.join(",");
-                    inputFile = null;
-                    me.fileName = "Choose file...";
-
-                };
-                reader.readAsText(inputFile);
-
-            }
-        },
+        // handleBrowseClick: function(e) {
+        //     this.$.fileInput.click();
+        //
+        // },
+        // handleInputChange: function(e) {
+        //     var me = this;
+        //     var inputFile = this.$.fileInput.files[0];
+        //     this.fileName = inputFile.name;
+        //
+        //     var bedRegions = [];
+        //
+        //     if (this.regionValue) {
+        //         bedRegions = this.regionValue.split(",");
+        //     }
+        //
+        //     if (inputFile != null) {
+        //
+        //         var reader = new FileReader();
+        //
+        //         reader.onload = function(e) {
+        //             var data = e.target.result;
+        //             var lines = data.split("\n");
+        //             for (var i = 0; i < lines.length; i++) {
+        //                 var line = lines[i];
+        //                 if (line.indexOf("#") < 0 && line != '') {
+        //                     var fields = line.split("\t");
+        //                     var chr = fields[0];
+        //                     var start = parseInt(fields[1]);
+        //                     var end = parseInt(fields[2]);
+        //
+        //                     if (start <= end) {
+        //                         var r = chr + ":" + start + "-" + end;
+        //                         bedRegions.push(r);
+        //                     }
+        //                 }
+        //             }
+        //
+        //             me.regionValue = bedRegions.join(",");
+        //             inputFile = null;
+        //             me.fileName = "Choose file...";
+        //
+        //         };
+        //         reader.readAsText(inputFile);
+        //
+        //     }
+        // },
         loadForm: function(hf) {
             var filterName = [];
 
@@ -1028,6 +1082,68 @@
             delete(this.hash[this.fileId]);
             localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
 
-        }
+        },
+        handleGenesImportBed: function(e) {
+            var me = this;
+            var bed_file = this.$.geneBedFileInput.files[0];
+
+            var log = [];
+            var line = 0;
+            var progress = 0;
+            var _readBytes = 0;
+
+            if (bed_file != null) {
+
+                var _navigator = new FileNavigator(bed_file);
+                _totalBytes = bed_file.size;
+
+                var indexToStartWith = 0;
+
+                _navigator.readSomeLines(indexToStartWith, function linesReadHandler(err, index, lines, eof, progress) {
+                    if (err) {
+                        return;
+                    }
+                    console.log(lines.length);
+
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+
+                        if (line.indexOf("#") < 0 && line != '') {
+                            var fields = line.split("\t");
+                            var chr = fields[0];
+                            var start = fields[1];
+                            var end = fields[2];
+                            var gene = {
+                                name: chr + ":" + start + "-" + end,
+                                chr: chr,
+                                start: start,
+                                end: end
+                            };
+                            me.regionValue += gene.name + ",";
+                        }
+
+                        line++;
+                        _readBytes += line.length;
+                    }
+
+                    if (eof) {
+                        return;
+                    }
+
+                    _navigator.readSomeLines(index + lines.length, linesReadHandler);
+
+                })
+
+            }
+
+            this.$.geneBedFileInput.value = "";
+        },
+
+        minimizeFormbox: function(e) {
+            var id = e.currentTarget.dataset.id;
+            var elem = document.getElementById(id);
+            elem.hidden = !elem.hidden;
+        },
+
     });
 </script>
