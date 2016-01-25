@@ -1,0 +1,108 @@
+<link rel="import" href="jso-opencga-bioformat.html">
+<link rel="import" href="../../../validator/jso-validator.html">
+
+<dom-module id="jso-opencga-import-file">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+            padding: 20px 30px;
+        }
+
+        #importBox {
+            width: 500px;
+            height: 350px;
+        }
+
+        .importBut {
+            width: 100px;
+            color: #445D76;
+        }
+
+        .filename {
+            word-break: break-all;
+        }
+    </style>
+    <template>
+        <div id="importBox" class="vertical layout">
+            <div class="horizontal layout">
+                <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
+                    <span>Choose file...</span>
+                </div>
+                <div class="flex">
+                </div>
+                <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
+                <div class="jso-btn jso-btn-shdw importBut" on-click="handleValidate"><i class="fa fa-plus-square-o"></i>&nbsp; Import
+                </div>
+            </div>
+            <div class="horizontal layout" style="line-height: 22px;">
+                <label class="jso">Selected file name: &nbsp;</label>
+                <div class="filename">{{fileName}}</div>
+            </div>
+            <label class="jso" style="margin-top:15px;">File validation log:</label>
+            <jso-validator id="validator" on-end="handleValidatorEnd"></jso-validator>
+        </div>
+
+
+    </template>
+
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-import-file",
+        properties: {
+            bioformat: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
+            },
+            uploading: {
+                type: Boolean,
+                value: false
+            },
+            fileName: {
+                type: String,
+                value: 'None'
+            }
+
+        },
+        ready: function(e) {},
+        handleValidatorEnd: function() {},
+        handleBrowseClick: function(e) {
+            if (this.uploading == false) {
+                this.$.fileInput.click();
+            }
+        },
+        handleValidate: function(e) {
+            var file = this.$.fileInput.files[0];
+            if (file != null) {
+                this.$.validator.reset();
+                // var validator;
+
+                var validator = new Validator({});
+
+                if (this.bioformat.validator) {
+                    if (typeof this.bioformat.validator !== "function") {
+                        alert("Validator '" + this.bioformat.validator + "' not recognized.");
+                        return;
+                    }
+                    validator = new this.bioformat.validator({});
+                } else {
+                    validator = new Validator({});
+                }
+                this.$.validator.validator = validator;
+                this.$.validator.setFile(file);
+                this.$.validator.validate();
+            }
+
+        },
+        handleInputChange: function() {
+            if (this.uploading == false) {
+                this.inputFile = this.$.fileInput.files[0];
+                this.fileName = this.inputFile.name
+            }
+        },
+    });
+</script>

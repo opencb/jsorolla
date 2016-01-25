@@ -1,4 +1,5 @@
 <link rel="import" href="../cellbase/jso-cellbase-search-field.html">
+<link rel="import" href="../opencga/files/jso-opencga-import-file.html">
 <dom-module id="jso-variant-filter-form">
     <style>
         :host {
@@ -218,10 +219,12 @@
 
                     <div class="horizontal layout">
                         <label class="jso" class="flex" style="margin-top: 4px;">Import from BED:</label>
-                        <div class="jso-btn jso-btn-shdw importBut" on-click="handleGenesImportBed"><i class="fa fa-plus-square-o"></i>&nbsp; Import
+                        <div class="jso-btn jso-btn-shdw importBut" on-click="showImportComponent"><i class="fa fa-plus-square-o"></i>&nbsp; Import
                         </div>
+                        <!-- <div class="jso-btn jso-btn-shdw importBut" on-click="handleGenesImportBed"><i class="fa fa-plus-square-o"></i>&nbsp; Import
+                        </div> -->
                     </div>
-                    <input type="file" style="margin:3px; font-size: 12px;" id="geneBedFileInput">
+                    <!-- <input type="file" style="margin:3px; font-size: 12px;" id="geneBedFileInput"> -->
 
                     <label class="jso">Gene:</label>
                     <textarea class="jso" id="gene" name="gene" placeholder="BRCA2,PPL" value="{{geneValue::change}}" rows="3" required>
@@ -492,8 +495,12 @@
         <!--<div id="consequenceTypes" class="input_container" vertical layout>-->
         <!--</div>-->
         <!--</div>-->
-
-        </div>
+        <jso-panel id="importComponent" modal closable hidden>
+            <div class="header">
+                <i class="fa fa-plus-square-o"></i> Import File
+            </div>
+            <jso-opencga-import-file id="importFile" class="container" on-end="handleImportFile" bioformat="{{bedBioformat}}"></jso-opencga-import-file>
+        </jso-panel </div>
     </template>
 </dom-module>
 <script>
@@ -579,6 +586,14 @@
             numTotalResults: {
                 type: Object,
                 observer: "resultsChanged"
+            },
+            bedBioformat: {
+                type: Object,
+                value: {
+                    text: "BED",
+                    value: "BED",
+                    validator: BEDValidator
+                }
             }
         },
         ready: function() {
@@ -588,6 +603,8 @@
                     localStorage.bioinfo_bierApp_filter_history = "";
                     this.hash = {};
                 }
+            } else {
+                localStorage.bioinfo_bierApp_filter_history = [];
             }
         },
 
@@ -1083,9 +1100,9 @@
             localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
 
         },
-        handleGenesImportBed: function(e) {
+        handleGenesImportBed: function(bed_file) {
             var me = this;
-            var bed_file = this.$.geneBedFileInput.files[0];
+            // var bed_file = this.$.geneBedFileInput.files[0];
 
             var log = [];
             var line = 0;
@@ -1119,6 +1136,7 @@
                                 start: start,
                                 end: end
                             };
+
                             me.regionValue += gene.name + ",";
                         }
 
@@ -1135,15 +1153,22 @@
                 })
 
             }
-
-            this.$.geneBedFileInput.value = "";
         },
-
         minimizeFormbox: function(e) {
             var id = e.currentTarget.dataset.id;
             var elem = document.getElementById(id);
             elem.hidden = !elem.hidden;
         },
+        handleImportFile: function() {
+            var file = this.$.importFile.$.fileInput.files[0];
 
+            if (!(this.$.importFile.$.validator.errorCount > 0)) {
+                this.handleGenesImportBed(file);
+                this.$.importComponent.hidden = true;
+            }
+        },
+        showImportComponent: function() {
+            this.$.importComponent.hidden = false;
+        }
     });
 </script>
