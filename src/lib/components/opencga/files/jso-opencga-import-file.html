@@ -23,6 +23,11 @@
         .filename {
             word-break: break-all;
         }
+
+        jso-validator {
+            border: 1px solid var(--divider-color);
+            ;
+        }
     </style>
     <template>
         <div id="importBox" class="vertical layout">
@@ -47,62 +52,63 @@
 
     </template>
 
-</dom-module>
-<script>
-    Polymer({
-        is: "jso-opencga-import-file",
-        properties: {
-            bioformat: {
-                type: Object,
-                value: function() {
-                    return {};
-                }
-            },
-            uploading: {
-                type: Boolean,
-                value: false
-            },
-            fileName: {
-                type: String,
-                value: 'None'
-            }
 
-        },
-        ready: function(e) {},
-        handleValidatorEnd: function() {},
-        handleBrowseClick: function(e) {
-            if (this.uploading == false) {
-                this.$.fileInput.click();
-            }
-        },
-        handleValidate: function(e) {
-            var file = this.$.fileInput.files[0];
-            if (file != null) {
-                this.$.validator.reset();
-                // var validator;
-
-                var validator = new Validator({});
-
-                if (this.bioformat.validator) {
-                    if (typeof this.bioformat.validator !== "function") {
-                        alert("Validator '" + this.bioformat.validator + "' not recognized.");
-                        return;
+    <script>
+        Polymer({
+            is: "jso-opencga-import-file",
+            properties: {
+                bioformat: {
+                    type: Object,
+                    value: function() {
+                        return {};
                     }
-                    validator = new this.bioformat.validator({});
-                } else {
-                    validator = new Validator({});
+                },
+                uploading: {
+                    type: Boolean,
+                    value: false
+                },
+                fileName: {
+                    type: String,
+                    value: 'None'
                 }
-                this.$.validator.validator = validator;
-                this.$.validator.setFile(file);
-                this.$.validator.validate();
-            }
 
-        },
-        handleInputChange: function() {
-            if (this.uploading == false) {
-                this.inputFile = this.$.fileInput.files[0];
-                this.fileName = this.inputFile.name
-            }
-        },
-    });
-</script>
+            },
+            ready: function(e) {},
+            handleValidatorEnd: function() {},
+            handleBrowseClick: function(e) {
+                if (this.uploading == false) {
+                    this.$.fileInput.click();
+                }
+            },
+            handleValidate: function(e) {
+                var file = this.$.fileInput.files[0];
+                if (file != null) {
+                    this.$.validator.reset();
+                    // var validator;
+
+                    var validator = new Validator({});
+
+                    if (this.bioformat.validator) {
+                        if (typeof this.bioformat.validator !== "function") {
+                            alert("Validator '" + this.bioformat.validator + "' not recognized.");
+                            return;
+                        }
+                        validator = new this.bioformat.validator({});
+                    } else {
+                        validator = new Validator({});
+                    }
+                    this.$.validator.validator = validator;
+                    this.$.validator.setFile(file);
+                    this.$.validator.validate();
+                }
+
+            },
+            handleInputChange: function() {
+                if (this.uploading == false) {
+                    this.inputFile = this.$.fileInput.files[0];
+                    this.fileName = this.inputFile.name
+                }
+            },
+        });
+    </script>
+</dom-module>

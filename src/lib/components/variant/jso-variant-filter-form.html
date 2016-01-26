@@ -1,5 +1,6 @@
 <link rel="import" href="../cellbase/jso-cellbase-search-field.html">
 <link rel="import" href="../opencga/files/jso-opencga-import-file.html">
+<link rel="import" href="../jso-form-box.html">
 <dom-module id="jso-variant-filter-form">
     <style>
         :host {
@@ -117,19 +118,23 @@
             width: 100px;
             background-color: #f0f4f4 !important;
         }
-
+        /*.minimize{
+          padding: 0 2px;
+          cursor: pointer;
+        }
         .minimize:hover {
             background-color: #e4e7e9;
-            border-bottom: 1px solid #e4e7e9;
-            padding: 0 2px;
-            cursor: pointer;
-        }
+        }*/
 
         .importBut {
             width: 65px;
             font-size: 12px;
             color: #445D76;
             margin: 3px;
+        }
+
+        jso-form-box {
+            width: 250px;
         }
     </style>
     <template>
@@ -160,16 +165,11 @@
                 <div class="jso-btn jso-btn-shdw flex" on-click="clearForm">Clear</div>
                 <div class="jso-btn jso-btn-shdw flex" on-click="submitForm">Search</div>
             </div>
-            <div class="jso-formbox">
-                <div class="jso-formtitle horizontal layout">
-                    <div class="flex">
-                        Segregation
-                    </div>
-                    <div class="minimize" on-click="minimizeFormbox" data-id="segregationContent">
-                        <i class="fa fa-minus"></i>
-                    </div>
+            <jso-form-box collapsible>
+                <div class="header">
+                    Segregation
                 </div>
-                <div class="jso-formcontent" id="segregationContent">
+                <div class="container">
                     <div id="segregationHeader" class="horizontal layout">
                         <div class="segregation sampleName"></div>
                         <div class="segregation segregationValue flex">0/0</div>
@@ -201,18 +201,12 @@
                         </template>
                     </div>
                 </div>
-            </div>
-
-            <div class="jso-formbox">
-                <div class="jso-formtitle horizontal layout">
-                    <div class="flex">
-                        Position
-                    </div>
-                    <div class="minimize" on-click="minimizeFormbox" data-id="positionContent">
-                        <i class="fa fa-minus"></i>
-                    </div>
+            </jso-form-box>
+            <jso-form-box collapsible>
+                <div class="header">
+                    Position
                 </div>
-                <div class="jso-formcontent" id="positionContent">
+                <div class="container">
                     <label class="jso">Chromosomal location:</label>
                     <textarea class="jso" id="region" name="region" placeholder="1:1-1000000,2:1-1000000" value="{{regionValue::change}}" rows="3" required>
                     </textarea>
@@ -222,7 +216,7 @@
                         <div class="jso-btn jso-btn-shdw importBut" on-click="showImportComponent"><i class="fa fa-plus-square-o"></i>&nbsp; Import
                         </div>
                         <!-- <div class="jso-btn jso-btn-shdw importBut" on-click="handleGenesImportBed"><i class="fa fa-plus-square-o"></i>&nbsp; Import
-                        </div> -->
+                    </div> -->
                     </div>
                     <!-- <input type="file" style="margin:3px; font-size: 12px;" id="geneBedFileInput"> -->
 
@@ -241,20 +235,14 @@
 
                     <!--<div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick">{{fileName}}</div>-->
                     <!--<input type="file" hidden id="fileInput" on-change="handleInputChange">-->
-
                 </div>
-            </div>
+            </jso-form-box> 
 
-            <div class="jso-formbox">
-                <div class="jso-formtitle horizontal layout">
-                    <div class="flex">
-                        Type
-                    </div>
-                    <div class="minimize" on-click="minimizeFormbox" data-id="type_op">
-                        <i class="fa fa-minus"></i>
-                    </div>
+            <jso-form-box collapsible>
+                <div class="header">
+                    Type
                 </div>
-                <div id="type_op" class="jso-formcontent">
+                <div id="type_op" class="container">
                     <div style="margin-left:5px" class="horizontal layout">
                         <label class="jso-control">
                             <input value="SNV" type="checkbox">
@@ -282,18 +270,13 @@
                         </label>
                     </div>
                 </div>
-            </div>
-            <div class="jso-formbox">
-                <div class="jso-formtitle horizontal layout">
-                    <div class="flex">
-                        Population Freqs.
-                    </div>
-                    <div class="minimize" on-click="minimizeFormbox" data-id="populationContent">
-                        <i class="fa fa-minus"></i>
-                    </div>
-                </div>
-                <div class="jso-formcontent vertical layout" id="populationContent">
+            </jso-form-box> 
 
+            <jso-form-box collapsible>
+                <div class="header">
+                    Population Freqs.
+                </div>
+                <div class="container">
                     <label class="jso" style="font-weight: bold">ESP 6500</label>
 
                     <div class="">
@@ -328,27 +311,19 @@
                         <input id="1000GENOMES_eur" type="text" />
                     </div>
                 </div>
-            </div>
+            </jso-form-box> 
 
-            <div class="jso-formbox">
-
-                <div class="jso-formtitle horizontal layout">
-                    <div class="flex">
-                        Protein Substitution Scores
-                    </div>
-                    <div class="minimize" on-click="minimizeFormbox" data-id="proteinContent">
-                        <i class="fa fa-minus"></i>
-                    </div>
+            <jso-form-box collapsible>
+                <div class="header">
+                    Protein Substitution Scores
                 </div>
-
-                <div class="jso-formcontent vertical layout" id="proteinContent">
-
+                <div class="container">
                     <label class="jso">SIFT</label>
 
                     <div>
                         <select name="sift_op" id="sift_op">
                             <!-- <option value="==">==</option>
-                            <option value="!=">!=</option> -->
+                          <option value="!=">!=</option> -->
                             <option value="<" selected>
                                 <</option>
                                     <option value="<=">
@@ -363,7 +338,7 @@
                     <div>
                         <select name="polyphen_op" id="polyphen_op">
                             <!-- <option value="==">==</option>
-                            <option value="!=">!=</option> -->
+                          <option value="!=">!=</option> -->
                             <option value="<" selected>
                                 <</option>
                                     <option value="<=">
@@ -374,133 +349,120 @@
                         <input type="text" id="polyphen" name="polyphen" />
                     </div>
                 </div>
-            </div>
-        </div>
+            </jso-form-box> 
 
-        <div class="jso-formbox">
-            <div class="jso-formtitle horizontal layout">
-                <div class="flex">
+            <jso-form-box collapsible>
+                <div class="header">
                     Conservation
                 </div>
-                <div class="minimize" on-click="minimizeFormbox" data-id="conservationContent">
-                    <i class="fa fa-minus"></i>
-                </div>
-            </div>
-            <div class="jso-formcontent vertical layout" id="conservationContent">
+                <div class="container">
+                    <div>
+                        <label class="jso">PhyloP</label>
 
-                <div>
-                    <label class="jso">PhyloP</label>
+                        <div>
+                            <select name="phylop_op" id="phylop_op">
+                                <!-- <option value="==">==</option>
+                        <option value="!=">!=</option> -->
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input type="text" id="phylop" name="phylop" flex/>
+                        </div>
+                    </div>
 
                     <div>
-                        <select name="phylop_op" id="phylop_op">
-                            <!-- <option value="==">==</option>
-                            <option value="!=">!=</option> -->
-                            <option value="<" selected>
-                                <</option>
-                                    <option value="<=">
-                                        <=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                        </select>
-                        <input type="text" id="phylop" name="phylop" flex/>
+                        <label class="jso">PhastCons</label>
+                        <div>
+                            <select name="phastcons_op" id="phastcons_op">
+                                <!-- <option value="==">==</option>
+                        <option value="!=">!=</option> -->
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input type="text" id="phastcons" name="phastcons" flex/>
+                        </div>
                     </div>
                 </div>
+            </jso-form-box> 
 
-                <div>
-                    <label class="jso">PhastCons</label>
-                    <div>
-                        <select name="phastcons_op" id="phastcons_op">
-                            <!-- <option value="==">==</option>
-                            <option value="!=">!=</option> -->
-                            <option value="<" selected>
-                                <</option>
-                                    <option value="<=">
-                                        <=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                        </select>
-                        <input type="text" id="phastcons" name="phastcons" flex/>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="jso-formbox">
-            <div class="jso-formtitle horizontal layout">
-                <div class="flex">
+            <jso-form-box collapsible>
+                <div class="header">
                     Consequence Type
                 </div>
-                <div class="minimize" on-click="minimizeFormbox" data-id="consequenceTypes">
-                    <i class="fa fa-minus"></i>
+                <div id="consequenceTypes" class="container">
+                    <template is="dom-repeat" items="{{consequenceTypes}}">
+                        <label class="jso-control">
+                            <input value="{{item.value}}" data-name$="{{item.name}}" type="checkbox" name="consequence_type">
+                            <span>{{item.name}}</span>
+                        </label>
+                    </template>
+                    <div class="input_container vertical layout">
+                    </div>
                 </div>
-            </div>
-            <div id="consequenceTypes" class="jso-formcontent">
-                <template is="dom-repeat" items="{{consequenceTypes}}">
-                    <label class="jso-control">
-                        <input value="{{item.value}}" data-name$="{{item.name}}" type="checkbox" name="consequence_type">
-                        <span>{{item.name}}</span>
-                    </label>
-                </template>
-                <div class="input_container vertical layout">
+            </jso-form-box> 
+            <jso-panel id="importComponent" modal closable hidden>
+                <div class="header">
+                    <i class="fa fa-plus-square-o"></i> Import File
                 </div>
-            </div>
+                <jso-opencga-import-file id="importFile" class="container" on-end="handleImportFile" bioformat="{{bedBioformat}}"></jso-opencga-import-file>
+            </jso-panel>
+
+            <!-- OLD COMMENTED -->
+
+            <!--<div class="form_block positionBlock">-->
+            <!--<div id="headerTitle">Position</div>-->
+            <!--<div class="input_container" vertical layout>-->
+            <!--<label class="input_label">Chromosomal Location</label>-->
+            <!--<textarea id="region" name="region" placeholder="1:1-1000000,2:1-1000000"-->
+            <!--value="{{ regionValue }}" rows="3"-->
+            <!--required?="{{ (regionValue == '') }}">-->
+            <!--</textarea>-->
+            <!--</div>-->
+            <!--&lt;!&ndash;<div class="input_container" vertical layout>&ndash;&gt;-->
+            <!--&lt;!&ndash;<label class="input_label">SNP id</label>&ndash;&gt;-->
+            <!--&lt;!&ndash;<textarea id="region" name="region" value="{{ regionValue }}" rows="3"&ndash;&gt;-->
+            <!--&lt;!&ndash;required?="{{ (regionValue == '') }}">&ndash;&gt;-->
+            <!--&lt;!&ndash;</textarea>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--<div class="input_container" vertical layout>-->
+            <!--<label class="input_label">Gene</label>-->
+            <!--<textarea id="gene" name="gene" placeholder="BRCA2,PPL"-->
+            <!--value="{{ geneValue }}" rows="3"-->
+            <!--required?="{{ (geneValue == '') }}"></textarea>-->
+
+            <!--<div horizontal layout class="searchGene" end-justified>-->
+            <!--<input id="searchField" list="searchDataList" placeholder="Search gene" type="text"-->
+            <!--style="width: 90px;">-->
+            <!--<datalist id="searchDataList"></datalist>-->
+            <!--<div id="quickSearchButton" class="button" style="border-left: none;">-->
+            <!--<font-awesome icon="search"></font-awesome>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--<div class="input_container" vertical layout>-->
+            <!--<label class="input_label">Bed File</label>-->
+
+            <!--<div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>-->
+            <!--<input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">-->
+            <!--</div>-->
+            <!--</div>-->
+
+            <!--<div class="form_block">-->
+            <!--<div id="headerTitle">Consequence Type</div>-->
+            <!--<div id="consequenceTypes" class="input_container" vertical layout>-->
+            <!--</div>-->
+            <!--</div>-->
 
 
         </div>
-
-
-        <!-- OLD COMMENTED -->
-
-        <!--<div class="form_block positionBlock">-->
-        <!--<div id="headerTitle">Position</div>-->
-        <!--<div class="input_container" vertical layout>-->
-        <!--<label class="input_label">Chromosomal Location</label>-->
-        <!--<textarea id="region" name="region" placeholder="1:1-1000000,2:1-1000000"-->
-        <!--value="{{ regionValue }}" rows="3"-->
-        <!--required?="{{ (regionValue == '') }}">-->
-        <!--</textarea>-->
-        <!--</div>-->
-        <!--&lt;!&ndash;<div class="input_container" vertical layout>&ndash;&gt;-->
-        <!--&lt;!&ndash;<label class="input_label">SNP id</label>&ndash;&gt;-->
-        <!--&lt;!&ndash;<textarea id="region" name="region" value="{{ regionValue }}" rows="3"&ndash;&gt;-->
-        <!--&lt;!&ndash;required?="{{ (regionValue == '') }}">&ndash;&gt;-->
-        <!--&lt;!&ndash;</textarea>&ndash;&gt;-->
-        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-        <!--<div class="input_container" vertical layout>-->
-        <!--<label class="input_label">Gene</label>-->
-        <!--<textarea id="gene" name="gene" placeholder="BRCA2,PPL"-->
-        <!--value="{{ geneValue }}" rows="3"-->
-        <!--required?="{{ (geneValue == '') }}"></textarea>-->
-
-        <!--<div horizontal layout class="searchGene" end-justified>-->
-        <!--<input id="searchField" list="searchDataList" placeholder="Search gene" type="text"-->
-        <!--style="width: 90px;">-->
-        <!--<datalist id="searchDataList"></datalist>-->
-        <!--<div id="quickSearchButton" class="button" style="border-left: none;">-->
-        <!--<font-awesome icon="search"></font-awesome>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<div class="input_container" vertical layout>-->
-        <!--<label class="input_label">Bed File</label>-->
-
-        <!--<div class="button action filetext" on-click="{{handleBrowseClick}}">{{fileName}}</div>-->
-        <!--<input type="file" hidden id="fileInput" on-change="{{handleInputChange}}">-->
-        <!--</div>-->
-        <!--</div>-->
-
-        <!--<div class="form_block">-->
-        <!--<div id="headerTitle">Consequence Type</div>-->
-        <!--<div id="consequenceTypes" class="input_container" vertical layout>-->
-        <!--</div>-->
-        <!--</div>-->
-        <jso-panel id="importComponent" modal closable hidden>
-            <div class="header">
-                <i class="fa fa-plus-square-o"></i> Import File
-            </div>
-            <jso-opencga-import-file id="importFile" class="container" on-end="handleImportFile" bioformat="{{bedBioformat}}"></jso-opencga-import-file>
-        </jso-panel </div>
     </template>
 </dom-module>
 <script>
@@ -1154,11 +1116,11 @@
 
             }
         },
-        minimizeFormbox: function(e) {
-            var id = e.currentTarget.dataset.id;
-            var elem = document.getElementById(id);
-            elem.hidden = !elem.hidden;
-        },
+        // minimizeFormbox: function(e) {
+        //     var id = e.currentTarget.dataset.id;
+        //     var elem = document.getElementById(id);
+        //     elem.hidden = !elem.hidden;
+        // },
         handleImportFile: function() {
             var file = this.$.importFile.$.fileInput.files[0];
 

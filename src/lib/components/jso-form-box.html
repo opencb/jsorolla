@@ -1,0 +1,98 @@
+<dom-module id="jso-form-box">
+    <style>
+        :host {
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #form {
+            border: 1px solid rgba(125, 125, 125, 0.4);
+            margin: 0 5px 10px 5px;
+            background-color: #FFFFFF;
+        }
+
+        #header {
+            padding: 6px 10px;
+            font-size: 16px;
+            color: #000;
+            background-color: #f5f5f5;
+        }
+
+        #container {
+            padding: 8px 10px;
+            border-top: 1px solid rgba(125, 125, 125, 0.3);
+        }
+
+        .collapsible {
+            padding: 0 2px;
+            cursor: pointer;
+        }
+        .collapsible > i {
+          color: #445D76;
+          font-size: 12px;
+        }
+
+        .collapsible:hover {
+            background-color: #e4e7e9;
+        }
+
+    </style>
+    <template>
+        <div id="form">
+            <div id="header" class="horizontal layout">
+                <div class="horizontal layout flex center">
+                    <content select=".header"></content>
+                </div>
+                <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction">
+                    <i class$="{{computeIcon(collapsible,collapsed)}}"></i>
+                    <!-- <i class="fa fa-minus"></i> -->
+                </div>
+            </div>
+            <div id="container" class="horizontal layout" hidden$="{{isContainerHidden(collapsible, collapsed)}}">
+                <content select=".container"></content>
+            </div>
+        </div>
+
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "jso-form-box",
+            properties: {
+                collapsible: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+                collapsed: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
+                },
+            },
+            ready: function() {},
+
+            handleCollapseAction: function(e) {
+                if (this.collapsible) {
+                    this.collapsed = !this.collapsed;
+                };
+            },
+            isContainerHidden: function(collapsible, collapsed) {
+                if (collapsible && collapsed) {
+                    return true;
+                }
+                return false;
+            },
+            computeIcon: function (collapsible, collapsed){
+              if (collapsible && collapsed) {
+                  return "fa fa-plus";
+              }else{
+                return "fa fa-minus";
+              }
+            }
+
+        })
+    </script>
+</dom-module>
