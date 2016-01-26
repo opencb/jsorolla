@@ -97,13 +97,21 @@
         .lowercase {
             text-transform: lowercase;
         }
+
+        .study-info {
+            height: 40px;
+        }
+
+        #sampleList {
+            height: calc(100% - 40px);
+        }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
             <div class="bar horizontal layout flex end-justified">
-              <div class="">
-                  <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
-              </div>
+                <div class="">
+                    <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
+                </div>
                 <div class="jso-btn jso-btn-shdw" on-click="handleViewInfo" style="margin-right: 5px;" hidden$="{{checkSelected(selected)}}">
                     <i class="fa fa-info"></i>
                 </div>
@@ -120,12 +128,13 @@
             </div>
         </template>
         <div id="content" class$="{{computeContentClass(viewMode,showInfo)}}">
-            <div class$="{{computeClassViewMode(viewMode)}}">
+            <div class$="{{computeClassViewMode(viewMode)}}" id="sampleList">
                 <template is="dom-repeat" items="{{filteredSamples}}" class="wrap">
                     <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}">
                     </jso-opencga-sample-list-item>
                 </template>
             </div>
+            <div class="study-info">{{study.type}}</div>
         </div>
         <div id="fileInfo" class="vertical layout" hidden="{{!showInfo}}">
             <div class="horizontal layout">
@@ -160,9 +169,9 @@
                 },
                 observer: 'samplesChanged'
             },
-            filteredSamples:{
-              type: Array,
-              notify: true,
+            filteredSamples: {
+                type: Array,
+                notify: true,
             },
             selected: {
                 type: Object,
@@ -201,7 +210,7 @@
 
             this.set("selected", selected.sample);
             this.fire('sampleselected', this.selected);
-
+            study - info
             this.sampleName = this.selected.name;
             this.sampleSource = this.selected.source;
             this.sampleDescription = this.selected.description;
@@ -221,8 +230,11 @@
             this.viewMode = (this.viewMode == "list") ? "icon" : "list";
         },
         computeClassViewMode: function(viewMode) {
+
             if (viewMode == "icon") {
-                return "horizontal layout wrap";
+                return "horizontal layout wrap flex";
+            } else {
+                return "flex";
             }
         },
         computeContentClass: function(viewMode, showInfo) {
@@ -238,25 +250,97 @@
             }
         },
 
-        studyChanged: function(e){
-          this.sampleName = "";
-          this.sampleSource = "";
-          this.sampleDescription = "";
-          this.set("selected", undefined);
+        studyChanged: function(neo, old) {
 
-          var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
-          for (var i = 0; i < sel.length; i++) {
-              sel[i].removeAttribute("selected");
-          }
+            this.sampleName = "";
+            this.sampleSource = "";
+            this.sampleDescription = "";
+            this.set("selected", undefined);
+
+            var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+            for (var i = 0; i < sel.length; i++) {
+                sel[i].removeAttribute("selected");
+            }
+
+            if (neo) {
+                // Check Case/Control Cohorts
+                if (neo.type.toUpperCase() === "CASE_CONTROL") {
+                    var cohorts = neo.cohorts;
+                    var caseCohort = null;
+                    var controlCohort = null;
+
+                    for (var i = 0; i < cohorts.length; i++) {
+                        var cohort = cohorts[i];
+                        if (cohort.name.toUpperCase() === "ALL") {
+                            continue;
+                        } else if (cohort.name.toUpperCase() === "CASE") {
+                            caseCohort = cohort;
+                        } else if (cohort.name.toUpperCase() === "CONTROL") {
+                            controlCohort = cohort;
+                        }
+
+                    }
+
+                    if (caseCohort == null) {
+
+                        OpencgaManager.cohorts.create({
+                            query: {
+                                sid: Cookies('bioinfo_sid'),
+                                name: "CASE",
+                                studyId: this.study.id
+                            },
+                            request: {
+                                async: true,
+                                success: function(response) {
+                                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+
+                                    } else {
+                                        alert('Server error, try again later.');
+                                    }
+                                },
+                                error: function() {
+                                    alert('Server error, try again later.');
+                                }
+                            }
+                        });
+                    }
+                    if (controlCohort == null) {
+                        OpencgaManager.cohorts.create({
+                            query: {
+                                sid: Cookies('bioinfo_sid'),
+                                name: "CONTROL",
+                                studyId: this.study.id,
+                                type: "CASE_CONTROL"
+                            },
+                            request: {
+                                async: true,
+                                success: function(response) {
+                                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+
+                                    } else {
+                                        alert('Server error, try again later.');
+                                    }
+                                },
+                                error: function() {
+                                    alert('Server error, try again later.');
+                                }
+                            }
+                        });
+                    }
+
+                }
+
+            }
+
         },
-        samplesChanged: function(neo,old){
-          console.log(this.search);
-          var searchFilterSamples = this._filterBySearch(this.samples);
-          this.set('filteredSamples', searchFilterSamples);
-          this.studyChanged();
+        samplesChanged: function(neo, old) {
+            console.log(this.search);
+            var searchFilterSamples = this._filterBySearch(this.samples);
+            this.set('filteredSamples', searchFilterSamples);
+            this.studyChanged();
         },
         searchNameChanged: function(neo, old) {
-           this.samplesChanged();
+            this.samplesChanged();
         },
         _filterBySearch: function(samples) {
             if (this.search == "") {

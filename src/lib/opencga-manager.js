@@ -166,6 +166,11 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'studies', 'variants');
         }
     },
+    cohorts: {
+        create: function (args) {
+            return OpencgaManager._doRequest(args, 'cohorts', 'create');
+        }
+    },
 
     files: {
         list: function (args) {
