@@ -68,7 +68,7 @@ var Utils = {
     genId: function (prefix) {
         prefix = prefix || '';
         prefix = prefix.length == 0 ? prefix : prefix + '-';
-        return prefix + this.randomString();
+        return prefix + this.randomString(4) + this.getRandomInt(1000, 9999);
     },
     randomString: function (length) {
         length = length || 10;

@@ -254,7 +254,7 @@
             return "capitalize " + job.status;
         },
         computeToolName: function(job) {
-            if (job.execution != null) {
+            if (job.execution != null && job.execution != '') {
                 return job.execution;
             }
             return job.toolName;
