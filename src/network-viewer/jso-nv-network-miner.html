@@ -325,7 +325,7 @@
                 //                    alert("Sorry. No input selected. Please select a file or write something in the text area");
                 //                    return;
                 //                }
-                if (this.$.inputFile.selectedFile == null) {
+                if (this.$.inputFile.selectedFile == null && this.$.inputFile.textAreaValue == "") {
                     alert("Sorry. No input selected. Please select a file.");
                     return;
                 }

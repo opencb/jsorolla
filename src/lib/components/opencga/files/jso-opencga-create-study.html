@@ -79,6 +79,37 @@
 
             if (this.$.form.checkValidity()) {
 
+                // var url = OpencgaManager.studies.create({
+                //     query: {
+                //         sid: Cookies('bioinfo_sid')
+                //     },
+                //     request: {
+                //         method: "POST",
+                //         url: true
+                //     }
+                // });
+
+                // var query = {
+                //     name: this.$.input.value,
+                //     alias: this.$.input.value.replace(/ /gi, ''),
+                //     description: '',
+                //     organization: '',
+                //     type: this.querySelector('input[name="type"]:checked').value,
+                //     projectId: this.$.projectSelect.selectedProject
+                // }
+                //
+                // var xhr = new XMLHttpRequest();
+                // xhr.open('POST', url, true);
+                // // xhr.setRequestHeader("Content-Type", "text/plain");
+                // // xhr.setRequestHeader("Content-Type", "application/json");
+                //
+                // xhr.onload = function(e) {
+                //     debugger
+                //     // chunk.done = true;
+                //     // console.log("chunk done");
+                //     // callback(JSON.parse(xhr.responseText));
+                // };
+                // // xhr.send(JSON.stringify([query]));
                 OpencgaManager.studies.create({
                     query: {
                         sid: Cookies('bioinfo_sid'),
@@ -91,6 +122,7 @@
 
                     },
                     request: {
+                        method: "POST",
                         async: true,
                         success: function(response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
