@@ -1,4 +1,5 @@
 <link rel="import" href="jso-opencga-sample-list-item.html">
+<link rel="import" href="../../jso-select-box.html">
 
 <dom-module id="jso-opencga-sample-list">
     <style>
@@ -105,6 +106,54 @@
         #sampleList {
             height: calc(100% - 40px);
         }
+
+        jso-select-box {
+            overflow-y: auto;
+            height: 100px;
+            width: 150px;
+            margin: 5px;
+        }
+
+        jso-panel {
+            height: 500px;
+            width: 800px;
+        }
+
+        .chooseList {
+            height: 100px;
+            width: 400px;
+            margin-left: 200px;
+            margin-top: 20px;
+        }
+
+        .chooseSamplesList {
+            overflow-y: auto;
+            height: 100px;
+            /*width: 80%;*/
+            margin: 5px;
+            border: 1px solid var(--divider-color);
+        }
+
+        .titlePreview {
+            font-size: 15px;
+            color: #445D76;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #445D76;
+            padding: 2px;
+        }
+
+        .boxList {
+            height: 150px;
+            width: 200px;
+            margin: 20px;
+        }
+
+        .container {
+            margin: 5px;
+            width: 100%;
+            height: 100%
+        }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
@@ -134,8 +183,64 @@
                     </jso-opencga-sample-list-item>
                 </template>
             </div>
-            <div class="study-info">{{study.type}}</div>
+            <div class="horizontal layout flex">
+                <div class="study-info flex">{{study.type}}</div>
+                <div class="jso-btn jso-btn-shdw" style="margin:5px;" on-click="handleChooseCaseControl"> Choose Case/Control
+                </div>
+            </div>
         </div>
+        <jso-panel id="choosePanel" class="" closable modal expandible movable hidden>
+            <div class="header">
+                Choose cases and controls samples
+            </div>
+            <div class="container vertical layout flex">
+                <div class="chooseList horizontal layout flex">
+                    <div id="chooseSamplesList" class="flex chooseSamplesList">
+                        <template is="dom-repeat" items="{{filteredSamples}}">
+                            <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSelectSample" data-value$="{{item.name}}">
+                            </jso-opencga-sample-list-item>
+                        </template>
+                    </div>
+                    <div class="vertical layout">
+                        <div class="jso-btn jso-btn-shdw" style="margin:5px;" data-type="case" on-click="handleAddCaseControl"> Add Case
+                        </div>
+                        <div class="jso-btn jso-btn-shdw" style="margin:5px;" data-type="control" on-click="handleAddCaseControl"> Add Control
+                        </div>
+                    </div>
+                </div>
+                <div class="horizontal layout flex">
+                    <div class="flex boxList">
+                        <div class="titlePreview">Cases Preview</div>
+                        <div id="casesList" class="chooseSamplesList" style="height: 200px">
+                            <template is="dom-repeat" items="{{caseSampleList}}">
+                                <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSelectSample" data-value$="{{item.name}}">
+                                </jso-opencga-sample-list-item>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="jso-btn jso-btn-shdw" style="margin:10px; width: 50px;margin-top: 150px;" on-click="handleChangeCaseControl">
+                        <i class="fa fa-arrows-h"></i>
+                    </div>
+                    <div class="flex boxList">
+                        <div class="titlePreview">Controls Preview</div>
+                        <div id="controlsList" class="chooseSamplesList" style="height: 200px">
+                            <template is="dom-repeat" items="{{controlSampleList}}">
+                                <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSelectSample" data-value$="{{item.name}}">
+                                </jso-opencga-sample-list-item>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                </div>
+                <div class="horizontal layout flex">
+                    <div class="flex">
+                    </div>
+                    <div class="jso-btn jso-btn-shdw" style="margin:5px; width: 100px;" on-click="handleUpload"> Upload
+                    </div>
+                </div>
+            </div>
+        </jso-panel>
         <div id="fileInfo" class="vertical layout" hidden="{{!showInfo}}">
             <div class="horizontal layout">
                 <i class="fa fa-file-o"></i>&nbsp;
@@ -196,7 +301,22 @@
                 type: String,
                 value: "",
                 observer: 'searchNameChanged'
-            }
+            },
+            caseSampleList: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+                // observer: "caseSampleListChanged"
+            },
+            controlSampleList: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+            },
         },
         handleSampleClick: function(e) {
 
@@ -210,7 +330,7 @@
 
             this.set("selected", selected.sample);
             this.fire('sampleselected', this.selected);
-            study - info
+            // study - info
             this.sampleName = this.selected.name;
             this.sampleSource = this.selected.source;
             this.sampleDescription = this.selected.description;
@@ -355,5 +475,66 @@
             return filteredSamples;
         },
 
+        handleChooseCaseControl: function(e) {
+            this.$.choosePanel.hidden = false;
+        },
+        handleSelectSample: function(e) {
+            var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+            e.currentTarget.setAttribute("selected", "");
+            for (var i = 0; i < sel.length; i++) {
+                if (sel[i].dataset.value === e.currentTarget.dataset.value) {
+                    sel[i].removeAttribute("selected");
+                }
+            }
+        },
+        handleAddCaseControl: function(e) {
+            var sel = this.$.chooseSamplesList.querySelectorAll("jso-opencga-sample-list-item[selected]");
+            for (var i = 0; i < sel.length; i++) {
+                var chooseSampleName = sel[i].dataset.value;
+                for (var j = 0; j < this.filteredSamples.length; j++) {
+                    var sample = this.filteredSamples[j];
+                    if (chooseSampleName === sample.name) {
+                        if (e.currentTarget.dataset.type === "case") {
+                            this.push('caseSampleList', sample);
+                            sel[i].removeAttribute("selected");
+                            sel[i].hidden = true;
+                        } else if (e.currentTarget.dataset.type === "control") {
+                            this.push('controlSampleList', sample);
+                            sel[i].removeAttribute("selected");
+                            sel[i].hidden = true;
+                        }
+                    }
+                }
+            }
+            console.log(this.caseSampleList)
+            console.log(this.controlSampleList)
+        },
+        handleUpload: function(e) {},
+        handleChangeCaseControl: function(e) {
+            var selCases = this.$.casesList.querySelectorAll("jso-opencga-sample-list-item[selected]");
+            var selControls = this.$.controlsList.querySelectorAll("jso-opencga-sample-list-item[selected]");
+            for (var i = 0; i < selCases.length; i++) {
+                for (var j = 0; j < this.filteredSamples.length; j++) {
+                    var sample = this.filteredSamples[j];
+                    if (selCases[i].dataset.value === sample.name) {
+                        this.push('controlSampleList', sample);
+                        selCases[i].removeAttribute("selected");
+                        this.splice('caseSampleList',i,1);
+                    }
+                }
+            }
+            for (var i = 0; i < selControls.length; i++) {
+              for (var j = 0; j < this.filteredSamples.length; j++) {
+                  var sample = this.filteredSamples[j];
+                  if (selControls[i].dataset.value === sample.name) {
+                      this.push('caseSampleList', sample);
+                      selControls[i].removeAttribute("selected");
+                      this.splice('controlSampleList',i,1);
+                  }
+              }
+            }
+            console.log(this.caseSampleList)
+            console.log(this.controlSampleList)
+        }
     });
 </script>
