@@ -164,10 +164,11 @@
         .but>i {
             font-weight: bold;
         }
-        .clear{
-          margin:5px;
-          margin-left:165px;
-          width:100px
+
+        .clear {
+            margin: 5px;
+            margin-left: 165px;
+            width: 100px
         }
     </style>
     <template>
@@ -200,7 +201,7 @@
             </div>
             <div class="horizontal layout flex">
                 <div class="study-info flex">{{study.type}}</div>
-                <div class="jso-btn jso-btn-shdw but" style="margin:5px;" on-click="handleChooseCaseControl"> Choose Case/Control
+                <div id="cohortesButton" class="jso-btn jso-btn-shdw but" style="margin:5px;" on-click="handleChooseCaseControl" hidden> Choose Case/Control
                 </div>
             </div>
         </div>
@@ -212,7 +213,7 @@
                 <div class="titlePreview" style="width: 450px; margin-left: 170px;">Total Samples List</div>
                 <div class="chooseList horizontal layout flex">
                     <div id="chooseSamplesList" class="flex chooseSamplesList">
-                        <template is="dom-repeat" items="{{samples}}">
+                        <template is="dom-repeat" items="{{noChooseSampleList}}">
                             <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSelectSample" data-value$="{{item.id}}">
                             </jso-opencga-sample-list-item>
                         </template>
@@ -260,7 +261,7 @@
                     <div class="flex">
                     </div>
                     <div class="jso-btn jso-btn-shdw but" style="margin:10px;" on-click="handleUpload">
-                      <i class="fa fa-cloud-upload"></i> Upload
+                        <i class="fa fa-cloud-upload"></i> Upload
                     </div>
                 </div>
             </div>
@@ -341,6 +342,13 @@
                     return [];
                 },
             },
+            noChooseSampleList: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+            },
             caseCohort: {
                 type: Object,
                 value: function() {
@@ -353,6 +361,9 @@
                     return {};
                 }
             }
+        },
+        ready: function() {
+
         },
         handleSampleClick: function(e) {
 
@@ -407,6 +418,7 @@
         },
 
         studyChanged: function(neo, old) {
+
             this.sampleName = "";
             this.sampleSource = "";
             this.sampleDescription = "";
@@ -420,6 +432,7 @@
             if (neo) {
                 // Check Case/Control Cohorts
                 if (neo.type.toUpperCase() === "CASE_CONTROL") {
+                    this.$.cohortesButton.hidden = false;
                     var cohorts = neo.cohorts;
                     var caseCohort = null;
                     var controlCohort = null;
@@ -485,19 +498,49 @@
                             }
                         });
                     }
-
                     this.caseCohort = caseCohort;
                     this.controlCohort = controlCohort;
 
+                } else {
+                    this.$.cohortesButton.hidden = true;
                 }
-
             }
-
         },
         samplesChanged: function(neo, old) {
             console.log(this.search);
             var searchFilterSamples = this._filterBySearch(this.samples);
             this.set('filteredSamples', searchFilterSamples);
+
+            if (this.study != null && this.study.type === "CASE_CONTROL") {
+                this.set('caseSampleList', []);
+                this.set('controlSampleList', []);
+                this.noChooseSampleList = Utils.clone(this.samples);
+                var caseList = this.caseCohort.samples;
+                var controlList = this.controlCohort.samples;
+
+                var arrayDelete=[];
+                for (var i = 0; i < this.noChooseSampleList.length; i++) {
+                    var sample = this.noChooseSampleList[i];
+                    for (var j = 0; j < caseList.length; j++) {
+                        if (caseList[j] == sample.id) {
+                            this.push('caseSampleList', sample);
+                            arrayDelete.push(i);
+                        }
+                    }
+
+                    for (var j = 0; j < controlList.length; j++) {
+                        if (controlList[j] == sample.id) {
+                            this.push('controlSampleList', sample);
+                            arrayDelete.push(i);
+                        }
+                    }
+                }
+                var n=0;
+                for(var i=0; i<arrayDelete.length; i++){
+                  this.splice('noChooseSampleList',arrayDelete[i-n],1);
+                  n++;
+                }
+            }
             this.studyChanged();
         },
         searchNameChanged: function(neo, old) {
@@ -651,9 +694,9 @@
                 }
             }
             if (e.currentTarget.dataset.type === "case") {
-              this.set('caseSampleList', []);
+                this.set('caseSampleList', []);
             } else if (e.currentTarget.dataset.type === "control") {
-              this.set('controlSampleList', []);
+                this.set('controlSampleList', []);
             }
         }
     });
