@@ -617,6 +617,8 @@
         ready: function() {
             var me = this;
 
+            this.cellMaps = this.domHost;
+
             this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
             this.graph = this.$.graph;
@@ -1545,33 +1547,33 @@
             this.$.topologicalStudyPanel.show();
         },
         handleSnowMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.snowPanel.show();
         },
         handleNetworkMinerMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.networkMinerPanel.show();
         },
         handleFatigoMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.fatigoPanel.show();
         },
         handleReactomeFiMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.reactomeFiPanel.show();
