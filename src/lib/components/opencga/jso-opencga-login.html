@@ -34,6 +34,9 @@
             color: var(--dark-primary-color);
             float: right;
         }
+        .right{
+            float: right;
+        }
 
         .shortcut:hover {
             text-decoration: underline;
@@ -62,6 +65,12 @@
             <br>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleForm">Login</div>
+            <br>
+            <div hidden$="{{hideAnonymous}}">
+                <span class="shortcut" on-click="handleAnonymous">Login as anonymous</span>
+                <br>
+                <span class="right" style="color:#888">All data will be deleted on logout</span>
+            </div>
         </form>
         <div class="message">{{message}}</div>
     </template>
@@ -88,6 +97,11 @@
                 value: false,
                 reflectToAttribute: true
             },
+            hideAnonymous: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
         },
         handleFormKey: function(e) {
             if (e.which == 13) {
@@ -105,6 +119,9 @@
             if (this.$.form.checkValidity()) {
                 this._login();
             }
+        },
+        handleAnonymous:function(){
+            this.fire('anonymous');
         },
         _login: function() {
             var me = this;
