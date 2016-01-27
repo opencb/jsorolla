@@ -215,10 +215,7 @@
                         <label class="jso" class="flex" style="margin-top: 4px;">Import from BED:</label>
                         <div class="jso-btn jso-btn-shdw importBut" on-click="showImportComponent"><i class="fa fa-plus-square-o"></i>&nbsp; Import
                         </div>
-                        <!-- <div class="jso-btn jso-btn-shdw importBut" on-click="handleGenesImportBed"><i class="fa fa-plus-square-o"></i>&nbsp; Import
-                    </div> -->
                     </div>
-                    <!-- <input type="file" style="margin:3px; font-size: 12px;" id="geneBedFileInput"> -->
 
                     <label class="jso">Gene:</label>
                     <textarea class="jso" id="gene" name="gene" placeholder="BRCA2,PPL" value="{{geneValue::change}}" rows="3" required>
@@ -1116,11 +1113,6 @@
 
             }
         },
-        // minimizeFormbox: function(e) {
-        //     var id = e.currentTarget.dataset.id;
-        //     var elem = document.getElementById(id);
-        //     elem.hidden = !elem.hidden;
-        // },
         handleImportFile: function() {
             var file = this.$.importFile.$.fileInput.files[0];
 
