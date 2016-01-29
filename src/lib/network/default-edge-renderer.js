@@ -314,13 +314,12 @@ DefaultEdgeRenderer.prototype = {
         // Calculate source and target points of the perimeter
         var sign = this.targetCoords.x >= this.sourceCoords.x ? 1 : -1;
         var srHalfSize = this.sourceRenderer.getSize() / 2;
-
-        //var offset = 0;
-        //if (this.shape !== 'undirected') {
-        //    offset = this.size * 2;
-        //}
-        //var trHalfSize = offset + (this.targetRenderer.getSize() / 2);
         var trHalfSize = this.targetRenderer.getSize() / 2;
+
+        var srTextWidth = this.sourceRenderer._textWidth + this.sourceRenderer.strokeSize;
+        var srTextHeight = this.sourceRenderer._textHeight + this.sourceRenderer.strokeSize;
+        var trTextWidth = this.targetRenderer._textWidth + this.targetRenderer.strokeSize;
+        var trTextHeight = this.targetRenderer._textHeight + this.targetRenderer.strokeSize;
 
         var cosAngle = Math.cos(angle);
         var sinAngle = Math.sin(angle);
@@ -349,15 +348,25 @@ DefaultEdgeRenderer.prototype = {
                 sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
                 break;
             case 'rectangle':
-                magnitudeCos = srHalfSize * 1.5 / absCosAngle;
-                magnitudeSin = srHalfSize / absSinAngle;
+                if (this.sourceRenderer.size < 0) {
+                    magnitudeCos = srTextWidth * 0.6 / absCosAngle;
+                    magnitudeSin = srTextHeight * 0.6 / absSinAngle;
+                } else {
+                    magnitudeCos = srHalfSize * 1.5 / absCosAngle;
+                    magnitudeSin = srHalfSize / absSinAngle;
+                }
                 magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
                 sx = this.sourceCoords.x + (sign * cosAngle * magnitude);
                 sy = this.sourceCoords.y + (sign * sinAngle * magnitude);
                 break;
             case 'ellipse':
-                sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.5);
-                sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+                if (this.sourceRenderer.size < 0) {
+                    sx = this.sourceCoords.x + (sign * cosAngle * srTextWidth * 0.7);
+                    sy = this.sourceCoords.y + (sign * sinAngle * srTextHeight * 0.7);
+                } else {
+                    sx = this.sourceCoords.x + (sign * cosAngle * srHalfSize * 1.5);
+                    sy = this.sourceCoords.y + (sign * sinAngle * srHalfSize);
+                }
                 break;
             case 'circle':
             default:
@@ -379,15 +388,25 @@ DefaultEdgeRenderer.prototype = {
                 ty = this.targetCoords.y - (sign * sinAngle * magnitude);
                 break;
             case 'rectangle':
-                magnitudeCos = trHalfSize * 1.5 / absCosAngle;
-                magnitudeSin = trHalfSize / absSinAngle;
+                if (this.targetRenderer.size < 0) {
+                    magnitudeCos = trTextWidth * 0.6 / absCosAngle;
+                    magnitudeSin = trTextHeight * 0.6 / absSinAngle;
+                } else {
+                    magnitudeCos = trHalfSize * 1.5 / absCosAngle;
+                    magnitudeSin = trHalfSize / absSinAngle;
+                }
                 magnitude = (magnitudeCos <= magnitudeSin) ? magnitudeCos : magnitudeSin;
                 tx = this.targetCoords.x - (sign * cosAngle * magnitude);
                 ty = this.targetCoords.y - (sign * sinAngle * magnitude);
                 break;
             case 'ellipse':
-                tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.5);
-                ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+                if (this.targetRenderer.size < 0) {
+                    tx = this.targetCoords.x - (sign * cosAngle * trTextWidth * 0.7);
+                    ty = this.targetCoords.y - (sign * sinAngle * trTextHeight * 0.7);
+                } else {
+                    tx = this.targetCoords.x - (sign * cosAngle * trHalfSize * 1.5);
+                    ty = this.targetCoords.y - (sign * sinAngle * trHalfSize);
+                }
                 break;
             case 'circle':
             default:

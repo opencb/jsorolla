@@ -992,6 +992,7 @@
             for (var i = 0, l = this.graph.vertices.length; i < l; i++) {
                 vertex = this.graph.vertices[i];
                 vertex.renderer.setLabelContent(vertex.attributes[attribute]);
+                this._updateEdgeCoords(vertex);
             }
         },
         selectVertexDefaultLabelAttribute: function(attribute) {
