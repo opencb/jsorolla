@@ -168,7 +168,24 @@
         .clear {
             margin: 5px;
             margin-left: 165px;
-            width: 100px
+            width: 100px;
+        }
+
+        .msgError {
+            color: #bf4747;
+            font-style: italic;
+        }
+
+        .importBut {
+            width: 65px;
+            font-size: 12px;
+            color: #445D76;
+            margin: 3px;
+        }
+
+        #importComponent {
+            width: 600px;
+            height: 450px;
         }
     </style>
     <template>
@@ -201,6 +218,7 @@
             </div>
             <div class="horizontal layout flex">
                 <div class="study-info flex">{{study.type}}</div>
+                <div class="msgError">{{msgCohortsError}}</div>
                 <div id="cohortesButton" class="jso-btn jso-btn-shdw but" style="margin:5px;" on-click="handleChooseCaseControl" hidden> Choose Case/Control
                 </div>
             </div>
@@ -236,6 +254,12 @@
                         </div>
                         <div class="jso-btn jso-btn-shdw but clear" data-type="case" on-click="handleClear"> Clear
                         </div>
+                        <div class="horizontal layout" style="line-height: 28px;">
+                            <div class="">Import CASES from File:
+                            </div>
+                            <div class="jso-btn jso-btn-shdw importBut" on-click="handleUploadFile"><i class="fa fa-plus-square-o"></i>&nbsp; Import
+                            </div>
+                        </div>
                     </div>
                     <div class="vertical layout">
                         <div class="jso-btn jso-btn-shdw but" style="margin:10px; width: 150px;margin-top: 170px;" on-click="handleChangeCase">
@@ -263,6 +287,29 @@
                     <div class="jso-btn jso-btn-shdw but" style="margin:10px;" on-click="handleUpload">
                         <i class="fa fa-cloud-upload"></i> Upload
                     </div>
+                </div>
+            </div>
+        </jso-panel>
+
+        <jso-panel id="importComponent" modal closable hidden>
+            <div class="header">
+                <i class="fa fa-plus-square-o"></i> Import Cases from File
+            </div>
+            <!-- <jso-opencga-import-file id="importFile" class="container" on-end="handleImportFile" bioformat="{{VCFBioformat}}"></jso-opencga-import-file> -->
+            <div class="container">
+                <div class="horizontal layout">
+                    <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
+                        <span>Choose file...</span>
+                    </div>
+                    <div class="flex">
+                    </div>
+                    <input type="file" hidden id="importFile" required on-change="handleInputChange" disabled$="{{uploading}}">
+                    <div class="jso-btn jso-btn-shdw importBut" on-click="handleImportCohorts"><i class="fa fa-plus-square-o"></i>&nbsp; Import
+                    </div>
+                </div>
+                <div class="horizontal layout" style="line-height: 22px;">
+                    <label class="jso">Selected file name: &nbsp;</label>
+                    <div class="filename">{{fileName}}</div>
                 </div>
             </div>
         </jso-panel>
@@ -360,6 +407,26 @@
                 value: function() {
                     return {};
                 }
+            },
+            msgCohortsError: {
+                type: Array,
+                value: ""
+            },
+            // VCFBioformat: {
+            //     type: Object,
+            //     value: {
+            //         text: "VCF",
+            //         value: "VCF",
+            //         validator: VCFValidator
+            //     }
+            // }
+            uploading: {
+                type: Boolean,
+                value: false
+            },
+            fileName: {
+                type: String,
+                value: 'None'
             }
         },
         ready: function() {
@@ -380,6 +447,22 @@
             // study - info
             this.sampleName = this.selected.name;
             this.sampleSource = this.selected.source;
+
+            if (this.study.type == "CASE_CONTROL") {
+                this.selected.description = "No Choose Case/Control";
+                var caseSam = this.caseCohort.samples;
+                var controlSam = this.controlCohort.samples;
+                for (var i = 0; i < caseSam.length; i++) {
+                    if (caseSam[i] == this.selected.id) {
+                        this.selected.description = "CASE";
+                    }
+                }
+                for (var i = 0; i < controlSam.length; i++) {
+                    if (controlSam[i] == this.selected.id) {
+                        this.selected.description = "CONTROL";
+                    }
+                }
+            }
             this.sampleDescription = this.selected.description;
         },
         checkSelected: function(selected) {
@@ -510,6 +593,7 @@
             console.log(this.search);
             var searchFilterSamples = this._filterBySearch(this.samples);
             this.set('filteredSamples', searchFilterSamples);
+            this.set('msgCohortsError', " ");
 
             if (this.study != null && this.study.type === "CASE_CONTROL") {
                 this.set('caseSampleList', []);
@@ -518,27 +602,31 @@
                 var caseList = this.caseCohort.samples;
                 var controlList = this.controlCohort.samples;
 
-                var arrayDelete=[];
-                for (var i = 0; i < this.noChooseSampleList.length; i++) {
-                    var sample = this.noChooseSampleList[i];
-                    for (var j = 0; j < caseList.length; j++) {
-                        if (caseList[j] == sample.id) {
-                            this.push('caseSampleList', sample);
-                            arrayDelete.push(i);
+                if (caseList == "" && controlList == "") {
+                    this.set('msgCohortsError', "Cohorts are not created");
+                } else {
+                    var arrayDelete = [];
+                    for (var i = 0; i < this.noChooseSampleList.length; i++) {
+                        var sample = this.noChooseSampleList[i];
+                        for (var j = 0; j < caseList.length; j++) {
+                            if (caseList[j] == sample.id) {
+                                this.push('caseSampleList', sample);
+                                arrayDelete.push(i);
+                            }
                         }
-                    }
 
-                    for (var j = 0; j < controlList.length; j++) {
-                        if (controlList[j] == sample.id) {
-                            this.push('controlSampleList', sample);
-                            arrayDelete.push(i);
+                        for (var j = 0; j < controlList.length; j++) {
+                            if (controlList[j] == sample.id) {
+                                this.push('controlSampleList', sample);
+                                arrayDelete.push(i);
+                            }
                         }
                     }
-                }
-                var n=0;
-                for(var i=0; i<arrayDelete.length; i++){
-                  this.splice('noChooseSampleList',arrayDelete[i-n],1);
-                  n++;
+                    var n = 0;
+                    for (var i = 0; i < arrayDelete.length; i++) {
+                        this.splice('noChooseSampleList', arrayDelete[i - n], 1);
+                        n++;
+                    }
                 }
             }
             this.studyChanged();
@@ -698,6 +786,72 @@
             } else if (e.currentTarget.dataset.type === "control") {
                 this.set('controlSampleList', []);
             }
-        }
+        },
+        handleUploadFile: function(e) {
+            this.$.importComponent.hidden = !this.$.importComponent.hidden;
+        },
+        // handleImportFile: function(e) {
+        //     var file = this.$.importFile.$.fileInput.files[0];
+        //     if (!(this.$.importFile.$.validator.errorCount > 0)) {
+        //         this.handleImportCohorts(file);
+        //         this.$.importComponent.hidden = true;
+        //     }
+        // },
+        handleImportCohorts(file) {
+            var file = this.$.importFile.files[0];
+            var me = this;
+            var log = [];
+            var line = 0;
+
+            var arrayDelete = [];
+            if (file != null && this.fileName!="None") {
+
+                var _navigator = new FileNavigator(file);
+
+                var indexToStartWith = 0;
+
+                _navigator.readSomeLines(indexToStartWith, function linesReadHandler(err, index, lines, eof, progress) {
+                    if (err) {
+                        return;
+                    }
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+
+                        if (line.indexOf("<p ") >= 0) {
+                            var sampleName = line.slice((line.indexOf("<c>") + 3), line.indexOf("</c>"));
+                            for (var k = 0; k < me.noChooseSampleList.length; k++) {
+                                if (me.noChooseSampleList[k].name == sampleName) {
+                                    me.push('caseSampleList',me.noChooseSampleList[k]);
+                                    arrayDelete.push(k);
+                                }
+                            }
+                        }
+
+                        line++;
+                    }
+                    if (eof) {
+                      var n = 0;
+                      for (var i = 0; i < arrayDelete.length; i++) {
+                          me.splice('noChooseSampleList', arrayDelete[i - n], 1);
+                          n++;
+                      }
+                        return;
+                    }
+                    _navigator.readSomeLines(index + lines.length, linesReadHandler);
+                })
+
+                this.$.importComponent.hidden = true;
+            }
+        },
+        handleBrowseClick: function(e) {
+            if (this.uploading == false) {
+                this.$.importFile.click();
+            }
+        },
+        handleInputChange: function() {
+            if (this.uploading == false) {
+                this.set('fileName', this.$.importFile.files[0].name)
+            }
+        },
     });
 </script>

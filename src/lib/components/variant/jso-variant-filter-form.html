@@ -1065,13 +1065,10 @@
 
             var log = [];
             var line = 0;
-            var progress = 0;
-            var _readBytes = 0;
 
             if (bed_file != null) {
 
                 var _navigator = new FileNavigator(bed_file);
-                _totalBytes = bed_file.size;
 
                 var indexToStartWith = 0;
 
@@ -1100,7 +1097,6 @@
                         }
 
                         line++;
-                        _readBytes += line.length;
                     }
 
                     if (eof) {
