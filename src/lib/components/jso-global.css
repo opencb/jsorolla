@@ -95,14 +95,15 @@ input.jso[type=color] {
     padding: 0px;
 }
 
-.jso-btn:hover {
+.jso-btn {
     cursor: pointer;
-    background-color: #ebebeb;
-    /*border-color: #66afe9;*/
+}
+
+.jso-btn:hover {
+    background-color: #f5f5f5;
 }
 
 .jso-btn.jso-btn-shdw {
-    background-color: #FFFFFF;
     text-align: center;
     box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
     transition: background-color 0.15s;
@@ -114,10 +115,6 @@ input.jso[type=color] {
     padding: 0px 50px;
 }
 
-.jso-btn:hover {
-    background-color: #f5f5f5;
-    /*background-color: #ebeef3;*/
-}
 .jso-btn.jso-btn-shdw:hover {
     box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.3);
 }

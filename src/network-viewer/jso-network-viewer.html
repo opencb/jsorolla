@@ -635,7 +635,7 @@
             });
             this._init();
 
-            this._reloadActionStack();
+            console.log(this.domHost);
         },
         computeHeight: function() {
             this.async(function() {
@@ -882,12 +882,6 @@
             if (this.actionStackPointer <= 10) {
                 gzip = this.actionStack[this.actionStackPointer];
             }
-            if (gzip == null) {
-                debugger
-            }
-            if (gzip == undefined) {
-                debugger
-            }
             if (gzip != null) {
                 this.loadJSON(JSON.parse(pako.ungzip(gzip, {
                     to: 'string'
@@ -918,22 +912,6 @@
             this.actionStackPointer = 0;
             if (length > 10) {
                 this.actionStack.pop();
-            }
-
-            var key = 'NV_' + this.serializeVersion + '_' + this.id + '_ACTION_';
-            for (var i = 0; i < 10; i++) {
-                localStorage.setItem(key + i, this.actionStack[i]);
-            }
-        },
-        _reloadActionStack: function() {
-            var key = 'NV_' + this.serializeVersion + '_' + this.id + '_ACTION_';
-            for (var i = 0; i < 10; i++) {
-                var v = localStorage.getItem(key + i);
-                if (v == null) {
-                    this.actionStack[i] = undefined;
-                } else {
-                    this.actionStack[i] = v;
-                }
             }
         },
 
@@ -1873,24 +1851,28 @@
             if (confirm('Remove selected vertex?')) {
                 this._hideVertexContextMenu();
                 this.removeVertex(this._lastContextVertex);
+                this.addActionStack();
             }
         },
         handleContextRemoveEdge: function(e) {
             if (confirm('Remove selected edge?')) {
                 this._hideEdgeContextMenu();
                 this.removeEdge(this._lastContextEdge);
+                this.addActionStack();
             }
         },
         handleContextRemoveSelectedVertices: function(e) {
             if (confirm('Remove selected vertices?')) {
                 this._hideVertexContextMenu();
                 this.removeSelectedVertices();
+                this.addActionStack();
             }
         },
         handleContextRemoveSelectedEdges: function(e) {
             if (confirm('Remove selected edges?')) {
                 this._hideVertexContextMenu();
                 this.removeSelectedEdges();
+                this.addActionStack();
             }
         },
         handleContextSelectVerticesNeighbour: function(e) {
