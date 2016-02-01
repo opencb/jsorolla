@@ -1703,7 +1703,7 @@
                 for (var i = 0; i < this.graph.vertices.length; i++) {
                     var vertex = this.graph.vertices[i];
                     for (var att in vertex.attributes) {
-                        if (vertex.attributes[att].indexOf(e.detail.value) != -1) {
+                        if (vertex.attributes[att].toString().indexOf(e.detail.value) != -1) {
                             selected.push(vertex);
                             break;
                         }
