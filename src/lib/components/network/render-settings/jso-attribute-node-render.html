@@ -199,7 +199,7 @@
             <div class="horizontal layout">
                 <div class="jso-txt" data-open$="{{isOpen(displayProperty, 'size')}}">Size:</div>
                 <div class="default">
-                    <input class="jso" type="number" min="1" max="200" value={{defaults.size::input}} on-change="handleSize">
+                    <input class="jso" type="number" min="-1" max="200" value={{defaults.size::input}} on-change="handleSize">
                 </div>
 
                 <div class="jso-btn jso-btn-shdw configure" on-click="handleSettingsClick" data-prop="size" data-exists$="{{visualSetExists(visualSets.size)}}" title$="{{visualSetBtnText(visualSets.size.attribute)}}">
