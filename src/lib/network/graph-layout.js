@@ -585,7 +585,9 @@ GraphLayout = {
         this._doCytoscapeLayout(args, 'grid');
     },
     concentric: function (args) {
-        this._doCytoscapeLayout(args, 'concentric');
+        this._doCytoscapeLayout(args, 'concentric', {
+            minNodeSpacing: 30
+        });
     },
     breadthfirst: function (args) {
         this._doCytoscapeLayout(args, 'breadthfirst');
@@ -618,7 +620,11 @@ GraphLayout = {
             }
         });
     },
-    _doCytoscapeLayout: function (args, layoutName) {
+    _doCytoscapeLayout: function (args, layoutName, layoutArgs) {
+        if (layoutArgs == null) {
+            layoutArgs = {};
+        }
+
         var network = args.network;
         var graph = args.network.graph;
         var width = args.width;
@@ -633,15 +639,15 @@ GraphLayout = {
         //set node and edge arrays
         var eles = this._createCytoscapeEles(vertices, edges);
         eles = cy.add(eles);
-        eles.layout({
-            name: layoutName,
-            boundingBox: {
-                x1: 0,
-                y1: 0,
-                w: width,
-                h: height
-            }
-        });
+
+        layoutArgs["name"] = layoutName;
+        layoutArgs["boundingBox"] = {
+            x1: 0,
+            y1: 0,
+            w: width,
+            h: height
+        };
+        eles.layout(layoutArgs);
         endFunction(eles);
     },
     _createCytoscapeEles: function (vertices, edges) {

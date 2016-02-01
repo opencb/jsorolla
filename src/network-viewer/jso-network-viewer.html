@@ -617,7 +617,9 @@
         ready: function() {
             var me = this;
 
-            this.cellMaps = this.domHost;
+            if(this.domHost != null && this.domHost.tagName == 'CELL-MAPS-ELEMENT'){
+                this.cellMaps = this.domHost;
+            }
 
             this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
@@ -634,8 +636,6 @@
                 me.$.imagecontextmenu.style.visibility = "";
             });
             this._init();
-
-            console.log(this.domHost);
         },
         computeHeight: function() {
             this.async(function() {
@@ -1703,7 +1703,7 @@
                 for (var i = 0; i < this.graph.vertices.length; i++) {
                     var vertex = this.graph.vertices[i];
                     for (var att in vertex.attributes) {
-                        if (vertex.attributes[att].indexOf(e.detail.value) != -1) {
+                        if (vertex.attributes[att].toString().indexOf(e.detail.value) != -1) {
                             selected.push(vertex);
                             break;
                         }
