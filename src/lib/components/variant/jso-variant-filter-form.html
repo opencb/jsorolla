@@ -569,7 +569,7 @@
 
         fileChanged: function(neo, old) {
             if (neo) {
-                this.historyFilters = JSON.parse(localStorage.bioinfo_bierApp_filter_history)[neo.id];
+                this.historyFilters = this.hash[neo.id];
                 this.set('fileId', neo.id);
                 this.clearForm();
             }
@@ -603,12 +603,15 @@
 
             // Region
             this.$.region.value = "";
+            this.regionValue="";
 
             // Gen
             this.$.gene.value = "";
+            this.geneValue="";
 
             // SNPId
             this.$.snpId.value = "";
+            this.snpIdValue="";
 
             // Type
             var types = this.$.type_op.querySelectorAll("input:checked");
@@ -800,7 +803,7 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                    if (query.segregation != null || query.region != "" || query.gene != null || query.ids != "" || query.type != "" || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+                    if (query.genotype != null || query.region != "" || query.gene != null || query.ids != "" || query.type != "" || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
                         if (minAux < 10) {
