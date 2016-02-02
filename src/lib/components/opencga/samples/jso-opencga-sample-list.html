@@ -731,7 +731,6 @@
                 request: {
                     async: true,
                     success: function(response) {
-                        debugger
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
 
                         } else {
@@ -824,16 +823,16 @@
         //     }
         // },
         handleImportCohorts(file) {
-          var cohort = "";
-          if (this.cohortsType == "CASES") {
-              cohort = 'caseSampleList';
-          } else if (this.cohortsType == "CONTROLS") {
-              cohort = 'controlSampleList';
-          }
-          var arrayDelete = [];
-          var n = 0;
+            var cohort = "";
+            if (this.cohortsType == "CASES") {
+                cohort = 'caseSampleList';
+            } else if (this.cohortsType == "CONTROLS") {
+                cohort = 'controlSampleList';
+            }
+            var arrayDelete = [];
+            var n = 0;
             for (var i = 0; i < this.previewImportList.length; i++) {
-              var sampleName= this.previewImportList[i];
+                var sampleName = this.previewImportList[i];
                 for (var k = 0; k < this.noChooseSampleList.length; k++) {
                     if (this.noChooseSampleList[k].name === sampleName) {
                         this.push(cohort, this.noChooseSampleList[k]);
@@ -855,6 +854,7 @@
         handleInputChange: function(e) {
             if (this.uploading == false) {
                 this.set('fileName', this.$.importFile.files[0].name);
+                this.set('previewImportList',[]);
                 var file = this.$.importFile.files[0];
                 var me = this;
                 var log = [];
@@ -871,11 +871,8 @@
                         }
                         for (var i = 0; i < lines.length; i++) {
                             var line = lines[i];
-
-                            if (line.indexOf("<p ") >= 0) {
-                                var sampleName = line.slice((line.indexOf("<c>") + 3), line.indexOf("</c>"));
-                                me.push('previewImportList', sampleName);
-                            }
+                            var sampleName = line;
+                            me.push('previewImportList', sampleName);
                             line++;
                         }
                         if (eof) {
