@@ -950,18 +950,21 @@
             // Region
             if (hf.region != "" && hf.region != null) {
                 this.$.region.value = hf.region;
+                this.regionValue=hf.region;
                 filterName.push("Chromosomal Location: (" + hf.region + ") ");
             }
 
             // Genes
             if (hf.gene != "" && hf.gene != null) {
                 this.$.gene.value = hf.gene;
+                this.geneValue=hf.gene;
                 filterName.push("Genes: (" + hf.gene + ") ");
             }
 
             // SNPId
             if (hf.ids != "" && hf.ids != null) {
                 this.$.snpId.value = hf.ids;
+                this.snpIdValue=hf.ids;
                 filterName.push("SNPId: (" + hf.ids + ") ");
             }
 
