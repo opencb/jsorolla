@@ -81,6 +81,8 @@
 <link rel="import" href="../lib/components/network/jso-kegg.html">
 <link rel="import" href="../lib/components/network/jso-reactome.html">
 <link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
+<link rel="import" href="../lib/components/network/jso-configure-spring-embedder.html">
+<link rel="import" href="../lib/components/network/jso-configure-concentric.html">
 
 <link rel="import" href="jso-nv-snow.html">
 <link rel="import" href="jso-nv-network-miner.html">
@@ -158,7 +160,7 @@
     </style>
     <template>
 
-        <jso-nv-bar id="nvbar" lite="{{lite}}" hidden$="{{hideBar}}" columns="{{vertexColumns}}" on-session-start="handleSessionStartMenu" on-session-open="handleSessionOpenMenu" on-session-save="handleSessionSaveMenu" on-session-manage="handleSessionManageMenu" on-import-sif="handleImportSifMenu" on-import-text="handleImportTextMenu" on-import-xlsx="handleImportXlsxMenu" on-import-node-attributes="handleImportNodeAttrMenu" on-import-edge-attributes="handleImportEdgeAttrMenu" on-export-sif="handleExportSifMenu" on-export-svg="handleExportSvgMenu" on-export-png="handleExportPngMenu" on-export-node-attributes="handleExportNodeAttrMenu" on-export-edge-attributes="handleExportEdgeAttrMenu" on-nodes-select-all="handleSelectMenu" on-nodes-select-first-neighbourhood="handleSelectMenu" on-nodes-select-invert="handleSelectMenu" on-edges-select-all="handleSelectMenu" on-edges-select-adjacent="handleSelectMenu" on-network-select-all="handleSelectMenu" on-layout-force-directed="handleLayoutMenu" on-layout-tree="handleLayoutMenu" on-layout-configure-force-directed="handleLayoutMenu" on-layout-circle="handleLayoutMenu" on-layout-random="handleLayoutMenu" on-layout-grid="handleLayoutMenu" on-layout-concentric="handleLayoutMenu" on-layout-breadthfirst="handleLayoutMenu" on-layout-cose="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu" on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu" on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu" on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu" on-functionalities="handleFunctionalitiesMenu">
+        <jso-nv-bar id="nvbar" lite="{{lite}}" hidden$="{{hideBar}}" columns="{{vertexColumns}}" on-session-start="handleSessionStartMenu" on-session-open="handleSessionOpenMenu" on-session-save="handleSessionSaveMenu" on-session-manage="handleSessionManageMenu" on-import-sif="handleImportSifMenu" on-import-text="handleImportTextMenu" on-import-xlsx="handleImportXlsxMenu" on-import-node-attributes="handleImportNodeAttrMenu" on-import-edge-attributes="handleImportEdgeAttrMenu" on-export-sif="handleExportSifMenu" on-export-svg="handleExportSvgMenu" on-export-png="handleExportPngMenu" on-export-node-attributes="handleExportNodeAttrMenu" on-export-edge-attributes="handleExportEdgeAttrMenu" on-nodes-select-all="handleSelectMenu" on-nodes-select-first-neighbourhood="handleSelectMenu" on-nodes-select-invert="handleSelectMenu" on-edges-select-all="handleSelectMenu" on-edges-select-adjacent="handleSelectMenu" on-network-select-all="handleSelectMenu" on-layout="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu" on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu" on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu" on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu" on-functionalities="handleFunctionalitiesMenu">
         </jso-nv-bar>
 
         <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage" on-reset-zoom="handleResetZoom" on-center-network="handleCenterNetwork" on-undo="undoAction" on-redo="redoAction">
@@ -247,7 +249,7 @@
 
             <jso-panel hidden collapsible fixed movable closable id="functionalitiesPanel">
                 <div class="header">
-                    Import functionalities
+                    Import functional annotations
                 </div>
                 <jso-cellbase-functionalities-import id="functionalities" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns">
                 </jso-cellbase-functionalities-import>
@@ -272,7 +274,7 @@
 
             <jso-panel hidden collapsible fixed movable closable id="intactImportPanel">
                 <div class="header">
-                    Network protein connectivity
+                    Find interactions
                 </div>
                 <jso-intact-import id="intactImport" class="container" items="{{vertices}}" columns="{{vertexColumns}}" selected="{{selectedVertices}}" on-graph="handleIntactGraph">
                 </jso-intact-import>
@@ -322,6 +324,28 @@
                 </div>
                 <jso-configure-force-directed id="configureForceDirected" class="container" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-ok="handleForceDirectedConfig">
                 </jso-configure-force-directed>
+            </jso-panel>
+
+            <jso-panel hidden collapsible fixed movable closable id="configureCosePanel">
+                <div class="header">
+                    Compound spring embedder layout configuration
+                    <a class="link" style="margin-left: 15px;" target="_blank" href="http://js.cytoscape.org/#layouts/cose">
+                        <i class="fa fa-external-link"></i> about
+                    </a>
+                </div>
+                <jso-configure-spring-embedder id="configureCose" class="container" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-ok="handleCoseConfig">
+                </jso-configure-spring-embedder>
+            </jso-panel>
+
+            <jso-panel hidden collapsible fixed movable closable id="configureConcentricPanel">
+                <div class="header">
+                    Concentric layout configuration
+                    <a class="link" style="margin-left: 15px;" target="_blank" href="http://js.cytoscape.org/#layouts/concentric">
+                        <i class="fa fa-external-link"></i> about
+                    </a>
+                </div>
+                <jso-configure-concentric id="configureConcentric" class="container" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-ok="handleConcentricConfig">
+                </jso-configure-concentric>
             </jso-panel>
 
 
@@ -617,7 +641,7 @@
         ready: function() {
             var me = this;
 
-            if(this.domHost != null && this.domHost.tagName == 'CELL-MAPS-ELEMENT'){
+            if (this.domHost != null && this.domHost.tagName == 'CELL-MAPS-ELEMENT') {
                 this.cellMaps = this.domHost;
             }
 
@@ -1638,11 +1662,17 @@
                 case 'layout-concentric':
                     this.setLayout('Concentric');
                     break;
+                case 'layout-configure-concentric':
+                    this.$.configureConcentricPanel.show();
+                    break;
                 case 'layout-breadthfirst':
                     this.setLayout('Breadthfirst');
                     break;
                 case 'layout-cose':
                     this.setLayout('Cose');
+                    break;
+                case 'layout-configure-cose':
+                    this.$.configureCosePanel.show();
                     break;
                 default:
                     console.log(e.detail.value + " not defined");
@@ -2801,6 +2831,57 @@
                     }
                 }
             });
+        },
+        handleCoseConfig: function(e) {
+            var me = this;
+            var clientRect = this.$.networkLayout.getBoundingClientRect();
+            var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+            var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+
+            var config = {
+                network: me,
+                width: width,
+                height: height - 100,
+                end: function(eles) {
+                    for (var i = 0, l = eles.length; i < l; i++) {
+                        var e = eles[i];
+                        if (e.group() === 'nodes') {
+                            var position = e.position();
+                            me.setVertexCoords(e.id(), position.x, position.y);
+                        }
+                    }
+                    me.addActionStack();
+                }
+            };
+            for (var key in e.detail) {
+                config[key] = e.detail[key];
+            }
+            GraphLayout.cose(config);
+        },
+        handleConcentricConfig: function(e) {
+            var me = this;
+            var clientRect = this.$.networkLayout.getBoundingClientRect();
+            var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+            var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+            var config = {
+                network: me,
+                width: width,
+                height: height - 100,
+                end: function(eles) {
+                    for (var i = 0, l = eles.length; i < l; i++) {
+                        var e = eles[i];
+                        if (e.group() === 'nodes') {
+                            var position = e.position();
+                            me.setVertexCoords(e.id(), position.x, position.y);
+                        }
+                    }
+                    me.addActionStack();
+                }
+            };
+            for (var key in e.detail) {
+                config[key] = e.detail[key];
+            }
+            GraphLayout.concentric(config);
         },
         select: function(option) {
             switch (option) {

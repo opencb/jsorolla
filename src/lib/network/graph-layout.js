@@ -584,41 +584,8 @@ GraphLayout = {
     grid: function (args) {
         this._doCytoscapeLayout(args, 'grid');
     },
-    concentric: function (args) {
-        this._doCytoscapeLayout(args, 'concentric', {
-            minNodeSpacing: 30
-        });
-    },
     breadthfirst: function (args) {
         this._doCytoscapeLayout(args, 'breadthfirst');
-    },
-    cose: function (args) {
-        var network = args.network;
-        var graph = args.network.graph;
-        var width = args.width;
-        var height = args.height;
-        var vertices = network.graph.vertices;
-        var edges = network.graph.edges;
-
-        var endFunction = args.end;
-
-        var cy = cytoscape({});
-
-        //set node and edge arrays
-        var eles = this._createCytoscapeEles(vertices, edges);
-        eles = cy.add(eles);
-        eles.layout({
-            name: 'cose',
-            boundingBox: {
-                x1: 0,
-                y1: 0,
-                w: width,
-                h: height
-            },
-            ready: function () {
-                endFunction(eles);
-            }
-        });
     },
     _doCytoscapeLayout: function (args, layoutName, layoutArgs) {
         if (layoutArgs == null) {
@@ -673,5 +640,188 @@ GraphLayout = {
             });
         }
         return eles
+    },
+    concentric: function (args) {
+        var network = args.network;
+        var graph = args.network.graph;
+        var width = args.width;
+        var height = args.height;
+        var vertices = network.graph.vertices;
+        var edges = network.graph.edges;
+
+        var endFunction = args.end;
+
+        var ca = args.concentricAttribute;
+
+        var cy = cytoscape({});
+        var eles = [];
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            var c = 0;
+            if (ca != null && ca != 'none' && !isNaN(parseFloat(vertex.attributes[ca]))) {
+                c = parseFloat(vertex.attributes[ca]);
+            }
+            var n = {
+                group: "nodes",
+                data: {
+                    id: vertex.id,
+                    concentric: c
+                }
+            };
+            eles.push(n);
+        }
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            var e = {
+                group: "edges",
+                data: {
+                    id: edge.id,
+                    source: edge.source.id,
+                    target: edge.target.id
+                }
+            };
+            eles.push(e);
+        }
+        eles = cy.add(eles);
+        var layoutConfig = {
+            name: 'concentric',
+            boundingBox: {
+                x1: 0,
+                y1: 0,
+                w: width,
+                h: height
+            },
+            minNodeSpacing: 30
+        }
+        if (args.concentricAttribute != null && args.concentricAttribute != 'none') {
+            layoutConfig["concentric"] = function (node) {
+                return node.data('concentric');
+            }
+        }
+        if (args.startAngle != null) {
+            layoutConfig["startAngle"] = parseFloat(args.startAngle);
+        }
+        if (args.sweep != null) {
+            layoutConfig["sweep"] = parseFloat(args.sweep);
+        }
+        if (args.minNodeSpacing != null) {
+            layoutConfig["minNodeSpacing"] = parseFloat(args.minNodeSpacing);
+        }
+        if (args.clockwise != null) {
+            layoutConfig["clockwise"] = args.clockwise;
+        }
+        if (args.equidistant != null) {
+            layoutConfig["equidistant"] = args.equidistant;
+        }
+        if (args.avoidOverlap != null) {
+            layoutConfig["avoidOverlap"] = args.avoidOverlap;
+        }
+        console.log(layoutConfig);
+        eles.layout(layoutConfig);
+        endFunction(eles);
+    },
+    cose: function (args) {
+        var network = args.network;
+        var graph = args.network.graph;
+        var width = args.width;
+        var height = args.height;
+        var vertices = network.graph.vertices;
+        var edges = network.graph.edges;
+
+        var endFunction = args.end;
+
+        var nra = args.nodeRepulsionAttribute;
+        var iela = args.idealEdgeLengthAttribute;
+        var eea = args.edgeElasticityAttribute;
+
+        var cy = cytoscape({});
+
+        //set node and edge arrays
+        var eles = [];
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            var nr = 400000;
+            if (!isNaN(parseFloat(args.nodeRepulsion))) {
+                nr = parseFloat(args.nodeRepulsion);
+            }
+            if (nra != null && nra != 'none' && !isNaN(parseFloat(vertex.attributes[nra]))) {
+                nr = parseFloat(vertex.attributes[nra]);
+            }
+            var n = {
+                group: "nodes",
+                data: {
+                    id: vertex.id,
+                    nodeRepulsion: nr
+                }
+            };
+            eles.push(n);
+        }
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            var iel = 10,
+                ee = 100;
+            if (!isNaN(parseFloat(args.idealEdgeLength))) {
+                iel = parseFloat(args.idealEdgeLength);
+            }
+            if (iela != null && iela != 'none' && !isNaN(parseFloat(edge.attributes[iela]))) {
+                iel = parseFloat(edge.attributes[iela]);
+            }
+            if (!isNaN(parseFloat(args.edgeElasticity))) {
+                ee = parseFloat(args.edgeElasticity);
+            }
+            if (eea != null && eea != 'none' && !isNaN(parseFloat(edge.attributes[eea]))) {
+                ee = parseFloat(edge.attributes[eea]);
+            }
+            var e = {
+                group: "edges",
+                data: {
+                    id: edge.id,
+                    source: edge.source.id,
+                    target: edge.target.id,
+                    idealEdgeLength: iel,
+                    edgeElasticity: ee
+                }
+            };
+            eles.push(e);
+        }
+        eles = cy.add(eles);
+        var layoutConfig = {
+            name: 'cose',
+            boundingBox: {
+                x1: 0,
+                y1: 0,
+                w: width,
+                h: height
+            },
+            refresh: 1,
+            fit: true,
+            animate: false,
+            nodeRepulsion: function (node) {
+                return parseFloat(node.data('nodeRepulsion'));
+            },
+            idealEdgeLength: function (edge) {
+                return parseFloat(edge.data('idealEdgeLength'));
+            },
+            edgeElasticity: function (edge) {
+                return parseFloat(edge.data('edgeElasticity'));
+            },
+            ready: function () {
+                endFunction(eles);
+            }
+        }
+        if (args.componentSpacing != null) {
+            layoutConfig["componentSpacing"] = parseFloat(args.componentSpacing);
+        }
+        if (args.nodeOverlap != null) {
+            layoutConfig["nodeOverlap"] = parseFloat(args.nodeOverlap);
+        }
+        if (args.nestingFactor != null) {
+            layoutConfig["nestingFactor"] = parseFloat(args.nestingFactor);
+        }
+        if (args.gravity != null) {
+            layoutConfig["gravity"] = parseFloat(args.gravity);
+        }
+        console.log(layoutConfig);
+        eles.layout(layoutConfig);
     }
 }
