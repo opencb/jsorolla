@@ -177,7 +177,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-folder-list on-fileselect="handleFileSelect" on-openfolder="handleOpenFolder" on-upload-file="handleUploadFile" on-back="handleBackFolder" on-need-refresh="refreshFolderFiles" on-previewfile="handlePreviewFile" study="{{selectedStudy.study}}" folder="{{folder}}" files="{{files}}" mode="{{mode}}" disable-icon-view="{{disableIconView}}">
+                <jso-opencga-folder-list id="opencgaFolderList" on-fileselect="handleFileSelect" on-openfolder="handleOpenFolder" on-upload-file="handleUploadFile" on-back="handleBackFolder" on-need-refresh="refreshFolderFiles" on-previewfile="handlePreviewFile" study="{{selectedStudy.study}}" folder="{{folder}}" files="{{files}}" mode="{{mode}}" disable-icon-view="{{disableIconView}}">
                 </jso-opencga-folder-list>
             </div>
         </div>
@@ -314,6 +314,11 @@
             loading: {
                 type: Boolean,
                 value: false
+            },
+            enableAutoIndex: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
             }
         },
         ready: function() {
@@ -404,9 +409,15 @@
         refreshFolderFiles: function() {
             var me = this;
             this.loading = true;
+            var f = this.files[0];
             this._getFilesInFolder(this.selectedStudy.study.id, this.folder.id, function(files) {
                 me.files = files;
                 me.loading = false;
+                if (me.enableAutoIndex) {
+                    if (f.name !== me.files[0].name && me.files[0].index == null && me.files[0].type == "FILE") {
+                        me.$.opencgaFolderList._autoIndexfile(me.files[0]);
+                    }
+                }
                 //                console.log(files);
             });
         },
