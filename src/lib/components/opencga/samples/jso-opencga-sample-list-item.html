@@ -34,22 +34,29 @@
             width: 100px;
             border:1px solid var(--divider-color);
         }
+        .title{
+          margin-right: 10px;
+          width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
 
     </style>
     <template>
         <div class="horizontal layout">
             <template is="dom-if" if="{{computeViewMode(viewMode,'list')}}">
-                <div class="horizontal layout flex">
-                    <div class="name flex" title$="{{sample.name}}">{{sample.name}}</div>
+                <div class="horizontal layout">
+                    <div class="name title" title$="{{sample.name}}">{{sample.name}}</div>
                 </div>
-                <div id="Cohort" hidden$="{{disableCaseControl}}">
-                    <span style="margin-right: 40px;">{{sample.cohort}}</span>
+                <div id="status" class="title">
+                    <span style="">{{sample.status}}</span>
                 </div>
-                <div id="status">
-                    <span style="margin-right: 40px;">{{sample.status}}</span>
-                </div>
-                <div id="source">
+                <div id="source" class="title">
                     <span>{{sample.source}}</span>
+                </div>
+                <div id="Cohort" class="title" hidden$="{{disableCaseControl}}">
+                  <span style="">{{sample.cohort}}</span>
                 </div>
             </template>
 

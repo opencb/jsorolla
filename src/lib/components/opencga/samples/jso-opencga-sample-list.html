@@ -45,7 +45,7 @@
             height: calc(100% - 90px);
         }
 
-        .source {
+        /*.source {
             color: #444;
             width: 120px;
         }
@@ -53,7 +53,7 @@
         .status {
             color: #444;
             width: 120px;
-        }
+        }*/
 
         jso-opencga-sample-list-item[view-mode='list'] {
             padding: 3px 7px;
@@ -195,6 +195,11 @@
             width: 350px;
             height: 450px;
         }
+        .title{
+          margin-right: 10px;
+          width: 100px;
+        }
+
     </style>
     <template>
         <div id="bar" class="horizontal layout">
@@ -217,10 +222,10 @@
         <!-- <template is="dom-if" if="{{computeHeader(viewMode)}}"> -->
         <div id="headerData">
             <div id="header" class="horizontal layout">
-                <div class="name flex">Name</div>
-                <div id="typeC" hidden style="margin-right: 60px;">Type</div>
-                <div class="status" style="margin-right: -40px;">Status</div>
-                <div class="source">Source</div>
+                <div class="name title">Name</div>
+                <div class="status title">Status</div>
+                <div class="source title">Source</div>
+                <div id="typeC" class="title" hidden>Type</div>
             </div>
         </div>
         <!-- </template> -->
@@ -709,7 +714,7 @@
                 }
 
                 if (caseList == "" && controlList == "") {
-                    this.set('msgCohortsError', "Cohorts are not created");
+                    this.set('msgCohortsError', "Cases/Controls are not defined");
                 } else {
                     var arrayDelete = [];
                     for (var i = 0; i < this.noChooseSampleList.length; i++) {
