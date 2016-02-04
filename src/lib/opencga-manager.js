@@ -264,7 +264,7 @@ var OpencgaManager = {
                                 OpencgaManager._uploadFile(args);
 
                             } else {
-                                args.error('File already exists');
+                                args.error('File already exists', response.response[0].result);
                             }
                         } else {
                             args.error(response.response[0].errorMsg);
