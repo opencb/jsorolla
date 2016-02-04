@@ -198,6 +198,9 @@
     </style>
     <template>
         <div id="bar" class="horizontal layout">
+            <div class="jso-btn jso-btn-shdw upload-btn" hidden$="{{isFolderMode(mode)}}" on-click="handleUploadFile">
+                <i class="fa fa-cloud-upload"></i> Upload
+            </div>
             <div class="bar horizontal layout flex end-justified">
                 <div class="">
                     <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
@@ -701,8 +704,8 @@
                 var caseList = this.caseCohort.samples;
                 var controlList = this.controlCohort.samples;
 
-                for (var i=0; i<this.filteredSamples.length; i++){
-                  this.set("filteredSamples."+i+".cohort","Not defined");
+                for (var i = 0; i < this.filteredSamples.length; i++) {
+                    this.set("filteredSamples." + i + ".cohort", "Not defined");
                 }
 
                 if (caseList == "" && controlList == "") {
@@ -715,7 +718,7 @@
                             if (caseList[j] == sample.id) {
                                 this.push('caseSampleList', sample);
                                 arrayDelete.push(i);
-                                this.set("filteredSamples."+i+".cohort","CASE");
+                                this.set("filteredSamples." + i + ".cohort", "CASE");
                             }
                         }
 
@@ -723,13 +726,13 @@
                             if (controlList[j] == sample.id) {
                                 this.push('controlSampleList', sample);
                                 arrayDelete.push(i);
-                                this.set("filteredSamples."+i+".cohort","CONTROL");
+                                this.set("filteredSamples." + i + ".cohort", "CONTROL");
                             }
                         }
                     }
                     var n = 0;
                     for (var i = 0; i < arrayDelete.length; i++) {
-                        this.splice('noChooseSampleList', arrayDelete[i]-n, 1);
+                        this.splice('noChooseSampleList', arrayDelete[i] - n, 1);
                         n++;
                     }
                 }
@@ -914,7 +917,7 @@
                 }
             }
             for (var i = 0; i < arrayDelete.length; i++) {
-                this.splice('noChooseSampleList', arrayDelete[i]-n, 1);
+                this.splice('noChooseSampleList', arrayDelete[i] - n, 1);
                 n++;
             }
             this.$.importComponent.hidden = true;
@@ -955,6 +958,9 @@
                     })
                 }
             }
+        },
+        handleUploadFile: function(e) {
+            this.fire('upload-file');
         },
     });
 </script>

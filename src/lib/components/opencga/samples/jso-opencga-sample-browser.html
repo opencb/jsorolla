@@ -76,12 +76,12 @@
             box-sizing: border-box;
             width: 150px;
             height: 100%;
-            border-left: 1px solid rgba(130, 130, 130, 0.4);;
+            border-left: 1px solid rgba(130, 130, 130, 0.4);
+            ;
             word-wrap: break-word;
         }
 
-        .project-menu-item {
-        }
+        .project-menu-item {}
 
         #breadcrums {
             box-sizing: border-box;
@@ -93,9 +93,7 @@
             text-decoration: underline;
         }
 
-        #breadcrums > .projectbread {
-        }
-
+        #breadcrums > .projectbread {}
         /*#breadcrums > span:not(:last-of-type)::after {*/
         /*font-family: 'FontAwesome';*/
         /*content: '\f105';*/
@@ -106,7 +104,6 @@
             height: 100%;
         }
 
-        jso-opencga-upload-file,
         jso-opencga-create-project,
         jso-opencga-create-study {
             width: 300px;
@@ -114,6 +111,12 @@
             background-color: #fafafa;
             padding: 20px 30px;
         }
+        jso-opencga-upload-file {
+            box-sizing: border-box;
+            background-color: #fafafa;
+            padding: 20px 30px;
+        }
+
 
         .bar > div {
             margin-right: 5px;
@@ -176,8 +179,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}"
-                                         samples="{{samples}}" disable-case-control$="{{disableCaseControl}}">
+                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}" samples="{{samples}}" disable-case-control$="{{disableCaseControl}}" on-upload-file="handleUploadFile">
                 </jso-opencga-sample-list>
             </div>
         </div>
@@ -189,13 +191,19 @@
 
         </div>
 
+        <jso-panel modal movable closable hidden id="uploadFilePanel">
+            <div class="header">
+                <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
+            </div>
+            <jso-opencga-upload-file class="container" id="uploadFile" on-file-uploaded="handleFileUploaded" projects="{{projects}}" selected-project="{{selectedProject.project}}" selected-study="{{selectedStudy.study}}" selected-folder="{{folder}}" bioformats="{{bioformats}}"></jso-opencga-upload-file>
+        </jso-panel>
+
         <jso-panel modal closable hidden id="createProjectPanel">
             <div class="header">
                 <i class="fa fa-briefcase"></i> &nbsp; Create project
             </div>
             <div class="container">
-                <jso-opencga-create-project id="createProject"
-                                            on-project-created="handleProjectCreated"></jso-opencga-create-project>
+                <jso-opencga-create-project id="createProject" on-project-created="handleProjectCreated"></jso-opencga-create-project>
             </div>
         </jso-panel>
 
@@ -204,8 +212,7 @@
                 <i class="fa fa-book"></i> &nbsp; Create study
             </div>
             <div class="container">
-                <jso-opencga-create-study id="createStudy" on-study-created="handleStudyCreated"
-                                          projects="{{projects}}"></jso-opencga-create-study>
+                <jso-opencga-create-study id="createStudy" on-study-created="handleStudyCreated" projects="{{projects}}"></jso-opencga-create-study>
             </div>
         </jso-panel>
 
@@ -243,7 +250,7 @@
             selectedSample: {
                 type: Object,
                 notify: true,
-                value: function () {
+                value: function() {
                     return {};
                 }
             },
@@ -254,7 +261,7 @@
             folders: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return []
                 }
             },
@@ -265,7 +272,7 @@
             },
             bioformats: {
                 type: Array,
-                value: function () {
+                value: function() {
                     return [];
                 },
                 notify: true
@@ -304,22 +311,22 @@
                 reflectToAttribute: true
             }
         },
-        ready: function () {
+        ready: function() {
             var me = this;
             if (this._parentJsoPanel != null) {
-                this._parentJsoPanel.addEventListener('hidden', function (e) {
+                this._parentJsoPanel.addEventListener('hidden', function(e) {
                     if (e.detail == false) {
                         me._setInitialSelection();
                     }
                 });
             }
         },
-        projectsChanged: function (neo, old) {
-            this.async(function () {
+        projectsChanged: function(neo, old) {
+            this.async(function() {
                 this._setInitialSelection();
             }, 100);
         },
-        _setInitialSelection: function () {
+        _setInitialSelection: function() {
             if (this._parentJsoPanel != null && this._parentJsoPanel.hidden === false) {
                 if (this.selectedProject == null) {
                     var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
@@ -335,32 +342,32 @@
 
             }
         },
-        selectedStudyChanged: function (neo, old) {
+        selectedStudyChanged: function(neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;
 
             this.set('selectedSample', undefined);
             this._showStudyFolder();
         },
-        selectedProjectChanged: function (neo, old) {
+        selectedProjectChanged: function(neo, old) {
             if (old) old.selected = false;
             if (neo) neo.selected = true;
         },
-        handleStudyClick: function (e) {
+        handleStudyClick: function(e) {
             if (this.selectedStudy !== e.currentTarget.selectedStudy) {
                 this.files = [];
             }
             this.set('selectedProject', e.currentTarget);
             this.set('selectedStudy', e.currentTarget.selectedStudy);
         },
-        handleSampleSelect: function (e) {
+        handleSampleSelect: function(e) {
             this.selectedSample = e.detail;
         },
-        handleStudyBreadcrum: function (e) {
+        handleStudyBreadcrum: function(e) {
             this.files = [];
             this._showStudyFolder();
         },
-        handleBreadcrumClick: function (e) {
+        handleBreadcrumClick: function(e) {
             var me = this;
             this.folder = e.currentTarget.folder;
 
@@ -369,40 +376,40 @@
             }
             this.selectedSample = {};
         },
-        handleCreateProject: function (e) {
+        handleCreateProject: function(e) {
             this.$.createProjectPanel.hidden = !this.$.createProjectPanel.hidden;
         },
-        handleCreateStudy: function (e) {
+        handleCreateStudy: function(e) {
             this.$.createStudyPanel.hidden = !this.$.createProjectPanel.hidden;
         },
 
-        handleProjectCreated: function (e) {
+        handleProjectCreated: function(e) {
             this.$.createProjectPanel.hidden = true;
         },
-        handleStudyCreated: function (e) {
+        handleStudyCreated: function(e) {
             this.$.createStudyPanel.hidden = true;
         },
-        handleLoading: function (e) {
+        handleLoading: function(e) {
             this.fire("loading")
         },
 
         /* Private methods */
-        computeAngleIcon: function (el) {
+        computeAngleIcon: function(el) {
             if (el) {
                 return false;
             }
             return true;
         },
-        _showStudyFolder: function () {
+        _showStudyFolder: function() {
             var me = this;
             this.loading = true;
-            me._getSamples(me.selectedStudy.study.id, function (samples) {
+            me._getSamples(me.selectedStudy.study.id, function(samples) {
                 me.set('samples', samples);
                 me.loading = false;
 
             });
         },
-        _getSamples: function (studyId, callback) {
+        _getSamples: function(studyId, callback) {
             var me = this;
             var samples;
 
@@ -413,7 +420,7 @@
                 },
                 request: {
                     async: true,
-                    success: function (response) {
+                    success: function(response) {
 
                         // console.log(response);
                         if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
@@ -423,19 +430,26 @@
                             console.log(response.response[0].errorMsg);
                         }
                     },
-                    error: function () {
+                    error: function() {
                         console.log('Server error, try again later.');
                     }
                 }
             });
         },
 
-        isHidden: function (project) {
+        isHidden: function(project) {
             if (this.showHidden) {
                 return true;
             } else {
                 return project.name.charAt(0) != ".";
             }
-        }
+        },
+        handleUploadFile: function(e) {
+            this.$.uploadFilePanel.hidden = !this.$.uploadFilePanel.hidden;
+        },
+        handleFileUploaded: function(e) {
+            this._showStudyFolder();
+            this.$.uploadFilePanel.hidden = true;
+        },
     });
 </script>
