@@ -329,6 +329,9 @@
                     var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
                     this.set('selectedStudy', el);
                 }
+                if (this.selectedStudy) {
+                    this._showStudyFolder();
+                }
 
             }
         },
