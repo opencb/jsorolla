@@ -54,6 +54,10 @@
 
         .segregation.sampleName {
             width: 70px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+
         }
 
         input.segregation,
@@ -180,7 +184,7 @@
                     <div id="segregation" class="vertical layout">
                         <template is="dom-repeat" items="{{samples}}">
                             <div class="horizontal layout">
-                                <div class="segregation sampleName">{{item.name}}</div>
+                                <div class="segregation sampleName" title="{{item.name}}">{{item.name}}</div>
                                 <label class="jso-control flex">
                                     <input type="checkbox" name="{{item.name}}" value="0/0,0|0">
                                     <span></span>
