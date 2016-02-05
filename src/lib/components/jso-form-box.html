@@ -28,15 +28,16 @@
             padding: 0 2px;
             cursor: pointer;
         }
+
         .collapsible > i {
-          color: #445D76;
-          font-size: 12px;
+            color: #445D76;
+            font-size: 12px;
         }
 
-        .collapsible:hover {
-            background-color: #e4e7e9;
+        .collapsible >i:hover {
+            font-weight: bold;
+            color:black;
         }
-
     </style>
     <template>
         <div id="form">
@@ -85,12 +86,12 @@
                 }
                 return false;
             },
-            computeIcon: function (collapsible, collapsed){
-              if (collapsible && collapsed) {
-                  return "fa fa-plus";
-              }else{
-                return "fa fa-minus";
-              }
+            computeIcon: function(collapsible, collapsed) {
+                if (collapsible && collapsed) {
+                    return "fa fa-plus";
+                } else {
+                    return "fa fa-minus";
+                }
             }
 
         })
