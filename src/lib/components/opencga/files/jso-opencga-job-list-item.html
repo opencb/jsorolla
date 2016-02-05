@@ -272,7 +272,8 @@
                 var aux = OpencgaManager.jobs.delete({
                     id: jobId,
                     query: {
-                        sid: Cookies("bioinfo_sid")
+                        sid: Cookies("bioinfo_sid"),
+                        deleteFiles: false
                     },
                     request: {
                         success: function(response) {
@@ -387,9 +388,9 @@
             });
             return errorFiles;
         },
-        handleViewChange: function(){
-          this.showInfo = false;
-          this.showError = false;
+        handleViewChange: function() {
+            this.showInfo = false;
+            this.showError = false;
         }
 
     });

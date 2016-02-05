@@ -85,6 +85,9 @@
                 value: ''
             }
         },
+        clean: function() {
+            this.$.input.value = "";
+        },
 
         toggleList: function(e) {
             if (this.$.list.style.display === '') {
