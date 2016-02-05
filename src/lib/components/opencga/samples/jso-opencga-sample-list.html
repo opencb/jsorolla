@@ -44,7 +44,6 @@
         #content.icon.info {
             height: calc(100% - 90px);
         }
-
         /*.source {
             color: #444;
             width: 120px;
@@ -195,11 +194,11 @@
             width: 350px;
             height: 450px;
         }
-        .title{
-          margin-right: 10px;
-          width: 100px;
-        }
 
+        .title {
+            margin-right: 10px;
+            width: 100px;
+        }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
@@ -570,7 +569,6 @@
             for (var i = 0; i < sel.length; i++) {
                 sel[i].removeAttribute("selected");
             }
-
             if (neo) {
                 // Check Case/Control Cohorts
                 if (neo.type.toUpperCase() === "CASE_CONTROL") {
@@ -589,11 +587,9 @@
                         } else if (cohort.name.toUpperCase() === "CONTROL") {
                             controlCohort = cohort;
                         }
-
                     }
 
                     if (caseCohort == null) {
-
                         OpencgaManager.cohorts.create({
                             query: {
                                 sid: Cookies('bioinfo_sid'),
@@ -630,7 +626,6 @@
                                 success: function(response) {
                                     if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                         controlCohort = response.response[0].result[0];
-
                                     } else {
                                         alert('Server error, try again later.');
                                     }
@@ -742,7 +737,7 @@
                     }
                 }
             }
-            this.studyChanged();
+            // this.studyChanged();
         },
         searchNameChanged: function(neo, old) {
             this.samplesChanged();
@@ -791,38 +786,69 @@
             console.log(this.controlSampleList)
         },
         handleUpload: function(e) {
-            this._setCohorts(this.caseSampleList, this.caseCohort.id);
-            this._setCohorts(this.controlSampleList, this.controlCohort.id);
+            var me = this;
+            this._setCohorts("CASE",this.caseSampleList, this.caseCohort.id);
+            this._setCohorts("CONTROL",this.controlSampleList, this.controlCohort.id);
+            alert('Cases/Controls are defined successfully');
+            this.fire('need-refresh');
+            this.$.choosePanel.hidden = true;
         },
-        _setCohorts: function(list, cohortId) {
-            var sampleIdList = [];
-            for (var i = 0; i < list.length; i++) {
-                var sampleId = list[i].id;
-                sampleIdList.push(sampleId);
-            }
-            var samples = sampleIdList.join(",");
-
-            OpencgaManager.cohorts.update({
-                id: cohortId,
-
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    samples: samples
-                },
-                request: {
-                    async: true,
-                    success: function(response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-
-                        } else {
-                            alert('Server error, try again later.');
-                        }
-                    },
-                    error: function() {
-                        alert('Server error, try again later.');
-                    }
+        _setCohorts: function(type,list, cohortId) {
+          var me=this;
+            if (list != "") {
+                var sampleIdList = [];
+                for (var i = 0; i < list.length; i++) {
+                    var sampleId = list[i].id;
+                    sampleIdList.push(sampleId);
                 }
-            });
+                var samples = sampleIdList.join(",");
+                if(type=="CASE"){
+                  var caseCohort={};
+                  OpencgaManager.cohorts.update({
+                      id: cohortId,
+                      query: {
+                          sid: Cookies('bioinfo_sid'),
+                          samples: samples
+                      },
+                      request: {
+                          async: true,
+                          success: function(response) {
+                              if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                  me.set('caseCohort',response.response[0].result[0]);
+                              } else {
+                                  alert('Server error, try again later.');
+                              }
+                          },
+                          error: function() {
+                              alert('Server error, try again later.');
+                          }
+                      }
+                  });
+
+                }else if(type=="CONTROL"){
+                  var controlCohort={};
+                  OpencgaManager.cohorts.update({
+                      id: cohortId,
+                      query: {
+                          sid: Cookies('bioinfo_sid'),
+                          samples: samples
+                      },
+                      request: {
+                          async: true,
+                          success: function(response) {
+                              if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                  me.set('controlCohort',response.response[0].result[0]);
+                              } else {
+                                  alert('Server error, try again later.');
+                              }
+                          },
+                          error: function() {
+                              alert('Server error, try again later.');
+                          }
+                      }
+                  });
+                }
+            }
         },
         handleChangeControl: function(e) {
             var selCases = this.$.casesList.querySelectorAll("jso-opencga-sample-list-item[selected]");
