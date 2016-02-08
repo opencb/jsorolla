@@ -29,8 +29,7 @@
     </style>
     <template>
 
-        <jso-table id="table" enable-resize enable-paging enable-remote enable-select enable-loading
-                   request="{{request}}" on-rowclick="handleRowClick"></jso-table>
+        <jso-table id="table" enable-resize enable-paging enable-remote enable-select enable-loading request="{{request}}" on-rowclick="handleRowClick"></jso-table>
     </template>
 
 </dom-module>
@@ -50,14 +49,14 @@
             },
             study: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {};
                 }
             },
             samples: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
@@ -73,14 +72,14 @@
             name: 'variant',
             title: "Variant",
             width: 100,
-            formula: function (row) {
+            formula: function(row) {
                 return row.chromosome + ":" + row.start;
             }
         }, {
             name: 'alleles',
             title: 'Alleles',
             width: 100,
-            formula: function (row) {
+            formula: function(row) {
                 return row.reference + ">" + row.alternate;
             }
         }, {
@@ -138,7 +137,7 @@
                 name: "EA",
                 title: "Eur.Ame.",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['ESP_6500'] && row['ESP_6500'].EA) {
                         return row['ESP_6500'].EA;
                     } else {
@@ -149,7 +148,7 @@
                 name: "AA",
                 title: "Afr.Ame",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['ESP_6500'] && row['ESP_6500'].AA) {
                         return row['ESP_6500'].AA;
                     } else {
@@ -167,7 +166,7 @@
                 name: "ALL",
                 title: "ALL",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ALL) {
                         return row['1000GENOMES_phase_1'].ALL;
                     } else {
@@ -178,7 +177,7 @@
                 name: "AMR",
                 title: "AMR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AMR) {
                         return row['1000GENOMES_phase_1'].AMR;
                     } else {
@@ -189,7 +188,7 @@
                 name: "ASN",
                 title: "ASN",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ASN) {
                         return row['1000GENOMES_phase_1'].ASN;
                     } else {
@@ -200,7 +199,7 @@
                 name: "AFR",
                 title: "AFR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AFR) {
                         return row['1000GENOMES_phase_1'].AFR;
                     } else {
@@ -211,7 +210,7 @@
                 name: "EUR",
                 title: "EUR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].EUR) {
                         return row['1000GENOMES_phase_1'].EUR;
                     } else {
@@ -228,7 +227,7 @@
                 name: "ALL",
                 title: "ALL",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].ALL) {
                         return row['1000G_PHASE_3'].ALL;
                     } else {
@@ -239,7 +238,7 @@
                 name: "AMR",
                 title: "AMR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].AMR) {
                         return row['1000G_PHASE_3'].AMR;
                     } else {
@@ -250,7 +249,7 @@
                 name: "SAS",
                 title: "SAS",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].SAS) {
                         return row['1000G_PHASE_3'].SAS;
                     } else {
@@ -261,7 +260,7 @@
                 name: "EAS",
                 title: "EAS",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].EAS) {
                         return row['1000G_PHASE_3'].EAS;
                     } else {
@@ -272,7 +271,7 @@
                 name: "AFR",
                 title: "AFR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].AFR) {
                         return row['1000G_PHASE_3'].AFR;
                     } else {
@@ -283,7 +282,7 @@
                 name: "EUR",
                 title: "EUR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].EUR) {
                         return row['1000G_PHASE_3'].EUR;
                     } else {
@@ -300,7 +299,7 @@
                 name: "clinvar",
                 title: "Clinvar",
                 width: 200,
-                formula: function (row) {
+                formula: function(row) {
                     if (row.phenotype && row.phenotype.clinvar) {
                         return row.phenotype.clinvar;
                     } else {
@@ -311,7 +310,7 @@
                 name: "cosmic",
                 title: "Cosmic",
                 width: 200,
-                formula: function (row) {
+                formula: function(row) {
                     if (row.phenotype && row.phenotype.cosmic) {
                         return row.phenotype.cosmic;
                     } else {
@@ -322,7 +321,7 @@
                 name: "gwas",
                 title: "GWAS",
                 width: 200,
-                formula: function (row) {
+                formula: function(row) {
                     if (row.phenotype && row.phenotype.cosmic) {
                         return row.phenotype.cosmic;
                     } else {
@@ -331,19 +330,24 @@
                 }
             }]
         }],
-        fileChanged: function (neo, old) {
+        fileChanged: function(neo, old) {
             this.$.table.clear();
             this._updateColumns();
 
         },
-        _updateColumns: function () {
+        _updateColumns: function() {
             // var samples = this.file.attributes.variantSource.samples;
             var sampleColumns = [];
             var colWidth = 80;
 
+            if (this.study.type == "CASE_CONTROL") {
+                this._columns.splice(5, 1);
+                this.$.table.columns = this._columns;
+                return;
+            }
+
             for (var i = 0; i < this.samples.length; i++) {
                 var sample = this.samples[i].name;
-
                 var f = "return row.studies[0].samplesData[" + i + "][0]";
 
                 sampleColumns.push({
@@ -358,19 +362,19 @@
 
             this.$.table.columns = this._columns;
         },
-        handleRowClick: function (e) {
+        handleRowClick: function(e) {
             console.log(e.detail.row);
         },
-        urlChanged: function (neo, old) {
+        urlChanged: function(neo, old) {
             var me = this;
             if (neo != '') {
                 this.request = {
                     url: this.url,
                     auxTotalCount: -1,
-                    parse: function (response) {
+                    parse: function(response) {
                         return me._parse(response);
                     },
-                    parseTotal: function (response) {
+                    parseTotal: function(response) {
                         var total = me._parseTotal(response);
 
                         me.numTotalResults = total;
@@ -393,7 +397,7 @@
 
             }
         },
-        _parse: function (response) {
+        _parse: function(response) {
             var me = this;
             var file = this.file;
             var data = response.response[0].result;
@@ -579,7 +583,7 @@
 
             return data;
         },
-        _parseTotal: function (response) {
+        _parseTotal: function(response) {
             var total = response.response[0].numTotalResults;
             return total;
         }

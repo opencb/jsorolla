@@ -168,7 +168,7 @@
                 <div class="jso-btn jso-btn-shdw flex" on-click="clearForm">Clear</div>
                 <div class="jso-btn jso-btn-shdw flex" on-click="submitForm">Search</div>
             </div>
-            <jso-form-box collapsible>
+            <jso-form-box collapsible id="segregationForm">
                 <div class="header">
                     Segregation
                 </div>
@@ -578,9 +578,15 @@
 
         fileChanged: function(neo, old) {
             if (neo) {
+              if(this.study.type== "CASE_CONTROL"){
+                this.$.segregationForm.hidden=true;
+              }else{
+                this.$.segregationForm.hidden=false;
+              }
                 this.historyFilters = this.hash[neo.id];
                 this.set('fileId', neo.id);
                 this.clearForm();
+                // this.submitForm();
             }
         },
 
@@ -728,6 +734,7 @@
                 el.checked = false;
             }
             // var els = this.$.consequenceTypes.querySelectorAll("textarea");
+            this.submitForm();
 
         },
         submitForm: function() {

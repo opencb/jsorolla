@@ -14,6 +14,7 @@
             position: relative;
             box-sizing: border-box;
             height: 100%;
+            width: 100%;
             background-color: #fff;
             overflow-y: scroll;
         }
@@ -26,6 +27,7 @@
         #right {
             margin-left: 5px;
             margin-right: 5px;
+            width:calc( 100% - 275px);
         }
 
         #menu {
@@ -174,7 +176,6 @@
                 console.log(newValue);
             },
             handleDataGridSelected: function(oldValue, newValue) {
-
                 var me = this;
                 var reg = newValue.chromosome + ":" + newValue.start + "-" + newValue.end;
                 var region = new Region(reg);
@@ -187,7 +188,6 @@
                 this.$.gvEl.genomeViewer.setRegion(region);
             },
             handleNumTotalResultsChanged: function(e) {
-                debugger
             }
         })
     </script>
