@@ -79,102 +79,68 @@
 
             if (this.$.form.checkValidity()) {
 
-                // var url = OpencgaManager.studies.create({
+                // OpencgaManager.studies.create({
                 //     query: {
-                //         sid: Cookies('bioinfo_sid')
+                //         sid: Cookies('bioinfo_sid'),
+                //         name: this.$.input.value,
+                //         alias: this.$.input.value.replace(/ /gi, ''),
+                //         description: '',
+                //         organization: '',
+                //         type: this.querySelector('input[name="type"]:checked').value,
+                //         projectId: this.$.projectSelect.selectedProject
+                //
                 //     },
                 //     request: {
-                //         method: "POST",
-                //         url: true
+                //         async: true,
+                //         success: function(response) {
+                //             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                //                 //                                me.message = 'Study created sucessfully.';
+                //                 me.name = "";
+                //                 me.fire('need-refresh');
+                //                 me.fire('study-created');
+                //             } else {
+                //                 alert('Server error, try again later.');
+                //             }
+                //         },
+                //         error: function() {
+                //             alert('Server error, try again later.');
+                //         }
                 //     }
                 // });
 
-                // var query = {
-                //     name: this.$.input.value,
-                //     alias: this.$.input.value.replace(/ /gi, ''),
-                //     description: '',
-                //     organization: '',
-                //     type: this.querySelector('input[name="type"]:checked').value,
-                //     projectId: this.$.projectSelect.selectedProject
-                // }
-                //
-                // var xhr = new XMLHttpRequest();
-                // xhr.open('POST', url, true);
-                // // xhr.setRequestHeader("Content-Type", "text/plain");
-                // // xhr.setRequestHeader("Content-Type", "application/json");
-                //
-                // xhr.onload = function(e) {
-                //     debugger
-                //     // chunk.done = true;
-                //     // console.log("chunk done");
-                //     // callback(JSON.parse(xhr.responseText));
-                // };
-                // // xhr.send(JSON.stringify([query]));
-                OpencgaManager.studies.create({
+                var url = OpencgaManager.studies.create({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        name: this.$.input.value,
-                        alias: this.$.input.value.replace(/ /gi, ''),
-                        description: '',
-                        organization: '',
-                        type: this.querySelector('input[name="type"]:checked').value,
                         projectId: this.$.projectSelect.selectedProject
-
                     },
                     request: {
-                        async: true,
-                        success: function(response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                //                                me.message = 'Study created sucessfully.';
-                                me.name = "";
-                                me.fire('need-refresh');
-                                me.fire('study-created');
-                            } else {
-                                alert('Server error, try again later.');
-                            }
-                        },
-                        error: function() {
-                            alert('Server error, try again later.');
-                        }
+                        method: "POST",
+                        url: true
                     }
                 });
 
-                // var url = OpencgaManager.studies.create({
-                //     query: {
-                //         sid: Cookies('bioinfo_sid'),
-                //         projectId: this.$.projectSelect.selectedProject
-                //     },
-                //     request: {
-                //         method: "POST",
-                //         url: true
-                //     }
-                // });
-                //
-                // var query = {
-                //     name: this.$.input.value,
-                //     alias: this.$.input.value.replace(/ /gi, ''),
-                //     description: '',
-                //     // organization: '',
-                //     type: this.querySelector('input[name="type"]:checked').value,
-                //     // projectId: this.$.projectSelect.selectedProject
-                // }
-                //
-                // var xhr = new XMLHttpRequest();
-                // xhr.open('POST', url, true);
-                // xhr.setRequestHeader("Content-Type", "application/json");
-                //
-                // xhr.onload = function(e) {
-                //     var response = JSON.parse(e.srcElement.response);
-                //     if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                //         //                                me.message = 'Study created sucessfully.';
-                //         me.name = "";
-                //         me.fire('need-refresh');
-                //         me.fire('study-created');
-                //     } else {
-                //         alert('Server error, try again later.');
-                //     }
-                // };
-                // xhr.send(JSON.stringify([query]));
+                var query = {
+                    name: this.$.input.value,
+                    alias: this.$.input.value.replace(/ /gi, ''),
+                    description: '',
+                    type: this.querySelector('input[name="type"]:checked').value,
+                }
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+                xhr.onload = function(e) {
+                    var response = JSON.parse(e.srcElement.response);
+                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                        me.name = "";
+                        me.fire('need-refresh');
+                        me.fire('study-created');
+                    } else {
+                        alert('Server error, try again later.');
+                    }
+                };
+                xhr.send(JSON.stringify([query]));
             }
         }
     });
