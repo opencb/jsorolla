@@ -800,7 +800,7 @@
         },
         checkRemote: function() {
             var me = this;
-            if (this.enableLoading) {
+            if (this.enableLoading && this.currentPage==1) {
                 this.setLoading(true);
             }
             if (this.enableRemote) {
@@ -808,7 +808,7 @@
                     me.itemCount = me.request.parseTotal(resp);
                     me.pageCount = Math.ceil(me.itemCount / me.pageSize);
                     me.viewData = me.request.parse(resp);
-                    if (me.enableLoading) {
+                    if (me.enableLoading && me.currentPage==1) {
                         me.setLoading(false);
                     }
                 });
