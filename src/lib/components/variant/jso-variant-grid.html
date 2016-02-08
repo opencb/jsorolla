@@ -28,8 +28,9 @@
         }
     </style>
     <template>
-        <jso-table id="table" enable-resize enable-paging enable-remote enable-select request="{{request}}"
-                   on-rowclick="handleRowClick"></jso-table>
+
+        <jso-table id="table" enable-resize enable-paging enable-remote enable-select enable-loading
+                   request="{{request}}" on-rowclick="handleRowClick"></jso-table>
     </template>
 
 </dom-module>
@@ -371,6 +372,7 @@
                     },
                     parseTotal: function (response) {
                         var total = me._parseTotal(response);
+
                         me.numTotalResults = total;
 
                         if (this.auxTotalCount == -1) {
@@ -383,6 +385,7 @@
                             total = me.numTotalResults;
                         }
 
+                        me.set('numTotalResults', total);
                         return total;
                     },
                     file: this.file

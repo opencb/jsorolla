@@ -279,6 +279,16 @@ textarea.jso {
     color: #bf4747;
 }
 
+.jso-note-tip {
+    border-left-color: #959595;
+    background-color: #e4e4e4;
+}
+
+.jso-note-tip::after {
+    content: '\f249';
+    color: #474747;
+}
+
 
 /*
     Top Message
