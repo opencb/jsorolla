@@ -244,8 +244,8 @@
         <div class="horizontal layout flex study-info">
             <label class="" style="margin-left:10px;">Study Type: </label>
             <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
+            <div class="msgError">{{indexMsg}}</div>
             <div class="" hidden$="{{disableCaseControl}}">
-                <div class="msgError">{{indexMsg}}</div>
                 <div class="msgError">{{msgCohortsError}}</div>
                 <div id="cohortesButton" class="jso-btn jso-btn-shdw but" on-click="handleChooseCaseControl" hidden> Choose Case/Control
                 </div>
