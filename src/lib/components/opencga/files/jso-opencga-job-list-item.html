@@ -292,13 +292,14 @@
 
                 var query = {
                     sid: Cookies("bioinfo_sid"),
+                    sessionId: Cookies("bioinfo_sid"),
                     studyId: this.study.id,
                     toolId: this.job.toolName,
                     name: this.job.name,
                     description: this.job.description,
-                    "input": this.job.input[0],
-                    "panel": this.job.input[1],
-                    output: this.job.outDirId
+                    panel: this.job.input[0],
+                    output: this.job.outDirId,
+                    sampleId: this.job.params.sampleId,
                 };
 
                 OpencgaManager.jobs.create({
