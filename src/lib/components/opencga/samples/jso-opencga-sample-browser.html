@@ -179,7 +179,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}" samples="{{samples}}" disable-case-control$="{{disableCaseControl}}" on-upload-file="handleUploadFile">
+                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}" samples="{{samples}}" disable-case-control$="{{disableCaseControl}}" enable-variant-browser$="{{enableVariantBrowser}}" on-upload-file="handleUploadFile">
                 </jso-opencga-sample-list>
             </div>
         </div>
@@ -309,7 +309,12 @@
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
-            }
+            },
+            enableVariantBrowser: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
         },
         ready: function() {
             var me = this;
@@ -327,7 +332,7 @@
             }, 100);
         },
         _setInitialSelection: function() {
-          
+
             if (this._parentJsoPanel != null && this._parentJsoPanel.hidden === false) {
                 if (this.selectedProject == null) {
                     var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');

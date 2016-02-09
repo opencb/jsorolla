@@ -65,9 +65,8 @@
     </style>
     <template>
         <div class="title color-2">
-            <span>{{file.attributes.variantSource.studyName}}</span>
-            <i class="fa fa-angle-right"></i>
-            <span>{{file.name}}</span>
+            <span>Study:</span>
+            <span>{{study.name}}</span>
         </div>
         <div class="horizontal layout">
             <jso-variant-filter-form url="{{url}}" file="{{file}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}"></jso-variant-filter-form>

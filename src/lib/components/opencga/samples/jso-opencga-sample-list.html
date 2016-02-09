@@ -245,6 +245,8 @@
             <label class="" style="margin-left:10px;">Study Type: </label>
             <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
             <div class="msgError">{{indexMsg}}</div>
+            <div id="variantButton" class="jso-btn jso-btn-shdw but" on-click="handleViewVariantBrowswer" hidden$="{{!enableVariantBrowser}}"> Variant Browser
+            </div>
             <div class="" hidden$="{{disableCaseControl}}">
                 <div class="msgError">{{msgCohortsError}}</div>
                 <div id="cohortesButton" class="jso-btn jso-btn-shdw but" on-click="handleChooseCaseControl" hidden> Choose Case/Control
@@ -488,20 +490,27 @@
             indexMsg: {
                 type: String,
                 value: ""
+            },
+            enableVariantBrowser: {
+              type: Boolean,
+              value: false,
+              reflectToAttribute: true
             }
         },
         ready: function() {
 
         },
         handleSampleClick: function(e) {
-
-            var selected = e.currentTarget;
-            var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+          var selected = e.currentTarget;
+          var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
+          if(this.enableVariantBrowser){
+            selected.setAttribute("selected", "");
+          }else{
             for (var i = 0; i < sel.length; i++) {
                 sel[i].removeAttribute("selected");
             }
-
             selected.setAttribute("selected", "");
+          }
 
             this.set("selected", selected.sample);
             this.fire('sampleselected', this.selected);
@@ -771,9 +780,9 @@
             var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
             e.currentTarget.setAttribute("selected", "");
             for (var i = 0; i < sel.length; i++) {
-                if (sel[i].dataset.value === e.currentTarget.dataset.value) {
-                    sel[i].removeAttribute("selected");
-                }
+              if (sel[i].dataset.value === e.currentTarget.dataset.value) {
+                sel[i].removeAttribute("selected");
+              }
             }
         },
         handleAddCaseControl: function(e) {
@@ -1001,5 +1010,8 @@
         handleUploadFile: function(e) {
             this.fire('upload-file');
         },
+        handleViewVariantBrowswer: function(e){
+          this.fire('viewvariantbrowser');
+        }
     });
 </script>
