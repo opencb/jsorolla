@@ -241,12 +241,15 @@
                 </template>
             </div>
         </div>
-        <div class="horizontal layout flex study-info" hidden$="{{disableCaseControl}}">
-          <label class="" style="margin-left:10px;">Study Type: </label><div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
-          <div class="msgError">{{indexMsg}}</div>
-          <div class="msgError">{{msgCohortsError}}</div>
-          <div id="cohortesButton" class="jso-btn jso-btn-shdw but" on-click="handleChooseCaseControl" hidden> Choose Case/Control
-          </div>
+        <div class="horizontal layout flex study-info">
+            <label class="" style="margin-left:10px;">Study Type: </label>
+            <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
+            <div class="" hidden$="{{disableCaseControl}}">
+                <div class="msgError">{{indexMsg}}</div>
+                <div class="msgError">{{msgCohortsError}}</div>
+                <div id="cohortesButton" class="jso-btn jso-btn-shdw but" on-click="handleChooseCaseControl" hidden> Choose Case/Control
+                </div>
+            </div>
         </div>
         <jso-panel id="choosePanel" class="" closable modal movable hidden>
             <div class="header">
@@ -792,14 +795,14 @@
         },
         handleUpload: function(e) {
             var me = this;
-            this._setCohorts("CASE",this.caseSampleList, this.caseCohort.id);
-            this._setCohorts("CONTROL",this.controlSampleList, this.controlCohort.id);
+            this._setCohorts("CASE", this.caseSampleList, this.caseCohort.id);
+            this._setCohorts("CONTROL", this.controlSampleList, this.controlCohort.id);
             alert('Cases/Controls are defined successfully');
             this.fire('need-refresh');
             this.$.choosePanel.hidden = true;
         },
-        _setCohorts: function(type,list, cohortId) {
-          var me=this;
+        _setCohorts: function(type, list, cohortId) {
+            var me = this;
             if (list != "") {
                 var sampleIdList = [];
                 for (var i = 0; i < list.length; i++) {
@@ -807,51 +810,51 @@
                     sampleIdList.push(sampleId);
                 }
                 var samples = sampleIdList.join(",");
-                if(type=="CASE"){
-                  var caseCohort={};
-                  OpencgaManager.cohorts.update({
-                      id: cohortId,
-                      query: {
-                          sid: Cookies('bioinfo_sid'),
-                          samples: samples
-                      },
-                      request: {
-                          async: true,
-                          success: function(response) {
-                              if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                  me.set('caseCohort',response.response[0].result[0]);
-                              } else {
-                                  alert('Server error, try again later.');
-                              }
-                          },
-                          error: function() {
-                              alert('Server error, try again later.');
-                          }
-                      }
-                  });
+                if (type == "CASE") {
+                    var caseCohort = {};
+                    OpencgaManager.cohorts.update({
+                        id: cohortId,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            samples: samples
+                        },
+                        request: {
+                            async: true,
+                            success: function(response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.set('caseCohort', response.response[0].result[0]);
+                                } else {
+                                    alert('Server error, try again later.');
+                                }
+                            },
+                            error: function() {
+                                alert('Server error, try again later.');
+                            }
+                        }
+                    });
 
-                }else if(type=="CONTROL"){
-                  var controlCohort={};
-                  OpencgaManager.cohorts.update({
-                      id: cohortId,
-                      query: {
-                          sid: Cookies('bioinfo_sid'),
-                          samples: samples
-                      },
-                      request: {
-                          async: true,
-                          success: function(response) {
-                              if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                  me.set('controlCohort',response.response[0].result[0]);
-                              } else {
-                                  alert('Server error, try again later.');
-                              }
-                          },
-                          error: function() {
-                              alert('Server error, try again later.');
-                          }
-                      }
-                  });
+                } else if (type == "CONTROL") {
+                    var controlCohort = {};
+                    OpencgaManager.cohorts.update({
+                        id: cohortId,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            samples: samples
+                        },
+                        request: {
+                            async: true,
+                            success: function(response) {
+                                if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                    me.set('controlCohort', response.response[0].result[0]);
+                                } else {
+                                    alert('Server error, try again later.');
+                                }
+                            },
+                            error: function() {
+                                alert('Server error, try again later.');
+                            }
+                        }
+                    });
                 }
             }
         },
