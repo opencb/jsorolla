@@ -26,23 +26,23 @@
         }
 
         #content.list {
-            height: calc(100% - 55px);
+            height: calc(100% - 85px);
             overflow-y: auto;
             overflow-x: hidden;
         }
 
         #content.list.info {
-            height: calc(100% - 115px);
+            height: calc(100% - 145px);
         }
 
         #content.icon {
-            height: calc(100% - 30px);
+            height: calc(100% - 60px);
             overflow-y: auto;
             overflow-x: hidden;
         }
 
         #content.icon.info {
-            height: calc(100% - 90px);
+            height: calc(100% - 120px);
         }
         /*.source {
             color: #444;
@@ -80,8 +80,9 @@
             box-sizing: border-box;
             height: 60px;
             background-color: var(--light-secondary-color);
-            border-top: 1px solid var(--divider-color);
+            /*border-top: 1px solid var(--divider-color);*/
             padding: 5px;
+            padding-left: 15px;
         }
 
         .data {
@@ -97,7 +98,11 @@
         }
 
         .study-info {
-            height: 40px;
+            height: 30px;
+            box-sizing: border-box;
+            background-color: var(--light-secondary-color);
+            border-top: 1px solid var(--divider-color);
+            padding: 5px;
         }
 
         #sampleList {
@@ -235,13 +240,13 @@
                     </jso-opencga-sample-list-item>
                 </template>
             </div>
-            <div class="horizontal layout flex" hidden$="{{disableCaseControl}}">
-                <div class="study-info flex">{{study.type}}</div>
-                <div class="msgError">{{indexMsg}}</div>
-                <div class="msgError">{{msgCohortsError}}</div>
-                <div id="cohortesButton" class="jso-btn jso-btn-shdw but" style="margin:5px;" on-click="handleChooseCaseControl" hidden> Choose Case/Control
-                </div>
-            </div>
+        </div>
+        <div class="horizontal layout flex study-info" hidden$="{{disableCaseControl}}">
+          <label class="" style="margin-left:10px;">Study Type: </label><div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
+          <div class="msgError">{{indexMsg}}</div>
+          <div class="msgError">{{msgCohortsError}}</div>
+          <div id="cohortesButton" class="jso-btn jso-btn-shdw but" on-click="handleChooseCaseControl" hidden> Choose Case/Control
+          </div>
         </div>
         <jso-panel id="choosePanel" class="" closable modal movable hidden>
             <div class="header">
@@ -479,7 +484,7 @@
             },
             indexMsg: {
                 type: String,
-                value: "hola"
+                value: ""
             }
         },
         ready: function() {
