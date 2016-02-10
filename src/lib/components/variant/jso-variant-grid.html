@@ -126,35 +126,6 @@
             width: 57,
             defaultValue: '.'
         }, {
-            name: 'ESP_6500',
-            title: 'ESP 650',
-            defaultValue: '.',
-            width: 100,
-            columns: [{
-                name: "EA",
-                title: "Eur.Ame.",
-                width: 50,
-                formula: function(row) {
-                    if (row['ESP_6500'] && row['ESP_6500'].EA) {
-                        return row['ESP_6500'].EA;
-                    } else {
-                        return ".";
-                    }
-                }
-            }, {
-                name: "AA",
-                title: "Afr.Ame",
-                width: 50,
-                formula: function(row) {
-                    if (row['ESP_6500'] && row['ESP_6500'].AA) {
-                        return row['ESP_6500'].AA;
-                    } else {
-                        return ".";
-                    }
-                }
-            }]
-
-        }, {
             name: '1000GENOMES_phase_1',
             title: '1000G MAF(phase 1)',
             defaultValue: '.',
@@ -288,6 +259,35 @@
                 }
             }]
         }, {
+          name: 'ESP_6500',
+          title: 'ESP 650',
+          defaultValue: '.',
+          width: 100,
+          columns: [{
+              name: "EA",
+              title: "Eur.Ame.",
+              width: 50,
+              formula: function(row) {
+                  if (row['ESP_6500'] && row['ESP_6500'].EA) {
+                      return row['ESP_6500'].EA;
+                  } else {
+                      return ".";
+                  }
+              }
+          }, {
+              name: "AA",
+              title: "Afr.Ame",
+              width: 50,
+              formula: function(row) {
+                  if (row['ESP_6500'] && row['ESP_6500'].AA) {
+                      return row['ESP_6500'].AA;
+                  } else {
+                      return ".";
+                  }
+              }
+          }]
+
+      }, {
             name: 'phenotype',
             title: 'Phenotype',
             defaultValue: '.',

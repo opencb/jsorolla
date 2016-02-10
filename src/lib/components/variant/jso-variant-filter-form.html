@@ -139,6 +139,18 @@
         jso-form-box {
             width: 250px;
         }
+
+        .minus {
+            color: #445D76;
+            font-size: 12px;
+            padding: 0 2px;
+            cursor: pointer;
+        }
+
+        .minus:hover {
+            font-weight: bold;
+            color: black;
+        }
     </style>
     <template>
         <div id="filter_form">
@@ -277,38 +289,175 @@
                     Population Freqs.
                 </div>
                 <div class="container">
-                    <label class="jso" style="font-weight: bold">ESP 6500</label>
-
-                    <div class="">
-                        <label class="jso">European american MAF</label>
-                        <input id="esp6500_eur_amer" type="text" />
+                    <i class="fa fa-angle-double-down minus" on-click="handleCollapseAction" data-type="phase_1"></i>
+                    <label class="jso" style="font-weight: bold"> 1000 Genomes population phase 1</label>
+                    <div id="phase_1">
+                        <label class="jso">All populations MAF [ALL]</label>
+                        <div>
+                            <select name="1000GENOMES_phase_1_ALL_op" id="1000GENOMES_phase_1_ALL_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000GENOMES_phase_1_ALL" type="text" />
+                        </div>
+                        <label class="jso">American MAF [AMR]</label>
+                        <div>
+                            <select name="1000GENOMES_phase_1_AMR_op" id="1000GENOMES_phase_1_AMR_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000GENOMES_phase_1_AMR" type="text" />
+                        </div>
+                        <label class="jso">Asian MAF [ASN]</label>
+                        <div>
+                            <select name="1000GENOMES_phase_1_ASN_op" id="1000GENOMES_phase_1_ASN_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000GENOMES_phase_1_ASN" type="text" />
+                        </div>
+                        <label class="jso">African MAF [AFR]</label>
+                        <div>
+                            <select name="1000GENOMES_phase_1_AFR_op" id="1000GENOMES_phase_1_AFR_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000GENOMES_phase_1_AFR" type="text" />
+                        </div>
+                        <label class="jso">European MAF [EUR]</label>
+                        <div>
+                            <select name="1000GENOMES_phase_1_EUR_op" id="1000GENOMES_phase_1_EUR_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000GENOMES_phase_1_EUR" type="text" />
+                        </div>
                     </div>
-                    <div class="">
-                        <label class="jso">African american MAF</label>
-                        <input id="esp6500_afr_amer" type="text" />
-                    </div>
-
                     <br>
-                    <label class="jso" style="font-weight: bold">1000 Genomes population phase 1</label>
-                    <div class="">
-                        <label class="jso">All populations MAF</label>
-                        <input id="1000GENOMES_all" type="text" />
+                    <i class="fa fa-angle-double-down minus" on-click="handleCollapseAction" data-type="phase_3"></i>
+                    <label class="jso" style="font-weight: bold">1000 Genomes population phase 3</label>
+                    <div id="phase_3">
+                        <label class="jso">All populations MAF [ALL]</label>
+                        <div>
+                            <select name="1000G_PHASE_3_ALL_op" id="1000G_PHASE_3_ALL_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000G_PHASE_3_ALL" type="text" />
+                        </div>
+                        <label class="jso">American MAF [AMR]</label>
+                        <div>
+                            <select name="1000G_PHASE_3_AMR_op" id="1000G_PHASE_3_AMR_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000G_PHASE_3_AMR" type="text" />
+                        </div>
+                        <label class="jso">South Asian MAF [SAS]</label>
+                        <div>
+                            <select name="1000G_PHASE_3_SAS_op" id="1000G_PHASE_3_SAS_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000G_PHASE_3_SAS" type="text" />
+                        </div>
+                        <label class="jso">East Asian MAF [EAS]</label>
+                        <div>
+                            <select name="1000G_PHASE_3_EAS_op" id="1000G_PHASE_3_EAS_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000G_PHASE_3_EAS" type="text" />
+                        </div>
+                        <label class="jso">African MAF [AFR]</label>
+                        <div>
+                            <select name="1000G_PHASE_3_AFR_op" id="1000G_PHASE_3_AFR_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000G_PHASE_3_AFR" type="text" />
+                        </div>
+                        <label class="jso">European MAF [EUR]</label>
+                        <div>
+                            <select name="1000G_PHASE_3_EUR_op" id="1000G_PHASE_3_EUR_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="1000G_PHASE_3_EUR" type="text" />
+                        </div>
                     </div>
-                    <div class="">
-                        <label class="jso">African MAF</label>
-                        <input id="1000GENOMES_afr" type="text" />
-                    </div>
-                    <div class="">
-                        <label class="jso">American MAF</label>
-                        <input id="1000GENOMES_amr" type="text" />
-                    </div>
-                    <div class="">
-                        <label class="jso">Asian MAF</label>
-                        <input id="1000GENOMES_asn" type="text" />
-                    </div>
-                    <div class="">
-                        <label class="jso">European MAF</label>
-                        <input id="1000GENOMES_eur" type="text" />
+                    <br>
+                    <i class="fa fa-angle-double-down minus" on-click="handleCollapseAction" data-type="esp_6500"></i>
+                    <label class="jso" style="font-weight: bold">ESP 6500</label>
+                    <div id="esp_6500">
+                        <label class="jso">European american MAF</label>
+                        <div>
+                            <select name="ESP_6500_EA_op" id="ESP_6500_EA_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="ESP_6500_EA" type="text" />
+                        </div>
+                        <label class="jso">African american MAF</label>
+                        <div>
+                            <select name="ESP_6500_AA_op" id="ESP_6500_AA_op">
+                                <option value="<" selected>
+                                    <</option>
+                                        <option value="<=">
+                                            <=</option>
+                                                <option value=">">></option>
+                                                <option value=">=">>=</option>
+                            </select>
+                            <input id="ESP_6500_AA" type="text" />
+                        </div>
                     </div>
                 </div>
             </jso-form-box> 
@@ -703,13 +852,35 @@
             }
 
             // Freqs
-            this.$.esp6500_eur_amer.value = "";
-            this.$.esp6500_afr_amer.value = "";
-            this.$["1000GENOMES_all"].value = "";
-            this.$["1000GENOMES_afr"].value = "";
-            this.$["1000GENOMES_amr"].value = "";
-            this.$["1000GENOMES_asn"].value = "";
-            this.$["1000GENOMES_eur"].value = "";
+
+            this.$["1000GENOMES_phase_1_ALL"].value = "";
+            this.$["1000GENOMES_phase_1_ALL_op"].value = "<";
+            this.$["1000GENOMES_phase_1_AMR"].value = "";
+            this.$["1000GENOMES_phase_1_AMR_op"].value = "<";
+            this.$["1000GENOMES_phase_1_ASN"].value = "";
+            this.$["1000GENOMES_phase_1_ASN_op"].value = "<";
+            this.$["1000GENOMES_phase_1_AFR"].value = "";
+            this.$["1000GENOMES_phase_1_AFR_op"].value = "<";
+            this.$["1000GENOMES_phase_1_EUR"].value = "";
+            this.$["1000GENOMES_phase_1_EUR_op"].value = "<";
+
+            this.$["1000G_PHASE_3_ALL"].value = "";
+            this.$["1000G_PHASE_3_ALL_op"].value = "<";
+            this.$["1000G_PHASE_3_AMR"].value = "";
+            this.$["1000G_PHASE_3_AMR_op"].value = "<";
+            this.$["1000G_PHASE_3_SAS"].value = "";
+            this.$["1000G_PHASE_3_SAS_op"].value = "<";
+            this.$["1000G_PHASE_3_EAS"].value = "";
+            this.$["1000G_PHASE_3_EAS_op"].value = "<";
+            this.$["1000G_PHASE_3_AFR"].value = "";
+            this.$["1000G_PHASE_3_AFR_op"].value = "<";
+            this.$["1000G_PHASE_3_EUR"].value = "";
+            this.$["1000G_PHASE_3_EUR_op"].value = "<";
+
+            this.$["ESP_6500_EA"].value = "";
+            this.$["ESP_6500_EA_op"].value = "<";
+            this.$["ESP_6500_AA"].value = "";
+            this.$["ESP_6500_AA_op"].value = "<";
 
             // Sift
             this.$.sift.value = "";
@@ -731,7 +902,8 @@
                 el.checked = false;
             }
             // var els = this.$.consequenceTypes.querySelectorAll("textarea");
-            this.submitForm();
+            // this.submitForm();
+            this.fire('clear-table');
 
         },
         submitForm: function() {
@@ -839,6 +1011,61 @@
                 query["conservation"] = conservation.join(",");
             }
 
+            // Population Frequencies
+
+            // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
+            var popFreq = [];
+
+            // 1000GENOMES_phase_1
+            if (this.$["1000GENOMES_phase_1_ALL"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ALL"));
+            }
+            if (this.$["1000GENOMES_phase_1_AMR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AMR"));
+            }
+            if (this.$["1000GENOMES_phase_1_ASN"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ASN"));
+            }
+            if (this.$["1000GENOMES_phase_1_AFR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AFR"));
+            }
+            if (this.$["1000GENOMES_phase_1_EUR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "EUR"));
+            }
+
+            // 1000G_PHASE_3
+            if (this.$["1000G_PHASE_3_ALL"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "ALL"));
+            }
+            if (this.$["1000G_PHASE_3_AMR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "AMR"));
+            }
+            if (this.$["1000G_PHASE_3_SAS"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "SAS"));
+            }
+            if (this.$["1000G_PHASE_3_EAS"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "EAS"));
+            }
+            if (this.$["1000G_PHASE_3_AFR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "AFR"));
+            }
+            if (this.$["1000G_PHASE_3_EUR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "EUR"));
+            }
+
+            //ESP_6500
+            if (this.$["ESP_6500_EA"].value != "") {
+                popFreq.push(this._getPopulationQuery("ESP_6500", "EA"));
+            }
+            if (this.$["ESP_6500_AA"].value != "") {
+                popFreq.push(this._getPopulationQuery("ESP_6500", "AA"));
+            }
+
+            if (popFreq.length > 0) {
+                query['annot-population-maf'] = popFreq.join(";");
+                debugger
+            }
+
             // Type
             var types = this.$.type_op.querySelectorAll("input:checked");
             var typesAux = [];
@@ -866,6 +1093,14 @@
             this.search(query);
             // this.clearForm();
 
+        },
+
+        _getPopulationQuery: function(study, population) {
+            var popFreq = [];
+            var value = parseFloat(this.$[study + "_" + population].value);
+            var value_op = this.$[study + "_" + population + "_op"].value;
+            value = study + ":" + population + value_op + value;
+            return value;
         },
 
         search: function(query) {
@@ -1139,6 +1374,10 @@
         },
         showImportComponent: function() {
             this.$.importComponent.hidden = false;
+        },
+        handleCollapseAction: function(e) {
+            var id=e.currentTarget.dataset.type;
+            this.$[id].hidden=!this.$[id].hidden;
         }
     });
 </script>
