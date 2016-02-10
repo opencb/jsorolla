@@ -505,6 +505,11 @@
           var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
           if(this.enableVariantBrowser){
             selected.setAttribute("selected", "");
+            for (var i = 0; i < sel.length; i++) {
+                if(sel[i]==selected){
+                  selected.removeAttribute("selected");
+                }
+            }
           }else{
             for (var i = 0; i < sel.length; i++) {
                 sel[i].removeAttribute("selected");

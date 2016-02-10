@@ -479,15 +479,16 @@
                 notify: true,
                 value: ''
             },
-            file: {
-                type: Object,
-                observer: 'fileChanged'
-            },
+            // file: {
+            //     type: Object,
+            //     observer: 'fileChanged'
+            // },
             study: {
                 type: Object,
                 value: function() {
                     return {};
-                }
+                },
+                observer: 'studyChanged'
             },
             samples: {
                 type: Array,
@@ -541,10 +542,10 @@
                     return {};
                 },
             },
-            fileId: {
-                type: Number,
-                value: 0
-            },
+            // fileId: {
+            //     type: Number,
+            //     value: 0
+            // },
             numTotalResults: {
                 type: Object,
                 observer: "resultsChanged"
@@ -575,28 +576,24 @@
                 localStorage.bioinfo_bierApp_filter_history = [];
             }
         },
-
-        fileChanged: function(neo, old) {
-            if (neo) {
-              if(this.study.type== "CASE_CONTROL"){
-                this.$.segregationForm.hidden=true;
-              }else{
-                this.$.segregationForm.hidden=false;
-              }
+        studyChanged: function(neo, old) {
+            if (neo && neo.id != null) {
+                if (this.study.type == "CASE_CONTROL") {
+                    this.$.segregationForm.hidden = true;
+                } else {
+                    this.$.segregationForm.hidden = false;
+                }
                 this.historyFilters = this.hash[neo.id];
-                this.set('fileId', neo.id);
                 this.clearForm();
-                // this.submitForm();
             }
         },
-
         resultsChanged: function(neo, old) {
             var query = this.query;
             var numTotalResults = neo;
             /* Filter History */
             var filterHistory = [];
-            if (this.fileId in this.hash) {
-                filterHistory = this.hash[this.fileId];
+            if (this.study.id in this.hash) {
+                filterHistory = this.hash[this.study.id];
             }
             this.set("historyFilters", filterHistory);
 
@@ -632,7 +629,7 @@
                     var filters = new FilterHistory(5, filterHistory);
                     filters.unshift(hf);
                     this.set("historyFilters", filters);
-                    this.hash[this.fileId] = this.historyFilters;
+                    this.hash[this.study.id] = this.historyFilters;
 
                     localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
                 }
@@ -655,7 +652,7 @@
                 filters[0] = aux;
 
                 this.set("historyFilters", filters);
-                this.hash[this.fileId] = this.historyFilters;
+                this.hash[this.study.id] = this.historyFilters;
 
                 localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
             }
@@ -1078,7 +1075,7 @@
         clearFiltersHistory: function(e) {
             e.stopPropagation();
             this.historyFilters = [];
-            delete(this.hash[this.fileId]);
+            delete(this.hash[this.study.id]);
             localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
 
         },

@@ -43,15 +43,12 @@
                 value: '',
                 observer: 'urlChanged'
             },
-            file: {
-                type: Object,
-                observer: 'fileChanged'
-            },
             study: {
                 type: Object,
                 value: function() {
                     return {};
-                }
+                },
+                observer: 'studyChanged'
             },
             samples: {
                 type: Array,
@@ -330,13 +327,13 @@
                 }
             }]
         }],
-        fileChanged: function(neo, old) {
-            this.$.table.clear();
-            this._updateColumns();
-
+        studyChanged: function(neo, old) {
+            if (neo && neo.id != null) {
+                this.$.table.clear();
+                this._updateColumns();
+            }
         },
         _updateColumns: function() {
-            // var samples = this.file.attributes.variantSource.samples;
             var sampleColumns = [];
             var colWidth = 80;
 
@@ -392,19 +389,14 @@
                         me.set('numTotalResults', total);
                         return total;
                     },
-                    file: this.file
                 };
 
             }
         },
         _parse: function(response) {
             var me = this;
-            var file = this.file;
             var data = response.response[0].result;
             console.log(data);
-            // var fileId = file.attributes.variantSource.fileId;
-            // var studyId = file.attributes.variantSource.studyId;
-            // var sourceEntryId = studyId + "_" + fileId;
 
             for (var i = 0; i < data.length; i++) {
                 var variant = data[i];
