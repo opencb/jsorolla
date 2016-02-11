@@ -69,7 +69,7 @@
             <span>{{study.name}}</span>
         </div>
         <div class="horizontal layout">
-            <jso-variant-filter-form url="{{url}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}" on-clear-table="handleClearTable"></jso-variant-filter-form>
+            <jso-variant-filter-form url="{{url}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}"></jso-variant-filter-form>
             <div id="right" class="flex">
                 <jso-variant-grid id="variantGrid" url="{{url}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}" on-rowclick="handleRowClick"></jso-variant-grid>
 
@@ -187,11 +187,6 @@
                 this.$.gvEl.genomeViewer.setRegion(region);
             },
             handleNumTotalResultsChanged: function(e) {},
-            handleClearTable: function (){
-              this.$.variantGrid.$.table.clear();
-              this.$.variantGrid._updateColumns();
-
-            }
         })
     </script>
 </dom-module>

@@ -78,7 +78,8 @@
                 type: String,
             },
             value: {
-                type: String
+                type: String,
+                observer: 'valueChanged'
             },
             tabindex: {
                 type: String,
@@ -127,12 +128,15 @@
         select: function(option, notify) {
             if (this.selectedOption !== option) {
                 this.set('selectedOption', option);
-                this.set('selectedOptionText', option.innerHTML.trim());
+                this.set('selectedOptionText', option.value);
                 this.set('value', option.value);
                 if (notify !== false) {
                     this.fire('change');
                 }
             }
+        },
+        valueChanged: function(){
+          this._checkSelected();
         },
         _checkSelected: function() {
             var options = this.$.list.querySelectorAll('jso-option');
