@@ -741,75 +741,77 @@
             }
         },
         resultsChanged: function(neo, old) {
-            var query = this.query;
-            var numTotalResults = neo;
-            /* Filter History */
-            var filterHistory = [];
-            if (this.study.id in this.hash) {
-                filterHistory = this.hash[this.study.id];
-            }
-            this.set("historyFilters", filterHistory);
+            if (neo != -1) {
+                var query = this.query;
+                var numTotalResults = neo;
+                /* Filter History */
+                var filterHistory = [];
+                if (this.study.id in this.hash) {
+                    filterHistory = this.hash[this.study.id];
+                }
+                this.set("historyFilters", filterHistory);
 
-            var newFilter = JSON.stringify(query);
-            var _load = -1;
-            for (var i = 0; i < this.historyFilters.length && _load == -1; i++) { // Check if the fitler has been selected from the history
-                var elem = this.historyFilters[i];
-                if (elem != null) {
-                    var oldFilter = JSON.stringify(this.historyFilters[i].filter);
-                    if (newFilter == oldFilter) {
-                        _load = i;
+                var newFilter = JSON.stringify(query);
+                var _load = -1;
+                for (var i = 0; i < this.historyFilters.length && _load == -1; i++) { // Check if the fitler has been selected from the history
+                    var elem = this.historyFilters[i];
+                    if (elem != null) {
+                        var oldFilter = JSON.stringify(this.historyFilters[i].filter);
+                        if (newFilter == oldFilter) {
+                            _load = i;
+                        }
                     }
                 }
-            }
-            if (_load == -1) { // This filter is new (has not been selected from the history)
-                if (query.genotype != null || query.region != "" || query.gene != null || query.ids != "" || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+
+                if (_load == -1) { // This filter is new (has not been selected from the history)
+                    if (query.genotype != null || query.region != "" || query.gene != null || query.ids != "" || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+                        var dateAux = new Date();
+                        var minAux = dateAux.getMinutes();
+                        if (minAux < 10) {
+                            minAux = "0" + minAux;
+                        }
+                        var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
+                        name = this.loadForm(query);
+                        var found = numTotalResults;
+                        var hf = {};
+                        hf = {
+                            date: date,
+                            name: name,
+                            filter: query,
+                            found: found
+                        };
+
+                        var filters = new FilterHistory(5, filterHistory);
+                        filters.unshift(hf);
+                        this.set("historyFilters", filters);
+                        this.hash[this.study.id] = this.historyFilters;
+
+                        localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+                    }
+                } else { // HistoryFilter contains this filter. We need to change the date and push to top
+                    var pos = _load;
+
+                    var filters = new FilterHistory(5, this.historyFilters);
+                    var filter = filters[pos];
                     var dateAux = new Date();
                     var minAux = dateAux.getMinutes();
-                    if (minAux < 10) {
-                        minAux = "0" + minAux;
-                    }
-                    var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
-                    name = this.loadForm(query);
-                    var found = numTotalResults;
-                    var hf = {};
-                    hf = {
-                        date: date,
-                        name: name,
-                        filter: query,
-                        found: found
-                    };
+                    if (minAux < 10) this
+                    minAux = "0" + minAux;
 
-                    var filters = new FilterHistory(5, filterHistory);
-                    filters.unshift(hf);
+                    var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
+
+                    filter.date = date;
+
+                    var aux = filters[pos];
+                    filters[pos] = filters[0];
+                    filters[0] = aux;
+
                     this.set("historyFilters", filters);
                     this.hash[this.study.id] = this.historyFilters;
 
                     localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
                 }
-            } else { // HistoryFilter contains this filter. We need to change the date and push to top
-                var pos = _load;
-
-                var filters = new FilterHistory(5, this.historyFilters);
-                var filter = filters[pos];
-                var dateAux = new Date();
-                var minAux = dateAux.getMinutes();
-                if (minAux < 10) this
-                minAux = "0" + minAux;
-
-                var date = dateAux.getDate() + '/' + (dateAux.getMonth() + 1) + ' ' + dateAux.getHours() + ':' + minAux;
-
-                filter.date = date;
-
-                var aux = filters[pos];
-                filters[pos] = filters[0];
-                filters[0] = aux;
-
-                this.set("historyFilters", filters);
-                this.hash[this.study.id] = this.historyFilters;
-
-                localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
             }
-
         },
 
         handleFeatureSelected: function(e) {
@@ -826,7 +828,7 @@
             }
         },
         clearForm: function() {
-          this.set('url', "");
+            this.set('url', "");
             /* samples */
             for (var i = 0; i < this.samples.length; i++) {
                 var sampleName = this.samples[i].name;
@@ -1152,7 +1154,7 @@
                     var sampleName = gt[0];
                     var sample = gt[1].split(",");
                     for (var j = 0; j < sample_op.length; j++) {
-                        if (sample_op[j].name.search(sampleName) >= 0) {
+                        if (sample_op[j].name == sampleName) {
                             for (var k = 1; k < sample.length; k++) {
                                 if (sample_op[j].value.indexOf(sample[k]) >= 0) {
                                     sample_op[j].checked = true;

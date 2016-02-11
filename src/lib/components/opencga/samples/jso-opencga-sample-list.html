@@ -693,14 +693,18 @@
                                     var result = response.response[0].result[j];
                                     if (result.index != null && result.index.status == "INDEXING") {
                                         for (var k = 0; k < me.filteredSamples.length; k++) {
+                                          if(me.filteredSamples[k].source == result.name){
                                             me.set("filteredSamples." + k + ".status", "INDEXING");
+                                          }
                                         }
                                         var msg = result.name + " is indexing";
                                         me.set('indexMsg', msg);
                                     } else {
                                         for (var k = 0; k < me.filteredSamples.length; k++) {
                                             var status = (result.index) ? result.index.status : "NOT INDEXED";
-                                            me.set("filteredSamples." + k + ".status", status);
+                                            if(me.filteredSamples[k].source == result.name){
+                                              me.set("filteredSamples." + k + ".status", status);
+                                            }
                                         }
                                         me.set('indexMsg', "");
                                     }
@@ -944,13 +948,6 @@
             }
             this.$.importComponent.hidden = !this.$.importComponent.hidden;
         },
-        // handleImportFile: function(e) {
-        //     var file = this.$.importFile.$.fileInput.files[0];
-        //     if (!(this.$.importFile.$.validator.errorCount > 0)) {
-        //         this.handleImportCohorts(file);
-        //         this.$.importComponent.hidden = true;
-        //     }
-        // },
         handleImportCohorts: function(file) {
             var cohort = "";
             if (this.cohortsType == "CASES") {
