@@ -121,14 +121,6 @@
             width: 100px;
             background-color: #f0f4f4 !important;
         }
-        /*.minimize{
-          padding: 0 2px;
-          cursor: pointer;
-        }
-        .minimize:hover {
-            background-color: #e4e7e9;
-        }*/
-
         .importBut {
             width: 65px;
             font-size: 12px;
@@ -141,15 +133,15 @@
         }
 
         .minus {
-            color: #445D76;
+            color: #2F65F4;
             font-size: 12px;
             padding: 0 2px;
             cursor: pointer;
         }
 
         .minus:hover {
+            color: #445D76;
             font-weight: bold;
-            color: black;
         }
     </style>
     <template>
@@ -289,9 +281,9 @@
                     Population Freqs.
                 </div>
                 <div class="container">
-                    <i class="fa fa-angle-double-down minus" on-click="handleCollapseAction" data-type="phase_1" title="minimize"></i>
+                    <i class$="{{phase_1}}" on-click="handleCollapseAction" data-type="phase_1"></i>
                     <label class="jso" style="font-weight: bold"> 1000 Genomes population phase 1</label>
-                    <div id="phase_1">
+                    <div id="phase_1" hidden>
                         <label class="jso">All populations MAF [ALL]</label>
                         <div class="horizontal layout">
                             <jso-select name="1000GENOMES_phase_1_ALL_op" id="1000GENOMES_phase_1_ALL_op">
@@ -354,9 +346,9 @@
                         </div>
                     </div>
                     <br>
-                    <i class="fa fa-angle-double-down minus" on-click="handleCollapseAction" data-type="phase_3" title="minimize"></i>
+                    <i class$="{{phase_3}}" on-click="handleCollapseAction" data-type="phase_3"></i>
                     <label class="jso" style="font-weight: bold">1000 Genomes population phase 3</label>
-                    <div id="phase_3">
+                    <div id="phase_3" hidden>
                         <label class="jso">All populations MAF [ALL]</label>
                         <div class="horizontal layout">
                             <jso-select name="1000G_PHASE_3_ALL_op" id="1000G_PHASE_3_ALL_op">
@@ -431,9 +423,9 @@
                         </div>
                     </div>
                     <br>
-                    <i class="fa fa-angle-double-down minus" on-click="handleCollapseAction" data-type="esp_6500" title="minimize"></i>
+                    <i class$="{{esp_6500}}" on-click="handleCollapseAction" data-type="esp_6500"></i>
                     <label class="jso" style="font-weight: bold">ESP 6500</label>
-                    <div id="esp_6500">
+                    <div id="esp_6500" hidden>
                         <label class="jso">European american MAF</label>
                         <div class="horizontal layout">
                             <jso-select name="ESP_6500_EA_op" id="ESP_6500_EA_op">
@@ -716,6 +708,18 @@
                 value: function() {
                     return {};
                 },
+            },
+            phase_1: {
+                type: String,
+                value: "fa fa-angle-double-right minus"
+            },
+            phase_3: {
+                type: String,
+                value: "fa fa-angle-double-right minus"
+            },
+            esp_6500: {
+                type: String,
+                value: "fa fa-angle-double-right minus"
             }
         },
         ready: function() {
@@ -1398,6 +1402,11 @@
         handleCollapseAction: function(e) {
             var id = e.currentTarget.dataset.type;
             this.$[id].hidden = !this.$[id].hidden;
-        }
+            if (this.$[id].hidden) {
+                this[id] = "fa fa-angle-double-right minus";
+            } else {
+                this[id] = "fa fa-angle-double-down minus";
+            }
+        },
     });
 </script>

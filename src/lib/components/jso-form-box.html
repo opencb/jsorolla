@@ -30,13 +30,13 @@
         }
 
         .collapsible > i {
-            color: #445D76;
+            color: #2F65F4;
             font-size: 12px;
         }
 
         .collapsible >i:hover {
             font-weight: bold;
-            color:black;
+            color: #445D76;
         }
     </style>
     <template>
@@ -46,7 +46,7 @@
                     <content select=".header"></content>
                 </div>
                 <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction">
-                    <i class$="{{computeIcon(collapsible,collapsed)}}"></i>
+                    <i class$="{{computeIcon(collapsible,collapsed)}}" title="{{computeTitle(collapsible,collapsed)}}"></i>
                     <!-- <i class="fa fa-minus"></i> -->
                 </div>
             </div>
@@ -70,7 +70,7 @@
                 collapsed: {
                     type: Boolean,
                     reflectToAttribute: true,
-                    value: false
+                    value: true
                 },
             },
             ready: function() {},
@@ -91,6 +91,13 @@
                     return "fa fa-plus";
                 } else {
                     return "fa fa-minus";
+                }
+            },
+            computeTitle: function(collapsible, collapsed) {
+                if (collapsible && collapsed) {
+                    return "Maximize";
+                } else {
+                    return "Minimize";
                 }
             }
 
