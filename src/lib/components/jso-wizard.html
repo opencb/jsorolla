@@ -24,26 +24,30 @@
             align-self: center;
         }
 
-        .next {
-            text-align: right;
-            color: #6B6B6B;
-            font-size: 15px;
-        }
-
-        .next > label:hover {
-            background-color: #d3d3d3;
-            cursor: pointer;
-        }
-
+        .next,
         .prev {
-            text-align: left;
-            color: #6B6B6B;
+            text-align: right;
+            color: #2F65F4;
             font-size: 15px;
+            margin-right: 5px;
+        }
+        .init,
+        .end{
+          text-align: right;
+            color: #445D76;
+            font-size: 15px;
+            margin-right: 5px;
         }
 
-        .prev > label:hover {
-            background-color: #d3d3d3;
+        label:hover {
+            /*background-color: #d3d3d3;*/
+            color: #6B6B6B;
             cursor: pointer;
+            font-weight: bold;
+        }
+
+        i {
+            font-size: 10px;
         }
 
         #header {
@@ -77,30 +81,33 @@
         <div id="wizard-content" class="vertical layout">
             <div id="header">
                 <div class="horizontal layout">
+                    <div class="init" on-click="handlegoToInit" hidden="{{!handleHiddenStep1(step)}}">
+                        <label title="Go to Init"><i class="fa fa-fast-backward"></i></label>
+                    </div>
                     <div class="flex" hidden="{{handleHiddenStep1(step)}}"></div>
-                    <div class="prev flex" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}">
-                        <label><i class="fa fa-angle-double-left"></i>&nbsp;Step&nbsp;
+                    <div class="prev" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}">
+                        <label><i class="fa fa-step-backward"></i>
+                            &nbsp;Step&nbsp;
                             <span>{{stepPrev}}</span>
                         </label>
                     </div>
-                    <!-- <label class="title">Step &nbsp;
-                        <span>{{step}}</span>
-                    </label> -->
+                    <div class="flex" hidden="{{!handleHiddenStep1(step)}}"></div>
                     <div id="title" class="title horizontal layout" style="line-height:25px">Step&nbsp;
                         <div>{{step}}</div>&nbsp;: &nbsp;
                         <content select=".title"></content>
                     </div>
                     <div class="flex next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
-                        <label>Step&nbsp;
-                            <span>{{stepNext}}</span>&nbsp;<i class="fa fa-angle-double-right"></i></label>
+                        <label>
+                            Step&nbsp;
+                            <span>{{stepNext}}</span>&nbsp;<i class="fa fa-step-forward"></i></label>
                     </div>
                     <div class="flex" hidden="{{handleHiddenStepEnd(step)}}"></div>
+                    <div class="end" on-click="handlegoToEnd" hidden="{{!handleHiddenStepEnd(step)}}">
+                        <label title="Go to End"><i class="fa fa-fast-forward"></i></label>
+                    </div>
                 </div>
             </div>
 
-            <!-- <div class="container flex">
-                <content id="container" class="flex"></content>
-            </div> -->
             <div id="container" class="flex">
                 <content class=".container"></content>
             </div>
@@ -210,10 +217,16 @@
             },
             goToStep: function(step) {
                 this.step = step;
-                this.stepName= step;
-                this.stepNext = step+1;
+                this.stepName = step;
+                this.stepNext = step + 1;
+                this.stepPrev = step-1;
+            },
+            handlegoToInit: function() {
+                this.goToStep(1);
+            },
+            handlegoToEnd: function() {
+                this.goToStep(this.steps.length);
             }
-
         })
     </script>
 </dom-module>
