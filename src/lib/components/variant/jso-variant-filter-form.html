@@ -149,9 +149,13 @@
             width: 170px;
             margin-left: 4px;
         }
+        .popus{
+          font-weight: bold;
+          cursor: pointer;
+        }
     </style>
     <template>
-        <div id="filter_form">
+        <form id="filter_form">
             <!--<div class="title">-->
             <!--Filters-->
             <!--</div>-->
@@ -288,7 +292,7 @@
                 </div>
                 <div class="container">
                     <i class$="{{phase_1}}" on-click="handleCollapseAction" data-type="phase_1"></i>
-                    <label class="jso" style="font-weight: bold"> 1000 Genomes population phase 1</label>
+                    <label class="jso popus" on-click="handleCollapseAction" data-type="phase_1"> 1000 Genomes population phase 1</label>
                     <div id="phase_1" hidden>
                         <label class="jso">All populations MAF [ALL]</label>
                         <div class="horizontal layout">
@@ -300,7 +304,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000GENOMES_phase_1_ALL" class="inputValue" type="number" min="0" max="1" step="0.001" />
+                            <input id="1000GENOMES_phase_1_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">American MAF [AMR]</label>
                         <div class="horizontal layout">
@@ -312,7 +316,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000GENOMES_phase_1_AMR" class="inputValue" type="number" min="0" max="1" step="0.001" />
+                            <input id="1000GENOMES_phase_1_AMR" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">Asian MAF [ASN]</label>
                         <div class="horizontal layout">
@@ -324,7 +328,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000GENOMES_phase_1_ASN" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000GENOMES_phase_1_ASN" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">African MAF [AFR]</label>
                         <div class="horizontal layout">
@@ -336,7 +340,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000GENOMES_phase_1_AFR" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000GENOMES_phase_1_AFR" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">European MAF [EUR]</label>
                         <div class="horizontal layout">
@@ -348,12 +352,12 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000GENOMES_phase_1_EUR" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000GENOMES_phase_1_EUR" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                     </div>
                     <br>
                     <i class$="{{phase_3}}" on-click="handleCollapseAction" data-type="phase_3"></i>
-                    <label class="jso" style="font-weight: bold">1000 Genomes population phase 3</label>
+                    <label class="jso popus" on-click="handleCollapseAction" data-type="phase_3">1000 Genomes population phase 3</label>
                     <div id="phase_3" hidden>
                         <label class="jso">All populations MAF [ALL]</label>
                         <div class="horizontal layout">
@@ -365,7 +369,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_ALL" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000G_PHASE_3_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">American MAF [AMR]</label>
                         <div class="horizontal layout">
@@ -377,7 +381,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_AMR" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000G_PHASE_3_AMR" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">South Asian MAF [SAS]</label>
                         <div class="horizontal layout">
@@ -389,7 +393,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_SAS" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000G_PHASE_3_SAS" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">East Asian MAF [EAS]</label>
                         <div class="horizontal layout">
@@ -401,7 +405,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_EAS" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000G_PHASE_3_EAS" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">African MAF [AFR]</label>
                         <div class="horizontal layout">
@@ -413,7 +417,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_AFR" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000G_PHASE_3_AFR" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">European MAF [EUR]</label>
                         <div class="horizontal layout">
@@ -425,12 +429,12 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_EUR" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="1000G_PHASE_3_EUR" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                     </div>
                     <br>
                     <i class$="{{esp_6500}}" on-click="handleCollapseAction" data-type="esp_6500"></i>
-                    <label class="jso" style="font-weight: bold">ESP 6500</label>
+                    <label class="jso popus" on-click="handleCollapseAction" data-type="esp_6500">ESP 6500</label>
                     <div id="esp_6500" hidden>
                         <label class="jso">European american MAF</label>
                         <div class="horizontal layout">
@@ -442,7 +446,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="ESP_6500_EA" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="ESP_6500_EA" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                         <label class="jso">African american MAF</label>
                         <div class="horizontal layout">
@@ -454,7 +458,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="ESP_6500_AA" class="inputValue" type="number" min="0" max="1" step="0.001"/>
+                            <input id="ESP_6500_AA" class="jso inputValue" type="number" min="0" max="1" step="0.001" />
                         </div>
                     </div>
                 </div>
@@ -479,7 +483,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input type="number" class="inputValue" id="sift" name="sift" min="0" max="1" step="0.001"/>
+                            <input type="number" class="jso inputValue" id="sift" name="sift" min="0" max="1" step="0.001" />
 
                         </div>
                     </div>
@@ -496,7 +500,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input type="number" class="inputValue" id="polyphen" name="polyphen" min="0" max="1" step="0.001"/>
+                            <input type="number" class="jso inputValue" id="polyphen" name="polyphen" min="0" max="1" step="0.001" />
                         </div>
                     </div>
                 </div>
@@ -521,7 +525,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input type="number" class="inputValue" id="phylop" name="phylop" step="0.001"/>
+                            <input type="number" class="jso inputValue" id="phylop" name="phylop" step="0.001" />
                         </div>
                     </div>
 
@@ -538,7 +542,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input type="number" class="inputValue" id="phastcons" name="phastcons" step="0.001"/>
+                            <input type="number" class="jso inputValue" id="phastcons" name="phastcons" step="0.001" />
                         </div>
                     </div>
                 </div>
@@ -613,7 +617,7 @@
             <!--</div>-->
 
 
-        </div>
+        </form>
     </template>
 </dom-module>
 <script>
@@ -1004,14 +1008,24 @@
             // Protein Substitution Scores
             var sift = parseFloat(this.$.sift.value);
             if (sift) {
-                sift = this.$.sift_op.value + sift;
-                query["sift"] = sift;
+                if (this.$.sift.checkValidity() == false) {
+                    alert("Value must be less than 1 or greater than 0");
+                    return;
+                } else {
+                    sift = this.$.sift_op.value + sift;
+                    query["sift"] = sift;
+                }
             }
 
             var polyphen = parseFloat(this.$.polyphen.value);
             if (polyphen) {
-                polyphen = this.$.polyphen_op.value + polyphen;
-                query["polyphen"] = polyphen;
+                if (this.$.polyphen.checkValidity() == false) {
+                    alert("Value must be less than 1 or greater than 0");
+                    return;
+                } else {
+                    polyphen = this.$.polyphen_op.value + polyphen;
+                    query["polyphen"] = polyphen;
+                }
             }
 
             var phylop = parseFloat(this.$.phylop.value);
@@ -1079,6 +1093,9 @@
 
             if (popFreq.length > 0) {
                 query['annot-population-maf'] = popFreq.join(";");
+                if(query['annot-population-maf'].indexOf("error")>=0){
+                  return;
+                }
             }
 
             // Type
@@ -1112,10 +1129,15 @@
 
         _getPopulationQuery: function(study, population) {
             var popFreq = [];
-            var value = parseFloat(this.$[study + "_" + population].value);
-            var value_op = this.$[study + "_" + population + "_op"].value;
-            value = study + ":" + population + value_op + value;
-            return value;
+            if (this.$[study + "_" + population].checkValidity() == false) {
+                alert("Value must be less than 1 or greater than 0");
+                return "error";
+            } else {
+                var value = parseFloat(this.$[study + "_" + population].value);
+                var value_op = this.$[study + "_" + population + "_op"].value;
+                value = study + ":" + population + value_op + value;
+                return value;
+            }
         },
         _setPopulationValue: function(population, value, freq) {
             var aux = value.split("");
