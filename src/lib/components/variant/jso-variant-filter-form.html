@@ -149,9 +149,10 @@
             width: 170px;
             margin-left: 4px;
         }
-        .popus{
-          font-weight: bold;
-          cursor: pointer;
+
+        .popus {
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
     <template>
@@ -931,7 +932,28 @@
             var regions = [];
             // Region
             if (this.regionValue) {
-                regions = this.regionValue.split(",");
+                var aux = this.regionValue.split(/,|\n/);
+                for (var i = 0; i < aux.length; i++) {
+                    regionName = aux[i];
+                    if (regionName != '') {
+                        var re = /(\w+):(\d+)-(\d+)/;
+                        if (re.test(regionName)) {
+                            var groups = regionName.match(re);
+                            var chr = groups[1];
+                            var start = parseInt(groups[2]);
+                            var end = parseInt(groups[3]);
+                            if (start > end) {
+                                alert("Malformed Region: " + regionName);
+                                return;
+                            } else {
+                                regions.push(regionName);
+                            }
+                        } else {
+                            alert("Malformed Region: " + regionName);
+                            return;
+                        }
+                    }
+                }
             }
             var regionQuery = regions.join(",");
             query["region"] = regionQuery;
@@ -939,7 +961,7 @@
             // SNPId
             var ids = [];
             if (this.snpIdValue) {
-                ids = this.snpIdValue.split(",");
+                ids = this.snpIdValue.split(/,|\n/);
             }
             var idsQuery = ids.join(",");
             query["ids"] = idsQuery;
@@ -1009,7 +1031,7 @@
             var sift = parseFloat(this.$.sift.value);
             if (sift) {
                 if (this.$.sift.checkValidity() == false) {
-                    alert("Value must be less than 1 or greater than 0");
+                    alert("Sift must be less than 1 or greater than 0");
                     return;
                 } else {
                     sift = this.$.sift_op.value + sift;
@@ -1020,7 +1042,7 @@
             var polyphen = parseFloat(this.$.polyphen.value);
             if (polyphen) {
                 if (this.$.polyphen.checkValidity() == false) {
-                    alert("Value must be less than 1 or greater than 0");
+                    alert("Polyphen must be less than 1 or greater than 0");
                     return;
                 } else {
                     polyphen = this.$.polyphen_op.value + polyphen;
@@ -1093,8 +1115,8 @@
 
             if (popFreq.length > 0) {
                 query['annot-population-maf'] = popFreq.join(";");
-                if(query['annot-population-maf'].indexOf("error")>=0){
-                  return;
+                if (query['annot-population-maf'].indexOf("error") >= 0) {
+                    return;
                 }
             }
 
@@ -1130,7 +1152,7 @@
         _getPopulationQuery: function(study, population) {
             var popFreq = [];
             if (this.$[study + "_" + population].checkValidity() == false) {
-                alert("Value must be less than 1 or greater than 0");
+                alert(study + " " +population + " must be less than 1 or greater than 0");
                 return "error";
             } else {
                 var value = parseFloat(this.$[study + "_" + population].value);
