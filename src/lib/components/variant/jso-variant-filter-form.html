@@ -220,7 +220,7 @@
                     </div>
                 </div>
             </jso-form-box>
-            <jso-form-box collapsible>
+            <jso-form-box collapsible >
                 <div class="header">
                     Position
                 </div>
@@ -253,7 +253,7 @@
                 </div>
             </jso-form-box> 
 
-            <jso-form-box collapsible>
+            <jso-form-box collapsible collapsed>
                 <div class="header">
                     Type
                 </div>
@@ -287,7 +287,7 @@
                 </div>
             </jso-form-box> 
 
-            <jso-form-box collapsible>
+            <jso-form-box collapsible collapsed>
                 <div class="header">
                     Population Freqs.
                 </div>
@@ -465,7 +465,7 @@
                 </div>
             </jso-form-box> 
 
-            <jso-form-box collapsible>
+            <jso-form-box collapsible collapsed>
                 <div class="header">
                     Protein Substitution Scores
                 </div>
@@ -507,7 +507,7 @@
                 </div>
             </jso-form-box> 
 
-            <jso-form-box collapsible>
+            <jso-form-box collapsible collapsed>
                 <div class="header">
                     Conservation
                 </div>
@@ -549,7 +549,7 @@
                 </div>
             </jso-form-box> 
 
-            <jso-form-box collapsible>
+            <jso-form-box collapsible collapsed>
                 <div class="header">
                     Consequence Type
                 </div>
@@ -625,20 +625,11 @@
     Polymer({
         is: "jso-variant-filter-form",
         properties: {
-            //            geneValue: null,
-            //            snpValue: '',
-            //            floatDecimals: 3,
-            //            expanded: false,
-            //            parseFunction: null,
             url: {
                 type: String,
                 notify: true,
                 value: ''
             },
-            // file: {
-            //     type: Object,
-            //     observer: 'fileChanged'
-            // },
             study: {
                 type: Object,
                 value: function() {
@@ -698,10 +689,6 @@
                     return {};
                 },
             },
-            // fileId: {
-            //     type: Number,
-            //     value: 0
-            // },
             numTotalResults: {
                 type: Object,
                 observer: "resultsChanged"
@@ -932,21 +919,29 @@
             var regions = [];
             // Region
             if (this.regionValue) {
-                var aux = this.regionValue.split(/,|\n/);
+                var aux = this.regionValue.split(/,|\n|\r/);
                 for (var i = 0; i < aux.length; i++) {
                     regionName = aux[i];
                     if (regionName != '') {
-                        var re = /(\w+):(\d+)-(\d+)/;
+                        var re = /^(\w+)(:(\d+)-(\d+))?$/;
                         if (re.test(regionName)) {
                             var groups = regionName.match(re);
-                            var chr = groups[1];
-                            var start = parseInt(groups[2]);
-                            var end = parseInt(groups[3]);
-                            if (start > end) {
+                            if (groups.length == 5) {
+                                var chr = groups[1];
+                                var start = parseInt(groups[3]);
+                                var end = parseInt(groups[4]);
+                                if (start > end) {
+                                    alert("Malformed Region: " + regionName + ", END must be greater than or equal to START");
+                                    return;
+                                } else {
+                                    regions.push(regionName);
+                                }
+                            } else if (groups.length == 2) {
+                                var chr = groups[1];
+                                regions.push(chr);
+                            } else {
                                 alert("Malformed Region: " + regionName);
                                 return;
-                            } else {
-                                regions.push(regionName);
                             }
                         } else {
                             alert("Malformed Region: " + regionName);
@@ -967,28 +962,7 @@
             query["ids"] = idsQuery;
 
             // Genes
-            if (this.geneValue) {
-                var gene = this.geneValue.toUpperCase();
-                CellBaseManager.get({
-                    species: 'hsapiens',
-                    category: 'feature',
-                    subCategory: 'gene',
-                    query: gene,
-                    resource: "info",
-                    async: false,
-                    params: {
-                        include: 'chromosome,start,end'
-                    },
-                    success: function(data) {
-                        for (var i = 0; i < data.response.length; i++) {
-                            var queryResult = data.response[i];
-                            var region = new Region(queryResult.result[0]);
-                            regions.push(region.toString());
-                        }
-                    }
-                });
-            }
-            var geneQuery = this.geneValue.toUpperCase();
+            var geneQuery = this.geneValue.toUpperCase().replace("\n", ",");
             if (geneQuery != '') {
                 query["gene"] = geneQuery;
             }
@@ -1152,7 +1126,7 @@
         _getPopulationQuery: function(study, population) {
             var popFreq = [];
             if (this.$[study + "_" + population].checkValidity() == false) {
-                alert(study + " " +population + " must be less than 1 or greater than 0");
+                alert(study + " " + population + " must be less than 1 or greater than 0");
                 return "error";
             } else {
                 var value = parseFloat(this.$[study + "_" + population].value);
