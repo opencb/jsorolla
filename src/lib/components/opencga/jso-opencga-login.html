@@ -50,12 +50,12 @@
         </div>
         <form id="form" vertical layout on-keypress="handleFormKey">
             <label class="jso">User</label>
-            <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9]+">
+            <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9\.]+">
 
             <span hidden$={{hideSignup}} class="shortcut" on-click="handleSignup">Create new user...</span>
             <br>
             <label class="jso">Password</label>
-            <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
+            <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9\.]+">
 
             <span hidden$={{hideSignup}} class="shortcut" on-click="handleRemember">Remember password...</span>
             <br>

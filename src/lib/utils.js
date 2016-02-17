@@ -104,7 +104,7 @@ var Utils = {
         var items = [];
         for (var key in obj) {
             if (obj[key] != null && obj[key] != undefined) {
-                items.push(key + '=' + obj[key]);
+                items.push(key + '=' + encodeURIComponent(obj[key]));
             }
         }
         return items.join('&');

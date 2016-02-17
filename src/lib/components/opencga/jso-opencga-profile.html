@@ -46,12 +46,12 @@
         </div>
         <form id="formPassword">
             <label class="jso">Old password</label>
-            <input class="jso" type="password" value="{{oldpassword::input}}" required pattern="[a-zA-Z0-9]+">
+            <input class="jso" type="password" value="{{oldpassword::input}}" required pattern="[a-zA-Z0-9\.]+">
             <br>
             <label class="jso">New password</label>
-            <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9]+">
+            <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9\.]+">
             <label class="jso">Check password</label>
-            <input class="jso" type="password" value="{{passwordCheck::input}}" required pattern="[a-zA-Z0-9]+">
+            <input class="jso" type="password" value="{{passwordCheck::input}}" required pattern="[a-zA-Z0-9\.]+">
             <br>
 
             <div class="jso-btn jso-btn-shdw" on-click="handleChangePasswordForm">Change password</div>
