@@ -27,21 +27,20 @@
         }
 
         .icon {
-
-            margin:2px;
+            margin: 2px;
             padding: 10px;
             height: 40px;
             width: 100px;
-            border:1px solid var(--divider-color);
-        }
-        .title{
-          margin-right: 10px;
-          width: 100px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+            border: 1px solid var(--divider-color);
         }
 
+        .title {
+            margin-right: 10px;
+            width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     </style>
     <template>
         <div class="horizontal layout">
@@ -50,13 +49,14 @@
                     <div class="name title" title$="{{sample.name}}">{{sample.name}}</div>
                 </div>
                 <div id="status" class="title">
+                    <i class$="{{computeStatusIcon(sample.status)}}"></i>
                     <span style="">{{sample.status}}</span>
                 </div>
                 <div id="source" class="title">
                     <span>{{sample.source}}</span>
                 </div>
                 <div id="Cohort" class="title" hidden$="{{disableCaseControl}}">
-                  <span style="">{{sample.cohort}}</span>
+                    <span style="">{{sample.cohort}}</span>
                 </div>
             </template>
 
@@ -87,8 +87,19 @@
                 reflectToAttribute: true
             },
         },
-        computeViewMode: function (viewMode, value) {
+        computeViewMode: function(viewMode, value) {
             return viewMode == value;
-        }
+        },
+        computeStatusIcon: function(status) {
+          if(status=="INDEXING"){
+            return 'fa fa-cog fa-spin';
+          }else if(status== "READY"){
+            return'fa fa-check';
+          }else if(status== "NONE"){
+            return 'fa fa-check';
+          }else{
+            return '';
+          }          
+        },
     });
 </script>

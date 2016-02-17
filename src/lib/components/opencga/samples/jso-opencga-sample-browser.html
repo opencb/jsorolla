@@ -315,6 +315,11 @@
                 value: false,
                 reflectToAttribute: true
             },
+            // enableAutoIndex: {
+            //     type: Boolean,
+            //     value: false,
+            //     reflectToAttribute: true
+            // }
         },
         ready: function() {
             var me = this;
@@ -456,6 +461,12 @@
         handleFileUploaded: function(e) {
             this._showStudyFolder();
             this.$.uploadFilePanel.hidden = true;
-        }
+            // if(this.enableAutoIndex){
+            //   this.autoIndex();
+            // }
+        },
+        // autoIndex: function(){
+        //
+        // }
     });
 </script>
