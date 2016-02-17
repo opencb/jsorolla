@@ -74,7 +74,7 @@ GraphLayout = {
             var vertexConfig = network.config.getVertexConfig(vertex);
             var coords = vertexConfig.coords;
 
-            var phi = Math.acos(-1 + ( 2 * i ) / n);
+            var phi = Math.acos(-1 + (2 * i) / n);
             var theta = Math.sqrt(n * Math.PI) * phi;
             coords.x = radius * Math.cos(theta) * Math.sin(phi);
             coords.y = radius * Math.sin(theta) * Math.sin(phi);
@@ -134,7 +134,10 @@ GraphLayout = {
         var endFunction = args.end;
         var simulation = args.simulation;
 
-        var config = typeof args.config === 'undefined' ? {vertices: {}, edges: {}} : args.config;
+        var config = typeof args.config === 'undefined' ? {
+            vertices: {},
+            edges: {}
+        } : args.config;
 
         if (typeof network === 'undefined') {
             console.log('graph not defined');
@@ -148,7 +151,7 @@ GraphLayout = {
 
         //Global parameters
         force.size([width, height]);
-        if (typeof  friction !== 'undefined') {
+        if (typeof friction !== 'undefined') {
             force.friction(friction);
 
         }
@@ -156,15 +159,13 @@ GraphLayout = {
             force.gravity(gravity);
 
         }
-        if (typeof  chargeDistance !== 'undefined') {
+        if (typeof chargeDistance !== 'undefined') {
             force.chargeDistance(chargeDistance);
 
         }
 
-
         var vertices = network.graph.vertices;
         var edges = network.graph.edges;
-
 
         /*------------------------------------------*/
         /*------------------------------------------*/
@@ -250,7 +251,6 @@ GraphLayout = {
         /*------------------------------------------*/
         /*------------------------------------------*/
 
-
         force.on('end', function (o) {
             console.log(o)
             endFunction(verticesArray);
@@ -272,10 +272,10 @@ GraphLayout = {
             while (force.alpha() > 0.025) { // You'll want to try out different, "small" values for this
                 force.tick();
                 if (safety++ > 1000) {
-                    break;// Avoids infinite looping in case this solution was a bad idea
+                    break; // Avoids infinite looping in case this solution was a bad idea
                 }
             }
-//            console.log(safety);
+            //            console.log(safety);
             force.stop();
             console.timeEnd('D3 Force directed layout');
         }
@@ -290,7 +290,6 @@ GraphLayout = {
         var height = args.height;
         var vertices = graph.vertices;
         var edges = graph.edges;
-
 
         var rootNode = {
             name: args.root.id,
@@ -309,7 +308,6 @@ GraphLayout = {
         args.end(nodes);
 
         //var links = tree.links(nodes);
-
 
     },
     _getTreeNode: function (node, visited) {
@@ -360,8 +358,6 @@ GraphLayout = {
         }
     },
 
-
-
     /**/
     /**/
     /**/
@@ -373,11 +369,7 @@ GraphLayout = {
         var vAttr = network.vAttr;
         var eAttr = network.eAttr;
         var width = args.width;
-        var height = args.height;
-        var vertices = graph.vertices;
-        var edges = graph.edges;
-        var endFunction = args.end;
-
+        d3
         var force = d3.layout.force();
         force.size([width, height]);
         force.charge(-320)
@@ -426,10 +418,10 @@ GraphLayout = {
                 d.target.y += k;
             });
             if (safety++ > 1000) {
-                break;// Avoids infinite looping in case this solution was a bad idea
+                break; // Avoids infinite looping in case this solution was a bad idea
             }
         }
-//            console.log(safety);
+        //            console.log(safety);
         force.stop();
         console.timeEnd('D3 Force directed layout');
 
@@ -447,7 +439,6 @@ GraphLayout = {
         var edges = graph.edges;
         var endFunction = args.end;
 
-
         var force = d3.layout.force()
             .charge(function (d) {
                 return d._children ? -d.size / 100 : d.children ? -100 : -30;
@@ -456,7 +447,6 @@ GraphLayout = {
                 return d.target._children ? 50 : 30;
             })
             .size([width, height]);
-
 
         var rootNode = {
             name: args.root.id,
@@ -484,7 +474,6 @@ GraphLayout = {
             .nodes(nodes)
             .links(links);
 
-
         force.on('end', function (o) {
             console.log(o)
             debugger
@@ -497,9 +486,10 @@ GraphLayout = {
             force.tick();
 
             // Apply the constraints:
-            force.nodes().forEach(function(d) {
+            force.nodes().forEach(function (d) {
                 if (!d.fixed) {
-                    var r = (d.children ? 4.5 : Math.sqrt(d.size) / 10) + 4, dx, dy, ly = 30;
+                    var r = (d.children ? 4.5 : Math.sqrt(d.size) / 10) + 4,
+                        dx, dy, ly = 30;
 
                     // #1: constraint all nodes to the visible screen:
                     //d.x = Math.min(width - r, Math.max(r, d.x));
@@ -533,19 +523,22 @@ GraphLayout = {
                 }
             });
 
-
             if (safety++ > 1000) {
-                break;// Avoids infinite looping in case this solution was a bad idea
+                break; // Avoids infinite looping in case this solution was a bad idea
             }
         }
-//            console.log(safety);
+        //            console.log(safety);
         force.stop();
         console.timeEnd('D3 Force directed layout');
 
-
     },
     _flatten: function (root, width, height) {
-        var nodes = [], i = 0, depth = 0, level_widths = [1], max_width, max_depth = 1, kx, ky;
+        var nodes = [],
+            i = 0,
+            depth = 0,
+            level_widths = [1],
+            max_width, max_depth = 1,
+            kx, ky;
 
         function recurse(node, parent, depth, x) {
             if (node.children) {
@@ -587,7 +580,248 @@ GraphLayout = {
         }
 
         return nodes;
+    },
+    grid: function (args) {
+        this._doCytoscapeLayout(args, 'grid');
+    },
+    breadthfirst: function (args) {
+        this._doCytoscapeLayout(args, 'breadthfirst');
+    },
+    _doCytoscapeLayout: function (args, layoutName, layoutArgs) {
+        if (layoutArgs == null) {
+            layoutArgs = {};
+        }
+
+        var network = args.network;
+        var graph = args.network.graph;
+        var width = args.width;
+        var height = args.height;
+        var vertices = network.graph.vertices;
+        var edges = network.graph.edges;
+
+        var endFunction = args.end;
+
+        var cy = cytoscape({});
+
+        //set node and edge arrays
+        var eles = this._createCytoscapeEles(vertices, edges);
+        eles = cy.add(eles);
+
+        layoutArgs["name"] = layoutName;
+        layoutArgs["boundingBox"] = {
+            x1: 0,
+            y1: 0,
+            w: width,
+            h: height
+        };
+        eles.layout(layoutArgs);
+        endFunction(eles);
+    },
+    _createCytoscapeEles: function (vertices, edges) {
+        var eles = [];
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            eles.push({
+                group: "nodes",
+                data: {
+                    id: vertex.id
+                }
+            });
+        }
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            eles.push({
+                group: "edges",
+                data: {
+                    id: edge.id,
+                    source: edge.source.id,
+                    target: edge.target.id
+                }
+            });
+        }
+        return eles
+    },
+    concentric: function (args) {
+        var network = args.network;
+        var graph = args.network.graph;
+        var width = args.width;
+        var height = args.height;
+        var vertices = network.graph.vertices;
+        var edges = network.graph.edges;
+
+        var endFunction = args.end;
+
+        var ca = args.concentricAttribute;
+
+        var cy = cytoscape({});
+        var eles = [];
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            var c = 0;
+            if (ca != null && ca != 'none' && !isNaN(parseFloat(vertex.attributes[ca]))) {
+                c = parseFloat(vertex.attributes[ca]);
+            }
+            var n = {
+                group: "nodes",
+                data: {
+                    id: vertex.id,
+                    concentric: c
+                }
+            };
+            eles.push(n);
+        }
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            var e = {
+                group: "edges",
+                data: {
+                    id: edge.id,
+                    source: edge.source.id,
+                    target: edge.target.id
+                }
+            };
+            eles.push(e);
+        }
+        eles = cy.add(eles);
+        var layoutConfig = {
+            name: 'concentric',
+            boundingBox: {
+                x1: 0,
+                y1: 0,
+                w: width,
+                h: height
+            },
+            minNodeSpacing: 30
+        }
+        if (args.concentricAttribute != null && args.concentricAttribute != 'none') {
+            layoutConfig["concentric"] = function (node) {
+                return node.data('concentric');
+            }
+        }
+        if (args.startAngle != null) {
+            layoutConfig["startAngle"] = parseFloat(args.startAngle);
+        }
+        if (args.sweep != null) {
+            layoutConfig["sweep"] = parseFloat(args.sweep);
+        }
+        if (args.minNodeSpacing != null) {
+            layoutConfig["minNodeSpacing"] = parseFloat(args.minNodeSpacing);
+        }
+        if (args.clockwise != null) {
+            layoutConfig["clockwise"] = args.clockwise;
+        }
+        if (args.equidistant != null) {
+            layoutConfig["equidistant"] = args.equidistant;
+        }
+        if (args.avoidOverlap != null) {
+            layoutConfig["avoidOverlap"] = args.avoidOverlap;
+        }
+        console.log(layoutConfig);
+        eles.layout(layoutConfig);
+        endFunction(eles);
+    },
+    cose: function (args) {
+        var network = args.network;
+        var graph = args.network.graph;
+        var width = args.width;
+        var height = args.height;
+        var vertices = network.graph.vertices;
+        var edges = network.graph.edges;
+
+        var endFunction = args.end;
+
+        var nra = args.nodeRepulsionAttribute;
+        var iela = args.idealEdgeLengthAttribute;
+        var eea = args.edgeElasticityAttribute;
+
+        var cy = cytoscape({});
+
+        //set node and edge arrays
+        var eles = [];
+        for (var i = 0, l = vertices.length; i < l; i++) {
+            var vertex = vertices[i];
+            var nr = 400000;
+            if (!isNaN(parseFloat(args.nodeRepulsion))) {
+                nr = parseFloat(args.nodeRepulsion);
+            }
+            if (nra != null && nra != 'none' && !isNaN(parseFloat(vertex.attributes[nra]))) {
+                nr = parseFloat(vertex.attributes[nra]);
+            }
+            var n = {
+                group: "nodes",
+                data: {
+                    id: vertex.id,
+                    nodeRepulsion: nr
+                }
+            };
+            eles.push(n);
+        }
+        for (var i = 0, l = edges.length; i < l; i++) {
+            var edge = edges[i];
+            var iel = 10,
+                ee = 100;
+            if (!isNaN(parseFloat(args.idealEdgeLength))) {
+                iel = parseFloat(args.idealEdgeLength);
+            }
+            if (iela != null && iela != 'none' && !isNaN(parseFloat(edge.attributes[iela]))) {
+                iel = parseFloat(edge.attributes[iela]);
+            }
+            if (!isNaN(parseFloat(args.edgeElasticity))) {
+                ee = parseFloat(args.edgeElasticity);
+            }
+            if (eea != null && eea != 'none' && !isNaN(parseFloat(edge.attributes[eea]))) {
+                ee = parseFloat(edge.attributes[eea]);
+            }
+            var e = {
+                group: "edges",
+                data: {
+                    id: edge.id,
+                    source: edge.source.id,
+                    target: edge.target.id,
+                    idealEdgeLength: iel,
+                    edgeElasticity: ee
+                }
+            };
+            eles.push(e);
+        }
+        eles = cy.add(eles);
+        var layoutConfig = {
+            name: 'cose',
+            boundingBox: {
+                x1: 0,
+                y1: 0,
+                w: width,
+                h: height
+            },
+            refresh: 1,
+            fit: true,
+            animate: false,
+            nodeRepulsion: function (node) {
+                return parseFloat(node.data('nodeRepulsion'));
+            },
+            idealEdgeLength: function (edge) {
+                return parseFloat(edge.data('idealEdgeLength'));
+            },
+            edgeElasticity: function (edge) {
+                return parseFloat(edge.data('edgeElasticity'));
+            },
+            ready: function () {
+                endFunction(eles);
+            }
+        }
+        if (args.componentSpacing != null) {
+            layoutConfig["componentSpacing"] = parseFloat(args.componentSpacing);
+        }
+        if (args.nodeOverlap != null) {
+            layoutConfig["nodeOverlap"] = parseFloat(args.nodeOverlap);
+        }
+        if (args.nestingFactor != null) {
+            layoutConfig["nestingFactor"] = parseFloat(args.nestingFactor);
+        }
+        if (args.gravity != null) {
+            layoutConfig["gravity"] = parseFloat(args.gravity);
+        }
+        console.log(layoutConfig);
+        eles.layout(layoutConfig);
     }
-
-
 }

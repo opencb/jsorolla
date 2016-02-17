@@ -32,18 +32,31 @@
             padding: 10px;
             height: 40px;
             width: 100px;
-            border: 1px solid rgba(125, 125, 125, 0.3);
+            border:1px solid var(--divider-color);
+        }
+        .title{
+          margin-right: 10px;
+          width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
     </style>
     <template>
         <div class="horizontal layout">
             <template is="dom-if" if="{{computeViewMode(viewMode,'list')}}">
-                <div class="horizontal layout flex">
-                    <div class="name flex" title$="{{sample.name}}">{{sample.name}}</div>
+                <div class="horizontal layout">
+                    <div class="name title" title$="{{sample.name}}">{{sample.name}}</div>
                 </div>
-                <div id="source">
+                <div id="status" class="title">
+                    <span style="">{{sample.status}}</span>
+                </div>
+                <div id="source" class="title">
                     <span>{{sample.source}}</span>
+                </div>
+                <div id="Cohort" class="title" hidden$="{{disableCaseControl}}">
+                  <span style="">{{sample.cohort}}</span>
                 </div>
             </template>
 
@@ -67,7 +80,12 @@
                 type: String,
                 value: 'list',
                 reflectToAttribute: true
-            }
+            },
+            disableCaseControl: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
         },
         computeViewMode: function (viewMode, value) {
             return viewMode == value;

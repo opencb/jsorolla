@@ -1,0 +1,190 @@
+<dom-module id="jso-configure-spring-embedder">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            width: 450px;
+        }
+
+        #main {
+            padding: 5px;
+        }
+
+        #main .horizontal.layout > div,
+        jso-select {
+            margin: 0 0 4px 4px;
+        }
+
+        .title {
+            margin: 0 0 10px 0;
+            padding-bottom: 2px;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        label {
+            width: 120px;
+        }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--divider-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
+    </style>
+    <template>
+        <div id="main">
+            <div class="title">Node related settings</div>
+
+            <div class="horizontal layout">
+                <label class="jso">Node repulsion:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" value="{{nodeRepulsion::input}}">
+                </div>
+
+                <jso-select style="width:114px;" id="nodeRepulsionSelect">
+                    <jso-option value="none">None</jso-option>
+                    <template is="dom-repeat" items="{{vertexColumns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
+            </div>
+            <br>
+
+            <div class="title">Edge related settings</div>
+            <div class="horizontal layout">
+                <label class="jso">Ideal edge length:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" value="{{idealEdgeLength::input}}">
+                </div>
+
+                <jso-select style="width:114px;" id="idealEdgeLengthSelect">
+                    <jso-option value="none">None</jso-option>
+                    <template is="dom-repeat" items="{{edgeColumns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Edge elasticity:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" value="{{edgeElasticity::input}}">
+                </div>
+
+                <jso-select style="width:114px;" id="edgeElasticitySelect">
+                    <jso-option style="width:11" value="none">None</jso-option>
+                    <template is="dom-repeat" items="{{edgeColumns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
+            </div>
+            <br>
+
+            <div class="title">Global settings</div>
+
+            <div class="horizontal layout">
+                <label class="jso">Component spacing:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" min="0" value="{{componentSpacing::input}}">
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Node overlap:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" min="0" value="{{nodeOverlap::input}}">
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Nesting factor:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" min="0" value="{{nestingFactor::input}}">
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Gravity:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" min="0" value="{{gravity::input}}">
+                </div>
+            </div>
+        </div>
+
+        <div class="footer horizontal layout center">
+            <div class="flex"></div>
+            <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleOk">OK</div>
+        </div>
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-configure-spring-embedder",
+        properties: {
+            edgeColumns: {
+                type: Array
+            },
+            vertexColumns: {
+                type: Array
+            },
+            nodeRepulsion: {
+                type: Number,
+                value: 400000
+            },
+            idealEdgeLength: {
+                type: Number,
+                value: 10
+            },
+            edgeElasticity: {
+                type: Number,
+                value: 100
+            },
+            componentSpacing: {
+                type: Number,
+                value: 100
+            },
+            nodeOverlap: {
+                type: Number,
+                value: 10
+            },
+            nestingFactor: {
+                type: Number,
+                value: 5
+            },
+            gravity: {
+                type: Number,
+                value: 80
+            }
+        },
+        handleOk: function() {
+            // Number of iterations between consecutive screen positions update // (0 -> only updated on the end) refresh : 20,
+            // Whether to fit the network view after when done fit : true,
+            // Padding on fit padding : 30,
+            // Maximum number of iterations to perform numIter : 1000,
+            // Initial temperature (maximum node displacement) initialTemp : 200,
+            // Cooling factor (how the temperature is reduced between consecutive iterations coolingFactor : 0.95,
+            // Lower temperature threshold (below this point the layout will end) minTemp : 1.0,
+            // Whether to use threading to speed up the layout useMultitasking : true
+            this.fire('ok', {
+                nodeRepulsion: this.nodeRepulsion,
+                idealEdgeLength: this.idealEdgeLength,
+                edgeElasticity: this.edgeElasticity,
+                componentSpacing: this.componentSpacing,
+                nodeOverlap: this.nodeOverlap,
+                nestingFactor: this.nestingFactor,
+                gravity: this.gravity,
+                nodeRepulsionAttribute: this.$.nodeRepulsionSelect.value,
+                idealEdgeLengthAttribute: this.$.idealEdgeLengthSelect.value,
+                edgeElasticityAttribute: this.$.edgeElasticitySelect.value
+            });
+        }
+    });
+</script>

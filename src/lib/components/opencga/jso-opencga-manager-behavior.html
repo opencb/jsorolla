@@ -110,9 +110,9 @@
                         callback(uploadedFile);
                     }
                 },
-                error: function(msg) {
+                error: function(msg, result) {
                     console.log(msg);
-                    callback();
+                    callback(null, msg, result);
                 }
             };
             OpencgaManager.files.upload2(config);

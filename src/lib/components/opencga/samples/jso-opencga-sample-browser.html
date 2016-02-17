@@ -104,7 +104,6 @@
             height: 100%;
         }
 
-        jso-opencga-upload-file,
         jso-opencga-create-project,
         jso-opencga-create-study {
             width: 300px;
@@ -112,6 +111,12 @@
             background-color: #fafafa;
             padding: 20px 30px;
         }
+        jso-opencga-upload-file {
+            box-sizing: border-box;
+            background-color: #fafafa;
+            padding: 20px 30px;
+        }
+
 
         .bar > div {
             margin-right: 5px;
@@ -174,7 +179,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}" samples="{{samples}}">
+                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}" samples="{{samples}}" disable-case-control$="{{disableCaseControl}}" enable-variant-browser$="{{enableVariantBrowser}}" on-upload-file="handleUploadFile">
                 </jso-opencga-sample-list>
             </div>
         </div>
@@ -185,6 +190,13 @@
 
 
         </div>
+
+        <jso-panel modal movable closable hidden id="uploadFilePanel">
+            <div class="header">
+                <i class="fa fa-cloud-upload"></i> &nbsp; Upload file
+            </div>
+            <jso-opencga-upload-file class="container" id="uploadFile" on-file-uploaded="handleFileUploaded" projects="{{projects}}" selected-project="{{selectedProject.project}}" selected-study="{{selectedStudy.study}}" selected-folder="{{folder}}" bioformats="{{bioformats}}"></jso-opencga-upload-file>
+        </jso-panel>
 
         <jso-panel modal closable hidden id="createProjectPanel">
             <div class="header">
@@ -292,7 +304,17 @@
             loading: {
                 type: Boolean,
                 value: false
-            }
+            },
+            disableCaseControl: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            enableVariantBrowser: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
         },
         ready: function() {
             var me = this;
@@ -310,6 +332,7 @@
             }, 100);
         },
         _setInitialSelection: function() {
+
             if (this._parentJsoPanel != null && this._parentJsoPanel.hidden === false) {
                 if (this.selectedProject == null) {
                     var el = Polymer.dom(this.root).querySelector('jso-opencga-project-tree');
@@ -318,6 +341,9 @@
                 if (this.selectedProject != null && this.selectedStudy == null) {
                     var el = Polymer.dom(this.selectedProject.root).querySelector('jso-opencga-study-tree');
                     this.set('selectedStudy', el);
+                }
+                if (this.selectedStudy) {
+                    this._showStudyFolder();
                 }
 
             }
@@ -423,6 +449,13 @@
             } else {
                 return project.name.charAt(0) != ".";
             }
+        },
+        handleUploadFile: function(e) {
+            this.$.uploadFilePanel.hidden = !this.$.uploadFilePanel.hidden;
+        },
+        handleFileUploaded: function(e) {
+            this._showStudyFolder();
+            this.$.uploadFilePanel.hidden = true;
         }
     });
 </script>

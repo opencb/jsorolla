@@ -85,6 +85,11 @@
                 value: ''
             }
         },
+        clean: function() {
+            this.$.input.value = "";
+            this.set('results', []);
+            this.set('lastQuery', '');
+        },
 
         toggleList: function(e) {
             if (this.$.list.style.display === '') {

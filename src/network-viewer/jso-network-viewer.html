@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 
 <script src="../../bower_components/d3/d3.min.js"></script>
+<script src="../../bower_components/cytoscape/dist/cytoscape.min.js"></script>
 <script src="../../bower_components/pako/dist/pako.min.js"></script>
 
 <script src="../../bower_components/js-xlsx/dist/jszip.js"></script>
@@ -80,6 +81,8 @@
 <link rel="import" href="../lib/components/network/jso-kegg.html">
 <link rel="import" href="../lib/components/network/jso-reactome.html">
 <link rel="import" href="../lib/components/network/jso-configure-force-directed.html">
+<link rel="import" href="../lib/components/network/jso-configure-spring-embedder.html">
+<link rel="import" href="../lib/components/network/jso-configure-concentric.html">
 
 <link rel="import" href="jso-nv-snow.html">
 <link rel="import" href="jso-nv-network-miner.html">
@@ -157,10 +160,10 @@
     </style>
     <template>
 
-        <jso-nv-bar id="nvbar" lite="{{lite}}" hidden$="{{hideBar}}" columns="{{vertexColumns}}" on-session-start="handleSessionStartMenu" on-session-open="handleSessionOpenMenu" on-session-save="handleSessionSaveMenu" on-session-manage="handleSessionManageMenu" on-import-sif="handleImportSifMenu" on-import-text="handleImportTextMenu" on-import-xlsx="handleImportXlsxMenu" on-import-node-attributes="handleImportNodeAttrMenu" on-import-edge-attributes="handleImportEdgeAttrMenu" on-export-sif="handleExportSifMenu" on-export-svg="handleExportSvgMenu" on-export-png="handleExportPngMenu" on-export-node-attributes="handleExportNodeAttrMenu" on-export-edge-attributes="handleExportEdgeAttrMenu" on-nodes-select-all="handleSelectMenu" on-nodes-select-first-neighbourhood="handleSelectMenu" on-nodes-select-invert="handleSelectMenu" on-edges-select-all="handleSelectMenu" on-edges-select-adjacent="handleSelectMenu" on-network-select-all="handleSelectMenu" on-layout-force-directed="handleLayoutMenu" on-layout-tree="handleLayoutMenu" on-layout-configure-force-directed="handleLayoutMenu" on-layout-circle="handleLayoutMenu" on-layout-random="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu" on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu" on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu" on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu" on-functionalities="handleFunctionalitiesMenu">
+        <jso-nv-bar id="nvbar" lite="{{lite}}" hidden$="{{hideBar}}" columns="{{vertexColumns}}" on-session-start="handleSessionStartMenu" on-session-open="handleSessionOpenMenu" on-session-save="handleSessionSaveMenu" on-session-manage="handleSessionManageMenu" on-import-sif="handleImportSifMenu" on-import-text="handleImportTextMenu" on-import-xlsx="handleImportXlsxMenu" on-import-node-attributes="handleImportNodeAttrMenu" on-import-edge-attributes="handleImportEdgeAttrMenu" on-export-sif="handleExportSifMenu" on-export-svg="handleExportSvgMenu" on-export-png="handleExportPngMenu" on-export-node-attributes="handleExportNodeAttrMenu" on-export-edge-attributes="handleExportEdgeAttrMenu" on-nodes-select-all="handleSelectMenu" on-nodes-select-first-neighbourhood="handleSelectMenu" on-nodes-select-invert="handleSelectMenu" on-edges-select-all="handleSelectMenu" on-edges-select-adjacent="handleSelectMenu" on-network-select-all="handleSelectMenu" on-layout="handleLayoutMenu" on-network-edit="handleNetworkEditMenu" on-nodes-edit="handleNodesEditMenu" on-edges-edit="handleEdgesEditMenu" on-nodes-filter="handleNodesFilterMenu" on-edges-filter="handleEdgesFilterMenu" on-cellbase="handleCellbaseMenu" on-node-simple-rendering="handleNodeSimpleRenderingMenu" on-node-list-rendering="handleNodeListRenderingMenu" on-edge-simple-rendering="handleEdgeSimpleRenderingMenu" on-reactome="handleReactomeMenu" on-kegg="handleKeggMenu" on-intact="handleIntactMenu" on-communities-structure-detection="handleCommunitiesMenu" on-topological-study="handleTopologicalMenu" on-reactome-fi-microarray="handleReactomeFiMenu" on-snow="handleSnowMenu" on-network-miner="handleNetworkMinerMenu" on-fatigo="handleFatigoMenu" on-example="handleLoadExampleMenu" on-save="handleSave" on-drugs="handleDrugsMenu" on-diseases="handleDiseasesMenu" on-functionalities="handleFunctionalitiesMenu">
         </jso-nv-bar>
 
-        <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage" on-reset-zoom="handleResetZoom">
+        <jso-nv-tool-bar lite="{{lite}}" hidden$="{{hideToolBar}}" background-color="{{backgroundColor}}" mode="{{mode}}" zoom="{{zoom}}" on-layoutchange="handleLayoutChange" on-selectchange="handleSelectChange" on-rotatechange="handleRotateChange" on-importbackgroundimage="handleImportBackgroundImage" on-reset-zoom="handleResetZoom" on-center-network="handleCenterNetwork" on-undo="undoAction" on-redo="redoAction">
         </jso-nv-tool-bar>
 
         <jso-nv-edition-bar id="editionBar" hidden$="{{hideEditionBar}}" selection-color="{{vertexDefaults.selectionColor}}" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-vertexshape="handleVertexShape" on-vertexopacity="handleVertexOpacity" on-vertexsize="handleVertexSize" on-vertexcolor="handleVertexColor" on-vertexstrokesize="handleVertexStrokeSize" on-vertexstrokecolor="handleVertexStrokeColor" on-vertexlabelsize="handleVertexLabelSize" on-vertexsearch="handleVertexSearch" on-vertexnamefield="handleVertexNameField" on-edgeshape="handleEdgeShape" on-edgesize="handleEdgeSize" on-edgecolor="handleEdgeColor" on-edgelabelsize="handleEdgeLabelSize" on-edgesearch="handleEdgeSearch" on-edgenamefield="handleEdgeNameField">
@@ -246,7 +249,7 @@
 
             <jso-panel hidden collapsible fixed movable closable id="functionalitiesPanel">
                 <div class="header">
-                    Import functionalities
+                    Import functional annotations
                 </div>
                 <jso-cellbase-functionalities-import id="functionalities" class="container" items="{{vertices}}" columns="{{vertexColumns}}" on-add-columns="handleCellbaseAddColumns">
                 </jso-cellbase-functionalities-import>
@@ -271,7 +274,7 @@
 
             <jso-panel hidden collapsible fixed movable closable id="intactImportPanel">
                 <div class="header">
-                    Network protein connectivity
+                    Find interactions
                 </div>
                 <jso-intact-import id="intactImport" class="container" items="{{vertices}}" columns="{{vertexColumns}}" selected="{{selectedVertices}}" on-graph="handleIntactGraph">
                 </jso-intact-import>
@@ -296,7 +299,7 @@
 
             <jso-panel hidden collapsible fixed movable closable id="communitiesStructureDetectionPanel">
                 <div class="header">
-                    Network analysis: Communities structure detection
+                    Network analysis: Community structure detection
                 </div>
                 <jso-communities-structure-detection id="communitiesStructureDetection" items="{{vertices}}" columns="{{vertexColumns}}" graph="{{graph}}" on-community="handleCommunityAttributes" on-apply-community="handleApplyCommunity" class="container">
                 </jso-communities-structure-detection>
@@ -323,8 +326,30 @@
                 </jso-configure-force-directed>
             </jso-panel>
 
+            <jso-panel hidden collapsible fixed movable closable id="configureCosePanel">
+                <div class="header">
+                    Compound spring embedder layout configuration
+                    <a class="link" style="margin-left: 15px;" target="_blank" href="http://js.cytoscape.org/#layouts/cose">
+                        <i class="fa fa-external-link"></i> about
+                    </a>
+                </div>
+                <jso-configure-spring-embedder id="configureCose" class="container" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-ok="handleCoseConfig">
+                </jso-configure-spring-embedder>
+            </jso-panel>
 
-            <jso-panel hidden collapsible fixed movable closable id="sessionManagerPanel">
+            <jso-panel hidden collapsible fixed movable closable id="configureConcentricPanel">
+                <div class="header">
+                    Concentric layout configuration
+                    <a class="link" style="margin-left: 15px;" target="_blank" href="http://js.cytoscape.org/#layouts/concentric">
+                        <i class="fa fa-external-link"></i> about
+                    </a>
+                </div>
+                <jso-configure-concentric id="configureConcentric" class="container" vertex-columns="{{vertexColumns}}" edge-columns="{{edgeColumns}}" on-ok="handleConcentricConfig">
+                </jso-configure-concentric>
+            </jso-panel>
+
+
+            <jso-panel hidden collapsible fixed movable closable id="sessionManagerPanel" on-hidden="handleSessionManagerHidden">
                 <div class="header">
                     User session manager
                 </div>
@@ -587,6 +612,17 @@
             },
             projects: {
                 type: Array
+            },
+
+            actionStack: {
+                type: Array,
+                value: function() {
+                    return []
+                }
+            },
+            actionStackPointer: {
+                type: Number,
+                value: 0
             }
         },
         _computingHeigth: false,
@@ -604,6 +640,10 @@
         },
         ready: function() {
             var me = this;
+
+            if (this.domHost != null && this.domHost.tagName == 'CELL-MAPS-ELEMENT') {
+                this.cellMaps = this.domHost;
+            }
 
             this.serializeKey = 'NV_CURRENT_SESSION' + this.serializeVersion;
 
@@ -806,11 +846,22 @@
             this.saveLocalStorage();
         },
         resetZoom: function() {
-            this.zoom = 25;
-            this.set('center.x', 0);
-            this.set('center.y', 0);
-        },
+            // Deprecated
 
+            // this.zoom = 25;
+            // this.set('center.x', 0);
+            // this.set('center.y', 0);
+        },
+        centerNetwork: function() {
+            if (this.vertices.length > 0) {
+                this.$.networkLayout.centerNetwork();
+            } else {
+                this.zoom = 25;
+                this.refreshGraphView();
+            }
+
+            this.addActionStack();
+        },
         loadLocalStorage: function() {
             var item = localStorage.getItem(this.serializeKey);
             if (item !== null && item !== "null") {
@@ -849,8 +900,46 @@
             localStorage.setItem(this.serializeKey, null);
             localStorage.removeItem(this.serializeKey);
         },
+        undoAction: function() {
+            this.actionStackPointer += 1;
+            var gzip;
+            if (this.actionStackPointer <= 10) {
+                gzip = this.actionStack[this.actionStackPointer];
+            }
+            if (gzip != null) {
+                this.loadJSON(JSON.parse(pako.ungzip(gzip, {
+                    to: 'string'
+                })), true);
+            } else {
+                this.actionStackPointer -= 1;
+            }
+        },
+        redoAction: function() {
+            this.actionStackPointer -= 1;
+            var gzip;
+            if (this.actionStackPointer >= 0) {
+                gzip = this.actionStack[this.actionStackPointer];
+            }
+            if (gzip != null) {
+                this.loadJSON(JSON.parse(pako.ungzip(gzip, {
+                    to: 'string'
+                })), true);
+            } else {
+                this.actionStackPointer += 1;
+            }
+        },
+        addActionStack: function() {
+            var gzip = pako.gzip(JSON.stringify(this), {
+                to: 'string'
+            });
+            var length = this.actionStack.unshift(gzip);
+            this.actionStackPointer = 0;
+            if (length > 10) {
+                this.actionStack.pop();
+            }
+        },
 
-        loadJSON: function(o) {
+        loadJSON: function(o, notAddActionStack) {
             this.startOver();
             //Version fix  selectionColor
             if (o.vertexDefaults.selectionColor == null) {
@@ -898,6 +987,10 @@
             this.zoom = o.zoom;
 
             this.saveLocalStorage();
+
+            if (notAddActionStack !== true) {
+                this.addActionStack();
+            }
         },
 
         toJSON: function() {
@@ -923,6 +1016,7 @@
             for (var i = 0, l = this.graph.vertices.length; i < l; i++) {
                 vertex = this.graph.vertices[i];
                 vertex.renderer.setLabelContent(vertex.attributes[attribute]);
+                this._updateEdgeCoords(vertex);
             }
         },
         selectVertexDefaultLabelAttribute: function(attribute) {
@@ -997,6 +1091,7 @@
                     }
                 }
             }
+            this.addActionStack();
         },
         setEdgeDefaultDisplayProperty: function(displayProperty, value) {
             var visualSetEnabled = false;
@@ -1016,6 +1111,7 @@
                 }
                 edge.renderer.set(displayProperty, finalValue);
             }
+            this.addActionStack();
         },
         setVertexDefaultPositionX: function(attribute, adjust, invertAxis) {
             adjust = (adjust == null) ? true : adjust;
@@ -1191,8 +1287,9 @@
                         vertex.renderer.select(this.vertexDefaults.selectionColor);
                     }
                 }
+                this.notifyPath('selectedVertices.length', this.selectedVertices.length);
             }
-            console.timeEnd("selectedVerticesChanged")
+            console.timeEnd("selectedVerticesChanged");
         },
         selectedEdgesChanged: function(changeRecord) {
             //            console.log('selectedEdgesChanged');
@@ -1330,6 +1427,9 @@
             //                link.dispatchEvent(event);
             //            }
         },
+        handleSessionManagerHidden: function() {
+            this.fire('session-manager-hidden', this.$.sessionManagerPanel);
+        },
         handleSessionManageMenu: function(e) {
             this.$.sessionManagerPanel.show();
         },
@@ -1450,33 +1550,33 @@
             this.$.topologicalStudyPanel.show();
         },
         handleSnowMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.snowPanel.show();
         },
         handleNetworkMinerMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.networkMinerPanel.show();
         },
         handleFatigoMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.fatigoPanel.show();
         },
         handleReactomeFiMenu: function(e) {
-            if (this.jsoHeader) {
-                if (this.jsoHeader.isLogged == false) {
-                    this.jsoHeader.anonymousSign();
+            if (this.cellMaps.$.jsoHeader) {
+                if (this.cellMaps.$.jsoHeader.isLogged == false) {
+                    this.cellMaps.$.jsoHeader.anonymousSign();
                 }
             }
             this.$.reactomeFiPanel.show();
@@ -1556,6 +1656,24 @@
                 case 'layout-random':
                     this.setLayout('Random');
                     break;
+                case 'layout-grid':
+                    this.setLayout('Grid');
+                    break;
+                case 'layout-concentric':
+                    this.setLayout('Concentric');
+                    break;
+                case 'layout-configure-concentric':
+                    this.$.configureConcentricPanel.show();
+                    break;
+                case 'layout-breadthfirst':
+                    this.setLayout('Breadthfirst');
+                    break;
+                case 'layout-cose':
+                    this.setLayout('Cose');
+                    break;
+                case 'layout-configure-cose':
+                    this.$.configureCosePanel.show();
+                    break;
                 default:
                     console.log(e.detail.value + " not defined");
             }
@@ -1564,8 +1682,12 @@
         handleResetZoom: function() {
             this.resetZoom();
         },
+        handleCenterNetwork: function() {
+            this.centerNetwork();
+        },
         handleImportBackgroundImage: function(e) {
             this.$.networkLayout.addBackgroundImage(e.detail.image);
+            this.addActionStack();
         },
         handleLayoutChange: function(e) {
             this.setLayout(e.detail.layout);
@@ -1574,7 +1696,12 @@
             this.select(e.detail.select);
         },
         handleRotateChange: function(e) {
-            this.rotateNetwork(e.detail.angle);
+            if ('angle' in e.detail) {
+                this.rotateNetwork(e.detail.angle);
+            }
+            if ('flip' in e.detail) {
+                this.flipNetwork(e.detail.flip);
+            }
         },
         /* editionbar Handlers*/
         handleVertexShape: function(e) {
@@ -1599,9 +1726,28 @@
             this.setSelectedVerticesDisplayAttr('labelSize', e.detail.value);
         },
         handleVertexSearch: function(e) {
-            this.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
+            var str = e.detail.columnName;
+            if (e.detail.columnName === 'all') {
+                str += ' attributes';
+                var selected = [];
+                for (var i = 0; i < this.graph.vertices.length; i++) {
+                    var vertex = this.graph.vertices[i];
+                    for (var att in vertex.attributes) {
+                        if (vertex.attributes[att].toString().indexOf(e.detail.value) != -1) {
+                            selected.push(vertex);
+                            break;
+                        }
+                    }
+                }
+                this.set('selectedVertices', selected);
+            } else {
+                str += ' attribute';
+                this.selectVerticesByAttribute(e.detail.columnName, e.detail.value);
+            }
             if (this.selectedVertices.length == 0) {
-                e.detail.inputEl.style.color = '#ff0000';
+                Utils.msg('Search results', 'Your search using ' + str + ' "' + e.detail.value + '" using did not match any node.');
+            } else {
+                Utils.msg('Search results', this.selectedVertices.length + ' nodes found using ' + str + '. The found nodes has been selected.');
             }
         },
         handleVertexNameField: function(e) {
@@ -1628,6 +1774,7 @@
         /** Layout Handlers **/
         handleCreateVertex: function(e) {
             this.createVertex(e.detail.x, e.detail.y);
+            this.addActionStack();
         },
         handleSelectVertex: function(e) {
             var vertex = this.graph.getVertexById(e.detail.vertexId);
@@ -1647,14 +1794,17 @@
             var source = this.graph.getVertexById(e.detail.sourceId);
             var target = this.graph.getVertexById(e.detail.targetId);
             this.createEdge(source, target);
+            this.addActionStack();
         },
         handleRemoveVertex: function(e) {
             var vertex = this.graph.getVertexById(e.detail.vertexId);
             this.removeVertex(vertex);
+            this.addActionStack();
         },
         handleRemoveEdge: function(e) {
             var edge = this.graph.getEdgeById(e.detail.edgeId);
             this.removeEdge(edge);
+            this.addActionStack();
         },
         handleLeftClickVertex: function(e) {
             var vertex = this.graph.getVertexById(e.detail.vertexId);
@@ -1732,24 +1882,28 @@
             if (confirm('Remove selected vertex?')) {
                 this._hideVertexContextMenu();
                 this.removeVertex(this._lastContextVertex);
+                this.addActionStack();
             }
         },
         handleContextRemoveEdge: function(e) {
             if (confirm('Remove selected edge?')) {
                 this._hideEdgeContextMenu();
                 this.removeEdge(this._lastContextEdge);
+                this.addActionStack();
             }
         },
         handleContextRemoveSelectedVertices: function(e) {
             if (confirm('Remove selected vertices?')) {
                 this._hideVertexContextMenu();
                 this.removeSelectedVertices();
+                this.addActionStack();
             }
         },
         handleContextRemoveSelectedEdges: function(e) {
             if (confirm('Remove selected edges?')) {
                 this._hideVertexContextMenu();
                 this.removeSelectedEdges();
+                this.addActionStack();
             }
         },
         handleContextSelectVerticesNeighbour: function(e) {
@@ -1781,6 +1935,7 @@
         handleContextRemoveBackGroundImage: function(e) {
             this._hideImageContextMenu();
             this.removeBackGroundImage(this._lastImageElClicked);
+            this.addActionStack();
         },
 
         /** network edit **/
@@ -1951,7 +2106,7 @@
                     var attributes = vertex.attributes;
                     attributes["degree"] = obj.degree;
                     attributes["betweenness"] = obj.betweenness;
-                    attributes["closenessCentrality"] = obj.closenessCentrality;
+                    attributes["closeness"] = obj.closeness;
                     attributes["clusteringCoefficient"] = obj.clusteringCoefficient;
                 }
             }
@@ -2241,11 +2396,9 @@
             this.deselectAllEdges();
         },
         removeSelectedVertices: function() {
-            for (var i = 0; i < this.selectedVertices.length; i++) {
-                var vertex = this.selectedVertices[i];
-                this._removeVertex(vertex);
-            }
+            this.graph.removeVertices(this.selectedVertices);
             this.deselectAllVertices();
+            this.refreshGraphView(this.graph, true);
         },
         removeSelectedEdges: function() {
             var edgesToDelete = [];
@@ -2367,29 +2520,96 @@
             }
         },
         rotateNetwork: function(angle) {
-            var intPattern = /^-?\d+$/;
-            if (angle && intPattern.test(angle)) {
-                var clientRect = this.$.networkLayout.getBoundingClientRect();
-                var centerX = clientRect.width / 2;
-                var centerY = clientRect.height / 2;
-                var vertices = this.graph.vertices;
-                var rotationInRadians = angle * Math.PI / 180.0;
+            var vertices = this.graph.vertices;
+            if (vertices.length > 0) {
+                var intPattern = /^-?\d+$/;
+                if (angle && intPattern.test(angle)) {
+
+                    // calculate network bounding coords
+                    var minX = vertices[0].position.x,
+                        minY = vertices[0].position.y,
+                        maxX = minX,
+                        maxY = minY;
+                    for (var i = 0, l = vertices.length; i < l; i++) {
+                        var vertex = vertices[i];
+                        if (vertex.position.x < minX) {
+                            minX = vertex.position.x;
+                        }
+                        if (vertex.position.x > maxX) {
+                            maxX = vertex.position.x;
+                        }
+                        if (vertex.position.y < minY) {
+                            minY = vertex.position.y;
+                        }
+                        if (vertex.position.y > maxY) {
+                            maxY = vertex.position.y;
+                        }
+                    }
+                    var centerX = (maxX + minX) / 2;
+                    var centerY = (maxY + minY) / 2;
+
+                    var rotationInRadians = angle * Math.PI / 180.0;
+                    for (var i = 0, l = vertices.length; i < l; i++) {
+                        var vertex = vertices[i];
+                        var vCoords = vertex.position;
+                        //Detect angle and radius using width/2 and height/2 as center
+                        var deltaX = vCoords.x - centerX;
+                        var deltaY = vCoords.y - centerY;
+                        var radius = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+                        var delta = deltaY / deltaX;
+                        var angleRad = (isNaN(delta)) ? 0 : Math.atan(delta) + rotationInRadians;
+                        //Fix Quadrant
+                        angleRad = (vCoords.x < centerX) ? angleRad += Math.PI : angleRad;
+                        var x = centerX + (radius * Math.cos(angleRad));
+                        var y = centerY + (radius * Math.sin(angleRad));
+                        //
+                        this.setVertexCoords(vertex.id, x, y);
+                    }
+
+                    this.addActionStack();
+                }
+            }
+        },
+        flipNetwork: function(direction) {
+            var vertices = this.graph.vertices;
+            if (vertices.length > 0) {
+                // calculate network bounding coords
+                var minX = vertices[0].position.x,
+                    minY = vertices[0].position.y,
+                    maxX = minX,
+                    maxY = minY;
                 for (var i = 0, l = vertices.length; i < l; i++) {
                     var vertex = vertices[i];
-                    var vCoords = vertex.position;
-                    //Detect angle and radius using width/2 and height/2 as center
-                    var deltaX = vCoords.x - centerX;
-                    var deltaY = vCoords.y - centerY;
-                    var radius = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-                    var delta = deltaY / deltaX;
-                    var angleRad = (isNaN(delta)) ? 0 : Math.atan(delta) + rotationInRadians;
-                    //Fix Quadrant
-                    angleRad = (vCoords.x < centerX) ? angleRad += Math.PI : angleRad;
-                    var x = centerX + (radius * Math.cos(angleRad));
-                    var y = centerY + (radius * Math.sin(angleRad));
-                    //
-                    this.setVertexCoords(vertex.id, x, y);
+                    if (vertex.position.x < minX) {
+                        minX = vertex.position.x;
+                    }
+                    if (vertex.position.x > maxX) {
+                        maxX = vertex.position.x;
+                    }
+                    if (vertex.position.y < minY) {
+                        minY = vertex.position.y;
+                    }
+                    if (vertex.position.y > maxY) {
+                        maxY = vertex.position.y;
+                    }
                 }
+
+                if (direction === 'horizontal') {
+                    var x;
+                    for (var i = 0, l = vertices.length; i < l; i++) {
+                        var vertex = vertices[i];
+                        x = maxX - vertex.position.x + minX;
+                        this.setVertexCoords(vertex.id, x, vertex.position.y);
+                    }
+                } else if (direction === 'vertical') {
+                    var y;
+                    for (var i = 0, l = vertices.length; i < l; i++) {
+                        var vertex = vertices[i];
+                        y = maxY - vertex.position.y + minY;
+                        this.setVertexCoords(vertex.id, vertex.position.x, y);
+                    }
+                }
+                this.addActionStack();
             }
         },
         getOrderedIdsByAttribute: function(attributeName) {
@@ -2432,100 +2652,149 @@
             return values;
         },
         setLayout: function(type, e) {
-            var me = this;
-            this.x = 0;
-            this.y = 0;
-            var graph = this.graph;
-            var dot = graph.getAsDOT();
-            var clientRect = this.$.networkLayout.getBoundingClientRect();
-            var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
-            var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
-            switch (type) {
-                case "Circle":
-                    if (e && typeof e.attributeName !== 'undefined') {
-                        GraphLayout.circle(me, width, height, this.getOrderedIdsByAttribute(e.attributeName));
-                    } else {
-                        GraphLayout.circle(me, width, height);
-                    }
-                    break;
-                case "Random":
-                    GraphLayout.random2d(me, width, height);
-                    break;
-                case "none":
-                    break;
-                case "Force directed":
-                    GraphLayout.force({
-                        network: me,
-                        width: width,
-                        height: height,
-                        end: function(verticesArray) {
-                            for (var i = 0, l = verticesArray.length; i < l; i++) {
-                                var v = verticesArray[i];
-                                me.setVertexCoords(v.id, v.x, v.y);
-                            }
+            if (this.vertices.length > 0) {
+
+                var me = this;
+                this.x = 0;
+                this.y = 0;
+                var graph = this.graph;
+                var dot = graph.getAsDOT();
+                var clientRect = this.$.networkLayout.getBoundingClientRect();
+                var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+                var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+                switch (type) {
+                    case "Circle":
+                        if (e && typeof e.attributeName !== 'undefined') {
+                            GraphLayout.circle(me, width, height, this.getOrderedIdsByAttribute(e.attributeName));
+                        } else {
+                            GraphLayout.circle(me, width, height);
                         }
-                    });
-                    break;
-                case "Force directed (simulation)":
-                    GraphLayout.force({
-                        network: me,
-                        width: width,
-                        height: height,
-                        simulation: true,
-                        end: function(verticesArray) {
-                            for (var i = 0, l = verticesArray.length; i < l; i++) {
-                                var v = verticesArray[i];
-                                me.setVertexCoords(v.id, v.x, v.y);
-                            }
-                        }
-                    });
-                    break;
-                case "Tree":
-                    if (this.vAttr.selected.length == 1) {
-                        GraphLayout.tree({
+                        me.addActionStack();
+                        break;
+                    case "Random":
+                        GraphLayout.random2d(me, width, height);
+                        me.addActionStack();
+                        break;
+                    case "none":
+                        break;
+                    case "Force directed":
+                        GraphLayout.force({
                             network: me,
                             width: width,
-                            height: height - 100,
-                            root: this.graph.getVertexById(this.vAttr.selected[0].id),
+                            height: height,
                             end: function(verticesArray) {
                                 for (var i = 0, l = verticesArray.length; i < l; i++) {
                                     var v = verticesArray[i];
-                                    me.setVertexCoords(v.name, -v.x + (width), v.y + 50);
+                                    me.setVertexCoords(v.id, v.x, v.y);
+                                }
+                                me.addActionStack();
+                            }
+                        });
+                        break;
+                    case "Force directed (simulation)":
+                        GraphLayout.force({
+                            network: me,
+                            width: width,
+                            height: height,
+                            simulation: true,
+                            end: function(verticesArray) {
+                                for (var i = 0, l = verticesArray.length; i < l; i++) {
+                                    var v = verticesArray[i];
+                                    me.setVertexCoords(v.id, v.x, v.y);
                                 }
                             }
                         });
-                    } else {
-                        alert("Please select only one vertex to use it as root");
-                    }
-                    break;
-                default:
-                    console.log(dot);
-                    //                var url = "http://bioinfo.cipf.es/utils/ws/rest/network/layout/" + type.toLowerCase() + ".coords";
-                    ////                var url = "http://localhost:8080/opencga/rest/utils/network/layout/"+type+".coords";
-                    ////                var url = "http://ws-beta.bioinfo.cipf.es/opencga-staging/rest/utils/network/layout/" + type.toLowerCase() + ".coords";
-                    //                $.ajax({
-                    //                    async: false,
-                    //                    type: "POST",
-                    //                    url: url,
-                    //                    dataType: "json",
-                    //                    data: {
-                    //                        dot: dot
-                    //                    },
-                    //                    cache: false,
-                    //                    success: function (data) {
-                    //                        console.log('Layout back')
-                    //                        for (var vertexId in data) {
-                    //                            var x = _this.getLayoutWidth() * (0.05 + 0.85 * data[vertexId].x);
-                    //                            var y = _this.getLayoutHeight() * (0.05 + 0.85 * data[vertexId].y);
-                    //                            _this.setVertexCoords(vertexId, x, y);
-                    //                        }
-                    //                    },
-                    //                    error: function (data) {
-                    //                        debugger
-                    //                    },
-                    //
-                    //                });
-                    break;
+                        break;
+                    case "Tree":
+                        if (this.vAttr.selected.length == 1) {
+                            GraphLayout.tree({
+                                network: me,
+                                width: width,
+                                height: height - 100,
+                                root: this.graph.getVertexById(this.vAttr.selected[0].id),
+                                end: function(verticesArray) {
+                                    for (var i = 0, l = verticesArray.length; i < l; i++) {
+                                        var v = verticesArray[i];
+                                        me.setVertexCoords(v.name, -v.x + (width), v.y + 50);
+                                    }
+                                }
+                            });
+                        } else {
+                            alert("Please select only one vertex to use it as root");
+                        }
+                        break;
+                    case 'Grid':
+                        GraphLayout.grid({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
+                                }
+                                me.addActionStack();
+                            }
+                        });
+                        break;
+                    case 'Concentric':
+                        GraphLayout.concentric({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
+                                }
+                                me.addActionStack();
+                            }
+                        });
+                        break;
+                    case 'Breadthfirst':
+                        GraphLayout.breadthfirst({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
+                                }
+                                me.addActionStack();
+                            }
+                        });
+                        break;
+                    case 'Cose':
+                        GraphLayout.cose({
+                            network: me,
+                            width: width,
+                            height: height - 100,
+                            end: function(eles) {
+                                for (var i = 0, l = eles.length; i < l; i++) {
+                                    var e = eles[i];
+                                    if (e.group() === 'nodes') {
+                                        var position = e.position();
+                                        me.setVertexCoords(e.id(), position.x, position.y);
+                                    }
+                                }
+                                me.addActionStack();
+                            }
+                        });
+                        break;
+                    default:
+                        console.log(dot);
+                        break;
+                }
             }
         },
         handleForceDirectedConfig: function(e) {
@@ -2562,6 +2831,57 @@
                     }
                 }
             });
+        },
+        handleCoseConfig: function(e) {
+            var me = this;
+            var clientRect = this.$.networkLayout.getBoundingClientRect();
+            var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+            var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+
+            var config = {
+                network: me,
+                width: width,
+                height: height - 100,
+                end: function(eles) {
+                    for (var i = 0, l = eles.length; i < l; i++) {
+                        var e = eles[i];
+                        if (e.group() === 'nodes') {
+                            var position = e.position();
+                            me.setVertexCoords(e.id(), position.x, position.y);
+                        }
+                    }
+                    me.addActionStack();
+                }
+            };
+            for (var key in e.detail) {
+                config[key] = e.detail[key];
+            }
+            GraphLayout.cose(config);
+        },
+        handleConcentricConfig: function(e) {
+            var me = this;
+            var clientRect = this.$.networkLayout.getBoundingClientRect();
+            var width = (clientRect.width == 0) ? window.innerWidth : clientRect.width;
+            var height = (clientRect.height == 0) ? window.innerHeight : clientRect.height;
+            var config = {
+                network: me,
+                width: width,
+                height: height - 100,
+                end: function(eles) {
+                    for (var i = 0, l = eles.length; i < l; i++) {
+                        var e = eles[i];
+                        if (e.group() === 'nodes') {
+                            var position = e.position();
+                            me.setVertexCoords(e.id(), position.x, position.y);
+                        }
+                    }
+                    me.addActionStack();
+                }
+            };
+            for (var key in e.detail) {
+                config[key] = e.detail[key];
+            }
+            GraphLayout.concentric(config);
         },
         select: function(option) {
             switch (option) {
@@ -2625,13 +2945,13 @@
             this._createAttrColumns();
             this.graph.load(graph);
         },
-        refreshGraphView: function(graph) {
+        refreshGraphView: function(graph, keepTranslate) {
             if (graph == null) {
                 graph = this.graph;
             }
 
-            this.$.networkLayout.clean();
             this.$.networkLayout.removeDom();
+            this.$.networkLayout.clean(keepTranslate);
 
             var edges = graph.edges;
             var vertices = graph.vertices;

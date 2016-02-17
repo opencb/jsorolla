@@ -68,7 +68,7 @@ var Utils = {
     genId: function (prefix) {
         prefix = prefix || '';
         prefix = prefix.length == 0 ? prefix : prefix + '-';
-        return prefix + this.randomString();
+        return prefix + this.randomString(4) + this.getRandomInt(1000, 9999);
     },
     randomString: function (length) {
         length = length || 10;
@@ -402,16 +402,24 @@ var Utils = {
         div.appendChild(titleDiv);
         div.appendChild(msgDiv);
         document.body.appendChild(div);
+        div.addEventListener('click', function () {
+            document.body.removeChild(div);
+            div = null;
+        });
         setTimeout(function () {
             div.classList.add('jso-msg-shown');
         }, 10);
         setTimeout(function () {
-            div.classList.remove('jso-msg-shown');
-        }, 2000);
+            if (div) {
+                div.classList.remove('jso-msg-shown');
+            }
+        }, 4000);
         setTimeout(function () {
-            document.body.removeChild(div);
-            div = null;
-        }, 2200);
+            if (div) {
+                document.body.removeChild(div);
+                div = null;
+            }
+        }, 4400);
     },
     repeat: function (string, count) {
         if (string == null) {
@@ -516,7 +524,7 @@ var Utils = {
     subsetArray: function (array, from, to) {
         var aux = [];
         from = (from < 0) ? 0 : from;
-        to = (to >= array.length) ? array.length: to;
+        to = (to >= array.length) ? array.length : to;
 
         for (var i = from; i < to; i++) {
             aux.push(array[i]);

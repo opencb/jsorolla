@@ -36,10 +36,10 @@
                 </div>
                 <ul id="fileMenu">
                     <li hidden$="{{lite}}" on-click="handleClick" data-value="session-start">New session...</li>
-                    <li hidden$="{{lite}}" on-click="handleClick" data-value="session-save">Save session...</li>
+                    <li hidden$="{{lite}}" on-click="handleClick" data-value="session-save">Download session...</li>
                     <li hidden$="{{lite}}" on-click="handleOpenSession">Open session...</li>
                     <input type="file" style="position: fixed; top: -100em" id="openSessionInput" on-change="handleOpenSessionInputChange">
-                    <li hidden$="{{lite}}" on-click="handleClick" data-value="session-manage" id="manageSessionOption">User sessions...</li>
+                    <li hidden$="{{lite}}" on-click="handleClick" data-value="session-manage" id="manageSessionOption">Manage user sessions...</li>
                     <li hidden$="{{lite}}" data-divider></li>
                     <li hidden$="{{lite}}" data-sub>Import
                         <ul on-click="handleClick">
@@ -114,6 +114,20 @@
                                     </ul>
                                 </li>
                                 <li data-value="layout-random">Random</li>
+                                <li data-value="layout-grid">Grid</li>
+                                <li data-value="layout-concentric" data-sub>Concentric
+                                    <ul>
+                                        <li data-value="layout-concentric">Default</li>
+                                        <li data-value="layout-configure-concentric">Configure...</li>
+                                    </ul>
+                                </li>
+                                <li data-value="layout-breadthfirst">Breadthfirst</li>
+                                <li data-value="layout-cose" data-sub>Compound Spring Embedder
+                                    <ul>
+                                        <li data-value="layout-cose">Default</li>
+                                        <li data-value="layout-configure-cose">Configure...</li>
+                                    </ul>
+                                </li>
                                 <!--<li data-value="layout-attribute">Attribute layout...</li>-->
                             </ul>
                         </li>
@@ -132,7 +146,7 @@
                         <li hidden$="{{lite}}" data-divider></li>
                         <li data-value="cellbase" hidden$="{{lite}}"> Import external references...</li>
                         <li hidden$="{{lite}}" data-divider></li>
-                        <li data-value="functionalities" hidden$="{{lite}}"> Import functionalities...</li>
+                        <li data-value="functionalities" hidden$="{{lite}}"> Import functional annotations...</li>
                         <li data-value="drugs" hidden$="{{lite}}"> Import drugs by gene...</li>
                         <li data-value="diseases" hidden$="{{lite}}"> Import diseases by gene...</li>
                 </ul>
@@ -151,11 +165,11 @@
                     Analysis
                 </div>
                 <ul id="pluginsMenu" on-click="handleClick">
+                    <li data-value="intact">Find interactions...</li>
                     <li data-sub>Network analysis
                         <ul>
-                            <li data-value="intact">Network protein connectivity</li>
-                            <li data-value="communities-structure-detection">Communities structure detection</li>
-                            <li data-value="topological-study">Topological study</li>
+                            <li data-value="communities-structure-detection">Community structure detection...</li>
+                            <li data-value="topological-study">Topological study...</li>
                         </ul>
                     </li>
                     <!--<li data-sub>Expression analysis-->
@@ -163,16 +177,16 @@
                     <!--<li data-value="reactome-fi-microarray">Reactome FI microarray</li>-->
                     <!--</ul>-->
                     <!--</li>-->
-                    <li data-sub>Functional analysis
+                    <li data-sub>Functional enrichment
                         <ul>
-                            <li data-value="snow">Network enrichment
-                                <span class="tool"> - SNOW</span>
+                            <li data-value="snow">Network enrichment...
+                                <span class="tool"> SNOW</span>
                             </li>
-                            <li data-value="network-miner">Gene set network enrichment
-                                <span class="tool"> - Network Miner</span>
+                            <li data-value="network-miner">Gene set network enrichment...
+                                <span class="tool"> Network Miner</span>
                             </li>
-                            <li data-value="fatigo">Single enrichment
-                                <span class="tool"> - Fatigo</span>
+                            <li data-value="fatigo">Single enrichment...
+                                <span class="tool"> Fatigo</span>
                             </li>
                         </ul>
                     </li>
@@ -220,7 +234,11 @@
         },
         handleClick: function(e) {
             if ('value' in e.target.dataset) {
-                this.fire(e.target.dataset.value, e.target.dataset);
+                if(e.target.dataset.value.indexOf("layout-") === 0){
+                    this.fire('layout', e.target.dataset);
+                }else{
+                    this.fire(e.target.dataset.value, e.target.dataset);
+                }
             }
         },
         handleOpenSession: function(e) {

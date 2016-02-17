@@ -242,7 +242,7 @@
             handleColorMenu: function(e) {
                 this.lastUniqueModel.render = e.detail.color;
                 this.lastColorBox.style.backgroundColor = e.detail.color;
-                this.lastColorBox.nextElementSibling.value = e.detail.color;
+                this.lastColorBox.nextElementSibling.firstElementChild.value = e.detail.color;
 
                 this.hideColorMenu = true;
             },

@@ -8,8 +8,6 @@
             width: 300px;
             padding: 20px 30px;
         }
-
-
     </style>
     <template>
 
@@ -18,7 +16,7 @@
 
         <br>
 
-        <form id="form" onsubmit="return false" >
+        <form id="form" onsubmit="return false">
 
             <div>
                 <label class="jso">Study type</label>
@@ -48,18 +46,12 @@
                 </label>
             </div>
             <br>
-            <jso-opencga-input-text
-                    id="input"
-                    label="Study name:"
-                    placeholder="New study"
-                    tooltip="Please, use only the requested format: letter, numbers, spaces or underscore"
-                    pattern="^[\w ]+$"
-                    required>
+            <jso-opencga-input-text id="input" label="Study name:" placeholder="New study" tooltip="Please, use only the requested format: letter, numbers, spaces or underscore" pattern="^[\w ]+$" required>
             </jso-opencga-input-text>
 
             <!--<label class="jso">Study name:</label>-->
             <!--<input class="jso" type="text" value={{name::input}} placeholder="New study" required-->
-                   <!--pattern="[a-zA-Z0-9]+">-->
+            <!--pattern="[a-zA-Z0-9]+">-->
             <br>
             <input class="jso-btn jso-btn-shdw" type="submit" value="Create" on-click="handleForm">
         </form>
@@ -78,7 +70,7 @@
                 type: String
             }
         },
-        handleForm: function () {
+        handleForm: function() {
             var me = this;
             if (this.$.projectSelect.selectedProject == null) {
                 alert("Please select a Project");
@@ -87,34 +79,68 @@
 
             if (this.$.form.checkValidity()) {
 
-                OpencgaManager.studies.create({
+                // OpencgaManager.studies.create({
+                //     query: {
+                //         sid: Cookies('bioinfo_sid'),
+                //         name: this.$.input.value,
+                //         alias: this.$.input.value.replace(/ /gi, ''),
+                //         description: '',
+                //         organization: '',
+                //         type: this.querySelector('input[name="type"]:checked').value,
+                //         projectId: this.$.projectSelect.selectedProject
+                //
+                //     },
+                //     request: {
+                //         async: true,
+                //         success: function(response) {
+                //             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                //                 //                                me.message = 'Study created sucessfully.';
+                //                 me.name = "";
+                //                 me.fire('need-refresh');
+                //                 me.fire('study-created');
+                //             } else {
+                //                 alert('Server error, try again later.');
+                //             }
+                //         },
+                //         error: function() {
+                //             alert('Server error, try again later.');
+                //         }
+                //     }
+                // });
+
+                var url = OpencgaManager.studies.create({
                     query: {
                         sid: Cookies('bioinfo_sid'),
-                        name: this.$.input.value,
-                        alias: this.$.input.value.replace(/ /gi, ''),
-                        description: '',
-                        organization: '',
-                        type: this.querySelector('input[name="type"]:checked').value,
                         projectId: this.$.projectSelect.selectedProject
-
                     },
                     request: {
-                        async: true,
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-//                                me.message = 'Study created sucessfully.';
-                                me.name = "";
-                                me.fire('need-refresh');
-                                me.fire('study-created');
-                            } else {
-                                alert('Server error, try again later.');
-                            }
-                        },
-                        error: function () {
-                            alert('Server error, try again later.');
-                        }
+                        method: "POST",
+                        url: true
                     }
                 });
+
+                var query = {
+                    name: this.$.input.value,
+                    alias: this.$.input.value.replace(/ /gi, ''),
+                    description: '',
+                    type: this.querySelector('input[name="type"]:checked').value,
+                }
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+                xhr.onload = function(e) {
+                    var response = JSON.parse(e.srcElement.response);
+                    if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                        me.name = "";
+                        me.fire('need-refresh');
+                        me.fire('study-created');
+                    } else {
+                        alert('Server error, try again later.');
+                    }
+                };
+                xhr.send(JSON.stringify([query]));
             }
         }
     });

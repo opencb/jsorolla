@@ -161,6 +161,17 @@ var OpencgaManager = {
         },
         samples: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'samples');
+        },
+        variants: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'variants');
+        }
+    },
+    cohorts: {
+        create: function (args) {
+            return OpencgaManager._doRequest(args, 'cohorts', 'create');
+        },
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'cohorts', 'update');
         }
     },
 
@@ -253,7 +264,7 @@ var OpencgaManager = {
                                 OpencgaManager._uploadFile(args);
 
                             } else {
-                                args.error('File already exists');
+                                args.error('File already exists', response.response[0].result);
                             }
                         } else {
                             args.error(response.response[0].errorMsg);

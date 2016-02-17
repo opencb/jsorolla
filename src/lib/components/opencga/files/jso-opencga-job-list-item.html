@@ -254,7 +254,7 @@
             return "capitalize " + job.status;
         },
         computeToolName: function(job) {
-            if (job.execution != null) {
+            if (job.execution != null && job.execution != '') {
                 return job.execution;
             }
             return job.toolName;
@@ -272,7 +272,8 @@
                 var aux = OpencgaManager.jobs.delete({
                     id: jobId,
                     query: {
-                        sid: Cookies("bioinfo_sid")
+                        sid: Cookies("bioinfo_sid"),
+                        deleteFiles: false
                     },
                     request: {
                         success: function(response) {
@@ -291,13 +292,14 @@
 
                 var query = {
                     sid: Cookies("bioinfo_sid"),
+                    sessionId: Cookies("bioinfo_sid"),
                     studyId: this.study.id,
                     toolId: this.job.toolName,
                     name: this.job.name,
                     description: this.job.description,
-                    "input": this.job.input[0],
-                    "panel": this.job.input[1],
-                    output: this.job.outDirId
+                    panel: this.job.input[0],
+                    output: this.job.outDirId,
+                    sampleId: this.job.params.sampleId,
                 };
 
                 OpencgaManager.jobs.create({
@@ -387,9 +389,9 @@
             });
             return errorFiles;
         },
-        handleViewChange: function(){
-          this.showInfo = false;
-          this.showError = false;
+        handleViewChange: function() {
+            this.showInfo = false;
+            this.showError = false;
         }
 
     });

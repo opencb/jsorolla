@@ -4,7 +4,7 @@
             display: block;
             box-sizing: border-box;
             position: relative;
-            width: 650px;
+            width: 580px;
         }
 
         #main {
@@ -83,8 +83,8 @@
             </div>
 
             <div id="right" class="flex">
+                <label class="jso">Results:</label>
                 <template is="dom-if" if="{{checkResults(results)}}">
-                    <label class="jso">Results:</label>
 
                     <div>A color has been assigned to the top communities.</div>
                     <div>Communities results are available as node attributes</div>
@@ -109,7 +109,6 @@
             </div>
 
         </form>
-
 
 
         <div class="footer horizontal layout flex">
@@ -227,11 +226,11 @@
                             response = this.response;
                         }
                         if (response.error === "" && response.response[0].error == null) {
-                            me.results = response.response[0].results;
-                            debugger
-                            me.results.globalModularity = me.results['Global modularity'];
-                            me.results.numberCommunities = me.results['Number of communities with more than 2 nodes'];
-                            me.results.totalCommunities = me.results['Total number of communities'];
+                            var results = response.response[0].results;
+                            results.globalModularity = results['Global modularity'];
+                            results.numberCommunities = results['Number of communities with more than 2 nodes'];
+                            results.totalCommunities = results['Total number of communities'];
+                            me.results = results;
 
                             var attributes = [];
                             var lines = response.response[0].attributes.split("\n");

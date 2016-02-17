@@ -36,7 +36,7 @@
         }
 
         #list {
-            width: 100%;
+            min-width: 100%;
             position: absolute;
             z-index: 1;
             box-sizing: border-box;
@@ -78,7 +78,8 @@
                 type: String,
             },
             value: {
-                type: String
+                type: String,
+                observer: 'valueChanged'
             },
             tabindex: {
                 type: String,
@@ -127,12 +128,15 @@
         select: function(option, notify) {
             if (this.selectedOption !== option) {
                 this.set('selectedOption', option);
-                this.set('selectedOptionText', option.innerHTML.trim());
+                this.set('selectedOptionText', option.value);
                 this.set('value', option.value);
                 if (notify !== false) {
                     this.fire('change');
                 }
             }
+        },
+        valueChanged: function(){
+          this._checkSelected();
         },
         _checkSelected: function() {
             var options = this.$.list.querySelectorAll('jso-option');
@@ -159,10 +163,11 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-            word-break: break-all;
-            height: 20px;
-            overflow: hidden;
-            text-overflow: clip;
+            margin-bottom:1px;
+            /*word-break: normal;break-all;*/
+            /*height: 20px;*/
+            /*overflow: hidden;*/
+            /*text-overflow: clip;*/
         }
     </style>
     <template>

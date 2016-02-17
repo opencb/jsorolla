@@ -259,7 +259,7 @@
         handleRemoveAllSessions: function() {
             var me = this;
             if (this.logged) {
-                if (this.sessions.length > 0 && confirm('All saved sessions will be deleted. Are you sure?')) {
+                if (this.sessions.length > 0 && confirm('Are you sure you want to permanently delete all the saved sessions?')) {
                     this.message = 'deleting all sessions...';
                     for (var i = 0; i < this.sessions.length; i++) {
                         var session = this.sessions[i];

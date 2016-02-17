@@ -259,6 +259,10 @@
         handleIndexFile: function(e) {
             this._indexFile();
         },
+        _autoIndexfile: function(file){
+          this.selected= file;
+          this._indexFile();
+        },
         handleFileClick: function(e) {
 
             this.selected = e.currentTarget.file;

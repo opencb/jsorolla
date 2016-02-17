@@ -1,0 +1,169 @@
+<dom-module id="jso-configure-concentric">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            width: 350px;
+        }
+
+        #main {
+            padding: 5px;
+        }
+
+        #main .horizontal.layout > div,
+        jso-select {
+            margin: 0 0 4px 4px;
+        }
+
+        .title {
+            margin: 0 0 10px 0;
+            padding-bottom: 2px;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        label {
+            width: 120px;
+        }
+
+        .footer {
+            padding: 4px 5px 4px 12px;
+            border-top: 1px solid var(--divider-color);
+            background-color: var(--light-secondary-color);
+        }
+
+        .footer > * {
+            margin-left: 5px;
+        }
+
+        .gray {
+            color: #666;
+        }
+    </style>
+    <template>
+        <div id="main">
+            <div class="title">Node related settings</div>
+
+            <div class="horizontal layout">
+                <label class="jso">Concentric:</label>
+
+                <jso-select class="flex" style="width:114px;" id="concentricSelect">
+                    <jso-option value="none">None</jso-option>
+                    <template is="dom-repeat" items="{{vertexColumns}}" as="column">
+                        <jso-option value="{{column.name}}">{{column.title}}</jso-option>
+                    </template>
+                </jso-select>
+            </div>
+            <br>
+
+            <div class="title">Global settings</div>
+
+            <div class="horizontal layout">
+                <label class="jso">Start angle:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" step="0.1" value="{{startAngle::input}}">
+                </div>
+                <div> * &Pi;
+                    <span class="gray">radians</span>
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Sweep:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" step="0.1" value="{{sweep::input}}">
+                </div>
+                <div> * &Pi;
+                    <span class="gray">radians</span>
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Min. node spacing:</label>
+
+                <div class="flex">
+                    <input class="jso" type="number" value="{{minNodeSpacing::input}}">
+                </div>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Clockwise:</label>
+
+                <label class="jso-control flex">
+                    <input class="jso" type="checkbox" checked="{{gravity::change}}">
+                    <span></span>
+                </label>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Equidistant:</label>
+
+                <label class="jso-control flex">
+                    <input class="jso" type="checkbox" checked="{{equidistant::change}}">
+                    <span></span>
+                </label>
+            </div>
+            <div class="horizontal layout">
+                <label class="jso">Avoid overlap:</label>
+
+                <label class="jso-control flex">
+                    <input class="jso" type="checkbox" checked="{{avoidOverlap::change}}">
+                    <span></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="footer horizontal layout center">
+            <div class="flex"></div>
+            <div class="jso-btn jso-btn-shdw" style="width: 100px;" on-click="handleOk">OK</div>
+        </div>
+
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-configure-concentric",
+        properties: {
+            edgeColumns: {
+                type: Array
+            },
+            vertexColumns: {
+                type: Array
+            },
+            concentric: {
+                type: Number
+            },
+            startAngle: {
+                type: Number,
+                value: 3 / 2
+            },
+            sweep: {
+                type: Number
+            },
+            minNodeSpacing: {
+                type: Number,
+                value: 30
+            },
+            clockwise: {
+                type: Boolean,
+                value: true
+            },
+            equidistant: {
+                type: Boolean,
+                value: false
+            },
+            avoidOverlap: {
+                type: Boolean,
+                value: true
+            }
+        },
+        handleOk: function() {
+            this.fire('ok', {
+                concentricAttribute: this.$.concentricSelect.value,
+                startAngle: this.startAngle,
+                sweep: this.sweep,
+                minNodeSpacing: this.minNodeSpacing,
+                clockwise: this.clockwise,
+                equidistant: this.equidistant,
+                avoidOverlap: this.avoidOverlap
+            });
+        }
+    });
+</script>
