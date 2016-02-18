@@ -616,6 +616,7 @@
             this.exportParsers.separator = "\t";
             this.exportParsers.comment = "#";
             this.exportParsers.chunkSize = 1000;
+            this.exportParsers.maxLimit = 1000;
 
             this.exportParsers.headerParser = function(columns) {
                 var headerLine = this.comment;
@@ -772,6 +773,7 @@
                 var rowData = this.viewData[i];
                 this._createRow(rowData);
             }
+
         },
         // pagination
         handleFirstClick: function() {
@@ -1585,14 +1587,13 @@
                 var skip = 0;
                 // var limit = this.exportParsers.chunkSize;
                 var dataElems = 0;
-                var limit = this.itemCount;
+                var limit = (this.itemCount <= this.exportParsers.maxLimit) ? this.itemCount : this.exportParsers.maxLimit;
                 // var limit = 500;
-                var numTotalResults = this.itemCount;
+                // var numTotalResults = this.itemCount;
 
                 var url = Utils.addQueryParamtersToUrl({
                     skip: skip,
                     limit: limit
-
                 }, this.request.url);
 
                 this._callRemoteExport(url, function(response) {
