@@ -1352,7 +1352,6 @@
         },
         loadFilter: function(e) {
             e.stopPropagation();
-            this.clearForm();
             this.loadForm(e.currentTarget.dataFilter);
             this.$.filterHistoryTooltip.handleClose(e);
             this.submitForm();
