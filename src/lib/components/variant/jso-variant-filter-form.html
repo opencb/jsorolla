@@ -977,8 +977,11 @@
 
                 var gtValues = [];
                 for (var j = 0; j < els.length; j++) {
-                    var el = els[j];
-                    gtValues.push(el.value);
+                    var el = els[j].value.split(",");
+                    gtValues.push(el[0]);
+                    if(el[0]=="0/1"){
+                      gtValues.push(el[2]);
+                    }
                 }
                 if (gtValues.length > 0) {
                     var aux = sampleName + ":" + gtValues.join(",");
@@ -987,7 +990,7 @@
             }
 
             if (genotypes.length > 0) {
-                query.genotype = genotypes.join(";").replace(new RegExp("\/", "gi"), "%2f");
+                query.genotype = genotypes.join(";");
             }
 
             // Consequence Types
@@ -1183,7 +1186,7 @@
                     var sample = gt[1].split(",");
                     for (var j = 0; j < sample_op.length; j++) {
                         if (sample_op[j].name == sampleName) {
-                            for (var k = 1; k < sample.length; k++) {
+                            for (var k = 0; k < sample.length; k++) {
                                 if (sample_op[j].value.indexOf(sample[k]) >= 0) {
                                     sample_op[j].checked = true;
                                     if (gtName[sampleName] == null) {
@@ -1195,7 +1198,7 @@
                         }
                     }
                 }
-                filterName.push("Genotype: " + JSON.stringify(gtName) + ") ");
+                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{","").replace("}","") + " ");
             }
 
             // Region
