@@ -642,15 +642,16 @@
                 notify: true,
                 value: function() {
                     return [];
-                }
+                },
+                observer: 'samplesChanged'
             },
-            samplesView: {
-                type: Array,
-                notify: true,
-                value: function() {
-                    return []
-                }
-            },
+            // samplesView: {
+            //     type: Array,
+            //     notify: true,
+            //     value: function() {
+            //         return []
+            //     }
+            // },
             regionValue: {
                 type: String,
                 notify: true,
@@ -741,6 +742,9 @@
                 this.historyFilters = this.hash[neo.id];
                 this.clearForm();
             }
+        },
+        samplesChanged: function(neo,old){
+          this.clearForm();
         },
         resultsChanged: function(neo, old) {
             if (neo != -1) {
@@ -834,7 +838,7 @@
             /* samples */
             for (var i = 0; i < this.samples.length; i++) {
                 var sampleName = this.samples[i].name;
-                var els = this.$.segregation.querySelectorAll("input[name='" + sampleName + "']:checked");
+                var els = this.$.segregation.querySelectorAll("input:checked");
                 for (var j = 0; j < els.length; j++) {
                     var el = els[j];
                     el.checked = false;

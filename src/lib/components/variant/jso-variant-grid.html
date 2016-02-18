@@ -55,7 +55,8 @@
                 notify: true,
                 value: function() {
                     return [];
-                }
+                },
+                observer: 'samplesChanged'
             },
             request: {
                 type: Object
@@ -337,6 +338,10 @@
                 this.$.table.clear();
                 this._updateColumns();
             }
+        },
+        samplesChanged: function(neo, old) {
+            this.$.table.clear();
+            this._updateColumns();
         },
         _updateColumns: function() {
             var sampleColumns = [];
