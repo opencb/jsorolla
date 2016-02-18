@@ -55,7 +55,8 @@
                 notify: true,
                 value: function() {
                     return [];
-                }
+                },
+                observer: 'samplesChanged'
             },
             request: {
                 type: Object
@@ -333,6 +334,10 @@
                 this._updateColumns();
             }
         },
+        samplesChanged: function(neo, old) {
+            this.$.table.clear();
+            this._updateColumns();
+        },
         _updateColumns: function() {
             var sampleColumns = [];
             var colWidth = 80;
@@ -574,16 +579,16 @@
 
                 }
 
-              }else{
-                data=[];
-              }
-                return data;
+            } else {
+                data = [];
+            }
+            return data;
         },
         _parseTotal: function(response) {
             if (response.response != null) {
                 var total = response.response[0].numTotalResults;
-            }else{
-              total=0;
+            } else {
+                total = 0;
             }
             return total;
         }
