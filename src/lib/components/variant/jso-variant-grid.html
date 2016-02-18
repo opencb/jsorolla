@@ -29,7 +29,7 @@
     </style>
     <template>
 
-        <jso-table id="table" enable-resize enable-paging enable-remote enable-select enable-loading request="{{request}}" on-rowclick="handleRowClick"></jso-table>
+        <jso-table id="table" enable-resize enable-export$="{{enableExport}}" enable-paging enable-remote enable-select enable-loading request="{{request}}" on-rowclick="handleRowClick"></jso-table>
     </template>
 
 </dom-module>
@@ -63,6 +63,11 @@
             numTotalResults: {
                 type: Number,
                 notify: true
+            },
+            enableExport: {
+                type: Boolean,
+                reflectToAttribute: true,
+                value: false
             }
         },
         _columns: [{
@@ -391,6 +396,7 @@
                     return total;
                 },
             };
+
             // }
         },
         _parse: function(response) {
@@ -574,16 +580,16 @@
 
                 }
 
-              }else{
-                data=[];
-              }
-                return data;
+            } else {
+                data = [];
+            }
+            return data;
         },
         _parseTotal: function(response) {
             if (response.response != null) {
                 var total = response.response[0].numTotalResults;
-            }else{
-              total=0;
+            } else {
+                total = 0;
             }
             return total;
         }

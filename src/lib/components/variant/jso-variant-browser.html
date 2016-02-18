@@ -71,7 +71,7 @@
         <div class="horizontal layout">
             <jso-variant-filter-form url="{{url}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}"></jso-variant-filter-form>
             <div id="right" class="flex">
-                <jso-variant-grid id="variantGrid" url="{{url}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}" on-rowclick="handleRowClick"></jso-variant-grid>
+                <jso-variant-grid id="variantGrid" enable-export url="{{url}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}" on-rowclick="handleRowClick"></jso-variant-grid>
 
                 <div id="menu" class="color-2 color-hover-2 horizontal layout">
                     <div on-click="handleMenuClick" data-option="gv">Genomic context</div>
@@ -121,6 +121,11 @@
                 selectedMenuTool: {
                     type: Object,
                     observer: 'selectedMenuChanged'
+                },
+                enableExport: {
+                    type: Boolean,
+                    reflectToAttribute: true,
+                    value: false
                 }
             },
             created: function() {
