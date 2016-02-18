@@ -374,7 +374,9 @@
         },
         urlChanged: function(neo, old) {
             var me = this;
-            // if (neo != '') {
+            if (neo == null || neo == "") {
+                return;
+            }
             this.request = {
                 url: this.url,
                 auxTotalCount: -1,
@@ -401,8 +403,6 @@
                     return total;
                 },
             };
-
-            // }
         },
         _parse: function(response) {
             var me = this;

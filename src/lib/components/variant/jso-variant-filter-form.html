@@ -220,7 +220,7 @@
                     </div>
                 </div>
             </jso-form-box>
-            <jso-form-box collapsible >
+            <jso-form-box collapsible>
                 <div class="header">
                     Position
                 </div>
@@ -743,8 +743,8 @@
                 this.clearForm();
             }
         },
-        samplesChanged: function(neo,old){
-          this.clearForm();
+        samplesChanged: function(neo, old) {
+            this.clearForm();
         },
         resultsChanged: function(neo, old) {
             if (neo != -1) {
@@ -834,7 +834,7 @@
             }
         },
         clearForm: function() {
-            this.set('url', "");
+            // this.url = "";
             /* samples */
             for (var i = 0; i < this.samples.length; i++) {
                 var sampleName = this.samples[i].name;
@@ -914,9 +914,6 @@
                 var el = els[i];
                 el.checked = false;
             }
-
-            // this.submitForm();
-
         },
         submitForm: function() {
             var query = {};
@@ -983,8 +980,8 @@
                 for (var j = 0; j < els.length; j++) {
                     var el = els[j].value.split(",");
                     gtValues.push(el[0]);
-                    if(el[0]=="0/1"){
-                      gtValues.push(el[2]);
+                    if (el[0] == "0/1") {
+                        gtValues.push(el[2]);
                     }
                 }
                 if (gtValues.length > 0) {
@@ -1051,47 +1048,47 @@
 
             // 1000GENOMES_phase_1
             if (this.$["1000GENOMES_phase_1_ALL"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ALL"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ALL", "phase1"));
             }
             if (this.$["1000GENOMES_phase_1_AMR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AMR"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AMR", "phase1"));
             }
             if (this.$["1000GENOMES_phase_1_ASN"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ASN"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ASN", "phase1"));
             }
             if (this.$["1000GENOMES_phase_1_AFR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AFR"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AFR", "phase1"));
             }
             if (this.$["1000GENOMES_phase_1_EUR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "EUR"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "EUR", "phase1"));
             }
 
             // 1000G_PHASE_3
             if (this.$["1000G_PHASE_3_ALL"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "ALL"));
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_ALL", "phase3"));
             }
             if (this.$["1000G_PHASE_3_AMR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "AMR"));
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_AMR", "phase3"));
             }
             if (this.$["1000G_PHASE_3_SAS"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "SAS"));
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_SAS", "phase3"));
             }
             if (this.$["1000G_PHASE_3_EAS"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "EAS"));
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_EAS", "phase3"));
             }
             if (this.$["1000G_PHASE_3_AFR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "AFR"));
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_AFR", "phase3"));
             }
             if (this.$["1000G_PHASE_3_EUR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "EUR"));
+                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_EUR", "phase3"));
             }
 
             //ESP_6500
             if (this.$["ESP_6500_EA"].value != "") {
-                popFreq.push(this._getPopulationQuery("ESP_6500", "EA"));
+                popFreq.push(this._getPopulationQuery("ESP_6500", "European_American", "ESP"));
             }
             if (this.$["ESP_6500_AA"].value != "") {
-                popFreq.push(this._getPopulationQuery("ESP_6500", "AA"));
+                popFreq.push(this._getPopulationQuery("ESP_6500", "African_American", "ESP"));
             }
 
             if (popFreq.length > 0) {
@@ -1130,14 +1127,36 @@
 
         },
 
-        _getPopulationQuery: function(study, population) {
-            var popFreq = [];
-            if (this.$[study + "_" + population].checkValidity() == false) {
-                alert(study + " " + population + " must be less than 1 or greater than 0");
-                return "error";
-            } else {
-                var value = parseFloat(this.$[study + "_" + population].value);
-                var value_op = this.$[study + "_" + population + "_op"].value;
+        _getPopulationQuery: function(study, population, type) {
+            if (type == "phase1") {
+                if (this.$[study + "_" + population].checkValidity() == false) {
+                    alert(study + " " + population + " must be less than 1 or greater than 0");
+                    return "error";
+                } else {
+                    var value = parseFloat(this.$[study + "_" + population].value);
+                    var value_op = this.$[study + "_" + population + "_op"].value;
+                    value = study + ":" + population + value_op + value;
+                    return value;
+                }
+            } else if (type == "phase3") {
+                if (this.$[population].checkValidity() == false) {
+                    alert(population + " must be less than 1 or greater than 0");
+                    return "error";
+                } else {
+                    var value = parseFloat(this.$[population].value);
+                    var value_op = this.$[population + "_op"].value;
+                    value = study + ":" + population + value_op + value;
+                    return value;
+                }
+            } else if (type == "ESP") {
+                var popAux = "";
+                if (population == "European_American") {
+                    popAux = study + "_EA";
+                } else if (population == "African_American") {
+                    popAux = study + "_AA";
+                }
+                var value = parseFloat(this.$[popAux].value);
+                var value_op = this.$[popAux + "_op"].value;
                 value = study + ":" + population + value_op + value;
                 return value;
             }
@@ -1146,10 +1165,19 @@
             var aux = value.split("");
             var n = 4;
             if (freq == "ESP") {
-                this.$[population + "_op"].value = aux[2];
-                n = 3;
+                if (aux.length == 6) {
+                    this.$[population + "_op"].value = aux[2];
+                    n = 3;
+                } else if (aux.length == 7) {
+                    this.$[population + "_op"].value = aux[2] + aux[3];
+                }
             } else {
-                this.$[population + "_op"].value = aux[3];
+                if (aux.length == 7) {
+                    this.$[population + "_op"].value = aux[3];
+                } else if (aux.length == 8) {
+                    this.$[population + "_op"].value = aux[3] + aux[4];
+                    n = 5;
+                }
             }
             var val = "";
             for (var i = n; i < aux.length; i++) {
@@ -1202,7 +1230,7 @@
                         }
                     }
                 }
-                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{","").replace("}","") + " ");
+                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "") + " ");
             }
 
             // Region
@@ -1259,24 +1287,41 @@
                             this._setPopulationValue("1000GENOMES_phase_1_EUR", type[1]);
                         }
                     } else if (type[0] == "1000G_PHASE_3") {
+                        var valueAux = type[1].split("");
+                        var value = "";
+                        for (j = 14; j < valueAux.length; j++) {
+                            value += valueAux[j];
+                        }
                         if (pops[i].indexOf("ALL") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_ALL", type[1]);
+                            this._setPopulationValue("1000G_PHASE_3_ALL", value);
                         } else if (pops[i].indexOf("AMR") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_AMR", type[1]);
+                            this._setPopulationValue("1000G_PHASE_3_AMR", value);
                         } else if (pops[i].indexOf("SAS") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_SAS", type[1]);
+                            this._setPopulationValue("1000G_PHASE_3_SAS", value);
                         } else if (pops[i].indexOf("EAS") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_EAS", type[1]);
+                            this._setPopulationValue("1000G_PHASE_3_EAS", value);
                         } else if (pops[i].indexOf("AFR") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_AFR", type[1]);
+                            this._setPopulationValue("1000G_PHASE_3_AFR", value);
                         } else if (pops[i].indexOf("EUR") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_EUR", type[1]);
+                            this._setPopulationValue("1000G_PHASE_3_EUR", value);
                         }
                     } else if (type[0] == "ESP_6500") {
-                        if (pops[i].indexOf("EA") >= 0) {
-                            this._setPopulationValue("ESP_6500_EA", type[1], "ESP");
-                        } else if (pops[i].indexOf("AA") >= 0) {
-                            this._setPopulationValue("ESP_6500_AA", type[1], "ESP");
+                        var valueAux = [];
+                        var value = "";
+                        if (type[1].indexOf("European_American") >= 0) {
+                            valueAux = type[1].split("");
+                            value = "EA";
+                            for (j = 17; j < valueAux.length; j++) {
+                                value += valueAux[j];
+                            }
+                            this._setPopulationValue("ESP_6500_EA", value, "ESP");
+                        } else if (type[1].indexOf("African_American") >= 0) {
+                            valueAux = type[1].split("");
+                            value = "AA";
+                            for (j = 16; j < valueAux.length; j++) {
+                                value += valueAux[j];
+                            }
+                            this._setPopulationValue("ESP_6500_AA", value, "ESP");
                         }
                     }
                 }
@@ -1356,6 +1401,7 @@
         },
         loadFilter: function(e) {
             e.stopPropagation();
+            this.clearForm();
             this.loadForm(e.currentTarget.dataFilter);
             this.$.filterHistoryTooltip.handleClose(e);
             this.submitForm();
