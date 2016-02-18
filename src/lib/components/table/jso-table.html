@@ -381,8 +381,9 @@
             background-color: inherit !important;
             color: inherit !important;
         }
-        #list[loading]{
-          visibility: hidden;
+
+        #list[loading] {
+            visibility: hidden;
         }
     </style>
     <template>
@@ -780,7 +781,7 @@
         requestChanged: function(neo, old) {
             if (this.currentPage != 1) {
                 this.currentPage = 1;
-            } else if (this.request) {
+            } else if (this.request && this.request.url != null && this.request.url != "") {
                 this.checkRemote();
             }
         },
@@ -793,14 +794,13 @@
             this.viewData = [];
             this.currentPage = 1;
             this.columns = [];
-            //            this.totalItems = 0;
         },
         refresh: function() {
             this.dataChanged();
         },
         checkRemote: function() {
             var me = this;
-            if (this.enableLoading && this.currentPage==1) {
+            if (this.enableLoading && this.currentPage == 1) {
                 this.setLoading(true);
             }
             if (this.enableRemote) {
@@ -808,7 +808,7 @@
                     me.itemCount = me.request.parseTotal(resp);
                     me.pageCount = Math.ceil(me.itemCount / me.pageSize);
                     me.viewData = me.request.parse(resp);
-                    if (me.enableLoading && me.currentPage==1) {
+                    if (me.enableLoading && me.currentPage == 1) {
                         me.setLoading(false);
                     }
                 });
@@ -835,13 +835,16 @@
             request.onerror = function() {
                 //                args.request.error(this);
             };
-            var url = Utils.addQueryParamtersToUrl({
-                skip: ((this.currentPage - 1) * this.pageSize),
-                limit: this.pageSize
-            }, this.request.url);
-            request.open(method, url, true);
-            request.send();
-            console.log(url)
+            if (this.request.url && this.request.url != "") {
+
+                var url = Utils.addQueryParamtersToUrl({
+                    skip: ((this.currentPage - 1) * this.pageSize),
+                    limit: this.pageSize
+                }, this.request.url);
+                request.open(method, url, true);
+                request.send();
+                console.log(url)
+            }
         },
         updateColumns: function() {
             var els = this.$.headerRow.querySelectorAll('.table-header-row');
