@@ -179,7 +179,7 @@
                 </div>
             </div>
             <div id="maincontent">
-                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}" samples="{{samples}}" disable-case-control$="{{disableCaseControl}}" enable-variant-browser$="{{enableVariantBrowser}}" on-upload-file="handleUploadFile">
+                <jso-opencga-sample-list on-sampleselected="handleSampleSelect" study="{{selectedStudy.study}}" samples="{{samples}}" filtered-samples="{{filteredSamples}}" disable-case-control$="{{disableCaseControl}}" enable-variant-browser$="{{enableVariantBrowser}}" on-upload-file="handleUploadFile">
                 </jso-opencga-sample-list>
             </div>
         </div>
@@ -269,6 +269,13 @@
                 type: Array,
                 notify: true
 
+            },
+            filteredSamples: {
+                type: Array,
+                value: function(){
+                  return [];
+                },
+                notify: true,
             },
             bioformats: {
                 type: Array,
