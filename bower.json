@@ -27,6 +27,7 @@
     "core-list": "polymer/core-list#0.5.6",
     "d3": "3.5.3",
     "qtip2": "~2.2.1",
-    "pako": "~0.2.5"
+    "pako": "~0.2.5",
+    "font-awesome": "fontawesome#^4.5.0"
   }
 }
