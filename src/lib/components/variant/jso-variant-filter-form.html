@@ -957,7 +957,7 @@
             // SNPId
             var ids = [];
             if (this.snpIdValue) {
-                ids = this.snpIdValue.split(/,|\n/);
+                ids = this.snpIdValue.toLowerCase().split(/,|\n/);
             }
             var idsQuery = ids.join(",");
             query["ids"] = idsQuery;
@@ -1330,23 +1330,41 @@
 
             // Sift
             if (hf.sift != "" && hf.sift != null) {
-                this.$.sift.value = "";
-                var aux = hf.sift.split();
-                this.$.sift_op.value = aux[0];
-                for (var i = 1; i < aux.length; i++) {
-                    this.$.sift.value += aux[i];
+                var aux = hf.sift.split("");
+                var val="";
+                var valOp="";
+                var n=0;
+                for (var i = 0; i < 2; i++) {
+                  if(isNaN(aux[i])){
+                    valOp+=aux[i];
+                    n++;
+                  }
                 }
+                for(var i=n; i<aux.length; i++){
+                  val+= aux[i];
+                }
+                this.$.sift_op.value = valOp;
+                this.$.sift.value=parseFloat(val);
                 filterName.push("Sift" + hf.sift + " ");
             }
             // Polyphen
             if (hf.polyphen != "" && hf.polyphen != null) {
-                this.$.polyphen.value = "";
-                var aux = hf.polyphen.split();
-                this.$.polyphen_op.value = aux[0];
-                for (var i = 1; i < aux.length; i++) {
-                    this.$.polyphen.value += aux[i];
+              var aux = hf.polyphen.split("");
+              var val="";
+              var valOp="";
+              var n=0;
+              for (var i = 0; i < 2; i++) {
+                if(isNaN(aux[i])){
+                  valOp+=aux[i];
+                  n++;
                 }
-                filterName.push("Polyphen" + hf.polyphen + " ");
+              }
+              for(var i=n; i<aux.length; i++){
+                val+= aux[i];
+              }
+              this.$.polyphen_op.value = valOp;
+              this.$.polyphen.value=parseFloat(val);
+              filterName.push("Polyphen" + hf.polyphen + " ");
             }
             // Phylop y Phastcons
             if (hf.conservation != "" && hf.conservation != null) {
