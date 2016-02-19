@@ -593,7 +593,12 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
-
+            },
+            exportParsers: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
             }
         },
         observers: [
@@ -605,6 +610,47 @@
         listeners: {
             'wheel': 'handleScroll',
             'mouseleave': 'handleColumnsMenuLeave',
+        },
+        ready: function() {
+
+            this.exportParsers.separator = "\t";
+            this.exportParsers.comment = "#";
+            this.exportParsers.chunkSize = 1000;
+            this.exportParsers.maxLimit = 1000;
+
+            this.exportParsers.headerParser = function(columns) {
+                var headerLine = this.comment;
+                for (var i = 0; i < columns.length; i++) {
+                    if (columns[i].type === "action") {
+                        continue;
+                    }
+                    headerLine += columns[i].title + this.separator;
+                }
+                return headerLine;
+            }
+            this.exportParsers.dataParser = function(columns, row) {
+
+                var dataLine = "";
+                for (var j = 0; j < columns.length; j++) {
+                    var column = columns[j];
+
+                    if (column.type === "action") {
+                        continue;
+                    }
+
+                    var key = column.name;
+                    var value = (column.defaultValue) ? column.defaultValue : "";
+
+                    if (column.formula) {
+                        value = column.formula(row);
+                    } else {
+                        value = row[key];
+                    }
+
+                    dataLine += value + this.separator;
+                }
+                return dataLine;
+            }
         },
         isColumnVisible: function(v) {
             return v.visible !== false;
@@ -727,6 +773,7 @@
                 var rowData = this.viewData[i];
                 this._createRow(rowData);
             }
+
         },
         // pagination
         handleFirstClick: function() {
@@ -1489,53 +1536,122 @@
             }
 
         },
+        _callRemoteExport: function(url, callback) {
+            var method = 'GET';
+            if (typeof this.request.method !== 'undefined' && this.request.method != null) {
+                method = this.request.method;
+            }
+            var request = new XMLHttpRequest();
+            request.onload = function() {
+                var contentType = this.getResponseHeader('Content-Type');
+                var resp;
+                if (contentType === 'application/json') {
+                    resp = JSON.parse(this.response, this);
+                } else {
+                    resp = this.response;
+                }
+                callback(resp)
+            };
+            request.onerror = function() {
+                //                args.request.error(this);
+            };
+
+            request.open(method, url, true);
+            request.send();
+            console.log(url)
+        },
         handleExportCSVMenuButton: function(e) {
+
             e.stopPropagation();
-            var CSV = "#";
-            var separator = ";";
-            for (var i = 0; i < this.columns.length; i++) {
-                if (this.columns[i].type === "action") {
-                    continue;
-                }
-                CSV += this.columns[i].title + separator;
-            }
+            var me = this;
+
+            var CSV = this.exportParsers.headerParser(this.columns);
             CSV += "\n";
-            for (var i = 0; i < this.data.length; i++) {
-                var data = this.data[i];
-                for (var j = 0; j < this.columns.length; j++) {
-                    var column = this.columns[j];
 
-                    if (column.type === "action") {
-                        continue;
-                    }
+            var data = (this.enableRemote) ? this.viewData : this.data;
 
-                    var key = column.name;
-                    var value = (column.defaultValue) ? column.defaultValue : "";
-
-                    if (column.formula) {
-                        value = column.formula(data);
-                    } else {
-                        // if (isSubCol == true) {
-                        //     value = this._deepValue(rowData, column.ak);
-                        // } else {
-                        value = data[key];
-                        // }
-                    }
-
-                    CSV += value + separator;
+            if (!this.enableRemote) {
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    CSV += this.exportParsers.dataParser(this.columns, row);
+                    CSV += "\n";
                 }
-                CSV += "\n";
+                var blob = new Blob([CSV], {
+                    type: "text/plain;charset=utf-8"
+                });
+
+                var initialFileName = 'data.csv';
+                var fileName = window.prompt("Please enter file name", initialFileName);
+                if (fileName != null && fileName != "") {
+                    saveAs(blob, fileName);
+                }
+            } else {
+                var skip = 0;
+                // var limit = this.exportParsers.chunkSize;
+                var dataElems = 0;
+                var limit = (this.itemCount <= this.exportParsers.maxLimit) ? this.itemCount : this.exportParsers.maxLimit;
+                // var limit = 500;
+                // var numTotalResults = this.itemCount;
+
+                var url = Utils.addQueryParamtersToUrl({
+                    skip: skip,
+                    limit: limit
+                }, this.request.url);
+
+                this._callRemoteExport(url, function(response) {
+                    var data = me.request.parse(response);
+
+                    for (var i = 0; i < data.length; i++) {
+                        var row = data[i];
+                        CSV += me.exportParsers.dataParser(me.columns, row);
+                        CSV += "\n";
+                    }
+                    var blob = new Blob([CSV], {
+                        type: "text/plain;charset=utf-8"
+                    });
+
+                    var initialFileName = 'data.csv';
+                    var fileName = window.prompt("Please enter file name", initialFileName);
+                    if (fileName != null && fileName != "") {
+                        saveAs(blob, fileName);
+                    }
+
+                });
+
+                // while (skip < numTotalResults) {
+                //
+                //     var url = Utils.addQueryParamtersToUrl({
+                //         skip: skip,
+                //         limit: limit
+                //
+                //     }, this.request.url);
+                //
+                //     this._callRemoteExport(url, function(response) {
+                //         var data = me.request.parse(response);
+                //         for (var i = 0; i < data.length; i++) {
+                //             var row = data[i];
+                //             CSV += me.exportParsers.dataParser(me.columns, data);
+                //             CSV += "\n";
+                //         }
+                //         console.log(skip);
+                //
+                //         if ((skip + limit) >= numTotalResults) {
+                //             var blob = new Blob([CSV], {
+                //                 type: "text/plain;charset=utf-8"
+                //             });
+                //
+                //             var initialFileName = 'data.csv';
+                //             // var fileName = window.prompt("Please enter file name", initialFileName);
+                //             // if (fileName != null && fileName != "") {
+                //               console.log("SAVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                //                 // saveAs(blob, fileName);
+                //             // }
+                //         }
+                //     });
+                //     skip += limit;
+                // }
             }
 
-            var blob = new Blob([CSV], {
-                type: "text/plain;charset=utf-8"
-            });
-
-            var initialFileName = 'data.csv';
-            var fileName = window.prompt("Please enter file name", initialFileName);
-            if (fileName != null && fileName != "") {
-                saveAs(blob, fileName);
-            }
         },
         exportToTable: function(start, end) {
             start = start || 0;
