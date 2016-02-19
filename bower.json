@@ -16,17 +16,16 @@
   ],
   "dependencies": {
     "cookies-js": "~1.1.0",
-    "crypto-js-evanvosberg": "~3.1.2",
+    "crypto-js-evanvosberg": "3.1.6",
     "highcharts-release": "~4.0.4",
     "backbone": "~1.1.2",
     "underscore": "~1.7.0",
     "sortable-table": "~0.11.0",
-    "polymer": "~0.5.4",
+    "polymer": "0.5.6",
     "js-xlsx": "~0.7.11",
     "jquery": "~2.1.1",
-    "polymer-fontawesome": "~1.0.0-beta.2",
-    "core-list": "polymer/core-list#~0.5.4",
-    "d3": "~3.5.3",
+    "core-list": "polymer/core-list#0.5.6",
+    "d3": "3.5.3",
     "qtip2": "~2.2.1",
     "pako": "~0.2.5"
   }
