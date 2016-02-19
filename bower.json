@@ -28,6 +28,6 @@
     "d3": "3.5.3",
     "qtip2": "~2.2.1",
     "pako": "~0.2.5",
-    "font-awesome": "fontawesome#^4.5.0"
+    "fontawesome": "fontawesome#^4.5.0"
   }
 }
