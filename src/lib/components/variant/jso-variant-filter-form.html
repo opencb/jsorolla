@@ -1007,7 +1007,7 @@
 
             // Protein Substitution Scores
             var sift = parseFloat(this.$.sift.value);
-            if (sift) {
+            if (!isNaN(sift)) {
                 if (this.$.sift.checkValidity() == false) {
                     alert("Sift must be less than 1 or greater than 0");
                     return;
@@ -1018,7 +1018,7 @@
             }
 
             var polyphen = parseFloat(this.$.polyphen.value);
-            if (polyphen) {
+            if (!isNaN(polyphen)) {
                 if (this.$.polyphen.checkValidity() == false) {
                     alert("Polyphen must be less than 1 or greater than 0");
                     return;
@@ -1030,12 +1030,12 @@
 
             var phylop = parseFloat(this.$.phylop.value);
             var phastcons = parseFloat(this.$.phastcons.value);
-            if (phylop || phastcons) {
+            if (!isNaN(phylop) || !isNaN(phastcons)) {
                 var conservation = [];
-                if (phastcons) {
+                if (!isNaN(phastcons)) {
                     conservation.push("phastCons" + this.$.phastcons_op.value + phastcons);
                 }
-                if (phylop) {
+                if (!isNaN(phylop)) {
                     conservation.push("phylop" + this.$.phylop_op.value + phylop);
                 }
                 query["conservation"] = conservation.join(",");
@@ -1367,30 +1367,59 @@
               filterName.push("Polyphen" + hf.polyphen + " ");
             }
             // Phylop y Phastcons
+            debugger
             if (hf.conservation != "" && hf.conservation != null) {
-                this.$.phylop.value = "";
-                this.$.phastcons.value = "";
                 aux = hf.conservation.split(",");
                 if (aux[0].search("phastCons") >= 0) {
                     var p = aux[0].split("");
-                    this.$.phastcons_op.value = p[9];
-                    for (var i = 10; i < p.length; i++) {
-                        this.$.phastcons.value += p[i];
+                    var val="";
+                    var valOp="";
+                    var n=9;
+                    for (var i = 9; i < 11; i++) {
+                      if(isNaN(p[i]) && p[i]!= "-"){
+                        valOp+=p[i];
+                        n++;
+                      }
                     }
+                    for(var i=n; i<p.length; i++){
+                      val+= p[i];
+                    }
+                    this.$.phastcons_op.value = valOp;
+                    this.$.phastcons.value=parseFloat(val);
                     if (aux[1]) {
                         var p = aux[1].split("");
-                        this.$.phylop_op.value = p[6];
-                        for (var i = 7; i < p.length; i++) {
-                            this.$.phylop.value += p[i];
+                        var val="";
+                        var valOp="";
+                        var n=6;
+                        for (var i = 6; i < 8; i++) {
+                          if(isNaN(p[i]) && p[i]!= "-"){
+                            valOp+=p[i];
+                            n++;
+                          }
                         }
+                        for(var i=n; i<p.length; i++){
+                          val+= p[i];
+                        }
+                        this.$.phylop_op.value = valOp;
+                        this.$.phylop.value=parseFloat(val);
                     }
                 }
                 if (aux[0].search("phylop") >= 0) {
                     var p = aux[0].split("");
-                    this.$.phylop_op.value = p[6];
-                    for (var i = 7; i < p.length; i++) {
-                        this.$.phylop.value += p[i];
+                    var val="";
+                    var valOp="";
+                    var n=6;
+                    for (var i = 6; i < 8; i++) {
+                      if(isNaN(p[i]) && p[i]!= "-"){
+                        valOp+=p[i];
+                        n++;
+                      }
                     }
+                    for(var i=n; i<p.length; i++){
+                      val+= p[i];
+                    }
+                    this.$.phylop_op.value = valOp;
+                    this.$.phylop.value=parseFloat(val);
                 }
                 filterName.push(aux[0] + " ");
                 if (aux[1] != null) {
