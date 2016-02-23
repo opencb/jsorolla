@@ -1163,23 +1163,36 @@
         },
         _setPopulationValue: function(population, value, freq) {
             var aux = value.split("");
-            var n = 4;
+            var n = 0;
+            var pop="";
+
             if (freq == "ESP") {
-                if (aux.length == 6) {
+              for(i=0;i<4;i++){
+                if(isNaN(aux[i])){
+                  pop+=aux[i];
+                  n++;
+                }
+              }
+              var val = "";
+                if (pop.length == 3) {
                     this.$[population + "_op"].value = aux[2];
-                    n = 3;
-                } else if (aux.length == 7) {
+                } else if (pop.length == 4) {
                     this.$[population + "_op"].value = aux[2] + aux[3];
                 }
             } else {
-                if (aux.length == 7) {
+              for(i=0;i<5;i++){
+                if(isNaN(aux[i])){
+                  pop+=aux[i];
+                  n++;
+                }
+              }
+              var val = "";
+                if (pop.length == 4) {
                     this.$[population + "_op"].value = aux[3];
-                } else if (aux.length == 8) {
+                } else if (pop.length == 5) {
                     this.$[population + "_op"].value = aux[3] + aux[4];
-                    n = 5;
                 }
             }
-            var val = "";
             for (var i = n; i < aux.length; i++) {
                 val += aux[i];
             }
