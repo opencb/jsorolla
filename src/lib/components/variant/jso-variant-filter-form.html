@@ -260,7 +260,7 @@
                 <div id="type_op" class="container">
                     <div style="margin-left:5px" class="horizontal layout">
                         <label class="jso-control">
-                            <input value="SNV" type="checkbox">
+                            <input value="SNV,SNP" type="checkbox">
                             <span>SNV</span>
                         </label>
                         <label class="jso-control" style="margin-left:14px">
@@ -972,6 +972,7 @@
 
             var genotypes = [];
             //
+            // debugger
             for (var i = 0; i < this.samples.length; i++) {
                 var sampleName = this.samples[i].name;
                 var els = this.$.segregation.querySelectorAll("input[name='" + sampleName + "']:checked");
@@ -979,9 +980,8 @@
                 var gtValues = [];
                 for (var j = 0; j < els.length; j++) {
                     var el = els[j].value.split(",");
-                    gtValues.push(el[0]);
-                    if (el[0] == "0/1") {
-                        gtValues.push(el[2]);
+                    for(var k = 0; k < el.length; k++){
+                      gtValues.push(el[k]);
                     }
                 }
                 if (gtValues.length > 0) {
