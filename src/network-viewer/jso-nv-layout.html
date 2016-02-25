@@ -104,10 +104,6 @@
             isMouseIn: {
                 type: Boolean,
                 value: false
-            },
-            disableContextMenu: {
-                type: Boolean,
-                value: false,
             }
         },
         listeners: {
@@ -535,9 +531,6 @@
             }
         },
         contextMenu: function(e) {
-            if (this.disableContextMenu === true) {
-                return;
-            }
             //        console.log('metaKey ' + event.metaKey);
             //        console.log('ctrlKey ' + event.ctrlKey);
             //        console.log('shiftKey ' + event.shiftKey);
