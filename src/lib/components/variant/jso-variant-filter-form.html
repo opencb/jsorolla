@@ -963,7 +963,7 @@
             query["ids"] = idsQuery;
 
             // Genes
-            var geneQuery = this.geneValue.toUpperCase().replace("\n", ",");
+            var geneQuery = this.geneValue.toUpperCase().replace(/\n/gi,',');
             if (geneQuery != '') {
                 query["gene"] = geneQuery;
             }
@@ -1243,7 +1243,7 @@
                         }
                     }
                 }
-                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "") + " ");
+                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "").replace(/"/gi,"") + " ");
             }
 
             // Region
