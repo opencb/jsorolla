@@ -288,6 +288,7 @@
                 }
 
                 if (this.$.mode_2.checked) {
+                    delete query["randoms"];
                     if (this.$.inputFile2.selectedFile === undefined && this.$.inputFile2.textAreaValue == "") {
                         alert("Error: You are comparing two list and only the first one is selected. We are missing the second one");
                         return;
@@ -352,7 +353,17 @@
                 this.message = '';
                 this.jobName = "Upregulated by induction of exogenous BRCA1 in EcR-293 cells";
                 this.description = "";
-                this.$.inputFile.selectedFile = {id: "example_brca1_overexp_up.txt", path: "brca1_overexp_up.txt", type: "FILE"};
+
+
+                if (this.$.mode_2.checked) {
+                    this.$.inputFile2.selectedFile = {
+                        id: "example_brca1_overexp_up.txt",
+                        path: "brca1_overexp_up.txt",
+                        type: "FILE"
+                    };
+                }else{
+                    this.$.inputFile.selectedFile = {id: "example_brca1_overexp_up.txt", path: "brca1_overexp_up.txt", type: "FILE"};
+                }
                 this.$.interactome.value = "hsa";
                 this.$.type_3.checked = true;
                 this.$.side_1.checked = true;

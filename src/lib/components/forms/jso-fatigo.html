@@ -119,9 +119,10 @@
                             selectionMode="file"
                             allowTextArea="true"
                             on-file-select="{{handleFileSelect}}"
-                            bioformat="IDLIST,IDLIST_RANKED"
+                            bioformat="IDLIST"
                             networkViewer="{{networkViewer}}"
                             ></jso-project-browser-window>
+                    <!-- bioformat="IDLIST,IDLIST_RANKED" !-->
                 </div>
             </div>
 
@@ -140,9 +141,10 @@
                                                     selectionMode="file"
                                                     on-file-select="{{handleFileSelect}}"
                                                     allowTextArea="true"
-                                                    bioformat="IDLIST,IDLIST_RANKED"
+                                                    bioformat="IDLIST"
                                                     networkViewer="{{networkViewer}}"
                                 ></jso-project-browser-window>
+                            <!-- bioformat="IDLIST,IDLIST_RANKED" !-->
                     </div>
                     <div id="option2" hidden>
                         <span>Rest of the genome</span>
@@ -233,11 +235,11 @@
 
                             <div horizontal layout>
                                 <label class="control">
-                                    <input name="go_bp" id="go_bp" type="checkbox" value="gobp">
+                                    <input name="go_bp" id="go_bp" type="checkbox" value="gobp" class="go" on-click="{{speciemust}}">
                                     <span>GO biological process</span>
                                 </label>
 
-                                <div id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show
+                                <div name="bpOptionsButton" id="bpOptionsButton" class="button action" on-click="{{bpOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -247,11 +249,11 @@
 
                             <div horizontal layout>
                                 <label class="control">
-                                    <input name="go_mf" id="go_mf" type="checkbox" value="gomf">
+                                    <input name="go_mf" id="go_mf" type="checkbox" value="gomf" class="go" on-click="{{speciemust}}">
                                     <span>GO molecular function</span>
                                 </label>
 
-                                <div id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show
+                                <div name="mfOptionsButton" id="mfOptionsButton" class="button action" on-click="{{mfOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -260,11 +262,11 @@
 
                             <div horizontal layout>
                                 <label class="control">
-                                    <input name="go_cc" id="go_cc" type="checkbox" value="gocc">
+                                    <input name="go_cc" id="go_cc" type="checkbox" value="gocc" class="go" on-click="{{speciemust}}">
                                     <span>GO cellular component</span>
                                 </label>
 
-                                <div id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show
+                                <div name="ccOptionsButton" id="ccOptionsButton" class="button action" on-click="{{ccOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -273,12 +275,12 @@
 
                             <div horizontal layout>
                                 <label class="control">
-                                    <input name="go_slim" id="go_slim" type="checkbox" value="go-slim">
+                                    <input name="go_slim" id="go_slim" type="checkbox" value="go-slim" class="go" on-click="{{speciemust}}">
                                     <span>GOSlim GOA</span>
                                 </label>
 
 
-                                <div id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show
+                                <div name="go_slimOptionsButton" id="go_slimOptionsButton" class="button action" on-click="{{slimOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -288,11 +290,11 @@
 
                             <div horizontal layout>
                                 <label class="control">
-                                    <input name="interpro" id="interpro" type="checkbox" value="interpro">
+                                    <input name="interpro" id="interpro" type="checkbox" value="interpro" class="go" on-click="{{speciemust}}">
                                     <span>Interpro</span>
                                 </label>
 
-                                <div id="interproOptionsButton" class="button action"
+                                <div name="interproOptionsButton" id="interproOptionsButton" class="button action"
                                      on-click="{{interproOptionsFunction}}">Show options...
                                 </div>
                             </div>
@@ -302,11 +304,11 @@
 
                             <div horizontal layout>
                                 <label class="control">
-                                    <input name="recon" id="recon" type="checkbox" value="recon">
+                                    <input name="recon" id="recon" type="checkbox" value="recon" class="go" on-click="{{speciemust}}">
                                     <span>Genome-Scale Metabolic Network</span>
                                 </label>
 
-                                <div id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show
+                                <div name="reconOptionsButton" id="reconOptionsButton" class="button action" on-click="{{reconOptionsFunction}}">Show
                                     options...
                                 </div>
                             </div>
@@ -320,7 +322,7 @@
                     <div id="your_annotations_div">
                         <div horizontal layout>
                             <label class="control">
-                                <input name="your_annotations" id="your_annotations" type="checkbox" value="">
+                                <input name="your_annotations" id="your_annotations" type="checkbox" value="" >
                                 <span>Your annotations</span>
 
                             </label>
@@ -365,6 +367,7 @@
                 this.jobName = 'JobName';
                 this.toolName = "fatigo";
                 this.description = "Description";
+                this.mustspecie = false;
 
             },
             handleDownloadFile: function (e) {
@@ -385,7 +388,41 @@
                 }
 
             },
+            disablespecie: function() {
+                var comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
+                 if(comparison == "list2genome" || comparison == "list2list"){
+                    this.$.species.disabled = false;
+                    this.$.go_slim.disabled = false;
+                    this.$.interpro.disabled = false;
+                    this.$.recon.disabled = false;
+                    this.$.go_cc.disabled = false;
+                    this.$.go_mf.disabled = false;
+                    this.$.go_bp.disabled = false;
+                }
+            },
+            speciemust: function(){
 
+                var noexist = true;
+                var g= this.$.databases.querySelectorAll(".go");
+                for(var i = 0; i< g.length; i++){
+
+                    if(g[i].checked) {
+                        this.mustspecie = true;
+                        noexist = false;
+
+                    }
+                }
+                if(noexist == true){
+                    this.mustspecie = false;
+                }
+            },
+            nocheck:function(){
+                this.mustspecie = false;
+                var g= this.$.databases.querySelectorAll(".go");
+                for(var i = 0; i< g.length; i++){
+                    g[i].checked = false;
+                }
+            },
             comparisonChange: function () {
                 this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
                 this.list2 = false;
@@ -399,7 +436,9 @@
 
                     this.$.species.disabled = false;
                     this.$.your_annotations_div.hidden = false;
+                    this.disablespecie();
 
+         //           this.$.your_annotations.checked = false;
 //                    this.$.your_annotations.disabled = false;
 //                    this.$.annotationsFile.disabled = false;
 
@@ -412,8 +451,8 @@
                     this.$.fisher.disabled = true;
 
                     this.$.species.disabled = false;
-
                     this.$.your_annotations_div.hidden = true;
+                    this.disablespecie();
 //                    this.$.your_annotations.disabled = true;
 ////                    this.$.your_annotations.disabled = false;
 //                    this.$.annotationsFile.hidden = true;
@@ -426,9 +465,16 @@
                     this.$.option2.hidden = true;
                     this.$.option3.hidden = false;
 
-                    this.$.species.disabled = true;
-                    this.$.your_annotations_div.hidden = false;
 
+                    this.$.your_annotations_div.hidden = false;
+                    this.$.species.disabled = true;
+                    this.$.go_slim.disabled = true;
+                    this.$.interpro.disabled = true;
+                    this.$.recon.disabled = true;
+                    this.$.go_cc.disabled = true;
+                    this.$.go_mf.disabled = true;
+                    this.$.go_bp.disabled = true;
+                    this.nocheck();
 
 //                    this.$.your_annotations.disabled = false;
 //                    this.$.annotationsFile.disabled = false;
@@ -450,9 +496,10 @@
                     return;
                 }
                 this.comparison = this.shadowRoot.querySelector('input[name="comparisonRadio"]:checked').value;
-                if (this.$.species.value == "none" && this.comparison != "list2rest") {
-                    alert("Sorry. No species selected. Please select one. ");
-                    return
+
+                if (this.$.species.value == "none" && this.comparison != "list2rest" && this.mustspecie) {
+                    alert("Sorry. No species selected. Please select one. "+this.mustspecie);
+                    return;
                 }
                 var query = {
                     sid: Cookies("bioinfo_sid"),
@@ -593,6 +640,7 @@
                 this.go_bp_max_num_genes = 500;
                 this.go_bp_min_level = 3;
                 this.jobName = "motor vs apop";
+                this.mustspecie = true;
 
 //                var exampleFolder = "fati_motor_apop";
 //                this.createExampleFolder(exampleFolder);
