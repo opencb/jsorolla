@@ -69,6 +69,12 @@
                 type: Boolean,
                 reflectToAttribute: true,
                 value: false
+            },
+            query: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
             }
         },
         _columns: [{
@@ -340,10 +346,12 @@
             }
         },
         samplesChanged: function(neo, old) {
+            this.request = null;
             this.$.table.clear();
             this._updateColumns();
         },
         _updateColumns: function() {
+
             var sampleColumns = [];
             var colWidth = 80;
 
@@ -356,7 +364,6 @@
             for (var i = 0; i < this.samples.length; i++) {
                 var sample = this.samples[i].name;
                 var f = "return row.studies[0].samplesData[" + i + "][0]";
-
                 sampleColumns.push({
                     name: sample,
                     title: sample,
@@ -433,11 +440,22 @@
                                 }
 
                                 // SIFT & Polyphen
-                                if (ct.proteinVariantAnnotation) {
+                                if (ct.proteinVariantAnnotation && polyphenAux == null && siftAux == null) {
+
                                     if (ct.proteinVariantAnnotation.substitutionScores && (siftAux == null || polyphenAux == null)) {
                                         if (ct.proteinVariantAnnotation.substitutionScores[0] && ct.proteinVariantAnnotation.substitutionScores[1]) {
-                                            polyphenAux = ct.proteinVariantAnnotation.substitutionScores[0].score;
-                                            siftAux = ct.proteinVariantAnnotation.substitutionScores[1].score;
+                                            var pol = ct.proteinVariantAnnotation.substitutionScores[0].score;
+                                            var si = ct.proteinVariantAnnotation.substitutionScores[1].score;
+                                            if (eval(pol + this.query.polyphen) && eval(si + this.query.sift)) {
+                                                polyphenAux = pol;
+                                                siftAux = si;
+                                            } else if (eval(pol + this.query.polyphen) && this.query.sift==null) {
+                                                polyphenAux = pol;
+                                                siftAux = si;
+                                            } else if (eval(si + this.query.sift) && this.query.polyphen==null) {
+                                                polyphenAux = pol;
+                                                siftAux = si;
+                                            }
                                         }
                                     }
                                 }

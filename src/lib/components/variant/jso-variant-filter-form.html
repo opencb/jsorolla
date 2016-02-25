@@ -704,6 +704,7 @@
             },
             query: {
                 type: Object,
+                notify:true,
                 value: function() {
                     return {};
                 },
@@ -971,8 +972,6 @@
             // // Genotypes
 
             var genotypes = [];
-            //
-            // debugger
             for (var i = 0; i < this.samples.length; i++) {
                 var sampleName = this.samples[i].name;
                 var els = this.$.segregation.querySelectorAll("input[name='" + sampleName + "']:checked");
