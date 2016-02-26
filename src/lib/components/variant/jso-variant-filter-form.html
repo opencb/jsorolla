@@ -929,8 +929,8 @@
                         if (re.test(regionName)) {
                             var groups = regionName.match(re);
                             if (groups.length == 5) {
-                                var chr = groups[1];
-                                if(chr == "x" || chr == "y" || chr == "mt"){
+                                var chr = groups[1].toUpperCase();
+                                if(chr == "X" || chr == "Y" || chr == "MT"){
                                   regionName=regionName.toUpperCase();
                                 }
                                 var start = parseInt(groups[3]);
@@ -942,7 +942,7 @@
                                     regions.push(regionName);
                                 }
                             } else if (groups.length == 2) {
-                                var chr = groups[1];
+                                var chr = groups[1].toUpperCase();
                                 if(chr == "X" || chr == "Y" || chr == "MT"){
                                   chr=chr.toUpperCase();
                                 }
