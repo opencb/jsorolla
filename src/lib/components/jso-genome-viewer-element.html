@@ -93,7 +93,8 @@
         }
     </style>
     <template>
-        <div id="gv"></div>
+      <div id="content"></div>
+      <div id="gv"></div>
     </template>
     <script>
         Polymer({
@@ -284,6 +285,7 @@
                 this.genomeViewer.addOverviewTrack(gene);
             },
             addDefaultTracks: function() {
+              var me = this;
                 var sequenceTrack = new FeatureTrack({
                     title: 'Sequence',
                     height: 25,
@@ -315,10 +317,10 @@
                                 console.log(e.feature);
                                 switch (e.featureType) {
                                     case "gene":
-                                        me.$.content.appendChild(new JsoGeneInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
+                                        me.$.gv.appendChild(new JsoGeneInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
                                         break;
                                     case "transcript":
-                                        me.$.content.appendChild(new JsoTranscriptInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
+                                        me.$.gv.appendChild(new JsoTranscriptInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
                                         break;
                                     default:
                                         break;
@@ -343,7 +345,7 @@
 
                 var renderer = new FeatureRenderer(FEATURE_TYPES.snp);
                 renderer.on('feature:click', function(e) {
-                    me.$.content.appendChild(new JsoSnpInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
+                    me.$.gv.appendChild(new JsoSnpInfoPanel(e.query, e.feature, CELLBASE_HOST, me.genomeViewer.species));
                 });
                 snpTrack = new FeatureTrack({
                     title: 'SNP',

@@ -1118,6 +1118,8 @@
             var sampleQuery = sampleNames.join(",");
             query.returnedSamples = sampleQuery;
 
+            query.timeout= 30000;
+
             this.set('query', query);
 
             console.log(query);

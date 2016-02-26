@@ -266,7 +266,7 @@ GeneRenderer.prototype.render = function (features, args) {
                                 hide: {delay: 300}
                             });
                             exonGroup.addEventListener('click', function (e) {
-                                console.log(this.dataset.id);
+                                // console.log(this.dataset.id);
                             });
 
 
