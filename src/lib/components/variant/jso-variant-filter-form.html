@@ -930,6 +930,9 @@
                             var groups = regionName.match(re);
                             if (groups.length == 5) {
                                 var chr = groups[1];
+                                if(chr == "x" || chr == "y" || chr == "mt"){
+                                  regionName=regionName.toUpperCase();
+                                }
                                 var start = parseInt(groups[3]);
                                 var end = parseInt(groups[4]);
                                 if (start > end) {
@@ -940,6 +943,9 @@
                                 }
                             } else if (groups.length == 2) {
                                 var chr = groups[1];
+                                if(chr == "X" || chr == "Y" || chr == "MT"){
+                                  chr=chr.toUpperCase();
+                                }
                                 regions.push(chr);
                             } else {
                                 alert("Malformed Region: " + regionName);
