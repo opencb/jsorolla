@@ -331,11 +331,7 @@
                 title: "GWAS",
                 width: 200,
                 formula: function(row) {
-                    if (row.phenotype && row.phenotype.cosmic) {
-                        return row.phenotype.cosmic;
-                    } else {
                         return ".";
-                    }
                 }
             }]
         }],

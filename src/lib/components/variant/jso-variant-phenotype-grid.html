@@ -24,6 +24,12 @@
         }
     </style>
     <template>
+        <label class="jso">Clinvar:</label>
+        <jso-table id="clinvarTable" hidden$="{{isClinvarEmpty}}" enable-export></jso-table>
+        <div hidden$="{{!isClinvarEmpty}}" style="padding:20px 50px;">
+            No results found.
+        </div>
+        <br>
         <label class="jso">Cosmic:</label>
         <jso-table id="cosmicTable" hidden$="{{isCosmicEmpty}}" enable-export></jso-table>
         <div hidden$="{{!isCosmicEmpty}}" style="padding:20px 50px;">
@@ -33,12 +39,6 @@
         <label class="jso">GWAS:</label>
         <jso-table id="gwasTable" hidden$="{{isGwasEmpty}}" enable-export></jso-table>
         <div hidden$="{{!isGwasEmpty}}" style="padding:20px 50px;">
-            No results found.
-        </div>
-        <br>
-        <label class="jso">Clinvar:</label>
-        <jso-table id="clinvarTable" hidden$="{{isClinvarEmpty}}" enable-export></jso-table>
-        <div hidden$="{{!isClinvarEmpty}}" style="padding:20px 50px;">
             No results found.
         </div>
     </template>
@@ -64,95 +64,74 @@
                 type: Boolean
             }
         },
-        ready: function () {
+        ready: function() {
             this.$.cosmicTable.columns = this._cosmicColumns;
             this.$.gwasTable.columns = this._gwasColumns;
             this.$.clinvarTable.columns = this._clinvarColumns;
         },
-        _cosmicColumns: [
-            {
-                name: "geneName",
-                title: "Gene name"
-            },
-            {
-                name: "histologySubtype",
-                title: "Histology subtype"
-            },
-            {
-                name: "mutationID",
-                title: "Mutation ID"
-            },
-            {
-                name: "mutationSomaticStatus",
-                title: "Mutation somatic status",
-                width: 300
-            },
-            {
-                name: "primaryHistology",
-                title: "Primary histology"
-            },
-            {
-                name: "primarySite",
-                title: "Primary site"
-            },
-            {
-                name: "sampleSource",
-                title: "Sample source"
-            },
-            {
-                name: "siteSubtype",
-                title: "Site subtype"
-            },
-            {
-                name: "tumourOrigin",
-                title: "Tumour origin"
-            }
-        ],
-        _gwasColumns: [
-            {
-                name: "reportedGenes",
-                title: "R eported genes"
-            },
-            {
-                name: "riskAlleleFrequency",
-                title: "Risk allele frequency",
-            },
-            {
-                name: "snpIdCurrent",
-                title: "snp ID current"
-            },
-            {
-                name: "traits",
-                title: "Traits",
-                width: 300
-            }
-        ],
-        _clinvarColumns: [
-            {
-                name: "acc",
-                title: "Accession"
-            },
-            {
-                name: "clinicalSignificance",
-                title: "Clinical significance",
-                width: 100
-            },
-            {
-                name: "geneName",
-                title: "Gene name"
-            },
-            {
-                name: "reviewStatus",
-                title: "Review status",
-                width: 300
-            },
-            {
-                name: "traits",
-                title: "Traits",
-                width: 300
-            }
-        ],
-        rowChanged: function (neo, old) {
+        _cosmicColumns: [{
+            name: "geneName",
+            title: "Gene name"
+        }, {
+            name: "histologySubtype",
+            title: "Histology subtype"
+        }, {
+            name: "mutationID",
+            title: "Mutation ID"
+        }, {
+            name: "mutationSomaticStatus",
+            title: "Mutation somatic status",
+            width: 300
+        }, {
+            name: "primaryHistology",
+            title: "Primary histology"
+        }, {
+            name: "primarySite",
+            title: "Primary site"
+        }, {
+            name: "sampleSource",
+            title: "Sample source"
+        }, {
+            name: "siteSubtype",
+            title: "Site subtype"
+        }, {
+            name: "tumourOrigin",
+            title: "Tumour origin"
+        }],
+        _gwasColumns: [{
+            name: "reportedGenes",
+            title: "R eported genes"
+        }, {
+            name: "riskAlleleFrequency",
+            title: "Risk allele frequency",
+        }, {
+            name: "snpIdCurrent",
+            title: "snp ID current"
+        }, {
+            name: "traits",
+            title: "Traits",
+            width: 300
+        }],
+        _clinvarColumns: [{
+            name: "acc",
+            title: "Accession"
+        }, {
+            name: "clinicalSignificance",
+            title: "Clinical significance",
+            width: 100
+        }, {
+            name: "geneName",
+            title: "Gene name"
+        }, {
+            name: "reviewStatus",
+            title: "Review status",
+            width: 300
+        }, {
+            name: "traits",
+            title: "Traits",
+            width: 300
+        }],
+        rowChanged: function(neo, old) {
             var me = this;
 
             this.$.cosmicTable.currentPage = 1;
@@ -162,61 +141,23 @@
             if (neo) {
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 variant =
-                        CellBaseManager.get({
-                            version: 'v3',
-                            species: 'hsapiens',
-                            category: 'genomic',
-                            subCategory: 'variant',
-                            resource: 'full_annotation',
-                            query: variant,
-                            async: false,
-                            success: function (response) {
-                                try {
-                                    var dataCosmic = [];
-                                    var dataGwas = [];
-                                    var dataClinvar = [];
+                    CellBaseManager.get({
+                        version: 'v3',
+                        species: 'hsapiens',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'full_annotation',
+                        query: variant,
+                        async: false,
+                        success: function(response) {
+                            try {
+                                var dataCosmic = [];
+                                var dataGwas = [];
+                                var dataClinvar = [];
 
-                                    var clinicalData = response.response[0].result[0].clinical;
+                                var clinicalData = response.response[0].result[0].clinical;
 
-                                    if (!clinicalData) {
-                                        me.$.cosmicTable.data = [];
-                                        me.$.gwasTable.data = [];
-                                        me.$.clinvarTable.data = [];
-
-                                        me.isCosmicEmpty = true;
-                                        me.isGwasEmpty = true;
-                                        me.isClinvarEmpty = true;
-                                        return;
-                                    }
-
-                                    if (clinicalData.cosmic != null) {
-                                        for (var i = 0; i < clinicalData.cosmic.length; i++) {
-                                            var cosmic = clinicalData.cosmic[i];
-                                            dataCosmic.push(cosmic);
-                                        }
-                                    }
-                                    if (clinicalData.gwas != null) {
-                                        for (var i = 0; i < clinicalData.gwas.length; i++) {
-                                            var gwas = clinicalData.gwas[i];
-                                            dataGwas.push(gwas);
-                                        }
-                                    }
-                                    if (clinicalData.clinvar != null) {
-                                        for (var i = 0; i < clinicalData.clinvar.length; i++) {
-                                            var clinvar = clinicalData.clinvar[i];
-                                            dataClinvar.push(clinvar);
-                                        }
-                                    }
-                                    me.$.cosmicTable.data = dataCosmic;
-                                    me.$.gwasTable.data = dataGwas;
-                                    me.$.clinvarTable.data = dataClinvar;
-
-                                    me.isCosmicEmpty = (me.$.cosmicTable.data.length > 0) ? false : true;
-                                    me.isGwasEmpty = (me.$.gwasTable.data.length > 0) ? false : true;
-                                    me.isClinvarEmpty = (me.$.clinvarTable.data.length > 0) ? false : true;
-
-                                } catch (e) {
-                                    console.log(e);
+                                if (!clinicalData) {
                                     me.$.cosmicTable.data = [];
                                     me.$.gwasTable.data = [];
                                     me.$.clinvarTable.data = [];
@@ -224,9 +165,47 @@
                                     me.isCosmicEmpty = true;
                                     me.isGwasEmpty = true;
                                     me.isClinvarEmpty = true;
+                                    return;
                                 }
+
+                                if (clinicalData.cosmic != null) {
+                                    for (var i = 0; i < clinicalData.cosmic.length; i++) {
+                                        var cosmic = clinicalData.cosmic[i];
+                                        dataCosmic.push(cosmic);
+                                    }
+                                }
+                                if (clinicalData.gwas != null) {
+                                    for (var i = 0; i < clinicalData.gwas.length; i++) {
+                                        var gwas = clinicalData.gwas[i];
+                                        dataGwas.push(gwas);
+                                    }
+                                }
+                                if (clinicalData.clinvar != null) {
+                                    for (var i = 0; i < clinicalData.clinvar.length; i++) {
+                                        var clinvar = clinicalData.clinvar[i];
+                                        dataClinvar.push(clinvar);
+                                    }
+                                }
+                                me.$.cosmicTable.data = dataCosmic;
+                                me.$.gwasTable.data = dataGwas;
+                                me.$.clinvarTable.data = dataClinvar;
+
+                                me.isCosmicEmpty = (me.$.cosmicTable.data.length > 0) ? false : true;
+                                me.isGwasEmpty = (me.$.gwasTable.data.length > 0) ? false : true;
+                                me.isClinvarEmpty = (me.$.clinvarTable.data.length > 0) ? false : true;
+
+                            } catch (e) {
+                                console.log(e);
+                                me.$.cosmicTable.data = [];
+                                me.$.gwasTable.data = [];
+                                me.$.clinvarTable.data = [];
+
+                                me.isCosmicEmpty = true;
+                                me.isGwasEmpty = true;
+                                me.isClinvarEmpty = true;
                             }
-                        });
+                        }
+                    });
             }
         }
     });
