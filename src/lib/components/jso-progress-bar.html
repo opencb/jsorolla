@@ -1,0 +1,92 @@
+<dom-module id="jso-progress-bar">
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            position: fixed;
+            z-index: 100;
+            box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
+            height: 100px;
+            width: 500px;
+            background-color: #445D76;
+            top: 400px;
+            left: 500px;
+        }
+
+        .bar {
+            margin: 10px;
+            position: absolute;
+            height: 20px;
+            width: 475px;
+            border: 1px solid #d3d3d3;
+            background-color: white;
+            line-height: 20px;
+        }
+
+        #progressBar {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+            background-color: #eaeaea;
+        }
+
+        .percent {
+            position: absolute;
+            text-align: center;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .text {
+            text-align: center;
+            margin: 10px;
+            font-size: 18px;
+            color: #d3d3d3;
+        }
+    </style>
+    <template>
+        <div class="text">{{text}}</div>
+        <div class="bar">
+            <div id="progressBar"></div>
+            <div class="percent">
+                <i class="fa fa-spinner fa-spin"></i>
+                <span>{{percent}}</span> %
+            </div>
+        </div>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-progress-bar",
+        properties: {
+            // percentProgress: {
+            //     type: Number,
+            //     value: 0,
+            //     observer: 'percentProgressChange'
+            // },
+            // total: {
+            //     type: Number,
+            //     reflectToAttribute: true,
+            //     value: 0
+            // },
+            percent: {
+                type: Number,
+                value: 0,
+                reflectToAttribute: true,
+                observer: 'progressChange'
+            },
+            text: {
+                type: String,
+                reflectToAttribute: true,
+                value: ""
+            }
+        },
+        progressChange: function(neo, old) {
+        this.$.progressBar.style.width = neo + '%';
+        }
+    });
+</script>

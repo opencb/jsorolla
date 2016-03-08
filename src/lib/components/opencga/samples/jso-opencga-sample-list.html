@@ -247,7 +247,7 @@
         <div class="horizontal layout flex study-info">
             <label class="" style="margin-left:10px;">Study Type: </label>
             <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
-          <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
+            <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
             <div id="variantButton" class="jso-btn jso-btn-shdw but" on-click="handleViewVariantBrowswer" hidden$="{{!enableVariantBrowser}}"> Variant Browser
             </div>
             <div class="" hidden$="{{disableCaseControl}}">
@@ -496,6 +496,11 @@
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true
+            },
+            enableMultiselect: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
             }
         },
         ready: function() {
@@ -504,7 +509,7 @@
         handleSampleClick: function(e) {
             var selected = e.currentTarget;
             var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
-            if (this.enableVariantBrowser) {
+            if (this.enableVariantBrowser || this.enableMultiselect) {
                 selected.setAttribute("selected", "");
                 for (var i = 0; i < sel.length; i++) {
                     if (sel[i] == selected) {
