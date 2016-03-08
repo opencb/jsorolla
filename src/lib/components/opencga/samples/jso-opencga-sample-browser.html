@@ -111,12 +111,12 @@
             background-color: #fafafa;
             padding: 20px 30px;
         }
+
         jso-opencga-upload-file {
             box-sizing: border-box;
             background-color: #fafafa;
             padding: 20px 30px;
         }
-
 
         .bar > div {
             margin-right: 5px;
@@ -272,8 +272,8 @@
             },
             filteredSamples: {
                 type: Array,
-                value: function(){
-                  return [];
+                value: function() {
+                    return [];
                 },
                 notify: true,
             },
@@ -322,11 +322,11 @@
                 value: false,
                 reflectToAttribute: true
             },
-            // enableAutoIndex: {
-            //     type: Boolean,
-            //     value: false,
-            //     reflectToAttribute: true
-            // }
+            enableAutoIndex: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            }
         },
         ready: function() {
             var me = this;
@@ -424,6 +424,9 @@
             me._getSamples(me.selectedStudy.study.id, function(samples) {
                 me.set('samples', samples);
                 me.loading = false;
+                if (me.enableAutoIndex && me.samples.length > 0) {
+                    me.autoIndex();
+                }
 
             });
         },
@@ -468,12 +471,73 @@
         handleFileUploaded: function(e) {
             this._showStudyFolder();
             this.$.uploadFilePanel.hidden = true;
-            // if(this.enableAutoIndex){
-            //   this.autoIndex();
-            // }
         },
-        // autoIndex: function(){
-        //
-        // }
+        autoIndex: function() {
+            var sampleFiles = {};
+            var me = this;
+            var n = 0;
+            for (var i = 0; i < this.samples.length; i++) {
+                var sample = this.samples[i];
+                if (sample.status == null) {
+                    if (sampleFiles[sample.source] == null) {
+                        sampleFiles[sample.source] = 1;
+                        n++;
+                    }
+                }
+            }
+            if (n > 0) {
+                var studyId = this.selectedStudy.study.id;
+                OpencgaManager.studies.files({
+                    id: studyId,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                    },
+                    request: {
+                        async: true,
+                        success: function(response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var result = response.response[0].result;
+                                for (var i = 0; i < result.length; i++) {
+                                    if (result[i].type == "FILE") {
+                                        if (sampleFiles[result[i].name] != null && result[i].index == null) {
+                                            me._indexFile(result[i].id);
+                                        }
+                                    }
+                                }
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function() {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
+        },
+        _indexFile: function(fileId) {
+            var me = this;
+            OpencgaManager.files.index({
+                id: fileId,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    storageEngine: "mongodb",
+                },
+                request: {
+                    success: function(response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            console.log("index");
+                            console.log(response);
+                            me._showStudyFolder();
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function() {
+                        alert('Server error, try again later.');
+                    }
+                }
+            });
+        }
     });
 </script>
