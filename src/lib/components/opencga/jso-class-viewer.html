@@ -18,7 +18,7 @@
         <div id="jsoClassViewerId">
             <div horizontal layout>
                 <div>
-                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/Edit-your-data">
+                    <a target="_blank" href="https://github.com/babelomics/babelomics/wiki/tutorial-class-prediction#select-train-data">
                         <font-awesome icon="question-circle"></font-awesome>
                     </a>
                 </div>
@@ -88,6 +88,7 @@
                 mainSelect.appendChild(option);
 
                 var variables = this.dataClass["#VARIABLE"];
+                var auxvector = new Array();
                 for (var i = 0; i < variables.length; i++) {
                     var variable = variables[i];
                     var name = variable[1];
@@ -96,6 +97,8 @@
 //                    if (type == "CATEGORICAL") {
                         var option = document.createElement("option");
                         option.value = name;
+                        //option.selected = true;
+                        auxvector[i] = option;
                         var text = document.createTextNode(name);
                         option.appendChild(text);
                         this.$.selectClass.appendChild(option);
@@ -122,6 +125,9 @@
 //                    var select = this.$.class_name;
 //                    select.options[select.options.length] = new Option('Text ' + i, 'Value' + i);
 
+                }
+                if(auxvector.length>0) {
+                    auxvector[0].selected = true;
                 }
 //                this.loadedMainSelect = true;
                 this.fire('main-select');

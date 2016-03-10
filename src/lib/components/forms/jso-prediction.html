@@ -75,9 +75,13 @@
                 <div class="formtitle">Select test data (Optional)</div>
                 <div class="formcontent">
                     Test data (expression matrix)
-                    <jso-project-browser-window id="testInputFile" studies="{{studies}}"
+                    <!--<jso-project-browser-window id="testInputFile" studies="{{studies}}"
                                                 selectedStudy="{{selectedStudy}}"
                                                 selectionMode="file" on-file-select="{{handleFileSelect}}"
+                                                bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>!-->
+                    <jso-project-browser-window id="testInputFile" studies="{{studies}}"
+                                                selectedStudy="{{selectedStudy}}"
+                                                selectionMode="file"
                                                 bioformat="DATAMATRIX_EXPRESSION"></jso-project-browser-window>
                 </div>
             </div>
