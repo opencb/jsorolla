@@ -42,13 +42,12 @@
     </style>
     <template>
         <div id="form">
-            <div id="header" class="horizontal layout">
-                <div class="horizontal layout flex center" on-click="handleCollapseAction">
+            <div id="header" class="horizontal layout" on-click="handleCollapseAction">
+                <div class="horizontal layout flex center" >
                     <content select=".header"></content>
                 </div>
-                <div hidden$="{{!collapsible}}" class="collapsible" on-click="handleCollapseAction">
+                <div hidden$="{{!collapsible}}" class="collapsible" >
                     <i class$="{{computeIcon(collapsible,collapsed)}}" title="{{computeTitle(collapsible,collapsed)}}"></i>
-                    <!-- <i class="fa fa-minus"></i> -->
                 </div>
             </div>
             <div id="container" class="horizontal layout" hidden$="{{isContainerHidden(collapsible, collapsed)}}">

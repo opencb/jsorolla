@@ -2,6 +2,8 @@
 <link rel="import" href="../opencga/files/jso-opencga-import-file.html">
 <link rel="import" href="../jso-form-box.html">
 <link rel="import" href="../filters/jso-filter-position.html">
+<link rel="import" href="../filters/jso-filter-scores.html">
+<link rel="import" href="../filters/jso-filter-conservation.html">
 <dom-module id="jso-variant-filter-form">
     <style>
         :host {
@@ -467,7 +469,7 @@
                 </div>
             </jso-form-box> 
 
-            <jso-form-box collapsible collapsed>
+            <!-- <jso-form-box collapsible collapsed>
                 <div class="header">
                     Protein Substitution Scores
                 </div>
@@ -477,8 +479,6 @@
 
                         <div class="horizontal layout">
                             <jso-select name="sift_op" id="sift_op">
-                                <!-- <jso-option value="==">==</jso-option>
-                          <jso-option value="!=">!=</jso-option> -->
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -494,8 +494,6 @@
                         <label class="jso">Polyphen</label>
                         <div class="horizontal layout">
                             <jso-select name="polyphen_op" id="polyphen_op">
-                                <!-- <jso-option value="==">==</jso-option>
-                          <jso-option value="!=">!=</jso-option> -->
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -507,9 +505,10 @@
                         </div>
                     </div>
                 </div>
-            </jso-form-box> 
+            </jso-form-box>  -->
+            <jso-filter-scores id="filterScores" collapsible collapsed></jso-filter-scores>
 
-            <jso-form-box collapsible collapsed>
+            <!-- <jso-form-box collapsible collapsed>
                 <div class="header">
                     Conservation
                 </div>
@@ -519,8 +518,6 @@
 
                         <div class="horizontal layout">
                             <jso-select name="phylop_op" id="phylop_op">
-                                <!-- <jso-option value="==">==</jso-option>
-                        <jso-option value="!=">!=</jso-option> -->
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -536,8 +533,6 @@
                         <label class="jso">PhastCons</label>
                         <div class="horizontal layout">
                             <jso-select name="phastcons_op" id="phastcons_op">
-                                <!-- <jso-option value="==">==</jso-option>
-                        <jso-option value="!=">!=</jso-option> -->
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -549,7 +544,9 @@
                         </div>
                     </div>
                 </div>
-            </jso-form-box> 
+            </jso-form-box>  -->
+
+            <jso-filter-conservation id="filterConservation" collapsible collapsed></jso-filter-conservation>
 
             <jso-form-box collapsible collapsed>
                 <div class="header">
@@ -906,17 +903,21 @@
             this.$["ESP_6500_AA_op"].value = "<";
 
             // Sift
-            this.$.sift.value = "";
-            this.$.sift_op.value = "<";
+            // this.$.sift.value = "";
+            // this.$.sift_op.value = "<";
             // Polyphen
-            this.$.polyphen.value = "";
-            this.$.polyphen_op.value = "<";
-            // Phylop
-            this.$.phylop.value = "";
-            this.$.phylop_op.value = "<";
-            // Phastcons
-            this.$.phastcons.value = "";
-            this.$.phastcons_op.value = "<";
+            // this.$.polyphen.value = "";
+            // this.$.polyphen_op.value = "<";
+            this.$.filterScores.clear();
+
+            // // Phylop
+            // this.$.phylop.value = "";
+            // this.$.phylop_op.value = "<";
+            // // Phastcons
+            // this.$.phastcons.value = "";
+            // this.$.phastcons_op.value = "<";
+
+            this.$.filterConservation.clear();
 
             /* Consequence Types */
             var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
@@ -972,7 +973,9 @@
             // query["region"] = regionQuery;
 
             var regionQuery = this.$.filterPosition.checkRegion();
-            if (regionQuery != null) {
+            if (regionQuery == -1) {
+                return;
+            } else if (regionQuery != null) {
                 query["region"] = regionQuery;
             }
 
@@ -985,7 +988,9 @@
             // query["ids"] = idsQuery;
 
             var idsQuery = this.$.filterPosition.checkSNPId();
-            if (idsQuery != null) {
+            if (regionQuery == -1) {
+                return;
+            } else if (idsQuery != null) {
                 query["ids"] = idsQuery;
             }
 
@@ -996,7 +1001,9 @@
             // }
 
             var geneQuery = this.$.filterPosition.checkGene();
-            if (geneQuery != null) {
+            if (regionQuery == -1) {
+                return;
+            } else if (geneQuery != null) {
                 query["gene"] = geneQuery;
             }
 
@@ -1036,37 +1043,63 @@
             }
 
             // Protein Substitution Scores
-            var sift = parseFloat(this.$.sift.value);
-            if (!isNaN(sift)) {
-                if (this.$.sift.checkValidity() == false) {
-                    alert("Sift must be less than 1 or greater than 0");
-                    return;
-                } else {
-                    sift = this.$.sift_op.value + sift;
-                    query["sift"] = sift;
-                }
+            // var sift = parseFloat(this.$.sift.value);
+            // if (!isNaN(sift)) {
+            //     if (this.$.sift.checkValidity() == false) {
+            //         alert("Sift must be less than 1 or greater than 0");
+            //         return;
+            //     } else {
+            //         sift = this.$.sift_op.value + sift;
+            //         query["sift"] = sift;
+            //     }
+            // }
+            //
+            // var polyphen = parseFloat(this.$.polyphen.value);
+            // if (!isNaN(polyphen)) {
+            //     if (this.$.polyphen.checkValidity() == false) {
+            //         alert("Polyphen must be less than 1 or greater than 0");
+            //         return;
+            //     } else {
+            //         polyphen = this.$.polyphen_op.value + polyphen;
+            //         query["polyphen"] = polyphen;
+            //     }
+            // }
+
+            var sift = this.$.filterScores.checkSift();
+            if (sift == -1) {
+                return;
+            } else if (sift != null) {
+                query["sift"] = sift;
+            }
+            var polyphen = this.$.filterScores.checkPolyphen();
+            if (polyphen == -1) {
+                return;
+            } else if (polyphen != null) {
+                query["polyphen"] = polyphen;
             }
 
-            var polyphen = parseFloat(this.$.polyphen.value);
-            if (!isNaN(polyphen)) {
-                if (this.$.polyphen.checkValidity() == false) {
-                    alert("Polyphen must be less than 1 or greater than 0");
-                    return;
-                } else {
-                    polyphen = this.$.polyphen_op.value + polyphen;
-                    query["polyphen"] = polyphen;
-                }
-            }
+            // var phylop = parseFloat(this.$.phylop.value);
+            // var phastcons = parseFloat(this.$.phastcons.value);
+            // if (!isNaN(phylop) || !isNaN(phastcons)) {
+            //     var conservation = [];
+            //     if (!isNaN(phastcons)) {
+            //         conservation.push("phastCons" + this.$.phastcons_op.value + phastcons);
+            //     }
+            //     if (!isNaN(phylop)) {
+            //         conservation.push("phylop" + this.$.phylop_op.value + phylop);
+            //     }
+            //     query["conservation"] = conservation.join(",");
+            // }
 
-            var phylop = parseFloat(this.$.phylop.value);
-            var phastcons = parseFloat(this.$.phastcons.value);
-            if (!isNaN(phylop) || !isNaN(phastcons)) {
+            var phastcons = this.$.filterConservation.checkPhastcons();
+            var phylop = this.$.filterConservation.checkPhylop();
+            if (phastcons != null || phylop != null) {
                 var conservation = [];
-                if (!isNaN(phastcons)) {
-                    conservation.push("phastCons" + this.$.phastcons_op.value + phastcons);
+                if (phastcons != null) {
+                    conservation.push(phastcons);
                 }
-                if (!isNaN(phylop)) {
-                    conservation.push("phylop" + this.$.phylop_op.value + phylop);
+                if (phylop != null) {
+                    conservation.push(phylop);
                 }
                 query["conservation"] = conservation.join(",");
             }
@@ -1348,10 +1381,10 @@
             //     filterName.push("SNPId: (" + hf.ids + ") ");
             // }
 
-            var fN = this.$.filterPosition.load(hf);
-            if (fN.length > 0) {
-                for (var i = 0; i < fN.length; i++) {
-                    filterName.push(fN[i]);
+            var fP = this.$.filterPosition.load(hf);
+            if (fP.length > 0) {
+                for (var i = 0; i < fP.length; i++) {
+                    filterName.push(fP[i]);
                 }
             }
 
@@ -1429,101 +1462,114 @@
                 filterName.push("Population: " + hf['annot-population-maf'] + " ");
             }
 
-            // Sift
-            if (hf.sift != "" && hf.sift != null) {
-                var aux = hf.sift.split("");
-                var val = "";
-                var valOp = "";
-                var n = 0;
-                for (var i = 0; i < 2; i++) {
-                    if (isNaN(aux[i])) {
-                        valOp += aux[i];
-                        n++;
-                    }
+            // // Sift
+            // if (hf.sift != "" && hf.sift != null) {
+            //     var aux = hf.sift.split("");
+            //     var val = "";
+            //     var valOp = "";
+            //     var n = 0;
+            //     for (var i = 0; i < 2; i++) {
+            //         if (isNaN(aux[i])) {
+            //             valOp += aux[i];
+            //             n++;
+            //         }
+            //     }
+            //     for (var i = n; i < aux.length; i++) {
+            //         val += aux[i];
+            //     }
+            //     this.$.sift_op.value = valOp;
+            //     this.$.sift.value = parseFloat(val);
+            //     filterName.push("Sift" + hf.sift + " ");
+            // }
+            // // Polyphen
+            // if (hf.polyphen != "" && hf.polyphen != null) {
+            //     var aux = hf.polyphen.split("");
+            //     var val = "";
+            //     var valOp = "";
+            //     var n = 0;
+            //     for (var i = 0; i < 2; i++) {
+            //         if (isNaN(aux[i])) {
+            //             valOp += aux[i];
+            //             n++;
+            //         }
+            //     }
+            //     for (var i = n; i < aux.length; i++) {
+            //         val += aux[i];
+            //     }
+            //     this.$.polyphen_op.value = valOp;
+            //     this.$.polyphen.value = parseFloat(val);
+            //     filterName.push("Polyphen" + hf.polyphen + " ");
+            // }
+            var fS = this.$.filterScores.load(hf);
+            if (fS.length > 0) {
+                for (var i = 0; i < fS.length; i++) {
+                    filterName.push(fS[i]);
                 }
-                for (var i = n; i < aux.length; i++) {
-                    val += aux[i];
-                }
-                this.$.sift_op.value = valOp;
-                this.$.sift.value = parseFloat(val);
-                filterName.push("Sift" + hf.sift + " ");
             }
-            // Polyphen
-            if (hf.polyphen != "" && hf.polyphen != null) {
-                var aux = hf.polyphen.split("");
-                var val = "";
-                var valOp = "";
-                var n = 0;
-                for (var i = 0; i < 2; i++) {
-                    if (isNaN(aux[i])) {
-                        valOp += aux[i];
-                        n++;
-                    }
-                }
-                for (var i = n; i < aux.length; i++) {
-                    val += aux[i];
-                }
-                this.$.polyphen_op.value = valOp;
-                this.$.polyphen.value = parseFloat(val);
-                filterName.push("Polyphen" + hf.polyphen + " ");
-            }
+
             // Phylop y Phastcons
-            if (hf.conservation != "" && hf.conservation != null) {
-                aux = hf.conservation.split(",");
-                if (aux[0].search("phastCons") >= 0) {
-                    var p = aux[0].split("");
-                    var val = "";
-                    var valOp = "";
-                    var n = 9;
-                    for (var i = 9; i < 11; i++) {
-                        if (isNaN(p[i]) && p[i] != "-") {
-                            valOp += p[i];
-                            n++;
-                        }
-                    }
-                    for (var i = n; i < p.length; i++) {
-                        val += p[i];
-                    }
-                    this.$.phastcons_op.value = valOp;
-                    this.$.phastcons.value = parseFloat(val);
-                    if (aux[1]) {
-                        var p = aux[1].split("");
-                        var val = "";
-                        var valOp = "";
-                        var n = 6;
-                        for (var i = 6; i < 8; i++) {
-                            if (isNaN(p[i]) && p[i] != "-") {
-                                valOp += p[i];
-                                n++;
-                            }
-                        }
-                        for (var i = n; i < p.length; i++) {
-                            val += p[i];
-                        }
-                        this.$.phylop_op.value = valOp;
-                        this.$.phylop.value = parseFloat(val);
-                    }
-                }
-                if (aux[0].search("phylop") >= 0) {
-                    var p = aux[0].split("");
-                    var val = "";
-                    var valOp = "";
-                    var n = 6;
-                    for (var i = 6; i < 8; i++) {
-                        if (isNaN(p[i]) && p[i] != "-") {
-                            valOp += p[i];
-                            n++;
-                        }
-                    }
-                    for (var i = n; i < p.length; i++) {
-                        val += p[i];
-                    }
-                    this.$.phylop_op.value = valOp;
-                    this.$.phylop.value = parseFloat(val);
-                }
-                filterName.push(aux[0] + " ");
-                if (aux[1] != null) {
-                    filterName.push(aux[1] + " ");
+            // if (hf.conservation != "" && hf.conservation != null) {
+            //     aux = hf.conservation.split(",");
+            //     if (aux[0].search("phastCons") >= 0) {
+            //         var p = aux[0].split("");
+            //         var val = "";
+            //         var valOp = "";
+            //         var n = 9;
+            //         for (var i = 9; i < 11; i++) {
+            //             if (isNaN(p[i]) && p[i] != "-") {
+            //                 valOp += p[i];
+            //                 n++;
+            //             }
+            //         }
+            //         for (var i = n; i < p.length; i++) {
+            //             val += p[i];
+            //         }
+            //         this.$.phastcons_op.value = valOp;
+            //         this.$.phastcons.value = parseFloat(val);
+            //         if (aux[1]) {
+            //             var p = aux[1].split("");
+            //             var val = "";
+            //             var valOp = "";
+            //             var n = 6;
+            //             for (var i = 6; i < 8; i++) {
+            //                 if (isNaN(p[i]) && p[i] != "-") {
+            //                     valOp += p[i];
+            //                     n++;
+            //                 }
+            //             }
+            //             for (var i = n; i < p.length; i++) {
+            //                 val += p[i];
+            //             }
+            //             this.$.phylop_op.value = valOp;
+            //             this.$.phylop.value = parseFloat(val);
+            //         }
+            //     }
+            //     if (aux[0].search("phylop") >= 0) {
+            //         var p = aux[0].split("");
+            //         var val = "";
+            //         var valOp = "";
+            //         var n = 6;
+            //         for (var i = 6; i < 8; i++) {
+            //             if (isNaN(p[i]) && p[i] != "-") {
+            //                 valOp += p[i];
+            //                 n++;
+            //             }
+            //         }
+            //         for (var i = n; i < p.length; i++) {
+            //             val += p[i];
+            //         }
+            //         this.$.phylop_op.value = valOp;
+            //         this.$.phylop.value = parseFloat(val);
+            //     }
+            //     filterName.push(aux[0] + " ");
+            //     if (aux[1] != null) {
+            //         filterName.push(aux[1] + " ");
+            //     }
+            // }
+            var fC = this.$.filterConservation.load(hf);
+            if (fC.length > 0) {
+                for (var i = 0; i < fC.length; i++) {
+                    filterName.push(fC[i]);
                 }
             }
 
