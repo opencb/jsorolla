@@ -1,6 +1,7 @@
 <link rel="import" href="../cellbase/jso-cellbase-search-field.html">
 <link rel="import" href="../opencga/files/jso-opencga-import-file.html">
 <link rel="import" href="../jso-form-box.html">
+<link rel="import" href="../filters/jso-filter-position.html">
 <dom-module id="jso-variant-filter-form">
     <style>
         :host {
@@ -220,7 +221,7 @@
                     </div>
                 </div>
             </jso-form-box>
-            <jso-form-box collapsible>
+            <!-- <jso-form-box collapsible>
                 <div class="header">
                     Position
                 </div>
@@ -241,17 +242,18 @@
 
                     <label class="jso">SNPId:</label>
                     <textarea class="jso" id="snpId" name="snpId" placeholder="rs9988179,rs140361978" value="{{snpIdValue::change}}" rows="3" required>
-                    </textarea>
+                    </textarea> -->
 
-                    <!--<jso-cellbase-search-field style="margin-top:5px;" placeholder="Search gene"-->
-                    <!--on-featureselected="handleFeatureSelected"></jso-cellbase-search-field>-->
+            <!--<jso-cellbase-search-field style="margin-top:5px;" placeholder="Search gene"-->
+            <!--on-featureselected="handleFeatureSelected"></jso-cellbase-search-field>-->
 
-                    <!--<label class="jso" style="margin-top:5px;">Bed File</label>-->
+            <!--<label class="jso" style="margin-top:5px;">Bed File</label>-->
 
-                    <!--<div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick">{{fileName}}</div>-->
-                    <!--<input type="file" hidden id="fileInput" on-change="handleInputChange">-->
-                </div>
-            </jso-form-box> 
+            <!--<div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick">{{fileName}}</div>-->
+            <!--<input type="file" hidden id="fileInput" on-change="handleInputChange">-->
+            <!-- </div> -->
+            <!-- </jso-form-box>  -->
+            <jso-filter-position id="filterPosition" collapsible enable-importbed enable-snpid></jso-filter-position>
 
             <jso-form-box collapsible collapsed>
                 <div class="header">
@@ -778,7 +780,7 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                    if (query.genotype != null || query.region != "" || query.gene != null || query.ids != "" || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
                         if (minAux < 10) {
@@ -854,16 +856,16 @@
             }
 
             // Region
-            this.$.region.value = "";
-            this.regionValue = "";
-
+            // this.$.region.value = "";
+            // this.regionValue = "";
             // Gen
-            this.$.gene.value = "";
-            this.geneValue = "";
-
+            // this.$.gene.value = "";
+            // this.geneValue = "";
             // SNPId
-            this.$.snpId.value = "";
-            this.snpIdValue = "";
+            // this.$.snpId.value = "";
+            // this.snpIdValue = "";
+
+            this.$.filterPosition.clear();
 
             // Type
             var types = this.$.type_op.querySelectorAll("input:checked");
@@ -925,60 +927,76 @@
         },
         submitForm: function() {
             var query = {};
-            var regions = [];
+
             // Region
-            if (this.regionValue) {
-                var aux = this.regionValue.split(/,|\n|\r/);
-                for (var i = 0; i < aux.length; i++) {
-                    regionName = aux[i];
-                    if (regionName != '') {
-                        var re = /^(\w+)(:(\d+)-(\d+))?$/;
-                        if (re.test(regionName)) {
-                            var groups = regionName.match(re);
-                            if (groups.length == 5) {
-                                var chr = groups[1].toUpperCase();
-                                if (chr == "X" || chr == "Y" || chr == "MT") {
-                                    regionName = regionName.toUpperCase();
-                                }
-                                var start = parseInt(groups[3]);
-                                var end = parseInt(groups[4]);
-                                if (start > end) {
-                                    alert("Malformed Region: " + regionName + ", END must be greater than or equal to START");
-                                    return;
-                                } else {
-                                    regions.push(regionName);
-                                }
-                            } else if (groups.length == 2) {
-                                var chr = groups[1].toUpperCase();
-                                if (chr == "X" || chr == "Y" || chr == "MT") {
-                                    chr = chr.toUpperCase();
-                                }
-                                regions.push(chr);
-                            } else {
-                                alert("Malformed Region: " + regionName);
-                                return;
-                            }
-                        } else {
-                            alert("Malformed Region: " + regionName);
-                            return;
-                        }
-                    }
-                }
+            // var regions = [];
+            // if (this.regionValue) {
+            //     var aux = this.regionValue.split(/,|\n|\r/);
+            //     for (var i = 0; i < aux.length; i++) {
+            //         regionName = aux[i];
+            //         if (regionName != '') {
+            //             var re = /^(\w+)(:(\d+)-(\d+))?$/;
+            //             if (re.test(regionName)) {
+            //                 var groups = regionName.match(re);
+            //                 if (groups.length == 5) {
+            //                     var chr = groups[1].toUpperCase();
+            //                     if (chr == "X" || chr == "Y" || chr == "MT") {
+            //                         regionName = regionName.toUpperCase();
+            //                     }
+            //                     var start = parseInt(groups[3]);
+            //                     var end = parseInt(groups[4]);
+            //                     if (start > end) {
+            //                         alert("Malformed Region: " + regionName + ", END must be greater than or equal to START");
+            //                         return;
+            //                     } else {
+            //                         regions.push(regionName);
+            //                     }
+            //                 } else if (groups.length == 2) {
+            //                     var chr = groups[1].toUpperCase();
+            //                     if (chr == "X" || chr == "Y" || chr == "MT") {
+            //                         chr = chr.toUpperCase();
+            //                     }
+            //                     regions.push(chr);
+            //                 } else {
+            //                     alert("Malformed Region: " + regionName);
+            //                     return;
+            //                 }
+            //             } else {
+            //                 alert("Malformed Region: " + regionName);
+            //                 return;
+            //             }
+            //         }
+            //     }
+            // }
+            // var regionQuery = regions.join(",");
+            // query["region"] = regionQuery;
+
+            var regionQuery = this.$.filterPosition.checkRegion();
+            if (regionQuery != null) {
+                query["region"] = regionQuery;
             }
-            var regionQuery = regions.join(",");
-            query["region"] = regionQuery;
 
             // SNPId
-            var ids = [];
-            if (this.snpIdValue) {
-                ids = this.snpIdValue.toLowerCase().split(/,|\n/);
+            // var ids = [];
+            // if (this.snpIdValue) {
+            //     ids = this.snpIdValue.toLowerCase().split(/,|\n/);
+            // }
+            // var idsQuery = ids.join(",");
+            // query["ids"] = idsQuery;
+
+            var idsQuery = this.$.filterPosition.checkSNPId();
+            if (idsQuery != null) {
+                query["ids"] = idsQuery;
             }
-            var idsQuery = ids.join(",");
-            query["ids"] = idsQuery;
 
             // Genes
-            var geneQuery = this.geneValue.toUpperCase().replace(/\n/gi, ',');
-            if (geneQuery != '') {
+            // var geneQuery = this.geneValue.toUpperCase().replace(/\n/gi, ',');
+            // if (geneQuery != '') {
+            //     query["gene"] = geneQuery;
+            // }
+
+            var geneQuery = this.$.filterPosition.checkGene();
+            if (geneQuery != null) {
                 query["gene"] = geneQuery;
             }
 
@@ -1312,24 +1330,29 @@
             }
 
             // Region
-            if (hf.region != "" && hf.region != null) {
-                this.$.region.value = hf.region;
-                this.regionValue = hf.region;
-                filterName.push("Chromosomal Location: (" + hf.region + ") ");
-            }
-
+            // if (hf.region != "" && hf.region != null) {
+            //     this.$.region.value = hf.region;
+            //     this.regionValue = hf.region;
+            //     filterName.push("Chromosomal Location: (" + hf.region + ") ");
+            // }
             // Genes
-            if (hf.gene != "" && hf.gene != null) {
-                this.$.gene.value = hf.gene;
-                this.geneValue = hf.gene;
-                filterName.push("Genes: (" + hf.gene + ") ");
-            }
-
+            // if (hf.gene != "" && hf.gene != null) {
+            //     this.$.gene.value = hf.gene;
+            //     this.geneValue = hf.gene;
+            //     filterName.push("Genes: (" + hf.gene + ") ");
+            // }
             // SNPId
-            if (hf.ids != "" && hf.ids != null) {
-                this.$.snpId.value = hf.ids;
-                this.snpIdValue = hf.ids;
-                filterName.push("SNPId: (" + hf.ids + ") ");
+            // if (hf.ids != "" && hf.ids != null) {
+            //     this.$.snpId.value = hf.ids;
+            //     this.snpIdValue = hf.ids;
+            //     filterName.push("SNPId: (" + hf.ids + ") ");
+            // }
+
+            var fN = this.$.filterPosition.load(hf);
+            if (fN.length > 0) {
+                for (var i = 0; i < fN.length; i++) {
+                    filterName.push(fN[i]);
+                }
             }
 
             // Types
