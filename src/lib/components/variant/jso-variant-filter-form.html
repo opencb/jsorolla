@@ -704,7 +704,7 @@
             },
             query: {
                 type: Object,
-                notify:true,
+                notify: true,
                 value: function() {
                     return {};
                 },
@@ -720,6 +720,13 @@
             esp_6500: {
                 type: String,
                 value: "fa fa-angle-double-right minus"
+            },
+            filesId: {
+                type: Array,
+                value: function() {
+                    return [];
+                },
+                observer: "filesIdChanged"
             }
         },
         ready: function() {
@@ -930,8 +937,8 @@
                             var groups = regionName.match(re);
                             if (groups.length == 5) {
                                 var chr = groups[1].toUpperCase();
-                                if(chr == "X" || chr == "Y" || chr == "MT"){
-                                  regionName=regionName.toUpperCase();
+                                if (chr == "X" || chr == "Y" || chr == "MT") {
+                                    regionName = regionName.toUpperCase();
                                 }
                                 var start = parseInt(groups[3]);
                                 var end = parseInt(groups[4]);
@@ -943,8 +950,8 @@
                                 }
                             } else if (groups.length == 2) {
                                 var chr = groups[1].toUpperCase();
-                                if(chr == "X" || chr == "Y" || chr == "MT"){
-                                  chr=chr.toUpperCase();
+                                if (chr == "X" || chr == "Y" || chr == "MT") {
+                                    chr = chr.toUpperCase();
                                 }
                                 regions.push(chr);
                             } else {
@@ -970,7 +977,7 @@
             query["ids"] = idsQuery;
 
             // Genes
-            var geneQuery = this.geneValue.toUpperCase().replace(/\n/gi,',');
+            var geneQuery = this.geneValue.toUpperCase().replace(/\n/gi, ',');
             if (geneQuery != '') {
                 query["gene"] = geneQuery;
             }
@@ -985,8 +992,8 @@
                 var gtValues = [];
                 for (var j = 0; j < els.length; j++) {
                     var el = els[j].value.split(",");
-                    for(var k = 0; k < el.length; k++){
-                      gtValues.push(el[k]);
+                    for (var k = 0; k < el.length; k++) {
+                        gtValues.push(el[k]);
                     }
                 }
                 if (gtValues.length > 0) {
@@ -1124,7 +1131,7 @@
             var sampleQuery = sampleNames.join(",");
             query.returnedSamples = sampleQuery;
 
-            query.timeout= 30000;
+            query.timeout = 30000;
 
             this.set('query', query);
 
@@ -1171,29 +1178,29 @@
         _setPopulationValue: function(population, value, freq) {
             var aux = value.split("");
             var n = 0;
-            var pop="";
+            var pop = "";
 
             if (freq == "ESP") {
-              for(i=0;i<4;i++){
-                if(isNaN(aux[i])){
-                  pop+=aux[i];
-                  n++;
+                for (i = 0; i < 4; i++) {
+                    if (isNaN(aux[i])) {
+                        pop += aux[i];
+                        n++;
+                    }
                 }
-              }
-              var val = "";
+                var val = "";
                 if (pop.length == 3) {
                     this.$[population + "_op"].value = aux[2];
                 } else if (pop.length == 4) {
                     this.$[population + "_op"].value = aux[2] + aux[3];
                 }
             } else {
-              for(i=0;i<5;i++){
-                if(isNaN(aux[i])){
-                  pop+=aux[i];
-                  n++;
+                for (i = 0; i < 5; i++) {
+                    if (isNaN(aux[i])) {
+                        pop += aux[i];
+                        n++;
+                    }
                 }
-              }
-              var val = "";
+                var val = "";
                 if (pop.length == 4) {
                     this.$[population + "_op"].value = aux[3];
                 } else if (pop.length == 5) {
@@ -1210,19 +1217,70 @@
             query.sid = Cookies("bioinfo_sid");
             query.skipCount = false;
             query.sort = true;
-            //TODO fsalavert: fix
-            //            query.sessionId = Cookies("bioinfo_sid");
-            var url = OpencgaManager.studies.variants({
-                id: this.study.id,
-                query: query,
-                request: {
-                    url: true
+
+            //****//
+            var sampleFiles = {};
+            var filesIdAux = [];
+            var me = this;
+            var n = 0;
+
+            for (var i = 0; i < this.samples.length; i++) {
+                var sample = this.samples[i];
+                if (sample.status == 'READY') {
+                    if (sampleFiles[sample.source] == null) {
+                        sampleFiles[sample.source] = 1;
+                        n++;
+                    }
                 }
-            });
+            }
+            if (n > 0) {
+                var studyId = this.study.id;
+                OpencgaManager.studies.files({
+                    id: studyId,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                    },
+                    request: {
+                        async: true,
+                        success: function(response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                var result = response.response[0].result;
+                                for (var i = 0; i < result.length; i++) {
+                                    if (result[i].type == "FILE") {
+                                        if (sampleFiles[result[i].name] != null && result[i].index != null && result[i].index.status == 'READY') {
+                                            filesIdAux.push(result[i].id);
+                                        }
+                                    }
+                                }
+                                me.set('filesId', filesIdAux);
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function() {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
 
-            this.url = url;
-            console.log(url);
+        },
+        filesIdChanged: function(neo, old) {
+            if (neo.length > 0) {
+                this.query.files = neo.join(',');
+                //TODO fsalavert: fix
+                //            query.sessionId = Cookies("bioinfo_sid");
+                var url = OpencgaManager.studies.variants({
+                    id: this.study.id,
+                    query: this.query,
+                    request: {
+                        url: true
+                    }
+                });
 
+                this.url = url;
+                console.log(url);
+            }
         },
         loadForm: function(hf) {
             var filterName = [];
@@ -1250,7 +1308,7 @@
                         }
                     }
                 }
-                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "").replace(/"/gi,"") + " ");
+                filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "").replace(/"/gi, "") + " ");
             }
 
             // Region
@@ -1351,94 +1409,94 @@
             // Sift
             if (hf.sift != "" && hf.sift != null) {
                 var aux = hf.sift.split("");
-                var val="";
-                var valOp="";
-                var n=0;
+                var val = "";
+                var valOp = "";
+                var n = 0;
                 for (var i = 0; i < 2; i++) {
-                  if(isNaN(aux[i])){
-                    valOp+=aux[i];
-                    n++;
-                  }
+                    if (isNaN(aux[i])) {
+                        valOp += aux[i];
+                        n++;
+                    }
                 }
-                for(var i=n; i<aux.length; i++){
-                  val+= aux[i];
+                for (var i = n; i < aux.length; i++) {
+                    val += aux[i];
                 }
                 this.$.sift_op.value = valOp;
-                this.$.sift.value=parseFloat(val);
+                this.$.sift.value = parseFloat(val);
                 filterName.push("Sift" + hf.sift + " ");
             }
             // Polyphen
             if (hf.polyphen != "" && hf.polyphen != null) {
-              var aux = hf.polyphen.split("");
-              var val="";
-              var valOp="";
-              var n=0;
-              for (var i = 0; i < 2; i++) {
-                if(isNaN(aux[i])){
-                  valOp+=aux[i];
-                  n++;
+                var aux = hf.polyphen.split("");
+                var val = "";
+                var valOp = "";
+                var n = 0;
+                for (var i = 0; i < 2; i++) {
+                    if (isNaN(aux[i])) {
+                        valOp += aux[i];
+                        n++;
+                    }
                 }
-              }
-              for(var i=n; i<aux.length; i++){
-                val+= aux[i];
-              }
-              this.$.polyphen_op.value = valOp;
-              this.$.polyphen.value=parseFloat(val);
-              filterName.push("Polyphen" + hf.polyphen + " ");
+                for (var i = n; i < aux.length; i++) {
+                    val += aux[i];
+                }
+                this.$.polyphen_op.value = valOp;
+                this.$.polyphen.value = parseFloat(val);
+                filterName.push("Polyphen" + hf.polyphen + " ");
             }
             // Phylop y Phastcons
             if (hf.conservation != "" && hf.conservation != null) {
                 aux = hf.conservation.split(",");
                 if (aux[0].search("phastCons") >= 0) {
                     var p = aux[0].split("");
-                    var val="";
-                    var valOp="";
-                    var n=9;
+                    var val = "";
+                    var valOp = "";
+                    var n = 9;
                     for (var i = 9; i < 11; i++) {
-                      if(isNaN(p[i]) && p[i]!= "-"){
-                        valOp+=p[i];
-                        n++;
-                      }
+                        if (isNaN(p[i]) && p[i] != "-") {
+                            valOp += p[i];
+                            n++;
+                        }
                     }
-                    for(var i=n; i<p.length; i++){
-                      val+= p[i];
+                    for (var i = n; i < p.length; i++) {
+                        val += p[i];
                     }
                     this.$.phastcons_op.value = valOp;
-                    this.$.phastcons.value=parseFloat(val);
+                    this.$.phastcons.value = parseFloat(val);
                     if (aux[1]) {
                         var p = aux[1].split("");
-                        var val="";
-                        var valOp="";
-                        var n=6;
+                        var val = "";
+                        var valOp = "";
+                        var n = 6;
                         for (var i = 6; i < 8; i++) {
-                          if(isNaN(p[i]) && p[i]!= "-"){
-                            valOp+=p[i];
-                            n++;
-                          }
+                            if (isNaN(p[i]) && p[i] != "-") {
+                                valOp += p[i];
+                                n++;
+                            }
                         }
-                        for(var i=n; i<p.length; i++){
-                          val+= p[i];
+                        for (var i = n; i < p.length; i++) {
+                            val += p[i];
                         }
                         this.$.phylop_op.value = valOp;
-                        this.$.phylop.value=parseFloat(val);
+                        this.$.phylop.value = parseFloat(val);
                     }
                 }
                 if (aux[0].search("phylop") >= 0) {
                     var p = aux[0].split("");
-                    var val="";
-                    var valOp="";
-                    var n=6;
+                    var val = "";
+                    var valOp = "";
+                    var n = 6;
                     for (var i = 6; i < 8; i++) {
-                      if(isNaN(p[i]) && p[i]!= "-"){
-                        valOp+=p[i];
-                        n++;
-                      }
+                        if (isNaN(p[i]) && p[i] != "-") {
+                            valOp += p[i];
+                            n++;
+                        }
                     }
-                    for(var i=n; i<p.length; i++){
-                      val+= p[i];
+                    for (var i = n; i < p.length; i++) {
+                        val += p[i];
                     }
                     this.$.phylop_op.value = valOp;
-                    this.$.phylop.value=parseFloat(val);
+                    this.$.phylop.value = parseFloat(val);
                 }
                 filterName.push(aux[0] + " ");
                 if (aux[1] != null) {
