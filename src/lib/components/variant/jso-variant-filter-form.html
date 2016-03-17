@@ -979,9 +979,7 @@
             // query["region"] = regionQuery;
 
             var regionQuery = this.$.filterPosition.checkRegion();
-            if (regionQuery == -1) {
-                return;
-            } else if (regionQuery != null) {
+            if (regionQuery != null) {
                 query["region"] = regionQuery;
             }
 
@@ -994,9 +992,7 @@
             // query["ids"] = idsQuery;
 
             var idsQuery = this.$.filterPosition.checkSNPId();
-            if (idsQuery == -1) {
-                return;
-            } else if (idsQuery != null) {
+            if (idsQuery != null) {
                 query["ids"] = idsQuery;
             }
 
@@ -1053,7 +1049,6 @@
                 query["annot-ct"] = cts.join(",");
             }
 
-
             // Protein Substitution Scores
             // var sift = parseFloat(this.$.sift.value);
             // if (!isNaN(sift)) {
@@ -1103,8 +1098,8 @@
             //     query["conservation"] = conservation.join(",");
             // }
 
-            var phastcons = this.$.filterConservation.checkPhastcons();
-            var phylop = this.$.filterConservation.checkPhylop();
+            var phastcons = this.$.filterConservation.checkPhastcons(1);
+            var phylop = this.$.filterConservation.checkPhylop(1);
             if (phastcons != null || phylop != null) {
                 var conservation = [];
                 if (phastcons != null) {
@@ -1578,7 +1573,7 @@
             //         filterName.push(aux[1] + " ");
             //     }
             // }
-            var fC = this.$.filterConservation.load(hf);
+            var fC = this.$.filterConservation.load(hf,1);
             if (fC.length > 0) {
                 for (var i = 0; i < fC.length; i++) {
                     filterName.push(fC[i]);
