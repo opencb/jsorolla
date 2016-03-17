@@ -1098,8 +1098,8 @@
             //     query["conservation"] = conservation.join(",");
             // }
 
-            var phastcons = this.$.filterConservation.checkPhastcons();
-            var phylop = this.$.filterConservation.checkPhylop();
+            var phastcons = this.$.filterConservation.checkPhastcons(1);
+            var phylop = this.$.filterConservation.checkPhylop(1);
             if (phastcons != null || phylop != null) {
                 var conservation = [];
                 if (phastcons != null) {
@@ -1573,7 +1573,7 @@
             //         filterName.push(aux[1] + " ");
             //     }
             // }
-            var fC = this.$.filterConservation.load(hf);
+            var fC = this.$.filterConservation.load(hf,1);
             if (fC.length > 0) {
                 for (var i = 0; i < fC.length; i++) {
                     filterName.push(fC[i]);
