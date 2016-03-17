@@ -4,6 +4,7 @@
 <link rel="import" href="../filters/jso-filter-position.html">
 <link rel="import" href="../filters/jso-filter-scores.html">
 <link rel="import" href="../filters/jso-filter-conservation.html">
+<link rel="import" href="../filters/jso-filter-consequencetypes.html">
 <dom-module id="jso-variant-filter-form">
     <style>
         :host {
@@ -548,7 +549,7 @@
 
             <jso-filter-conservation id="filterConservation" collapsible collapsed></jso-filter-conservation>
 
-            <jso-form-box collapsible collapsed>
+            <!-- <jso-form-box collapsible collapsed>
                 <div class="header">
                     Consequence Type
                 </div>
@@ -562,7 +563,10 @@
                     <div class="input_container vertical layout">
                     </div>
                 </div>
-            </jso-form-box> 
+            </jso-form-box>  -->
+
+            <jso-filter-consequencetypes id="filterCT" collapsible collapsed></jso-filter-consequencetypes>
+
             <jso-panel id="importComponent" modal closable hidden>
                 <div class="header">
                     <i class="fa fa-plus-square-o"></i> Import File
@@ -920,11 +924,13 @@
             this.$.filterConservation.clear();
 
             /* Consequence Types */
-            var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
-            for (var i = 0; i < els.length; i++) {
-                var el = els[i];
-                el.checked = false;
-            }
+            // var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
+            // for (var i = 0; i < els.length; i++) {
+            //     var el = els[i];
+            //     el.checked = false;
+            // }
+
+            this.$.filterCT.clear();
         },
         submitForm: function() {
             var query = {};
@@ -988,7 +994,7 @@
             // query["ids"] = idsQuery;
 
             var idsQuery = this.$.filterPosition.checkSNPId();
-            if (regionQuery == -1) {
+            if (idsQuery == -1) {
                 return;
             } else if (idsQuery != null) {
                 query["ids"] = idsQuery;
@@ -1001,7 +1007,7 @@
             // }
 
             var geneQuery = this.$.filterPosition.checkGene();
-            if (regionQuery == -1) {
+            if (geneQuery == -1) {
                 return;
             } else if (geneQuery != null) {
                 query["gene"] = geneQuery;
@@ -1032,15 +1038,21 @@
             }
 
             // Consequence Types
-            var cts = [];
-            var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
-            for (var i = 0; i < els.length; i++) {
-                var ctInput = els[i];
-                cts.push(ctInput.value);
-            }
-            if (cts.length > 0) {
+            // var cts = [];
+            // var els = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']:checked");
+            // for (var i = 0; i < els.length; i++) {
+            //     var ctInput = els[i];
+            //     cts.push(ctInput.value);
+            // }
+            // if (cts.length > 0) {
+            //     query["annot-ct"] = cts.join(",");
+            // }
+
+            var cts = this.$.filterCT.checkConsequenceTypes();
+            if (cts != null) {
                 query["annot-ct"] = cts.join(",");
             }
+
 
             // Protein Substitution Scores
             // var sift = parseFloat(this.$.sift.value);
@@ -1574,20 +1586,27 @@
             }
 
             // Consequence Types
-            if (hf["annot-ct"] != "" && hf["annot-ct"] != null) {
-                var ctName = [];
-                var cts = hf["annot-ct"].split(",");
-                var ct_op = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']");
-                for (var i = 0; i < cts.length; i++) {
-                    var ct = cts[i];
-                    for (var j = 0; j < ct_op.length; j++) {
-                        if (ct_op[j].value.search(ct) >= 0) {
-                            ct_op[j].checked = true;
-                            ctName.push(ct_op[j].dataset.name);
-                        }
-                    }
+            // if (hf["annot-ct"] != "" && hf["annot-ct"] != null) {
+            //     var ctName = [];
+            //     var cts = hf["annot-ct"].split(",");
+            //     var ct_op = this.$.consequenceTypes.querySelectorAll("input[name='consequence_type']");
+            //     for (var i = 0; i < cts.length; i++) {
+            //         var ct = cts[i];
+            //         for (var j = 0; j < ct_op.length; j++) {
+            //             if (ct_op[j].value.search(ct) >= 0) {
+            //                 ct_op[j].checked = true;
+            //                 ctName.push(ct_op[j].dataset.name);
+            //             }
+            //         }
+            //     }
+            //     filterName.push("Consequence Types: " + ctName.join(",") + " ");
+            // }
+
+            var fCT = this.$.filterCT.load(hf);
+            if (fCT.length > 0) {
+                for (var i = 0; i < fCT.length; i++) {
+                    filterName.push(fCT[i]);
                 }
-                filterName.push("Consequence Types: " + ctName.join(",") + " ");
             }
 
             return filterName.join(" AND ");
