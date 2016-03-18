@@ -1044,7 +1044,7 @@
             //     query["annot-ct"] = cts.join(",");
             // }
 
-            var cts = this.$.filterCT.checkConsequenceTypes();
+            var cts = this.$.filterCT.checkConsequenceTypes(1);
             if (cts != null) {
                 query["annot-ct"] = cts.join(",");
             }
@@ -1597,7 +1597,7 @@
             //     filterName.push("Consequence Types: " + ctName.join(",") + " ");
             // }
 
-            var fCT = this.$.filterCT.load(hf);
+            var fCT = this.$.filterCT.load(hf,1);
             if (fCT.length > 0) {
                 for (var i = 0; i < fCT.length; i++) {
                     filterName.push(fCT[i]);
