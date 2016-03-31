@@ -122,7 +122,8 @@
                 id: fileId,
                 query: {
                     sid: Cookies('bioinfo_sid'),
-                    attributes: encodeURIComponent(JSON.stringify(attributes))
+                    // attributes: encodeURIComponent(JSON.stringify(attributes))
+                    attributes: JSON.stringify(attributes)
                 },
                 request: {
                     success: function(response) {

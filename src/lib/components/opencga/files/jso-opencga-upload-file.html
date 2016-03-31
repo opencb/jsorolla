@@ -9,6 +9,7 @@
             position: relative;
             box-sizing: border-box;
             padding: 20px 30px;
+            width:400px;
         }
 
         jso-study-select {
@@ -85,6 +86,7 @@
                         </div>
                         <br>
                     </div>
+
                     <div hidden$="{{hideBioformats}}">
                         <label class="jso">Bioformat:</label>
                         <jso-opencga-bioformat id="bioformatSelect" bioformats="{{bioformats}}" on-selected-bioformat-change="handleSelectedBioformatChange"></jso-opencga-bioformat>
@@ -93,6 +95,7 @@
                 <br>
 
                 <form id="form">
+                    <label class="jso">File upload:</label>
                     <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
                         <span>Choose file...</span>
                     </div>
@@ -263,6 +266,8 @@
                 this.fileName = inputFile.name
 
                 this.status = "validation";
+
+                // console.log(inputFile.type)
             }
         },
 
@@ -400,6 +405,7 @@
 
             /* Validate bioformat */
             var file = this.$.fileInput.files[0];
+
             if (selBioformat != null && file != null) {
                 this.$.validator.reset();
                 var validator;

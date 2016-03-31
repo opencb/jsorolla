@@ -13,6 +13,7 @@
             position: absolute;
             background-color: var(--light-primary-color);
             width: 100%;
+            max-height: 300px;
             z-index: 1;
             box-sizing: border-box;
             display: none;
@@ -20,6 +21,7 @@
             top: calc(100% - 1px);
             border: 1px solid var(--divider-color);
             box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
         }
 
         #input {
@@ -60,7 +62,7 @@
         </div>
         <div id="list" on-click="handleSelect">
             <template is="dom-repeat" items="{{results}}">
-                <div class="result-item" on-mousedown="handleResultClickSelect">{{item}}</div>
+                <jso-search-item class="result-item" display-key="{{displayKey}}" item="{{item}}" on-mousedown="handleResultClickSelect"></jso-search-item>
             </template>
         </div>
     </template>
@@ -83,6 +85,14 @@
             lastQuery: {
                 type: String,
                 value: ''
+            },
+            displayKey: {
+                type: String,
+                value: 'name'
+            },
+            minQueryLength: {
+                type: Number,
+                value: 1
             }
         },
         clean: function() {
@@ -132,37 +142,35 @@
             } else if (e.keyCode === 13) {
                 var result = this.$.list.querySelector('.result-item[hover]');
                 if (result != null) {
-                    this.fire('item-select', result.innerHTML);
+                    this.fire('item-select', result.item);
                 }
             }
         },
         _getResults: function(query) {
             var me = this;
-            if (query.length > 1) {
+            if (query.length > this.minQueryLength) {
                 this.lastQuery = query;
-                this.searchFunction(query, function(result) {
-                    var results = me.parseFunction(result);
+                this.searchFunction(query, function(results) {
                     if (results.length > 0) {
                         me.showList();
                     }
                     me.set('results', results);
                 });
             }
-            if (query.length <= 1) {
+            if (query.length <= this.minQueryLength) {
                 this.hideList();
             }
         },
         handleFocus: function() {
-            console.log(this.lastQuery);
             this._getResults(this.lastQuery);
         },
         handleResultKeySelect: function(e) {
             if (e.which === 13) {
-                this.fire('item-select', e.currentTarget.innerHTML);
+                this.fire('item-select', e.currentTarget.item);
             }
         },
         handleResultClickSelect: function(e) {
-            this.fire('item-select', e.currentTarget.innerHTML);
+            this.fire('item-select', e.currentTarget.item);
         },
 
         /*custom functions*/
@@ -177,6 +185,43 @@
         },
         parseFunction: function(result) {
             return result;
+        }
+    });
+</script>
+
+
+<dom-module id="jso-search-item">
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            box-sizing: border-box;
+        }
+    </style>
+    <template>
+        {{computeItem(item, displayKey)}}
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: 'jso-search-item',
+        properties: {
+            item: {
+                type: Object
+            },
+            displayKey: {
+                type: String
+            }
+        },
+        computeItem: function(item, displayKey) {
+            if (item.constructor.name == "String") {
+                return item;
+            } else {
+                if (item[displayKey] == null) {
+                    debugger
+                }
+                return item[displayKey];
+            }
         }
     });
 </script>
