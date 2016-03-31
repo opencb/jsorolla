@@ -21,7 +21,7 @@
 class CellBaseClientConfig {
 
 
-    constructor(hosts = ["bioinf.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v4", species = "hsapiens") {
+    constructor(hosts = ["bioinfo.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v3", species = "hsapiens") {
         this.setHosts(hosts);
         this.version = version;
         this.species = species;
