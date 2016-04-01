@@ -9,14 +9,15 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-            height: 100%;
+            height: 300px;
         }
 
         #header,
         #footer {
             box-sizing: border-box;
             background-color: var(--light-secondary-color);
-            padding: 3px 7px;
+            padding: 0 7px;
+            height: 24px;
         }
 
         #header {
@@ -55,8 +56,34 @@
             /*position: relative;*/
             /*box-sizing: border-box;*/
             /*height: auto;*/
-            margin: 3px;
-            padding: 3px;
+            /*margin: 3px;*/
+            padding: 1px 2px;
+            height: 25px;
+            border-left: 2px solid transparent;
+        }
+
+        .item:hover {
+            border-left: 2px solid var(--divider-color);
+        }
+
+        .view {
+            cursor: pointer;
+            padding: 2px;
+            border: 1px solid var(--divider-color);
+        }
+
+        .view:hover {
+            background-color: var(--hover-color);
+        }
+
+        .line {
+            padding-right: 1px;
+            text-align: center;
+        }
+
+        .type {
+            padding: 0 1px;
+            text-align: center;
         }
 
         .item[type="error"] {
@@ -69,9 +96,9 @@
             border: 1px solid rgba(255, 191, 0, 0.3);
         }
 
-        .log {
+        #log {
             position: relative;
-            height: 200px;
+            height: calc(100% - 48px);
             overflow-y: auto;
             /*background-color: #FAFAFA;*/
             background-color: white;
@@ -87,10 +114,11 @@
 
         .uploadbar {
             position: relative;
-            height: 20px;
+            height: 18px;
+            width: 100px;
             background-color: var(--light-primary-color);
-            line-height: 20px;
-            border-top: 1px solid var(--divider-color);
+            line-height: 18px;
+            border: 1px solid var(--divider-color);
         }
 
         .uploadprogress {
@@ -99,7 +127,7 @@
             left: 0px;
             height: 100%;
             width: 100%;
-            background-color: var(--divider-color);
+            background-color: var(--hover-color);
             /*margin-top: 10px;*/
         }
 
@@ -131,17 +159,17 @@
             <div class="type">Type</div>
             <div class="msg flex">Message</div>
         </div>
-        <div class="log">
-            <template is="dom-repeat" items="{{log}}">
-                <div class="horizontal layout item" type$="{{item.type}}" on-mouseover="handleLogHover" on-mouseout="handleLogHoverOut">
+        <iron-list id="log" items="[[log]]" as="item">
+            <template>
+                <div class="horizontal layout center item" type$="{{item.type}}" on-mouseover="handleLogHover" on-mouseout="handleLogHoverOut">
                     <div class="line">{{item.line}}</div>
                     <div class="type" type$="{{item.type}}">{{item.type}}</div>
                     <div class="msg flex">{{item.msg}}</div>
-                    <div class="jso-btn view" line="{{item.line}}" on-click="handleLogViewClick" hidden>View</div>
+                    <div class="view" line="{{item.line}}" on-click="handleLogViewClick" hidden>View</div>
                 </div>
             </template>
-        </div>
-        <div id="footer" class="counts horizontal layout">
+        </iron-list>
+        <div id="footer" class="counts horizontal layout center">
             <div class="error-count count">Errors:
                 <span>{{errorCount}}</span>
             </div>
@@ -151,7 +179,15 @@
             <div class="info-count count">Info:
                 <span>{{infoCount}}</span>
             </div>
-
+            <div class="flex"></div>
+            <div class="uploadbar" hidden$="{{!uploading}}">
+                <div id="progressBar" class="uploadprogress"></div>
+                <div class="uploadtext">
+                    <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
+                    <span>{{progress}}</span> %
+                </div>
+                <br>
+            </div>
         </div>
 
         <jso-panel modal movable closable hidden id="linePreview" on-close="handleCloseLinePreview">
@@ -161,14 +197,6 @@
             <div class="container wrapped-text">{{linePreview}}</div>
         </jso-panel>
 
-        <div class="uploadbar" hidden$="{{!uploading}}">
-            <div id="progressBar" class="uploadprogress"></div>
-            <div class="uploadtext">
-                <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
-                <span>{{progress}}</span> %
-            </div>
-            <br>
-        </div>
 
     </template>
 </dom-module>

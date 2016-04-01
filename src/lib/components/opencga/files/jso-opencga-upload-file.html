@@ -8,20 +8,14 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-            padding: 20px 30px;
-            width:400px;
+            padding: 15px 25px 20px 25px;
         }
 
         jso-study-select {
             height: 150px;
         }
 
-        jso-bioformat {
-            height: 150px;
-        }
-
         .uploadbar {
-            margin-top: 5px;
             position: relative;
             height: 20px;
             border: 1px solid #d3d3d3;
@@ -48,12 +42,24 @@
             width: 100%;
         }
 
-        .filename {
+        #bioformatsBox {
+            position: relative;
+            box-sizing: border-box;
+            height: 250px;
+            width: 200px;
+            border: 1px solid var(--divider-color);
+            background-color: var(--text-primary-color);
+        }
+
+        #filename {
+            padding: 2px 4px;
             word-break: break-all;
+            border: 1px solid var(--divider-color);
+            background-color: var(--hover-color);
         }
 
         .right {
-            padding-left: 30px;
+            margin-left: 15px;
             display: block;
             position: relative;
             box-sizing: border-box;
@@ -62,73 +68,96 @@
 
         #validator {
             border: 1px solid var(--divider-color);
+            height: 250px;
+        }
+
+        #openFileButton {
+            width: 200px;
+        }
+
+        #uploadButton,
+        #openFileButton {
+            width: 200px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+        }
+
+        #uploadButton:hover,
+        #openFileButton:hover {
+            background-color: var(--light-button-color) !important;
         }
     </style>
     <template>
-        <div class="horizontal layout">
-            <div class="vertical layout left">
+        <div class="vertical layout">
+            <div hidden$="{{!showSelectStudy}}">
+                <label class="jso">Studies:</label>
+                <jso-opencga-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
+                </jso-opencga-study-select>
+                <br>
+            </div>
+
+            <div hidden$="{{showSelectStudy}}">
+                <label class="jso">File path:</label>
+
                 <div>
-                    <div hidden$="{{!showSelectStudy}}">
-                        <label class="jso">Studies:</label>
-                        <jso-opencga-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
-                        </jso-opencga-study-select>
-                        <br>
+                    /
+                    <span>{{selectedProject.name}}</span>/
+                    <span>{{selectedStudy.name}}</span>/
+                    <span>{{selectedFolder.name}}</span>
+                </div>
+                <br>
+            </div>
+
+            <div class="horizontal layout">
+                <div>
+                    <label class="jso">File upload:</label>
+                    <div id="openFileButton" class="jso-btn jso-btn-shdw" on-click="handleBrowseClick">
+                        Choose file...
                     </div>
+                </div>
+                <div class="flex" style="margin-left:15px;position:relative;">
+                    <label class="jso">Selected file:</label>
+                    <div id="filename">{{fileName}}</div>
+                    <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
+                </div>
+            </div>
 
-                    <div hidden$="{{showSelectStudy}}">
-                        <label class="jso">File path:</label>
+            <br>
 
-                        <div>
-                            /
-                            <span>{{selectedProject.name}}</span>/
-                            <span>{{selectedStudy.name}}</span>/
-                            <span>{{selectedFolder.name}}</span>
-                        </div>
-                        <br>
-                    </div>
-
-                    <div hidden$="{{hideBioformats}}">
-                        <label class="jso">Bioformat:</label>
+            <div class="horizontal layout">
+                <div hidden$="{{hideBioformats}}">
+                    <label class="jso">Bioformat:</label>
+                    <div id="bioformatsBox">
                         <jso-opencga-bioformat id="bioformatSelect" bioformats="{{bioformats}}" on-selected-bioformat-change="handleSelectedBioformatChange"></jso-opencga-bioformat>
                     </div>
                 </div>
-                <br>
 
+                <!-- <div hidden$="{{hideValidationLog}}" class="right vertical layout"> -->
+                <div class="right vertical layout">
+                    <label class="jso">File validation log:</label>
+                    <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
+                </div>
+            </div>
+
+            <br>
+            <div class="horizontal layout">
                 <form id="form">
-                    <label class="jso">File upload:</label>
-                    <div class="jso-btn jso-btn-shdw" on-click="handleBrowseClick" pattern="[a-zA-Z0-9_-]+">
-                        <span>Choose file...</span>
-                    </div>
-                    <br>
-                    <label class="jso">Selected file name:</label>
-
-                    <div class="filename">{{fileName}}</div>
-
-                    <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
-
-                    <br>
-
-                    <div class="jso-btn jso-btn-shdw" on-click="handleValidate">Upload</div>
+                    <div id="uploadButton" class="jso-btn jso-btn-shdw" on-click="handleValidate"><i class="fa fa-cloud-upload"></i> Upload</div>
                     <!-- <div class="jso-btn jso-btn-shdw" on-click="handleValidate" hidden$="{{computeStatusButton(status, 'validation')}}">Validate</div> -->
                 </form>
-                <br>
-
-                <div class="uploadbar" hidden$="{{!uploading}}">
-                    <div id="progressBar" class="uploadprogress"></div>
-                    <div class="uploadtext">
-                        <i class="fa fa-spinner fa-spin"></i>
-                        <span>{{percentProgress}}</span> %
+                <div class="flex" style="margin-left:15px;position:relative;">
+                    <div class="uploadbar flex">
+                        <div id="progressBar" class="uploadprogress"></div>
+                        <div class="uploadtext">
+                            <span hidden$="{{!uploading}}">
+                                <i class="fa fa-spinner fa-spin"></i>
+                                <span>{{percentProgress}}</span> % </span>
+                            <span id="message">{{message}}</span>
+                        </div>
+                        <br>
                     </div>
-                    <br>
                 </div>
-                <span>{{message}}</span>
             </div>
-
-            <div hidden$="{{hideValidationLog}}" class="right vertical layout">
-                <label class="jso">File validation log:</label>
-                <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
-            </div>
-
         </div>
 
     </template>
@@ -195,11 +224,11 @@
                 type: String,
                 value: 'validation'
             },
-            hideValidationLog: {
-                type: Boolean,
-                value: true,
-                observer: 'hideValidationLogChanged'
-            }
+            // hideValidationLog: {
+            //     type: Boolean,
+            //     value: true,
+            //     observer: 'hideValidationLogChanged'
+            // }
         },
         ready: function(e) {
             var me = this;
@@ -229,9 +258,9 @@
             if (numberOfBioformats == 1) {
                 this.hideBioformats = true;
                 this.selectedBioformat = this.bioformats[bioformatIdx];
-                if (this.selectedBioformat.validator != null) {
-                    this.hideValidationLog = false;
-                }
+                // if (this.selectedBioformat.validator != null) {
+                //     this.hideValidationLog = false;
+                // }
             }
             if (numberOfBioformats == 0) {
                 this.hideBioformats = true;
@@ -239,15 +268,15 @@
                     value: 'NONE',
                     text: 'NONE'
                 };
-                this.hideValidationLog = true;
+                // this.hideValidationLog = true;
             }
         },
         handleSelectedBioformatChange: function(e) {
-            if (this.$.bioformatSelect.selectedBioformat != null && this.$.bioformatSelect.selectedBioformat.validator != null) {
-                this.hideValidationLog = false;
-            } else {
-                this.hideValidationLog = true;
-            }
+            // if (this.$.bioformatSelect.selectedBioformat != null && this.$.bioformatSelect.selectedBioformat.validator != null) {
+            //     this.hideValidationLog = false;
+            // } else {
+            //     this.hideValidationLog = true;
+            // }
         },
         hideValidationLogChanged: function(e) {
             if (this._parentJsoPanel) {
@@ -320,12 +349,12 @@
                         callbackProgress: function(chunk, total, response) {
                             me.percentProgress = Math.round((chunk.id / total) * 100);
                             if (chunk.last) {
-                                me.percentProgress = 100;
+                                me.percentProgress = 0;
                                 me.uploading = false;
-                                me.message = 'Done';
                                 me.$.fileInput.value = null;
-                                me.fileName = '';
+                                me.fileName = 'None';
                                 me.fire('need-refresh');
+                                me.$.validator.reset();
 
                                 var uploadedFile = response.response[0].result[0];
                                 me.fire('file-uploaded', uploadedFile);
@@ -333,8 +362,9 @@
                             }
                         },
                         error: function(msg) {
+                            me.percentProgress = 0;
                             me.$.fileInput.value = null;
-                            me.fileName = '';
+                            me.fileName = 'None';
                             me.uploading = false;
                             me.message = msg;
                         }
