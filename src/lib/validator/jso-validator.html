@@ -3,7 +3,7 @@
 <script src="validator.js"></script>
 <script src="vcf-validator.js"></script>
 
-<dom-module name="jso-validator" noscript>
+<dom-module name="jso-validator">
     <style>
         :host {
             display: block;
@@ -58,7 +58,7 @@
             /*height: auto;*/
             /*margin: 3px;*/
             padding: 1px 2px;
-            height: 25px;
+            height: 50px;
             border-left: 2px solid transparent;
         }
 
@@ -68,12 +68,15 @@
 
         .view {
             cursor: pointer;
-            padding: 2px;
-            border: 1px solid var(--divider-color);
+            visibility: hidden;
         }
 
-        .view:hover {
-            background-color: var(--hover-color);
+        .item:hover > .view {
+            visibility: visible;
+        }
+
+        .view > i:hover {
+            color: var(--dark-button-color);
         }
 
         .line {
@@ -84,6 +87,11 @@
         .type {
             padding: 0 1px;
             text-align: center;
+        }
+
+        .msg {
+            word-break: break-all;
+            font-size: .95em;
         }
 
         .item[type="error"] {
@@ -146,26 +154,27 @@
 
         .wrapped-text {
             white-space: pre-wrap;
-            min-height: 100px;
-            max-width: 800px;
             padding: 10px;
             overflow-y: auto;
+            min-width: 400px;
+            min-height: 150px;
         }
+
     </style>
     <template>
 
         <div id="header" class="horizontal layout center">
             <div class="line">Line </div>
             <div class="type">Type</div>
-            <div class="msg flex">Message</div>
+            <div class="flex">Message</div>
         </div>
         <iron-list id="log" items="[[log]]" as="item">
             <template>
-                <div class="horizontal layout center item" type$="{{item.type}}" on-mouseover="handleLogHover" on-mouseout="handleLogHoverOut">
+                <div class="horizontal layout center item" type$="{{item.type}}">
                     <div class="line">{{item.line}}</div>
                     <div class="type" type$="{{item.type}}">{{item.type}}</div>
                     <div class="msg flex">{{item.msg}}</div>
-                    <div class="view" line="{{item.line}}" on-click="handleLogViewClick" hidden>View</div>
+                    <div class="view" line="{{item.line}}" on-click="handleLogViewClick" title="View line"><i class="fa fa-search"></i></div>
                 </div>
             </template>
         </iron-list>
@@ -178,6 +187,9 @@
             </div>
             <div class="info-count count">Info:
                 <span>{{infoCount}}</span>
+            </div>
+            <div class="count">Lines:
+                <span>{{numLines}}</span>
             </div>
             <div class="flex"></div>
             <div class="uploadbar" hidden$="{{!uploading}}">
@@ -199,151 +211,152 @@
 
 
     </template>
-</dom-module>
-<script>
-    Polymer({
-        is: "jso-validator",
-        properties: {
-            file: {
-                type: Object,
-                value: function() {
-                    return {};
+
+    <script>
+        Polymer({
+            is: "jso-validator",
+            properties: {
+                file: {
+                    type: Object,
+                    value: function() {
+                        return;
+                    },
+                    observer: 'fileChanged'
                 },
-                observer: 'fileChanged'
-            },
-            validator: {
-                type: Object,
-                value: function() {
-                    return new Validator({});
+                validator: {
+                    type: Object,
+                    value: function() {
+                        return new Validator({});
+                    },
+                    observer: 'validatorChanged'
                 },
-                observer: 'validatorChanged'
+                log: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
+                errorCount: {
+                    type: Number,
+                    value: 0
+                },
+                warningCount: {
+                    type: Number,
+                    value: 0
+                },
+                infoCount: {
+                    type: Number,
+                    value: 0
+                },
+                numLines: {
+                    type: Number,
+                    value: 0
+                },
+                progress: {
+                    type: Number,
+                    value: 0,
+                    observer: 'progressChanged'
+                }
             },
-            log: {
-                type: Array,
-                value: function() {
+            ready: function() {
+
+            },
+            reset: function() {
+                this.progress = 0;
+                this.set("log", []);
+                this.errorCount = 0;
+                this.warningCount = 0;
+                this.infoCount = 0;
+                if (this.validator) {
+                    this.validator.init();
+                }
+                this.setFile();
+            },
+            validate: function() {
+                this.set("log", []);
+                this.errorCount = 0;
+                this.warningCount = 0;
+                this.infoCount = 0;
+                this.validator.validate();
+            },
+            setFile: function(file) {
+                this.fileChanged(file);
+            },
+            validatorChanged: function(neo, old) {
+                var me = this;
+                neo.on("end", function(e) {
+                    me.numLines = me.validator.numLines;
+                    me.fire("end");
+                });
+
+                neo.on("err", function(e) {
+                    me.fire("err");
+                });
+
+                neo.on("log", function(e) {
+                    switch (e.type) {
+                        case "error":
+                            me.errorCount++;
+                            break;
+                        case "warning":
+                            me.warningCount++;
+                            break;
+                    }
+                    me.push("log", e);
+                });
+
+                neo.on("progress", function(e) {
+                    me.progress = Math.ceil(e);
+                })
+
+                neo.init();
+
+            },
+            fileChanged: function(neo, old) {
+                if (neo && this.validator) {
+                    this.validator.init();
+                    this.validator.file = neo;
+                }
+            },
+            computeLog: function(validator) {
+                if (validator) {
+                    return validator.log;
+                } else {
                     return [];
                 }
             },
-            errorCount: {
-                type: Number,
-                value: 0
+            progressChanged: function(neo, old) {
+                console.log("progress : " + neo);
+                this.$.progressBar.style.width = neo + '%';
             },
-            warningCount: {
-                type: Number,
-                value: 0
+            computeSpin: function(progress) {
+                return progress >= 100 || progress <= 0;
             },
-            infoCount: {
-                type: Number,
-                value: 0
+            handleLogViewClick: function(e) {
+                var me = this;
+                var elem = e.currentTarget;
+                var line = elem.line - 1;
+                this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
+                    if (err) {
+                        return;
+                    }
+
+                    if (lines.length > 0) {
+                        me.linePreview = lines[0];
+                        me.$.linePreview.show();
+                    }
+
+                    if (eof) {
+                        return;
+                    }
+
+                });
             },
-            progress: {
-                type: Number,
-                value: 0,
-                observer: 'progressChanged'
+            handleCloseLinePreview: function(e) {
+                e.stopPropagation();
+                this.linePreview = "";
             }
-        },
-        ready: function() {
 
-        },
-        reset: function() {
-            this.progress = 0;
-        },
-        validate: function() {
-            this.set("log", []);
-            this.errorCount = 0;
-            this.warningCount = 0;
-            this.infoCount = 0;
-            this.validator.validate();
-        },
-        setFile: function(file) {
-            this.fileChanged(file);
-        },
-        validatorChanged: function(neo, old) {
-            var me = this;
-            neo.on("end", function(e) {
-                me.fire("end");
-            });
-
-            neo.on("err", function(e) {
-                me.fire("err");
-            });
-
-            neo.on("log", function(e) {
-                switch (e.type) {
-                    case "error":
-                        me.errorCount++;
-                        break;
-                    case "warning":
-                        me.warningCount++;
-                        break;
-                }
-                me.push("log", e);
-            });
-
-            neo.on("progress", function(e) {
-                me.progress = Math.ceil(e);
-            })
-
-            neo.init();
-
-        },
-        fileChanged: function(neo, old) {
-            if (neo && this.validator) {
-                this.validator.init();
-                this.validator.file = neo;
-            }
-        },
-        computeLog: function(validator) {
-            if (validator) {
-                return validator.log;
-            } else {
-                return [];
-            }
-        },
-        progressChanged: function(neo, old) {
-            console.log("progress : " + neo);
-            this.$.progressBar.style.width = neo + '%';
-        },
-        computeSpin: function(progress) {
-            return progress >= 100 || progress <= 0;
-        },
-        handleLogViewClick: function(e) {
-            var me = this;
-            var elem = e.currentTarget;
-            var line = elem.line - 1;
-            this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
-                if (err) {
-                    return;
-                }
-
-                if (lines.length > 0) {
-                    me.linePreview = lines[0];
-                    me.$.linePreview.show();
-                }
-
-                if (eof) {
-                    return;
-                }
-
-            });
-        },
-        handleLogHover: function(e) {
-
-            var elem = e.currentTarget;
-
-            var view = elem.getElementsByClassName("view")[0];
-            view.hidden = false;
-        },
-        handleLogHoverOut: function(e) {
-
-            var elem = e.currentTarget;
-
-            var view = elem.getElementsByClassName("view")[0];
-            view.hidden = true;
-        },
-        handleCloseLinePreview: function(e) {
-            this.linePreview = "";
-        }
-
-    })
-</script>
+        })
+    </script>
+</dom-module>
