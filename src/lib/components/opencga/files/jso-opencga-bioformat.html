@@ -53,7 +53,7 @@
                         <input type="radio" name="bioformat" on-change="handleRadioChange" value="{{bioformat.value}}" checked$="{{isChecked(bioformats, bioformat)}}">
                         <span>
                             <span>{{bioformat.text}}</span>
-                            <i id="url" hidden$="{{!checkUrl(bioformat)}}" class="fa fa-external-link url" on-click="handleUrl"></i>
+                            <i id="url" hidden$="{{!checkUrl(bioformat)}}" class="fa fa-info-circle url" on-click="handleUrl"></i>
                         </span>
                     </label>
                 </div>
