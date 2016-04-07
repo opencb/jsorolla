@@ -100,7 +100,7 @@
         #recheckButton:hover {
             background-color: var(--light-button-color) !important;
         }
-        
+
         #footer {
             box-sizing: border-box;
             height: 30px;
@@ -250,9 +250,9 @@
                 type: Boolean,
                 value: true
             },
-            status: {
-                type: String,
-                value: 'validation'
+            validating: {
+                type: Boolean,
+                value: false
             },
             // hideValidationLog: {
             //     type: Boolean,
@@ -270,7 +270,6 @@
 
             if (this._parentJsoPanel) {
                 this._parentJsoPanel.addEventListener("close", function(e) {
-                    me.status = "validation";
                     me.$.validator.reset();
                 });
             }
@@ -327,7 +326,6 @@
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
 
-                this.status = "validation";
                 this.validate();
 
                 // console.log(inputFile.type)
@@ -345,8 +343,6 @@
             }
             if (this.$.validator.errorCount > 0) {
                 this.message = "The file contains errors."
-                    // this.status = "update";
-                    // this.handleForm();
                 return;
             }
             if (this.$.validator.warningCount > 0) {
@@ -483,50 +479,54 @@
 
         validate: function(e) {
             /* Check bioformat */
-            var selBioformat;
-            if (this.$.bioformatSelect.selectedBioformat != null) {
-                selBioformat = this.$.bioformatSelect.selectedBioformat;
-            }
-            if (this.selectedBioformat != null) {
-                selBioformat = this.selectedBioformat;
-            }
-            if (selBioformat == null) {
-                alert("Please select a bioformat");
-                return;
-            }
-
-            /* Validate bioformat */
-            var file = this.$.fileInput.files[0];
-
-            if (selBioformat != null && file != null) {
-                this.$.validator.reset();
-                var validator;
-
-                if (selBioformat.validator) {
-                    if (typeof selBioformat.validator !== "function") {
-                        alert("Validator '" + selBioformat.validator + "' not recognized.");
-                        return;
-                    }
-                    validator = new selBioformat.validator({});
-                } else {
-                    validator = new Validator({});
+            if(this.validating == false){
+                this.validating = true;
+                var selBioformat;
+                if (this.$.bioformatSelect.selectedBioformat != null) {
+                    selBioformat = this.$.bioformatSelect.selectedBioformat;
+                }
+                if (this.selectedBioformat != null) {
+                    selBioformat = this.selectedBioformat;
+                }
+                if (selBioformat == null) {
+                    alert("Please select a bioformat");
+                    this.validating = false;
+                    return;
                 }
 
-                this.$.validator.validator = validator;
-                this.$.validator.setFile(file);
-                this.$.validator.validate();
+                /* Validate bioformat */
+                var file = this.$.fileInput.files[0];
+
+                if (selBioformat != null && file != null) {
+                    this.$.validator.reset();
+                    var validator;
+
+                    if (selBioformat.validator) {
+                        if (typeof selBioformat.validator !== "function") {
+                            alert("Validator '" + selBioformat.validator + "' not recognized.");
+                            return;
+                        }
+                        validator = new selBioformat.validator({});
+                    } else {
+                        validator = new Validator({});
+                    }
+
+                    this.$.validator.validator = validator;
+                    this.$.validator.setFile(file);
+                    this.$.validator.validate();
+                }else{
+                    this.validating = false;
+                }
             }
 
         },
 
         handleValidatorEnd: function(e) {
-            if (this.$.validator.errorCount > 0) {
-                // this.status = "update";
-                // this.handleForm();
+            this.validating = false;
+        },
 
-            } else {
-
-            }
+        tplEq:function(prop, value){
+            return prop == value;
         },
 
         handleRecheck: function() {

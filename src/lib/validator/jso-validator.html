@@ -231,10 +231,7 @@
                     observer: 'validatorChanged'
                 },
                 log: {
-                    type: Array,
-                    value: function() {
-                        return [];
-                    }
+                    type: Array
                 },
                 errorCount: {
                     type: Number,
@@ -267,6 +264,7 @@
                 this.errorCount = 0;
                 this.warningCount = 0;
                 this.infoCount = 0;
+                this.numLines = 0;
                 if (this.validator) {
                     this.validator.init();
                 }
@@ -277,6 +275,7 @@
                 this.errorCount = 0;
                 this.warningCount = 0;
                 this.infoCount = 0;
+                this.numLines = 0;
                 this.validator.validate();
             },
             setFile: function(file) {
@@ -307,7 +306,7 @@
 
                 neo.on("progress", function(e) {
                     me.progress = Math.ceil(e);
-                })
+                });
 
                 neo.init();
 
