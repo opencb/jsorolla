@@ -45,7 +45,7 @@ class CellBaseClient {
      * This method has been implemented to be backword compatible with old cellbase-manager.js
      */
     getOldWay(args) {
-        return get(args.category, args.subcategory, args.id, args.resource, args.params, args.options);
+        return this.get(args.category, args.subcategory, args.id, args.resource, args.params, args.options);
     }
 
 
@@ -54,15 +54,15 @@ class CellBaseClient {
     }
 
     getTranscriptClient(id, resource, params, options) {
-        return get('feature', 'transcript', id, resource, params, options);
+        return this.get('feature', 'transcript', id, resource, params, options);
     }
 
     getVariationClient(id, resource, params, options) {
-        return get('feature', 'variation', id, resource, params, options);
+        return this.get('feature', 'snp', id, resource, params, options);
     }
 
     getRegulatoryClient(id, resource, params, options) {
-        return get('feature', 'regulatory', id, resource, params, options);
+        return this.get('feature', 'regulatory', id, resource, params, options);
     }
 
 
