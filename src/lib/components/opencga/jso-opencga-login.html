@@ -34,7 +34,8 @@
             color: var(--dark-primary-color);
             float: right;
         }
-        .right{
+
+        .right {
             float: right;
         }
 
@@ -58,7 +59,7 @@
             <span hidden$={{hideSignup}} class="shortcut" on-click="handleSignup">Create new user...</span>
             <br>
             <label class="jso">Password</label>
-            <input class="jso" type="password" value="{{password::input}}" required pattern="[a-zA-Z0-9\.]+">
+            <input class="jso" type="password" value="{{password::input}}" required>
 
             <span hidden$={{hideSignup}} class="shortcut" on-click="handleRemember">Remember password...</span>
             <br>
@@ -116,11 +117,14 @@
         },
         handleForm: function(e) {
             this.message = '';
+            this.user = this.user.trim();
             if (this.$.form.checkValidity()) {
                 this._login();
+            } else {
+                this.message = "Only characters from a-z, numbers and . allowed in user field."
             }
         },
-        handleAnonymous:function(){
+        handleAnonymous: function() {
             this.fire('anonymous');
         },
         _login: function() {
@@ -148,7 +152,7 @@
                         Cookies.expire('bioinfo_sid');
                         Cookies.expire('bioinfo_user');
                         me.message = response.error.split(":")[1];
-                        if(response.errorEvent){
+                        if (response.errorEvent) {
                             me.message = 'Server error, try again later.';
                         }
                     }
