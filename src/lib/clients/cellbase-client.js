@@ -20,7 +20,6 @@
 
 class CellBaseClient {
 
-
     constructor(config) {
         if (typeof config == 'undefined') {
             this._config = new CellBaseClientConfig();
@@ -48,6 +47,24 @@ class CellBaseClient {
         return this.get(args.category, args.subcategory, args.id, args.resource, args.params, args.options);
     }
 
+    getMeta(param, options) {
+        let hosts = options.hosts || this._config.hosts;
+        let version = options.version || this._config.version;
+        let count = 0;
+        // let response;
+        let url = "http://" + hosts[count] + "/webservices/rest/" + version + "/" + "meta" + "/" + param;
+        // options.error = function() {
+        //     if (++count < hosts.length) {
+        //         // we need a new URL
+        //         url = "http://" + hosts[count] + "/webservices/rest/" + version + "/" + "meta" + "/" + param;
+        //         response = RestClient.call(url, options);
+        //     } else {
+        //         userError(this);
+        //     }
+        // };
+        // response = RestClient.call(url, options);
+        return RestClient.callPromise(url, options);
+    }
 
     getGeneClient(id, resource, params, options) {
         return this.get('feature', 'gene', id, resource, params, options);
@@ -180,13 +197,14 @@ class CellBaseClient {
             if (++count < hosts.length) {
                 // we need a new URL
                 url = _this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
-                response = _this._callAjax(url, options);
+                response = RestClient.call(url, options);
             } else {
                 userError(this);
             }
         };
 
-        response = this._callAjax(url, options);
+        // response = RestClient.call(url, options);
+        response = RestClient.callPromise(url, options);
         return response;
     }
 
@@ -217,56 +235,6 @@ class CellBaseClient {
             keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
         }
         return keyValueArray.join('&');
-    }
-
-    _callAjax(url, options) {
-        let method = options.method || "GET";
-        let async = options.async;
-
-        let dataResponse = null;
-        console.time("AJAX call to CellBase");
-        var request = new XMLHttpRequest();
-        request.onload = function(event) {
-            console.log("CellBaseClient: call to URL succeed: '" + url +"'");
-            var contentType = this.getResponseHeader('Content-Type');
-            if (contentType === 'application/json') {
-                dataResponse = JSON.parse(this.response);
-
-                if (typeof options != "undefined" && typeof options.cacheFn === "function") {
-                    options.cacheFn(dataResponse);
-                }
-
-                // If the call is OK then we execute the success function from the user
-                console.log(options)
-                if (typeof options != "undefined" && typeof options.success === "function" && typeof options.cacheFn == "undefined") {
-                    options.success(dataResponse);
-                }
-                console.timeEnd("AJAX call to CellBase");
-                console.log("Size: " + event.total + " Bytes");
-            } else {
-                console.log(this.response)
-            }
-        };
-
-        request.onerror = function(event) {
-            // console.log(event)
-            console.error("CellBaseClient: an error occurred when calling to '" + url +"'");
-            if (typeof options.error === "function") {
-                options.error(this);
-            }
-        };
-
-        request.ontimeout = function(event) {
-            console.error("CellBaseClient: a timeout occurred when calling to '" + url +"'");
-            if (typeof options.error === "function") {
-                options.error(this);
-            }
-        };
-
-        request.open(method, url, async);
-        // request.timeout = options.timeout || 0;
-        request.send();
-        return dataResponse;
     }
 
     _callGrpcService(params) {
