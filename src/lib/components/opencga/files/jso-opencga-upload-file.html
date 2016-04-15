@@ -8,11 +8,16 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-            padding: 15px 25px 20px 25px;
         }
 
         jso-study-select {
             height: 150px;
+        }
+
+        #main {
+            position: relative;
+            box-sizing: border-box;
+            padding: 15px 25px 20px 25px;
         }
 
         .uploadbar {
@@ -86,9 +91,26 @@
         #openFileButton:hover {
             background-color: var(--light-button-color) !important;
         }
+
+        #recheckButton {
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+        }
+
+        #recheckButton:hover {
+            background-color: var(--light-button-color) !important;
+        }
+
+        #footer {
+            box-sizing: border-box;
+            height: 30px;
+            padding: 0 7px;
+            background-color: var(--light-secondary-color);
+            border-top: 1px solid var(--divider-color);
+        }
     </style>
     <template>
-        <div class="vertical layout">
+        <div id="main" class="vertical layout">
             <div hidden$="{{!showSelectStudy}}">
                 <label class="jso">Studies:</label>
                 <jso-opencga-study-select id="studySelect" selected-study="{{selectedStudy}}" projects="{{projects}}">
@@ -117,7 +139,12 @@
                 </div>
                 <div class="flex" style="margin-left:15px;position:relative;">
                     <label class="jso">Selected file:</label>
-                    <div id="filename">{{fileName}}</div>
+                    <div class="horizontal layout flex">
+                        <div id="filename" class="flex">{{fileName}}</div>
+                        <div id="recheckButton" class="jso-btn jso-btn-shdw" on-click="handleRecheck">
+                            Re-check
+                        </div>
+                    </div>
                     <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
                 </div>
             </div>
@@ -142,7 +169,7 @@
             <br>
             <div class="horizontal layout">
                 <form id="form">
-                    <div id="uploadButton" class="jso-btn jso-btn-shdw" on-click="handleValidate"><i class="fa fa-cloud-upload"></i> Upload</div>
+                    <div id="uploadButton" class="jso-btn jso-btn-shdw" on-click="handleUpload"><i class="fa fa-cloud-upload"></i> Upload</div>
                     <!-- <div class="jso-btn jso-btn-shdw" on-click="handleValidate" hidden$="{{computeStatusButton(status, 'validation')}}">Validate</div> -->
                 </form>
                 <div class="flex" style="margin-left:15px;position:relative;">
@@ -152,12 +179,15 @@
                             <span hidden$="{{!uploading}}">
                                 <i class="fa fa-spinner fa-spin"></i>
                                 <span>{{percentProgress}}</span> % </span>
-                            <span id="message">{{message}}</span>
                         </div>
                         <br>
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="footer" class="horizontal layout center">
+            &nbsp;
+            <span id="message">{{message}}</span>
         </div>
 
     </template>
@@ -220,9 +250,9 @@
                 type: Boolean,
                 value: true
             },
-            status: {
-                type: String,
-                value: 'validation'
+            validating: {
+                type: Boolean,
+                value: false
             },
             // hideValidationLog: {
             //     type: Boolean,
@@ -240,7 +270,6 @@
 
             if (this._parentJsoPanel) {
                 this._parentJsoPanel.addEventListener("close", function(e) {
-                    me.status = "validation";
                     me.$.validator.reset();
                 });
             }
@@ -285,6 +314,9 @@
         },
         handleBrowseClick: function(e) {
             if (this.uploading == false) {
+                this.$.fileInput.value = null;
+                this.fileName = "None";
+                this.$.validator.reset();
                 this.$.fileInput.click();
             }
         },
@@ -294,12 +326,34 @@
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
 
-                this.status = "validation";
+                this.validate();
 
                 // console.log(inputFile.type)
             }
         },
+        handleUpload: function() {
+            var file = this.$.fileInput.files[0];
+            if (file == null) {
+                this.message = "No file selected."
+                return;
+            }
+            if (this.uploading == true) {
+                this.message = "Upload already in progress."
+                return;
+            }
+            if (this.$.validator.errorCount > 0) {
+                this.message = "The file contains errors."
+                return;
+            }
+            if (this.$.validator.warningCount > 0) {
+                if (confirm("File contains warning messages, are you sure?")) {
+                    this.handleForm();
+                    return;
+                }
+            }
 
+            this.handleForm();
+        },
         handleForm: function() {
             var me = this;
             if (this.uploading == false) {
@@ -349,15 +403,18 @@
                         callbackProgress: function(chunk, total, response) {
                             me.percentProgress = Math.round((chunk.id / total) * 100);
                             if (chunk.last) {
+                                me.message = "Upload complete.";
                                 me.percentProgress = 0;
                                 me.uploading = false;
                                 me.$.fileInput.value = null;
                                 me.fileName = 'None';
-                                me.fire('need-refresh');
                                 me.$.validator.reset();
+                                me.fire('need-refresh');
 
                                 var uploadedFile = response.response[0].result[0];
-                                me.fire('file-uploaded', uploadedFile);
+                                me.async(function() {
+                                    me.fire('file-uploaded', uploadedFile);
+                                }, 50);
                                 //                                me._indexFile(uploadedFile);
                             }
                         },
@@ -365,6 +422,7 @@
                             me.percentProgress = 0;
                             me.$.fileInput.value = null;
                             me.fileName = 'None';
+                            me.$.validator.reset();
                             me.uploading = false;
                             me.message = msg;
                         }
@@ -419,49 +477,61 @@
             }
         },
 
-        handleValidate: function(e) {
+        validate: function(e) {
             /* Check bioformat */
-            var selBioformat;
-            if (this.$.bioformatSelect.selectedBioformat != null) {
-                selBioformat = this.$.bioformatSelect.selectedBioformat;
-            }
-            if (this.selectedBioformat != null) {
-                selBioformat = this.selectedBioformat;
-            }
-            if (selBioformat == null) {
-                alert("Please select a bioformat");
-                return;
-            }
-
-            /* Validate bioformat */
-            var file = this.$.fileInput.files[0];
-
-            if (selBioformat != null && file != null) {
-                this.$.validator.reset();
-                var validator;
-
-                if (selBioformat.validator) {
-                    if (typeof selBioformat.validator !== "function") {
-                        alert("Validator '" + selBioformat.validator + "' not recognized.");
-                        return;
-                    }
-                    validator = new selBioformat.validator({});
-                } else {
-                    validator = new Validator({});
+            if(this.validating == false){
+                this.validating = true;
+                var selBioformat;
+                if (this.$.bioformatSelect.selectedBioformat != null) {
+                    selBioformat = this.$.bioformatSelect.selectedBioformat;
+                }
+                if (this.selectedBioformat != null) {
+                    selBioformat = this.selectedBioformat;
+                }
+                if (selBioformat == null) {
+                    alert("Please select a bioformat");
+                    this.validating = false;
+                    return;
                 }
 
-                this.$.validator.validator = validator;
-                this.$.validator.setFile(file);
-                this.$.validator.validate();
+                /* Validate bioformat */
+                var file = this.$.fileInput.files[0];
+
+                if (selBioformat != null && file != null) {
+                    this.$.validator.reset();
+                    var validator;
+
+                    if (selBioformat.validator) {
+                        if (typeof selBioformat.validator !== "function") {
+                            alert("Validator '" + selBioformat.validator + "' not recognized.");
+                            return;
+                        }
+                        validator = new selBioformat.validator({});
+                    } else {
+                        validator = new Validator({});
+                    }
+
+                    this.$.validator.validator = validator;
+                    this.$.validator.setFile(file);
+                    this.$.validator.validate();
+                }else{
+                    this.validating = false;
+                }
             }
 
         },
 
         handleValidatorEnd: function(e) {
-            if (!this.$.validator.errorCount > 0) {
-                // this.status = "update";
-                this.handleForm();
-            }
+            this.validating = false;
+        },
+
+        tplEq:function(prop, value){
+            return prop == value;
+        },
+
+        handleRecheck: function() {
+            this.$.validator.reset();
+            this.validate();
         }
 
     });
