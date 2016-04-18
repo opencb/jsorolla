@@ -259,7 +259,7 @@
                     async: true,
                     success: function(response) {
                         me._lastStudyIdCalled = studyId;
-                        if (me.selectedStudy.study.id === studyId) {
+                        if (me.selectedStudy && me.selectedStudy.study.id === studyId) {
                             // console.log(response);
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 var jobList = response.response[0].result;

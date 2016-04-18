@@ -11,6 +11,7 @@ function Validator(options) {
     this.progress = 0;
     this._readBytes = 0;
     this._events = {};
+    this.numLines = 0;
 }
 
 Validator.prototype = {
@@ -18,6 +19,7 @@ Validator.prototype = {
         this.file = null;
         this.log = [];
         this.line = 0;
+        this.numLines = 0;
         this.progress = 0;
         this._readBytes = 0;
     },
@@ -51,6 +53,7 @@ Validator.prototype = {
                     var line = lines[i];
 
                     me.line++;
+                    me.numLines++;
                     me._readBytes += line.length;
                     me.progress = (me._readBytes / me._totalBytes) * 100;
                     me.validateLine(line);
@@ -60,6 +63,7 @@ Validator.prototype = {
                 if (eof) {
                     me._emit("progress", [100]);
                     me._emit("end");
+                    me._validateEnd();
                     return;
                 }
 
@@ -71,6 +75,12 @@ Validator.prototype = {
 
     },
     validateLine: function (line) {
+        return true;
+    },
+    _validateEnd: function () {
+        this.validateEnd();
+    },
+    validateEnd: function () {
         return true;
     },
     addLog: function (type, msg) {

@@ -10,7 +10,7 @@
                 value: "home",
                 notify: true,
                 reflectToAttribute: true,
-                observer: 'selectedOptionChanged'
+                observer: '_selectedOptionChanged'
             },
             userData: {
                 type: Object,
@@ -36,7 +36,7 @@
                 type: Object
             }
         },
-        selectedOptionChanged: function(neo, old) {
+        _selectedOptionChanged: function(neo, old) {
             var menuItems = Polymer.dom(this.root).querySelectorAll('[menu-option]');
             for (var i = 0; i < menuItems.length; i++) {
                 var item = menuItems[i];
@@ -57,6 +57,10 @@
                     el.removeAttribute('active')
                 }
             }
+            this.selectedOptionChanged(neo, old);
+        },
+        selectedOptionChanged: function(neo, old) {
+            // abstract method;
         },
         handleMenuOption: function(e) {
             var option = e.currentTarget.dataset['option'];
