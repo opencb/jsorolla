@@ -202,7 +202,6 @@ VCFValidator.prototype.parseData = function (line) {
         this.addLog("error", "Position must be numeric");
     }
 
-
     // Check duplicates
     var chr_pos = chr + "_" + pos;
     if (chr_pos in this._duplicates) {
@@ -224,7 +223,6 @@ VCFValidator.prototype.parseData = function (line) {
             this.addLog("error", "If more than one ID is specified, the must be semo-colon separated");
         }
     }
-
 
     // ref
 
@@ -282,11 +280,82 @@ VCFValidator.prototype.parseData = function (line) {
     }
 
     // Filter
-
     var filter = columns[6];
+    if (filter == "") {
+        this.addLog("error", "Filter status field must not be empty");
+    }
+    if (filter.toLowerCase() != 'pass') {
+        var filterIds = filter.split(";");
+        for (var i = 0; i < filterIds.length; i++) {
+            var id = filterIds[i];
+            if (this._filter[id.toLowerCase()] == null) {
+                this.addLog("error", "Filter status must be specified in header, be PASS or be set to the missing value '.'");
+            }
+        }
+    }
 
     // Info
     var info = columns[7];
+    if (info == "") {
+        this.addLog("error", "Info field must not be empty");
+    }
+    var infoFields = info.split(";");
+    // debugger
+    // if (infoFields.length != Object.keys(this._info).length) {
+    //   this.addLog("eror", "Info must have the same number of fields specified in header");
+    // }
+    if (infoFields.length != 1 || infoFields[0] != '.') {
+        for (var i = 0; i < infoFields.length; i++) {
+            var field = infoFields[i];
+            if (field.indexOf("=") > 0) {
+                var key = field.substring(0, field.indexOf("="));
+                var value = field.substring(field.indexOf("=") + 1);
+                if (this._info[key] == null) {
+                    this.addLog("error", "Info field must be specified in header");
+                } else {
+                    var v = value.split(",");
+                    if (v.length > 1) {
+                        if (this._info[key].number == 'A') {
+                          //'A': one value per alternate
+                          var n=alt.split(",").length;
+                          if(n != v.length){
+                            this.addLog("error", "If Info number is 'A', value must have one value per alternate");
+                          }
+                            //TODO: 'R': one value for each posible allele
+                            //TODO: 'G': one value for each posible genotype
+
+                        } else if (this._info[key].number < v.length) {
+                            this.addLog("error", "Number of values in info must be less or equal than Number in Info field");
+                        }
+                        if (this._info[key].type == 'Flag') {
+                            this.addLog("error", "Flag type must not have value");
+                        } else {
+                          for (var i = 0; i < v.length; i++) {
+                            var auxV=v[i];
+                          }
+                            if (this._info[key].type == 'Integer' && Number.isInteger(auxV) == false) {
+                                this.addLog("error", "Info type and value type must be the same");
+                            } else if (this._info[key].type == 'String' && isNaN(auxV) == false) {
+                                this.addLog("error", "Info type and value type must be the same");
+                            // } else if (this._info[key].type == 'Float' && Number.isFloat(auxV) == false) {
+                            //     this.addLog("error", "Info type and value type must be the same");
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (this._info[key] == null) {
+                    this.addLog("error", "Info field must be specified in header");
+                } else if (this._info[key].type != "Flag") {
+                    this.addLog("error", "Info field must be a Flag type or have a data value");
+                } else {
+                    if (this._info[key].number != 0) {
+                        this.addLog("error", "In Info, Number must be 0 for a Flag type");
+                    }
+                }
+            }
+        }
+    }
 
     if (!columns.length > 8) {
         return;
