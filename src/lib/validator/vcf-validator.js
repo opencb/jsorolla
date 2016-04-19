@@ -25,7 +25,7 @@ function VCFValidator(options) {
         "headerNumber": /Number=(\w+|\.)/,
         "headerType": /Type=(\w+)/,
         "headerDesc": /Description=\"(.+)\"/,
-        "actg": /^[ACGTN]+$/,
+        "actg": /^[ACGTNactgn]+$/,
         "gt": /^(\.|\d+)([|/](\.|\d+))?$/,
         "alpha": /^(\w+)$/,
         "idSemiColon": /^(\w+(;\w+)?)$/
@@ -192,6 +192,10 @@ VCFValidator.prototype.parseData = function (line) {
         this.addLog("error", "Chromosome must not contain whitespaces");
     }
 
+    if(this._contigs[chr] == null){
+      this.addLog("error", "Chromosome must be present on contig tags in header.")
+    }
+
     // Position
     var pos = columns[1]
     if (pos == "") {
@@ -220,7 +224,7 @@ VCFValidator.prototype.parseData = function (line) {
         }
 
         if (!this._regExp["idSemiColon"].test(id)) {
-            this.addLog("error", "If more than one ID is specified, the must be semo-colon separated");
+            this.addLog("error", "If more than one ID is specified, the must be semi-colon separated");
         }
     }
 
@@ -262,7 +266,7 @@ VCFValidator.prototype.parseData = function (line) {
             this.addLog("error", "Alternate allele must match the regular expression /^[ACTGN]+$/")
         }
 
-        if (altElem.length != ref.length) {
+        if (altElem.length != ref.length) { // TODO aaleman: Check this
             if (altElem.charAt(0) != ref.charAt(0)) {
                 this.addLog("warning", "The first base of each allele must match the reference if their lengths are different");
             }
@@ -357,7 +361,7 @@ VCFValidator.prototype.parseData = function (line) {
         }
     }
 
-    if (!columns.length > 8) {
+    if (!(columns.length > 8)) {
         return;
     }
 
@@ -368,11 +372,12 @@ VCFValidator.prototype.parseData = function (line) {
         this.addLog("eror", "Must not be empty if the file contains any samples");
     }
 
-    if (format != "" && !format.startsWith("GT")) {
-        this.addLog("error", "GT must be the first field");
+    if (format != "" && format.indexOf("GT") >= 0 && !format.startsWith("GT")) {
+        this.addLog("error", "GT must be the first field if it is present");
     }
 
     var formatSplits = format.split(":");
+    // ...
 
     // Samples
     var samplesData = [];
