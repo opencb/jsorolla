@@ -5,6 +5,8 @@
 <link rel="import" href="../filters/jso-filter-scores.html">
 <link rel="import" href="../filters/jso-filter-conservation.html">
 <link rel="import" href="../filters/jso-filter-consequencetypes.html">
+<link rel="import" href="../jso-go.html">
+<link rel="import" href="../jso-hpo.html">
 <dom-module id="jso-variant-filter-form">
     <style>
         :host {
@@ -157,6 +159,12 @@
         .popus {
             font-weight: bold;
             cursor: pointer;
+        }
+
+        #hpoPanel,#goPanel {
+            width: 900px;
+            height: 700px;
+            font-size: 12px;
         }
     </style>
     <template>
@@ -567,11 +575,51 @@
 
             <jso-filter-consequencetypes id="filterCT" collapsible collapsed></jso-filter-consequencetypes>
 
+            <jso-form-box collapsible collapsed>
+                <div class="header">
+                    Gene Ontology
+                </div>
+                <div class="container">
+                  <div class="jso-btn jso-btn-shdw" on-click="showGO">
+                      Search GO
+                  </div>
+                </div>
+            </jso-form-box>
+            <jso-form-box collapsible collapsed>
+                <div class="header">
+                    HPO
+                </div>
+                <div class="container">
+                    <!-- <label class="jso">HPO:</label>
+                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoValue::change}}" rows="3" required>
+                    </textarea> -->
+                    <div class="jso-btn jso-btn-shdw" on-click="showHPO">
+                        Search HPO
+                    </div>
+                </div>
+            </jso-form-box>
+
             <jso-panel id="importComponent" modal closable hidden>
                 <div class="header">
                     <i class="fa fa-plus-square-o"></i> Import File
                 </div>
                 <jso-opencga-import-file id="importFile" class="container" on-end="handleImportFile" bioformat="{{bedBioformat}}"></jso-opencga-import-file>
+            </jso-panel>
+            <jso-panel id="goPanel" modal closable hidden>
+                <div class="header">
+                    <i class="fa fa-plus-list"></i> Genome Ontology
+                </div>
+                <div class="container">
+                  <jso-go></jso-go>
+                </div>
+            </jso-panel>
+            <jso-panel id="hpoPanel" modal closable hidden>
+                <div class="header">
+                    <i class="fa fa-plus-list"></i> Human Phenotype Ontology
+                </div>
+                <div class="container">
+                  <jso-hpo></jso-hpo>
+                </div>
             </jso-panel>
 
             <!-- OLD COMMENTED -->
@@ -666,6 +714,11 @@
                 value: ''
             },
             snpIdValue: {
+                type: String,
+                notify: true,
+                value: ''
+            },
+            hpoValue: {
                 type: String,
                 notify: true,
                 value: ''
@@ -866,6 +919,10 @@
             // this.$.snpId.value = "";
             // this.snpIdValue = "";
 
+            //HPO
+            // this.$.hpo.value = "";
+            // this.hpoValue = "";
+
             this.$.filterPosition.clear();
 
             // Type
@@ -1009,8 +1066,13 @@
                 query["gene"] = geneQuery;
             }
 
-            // // Genotypes
+            // HPO
+            // var hpoQuery = this.hpoValue.toUpperCase().split(/,|\n/);
+            // if (hpoQuery != '') {
+            //   //Buscar los genes asociados a los HPO y hacer búsqueda por genes
+            // }
 
+            // Genotypes
             var genotypes = [];
             for (var i = 0; i < this.samples.length; i++) {
                 var sampleName = this.samples[i].name;
@@ -1228,13 +1290,13 @@
                     popAux = study + "_AA";
                 }
                 if (this.$[popAux].checkValidity() == false) {
-                  alert(popAux + " must be less than 1 or greater than 0");
-                  return "error";
-                }else{
-                  var value = parseFloat(this.$[popAux].value);
-                  var value_op = this.$[popAux + "_op"].value;
-                  value = study + ":" + population + value_op + value;
-                  return value;
+                    alert(popAux + " must be less than 1 or greater than 0");
+                    return "error";
+                } else {
+                    var value = parseFloat(this.$[popAux].value);
+                    var value_op = this.$[popAux + "_op"].value;
+                    value = study + ":" + population + value_op + value;
+                    return value;
                 }
 
             }
@@ -1579,7 +1641,7 @@
             //         filterName.push(aux[1] + " ");
             //     }
             // }
-            var fC = this.$.filterConservation.load(hf,1);
+            var fC = this.$.filterConservation.load(hf, 1);
             if (fC.length > 0) {
                 for (var i = 0; i < fC.length; i++) {
                     filterName.push(fC[i]);
@@ -1603,7 +1665,7 @@
             //     filterName.push("Consequence Types: " + ctName.join(",") + " ");
             // }
 
-            var fCT = this.$.filterCT.load(hf,1);
+            var fCT = this.$.filterCT.load(hf, 1);
             if (fCT.length > 0) {
                 for (var i = 0; i < fCT.length; i++) {
                     filterName.push(fCT[i]);
@@ -1696,5 +1758,11 @@
                 this[id] = "fa fa-angle-double-down minus";
             }
         },
+        showGO: function() {
+            this.$.goPanel.hidden = !this.$.goPanel.hidden;
+        },
+        showHPO: function() {
+            this.$.hpoPanel.hidden = !this.$.hpoPanel.hidden;
+        }
     });
 </script>

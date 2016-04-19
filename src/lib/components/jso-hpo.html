@@ -1,0 +1,143 @@
+<dom-module id="jso-hpo">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        :host {
+            display: block;
+            position: relative;
+            width: 800px;
+            height: 700px;
+            padding: 10px;
+        }
+
+        .but {
+            color: #445D76;
+            text-align: center;
+            height: 20px;
+            width: 115px;
+            line-height: 20px;
+            margin-top: 5px;
+        }
+
+        #hpoList {
+            margin: 5px;
+            height: 80%;
+        }
+
+        #allHPO,
+        #selectedHPO {
+            width: 95%;
+            height: 500px;
+            border: 1px solid #d3d3d3;
+        }
+
+        .allHPO {
+            /*width: 45%;*/
+            margin-right: 10px;
+        }
+
+        .selectedHPO {
+            /*width: 45%;*/
+        }
+
+        .titlePreview {
+            color: #445D76;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #445D76;
+        }
+
+        jso-table {
+            font-size: 12px;
+        }
+    </style>
+    <template>
+        <div class="horizontal layout" style="margin-bottom:5px">
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="hpo" data-checked$="{{computeView(view, 'hpo')}}"> <i class="fa fa-list"></i>&nbsp; Select HPO </div>
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
+        </div>
+        <div id="hpoList" class="horizontal layout" hidden$="{{!computeView(view, 'hpo')}}">
+            <div class="vertical layout allHPO">
+                <jso-table id="allHPO" class="flex" columns="{{hpoColumns}}" data="{{hpoList}}" enable-select enable-filter enable-paging hide-column-selector page-size="15"></jso-table>
+                <div class="jso-btn jso-btn-shdw but" on-click="handleAddHPO"><i class="fa fa-plus-square-o"></i>&nbsp; Add
+                </div>
+            </div>
+            <div class="vertical layout selectedHPO">
+                <jso-table id="selectedHPO" class="flex" columns="{{hpoSelectedColumns}}" data="{{selectedHPO}}" hide-column-selector>
+                </jso-table>
+                <div class="jso-btn jso-btn-shdw but" on-click="handleClearSelected">
+                    Clear
+                </div>
+            </div>
+        </div>
+        <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: "jso-hpo",
+            properties: {
+                view: {
+                    type: String,
+                    value: 'hpo'
+                },
+                hpoList: {
+                    type: Array,
+                    value: function(){
+                      return []
+                    }
+                },
+                selectedHPO: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                }
+            },
+            ready: function() {
+                this.hpoColumns = [{
+                    name: 'id',
+                    title: 'ID',
+                    type: 'text',
+                    width: 120
+                }, {
+                    name: 'name',
+                    title: 'Name',
+                    type: 'text',
+                    width: 280
+                }];
+                this.hpoSelectedColumns = [{
+                    name: 'id',
+                    title: 'ID',
+                    type: 'text',
+                    width: 120
+                }, {
+                    name: 'name',
+                    title: 'Name',
+                    type: 'text',
+                    width: 230
+                }, {
+                    name: '',
+                    title: '',
+                    type: 'action',
+                    width: 50
+                }];
+
+                this.set('hpoList',HPO_ONTOLOGY);
+            },
+            handleView: function(e) {
+                this.view = e.target.dataset.value;
+            },
+            computeView: function(view, value) {
+                return view === value;
+            },
+            handleAddHPO: function(e) {
+              for (var i = 0; i < this.$.allHPO.selected.length; i++) {
+                var hpo=this.$.allHPO.selected[i];
+                this.push('selectedHPO',hpo);
+              }
+            },
+            handleClearSelected: function(e) {
+                this.selectedHPO=[];
+            }
+        })
+    </script>
+</dom-module>
