@@ -51,7 +51,7 @@
     <template>
         <div class="horizontal layout" style="margin-bottom:5px">
             <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="hpo" data-checked$="{{computeView(view, 'hpo')}}"> <i class="fa fa-list"></i>&nbsp; Select HPO </div>
-            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
+            <div class="jso-btn jso-btn-shdw but" on-click="ontology" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
         </div>
         <div id="hpoList" class="horizontal layout" hidden$="{{!computeView(view, 'hpo')}}">
             <div class="vertical layout allHPO">
@@ -137,6 +137,34 @@
             },
             handleClearSelected: function(e) {
                 this.selectedHPO=[];
+            },
+            ontology: function(e) {
+              debugger
+                var me = this;
+                var newFile = "";
+                var go= this.selectedHPO;
+                //Leer en el go_obo.sif las líneas, y quedarnos con aquellas que empiecen por los id de los GO seleccionados
+                //para generar el fichero.sif que le tenemos que pasar al componente de dibujar jerarquías
+
+                openRemoteFile("/projects/bierapp/conf/hpo_obo.sif", function(content) {
+                    var lines = content.split("\n");
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        for (var j = 0; j < go.length; j++) {
+                            var id = go[j].id;
+                            if (line.indexOf(id) == 0) {
+                                newFile += '\n' + line;
+                            }
+                        }
+                    }
+                    // var blob = new Blob([newFile], {
+                    //     type: "text/plain;charset=utf-8"
+                    // });
+                    // saveAs(blob, "hpo.sif");
+                    debugger
+                    me.handleView(e);
+                });
+
             }
         })
     </script>

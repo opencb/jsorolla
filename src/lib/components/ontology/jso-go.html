@@ -1,3 +1,4 @@
+<script src="../../../../bower_components/file-saver.js/FileSaver.js"></script>
 <dom-module id="jso-go">
     <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
@@ -51,7 +52,7 @@
     <template>
         <div class="horizontal layout" style="margin-bottom:5px">
             <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="go" data-checked$="{{computeView(view, 'go')}}"> <i class="fa fa-list"></i>&nbsp; Select GO </div>
-            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
+            <div class="jso-btn jso-btn-shdw but" on-click="ontology" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
         </div>
         <div id="goList" class="horizontal layout" hidden$="{{!computeView(view, 'go')}}">
             <div class="vertical layout allGO">
@@ -68,6 +69,7 @@
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
+          <network-viewer id="network"></network-viewer>
         </div>
     </template>
 
@@ -127,9 +129,6 @@
                 this.view = e.target.dataset.value;
             },
             computeView: function(view, value) {
-                if (view == 'hierarchy') {
-                  this.ontology(this.selectedGO);
-                }
                 return view === value;
             },
             handleAddGO: function(e) {
@@ -141,13 +140,33 @@
             handleClearSelected: function(e) {
                 this.selectedGO = [];
             },
-            ontology: function(go){
+            ontology: function(e) {
               debugger
-              for (var i = 0; i < go.length; i++) {
-                var id=go[i].id;
+                var me = this;
+                var newFile = "";
+                var go= this.selectedGO;
                 //Leer en el go_obo.sif las líneas, y quedarnos con aquellas que empiecen por los id de los GO seleccionados
                 //para generar el fichero.sif que le tenemos que pasar al componente de dibujar jerarquías
-              }
+
+                openRemoteFile("/projects/bierapp/conf/go_obo.sif", function(content) {
+                    var lines = content.split("\n");
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        for (var j = 0; j < go.length; j++) {
+                            var id = go[j].id;
+                            if (line.indexOf(id) == 0) {
+                                newFile += '\n' + line;
+                            }
+                        }
+                    }
+                    // var blob = new Blob([newFile], {
+                    //     type: "text/plain;charset=utf-8"
+                    // });
+                    // saveAs(blob, "go.sif");
+                    debugger
+                    me.handleView(e);
+                });
+
             }
         })
     </script>
