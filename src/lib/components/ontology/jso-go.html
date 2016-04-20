@@ -48,6 +48,10 @@
         jso-table {
             font-size: 12px;
         }
+
+        network-viewer {
+            height: 600px;
+        }
     </style>
     <template>
         <div class="horizontal layout" style="margin-bottom:5px">
@@ -69,7 +73,7 @@
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
-          <network-viewer id="network"></network-viewer>
+            <network-viewer id="network" hide-node-render hide-edge-render lite></network-viewer>
         </div>
     </template>
 
@@ -141,10 +145,9 @@
                 this.selectedGO = [];
             },
             ontology: function(e) {
-              debugger
                 var me = this;
                 var newFile = "";
-                var go= this.selectedGO;
+                var go = this.selectedGO;
                 //Leer en el go_obo.sif las líneas, y quedarnos con aquellas que empiecen por los id de los GO seleccionados
                 //para generar el fichero.sif que le tenemos que pasar al componente de dibujar jerarquías
 
@@ -159,13 +162,14 @@
                             }
                         }
                     }
-                    this.$.network.loadSif(newFile);
+                    me.handleView(e);
+                    me.$.network.loadSif(newFile);
+                    me.$.network.setLayout('Force directed');
+
                     // var blob = new Blob([newFile], {
                     //     type: "text/plain;charset=utf-8"
                     // });
                     // saveAs(blob, "go.sif");
-                    debugger
-                    me.handleView(e);
                 });
 
             }

@@ -47,6 +47,9 @@
         jso-table {
             font-size: 12px;
         }
+        network-viewer {
+            height: 600px;
+        }
     </style>
     <template>
         <div class="horizontal layout" style="margin-bottom:5px">
@@ -68,6 +71,7 @@
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
+          <network-viewer id="network" hide-node-render hide-edge-render lite></network-viewer>
         </div>
     </template>
 
@@ -81,8 +85,8 @@
                 },
                 hpoList: {
                     type: Array,
-                    value: function(){
-                      return []
+                    value: function() {
+                        return []
                     }
                 },
                 selectedHPO: {
@@ -121,7 +125,7 @@
                     width: 50
                 }];
 
-                this.set('hpoList',HPO_ONTOLOGY);
+                this.set('hpoList', HPO_ONTOLOGY);
             },
             handleView: function(e) {
                 this.view = e.target.dataset.value;
@@ -130,23 +134,22 @@
                 return view === value;
             },
             handleAddHPO: function(e) {
-              for (var i = 0; i < this.$.allHPO.selected.length; i++) {
-                var hpo=this.$.allHPO.selected[i];
-                this.push('selectedHPO',hpo);
-              }
+                for (var i = 0; i < this.$.allHPO.selected.length; i++) {
+                    var hpo = this.$.allHPO.selected[i];
+                    this.push('selectedHPO', hpo);
+                }
             },
             handleClearSelected: function(e) {
-                this.selectedHPO=[];
+                this.selectedHPO = [];
             },
             ontology: function(e) {
-              debugger
                 var me = this;
                 var newFile = "";
-                var go= this.selectedHPO;
+                var go = this.selectedHPO;
                 //Leer en el go_obo.sif las líneas, y quedarnos con aquellas que empiecen por los id de los GO seleccionados
                 //para generar el fichero.sif que le tenemos que pasar al componente de dibujar jerarquías
 
-                openRemoteFile("/projects/bierapp/conf/hpo_obo.sif", function(content) {
+                openRemoteFile("/projects/bierapp/conf/hp_obo.sif", function(content) {
                     var lines = content.split("\n");
                     for (var i = 0; i < lines.length; i++) {
                         var line = lines[i];
@@ -157,12 +160,13 @@
                             }
                         }
                     }
+                    me.handleView(e);
+                    me.$.network.loadSif(newFile);
+                    me.$.network.setLayout('Force directed');
                     // var blob = new Blob([newFile], {
                     //     type: "text/plain;charset=utf-8"
                     // });
                     // saveAs(blob, "hpo.sif");
-                    debugger
-                    me.handleView(e);
                 });
 
             }
