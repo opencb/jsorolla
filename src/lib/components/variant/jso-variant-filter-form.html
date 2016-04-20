@@ -161,7 +161,8 @@
             cursor: pointer;
         }
 
-        #hpoPanel,#goPanel {
+        #hpoPanel,
+        #goPanel {
             width: 900px;
             height: 700px;
             font-size: 12px;
@@ -580,9 +581,12 @@
                     Gene Ontology
                 </div>
                 <div class="container">
-                  <div class="jso-btn jso-btn-shdw" on-click="showGO">
-                      Search GO
-                  </div>
+                    <label class="jso">Filter by GO name:</label>
+                    <textarea class="jso" id="go" name="hpo" value="{{goValue::change}}" rows="3" required>
+                    </textarea>
+                    <div class="jso-btn jso-btn-shdw" on-click="showGO">
+                        or Search GO
+                    </div>
                 </div>
             </jso-form-box>
             <jso-form-box collapsible collapsed>
@@ -590,11 +594,11 @@
                     HPO
                 </div>
                 <div class="container">
-                    <!-- <label class="jso">HPO:</label>
+                    <label class="jso">Filter by HPO name:</label>
                     <textarea class="jso" id="hpo" name="hpo" value="{{hpoValue::change}}" rows="3" required>
-                    </textarea> -->
+                    </textarea>
                     <div class="jso-btn jso-btn-shdw" on-click="showHPO">
-                        Search HPO
+                        or Search HPO
                     </div>
                 </div>
             </jso-form-box>
@@ -607,10 +611,10 @@
             </jso-panel>
             <jso-panel id="goPanel" modal closable hidden>
                 <div class="header">
-                    <i class="fa fa-plus-list"></i> Genome Ontology
+                    <i class="fa fa-plus-list"></i> Gene Ontology
                 </div>
                 <div class="container">
-                  <jso-go></jso-go>
+                    <jso-go></jso-go>
                 </div>
             </jso-panel>
             <jso-panel id="hpoPanel" modal closable hidden>
@@ -618,7 +622,7 @@
                     <i class="fa fa-plus-list"></i> Human Phenotype Ontology
                 </div>
                 <div class="container">
-                  <jso-hpo></jso-hpo>
+                    <jso-hpo></jso-hpo>
                 </div>
             </jso-panel>
 
@@ -714,6 +718,11 @@
                 value: ''
             },
             snpIdValue: {
+                type: String,
+                notify: true,
+                value: ''
+            },
+            goValue: {
                 type: String,
                 notify: true,
                 value: ''
@@ -919,6 +928,9 @@
             // this.$.snpId.value = "";
             // this.snpIdValue = "";
 
+            //GO
+            // this.$.go.value = "";
+            // this.goValue = "";
             //HPO
             // this.$.hpo.value = "";
             // this.hpoValue = "";
@@ -1066,6 +1078,11 @@
                 query["gene"] = geneQuery;
             }
 
+            // GO
+            // var hpoQuery = this.goValue.toUpperCase().split(/,|\n/);
+            // if (hpoQuery != '') {
+            //   //Buscar los genes asociados a los GO y hacer búsqueda por genes
+            // }
             // HPO
             // var hpoQuery = this.hpoValue.toUpperCase().split(/,|\n/);
             // if (hpoQuery != '') {

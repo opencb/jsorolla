@@ -52,6 +52,12 @@
         network-viewer {
             height: 600px;
         }
+
+        .legend {
+            z-index: 10000;
+            width: 200px;
+        }
+
     </style>
     <template>
         <div class="horizontal layout" style="margin-bottom:5px">
@@ -72,8 +78,22 @@
                 </div>
             </div>
         </div>
-        <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
+        <div class="" hidden$="{{!computeView(view, 'hierarchy')}}">
             <network-viewer id="network" hide-node-render hide-edge-render lite></network-viewer>
+            <jso-panel class="legend" closable movable>
+                <div class="header">
+                  Leggend
+                </div>
+                <div class="container" style="padding:2px">
+                    <div>is_a &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#0033cc"></i></div>
+                    <div>part_of &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#ff9933"></i></div>
+                    <div>has_part &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#ff6600"></i></div>
+                    <div>positively_regulates &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#006600"></i></div>
+                    <div>negatively_regulates &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#cc0000"></i></div>
+                    <div>regulates &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#660066"></i></div>
+
+                </div>
+            </jso-panel>
         </div>
     </template>
 
@@ -165,6 +185,21 @@
                     me.handleView(e);
                     me.$.network.loadSif(newFile);
                     me.$.network.setLayout('Force directed');
+                    me.$.network.$.edgeRender.applyVisualSet({
+                        attribute: 'relation',
+                        displayProperty: 'color',
+                        enabled: true,
+                        parse: 'string',
+                        type: 'categorical',
+                        matches: {
+                            'is_a': '#0033cc',
+                            'part_of': '#ff9933',
+                            'has_part': '#ff6600',
+                            'positively_regulates': '#006600',
+                            'negatively_regulates': '#cc0000',
+                            'regulates': '#660066',
+                        }
+                    })
 
                     // var blob = new Blob([newFile], {
                     //     type: "text/plain;charset=utf-8"
