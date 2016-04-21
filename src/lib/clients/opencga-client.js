@@ -24,6 +24,14 @@ class OpenCGAClient {
         this._files;
     }
 
+    getConfig() {
+        return this._config;
+    }
+
+    setConfig(config) {
+        this._config = config;
+    }
+
     users() {
         if (typeof this._users === "undefined") {
             console.log(this._config)
@@ -124,8 +132,10 @@ class Users extends OpenCGAParentClass {
         return this.get("users", userId, "login", params, options);
     }
 
-    logout(userId, params, options) {
-        return this.get("users", userId, "logout", params, options);
+    logout(params, options) {
+        return this.get("users", Cookies.get(this._config.cookieUserName), "logout",
+            {sid: Cookies.get(this._config.cookieSessionId)},
+            options);
     }
 
     changeEmail(userId, params, options) {
@@ -144,8 +154,10 @@ class Users extends OpenCGAParentClass {
         return this.get("users", userId, "info", params, options);
     }
 
-    projects(userId, params, options) {
-        return this.get("users", userId, "projects", params, options);
+    projects(params, options) {
+        return this.get("users", Cookies.get(this._config.cookieUserName), "projects",
+            {sid: Cookies.get(this._config.cookieSessionId)},
+            options);
     }
 
     update(userId, params, options) {
@@ -177,7 +189,8 @@ class Projects extends OpenCGAParentClass {
     }
 
     studies(id, params, options) {
-        return this.get("projects", id, "studies", params, options);
+        return this.get("projects", id, "studies",
+            {sid: Cookies.get(this._config.cookieSessionId)}, options);
     }
 
     update(ids, params, options) {
