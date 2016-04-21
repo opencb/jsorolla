@@ -128,8 +128,8 @@
             background-color: #f0f4f4 !important;
         }
 
-        .importBut {
-            width: 65px;
+        .searchBut {
+            width: 100px;
             font-size: 12px;
             color: #445D76;
             margin: 3px;
@@ -164,7 +164,7 @@
         #hpoPanel,
         #goPanel {
             width: 900px;
-            height: 700px;
+            height: 750px;
             font-size: 12px;
         }
     </style>
@@ -581,11 +581,13 @@
                     Gene Ontology
                 </div>
                 <div class="container">
-                    <label class="jso">Filter by GO name:</label>
-                    <textarea class="jso" id="go" name="hpo" value="{{goValue::change}}" rows="3" required>
+                    <label class="jso">Filter by GO id:</label>
+                    <textarea class="jso" id="go" name="hpo" value="{{goValue::change}}" rows="3" placeholder="GO:0000001,GO:0001177" required>
                     </textarea>
-                    <div class="jso-btn jso-btn-shdw" on-click="showGO">
-                        or Search GO
+                    <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
+                        Or search GO: &nbsp;
+                        <div class="jso-btn jso-btn-shdw searchBut" on-click="showGO" title="Search GO"><i class="fa fa-search" aria-hidden="true"></i>
+                        </div>
                     </div>
                 </div>
             </jso-form-box>
@@ -594,11 +596,13 @@
                     HPO
                 </div>
                 <div class="container">
-                    <label class="jso">Filter by HPO name:</label>
-                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoValue::change}}" rows="3" required>
+                    <label class="jso">Filter by HPO id:</label>
+                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoValue::change}}" rows="3" placeholder="HP:0000001,HP:3000079" required>
                     </textarea>
-                    <div class="jso-btn jso-btn-shdw" on-click="showHPO">
-                        or Search HPO
+                    <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
+                        Or search HPO: &nbsp;
+                        <div class="jso-btn jso-btn-shdw searchBut" on-click="showHPO" title="Search HPO"><i class="fa fa-search" aria-hidden="true"></i>
+                        </div>
                     </div>
                 </div>
             </jso-form-box>

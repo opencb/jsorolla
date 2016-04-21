@@ -47,12 +47,26 @@
         jso-table {
             font-size: 12px;
         }
+
         network-viewer {
             height: 600px;
         }
+
         .legend {
-            z-index: 10000;
-            width: 200px;
+            border: 1px solid #d3d3d3;
+            padding: 5px;
+        }
+
+        .legend div {
+            margin-right: 40px;
+        }
+
+        .legend i {
+            font-size: 15px;
+        }
+
+        #network {
+            margin-right: 10px;
         }
     </style>
     <template>
@@ -75,16 +89,13 @@
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
-          <network-viewer id="network" hide-node-render hide-edge-render lite></network-viewer>
-          <jso-panel class="legend" closable movable>
-              <div class="header">
-                Leggend
-              </div>
-              <div class="container" style="padding:2px">
-                  <div>is_a &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#0033cc"></i></div>
-              </div>
-          </jso-panel>
-        </div>
+            <network-viewer id="network" hide-node-render hide-edge-render lite></network-viewer>
+            <div class="legend">
+                <strong>Colors Info: </strong>
+                <div class="horizontal layout" style="padding:2px">
+                    <div>is_a &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#0033cc"></i></div>
+                </div>
+            </div>
     </template>
 
     <script>
@@ -105,6 +116,12 @@
                     type: Array,
                     value: function() {
                         return [];
+                    }
+                },
+                map: {
+                  type: Object,
+                    value: function() {
+                        return {};
                     }
                 }
             },
@@ -154,41 +171,70 @@
             handleClearSelected: function(e) {
                 this.selectedHPO = [];
             },
+            recursive: function(fileMap) {
+
+            },
+            createJson: function(content) {
+                var lines = content.split("\n");
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i];
+                    var fields = line.split(" ");
+                    if (this.map[fields[0]] == null) {
+                        this.map[fields[0]] = {};
+                    }
+                    for (var j = 2; j < fields.length; j++) {
+                        if (this.map[fields[j]] == null) {
+                            this.map[fields[j]] = {};
+                        }
+                        this.map[fields[0]][fields[j]] = this.map[fields[j]];
+                    }
+                }
+            },
             ontology: function(e) {
                 var me = this;
                 var newFile = "";
-                var go = this.selectedHPO;
-                //Leer en el go_obo.sif las líneas, y quedarnos con aquellas que empiecen por los id de los GO seleccionados
-                //para generar el fichero.sif que le tenemos que pasar al componente de dibujar jerarquías
-
+                var hpo = this.selectedHPO;
+                var ids = [];
+                for (var i = 0; i < hpo.length; i++) {
+                  ids.push(hpo[i].id);
+                }
                 openRemoteFile("/projects/bierapp/conf/hp_obo.sif", function(content) {
+                  if(Object.keys(me.map).length==0){
+                    me.createJson(content);
+                  }
+                    for (var i = 0; i < ids.length; i++) {
+                        var keys = Object.keys(me.map[ids[i]]);
+                        if (keys.length > 0) {
+                            for (var j = 0; j < keys.length; j++) {
+                                ids.push(keys[j]);
+                            }
+                        }
+                    }
                     var lines = content.split("\n");
                     for (var i = 0; i < lines.length; i++) {
                         var line = lines[i];
-                        for (var j = 0; j < go.length; j++) {
-                            var id = go[j].id;
+                        for (var j = 0; j < ids.length; j++) {
+                            var id = ids[j];
                             if (line.indexOf(id) == 0) {
                                 newFile += '\n' + line;
                             }
                         }
                     }
+
                     me.handleView(e);
+                    me.$.network.startOver();
                     me.$.network.loadSif(newFile);
                     me.$.network.setLayout('Force directed');
                     me.$.network.$.edgeRender.applyVisualSet({
-                        attribute: 'relation',
-                        displayProperty: 'color',
-                        enabled: true,
-                        parse: 'string',
-                        type: 'categorical',
-                        matches: {
-                            'is_a': '#0033cc'
-                        }
-                    })
-                    // var blob = new Blob([newFile], {
-                    //     type: "text/plain;charset=utf-8"
-                    // });
-                    // saveAs(blob, "hpo.sif");
+                            attribute: 'relation',
+                            displayProperty: 'color',
+                            enabled: true,
+                            parse: 'string',
+                            type: 'categorical',
+                            matches: {
+                                'is_a': '#0033cc'
+                            }
+                        })
                 });
 
             }
