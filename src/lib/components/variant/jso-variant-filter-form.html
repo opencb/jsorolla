@@ -618,7 +618,7 @@
                     <i class="fa fa-plus-list"></i> Gene Ontology
                 </div>
                 <div class="container">
-                    <jso-go></jso-go>
+                    <jso-go go-value="{{goValue}}" on-added="showGO"></jso-go>
                 </div>
             </jso-panel>
             <jso-panel id="hpoPanel" modal closable hidden>
@@ -626,7 +626,7 @@
                     <i class="fa fa-plus-list"></i> Human Phenotype Ontology
                 </div>
                 <div class="container">
-                    <jso-hpo></jso-hpo>
+                    <jso-hpo hpo-value="{{hpoValue}}" on-added="showHPO"></jso-hpo>
                 </div>
             </jso-panel>
 
@@ -1781,11 +1781,11 @@
         },
         showGO: function() {
             this.$.goPanel.hidden = !this.$.goPanel.hidden;
-            this.$.goPanel.handleClearSelected();
+            // this.$.goPanel.handleClearSelected();
         },
         showHPO: function() {
             this.$.hpoPanel.hidden = !this.$.hpoPanel.hidden;
-            this.$.hpoPanel.handleClearSelected();
+            // this.$.hpoPanel.handleClearSelected();
         }
     });
 </script>
