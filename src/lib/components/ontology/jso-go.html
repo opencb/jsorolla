@@ -81,7 +81,7 @@
             margin-top: 10px;
         }
 
-        .tree {
+        .treeGO {
             overflow-y: auto;
             height: 600px;
             margin: 10px;
@@ -118,9 +118,15 @@
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
-            <div class="tree">
-                <stv-folder-tree id="tree">
-                </stv-folder-tree>
+            <div class="treeGO">
+                <jso-ontology-tree id="treeGO">
+                </jso-ontology-tree>
+            </div>
+            <div class="horizontal layout flex">
+                <div class="flex">
+                </div>
+                <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected GO
+                </div>
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'graph')}}">
@@ -220,8 +226,15 @@
             },
             handleAddSelected: function(e) {
                 var ids = [];
-                for (var i = 0; i < this.selectedGO.length; i++) {
-                    ids.push(this.selectedGO[i]._id);
+                var els=this.$.treeGO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
+                if (els.length > 0) {
+                  for (var i = 0; i < els.length; i++) {
+                    ids.push(els[i].dataset.file);
+                  }
+                } else {
+                    for (var i = 0; i < this.selectedGO.length; i++) {
+                        ids.push(this.selectedGO[i]._id);
+                    }
                 }
                 this.set('goValue', ids.join(","));
                 this.fire('added');
@@ -264,7 +277,7 @@
                 // });
                 // saveAs(blob, 'go_tree.js');
 
-                this.$.tree.set('tree', GO_TREE);
+                this.$.treeGO.set('tree', GO_TREE);
                 this.handleView(e);
             },
             createJson: function(content) {
@@ -328,25 +341,25 @@
                         }
                     }
 
-                me.handleView(e);
-                me.$.network.startOver();
-                me.$.network.loadSif(newFile);
-                me.$.network.setLayout('Force directed');
-                me.$.network.$.edgeRender.applyVisualSet({
-                    attribute: 'relation',
-                    displayProperty: 'color',
-                    enabled: true,
-                    parse: 'string',
-                    type: 'categorical',
-                    matches: {
-                        'is_a': '#0033cc',
-                        'part_of': '#ff9933',
-                        'has_part': '#ff6600',
-                        'positively_regulates': '#006600',
-                        'negatively_regulates': '#cc0000',
-                        'regulates': '#660066',
-                    }
-                })
+                    me.handleView(e);
+                    me.$.network.startOver();
+                    me.$.network.loadSif(newFile);
+                    me.$.network.setLayout('Force directed');
+                    me.$.network.$.edgeRender.applyVisualSet({
+                        attribute: 'relation',
+                        displayProperty: 'color',
+                        enabled: true,
+                        parse: 'string',
+                        type: 'categorical',
+                        matches: {
+                            'is_a': '#0033cc',
+                            'part_of': '#ff9933',
+                            'has_part': '#ff6600',
+                            'positively_regulates': '#006600',
+                            'negatively_regulates': '#cc0000',
+                            'regulates': '#660066',
+                        }
+                    })
                 });
 
             }

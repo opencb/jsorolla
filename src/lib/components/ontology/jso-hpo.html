@@ -80,7 +80,7 @@
             margin-top: 10px;
         }
 
-        .tree {
+        .treeHPO {
             overflow-y: auto;
             height: 600px;
             margin: 10px;
@@ -117,9 +117,15 @@
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
-            <div class="tree">
-                <stv-folder-tree id="tree">
-                </stv-folder-tree>
+            <div class="treeHPO">
+                <jso-ontology-tree id="treeHPO">
+                </jso-ontology-tree>
+            </div>
+            <div class="horizontal layout flex">
+                <div class="flex">
+                </div>
+                <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected HPO
+                </div>
             </div>
         </div>
         <div class="vertical layout" hidden$="{{!computeView(view, 'graph')}}">
@@ -213,8 +219,15 @@
             },
             handleAddSelected: function(e) {
                 var ids = [];
-                for (var i = 0; i < this.selectedHPO.length; i++) {
-                    ids.push(this.selectedHPO[i]._id);
+                var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
+                if (els.length > 0) {
+                    for (var i = 0; i < els.length; i++) {
+                        ids.push(els[i].dataset.file);
+                    }
+                } else {
+                    for (var i = 0; i < this.selectedHPO.length; i++) {
+                        ids.push(this.selectedHPO[i]._id);
+                    }
                 }
                 this.set('hpoValue', ids.join(","));
                 this.fire('added');
@@ -235,9 +248,9 @@
                 //             var id = son[k];
                 //             for (var j = 0; j < HPO_ONTOLOGY.length; j++) {
                 //                 if (HPO_ONTOLOGY[j]._id == id) {
-                                    // if(HPO_ONTOLOGY[j].f==null){
-                                    //   HPO_ONTOLOGY[j].f==[];
-                                    // }
+                // if(HPO_ONTOLOGY[j].f==null){
+                //   HPO_ONTOLOGY[j].f==[];
+                // }
                 //                     HPO_ONTOLOGY[j].f.push(aux[i]);
                 //                 }
                 //             }
@@ -251,20 +264,20 @@
                 //     type: "text/plain;charset=utf-8"
                 // });
                 // saveAs(blob, 'hpo_tree.js');
-                HPO_TREE[0].open=true;
-                this.$.tree.set('tree', HPO_TREE);
+                HPO_TREE[0].open = true;
+                this.$.treeHPO.set('tree', HPO_TREE);
                 this.handleView(e);
             },
             createJson: function(content) {
-              // var lines = content.split("\n");
-              // for (var i = 0; i < lines.length; i++) {
-              //     var line = lines[i];
-              //     var fields = line.split(" ");
-              //     if (this.map[fields[2]] == null) {
-              //         this.map[fields[2]] = {};
-              //     }
-              //     this.map[fields[2]][fields[0]] = this.map[fields[0]];
-              // }
+                // var lines = content.split("\n");
+                // for (var i = 0; i < lines.length; i++) {
+                //     var line = lines[i];
+                //     var fields = line.split(" ");
+                //     if (this.map[fields[2]] == null) {
+                //         this.map[fields[2]] = {};
+                //     }
+                //     this.map[fields[2]][fields[0]] = this.map[fields[0]];
+                // }
                 var lines = content.split("\n");
                 for (var i = 0; i < lines.length; i++) {
                     var line = lines[i];
