@@ -1,0 +1,368 @@
+<script src="../../../../bower_components/file-saver.js/FileSaver.js"></script>
+<dom-module id="jso-go">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        :host {
+            display: block;
+            position: relative;
+            width: 800px;
+            height: 720px;
+            padding: 10px;
+        }
+
+        .but {
+            color: #445D76;
+            text-align: center;
+            height: 20px;
+            width: 115px;
+            line-height: 20px;
+            margin-top: 5px;
+        }
+
+        #goList {
+            margin: 5px;
+            height: 80%;
+        }
+
+        #allGO,
+        #selectedGO {
+            width: 95%;
+            height: 500px;
+            border: 1px solid #d3d3d3;
+        }
+
+        .allGO {
+            /*width: 45%;*/
+            margin-right: 10px;
+        }
+
+        .selectedGO {
+            /*width: 45%;*/
+        }
+
+        .titlePreview {
+            color: #445D76;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #445D76;
+        }
+
+        jso-table {
+            font-size: 12px;
+        }
+
+        network-viewer {
+            height: 600px;
+        }
+
+        .legend {
+            border: 1px solid #d3d3d3;
+            padding: 5px;
+        }
+
+        .legend div {
+            margin-right: 40px;
+        }
+
+        .legend i {
+            font-size: 15px;
+        }
+
+        #network {
+            margin-right: 10px;
+        }
+
+        .add-but {
+            font-size: 13px;
+            font-weight: bold;
+            color: #2F65F4;
+            text-align: center;
+            height: 30px;
+            width: 150px;
+            line-height: 30px;
+            margin-top: 10px;
+        }
+
+        .treeGO {
+            overflow-y: auto;
+            height: 600px;
+            margin: 10px;
+            padding: 5px;
+            border: 1px solid #d3d3d3;
+        }
+    </style>
+    <template>
+        <div class="horizontal layout" style="margin-bottom:5px">
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="go" data-checked$="{{computeView(view, 'go')}}"> <i class="fa fa-list"></i>&nbsp; Select GO </div>
+            <div class="jso-btn jso-btn-shdw but" on-click="createTree" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
+            <!-- <div class="jso-btn jso-btn-shdw but" on-click="ontology" data-value="graph" data-checked$="{{computeView(view, 'graph')}}"><i class="fa fa-sitemap"></i>&nbsp; View Graph </div> -->
+        </div>
+        <div id="goList" class="vertical layout" hidden$="{{!computeView(view, 'go')}}">
+            <div class="horizontal layout">
+                <div class="vertical layout allGO">
+                    <jso-table id="allGO" class="flex" columns="{{goColumns}}" data="{{goList}}" enable-select enable-filter enable-paging hide-column-selector page-size="15"></jso-table>
+                    <div class="jso-btn jso-btn-shdw but" on-click="handleAddGO"><i class="fa fa-plus-square-o"></i>&nbsp; Add
+                    </div>
+                </div>
+                <div class="vertical layout selectedGO">
+                    <jso-table id="selectedGO" class="flex" columns="{{goSelectedColumns}}" data="{{selectedGO}}" hide-column-selector>
+                    </jso-table>
+                    <div class="jso-btn jso-btn-shdw but" on-click="handleClearSelected">
+                        Clear
+                    </div>
+                </div>
+            </div>
+            <div class="horizontal layout flex">
+                <div class="flex">
+                </div>
+                <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected GO
+                </div>
+            </div>
+        </div>
+        <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
+            <div class="treeGO">
+                <jso-ontology-tree id="treeGO">
+                </jso-ontology-tree>
+            </div>
+            <div class="horizontal layout flex">
+                <div class="flex">
+                </div>
+                <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected GO
+                </div>
+            </div>
+        </div>
+        <div class="vertical layout" hidden$="{{!computeView(view, 'graph')}}">
+            <network-viewer id="network" hide-node-render hide-edge-render lite></network-viewer>
+            <div class="legend">
+                <strong>Colors Info: </strong>
+                <div class="horizontal layout" style="padding:2px">
+                    <div>is_a &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#0033cc"></i></div>
+                    <div>part_of &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#ff9933"></i></div>
+                    <div>has_part &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#ff6600"></i></div>
+                    <div>positively_regulates &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#006600"></i></div>
+                    <div>negatively_regulates &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#cc0000"></i></div>
+                    <div>regulates &nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true" style="color:#660066"></i></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: "jso-go",
+            properties: {
+                view: {
+                    type: String,
+                    value: 'go'
+                },
+                goList: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
+                selectedGO: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
+                goValue: {
+                    type: String,
+                    notify: true,
+                    value: ''
+                },
+                map: {
+                    type: Object,
+                    value: function() {
+                        return {};
+                    }
+                }
+            },
+            ready: function() {
+                var me = this;
+                this.set('goList', GO_ONTOLOGY);
+
+                this.goColumns = [{
+                    name: '_id',
+                    title: 'ID',
+                    type: 'text',
+                    width: 120
+                }, {
+                    name: 'n',
+                    title: 'Name',
+                    type: 'text',
+                    width: 280
+                }];
+                this.goSelectedColumns = [{
+                    name: '_id',
+                    title: 'ID',
+                    type: 'text',
+                    width: 120
+                }, {
+                    name: 'n',
+                    title: 'Name',
+                    type: 'text',
+                    width: 230
+                }, {
+                    name: '',
+                    title: '',
+                    type: 'action',
+                    width: 50
+                }];
+            },
+            handleView: function(e) {
+                this.view = e.target.dataset.value;
+            },
+            computeView: function(view, value) {
+                return view === value;
+            },
+            handleAddGO: function(e) {
+                for (var i = 0; i < this.$.allGO.selected.length; i++) {
+                    var go = this.$.allGO.selected[i];
+                    this.push('selectedGO', go);
+                }
+            },
+            handleClearSelected: function(e) {
+                this.selectedGO = [];
+            },
+            handleAddSelected: function(e) {
+                var ids = [];
+                var els=this.$.treeGO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
+                if (els.length > 0) {
+                  for (var i = 0; i < els.length; i++) {
+                    ids.push(els[i].dataset.file);
+                  }
+                } else {
+                    for (var i = 0; i < this.selectedGO.length; i++) {
+                        ids.push(this.selectedGO[i]._id);
+                    }
+                }
+                this.set('goValue', ids.join(","));
+                this.fire('added');
+            },
+            createTree: function(e) {
+                // var me = this;
+                // var auxGO = [];
+                // var aux = GO_ONTOLOGY;
+                // for (var i = 0; i < aux.length; i++) {
+                //     if (aux[i].f == null) {
+                //         aux[i].f = [];
+                //     }
+                //     if (aux[i].s == null) {
+                //         aux[i].s = [];
+                //         continue;
+                //     } else {
+                //         var son = aux[i].s;
+                //         for (var k = 0; k < son.length; k++) {
+                //             var id = son[k];
+                //             for (var j = 0; j < GO_ONTOLOGY.length; j++) {
+                //                 if (GO_ONTOLOGY[j]._id == id) {
+                //                   if(GO_ONTOLOGY[j].f==null){
+                //                     GO_ONTOLOGY[j].f=[];
+                //                   }
+                //                   GO_ONTOLOGY[j].f.push(aux[i]);
+                //                 }
+                //             }
+                //         }
+                //     }
+                //
+                // }
+                // for (var i = 0; i < GO_ONTOLOGY.length; i++) {
+                //     if (GO_ONTOLOGY[i]._id == "GO:0008150" || GO_ONTOLOGY[i]._id == "GO:0003674" || GO_ONTOLOGY[i]._id == "GO:0016043") {
+                //         auxGO.push(GO_ONTOLOGY[i]);
+                //     }
+                // }
+                // var tree = "GO_TREE=" + JSON.stringify(auxGO);
+                // var blob = new Blob([tree], {
+                //     type: "text/plain;charset=utf-8"
+                // });
+                // saveAs(blob, 'go_tree.js');
+
+                this.$.treeGO.set('tree', GO_TREE);
+                this.handleView(e);
+            },
+            createJson: function(content) {
+                // var lines = content.split("\n");
+                // for (var i = 0; i < lines.length; i++) {
+                //     var line = lines[i];
+                //     var fields = line.split(" ");
+                //     if (this.map[fields[2]] == null) {
+                //         this.map[fields[2]] = {};
+                //     }
+                //     this.map[fields[2]][fields[0]] = this.map[fields[0]];
+                // }
+                var lines = content.split("\n");
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i];
+                    var fields = line.split(" ");
+                    if (this.map[fields[0]] == null) {
+                        this.map[fields[0]] = {};
+                    }
+                    for (var j = 2; j < fields.length; j++) {
+                        if (this.map[fields[j]] == null) {
+                            this.map[fields[j]] = {};
+                        }
+                        this.map[fields[0]][fields[j]] = this.map[fields[j]];
+                    }
+                }
+            },
+            ontology: function(e) {
+                var me = this;
+                openRemoteFile("/projects/bierapp/conf/go_obo.sif", function(content) {
+                    me.createJson(content);
+                    me.handleView(e);
+                });
+                var newFile = "";
+                var go = this.selectedGO;
+                var ids = [];
+                for (var i = 0; i < go.length; i++) {
+                    ids.push(go[i]._id);
+                }
+
+                openRemoteFile("/projects/bierapp/conf/go_obo.sif", function(content) {
+                    if (Object.keys(me.map).length == 0) {
+                        me.createJson(content);
+                    }
+                    for (var i = 0; i < ids.length; i++) {
+                        var keys = Object.keys(me.map[ids[i]]);
+                        if (keys.length > 0) {
+                            for (var j = 0; j < keys.length; j++) {
+                                ids.push(keys[j]);
+                            }
+                        }
+                    }
+                    var lines = content.split("\n");
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        for (var j = 0; j < ids.length; j++) {
+                            var id = ids[j];
+                            if (line.indexOf(id) == 0) {
+                                newFile += '\n' + line;
+                            }
+                        }
+                    }
+
+                    me.handleView(e);
+                    me.$.network.startOver();
+                    me.$.network.loadSif(newFile);
+                    me.$.network.setLayout('Force directed');
+                    me.$.network.$.edgeRender.applyVisualSet({
+                        attribute: 'relation',
+                        displayProperty: 'color',
+                        enabled: true,
+                        parse: 'string',
+                        type: 'categorical',
+                        matches: {
+                            'is_a': '#0033cc',
+                            'part_of': '#ff9933',
+                            'has_part': '#ff6600',
+                            'positively_regulates': '#006600',
+                            'negatively_regulates': '#cc0000',
+                            'regulates': '#660066',
+                        }
+                    })
+                });
+
+            }
+        })
+    </script>
+</dom-module>

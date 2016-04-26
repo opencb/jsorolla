@@ -1,0 +1,116 @@
+<dom-module id="jso-ontology-tree-item">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+            /*width:100%;*/
+            /*overflow: hidden;
+            text-overflow: clip;*/
+        }
+
+        .main {
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            /*overflow: hidden;
+            text-overflow: clip;*/
+        }
+
+        .main:hover > * {
+            background-color: var(--hover-color)
+        }
+
+        .name:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            content: '\f07b';
+        }
+        .selected{
+          background-color: var(--selected-color)
+        }
+
+        .arrow:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 12px;
+            text-align: center;
+            content: '\f0da';
+        }
+
+        .arrow[open]:before {
+            content: '\f0d7';
+        }
+
+        .arrow[empty]:before {
+            content: '\00a0';
+        }
+
+        .arrow {
+            padding: 2px 0 2px 2px;
+        }
+
+        .name {
+            padding: 2px 2px 2px 0;
+        }
+    </style>
+    <template>
+        <div class="main horizontal layout stv-nosel">
+            <div class="arrow" empty$="{{isEmpty(file.f)}}" open$="{{file.open}}" on-click="toggleOpen"></div>
+            <div class="name flex" on-click="handleClick" on-dblclick="toggleOpen" data-file$="{{file._id}}">{{computeName(file.n)}}</div>
+        </div>
+        <div style="margin-left:7px;" hidden$="{{!file.open}}">
+            <template is="dom-repeat" items="{{auxItems}}" as="f">
+                <jso-ontology-tree-item file="{{f}}">
+                </jso-ontology-tree-item>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: "jso-ontology-tree-item",
+            properties: {
+                file: {
+                    type: Object,
+                    observer: 'fileChanged'
+                },
+                auxItems: {
+                    type: Array
+                }
+            },
+            fileChanged: function(neo, old) {
+                if (neo) {
+                  this.checkFiles();
+                }
+            },
+            checkFiles: function() {
+                if (this.file.open == true) {
+                    this.set('auxItems', this.file.f);
+                } else {
+                    this.set('auxItems', []);
+                }
+            },
+            isEmpty: function(f) {
+                return f.length == 0;
+            },
+            computeName: function(name) {
+                if (name.indexOf('anonymous___') != -1) {
+                    name = 'anonymous';
+                }
+                return name;
+            },
+            handleClick: function(e) {
+              var el=e.currentTarget;
+                el.classList.toggle("selected");
+            },
+            toggleOpen: function(e) {
+                if (this.file.f.length > 0) {
+                    this.set('file.open', !this.file.open);
+                }
+                this.checkFiles();
+            }
+        });
+    </script>
+</dom-module>
