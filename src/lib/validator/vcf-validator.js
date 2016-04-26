@@ -25,7 +25,7 @@ function VCFValidator(options) {
         "headerNumber": /Number=(\w+|\.)/,
         "headerType": /Type=(\w+)/,
         "headerDesc": /Description=\"(.+)\"/,
-        "actg": /^[ACGTNactgn]+$/,
+        "actg": /^[ACGTNactgn\.]+$/,
         "gt": /^(\.|\d+)([|/](\.|\d+))?$/,
         "alpha": /^(\w+)$/,
         "idSemiColon": /^(\w+(;\w+)?)$/
@@ -236,7 +236,8 @@ VCFValidator.prototype.parseData = function (line) {
     }
 
     if (!this._regExp["actg"].test(ref)) {
-        this.addLog("error", "Reference allele must match the regular expression /^[ACTGN]+$/");
+      debugger
+        this.addLog("error", "Reference allele must match the regular expression /^[ACTGN.]+$/");
     }
 
     // alt
@@ -293,7 +294,7 @@ VCFValidator.prototype.parseData = function (line) {
         for (var i = 0; i < filterIds.length; i++) {
             var id = filterIds[i];
             if (this._filter[id.toLowerCase()] == null) {
-                this.addLog("error", "Filter status must be specified in header, be PASS or be set to the missing value '.'");
+                this.addLog("warning", "Filter status must be specified in header, be PASS or be set to the missing value '.'");
             }
         }
     }
@@ -306,7 +307,7 @@ VCFValidator.prototype.parseData = function (line) {
     var infoFields = info.split(";");
     // debugger
     // if (infoFields.length != Object.keys(this._info).length) {
-    //   this.addLog("eror", "Info must have the same number of fields specified in header");
+    //   this.addLog("error", "Info must have the same number of fields specified in header");
     // }
     if (infoFields.length != 1 || infoFields[0] != '.') {
         for (var i = 0; i < infoFields.length; i++) {
@@ -315,7 +316,7 @@ VCFValidator.prototype.parseData = function (line) {
                 var key = field.substring(0, field.indexOf("="));
                 var value = field.substring(field.indexOf("=") + 1);
                 if (this._info[key] == null) {
-                    this.addLog("error", "Info field must be specified in header");
+                    this.addLog("warning", "Info field must be specified in header");
                 } else {
                     var v = value.split(",");
                     if (v.length > 1) {
@@ -323,24 +324,24 @@ VCFValidator.prototype.parseData = function (line) {
                           //'A': one value per alternate
                           var n=alt.split(",").length;
                           if(n != v.length){
-                            this.addLog("error", "If Info number is 'A', value must have one value per alternate");
+                            this.addLog("warning", "If Info number is 'A', value must have one value per alternate");
                           }
                             //TODO: 'R': one value for each posible allele
                             //TODO: 'G': one value for each posible genotype
 
                         } else if (this._info[key].number < v.length) {
-                            this.addLog("error", "Number of values in info must be less or equal than Number in Info field");
+                            this.addLog("warning", "Number of values in info must be less or equal than Number in Info field");
                         }
                         if (this._info[key].type == 'Flag') {
-                            this.addLog("error", "Flag type must not have value");
+                            this.addLog("warning", "Flag type must not have value");
                         } else {
-                          for (var i = 0; i < v.length; i++) {
-                            var auxV=v[i];
+                          for (var j = 0; j < v.length; j++) {
+                            var auxV=v[j];
                           }
                             if (this._info[key].type == 'Integer' && Number.isInteger(auxV) == false) {
-                                this.addLog("error", "Info type and value type must be the same");
+                                this.addLog("warning", "Info type and value type must be the same");
                             } else if (this._info[key].type == 'String' && isNaN(auxV) == false) {
-                                this.addLog("error", "Info type and value type must be the same");
+                                this.addLog("warning", "Info type and value type must be the same");
                             // } else if (this._info[key].type == 'Float' && Number.isFloat(auxV) == false) {
                             //     this.addLog("error", "Info type and value type must be the same");
                             }
@@ -349,12 +350,12 @@ VCFValidator.prototype.parseData = function (line) {
                 }
             } else {
                 if (this._info[key] == null) {
-                    this.addLog("error", "Info field must be specified in header");
+                    this.addLog("warning", "Info field must be specified in header");
                 } else if (this._info[key].type != "Flag") {
-                    this.addLog("error", "Info field must be a Flag type or have a data value");
+                    this.addLog("warning", "Info field must be a Flag type or have a data value");
                 } else {
                     if (this._info[key].number != 0) {
-                        this.addLog("error", "In Info, Number must be 0 for a Flag type");
+                        this.addLog("warning", "In Info, Number must be 0 for a Flag type");
                     }
                 }
             }

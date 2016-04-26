@@ -51,8 +51,8 @@ Validator.prototype = {
 
                 for (var i = 0; i < lines.length; i++) {
                     var line = lines[i];
-
                     me.line++;
+                    console.log(me.line)
                     me.numLines++;
                     me._readBytes += line.length;
                     me.progress = (me._readBytes / me._totalBytes) * 100;
