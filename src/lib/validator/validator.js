@@ -40,8 +40,10 @@ Validator.prototype = {
 
             me._totalBytes = me.file.size;
             var indexToStartWith = 0;
+            var linesToRead=1000;
 
-            me._navigator.readSomeLines(indexToStartWith, function linesReadHandler(err, index, lines, eof, progress) {
+            // me._navigator.readSomeLines(indexToStartWith,linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
+            me._navigator.readLines(indexToStartWith,linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
                 if (err) {
                     me._emit("err");
                     return;
@@ -67,7 +69,8 @@ Validator.prototype = {
                     return;
                 }
 
-                me._navigator.readSomeLines(index + lines.length, linesReadHandler);
+                // me._navigator.readSomeLines(index + lines.length, linesReadHandler);
+                me._navigator.readLines(index + lines.length,linesToRead, linesReadHandler);
 
             })
 
