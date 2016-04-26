@@ -171,10 +171,12 @@
                 this.$.jsoClassViewer.loading = true;
                 var file = e.detail.file;
                 var me = this;
-                if (file.type == "FILE")
+                if (file.type == "FILE"){
+                    me.contentFile = '';
                     Utils.getFileContent(function (response) {
                         me.contentFile = response;
                     }, file.id);
+                }
             },
             loadedMainSelect: function () {
                 /** This is mainly for the examples **/
@@ -286,6 +288,7 @@
                 this.$.none.checked = true;
 //                var exampleFolder = "rna_diffexp";
 
+                me.contentFile = '';
                 Utils.loadExampleFile(function (response) {
                     me.contentFile = response;
                 }, this.toolName, this.$.inputFile.selectedFile.path)

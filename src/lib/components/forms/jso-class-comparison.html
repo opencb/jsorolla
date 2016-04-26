@@ -216,6 +216,7 @@
             loadExampleFile: function (exampleFileName) {
 
                 var me = this;
+                this.contentFile = '';
                 OpencgaManager.files.contentExample({
                     query: {
                         toolName: this.toolName,
@@ -235,12 +236,12 @@
                 })
             },
             getContentFile: function (file) {
-                this.$.jsoClassViewer.loading = true;
-
                 var me = this;
+                this.$.jsoClassViewer.loading = true;
                 if (String(file.id).indexOf("example_") >= 0) {
                     this.loadExampleFile(file.path);
                 } else {
+                    this.contentFile = '';
                     OpencgaManager.files.content({
                         id: file.id,
                         query: {
