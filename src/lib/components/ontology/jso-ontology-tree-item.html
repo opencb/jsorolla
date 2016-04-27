@@ -28,8 +28,9 @@
             text-align: center;
             content: '\f07b';
         }
-        .selected{
-          background-color: var(--selected-color)
+
+        .selected {
+            background-color: var(--selected-color)
         }
 
         .arrow:before {
@@ -82,12 +83,16 @@
             },
             fileChanged: function(neo, old) {
                 if (neo) {
-                  this.checkFiles();
+                    this.checkFiles();
                 }
             },
             checkFiles: function() {
                 if (this.file.open == true) {
-                    this.set('auxItems', this.file.f);
+                    if (this.file.f == null) {
+                        this.set('auxItems', []);
+                    } else {
+                        this.set('auxItems', this.file.f);
+                    }
                 } else {
                     this.set('auxItems', []);
                 }
@@ -102,7 +107,7 @@
                 return name;
             },
             handleClick: function(e) {
-              var el=e.currentTarget;
+                var el = e.currentTarget;
                 el.classList.toggle("selected");
             },
             toggleOpen: function(e) {

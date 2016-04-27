@@ -751,6 +751,8 @@
                     this.hash[this.study.id] = this.historyFilters;
 
                     localStorage.bioinfo_bierApp_filter_history = JSON.stringify(this.hash);
+                    this.clearForm();
+                    this.loadForm(query);
                 }
             }
         },
@@ -862,22 +864,23 @@
             }
 
             // GO
-            var gos= this.goValue.toUpperCase().split(/,|\n/);
+            var gos = this.goValue.toUpperCase().split(/,|\n/);
             if (gos != '') {
-              var genes=[];
-              for (var i = 0; i < gos.length; i++) {
-                if(GO_GENE[gos[i]]!=null){
-                  for (var j = 0; j < GO_GENE[gos[i]].length; j++) {
-                    var gene=GO_GENE[gos[i]][j];
-                    genes.push(gene);
-                  }
+                var genes = [];
+                for (var i = 0; i < gos.length; i++) {
+                    if (GO_GENE[gos[i]] != null) {
+                        for (var j = 0; j < GO_GENE[gos[i]].length; j++) {
+                            var gene = GO_GENE[gos[i]][j];
+                            genes.push(gene);
+                        }
+                    }
                 }
-              }
-              if(query["gene"]!=null && genes.length>0){
-                query["gene"]+=","+genes.join(",");
-              }else if(query["gene"]==null && genes.length>0){
-                  query["gene"]=genes.join(",");
-              }
+                if (query["gene"] != null && genes.length > 0) {
+                    query["gene"] += "," + genes.join(",");
+                } else if (query["gene"] == null && genes.length > 0) {
+                    query["gene"] = genes.join(",");
+                }
+                alert("Selected GOs have these associated Genes: " + genes.join(","));
             }
             // HPO
             // var hpoQuery = this.hpoValue.toUpperCase().split(/,|\n/);

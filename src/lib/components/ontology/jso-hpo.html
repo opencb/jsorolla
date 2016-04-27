@@ -173,9 +173,14 @@
             ready: function() {
                 var me = this;
                 this.set('hpoList', HPO_ONTOLOGY);
+                for (var i = 0; i < this.hpoList.length; i++) {
+                    this.hpoList[i].id = 'HP:' + this.hpoList[i].id;
+                }
+
+                this.createJson();
 
                 this.hpoColumns = [{
-                    name: '_id',
+                    name: 'id',
                     title: 'ID',
                     type: 'text',
                     width: 120
@@ -186,7 +191,7 @@
                     width: 280
                 }];
                 this.hpoSelectedColumns = [{
-                    name: '_id',
+                    name: 'id',
                     title: 'ID',
                     type: 'text',
                     width: 120
@@ -219,14 +224,33 @@
             },
             handleAddSelected: function(e) {
                 var ids = [];
+                var keys = {};
                 var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
                 if (els.length > 0) {
+                    // for (var i = 0; i < els.length; i++) {
+                    //     ids.push(els[i].dataset.file);
+                    // }
                     for (var i = 0; i < els.length; i++) {
-                        ids.push(els[i].dataset.file);
+                        keys['HP:' + els[i].dataset.file] = null;
                     }
+                    for (var i = 0; i < Object.keys(keys).length; i++) {
+                        var id = Object.keys(keys)[i];
+                        if (this.map[id] == null) {
+                            continue;
+                        } else {
+                            if (Object.keys(this.map[id]).length > 0) {
+                                var son = Object.keys(this.map[id])
+                                for (var j = 0; j < son.length; j++) {
+                                    keys[son[j]] = null;
+                                }
+                            }
+                        }
+                    }
+                    ids = Object.keys(keys);
+
                 } else {
                     for (var i = 0; i < this.selectedHPO.length; i++) {
-                        ids.push(this.selectedHPO[i]._id);
+                        ids.push(this.selectedHPO[i].id);
                     }
                 }
                 this.set('hpoValue', ids.join(","));
@@ -240,17 +264,17 @@
                 //         aux[i].f = [];
                 //     }
                 //     if (aux[i].s == null) {
-                //         aux[i].s = [];
                 //         continue;
                 //     } else {
                 //         var son = aux[i].s;
                 //         for (var k = 0; k < son.length; k++) {
                 //             var id = son[k];
                 //             for (var j = 0; j < HPO_ONTOLOGY.length; j++) {
-                //                 if (HPO_ONTOLOGY[j]._id == id) {
-                // if(HPO_ONTOLOGY[j].f==null){
-                //   HPO_ONTOLOGY[j].f==[];
-                // }
+                //                 if (HPO_ONTOLOGY[j].id == id) {
+                //                     if (HPO_ONTOLOGY[j].f == null) {
+                //                         HPO_ONTOLOGY[j].f = [];
+                //                     }
+                //                     delete aux[i].s;
                 //                     HPO_ONTOLOGY[j].f.push(aux[i]);
                 //                 }
                 //             }
@@ -258,40 +282,47 @@
                 //     }
                 //
                 // }
+                //
                 // auxHP.push(HPO_ONTOLOGY[0]);
-                // var tree="HPO_TREE="+JSON.stringify(auxHP);
+                // debugger
+                // var tree = "HPO_TREE=" + JSON.stringify(auxHP);
                 // var blob = new Blob([tree], {
                 //     type: "text/plain;charset=utf-8"
                 // });
                 // saveAs(blob, 'hpo_tree.js');
+
                 HPO_TREE[0].open = true;
                 this.$.treeHPO.set('tree', HPO_TREE);
                 this.handleView(e);
             },
-            createJson: function(content) {
+            // createJson: function(content) {
+            createJson: function() {
+                var me = this;
+                openRemoteFile("/projects/bierapp/conf/hp_obo.sif", function(content) {
+                    var lines = content.split("\n");
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        var fields = line.split(" ");
+                        if (me.map[fields[2]] == null) {
+                            me.map[fields[2]] = {};
+                        }
+                        me.map[fields[2]][fields[0]] = me.map[fields[0]];
+                    }
+                });
                 // var lines = content.split("\n");
                 // for (var i = 0; i < lines.length; i++) {
                 //     var line = lines[i];
                 //     var fields = line.split(" ");
-                //     if (this.map[fields[2]] == null) {
-                //         this.map[fields[2]] = {};
+                //     if (this.map[fields[0]] == null) {
+                //         this.map[fields[0]] = {};
                 //     }
-                //     this.map[fields[2]][fields[0]] = this.map[fields[0]];
+                //     for (var j = 2; j < fields.length; j++) {
+                //         if (this.map[fields[j]] == null) {
+                //             this.map[fields[j]] = {};
+                //         }
+                //         this.map[fields[0]][fields[j]] = this.map[fields[j]];
+                //     }
                 // }
-                var lines = content.split("\n");
-                for (var i = 0; i < lines.length; i++) {
-                    var line = lines[i];
-                    var fields = line.split(" ");
-                    if (this.map[fields[0]] == null) {
-                        this.map[fields[0]] = {};
-                    }
-                    for (var j = 2; j < fields.length; j++) {
-                        if (this.map[fields[j]] == null) {
-                            this.map[fields[j]] = {};
-                        }
-                        this.map[fields[0]][fields[j]] = this.map[fields[j]];
-                    }
-                }
             },
             ontology: function(e) {
                 var me = this;
@@ -303,7 +334,7 @@
                 var hpo = this.selectedHPO;
                 var ids = [];
                 for (var i = 0; i < hpo.length; i++) {
-                    ids.push(hpo[i]._id);
+                    ids.push(hpo[i].id);
                 }
                 openRemoteFile("/projects/bierapp/conf/hp_obo.sif", function(content) {
                     if (Object.keys(me.map).length == 0) {
