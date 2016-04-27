@@ -180,9 +180,12 @@
             ready: function() {
                 var me = this;
                 this.set('goList', GO_ONTOLOGY);
+                for (var i = 0; i < this.goList.length; i++) {
+                  this.goList[i].id='GO:'+this.goList[i].id;
+                }
 
                 this.goColumns = [{
-                    name: '_id',
+                    name: 'id',
                     title: 'ID',
                     type: 'text',
                     width: 120
@@ -193,7 +196,7 @@
                     width: 280
                 }];
                 this.goSelectedColumns = [{
-                    name: '_id',
+                    name: 'id',
                     title: 'ID',
                     type: 'text',
                     width: 120
@@ -226,14 +229,16 @@
             },
             handleAddSelected: function(e) {
                 var ids = [];
-                var els=this.$.treeGO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
+                var els = this.$.treeGO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
                 if (els.length > 0) {
-                  for (var i = 0; i < els.length; i++) {
-                    ids.push(els[i].dataset.file);
-                  }
+                    for (var i = 0; i < els.length; i++) {
+                        var id=els[i].dataset.file;
+                        ids.push('GO:'+id);
+                        // ids.push(id);
+                    }
                 } else {
                     for (var i = 0; i < this.selectedGO.length; i++) {
-                        ids.push(this.selectedGO[i]._id);
+                        ids.push(this.selectedGO[i].id);
                     }
                 }
                 this.set('goValue', ids.join(","));
@@ -248,18 +253,18 @@
                 //         aux[i].f = [];
                 //     }
                 //     if (aux[i].s == null) {
-                //         aux[i].s = [];
                 //         continue;
                 //     } else {
                 //         var son = aux[i].s;
                 //         for (var k = 0; k < son.length; k++) {
                 //             var id = son[k];
                 //             for (var j = 0; j < GO_ONTOLOGY.length; j++) {
-                //                 if (GO_ONTOLOGY[j]._id == id) {
-                //                   if(GO_ONTOLOGY[j].f==null){
-                //                     GO_ONTOLOGY[j].f=[];
-                //                   }
-                //                   GO_ONTOLOGY[j].f.push(aux[i]);
+                //                 if (GO_ONTOLOGY[j].id == id) {
+                //                     if (GO_ONTOLOGY[j].f == null) {
+                //                         GO_ONTOLOGY[j].f = [];
+                //                     }
+                //                     delete aux[i].s;
+                //                     GO_ONTOLOGY[j].f.push(aux[i]);
                 //                 }
                 //             }
                 //         }
@@ -267,10 +272,11 @@
                 //
                 // }
                 // for (var i = 0; i < GO_ONTOLOGY.length; i++) {
-                //     if (GO_ONTOLOGY[i]._id == "GO:0008150" || GO_ONTOLOGY[i]._id == "GO:0003674" || GO_ONTOLOGY[i]._id == "GO:0016043") {
+                //     if (GO_ONTOLOGY[i].id == "0008150" || GO_ONTOLOGY[i].id == "0003674" || GO_ONTOLOGY[i].id == "0016043") {
                 //         auxGO.push(GO_ONTOLOGY[i]);
                 //     }
                 // }
+                // debugger
                 // var tree = "GO_TREE=" + JSON.stringify(auxGO);
                 // var blob = new Blob([tree], {
                 //     type: "text/plain;charset=utf-8"
@@ -315,7 +321,7 @@
                 var go = this.selectedGO;
                 var ids = [];
                 for (var i = 0; i < go.length; i++) {
-                    ids.push(go[i]._id);
+                    ids.push(go[i].id);
                 }
 
                 openRemoteFile("/projects/bierapp/conf/go_obo.sif", function(content) {

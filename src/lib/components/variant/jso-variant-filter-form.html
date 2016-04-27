@@ -252,7 +252,9 @@
                                     <input type="checkbox" name="{{item.name}}" value="somatic">
                                     <span style="margin-left:15px;"></span>
                                 </label>
-                                <label class="jso-control flex">{{germinal}}
+                                <label class="jso-control flex">
+                                    <input type="checkbox" name="{{item.name}}" value="germinal">
+                                    <span style="margin-left:15px;"></span>
                                 </label>
                             </div>
                         </template>
@@ -860,10 +862,23 @@
             }
 
             // GO
-            // var hpoQuery = this.goValue.toUpperCase().split(/,|\n/);
-            // if (hpoQuery != '') {
-            //   //Buscar los genes asociados a los GO y hacer búsqueda por genes
-            // }
+            var gos= this.goValue.toUpperCase().split(/,|\n/);
+            if (gos != '') {
+              var genes=[];
+              for (var i = 0; i < gos.length; i++) {
+                if(GO_GENE[gos[i]]!=null){
+                  for (var j = 0; j < GO_GENE[gos[i]].length; j++) {
+                    var gene=GO_GENE[gos[i]][j];
+                    genes.push(gene);
+                  }
+                }
+              }
+              if(query["gene"]!=null && genes.length>0){
+                query["gene"]+=","+genes.join(",");
+              }else if(query["gene"]==null && genes.length>0){
+                  query["gene"]=genes.join(",");
+              }
+            }
             // HPO
             // var hpoQuery = this.hpoValue.toUpperCase().split(/,|\n/);
             // if (hpoQuery != '') {
@@ -1275,7 +1290,7 @@
             }
 
             // Sift
-             // Polyphen
+            // Polyphen
             var fS = this.$.filterScores.load(hf);
             if (fS.length > 0) {
                 for (var i = 0; i < fS.length; i++) {

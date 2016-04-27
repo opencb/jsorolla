@@ -59,7 +59,7 @@
     <template>
         <div class="main horizontal layout stv-nosel">
             <div class="arrow" empty$="{{isEmpty(file.f)}}" open$="{{file.open}}" on-click="toggleOpen"></div>
-            <div class="name flex" on-click="handleClick" on-dblclick="toggleOpen" data-file$="{{file._id}}">{{computeName(file.n)}}</div>
+            <div class="name flex" on-click="handleClick" on-dblclick="toggleOpen" data-file$="{{file.id}}">{{computeName(file.n)}}</div>
         </div>
         <div style="margin-left:7px;" hidden$="{{!file.open}}">
             <template is="dom-repeat" items="{{auxItems}}" as="f">
