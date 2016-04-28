@@ -373,7 +373,7 @@
                     <div id="phase_3" hidden>
                         <label class="jso">All populations MAF [ALL]</label>
                         <div class="horizontal layout">
-                            <jso-select name="1000G_PHASE_3_ALL_op" id="1000G_PHASE_3_ALL_op">
+                            <jso-select name="1000GENOMES_phase_3_ALL_op" id="1000GENOMES_phase_3_ALL_op">
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -381,11 +381,11 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
+                            <input id="1000GENOMES_phase_3_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
                         </div>
                         <label class="jso">American MAF [AMR]</label>
                         <div class="horizontal layout">
-                            <jso-select name="1000G_PHASE_3_AMR_op" id="1000G_PHASE_3_AMR_op">
+                            <jso-select name="1000GENOMES_phase_3_AMR_op" id="1000GENOMES_phase_3_AMR_op">
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -393,11 +393,11 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_AMR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
+                            <input id="1000GENOMES_phase_3_AMR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
                         </div>
                         <label class="jso">South Asian MAF [SAS]</label>
                         <div class="horizontal layout">
-                            <jso-select name="1000G_PHASE_3_SAS_op" id="1000G_PHASE_3_SAS_op">
+                            <jso-select name="1000GENOMES_phase_3_SAS_op" id="1000GENOMES_phase_3_SAS_op">
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -405,11 +405,11 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_SAS" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
+                            <input id="1000GENOMES_phase_3_SAS" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
                         </div>
                         <label class="jso">East Asian MAF [EAS]</label>
                         <div class="horizontal layout">
-                            <jso-select name="1000G_PHASE_3_EAS_op" id="1000G_PHASE_3_EAS_op">
+                            <jso-select name="1000GENOMES_phase_3_EAS_op" id="1000GENOMES_phase_3_EAS_op">
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -417,11 +417,11 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_EAS" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
+                            <input id="1000GENOMES_phase_3_EAS" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
                         </div>
                         <label class="jso">African MAF [AFR]</label>
                         <div class="horizontal layout">
-                            <jso-select name="1000G_PHASE_3_AFR_op" id="1000G_PHASE_3_AFR_op">
+                            <jso-select name="1000GENOMES_phase_3_AFR_op" id="1000GENOMES_phase_3_AFR_op">
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -429,11 +429,11 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_AFR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
+                            <input id="1000GENOMES_phase_3_AFR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
                         </div>
                         <label class="jso">European MAF [EUR]</label>
                         <div class="horizontal layout">
-                            <jso-select name="1000G_PHASE_3_EUR_op" id="1000G_PHASE_3_EUR_op">
+                            <jso-select name="1000GENOMES_phase_3_EUR_op" id="1000GENOMES_phase_3_EUR_op">
                                 <jso-option value="<" selected>
                                     <</jso-option>
                                         <jso-option value="<=">
@@ -441,7 +441,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                            <input id="1000G_PHASE_3_EUR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
+                            <input id="1000GENOMES_phase_3_EUR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
                         </div>
                     </div>
                     <br>
@@ -811,18 +811,18 @@
             this.$["1000GENOMES_phase_1_EUR"].value = "";
             this.$["1000GENOMES_phase_1_EUR_op"].value = "<";
 
-            this.$["1000G_PHASE_3_ALL"].value = "";
-            this.$["1000G_PHASE_3_ALL_op"].value = "<";
-            this.$["1000G_PHASE_3_AMR"].value = "";
-            this.$["1000G_PHASE_3_AMR_op"].value = "<";
-            this.$["1000G_PHASE_3_SAS"].value = "";
-            this.$["1000G_PHASE_3_SAS_op"].value = "<";
-            this.$["1000G_PHASE_3_EAS"].value = "";
-            this.$["1000G_PHASE_3_EAS_op"].value = "<";
-            this.$["1000G_PHASE_3_AFR"].value = "";
-            this.$["1000G_PHASE_3_AFR_op"].value = "<";
-            this.$["1000G_PHASE_3_EUR"].value = "";
-            this.$["1000G_PHASE_3_EUR_op"].value = "<";
+            this.$["1000GENOMES_phase_3_ALL"].value = "";
+            this.$["1000GENOMES_phase_3_ALL_op"].value = "<";
+            this.$["1000GENOMES_phase_3_AMR"].value = "";
+            this.$["1000GENOMES_phase_3_AMR_op"].value = "<";
+            this.$["1000GENOMES_phase_3_SAS"].value = "";
+            this.$["1000GENOMES_phase_3_SAS_op"].value = "<";
+            this.$["1000GENOMES_phase_3_EAS"].value = "";
+            this.$["1000GENOMES_phase_3_EAS_op"].value = "<";
+            this.$["1000GENOMES_phase_3_AFR"].value = "";
+            this.$["1000GENOMES_phase_3_AFR_op"].value = "<";
+            this.$["1000GENOMES_phase_3_EUR"].value = "";
+            this.$["1000GENOMES_phase_3_EUR_op"].value = "<";
 
             this.$["ESP_6500_EA"].value = "";
             this.$["ESP_6500_EA_op"].value = "<";
@@ -883,10 +883,24 @@
                 alert("Selected GOs have these associated Genes: " + genes.join(","));
             }
             // HPO
-            // var hpoQuery = this.hpoValue.toUpperCase().split(/,|\n/);
-            // if (hpoQuery != '') {
-            //   //Buscar los genes asociados a los HPO y hacer búsqueda por genes
-            // }
+            var hpos = this.hpoValue.toUpperCase().split(/,|\n/);
+            if (hpos != '') {
+                var genes = [];
+                for (var i = 0; i < hpos.length; i++) {
+                    if (HPO_GENE[hpos[i]] != null) {
+                        for (var j = 0; j < HPO_GENE[hpos[i]].length; j++) {
+                            var gene = HPO_GENE[hpos[i]][j];
+                            genes.push(gene);
+                        }
+                    }
+                }
+                if (query["gene"] != null && genes.length > 0) {
+                    query["gene"] += "," + genes.join(",");
+                } else if (query["gene"] == null && genes.length > 0) {
+                    query["gene"] = genes.join(",");
+                }
+                alert("Selected GOs have these associated Genes: " + genes.join(","));
+            }
 
             // Genotypes
             var genotypes = [];
@@ -966,24 +980,24 @@
                 popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "EUR", "phase1"));
             }
 
-            // 1000G_PHASE_3
-            if (this.$["1000G_PHASE_3_ALL"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_ALL", "phase3"));
+            // 1000GENOMES_phase_3
+            if (this.$["1000GENOMES_phase_3_ALL"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_ALL", "phase3"));
             }
-            if (this.$["1000G_PHASE_3_AMR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_AMR", "phase3"));
+            if (this.$["1000GENOMES_phase_3_AMR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_AMR", "phase3"));
             }
-            if (this.$["1000G_PHASE_3_SAS"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_SAS", "phase3"));
+            if (this.$["1000GENOMES_phase_3_SAS"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_SAS", "phase3"));
             }
-            if (this.$["1000G_PHASE_3_EAS"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_EAS", "phase3"));
+            if (this.$["1000GENOMES_phase_3_EAS"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_EAS", "phase3"));
             }
-            if (this.$["1000G_PHASE_3_AFR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_AFR", "phase3"));
+            if (this.$["1000GENOMES_phase_3_AFR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_AFR", "phase3"));
             }
-            if (this.$["1000G_PHASE_3_EUR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000G_PHASE_3", "1000G_PHASE_3_EUR", "phase3"));
+            if (this.$["1000GENOMES_phase_3_EUR"].value != "") {
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_EUR", "phase3"));
             }
 
             //ESP_6500
@@ -1250,24 +1264,24 @@
                         } else if (pops[i].indexOf("EUR") >= 0) {
                             this._setPopulationValue("1000GENOMES_phase_1_EUR", type[1]);
                         }
-                    } else if (type[0] == "1000G_PHASE_3") {
+                    } else if (type[0] == "1000GENOMES_phase_3") {
                         var valueAux = type[1].split("");
                         var value = "";
                         for (j = 14; j < valueAux.length; j++) {
                             value += valueAux[j];
                         }
                         if (pops[i].indexOf("ALL") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_ALL", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_ALL", value);
                         } else if (pops[i].indexOf("AMR") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_AMR", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_AMR", value);
                         } else if (pops[i].indexOf("SAS") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_SAS", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_SAS", value);
                         } else if (pops[i].indexOf("EAS") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_EAS", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_EAS", value);
                         } else if (pops[i].indexOf("AFR") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_AFR", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_AFR", value);
                         } else if (pops[i].indexOf("EUR") >= 0) {
-                            this._setPopulationValue("1000G_PHASE_3_EUR", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_EUR", value);
                         }
                     } else if (type[0] == "ESP_6500") {
                         var valueAux = [];
