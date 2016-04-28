@@ -287,7 +287,7 @@ VCFValidator.prototype.parseData = function (line) {
     if (filter == "") {
         this.addLog("error", "Filter status field must not be empty");
     }
-    if (filter != 'PASS') {
+    if (filter != 'PASS' && filter != ".") {
         var filterIds = filter.split(";");
         for (var i = 0; i < filterIds.length; i++) {
             var id = filterIds[i];
@@ -367,7 +367,7 @@ VCFValidator.prototype.parseData = function (line) {
     var format = columns[8];
 
     if (this._samples.length > 0 && format == "") {
-        this.addLog("eror", "Must not be empty if the file contains any samples");
+        this.addLog("error", "Must not be empty if the file contains any samples");
     }
 
     if (format != "" && format.indexOf("GT") >= 0 && !format.startsWith("GT")) {
