@@ -257,6 +257,10 @@ class Studies extends OpenCGAParentClass {
         return this.get("studies", id, "info", params, options);
     }
 
+    summary(id, params, options) {
+        return this.get("studies", id, "summary", params, options);
+    }
+
     search(params, options) {
         return this.get("studies", undefined, "search", params, options);
     }
