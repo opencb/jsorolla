@@ -16,7 +16,6 @@
 
 class OpenCGAClientConfig {
 
-
     constructor(host = "172.24.193.208:8080/opencga", version = "v1", cookieSessionId = "catalog_sid", cookieUserName = "catalog_user") {
         this.host = host;
         this.version = version;

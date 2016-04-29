@@ -80,6 +80,23 @@ class OpenCGAParentClass {
         let version = this._config.version;
         let rpc = this._config.rpc;
 
+        if (params === undefined || params === null || params === "") {
+            params = {};
+        }
+
+        // Check that sessionId is being given
+        if (!params.hasOwnProperty("sid")) {
+            let sid = Cookies.get(this._config.cookieSessionId);
+            if (sid != undefined) {
+                params["sid"] = sid;
+            }
+        }
+
+        // If category == users and userId is not given, we try to set it
+        if (category === "users" && (ids === undefined || ids === null || ids === "")) {
+            ids = Cookies.get(this._config.cookieUserName);
+        }
+
         if (rpc.toLowerCase() === "rest") {
             let url = this._createRestUrl(host, version, category, ids, resource, params);
             console.log(url)
@@ -129,13 +146,26 @@ class Users extends OpenCGAParentClass {
     }
 
     login(userId, params, options) {
-        return this.get("users", userId, "login", params, options);
+        return this.get("users", userId, "login", params, options).then(function(response) {
+            if (response.error === "") {
+                Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
+                Cookies.set(this._config.cookieUserName, response.response[0].result[0].userId);
+                console.log("Cookies properly set");
+                return response;
+            }
+        }.bind(this))
     }
 
-    logout(params, options) {
-        return this.get("users", Cookies.get(this._config.cookieUserName), "logout",
-            {sid: Cookies.get(this._config.cookieSessionId)},
-            options);
+    logout(userId, params, options) {
+        return this.get("users", userId, "logout", params, options).then(function(response) {
+            if (response.error === "") {
+                Cookies.expire(this._config.cookieSessionId);
+                Cookies.expire(this._config.cookieUserName);
+                console.log("Cookies properly removed");
+                return response;
+            }
+        }.bind(this));
+
     }
 
     changeEmail(userId, params, options) {
@@ -154,10 +184,11 @@ class Users extends OpenCGAParentClass {
         return this.get("users", userId, "info", params, options);
     }
 
-    projects(params, options) {
-        return this.get("users", Cookies.get(this._config.cookieUserName), "projects",
-            {sid: Cookies.get(this._config.cookieSessionId)},
-            options);
+    projects(userId, params, options) {
+        return this.get("users", userId, "projects", params, options);
+        //return this.get("users", Cookies.get(this._config.cookieUserName), "projects",
+        //    {sid: Cookies.get(this._config.cookieSessionId)},
+        //    options);
     }
 
     update(userId, params, options) {
@@ -189,8 +220,9 @@ class Projects extends OpenCGAParentClass {
     }
 
     studies(id, params, options) {
-        return this.get("projects", id, "studies",
-            {sid: Cookies.get(this._config.cookieSessionId)}, options);
+        return this.get("projects", id, "studies", params, options);
+        //return this.get("projects", id, "studies",
+        //    {sid: Cookies.get(this._config.cookieSessionId)}, options);
     }
 
     update(ids, params, options) {
