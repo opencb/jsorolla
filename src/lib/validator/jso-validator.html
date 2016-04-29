@@ -179,7 +179,7 @@
             <div class="uploadbar" hidden$="{{!uploading}}">
                 <div id="progressBar" class="uploadprogress"></div>
                 <div class="uploadtext">
-                    <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
+                    <i id="spin" hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
                     <span>{{progress}}</span> %
                 </div>
                 <br>
@@ -319,6 +319,11 @@
                     switch (e.type) {
                         case "error":
                             me.errorCount++;
+                            // console.log(me.errorCount);
+                            if (me.errorCount == 100) {
+                                me.stop();
+                                alert('File has more than 100 errors, the validation is stopped');
+                            }
                             break;
                         case "warning":
                             me.warningCount++;
@@ -327,8 +332,12 @@
                     me.push("log", e);
                 });
 
+                neo.on("lines", function(e) {
+                    me.set('numLines', e);
+                });
+
                 neo.on("progress", function(e) {
-                    me.progress = Math.ceil(e);
+                    me.set('progress', Math.ceil(e));
                 });
 
                 neo.init();

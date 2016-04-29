@@ -13,7 +13,7 @@ function Validator(options) {
     this._events = {};
     this.numLines = 0;
 
-    this.linesToRead = 2000;
+    this.linesToRead = 1000;
 }
 
 Validator.prototype = {
@@ -48,27 +48,30 @@ Validator.prototype = {
             me._totalBytes = me.file.size;
             var indexToStartWith = 0;
 
-            // me._navigator.readSomeLines(indexToStartWith,linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
-            me._navigator.readLines(indexToStartWith, me.linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
+            // me._navigator.readSomeLines(indexToStartWith, function linesReadHandler(err, index, lines, eof, progress) {
+                me._navigator.readLines(indexToStartWith, me.linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
                 if (err) {
                     me._emit("err");
                     return;
                 }
                 console.log(lines.length);
                 console.log(progress);
-
                 for (var i = 0; i < lines.length; i++) {
+                    if (i % 1000 == 0) {
+                        me._emit("progress", [me.progress]);
+                    }
                     var line = lines[i];
                     me.line++;
                     console.log(me.line)
                     me.numLines++;
+                    me._emit("lines", [me.numLines]);
                     me._readBytes += line.length;
                     me.progress = (me._readBytes / me._totalBytes) * 100;
                     me.validateLine(line);
                 }
-                me._emit("progress", [me.progress]);
+                // me._emit("progress", [me.progress]);
 
-                if (eof) {
+                if (eof && me._totalBytes) {
                     me._emit("progress", [100]);
                     me._emit("end");
                     me._validateEnd();

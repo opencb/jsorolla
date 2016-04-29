@@ -341,18 +341,20 @@
                 this.message = "Upload already in progress."
                 return;
             }
-            if (this.$.validator.errorCount > 0) {
-                this.message = "The file contains errors."
-                return;
-            }
-            if (this.$.validator.warningCount > 0) {
-                if (confirm("File contains warning messages, are you sure?")) {
-                    this.handleForm();
+            if (this.validating == false) {
+
+                if (this.$.validator.errorCount > 0) {
+                    this.message = "The file contains errors."
                     return;
                 }
+                if (this.$.validator.warningCount > 0) {
+                    if (confirm("File contains warning messages, are you sure?")) {
+                        this.handleForm();
+                        return;
+                    }
+                }
+                this.handleForm();
             }
-
-            this.handleForm();
         },
         handleForm: function() {
             var me = this;
@@ -479,7 +481,7 @@
 
         validate: function(e) {
             /* Check bioformat */
-            if(this.validating == false){
+            if (this.validating == false) {
                 this.validating = true;
                 var selBioformat;
                 if (this.$.bioformatSelect.selectedBioformat != null) {
@@ -514,7 +516,7 @@
                     this.$.validator.validator = validator;
                     this.$.validator.setFile(file);
                     this.$.validator.validate();
-                }else{
+                } else {
                     this.validating = false;
                 }
             }
@@ -534,8 +536,7 @@
             }
         },
 
-
-        tplEq:function(prop, value){
+        tplEq: function(prop, value) {
             return prop == value;
         },
 
@@ -543,11 +544,11 @@
             // this.$.validator.reset();
             // this.validate();
             if (this.validating == true) {
-              this._wantRevalidate = true;
-              this.$.validator.stop();
-          } else {
-              this.revalidate();
-          }
+                this._wantRevalidate = true;
+                this.$.validator.stop();
+            } else {
+                this.revalidate();
+            }
         },
         revalidate: function() {
             this.$.validator.reset();
