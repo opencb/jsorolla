@@ -249,11 +249,11 @@
                             <div class="horizontal layout">
                                 <div class="segregation sampleName" title="{{item.name}}">{{item.name}}</div>
                                 <label class="jso-control flex">
-                                    <input type="checkbox" name="{{item.name}}" value="somatic">
+                                    <input type="radio" name="{{item.name}}" value="somatic">
                                     <span style="margin-left:15px;"></span>
                                 </label>
                                 <label class="jso-control flex">
-                                    <input type="checkbox" name="{{item.name}}" value="germinal">
+                                    <input type="radio" name="{{item.name}}" value="germinal">
                                     <span style="margin-left:15px;"></span>
                                 </label>
                             </div>
@@ -499,7 +499,7 @@
             </jso-form-box>
             <jso-form-box collapsible collapsed>
                 <div class="header">
-                    HPO
+                    Human Phenotype Ontology
                 </div>
                 <div class="container">
                     <label class="jso">Filter by HPO id:</label>
@@ -521,7 +521,7 @@
             </jso-panel>
             <jso-panel id="goPanel" modal closable hidden>
                 <div class="header">
-                    <i class="fa fa-plus-list"></i> Gene Ontology
+                    <i class="fa fa-search" aria-hidden="true"></i> Gene Ontology
                 </div>
                 <div class="container">
                     <jso-go go-value="{{goValue}}" on-added="showGO"></jso-go>
@@ -529,7 +529,7 @@
             </jso-panel>
             <jso-panel id="hpoPanel" modal closable hidden>
                 <div class="header">
-                    <i class="fa fa-plus-list"></i> Human Phenotype Ontology
+                    <i class="fa fa-search" aria-hidden="true"></i> Human Phenotype Ontology
                 </div>
                 <div class="container">
                     <jso-hpo hpo-value="{{hpoValue}}" on-added="showHPO"></jso-hpo>
@@ -899,7 +899,7 @@
                 } else if (query["gene"] == null && genes.length > 0) {
                     query["gene"] = genes.join(",");
                 }
-                alert("Selected GOs have these associated Genes: " + genes.join(","));
+                alert("Selected HPOs have these associated Genes: " + genes.join(","));
             }
 
             // Genotypes
