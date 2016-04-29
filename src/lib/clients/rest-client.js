@@ -55,8 +55,12 @@ class RestClient {
     }
 
     static callPromise(url, options) {
-        let method = options.method || "GET";
-        let async = options.async;
+        let method = "GET";
+        let async = true;
+        if (typeof options !== "undefined") {
+            method = options.method || "GET";
+            async = options.async;
+        }
 
         let dataResponse = null;
         console.time("AJAX call to CellBase");
@@ -68,7 +72,7 @@ class RestClient {
 
             request.onload = function(event) {
                 if (request.status == 200) {
-                    console.log("CellBaseClient: call to URL succeed: '" + url +"'");
+                    console.log("REST call to URL succeed: '" + url +"'");
                     var contentType = this.getResponseHeader('Content-Type');
                     if (contentType === 'application/json') {
                         dataResponse = JSON.parse(this.response);
