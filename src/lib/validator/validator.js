@@ -12,6 +12,8 @@ function Validator(options) {
     this._readBytes = 0;
     this._events = {};
     this.numLines = 0;
+
+    this.linesToRead = 2000;
 }
 
 Validator.prototype = {
@@ -23,27 +25,31 @@ Validator.prototype = {
         this.progress = 0;
         this._readBytes = 0;
     },
+    stop: function (cb) {
+        if (this._navigator != null) {
+            this._navigator._stop = true;
+        }
+    },
 
     validate: function () {
         var me = this;
 
         /*Check if file is \r or \n , \r\n */
-        this._detectCRSeparator(this.file,function(res){
-            if(res){
+        this._detectCRSeparator(this.file, function (res) {
+            if (res) {
                 me._navigator = new FileNavigator(me.file, undefined, {
                     newLineCode: '\r'.charCodeAt(0),
                     splitPattern: /\r/
                 });
-            }else{
+            } else {
                 me._navigator = new FileNavigator(me.file);
             }
 
             me._totalBytes = me.file.size;
             var indexToStartWith = 0;
-            var linesToRead=1000;
 
             // me._navigator.readSomeLines(indexToStartWith,linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
-            me._navigator.readLines(indexToStartWith,linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
+            me._navigator.readLines(indexToStartWith, me.linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
                 if (err) {
                     me._emit("err");
                     return;
@@ -68,9 +74,13 @@ Validator.prototype = {
                     me._validateEnd();
                     return;
                 }
-
-                // me._navigator.readSomeLines(index + lines.length, linesReadHandler);
-                me._navigator.readLines(index + lines.length,linesToRead, linesReadHandler);
+                if (me._navigator._stop != true) {
+                    // me._navigator.readSomeLines(index + lines.length, linesReadHandler);
+                    me._navigator.readLines(index + lines.length, me.linesToRead, linesReadHandler);
+                } else {
+                    me._emit("stop");
+                    console.log("STOP!!!!!");
+                }
 
             })
 

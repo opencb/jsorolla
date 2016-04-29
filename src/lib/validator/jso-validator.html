@@ -36,6 +36,16 @@
             width: 60px;
         }
 
+        #stop {
+            margin-left: 7px;
+            background-color: var(--dark-button-color);
+            color: var(--text-primary-color);
+        }
+
+        #stop:hover {
+            background-color: var(--light-button-color);
+        }
+
         .type[type="error"],
         .error-count {
             color: #bf4747;
@@ -159,7 +169,6 @@
             min-width: 400px;
             min-height: 150px;
         }
-
     </style>
     <template>
 
@@ -167,6 +176,15 @@
             <div class="line">Line </div>
             <div class="type">Type</div>
             <div class="flex">Message</div>
+            <div class="uploadbar" hidden$="{{!uploading}}">
+                <div id="progressBar" class="uploadprogress"></div>
+                <div class="uploadtext">
+                    <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
+                    <span>{{progress}}</span> %
+                </div>
+                <br>
+            </div>
+            <div id="stop" class="jso-btn jso-btn-shdw" on-click="handleStop">Stop</div>
         </div>
         <iron-list id="log" items="[[log]]" as="item">
             <template>
@@ -188,17 +206,9 @@
             <div class="info-count count">Info:
                 <span>{{infoCount}}</span>
             </div>
+            <div class="flex"></div>
             <div class="count">Lines:
                 <span>{{numLines}}</span>
-            </div>
-            <div class="flex"></div>
-            <div class="uploadbar" hidden$="{{!uploading}}">
-                <div id="progressBar" class="uploadprogress"></div>
-                <div class="uploadtext">
-                    <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
-                    <span>{{progress}}</span> %
-                </div>
-                <br>
             </div>
         </div>
 
@@ -278,6 +288,14 @@
                 this.numLines = 0;
                 this.validator.validate();
             },
+            handleStop: function(e) {
+                this.stop();
+            },
+            stop: function() {
+                if (this.validator) {
+                    this.validator.stop();
+                }
+            },
             setFile: function(file) {
                 this.fileChanged(file);
             },
@@ -290,6 +308,11 @@
 
                 neo.on("err", function(e) {
                     me.fire("err");
+                });
+
+                neo.on("stop", function(e) {
+                    me.$.spin.setAttribute('hidden', '');
+                    me.fire("stop");
                 });
 
                 neo.on("log", function(e) {

@@ -142,7 +142,7 @@
                     <div class="horizontal layout flex">
                         <div id="filename" class="flex">{{fileName}}</div>
                         <div id="recheckButton" class="jso-btn jso-btn-shdw" on-click="handleRecheck">
-                            Re-check
+                            Revalidate
                         </div>
                     </div>
                     <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
@@ -162,7 +162,7 @@
                 <!-- <div hidden$="{{hideValidationLog}}" class="right vertical layout"> -->
                 <div class="right vertical layout">
                     <label class="jso">File validation log:</label>
-                    <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd"></jso-validator>
+                    <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd" on-stop="handleValidatorStop"></jso-validator>
                 </div>
             </div>
 
@@ -525,11 +525,31 @@
             this.validating = false;
         },
 
+        handleValidatorStop: function(e) {
+            this.validating = false;
+
+            if (this._wantRevalidate == true) {
+                this._wantRevalidate = null;
+                this.revalidate();
+            }
+        },
+
+
         tplEq:function(prop, value){
             return prop == value;
         },
 
         handleRecheck: function() {
+            // this.$.validator.reset();
+            // this.validate();
+            if (this.validating == true) {
+              this._wantRevalidate = true;
+              this.$.validator.stop();
+          } else {
+              this.revalidate();
+          }
+        },
+        revalidate: function() {
             this.$.validator.reset();
             this.validate();
         }
