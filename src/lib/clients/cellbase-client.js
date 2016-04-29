@@ -75,7 +75,7 @@ class CellBaseClient {
     }
 
     getVariationClient(id, resource, params, options) {
-        return this.get('feature', 'snp', id, resource, params, options);
+        return this.get('feature', 'variation', id, resource, params, options);
     }
 
     getRegulatoryClient(id, resource, params, options) {
