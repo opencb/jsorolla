@@ -22,6 +22,7 @@ class OpenCGAClient {
         this._projects;
         this._studies;
         this._files;
+        this._samples;
     }
 
     getConfig() {
@@ -61,6 +62,12 @@ class OpenCGAClient {
         return this._files;
     }
 
+    samples() {
+        if (typeof this._samples === "undefined") {
+            this._samples = new Samples(this._config)
+        }
+        return this._samples;
+    }
 }
 
 // parent class
