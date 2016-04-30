@@ -93,7 +93,7 @@ class RestClient {
                         console.log(this.response)
                     }
                 } else {
-                    reject(Error(request.statusText));
+                    reject(Error(request.response));
                 }
             };
 
