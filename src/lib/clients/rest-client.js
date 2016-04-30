@@ -93,7 +93,8 @@ class RestClient {
                         console.log(this.response)
                     }
                 } else {
-                    reject(Error(request.response));
+                    debugger
+                    reject(JSON.parse(request.response));
                 }
             };
 
