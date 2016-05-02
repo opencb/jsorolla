@@ -166,9 +166,11 @@
                     }
                 },
                 goValue: {
-                    type: String,
+                    type: Array,
                     notify: true,
-                    value: ''
+                    value: function() {
+                        return [];
+                    }
                 },
                 map: {
                     type: Object,
@@ -183,7 +185,7 @@
                 for (var i = 0; i < this.goList.length; i++) {
                     this.goList[i].id = 'GO:' + this.goList[i].id;
                 }
-                this.createJson();
+                // this.createJson();
 
                 this.goColumns = [{
                     name: 'id',
@@ -229,33 +231,16 @@
                 this.selectedGO = [];
             },
             handleAddSelected: function(e) {
-                var ids = [];
-                var keys = {};
-                var els = this.$.treeGO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
+                var gos=[];
+                var els = this.$.treeGO.querySelectorAll('jso-ontology-tree-item[selected]');
                 if (els.length > 0) {
                     for (var i = 0; i < els.length; i++) {
-                        keys['GO:' + els[i].dataset.file] = null;
+                        gos.push(els[i].file);
                     }
-                    for (var i = 0; i < Object.keys(keys).length; i++) {
-                        var id = Object.keys(keys)[i];
-                        if (this.map[id] == null) {
-                            continue;
-                        } else {
-                            if (Object.keys(this.map[id]).length > 0) {
-                                var son = Object.keys(this.map[id])
-                                for (var j = 0; j < son.length; j++) {
-                                    keys[son[j]] = null;
-                                }
-                            }
-                        }
-                    }
-                    ids = Object.keys(keys);
+                    this.set('goValue', gos);
                 } else {
-                    for (var i = 0; i < this.selectedGO.length; i++) {
-                        ids.push(this.selectedGO[i].id);
-                    }
+                    this.set('goValue', this.selectedGO);
                 }
-                this.set('goValue', ids.join(","));
                 this.fire('added');
             },
             createTree: function(e) {

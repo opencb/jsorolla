@@ -159,9 +159,11 @@
                     }
                 },
                 hpoValue: {
-                    type: String,
+                    type: Array,
                     notify: true,
-                    value: ''
+                    value: function() {
+                        return [];
+                    }
                 },
                 map: {
                     type: Object,
@@ -177,7 +179,7 @@
                     this.hpoList[i].id = 'HP:' + this.hpoList[i].id;
                 }
 
-                this.createJson();
+                // this.createJson();
 
                 this.hpoColumns = [{
                     name: 'id',
@@ -223,37 +225,16 @@
                 this.selectedHPO = [];
             },
             handleAddSelected: function(e) {
-                var ids = [];
-                var keys = {};
-                var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item>div>div[data-file].selected');
-                if (els.length > 0) {
-                    // for (var i = 0; i < els.length; i++) {
-                    //     ids.push(els[i].dataset.file);
-                    // }
-                    for (var i = 0; i < els.length; i++) {
-                        keys['HP:' + els[i].dataset.file] = null;
-                    }
-                    for (var i = 0; i < Object.keys(keys).length; i++) {
-                        var id = Object.keys(keys)[i];
-                        if (this.map[id] == null) {
-                            continue;
-                        } else {
-                            if (Object.keys(this.map[id]).length > 0) {
-                                var son = Object.keys(this.map[id])
-                                for (var j = 0; j < son.length; j++) {
-                                    keys[son[j]] = null;
-                                }
-                            }
-                        }
-                    }
-                    ids = Object.keys(keys);
-
-                } else {
-                    for (var i = 0; i < this.selectedHPO.length; i++) {
-                        ids.push(this.selectedHPO[i].id);
-                    }
-                }
-                this.set('hpoValue', ids.join(","));
+              var hpos=[];
+              var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item[selected]');
+              if (els.length > 0) {
+                  for (var i = 0; i < els.length; i++) {
+                      hpos.push(els[i].file);
+                  }
+                  this.set('hpoValue', hpos);
+              } else {
+                  this.set('hpoValue', this.selectedHPO);
+              }
                 this.fire('added');
             },
             createTree: function(e) {

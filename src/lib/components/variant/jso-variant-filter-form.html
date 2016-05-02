@@ -167,6 +167,11 @@
             height: 750px;
             font-size: 12px;
         }
+
+        .exclude {
+            color: #666;
+            margin-bottom: 5px;
+        }
     </style>
     <template>
         <form id="filter_form">
@@ -248,12 +253,12 @@
                         <template is="dom-repeat" items="{{samples}}">
                             <div class="horizontal layout">
                                 <div class="segregation sampleName" title="{{item.name}}">{{item.name}}</div>
-                                <label class="jso-control flex">
-                                    <input type="radio" name="{{item.name}}" value="somatic">
+                                <label id="somatic" class="jso-control flex">
+                                    <input class="jso" type="radio" name="{{item.name}}" value="somatic">
                                     <span style="margin-left:15px;"></span>
                                 </label>
-                                <label class="jso-control flex">
-                                    <input type="radio" name="{{item.name}}" value="germinal">
+                                <label id="germinal" class="jso-control flex">
+                                    <input class="jso" type="radio" name="{{item.name}}" value="germinal">
                                     <span style="margin-left:15px;"></span>
                                 </label>
                             </div>
@@ -271,27 +276,27 @@
                 <div id="type_op" class="container">
                     <div style="margin-left:5px" class="horizontal layout">
                         <label class="jso-control">
-                            <input value="SNV,SNP" type="checkbox">
+                            <input class="jso" value="SNV,SNP" type="checkbox">
                             <span>SNV</span>
                         </label>
                         <label class="jso-control" style="margin-left:14px">
-                            <input value="MNV" type="checkbox">
+                            <input class="jso" value="MNV" type="checkbox">
                             <span>MNV</span>
                         </label>
                     </div>
                     <div style="margin-left:5px" class="horizontal layout">
                         <label class="jso-control">
-                            <input value="INDEL" type="checkbox">
+                            <input class="jso" value="INDEL" type="checkbox">
                             <span>INDEL</span>
                         </label>
                         <label class="jso-control" style="margin-left:2px">
-                            <input value="SV" type="checkbox">
+                            <input class="jso" value="SV" type="checkbox">
                             <span>SV</span>
                         </label>
                     </div>
                     <div style="margin-left:5px" class="horizontal layout">
                         <label class="jso-control">
-                            <input value="CNV" type="checkbox">
+                            <input class="jso" value="CNV" type="checkbox">
                             <span>CNV</span>
                         </label>
                     </div>
@@ -488,7 +493,11 @@
                 </div>
                 <div class="container">
                     <label class="jso">Filter by GO id:</label>
-                    <textarea class="jso" id="go" name="hpo" value="{{goValue::change}}" rows="3" placeholder="GO:0000001,GO:0001177" required>
+                    <div class="horizontal layout">
+                        <span class="exclude">Exclude Selected</span>
+                        <input id="goExclude" value="exclude" type="checkbox">
+                    </div>
+                    <textarea class="jso" id="go" name="hpo" value="{{goSearch::change}}" rows="3" placeholder="GO:0000001,GO:0001177" required>
                     </textarea>
                     <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
                         Or search GO: &nbsp;
@@ -503,7 +512,11 @@
                 </div>
                 <div class="container">
                     <label class="jso">Filter by HPO id:</label>
-                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoValue::change}}" rows="3" placeholder="HP:0000001,HP:3000079" required>
+                    <div class="horizontal layout">
+                        <span class="exclude">Exclude Selected</span>
+                        <input id="hpoExclude" value="exclude" type="checkbox">
+                    </div>
+                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoSearch::change}}" rows="3" placeholder="HP:0000001,HP:3000079" required>
                     </textarea>
                     <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
                         Or search HPO: &nbsp;
@@ -585,14 +598,30 @@
                 value: ''
             },
             goValue: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+                observer: 'goValueChanged'
+            },
+            goSearch: {
                 type: String,
                 notify: true,
-                value: ''
+                value: '',
             },
             hpoValue: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+                observer: 'hpoValueChanged'
+            },
+            hpoSearch: {
                 type: String,
                 notify: true,
-                value: ''
+                value: '',
             },
             fileName: {
                 type: String,
@@ -756,7 +785,24 @@
                 }
             }
         },
-
+        goValueChanged: function(neo, old) {
+            if (neo) {
+                var goName = [];
+                for (var i = 0; i < neo.length; i++) {
+                    goName.push(neo[i].n);
+                }
+                this.goSearch = goName.join(",");
+            }
+        },
+        hpoValueChanged: function(neo, old) {
+            if (neo) {
+                var hpoName = [];
+                for (var i = 0; i < neo.length; i++) {
+                    hpoName.push(neo[i].n);
+                }
+                this.hpoSearch = hpoName.join(",");
+            }
+        },
         handleFeatureSelected: function(e) {
             var item = e.detail;
             if (item) {
@@ -785,9 +831,11 @@
             // GO
             this.$.go.value = "";
             this.goValue = "";
+            this.$.goExclude.checked = false;
             // HPO
             this.$.hpo.value = "";
             this.hpoValue = "";
+            this.$.hpoExclude.checked = false;
 
             this.$.filterPosition.clear();
 
@@ -864,41 +912,88 @@
             }
 
             // GO
-            var gos = this.goValue.toUpperCase().split(/,|\n/);
-            if (gos != '') {
-                var genes = [];
-                for (var i = 0; i < gos.length; i++) {
-                    if (GO_GENE[gos[i]] != null) {
-                        for (var j = 0; j < GO_GENE[gos[i]].length; j++) {
-                            var gene = GO_GENE[gos[i]][j];
-                            genes.push(gene);
+            var gosMap = {};
+            for (var i = 0; i < this.goValue.length; i++) {
+                gosMap['GO:' + this.goValue[i].id] = true;
+                if (this.goValue[i].f != null) {
+                    if (Object.keys(this.goValue[i].f).length > 0) {
+                        for (var j = 0; j < this.goValue[i].f.length; j++) {
+                            this.goValue.push(this.goValue[i].f[j]);
                         }
                     }
                 }
-                if (query["gene"] != null && genes.length > 0) {
-                    query["gene"] += "," + genes.join(",");
-                } else if (query["gene"] == null && genes.length > 0) {
-                    query["gene"] = genes.join(",");
+            }
+
+            var gosAux = [];
+            if (this.$.goExclude.checked == true) {
+                var gosArray = [];
+                for (var i = 0; i < GO_ONTOLOGY.length; i++) {
+                    gosArray.push(GO_ONTOLOGY[i].id);
                 }
+                for (var i = 0; i < gosArray.length; i++) {
+                    if (gosMap[gosArray[i]] == null) {
+                        gosAux.push(gosArray[i]);
+                    }
+                }
+            } else {
+                gosAux = Object.keys(gosMap);
+            }
+            var genes = [];
+            for (var i = 0; i < gosAux.length; i++) {
+                if (GO_GENE[gosAux[i]] != null) {
+                    for (var j = 0; j < GO_GENE[gosAux[i]].length; j++) {
+                        var gene = GO_GENE[gosAux[i]][j];
+                        genes.push(gene);
+                    }
+                }
+            }
+            if (query["gene"] != null && genes.length > 0) {
+                query["gene"] += "," + genes.join(",");
+            } else if (query["gene"] == null && genes.length > 0) {
+                query["gene"] = genes.join(",");
                 alert("Selected GOs have these associated Genes: " + genes.join(","));
             }
+
             // HPO
-            var hpos = this.hpoValue.toUpperCase().split(/,|\n/);
-            if (hpos != '') {
-                var genes = [];
-                for (var i = 0; i < hpos.length; i++) {
-                    if (HPO_GENE[hpos[i]] != null) {
-                        for (var j = 0; j < HPO_GENE[hpos[i]].length; j++) {
-                            var gene = HPO_GENE[hpos[i]][j];
-                            genes.push(gene);
+            var hposMap = {};
+            for (var i = 0; i < this.hpoValue.length; i++) {
+                hposMap['HP:' + this.hpoValue[i].id] = true;
+                if (this.hpoValue[i].f != null) {
+                    if (Object.keys(this.hpoValue[i].f).length > 0) {
+                        for (var j = 0; j < this.hpoValue[i].f.length; j++) {
+                            this.hpoValue.push(this.hpoValue[i].f[j]);
                         }
                     }
                 }
-                if (query["gene"] != null && genes.length > 0) {
-                    query["gene"] += "," + genes.join(",");
-                } else if (query["gene"] == null && genes.length > 0) {
-                    query["gene"] = genes.join(",");
+            }
+
+            var hposAux = [];
+            if (this.$.hpoExclude.checked == true) {
+                var hposArray = [];
+                for (var i = 0; i < HPO_ONTOLOGY.length; i++) {
+                    hposArray.push(HPO_ONTOLOGY[i].id);
                 }
+                for (var i = 0; i < hposArray.length; i++) {
+                    if (hposMap[hposArray[i]] == null) {
+                        hposAux.push(hposArray[i]);
+                    }
+                }
+            } else {
+                hposAux = Object.keys(hposMap);
+            }
+            var genes = [];
+            for (var i = 0; i < hposAux.length; i++) {
+                if (HPO_GENE[hposAux[i]] != null) {
+                    for (var j = 0; j < HPO_GENE[hposAux[i]].length; j++) {
+                        var gene = HPO_GENE[hposAux[i]][j];
+                        genes.push(gene);
+                    }
+                }
+            }
+            if (query["gene"] != null && genes.length > 0) {
+                query["gene"] += "," + genes.join(",");
+            } else if (query["gene"] == null && genes.length > 0) {
+                query["gene"] = genes.join(",");
                 alert("Selected HPOs have these associated Genes: " + genes.join(","));
             }
 
