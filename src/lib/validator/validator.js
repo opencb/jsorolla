@@ -54,7 +54,7 @@ Validator.prototype = {
                     me._emit("err");
                     return;
                 }
-                console.log(lines.length);
+                // console.log(lines.length);
                 console.log(progress);
                 for (var i = 0; i < lines.length; i++) {
                     if (i % 1000 == 0) {
@@ -62,7 +62,7 @@ Validator.prototype = {
                     }
                     var line = lines[i];
                     me.line++;
-                    console.log(me.line)
+                    // console.log(me.line)
                     me.numLines++;
                     me._emit("lines", [me.numLines]);
                     me._readBytes += line.length;
