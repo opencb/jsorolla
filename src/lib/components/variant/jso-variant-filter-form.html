@@ -249,16 +249,16 @@
                         <div class="segregation segregationValue flex">Somatic</div>
                         <div class="segregation segregationValue flex" style="margin-left:15px;">Germinal</div>
                     </div>
-                    <div class="vertical layout">
+                    <div id="somatic" class="vertical layout">
                         <template is="dom-repeat" items="{{samples}}">
                             <div class="horizontal layout">
                                 <div class="segregation sampleName" title="{{item.name}}">{{item.name}}</div>
-                                <label id="somatic" class="jso-control flex">
-                                    <input class="jso" type="radio" name="{{item.name}}" value="somatic">
+                                <label class="jso-control flex">
+                                    <input class="jso" type="radio" name="{{item.name}}" data-file$="{{item.source}}" value="somatic">
                                     <span style="margin-left:15px;"></span>
                                 </label>
-                                <label id="germinal" class="jso-control flex">
-                                    <input class="jso" type="radio" name="{{item.name}}" value="germinal">
+                                <label class="jso-control flex">
+                                    <input class="jso" type="radio" name="{{item.name}}" data-file$="{{item.source}}" value="germinal">
                                     <span style="margin-left:15px;"></span>
                                 </label>
                             </div>
@@ -497,7 +497,7 @@
                         <span class="exclude">Exclude Selected</span>
                         <input id="goExclude" value="exclude" type="checkbox">
                     </div>
-                    <textarea class="jso" id="go" name="hpo" value="{{goSearch::change}}" rows="3" placeholder="GO:0000001,GO:0001177" required>
+                    <textarea class="jso" id="go" name="go" value="{{goSearch::change}}" rows="3" placeholder="GO:0000001,GO:0001177" required>
                     </textarea>
                     <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
                         Or search GO: &nbsp;
@@ -828,6 +828,12 @@
                 }
             }
 
+            //SomaticVsGerminal
+            var els = this.$.somatic.querySelectorAll("input");
+            for (var i = 0; i < els.length; i++) {
+                els[i].checked = false;
+            }
+
             // GO
             this.$.go.value = "";
             this.goValue = "";
@@ -911,10 +917,32 @@
                 query["gene"] = geneQuery;
             }
 
+            //SomaticVsGerminal
+            var els = this.$.somatic.querySelectorAll("input");
+            var fileSom = "";
+            var fileGer = "";
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                if (el.checked == true) {
+                    if (el.value == "somatic") {
+                        fileSom = el.dataset.file;
+                    } else if (el.value == "germinal") {
+                        fileGer = el.dataset.file;
+                    }
+                    if (fileSom != "" && fileGer != "" && fileSom == fileGer) {
+
+                    }
+                }
+            }
+
             // GO
             var gosMap = {};
             for (var i = 0; i < this.goValue.length; i++) {
-                gosMap['GO:' + this.goValue[i].id] = true;
+              if(this.goValue[i].id.indexOf('GO:')>=0){
+                gosMap[this.goValue[i].id] = true;
+              }else{
+                gosMap['GO:'+this.goValue[i].id] = true;
+              }
                 if (this.goValue[i].f != null) {
                     if (Object.keys(this.goValue[i].f).length > 0) {
                         for (var j = 0; j < this.goValue[i].f.length; j++) {
@@ -938,26 +966,30 @@
             } else {
                 gosAux = Object.keys(gosMap);
             }
-            var genes = [];
+            var genes = {};
             for (var i = 0; i < gosAux.length; i++) {
                 if (GO_GENE[gosAux[i]] != null) {
                     for (var j = 0; j < GO_GENE[gosAux[i]].length; j++) {
                         var gene = GO_GENE[gosAux[i]][j];
-                        genes.push(gene);
+                        genes[gene]=true;
                     }
                 }
             }
-            if (query["gene"] != null && genes.length > 0) {
-                query["gene"] += "," + genes.join(",");
-            } else if (query["gene"] == null && genes.length > 0) {
-                query["gene"] = genes.join(",");
-                alert("Selected GOs have these associated Genes: " + genes.join(","));
+            if (query["gene"] != null && Object.keys(genes).length > 0) {
+                query["gene"] += "," + Object.keys(genes).join(",");
+            } else if (query["gene"] == null && Object.keys(genes).length > 0) {
+                query["gene"] = Object.keys(genes).join(",");
+                alert("Selected GOs have these associated Genes: " + Object.keys(genes).join(","));
             }
 
             // HPO
             var hposMap = {};
             for (var i = 0; i < this.hpoValue.length; i++) {
+              if(this.hpoValue[i].id.indexOf('HP:')>=0){
+                hposMap[this.hpoValue[i].id] = true;
+              }else{
                 hposMap['HP:' + this.hpoValue[i].id] = true;
+              }
                 if (this.hpoValue[i].f != null) {
                     if (Object.keys(this.hpoValue[i].f).length > 0) {
                         for (var j = 0; j < this.hpoValue[i].f.length; j++) {
@@ -981,20 +1013,20 @@
             } else {
                 hposAux = Object.keys(hposMap);
             }
-            var genes = [];
+            var genes = {};
             for (var i = 0; i < hposAux.length; i++) {
                 if (HPO_GENE[hposAux[i]] != null) {
                     for (var j = 0; j < HPO_GENE[hposAux[i]].length; j++) {
                         var gene = HPO_GENE[hposAux[i]][j];
-                        genes.push(gene);
+                        genes[gene]=true;
                     }
                 }
             }
-            if (query["gene"] != null && genes.length > 0) {
-                query["gene"] += "," + genes.join(",");
-            } else if (query["gene"] == null && genes.length > 0) {
-                query["gene"] = genes.join(",");
-                alert("Selected HPOs have these associated Genes: " + genes.join(","));
+            if (query["gene"] != null && Object.keys(genes).length > 0) {
+                query["gene"] += "," + Object.keys(genes).join(",");
+            } else if (query["gene"] == null && Object.keys(genes).length > 0) {
+                query["gene"] = Object.keys(genes).join(",");
+                alert("Selected HPOs have these associated Genes: " + Object.keys(genes).join(","));
             }
 
             // Genotypes

@@ -226,6 +226,7 @@
             },
             handleAddSelected: function(e) {
               var hpos=[];
+              this.hpoValue=[];
               var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item[selected]');
               if (els.length > 0) {
                   for (var i = 0; i < els.length; i++) {

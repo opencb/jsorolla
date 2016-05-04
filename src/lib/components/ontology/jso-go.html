@@ -232,6 +232,7 @@
             },
             handleAddSelected: function(e) {
                 var gos=[];
+                this.goValue=[];
                 var els = this.$.treeGO.querySelectorAll('jso-ontology-tree-item[selected]');
                 if (els.length > 0) {
                     for (var i = 0; i < els.length; i++) {

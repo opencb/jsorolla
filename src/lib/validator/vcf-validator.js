@@ -242,8 +242,7 @@ VCFValidator.prototype.parseData = function (line) {
     // alt
     var alt = columns[4];
 
-    if (alt == undefined) {
-    }
+    if (alt == undefined) {}
 
     var altSplits = alt.split(",");
     var altSplitsUnique = altSplits.filter(function (item, pos) {
@@ -316,16 +315,20 @@ VCFValidator.prototype.parseData = function (line) {
                     this.addLog("warning", "Info field must be specified in header");
                 } else {
                     var v = value.split(",");
-                    if (v.length > 1) {
+                    if (v.length >= 1) {
                         if (this._info[key].number == 'A') {
-                            //'A': one value per alternate
                             var n = alt.split(",").length;
                             if (n != v.length) {
                                 this.addLog("warning", "If Info number is 'A', value must have one value per alternate");
                             }
-                            //TODO: 'R': one value for each posible allele
-                            //TODO: 'G': one value for each posible genotype
-
+                        } else if (this._info[key].number == 'R') {
+                            if (v.length != 2) {
+                                this.addLog("warning", "If Info number is 'R', value must have one value for each posible allele");
+                            }
+                        } else if (this._info[key].number == 'G') {
+                            if (v.length != 3) {
+                                this.addLog("warning", "If Info number is 'G', value must have one value for each posible genotype");
+                            }
                         } else if (this._info[key].number < v.length) {
                             this.addLog("warning", "Number of values in info must be less or equal than Number in Info field");
                         }
@@ -339,8 +342,8 @@ VCFValidator.prototype.parseData = function (line) {
                                 this.addLog("warning", "Info type and value type must be the same");
                             } else if (this._info[key].type == 'String' && isNaN(auxV) == false) {
                                 this.addLog("warning", "Info type and value type must be the same");
-                                // } else if (this._info[key].type == 'Float' && Number.isFloat(auxV) == false) {
-                                //     this.addLog("error", "Info type and value type must be the same");
+                            } else if (this._info[key].type == 'Float' && (Number.isInteger(auxV) == true || isNaN(auxV) == true)) {
+                                this.addLog("warning", "Info type and value type must be the same");
                             }
                         }
                     }
