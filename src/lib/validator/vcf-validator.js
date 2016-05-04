@@ -10,6 +10,7 @@ function VCFValidator(options) {
     this._info = {};
     this._format = {};
     this._filter = {};
+    this._alt = {};
     this._headerElements = [];
     this._samples = [];
     this._columnsSize = 0;
@@ -25,12 +26,14 @@ function VCFValidator(options) {
         "headerNumber": /Number=(\w+|\.)/,
         "headerType": /Type=(\w+)/,
         "headerDesc": /Description=\"(.+)\"/,
-        "actg": /^[ACGTNactgn]+$/,
+        "actg": /^[ACGTN]+$/i,
         "gt": /^(\.|\d+)([|/](\.|\d+))?$/,
         "alpha": /^(\w+)$/,
         "idSemiColon": /^(\w+(;\w+)?)$/,
         "integer": /^(\d+)$/,
-        "float": /^(\d+(\.\d+)?)$/
+        "float": /^(\d+(\.\d+)?)$/,
+        "altID": /^[<]+(\w+)+[>]$/
+
     }
 }
 
@@ -122,6 +125,26 @@ VCFValidator.prototype.parseHeader = function (line) {
 
             this._filter[id] = {
                 id: id,
+                description: description
+            }
+
+        } else if (key.toLowerCase() == "alt") {
+            var id = value.split(":");
+            var description = this._getDataFromRegExp(value, "headerDesc");
+            if (id.length == 1) {
+                if (id[0] != "DEL" && id[0] != "INS" && id[0] != "DUP" && id[0] != "INV" && id[0] != "CNV") {
+                    this.addLog("warning", "The first level type for the alternate ID must be: DEL,INS,DUP,INV or CNV")
+                }
+            } else {
+                id = value;
+            }
+
+            if (id == null || description == null) {
+                this.addLog("error", "ALT fields must be described as ##ALT=<ID=ID,Description='description'>")
+            }
+
+            this._alt[id] = {
+                id: "<" + id + ">",
                 description: description
             }
 
@@ -244,7 +267,9 @@ VCFValidator.prototype.parseData = function (line) {
     // alt
     var alt = columns[4];
 
-    if (alt == undefined) {}
+    if (alt == "") {
+        this.addLog("error", "Alternate allele must not be empty");
+    }
 
     var altSplits = alt.split(",");
     var altSplitsUnique = altSplits.filter(function (item, pos) {
@@ -261,13 +286,18 @@ VCFValidator.prototype.parseData = function (line) {
 
     if (alt != "." && alt != "*") {
         for (var i = 0; i < altSplits.length; i++) {
-
             var altElem = altSplits[i];
 
             if (!this._regExp["actg"].test(altElem)) {
-                this.addLog("error", "Alternate allele must match the regular expression /^[ACTGN]+$/")
-            }
+              if (this._regExp["altID"].test(altElem)) {
+                  if (this._alt[altElem] == null) {
+                      this.addLog("error", "Alternate allele " + altElem + " must be specified in ALT field in header")
+                  }
+              } else {
+                  this.addLog("error", "Alternate allele must match the regular expression /^[ACTGN]+$/")
 
+              }
+            }
             if (altElem.length != ref.length) { // TODO aaleman: Check this
                 if (altElem.charAt(0) != ref.charAt(0)) {
                     this.addLog("warning", "The first base of each allele must match the reference if their lengths are different");
