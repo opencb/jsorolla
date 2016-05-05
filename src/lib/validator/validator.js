@@ -68,13 +68,13 @@ Validator.prototype = {
                     me.validateLine(line);
                 }
                 // me._emit("progress", [me.progress]);
-
                 if (lastReadBytes == me._readBytes) {
                     me._emit("progress", 100);
                     me._emit("end");
                     me._validateEnd();
                     return;
                 }
+                lastReadBytes= me._readBytes;
 
                 if (me._navigator._stop != true) {
                     // me._navigator.readSomeLines(index + lines.length, linesReadHandler);
