@@ -379,7 +379,6 @@
                     }
 
                     if (lines.length > 0) {
-                      debugger
                         var aux=lines[0].split("\t");
                         aux[me.column]= '<span style="color:red">'+aux[me.column]+'</span>';
                         me.$.linePreview.innerHTML=aux.join("\t");

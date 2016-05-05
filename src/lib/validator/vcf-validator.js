@@ -386,7 +386,7 @@ VCFValidator.prototype.parseData = function (line) {
                         if (this._info[key].type == 'Flag') {
                             this.addLog("warning", "Flag type must not have value", 7);
                         } else {
-                            this._checkFormatDataType(v, this._info[key], 'INFO', 7);
+                            this._checkFormatDataType(v, this._info[key], 'INFO');
                         }
                     }
                 }
@@ -437,8 +437,10 @@ VCFValidator.prototype.parseData = function (line) {
             samplesData.push(columns[i]);
         }
 
+        var dataLength = 0;
         for (var i = 0; i < samplesData.length; i++) {
             var sampleData = samplesData[i];
+            dataLength += sampleData.length;
 
             if (sampleData == "") {
                 this.addLog("error", "Sample fields must be not empty", 8);
@@ -473,35 +475,35 @@ VCFValidator.prototype.parseData = function (line) {
 
                     switch (formatElem.number) {
                     case ".":
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', 8);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
                         break;
                     case "A":
                         var expected = altSplits.length;
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected one value per alternate)", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', 8);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
                         break;
                     case "R":
                         var expected = altSplits.length + 1;
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected one value for each possible  allele, including the reference)", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', 8);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
                         break;
                     case "G":
                         var expected = this._binomial(altSplits.length + this._ploidy, this._ploidy);
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected: '" + expected + "', found: '" + found + "'). Must have one value for each possible genotype", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', 8);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
                         break;
                     default:
                         var expected = parseInt(formatElem.number);
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected: '" + expected + "', found: '" + found + "'.", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', 8);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
                         break;
                     }
                 }
@@ -574,21 +576,25 @@ VCFValidator.prototype._isFloat = function (n) {
     return this._regExp["float"].test(n);
 };
 
-VCFValidator.prototype._checkFormatDataType = function (data, formatElem, field, col) {
+VCFValidator.prototype._checkFormatDataType = function (data, formatElem, field,num) {
+  num=9+num;
     for (var i = 0; i < data.length; i++) {
         var elem = data[i];
+        if(elem=="."){
+          continue;
+        }
 
         if (formatElem.type === "Integer") {
             if (!this._isInt(elem)) {
-                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.", col);
+                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.",num);
             }
         } else if (formatElem.type === "Float") {
             if (!this._isFloat(elem)) {
-                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.", col);
+                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.",num);
             }
         } else if (formatElem.type === "Character") {
             if (elem.length > 1) {
-                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Expected one character, found '" + elem.length + "'", col);
+                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Expected one character, found '" + elem.length + "'",num);
             }
         }
     }
