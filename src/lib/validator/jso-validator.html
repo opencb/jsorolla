@@ -193,7 +193,7 @@
                     <div class="line">{{item.line}}</div>
                     <div class="type" type$="{{item.type}}">{{item.type}}</div>
                     <div class="msg flex">{{item.msg}}</div>
-                    <div class="view" line="{{item.line}}" on-click="handleLogViewClick" title="View line"><i class="fa fa-search"></i></div>
+                    <div class="view" line="{{item.line}}" column="{{item.column}}" on-click="handleLogViewClick" title="View line"><i class="fa fa-search"></i></div>
                 </div>
             </template>
         </iron-list>
@@ -213,11 +213,11 @@
             </div>
         </div>
 
-        <jso-panel modal movable closable hidden id="linePreview" on-close="handleCloseLinePreview">
+        <jso-panel modal movable closable hidden id="linePreviewPanel" on-close="handleCloseLinePreview">
             <div class="header">
                 <i class="fa fa-view"></i> &nbsp; View line
             </div>
-            <div class="container wrapped-text">{{linePreview}}</div>
+            <div class="container wrapped-text" id="linePreview">{{linePreview}}</div>
         </jso-panel>
 
 
@@ -368,14 +368,19 @@
                 var me = this;
                 var elem = e.currentTarget;
                 var line = elem.line - 1;
+                this.column=elem.column;
                 this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
                     if (err) {
                         return;
                     }
 
                     if (lines.length > 0) {
-                        me.linePreview = lines[0];
-                        me.$.linePreview.show();
+                      debugger
+                        var aux=lines[0].split("\t");
+                        aux[me.column]= '<span style="color:red">'+aux[me.column]+'</span>';
+                        me.$.linePreview.innerHTML=aux.join("\t");
+                        // me.linePreview = lines[0];
+                        me.$.linePreviewPanel.show();
                     }
 
                     if (eof) {
@@ -386,7 +391,7 @@
             },
             handleCloseLinePreview: function(e) {
                 e.stopPropagation();
-                this.linePreview = "";
+                this.$.linePreview.innerHTML = "";
             }
         })
     </script>

@@ -99,11 +99,12 @@ Validator.prototype = {
     validateEnd: function () {
         return true;
     },
-    addLog: function (type, msg) {
+    addLog: function (type, msg,column) {
         var log = {
             type: type,
             msg: msg,
-            line: this.line
+            line: this.line,
+            column: column
         };
         this.log.push(log);
         this._emit("log", [log]);
