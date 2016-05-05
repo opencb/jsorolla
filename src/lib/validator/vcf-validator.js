@@ -386,7 +386,7 @@ VCFValidator.prototype.parseData = function (line) {
                         if (this._info[key].type == 'Flag') {
                             this.addLog("warning", "Flag type must not have value");
                         } else {
-                            this._checkFormatDataType(v.split(","), this._info[key], 'INFO');
+                            this._checkFormatDataType(v, this._info[key], 'INFO');
                         }
                     }
                 }
