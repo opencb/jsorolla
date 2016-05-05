@@ -220,7 +220,7 @@ var Utils = {
                     //                            me.loadedMainSelectChanged(false,true);
                 },
                 error: function () {
-                    alert('Server error, try again later.');
+                    console.log('utils.js223:Server error, try again later.');
                 }
             }
         })
