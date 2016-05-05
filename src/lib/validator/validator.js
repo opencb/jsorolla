@@ -13,7 +13,7 @@ function Validator(options) {
     this._events = {};
     this.numLines = 0;
 
-    this.linesToRead = 1000;
+    this.linesToRead = 2000;
 }
 
 Validator.prototype = {
@@ -36,6 +36,7 @@ Validator.prototype = {
 
         /*Check if file is \r or \n , \r\n */
         this._detectCRSeparator(this.file, function (res) {
+            var lastReadBytes = null;
             if (res) {
                 me._navigator = new FileNavigator(me.file, undefined, {
                     newLineCode: '\r'.charCodeAt(0),
@@ -49,7 +50,7 @@ Validator.prototype = {
             var indexToStartWith = 0;
 
             // me._navigator.readSomeLines(indexToStartWith, function linesReadHandler(err, index, lines, eof, progress) {
-                me._navigator.readLines(indexToStartWith, me.linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
+            me._navigator.readLines(indexToStartWith, me.linesToRead, function linesReadHandler(err, index, lines, eof, progress) {
                 if (err) {
                     me._emit("err");
                     return;
@@ -57,26 +58,24 @@ Validator.prototype = {
                 // console.log(lines.length);
                 console.log(progress);
                 for (var i = 0; i < lines.length; i++) {
-                    if (i % 1000 == 0) {
-                        me._emit("progress", [me.progress]);
-                    }
                     var line = lines[i];
                     me.line++;
-                    // console.log(me.line)
+
                     me.numLines++;
-                    me._emit("lines", [me.numLines]);
+                    // me._emit("lines", [me.numLines]);
                     me._readBytes += line.length;
                     me.progress = (me._readBytes / me._totalBytes) * 100;
                     me.validateLine(line);
                 }
                 // me._emit("progress", [me.progress]);
 
-                if (eof && me._totalBytes) {
-                    me._emit("progress", [100]);
+                if (lastReadBytes == me._readBytes) {
+                    me._emit("progress", 100);
                     me._emit("end");
                     me._validateEnd();
                     return;
                 }
+
                 if (me._navigator._stop != true) {
                     // me._navigator.readSomeLines(index + lines.length, linesReadHandler);
                     me._navigator.readLines(index + lines.length, me.linesToRead, linesReadHandler);
@@ -106,16 +105,14 @@ Validator.prototype = {
             line: this.line
         };
         this.log.push(log);
-        this._emit("log", [log]);
+        this._emit("log", log);
     },
     on: function (eventName, cb) {
         this._events[eventName] = cb;
     },
     _emit: function (event, args) {
-
-        var boundEvents = this._events;
-        if (typeof boundEvents[event] === 'function') {
-            boundEvents[event].apply(this, args);
+        if (typeof this._events[event] === 'function') {
+            this._events[event].apply(this, Array.prototype.slice.call(arguments, 1));
         }
     },
     _detectCRSeparator: function (file, cb) {
