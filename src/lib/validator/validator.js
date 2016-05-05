@@ -62,12 +62,12 @@ Validator.prototype = {
                     me.line++;
 
                     me.numLines++;
-                    // me._emit("lines", [me.numLines]);
+                    me._emit("lines", [me.numLines]);
                     me._readBytes += line.length;
                     me.progress = (me._readBytes / me._totalBytes) * 100;
                     me.validateLine(line);
                 }
-                // me._emit("progress", [me.progress]);
+                me._emit("progress", [me.progress]);
                 if (lastReadBytes == me._readBytes) {
                     me._emit("progress", 100);
                     me._emit("end");
