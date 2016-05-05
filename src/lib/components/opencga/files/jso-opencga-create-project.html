@@ -47,11 +47,11 @@
                                 me.fire('need-refresh');
                                 me.fire('project-created');
                             } else {
-                                alert('Server error, try again later.');
+                                console.log('Create Project: Server error, try again later.');
                             }
                         },
                         error: function () {
-                            alert('Server error, try again later.');
+                            console.log('Create Project: Server error, try again later.');
                         }
                     }
                 });
