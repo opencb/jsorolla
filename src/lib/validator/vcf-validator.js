@@ -30,8 +30,8 @@ function VCFValidator(options) {
         "gt": /^(\.|\d+)([|/](\.|\d+))?$/,
         "alpha": /^(\w+)$/,
         "idSemiColon": /^(\w+(;\w+)?)$/,
-        "integer": /^(\d+)$/,
-        "float": /^(\d+(\.\d+)?)$/,
+        "integer": /^(-+)?(\d+)$/,
+        "float": /^(-+)?(\d+(\.\d+)?)$/,
         "altID": /^[<]+(\w+)+[>]$/
 
     }
@@ -129,8 +129,9 @@ VCFValidator.prototype.parseHeader = function (line) {
             }
 
         } else if (key.toLowerCase() == "alt") {
-            var id = value.split(":");
+            var id = this._getDataFromRegExp(value, "headerId");
             var description = this._getDataFromRegExp(value, "headerDesc");
+            id=id.split(":");
             if (id.length == 1) {
                 if (id[0] != "DEL" && id[0] != "INS" && id[0] != "DUP" && id[0] != "INV" && id[0] != "CNV") {
                     this.addLog("warning", "The first level type for the alternate ID must be: DEL,INS,DUP,INV or CNV")
@@ -143,7 +144,7 @@ VCFValidator.prototype.parseHeader = function (line) {
                 this.addLog("error", "ALT fields must be described as ##ALT=<ID=ID,Description='description'>")
             }
 
-            this._alt[id] = {
+            this._alt["<" + id + ">"] = {
                 id: "<" + id + ">",
                 description: description
             }
@@ -265,6 +266,7 @@ VCFValidator.prototype.parseData = function (line) {
     }
 
     // alt
+
     var alt = columns[4];
 
     if (alt == "") {
@@ -326,7 +328,7 @@ VCFValidator.prototype.parseData = function (line) {
         for (var i = 0; i < filterIds.length; i++) {
             var id = filterIds[i];
             if (this._filter[id] == null) {
-                this.addLog("warning", "Filter status must be specified in header, be PASS or be set to the missing value '.'", 6);
+                this.addLog("error", "Filter status must be specified in header, be PASS or be set to the missing value '.'", 6);
             }
         }
     }
@@ -359,27 +361,28 @@ VCFValidator.prototype.parseData = function (line) {
                             //'A': one value per alternate
                             var expected = altSplits.length;
                             if (expected != v.length) {
-                                this.addLog("error", "Wrong number of values in INFO field '" + Key + " (expected one value per alternate)", 7);
+                                this.addLog("warning", "Wrong number of values in INFO field '" + key + " (expected one value per alternate)", 7);
                             }
                             break;
                         case "R":
                             //'R': one value for each possible allele
                             var expected = altSplits.length + 1;
                             if (expected != v.length) {
-                                this.addLog("error", "Wrong number of values in INFO field '" + Key + " (expected one value for each possible  allele, including the reference)", 7);
+                                this.addLog("warning", "Wrong number of values in INFO field '" + key + " (expected one value for each possible  allele, including the reference)", 7);
                             }
                             break;
                         case "G":
                             //'G': one value for each possible genotype
                             // var expected = altSplits.length * (altSplits.length + 1) / 2;
-                            var typeMSG = aggregate ? "warning" : "error";
+                            // var typeMSG = aggregate ? "warning" : "error";
+                            var typeMSG = "warning";
                             if (!aggregate) {
                                 var expected = this._binomial(altSplits.length + this._ploidy, this._ploidy);
                                 if (expected != found) {
 
                                 }
                             }
-                            this.addLog(typeMSG, "Wrong number of values in INFO field '" + Key + " (expected: '" + expected + "', found: '" + found + "'). Must have one value for each possible genotype", 7);
+                            this.addLog(typeMSG, "Wrong number of values in INFO field '" + key + " (expected: '" + expected + "', found: '" + found + "'). Must have one value for each possible genotype", 7);
                             break;
                         }
 
