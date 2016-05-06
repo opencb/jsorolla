@@ -114,7 +114,7 @@
             border: 1px solid rgba(255, 191, 0, 0.3);
         }
 
-        #log {
+        .log {
             position: relative;
             height: calc(100% - 48px);
             overflow-y: auto;
@@ -191,7 +191,7 @@
             </div>
             <div id="stop" class="jso-btn jso-btn-shdw" on-click="handleStop">Stop</div>
         </div>
-        <iron-list id="log" items="[[log]]" as="item">
+        <iron-list class="log" items="{{logIron}}" as="item">
             <template>
                 <div class="horizontal layout center item" type$="{{item.type}}">
                     <div class="line">{{item.line}}</div>
@@ -201,15 +201,22 @@
                 </div>
             </template>
         </iron-list>
+
         <div id="footer" class="counts horizontal layout center">
-            <div class="error-count count">Errors:
-                <span>{{errorCount}}</span>
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}">
+                <div class="error-count count">Errors:
+                    <span>{{errorCount}}</span>
+                </div>
             </div>
-            <div class="warning-count count">Warning:
-                <span>{{warningCount}}</span>
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="warning" data-checked$="{{computeView(view, 'warning')}}">
+                <div class="warning-count count">Warning:
+                    <span>{{warningCount}}</span>
+                </div>
             </div>
-            <div class="info-count count">Info:
-                <span>{{infoCount}}</span>
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="info" data-checked$="{{computeView(view, 'info')}}">
+                <div class="info-count count">Info:
+                    <span>{{infoCount}}</span>
+                </div>
             </div>
             <div class="flex"></div>
             <div class="count">Lines:
@@ -245,8 +252,18 @@
                     },
                     observer: 'validatorChanged'
                 },
-                log: {
+                logIron: {
                     type: Array
+                },
+                log: {
+                    type: Object,
+                    value: function() {
+                        return {
+                            error: [],
+                            warning: [],
+                            info: []
+                        }
+                    }
                 },
                 errorCount: {
                     type: Number,
@@ -268,14 +285,30 @@
                     type: Number,
                     value: 0,
                     observer: 'progressChanged'
-                }
+                },
+                view: {
+                    type: String,
+                    value: 'error'
+                },
             },
             ready: function() {
-
+                this.set("logIron", this.log[this.view]);
+            },
+            handleView: function(e) {
+                this.view = e.currentTarget.dataset.value;
+                this.set("logIron", this.log[this.view]);
+            },
+            computeView: function(view, value) {
+                return view === value;
             },
             reset: function() {
                 this.progress = 0;
-                this.set("log", []);
+                this.set("log", {
+                    error: [],
+                    warning: [],
+                    info: []
+                });
+                this.set("logIron", this.log[this.view]);
                 this.errorCount = 0;
                 this.warningCount = 0;
                 this.infoCount = 0;
@@ -286,7 +319,12 @@
                 this.setFile();
             },
             validate: function() {
-                this.set("log", []);
+                this.set("log", {
+                    error: [],
+                    warning: [],
+                    info: []
+                });
+                this.set("logIron", this.log[this.view]);
                 this.errorCount = 0;
                 this.warningCount = 0;
                 this.infoCount = 0;
@@ -334,7 +372,11 @@
                             me.warningCount++;
                             break;
                     }
-                    me.push("log", e);
+                    if (me.log[e.type]==me.logIron) {
+                      me.push("logIron", e);
+                    }else{
+                      me.push('log.' + e.type, e);
+                    }
                 });
 
                 neo.on("lines", function(e) {
@@ -372,16 +414,16 @@
                 var me = this;
                 var elem = e.currentTarget;
                 var line = elem.line - 1;
-                this.column=elem.column;
+                this.column = elem.column;
                 this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
                     if (err) {
                         return;
                     }
 
                     if (lines.length > 0) {
-                        var aux=lines[0].split("\t");
-                        aux[me.column]= '<span style="color:red">'+aux[me.column]+'</span>';
-                        me.$.linePreview.innerHTML=aux.join("\t");
+                        var aux = lines[0].split("\t");
+                        aux[me.column] = '<span style="color:red">' + aux[me.column] + '</span>';
+                        me.$.linePreview.innerHTML = aux.join("\t");
                         // me.linePreview = lines[0];
                         me.$.linePreviewPanel.show();
                     }
