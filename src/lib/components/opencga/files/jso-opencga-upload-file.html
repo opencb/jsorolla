@@ -527,10 +527,12 @@
         },
 
         handleValidatorEnd: function(e) {
+            alert('Validation has finished succesfully. Check errors or click on import button');
             this.validating = false;
         },
 
         handleValidatorStop: function(e) {
+            alert('Validation has been stopped.');
             this.validating = false;
 
             if (this._wantRevalidate == true) {
