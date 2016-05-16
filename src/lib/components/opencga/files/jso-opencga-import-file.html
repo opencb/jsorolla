@@ -93,6 +93,10 @@
                         return [];
                     }
                 },
+                stop: {
+                    type: Boolean,
+                    value: false
+                }
 
             },
             ready: function(e) {},
@@ -105,11 +109,12 @@
             handleValidatorStop: function(e) {
                 alert('Validation has been stopped.');
                 this.validating = false;
-
-                if (this._wantRevalidate == true) {
-                    this._wantRevalidate = null;
-                    this.revalidate();
-                }
+                this.stop = true;
+                //
+                // if (this._wantRevalidate == true) {
+                //     this._wantRevalidate = null;
+                //     this.revalidate();
+                // }
             },
             handleRecheck: function(e) {
                 // this.$.validator.reset();
@@ -132,6 +137,8 @@
                 }
             },
             handleValidate: function(e) {
+                this.validating == true;
+                this.stop = false;
                 var file = this.$.fileInput.files[0];
                 if (file != null) {
                     this.$.validator.reset();
@@ -163,7 +170,34 @@
                 }
             },
             handleImport: function(e) {
-                this.fire('importbed');
+                debugger
+                var file = this.$.fileInput.files[0];
+                if (file == null) {
+                    alert("No file selected.")
+                    return;
+                }
+                if (this.uploading == true) {
+                    alert("Upload already in progress.")
+                    return;
+                }
+                if (this.validating == false && this.stop == false) {
+
+                    if (this.$.validator.errorCount > 0) {
+                        alert("The file contains errors.")
+                        return;
+                    }
+                    if (this.$.validator.warningCount > 0) {
+                        if (confirm("File contains warning messages, are you sure?")) {
+                            this.fire('importbed');
+                            return;
+                        }
+                    }
+                    this.fire('importbed');
+                }
+                // if (this.validating == false && this.stop==false) {
+                //     // this.uploading=true;
+                //     this.fire('importbed');
+                // }
             }
         });
     </script>
