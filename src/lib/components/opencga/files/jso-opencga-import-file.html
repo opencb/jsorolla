@@ -21,7 +21,14 @@
         }
 
         .filename {
-            word-break: break-all;
+            /*word-break: break-all;*/
+            padding: 0 4px;
+            border: 1px solid var(--divider-color);
+            background-color: var(--hover-color);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            max-width: 360px;
         }
 
         jso-validator {
@@ -52,8 +59,8 @@
             </div>
             <div class="horizontal layout" style="line-height: 22px;margin-top: 5px;">
                 <label class="jso">Selected file name: &nbsp;</label>
-                <div class="filename">{{fileName}}</div>
-                <div id="recheckButton" class="jso-btn jso-btn-shdw" on-click="handleRecheck">
+                <div class="filename flex">{{fileName}}</div>
+                <div id="recheckButton" class="jso-btn jso-btn-shdw" style="height:24px;" on-click="handleRecheck">
                     Revalidate
                 </div>
             </div>
