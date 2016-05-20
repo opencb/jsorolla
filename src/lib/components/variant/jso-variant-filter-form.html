@@ -1496,7 +1496,7 @@
                     for (var i = 0; i < lines.length; i++) {
                         var line = lines[i];
 
-                        if (line.indexOf("#") < 0 && line != '') {
+                        if ((line.indexOf("#") < 0 && line.indexOf("browser") < 0 && line.indexOf("track") < 0) && line != '') {
                             var fields = line.split("\t");
                             var chr = fields[0];
                             var start = fields[1];
