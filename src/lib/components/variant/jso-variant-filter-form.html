@@ -163,8 +163,10 @@
 
         #hpoPanel,
         #goPanel {
-            width: 900px;
-            height: 750px;
+            min-width: 700px;
+            min-height: 500px;
+            height: calc(100vh - 300px);
+            width: 60%;
             font-size: 12px;
         }
 
@@ -172,6 +174,13 @@
             color: #666;
             margin-bottom: 5px;
         }
+/*
+        jso-form-box .header{
+            font-size: 13px;
+        }
+        jso-form-box .container {
+            font-size: 12px;
+        }*/
     </style>
     <template>
         <form id="filter_form">
@@ -267,7 +276,7 @@
                 </div>
             </jso-form-box>
 
-            <jso-filter-position id="filterPosition" collapsible enable-importbed enable-snpid></jso-filter-position>
+            <jso-filter-position id="filterPosition" collapsible enable-importbed enable-snpid style="font-size:12px"></jso-filter-position>
 
             <jso-form-box collapsible collapsed>
                 <div class="header">
@@ -481,11 +490,11 @@
                 </div>
             </jso-form-box> 
 
-            <jso-filter-scores id="filterScores" collapsible collapsed></jso-filter-scores>
+            <jso-filter-scores id="filterScores" collapsible collapsed style="font-size:12px"></jso-filter-scores>
 
-            <jso-filter-conservation id="filterConservation" collapsible collapsed></jso-filter-conservation>
+            <jso-filter-conservation id="filterConservation" collapsible collapsed style="font-size:12px"></jso-filter-conservation>
 
-            <jso-filter-consequencetypes id="filterCT" collapsible collapsed></jso-filter-consequencetypes>
+            <jso-filter-consequencetypes id="filterCT" collapsible collapsed style="font-size:12px"></jso-filter-consequencetypes>
 
             <jso-form-box collapsible collapsed>
                 <div class="header">
@@ -536,7 +545,7 @@
                 <div class="header">
                     <i class="fa fa-search" aria-hidden="true"></i> Gene Ontology
                 </div>
-                <div class="container">
+                <div class="container" style="width:100%">
                     <jso-go go-value="{{goValue}}" on-added="showGO"></jso-go>
                 </div>
             </jso-panel>
@@ -544,7 +553,7 @@
                 <div class="header">
                     <i class="fa fa-search" aria-hidden="true"></i> Human Phenotype Ontology
                 </div>
-                <div class="container">
+                <div class="container" style="width:100%">
                     <jso-hpo hpo-value="{{hpoValue}}" on-added="showHPO"></jso-hpo>
                 </div>
             </jso-panel>
@@ -938,11 +947,11 @@
             // GO
             var gosMap = {};
             for (var i = 0; i < this.goValue.length; i++) {
-              if(this.goValue[i].id.indexOf('GO:')>=0){
-                gosMap[this.goValue[i].id] = true;
-              }else{
-                gosMap['GO:'+this.goValue[i].id] = true;
-              }
+                if (this.goValue[i].id.indexOf('GO:') >= 0) {
+                    gosMap[this.goValue[i].id] = true;
+                } else {
+                    gosMap['GO:' + this.goValue[i].id] = true;
+                }
                 if (this.goValue[i].f != null) {
                     if (Object.keys(this.goValue[i].f).length > 0) {
                         for (var j = 0; j < this.goValue[i].f.length; j++) {
@@ -971,7 +980,7 @@
                 if (GO_GENE[gosAux[i]] != null) {
                     for (var j = 0; j < GO_GENE[gosAux[i]].length; j++) {
                         var gene = GO_GENE[gosAux[i]][j];
-                        genes[gene]=true;
+                        genes[gene] = true;
                     }
                 }
             }
@@ -985,11 +994,11 @@
             // HPO
             var hposMap = {};
             for (var i = 0; i < this.hpoValue.length; i++) {
-              if(this.hpoValue[i].id.indexOf('HP:')>=0){
-                hposMap[this.hpoValue[i].id] = true;
-              }else{
-                hposMap['HP:' + this.hpoValue[i].id] = true;
-              }
+                if (this.hpoValue[i].id.indexOf('HP:') >= 0) {
+                    hposMap[this.hpoValue[i].id] = true;
+                } else {
+                    hposMap['HP:' + this.hpoValue[i].id] = true;
+                }
                 if (this.hpoValue[i].f != null) {
                     if (Object.keys(this.hpoValue[i].f).length > 0) {
                         for (var j = 0; j < this.hpoValue[i].f.length; j++) {
@@ -1018,7 +1027,7 @@
                 if (HPO_GENE[hposAux[i]] != null) {
                     for (var j = 0; j < HPO_GENE[hposAux[i]].length; j++) {
                         var gene = HPO_GENE[hposAux[i]][j];
-                        genes[gene]=true;
+                        genes[gene] = true;
                     }
                 }
             }

@@ -4,8 +4,8 @@
         :host {
             display: block;
             position: relative;
-            width: 800px;
-            height: 720px;
+            min-width: 700px;
+            max-height: 500px;
             padding: 10px;
         }
 
@@ -21,22 +21,25 @@
         #goList {
             margin: 5px;
             height: 80%;
+            width: 95%;
         }
 
         #allGO,
         #selectedGO {
             width: 95%;
-            height: 500px;
+            min-height: 345px;
+            height: calc(100vh - 450px);
             border: 1px solid #d3d3d3;
         }
 
         .allGO {
-            /*width: 45%;*/
+            width: 50%;
             margin-right: 10px;
         }
 
         .selectedGO {
-            /*width: 45%;*/
+            width: 50%;
+            margin-left: 10px;
         }
 
         .titlePreview {
@@ -83,10 +86,12 @@
 
         .treeGO {
             overflow-y: auto;
-            height: 600px;
+            min-height: 350px;
+            height: calc(100vh - 450px);
+            width: 80%;
             margin: 10px;
             padding: 5px;
-            border: 1px solid #d3d3d3;
+            /*border: 1px solid #d3d3d3;*/
         }
     </style>
     <template>
@@ -95,14 +100,14 @@
             <div class="jso-btn jso-btn-shdw but" on-click="createTree" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
             <!-- <div class="jso-btn jso-btn-shdw but" on-click="ontology" data-value="graph" data-checked$="{{computeView(view, 'graph')}}"><i class="fa fa-sitemap"></i>&nbsp; View Graph </div> -->
         </div>
-        <div id="goList" class="vertical layout" hidden$="{{!computeView(view, 'go')}}">
+        <div id="goList" hidden$="{{!computeView(view, 'go')}}">
             <div class="horizontal layout">
-                <div class="vertical layout allGO">
+                <div class="allGO">
                     <jso-table id="allGO" class="flex" columns="{{goColumns}}" data="{{goList}}" enable-select enable-filter enable-paging hide-column-selector page-size="15"></jso-table>
                     <div class="jso-btn jso-btn-shdw but" on-click="handleAddGO"><i class="fa fa-plus-square-o"></i>&nbsp; Add
                     </div>
                 </div>
-                <div class="vertical layout selectedGO">
+                <div class="selectedGO">
                     <jso-table id="selectedGO" class="flex" columns="{{goSelectedColumns}}" data="{{selectedGO}}" hide-column-selector>
                     </jso-table>
                     <div class="jso-btn jso-btn-shdw but" on-click="handleClearSelected">
@@ -110,19 +115,19 @@
                     </div>
                 </div>
             </div>
-            <div class="horizontal layout flex">
+            <div class="horizontal layout flex" style="width: 100%">
                 <div class="flex">
                 </div>
                 <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected GO
                 </div>
             </div>
         </div>
-        <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
+        <div hidden$="{{!computeView(view, 'hierarchy')}}" style="width: 95%">
             <div class="treeGO">
                 <jso-ontology-tree id="treeGO">
                 </jso-ontology-tree>
             </div>
-            <div class="horizontal layout flex">
+            <div class="horizontal layout flex" style="width: 100%">
                 <div class="flex">
                 </div>
                 <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected GO
@@ -231,8 +236,8 @@
                 this.selectedGO = [];
             },
             handleAddSelected: function(e) {
-                var gos=[];
-                this.goValue=[];
+                var gos = [];
+                this.goValue = [];
                 var els = this.$.treeGO.querySelectorAll('jso-ontology-tree-item[selected]');
                 if (els.length > 0) {
                     for (var i = 0; i < els.length; i++) {

@@ -3,8 +3,8 @@
         :host {
             display: block;
             position: relative;
-            width: 800px;
-            height: 700px;
+            min-width: 700px;
+            max-height: 500px;
             padding: 10px;
         }
 
@@ -20,22 +20,25 @@
         #hpoList {
             margin: 5px;
             height: 80%;
+            width: 95%;
         }
 
         #allHPO,
         #selectedHPO {
-            width: 95%;
-            height: 500px;
-            border: 1px solid #d3d3d3;
+          width: 95%;
+          min-height: 345px;
+          height: calc(100vh - 450px);
+          border: 1px solid #d3d3d3;
         }
 
         .allHPO {
-            /*width: 45%;*/
-            margin-right: 10px;
+          width: 50%;
+          margin-right: 10px;
         }
 
         .selectedHPO {
-            /*width: 45%;*/
+          width: 50%;
+          margin-left: 10px;
         }
 
         .titlePreview {
@@ -81,11 +84,13 @@
         }
 
         .treeHPO {
-            overflow-y: auto;
-            height: 600px;
-            margin: 10px;
-            padding: 5px;
-            border: 1px solid #d3d3d3;
+          overflow-y: auto;
+          min-height: 350px;
+          height: calc(100vh - 450px);
+          width: 80%;
+          margin: 10px;
+          padding: 5px;
+          /*border: 1px solid #d3d3d3;*/
         }
     </style>
     <template>
@@ -94,14 +99,14 @@
             <div class="jso-btn jso-btn-shdw but" on-click="createTree" data-value="hierarchy" data-checked$="{{computeView(view, 'hierarchy')}}"> <i class="fa fa-eye"></i>&nbsp; View Hierarchy </div>
             <!-- <div class="jso-btn jso-btn-shdw but" on-click="ontology" data-value="graph" data-checked$="{{computeView(view, 'graph')}}"><i class="fa fa-sitemap"></i>&nbsp; View Graph </div> -->
         </div>
-        <div id="hpoList" class="vertical layout" hidden$="{{!computeView(view, 'hpo')}}">
+        <div id="hpoList" hidden$="{{!computeView(view, 'hpo')}}">
             <div class="horizontal layout">
-                <div class="vertical layout allHPO">
+                <div class="allHPO">
                     <jso-table id="allHPO" class="flex" columns="{{hpoColumns}}" data="{{hpoList}}" enable-select enable-filter enable-paging hide-column-selector page-size="15"></jso-table>
                     <div class="jso-btn jso-btn-shdw but" on-click="handleAddHPO"><i class="fa fa-plus-square-o"></i>&nbsp; Add
                     </div>
                 </div>
-                <div class="vertical layout selectedHPO">
+                <div class="selectedHPO">
                     <jso-table id="selectedHPO" class="flex" columns="{{hpoSelectedColumns}}" data="{{selectedHPO}}" hide-column-selector>
                     </jso-table>
                     <div class="jso-btn jso-btn-shdw but" on-click="handleClearSelected">
@@ -109,19 +114,19 @@
                     </div>
                 </div>
             </div>
-            <div class="horizontal layout flex">
+            <div class="horizontal layout flex" style="width: 100%">
                 <div class="flex">
                 </div>
                 <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected HPO
                 </div>
             </div>
         </div>
-        <div class="vertical layout" hidden$="{{!computeView(view, 'hierarchy')}}">
+        <div hidden$="{{!computeView(view, 'hierarchy')}}" style="width: 95%">
             <div class="treeHPO">
                 <jso-ontology-tree id="treeHPO">
                 </jso-ontology-tree>
             </div>
-            <div class="horizontal layout flex">
+            <div class="horizontal layout flex" style="width: 100%">
                 <div class="flex">
                 </div>
                 <div class="jso-btn jso-btn-shdw add-but" on-click="handleAddSelected"> Add Selected HPO

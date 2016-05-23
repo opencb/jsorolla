@@ -397,7 +397,7 @@
                     this.message = '';
                     var config = {
                         inputFile: this.$.fileInput.files[0],
-                        fileName: this.fileName,
+                        fileName: this.fileName.replace(/[^a-zA-Z0-9._\-]/g, "_"),
                         userId: Cookies("bioinfo_user"),
                         sid: Cookies("bioinfo_sid"),
                         studyId: selStudy.id,
