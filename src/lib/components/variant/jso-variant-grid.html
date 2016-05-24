@@ -118,6 +118,12 @@
             title: 'Conseq. Type',
             width: 300
         }, {
+            name: 'dp',
+            title: 'DP',
+            width: 50,
+            defaultValue: '.'
+
+        }, {
             name: 'sift',
             title: 'SIFT',
             width: 50,
@@ -300,6 +306,11 @@
             }]
 
         }, {
+            name: 'exac',
+            title: 'EXAC',
+            width: 50,
+            defaultValue: '.'
+        }, {
             name: 'phenotype',
             title: 'Phenotype',
             defaultValue: '.',
@@ -431,6 +442,7 @@
                 }
 
                 dataLine += getValue(row, "ct") + this.separator;
+                dataLine += getValue(row, "dp") + this.separator;
                 dataLine += getValue(row, "sift") + this.separator;
                 dataLine += getValue(row, "polyphen") + this.separator;
                 dataLine += getValue(row, "phylop") + this.separator;
@@ -449,7 +461,7 @@
                 dataLine += getValue(row["1000GENOMES_phase_3"], "EUR") + this.separator;
 
                 dataLine += getValue(row["ESP_6500"], "EA") + this.separator;
-                dataLine += getValue(row["ESP_6500"], "EUR") + this.separator;
+                dataLine += getValue(row["ESP_6500"], "AA") + this.separator;
 
                 if (row.phenotype) {
                     dataLine += getValue(row["phenotype"], "clinvar") + this.separator;
@@ -627,6 +639,10 @@
                                     } else if (freq.population == "EUR") {
                                         variant['1000GENOMES_phase_3'].EUR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
+                                } else if (freq.study == "EXAC") {
+                                  if (freq.population == "ALL") {
+                                        variant.exac = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                    }
                                 }
                             }
                         }
@@ -688,6 +704,16 @@
                     if (variant.type) {
                         var typeAux = variant.type;
                         variant.type = typeAux;
+                    }
+
+                    //DP
+                    if (variant.studies) {
+                        if (variant.studies[0].files) {
+                            if (variant.studies[0].files[0].attributes) {
+                                var dpAux = variant.studies[0].files[0].attributes["DP"];
+                                variant.dp = dpAux;
+                            }
+                        }
                     }
 
                 }
