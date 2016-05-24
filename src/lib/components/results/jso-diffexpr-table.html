@@ -176,7 +176,7 @@
                     if (fileName.indexOf(".deleted") >= 0) {
                         continue;
                     }
-                    if (fileName.indexOf("_significative_table_up.txt") >= 0) {
+                    if (fileName.indexOf(this.test+"_significative_table_up.txt") >= 0) {
                         me.topListFile = this.files[i];
                         me.topListFileUrl = Utils.getUrl(me.topListFile.id);
                         me.topListFileUrlSeaArgs = {
@@ -202,7 +202,7 @@
                         me.sendTopVsBottomNeaArgs["tool"] = "snow";
                         me.sendTopVsBottomNeaArgs["type"] = "genes";
                     }
-                    if (fileName.indexOf("_significative_table_down.txt") >= 0) {
+                    if (fileName.indexOf(this.test+"_significative_table_down.txt") >= 0) {
                         me.bottomListFile = this.files[i];
                         me.bottomListFileUrl = Utils.getUrl(me.bottomListFile.id);
                         me.bottomListFileUrlSeaArgs = {
@@ -221,7 +221,7 @@
                         };
                         me.sendTopVsBottomNeaArgs["inputFile2"] = me.bottomListFile;
                     }
-                    if (fileName.indexOf("_ranked_list.txt") >= 0) {
+                    if (fileName.indexOf(this.test+"_ranked_list.txt") >= 0) {
                         me.rankedListFile = this.files[i];
                         me.rankedListFileUrl = Utils.getUrl(me.rankedListFile.id);
                         me.rankedListFileArgs = {
@@ -233,7 +233,7 @@
                             tool: "network-miner"
                         };
                     }
-                    if (fileName.indexOf("_significative_dataset.txt") >= 0) {
+                    if (fileName.indexOf(this.test+"_significative_dataset.txt") >= 0) {
                         me.significativeFile = this.files[i];
                         me.significativeFileUrl = Utils.getUrl(me.significativeFile.id);
                         me.sendClusteringArgs = {
@@ -244,7 +244,8 @@
                             tool: "clustering"
                         };
                     }
-                    if (fileName.indexOf("_significative_table.txt") >= 0) {
+
+                    if (fileName.indexOf(this.test+"_significative_table.txt") >= 0) {
                         me.significativeTable = this.files[i];
                         me.significativeTableUrl = Utils.getUrl(me.significativeTable.id);
                     }
@@ -400,4 +401,3 @@
         })
     </script>
 </polymer-element>
-
