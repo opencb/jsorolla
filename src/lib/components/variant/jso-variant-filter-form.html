@@ -163,8 +163,10 @@
 
         #hpoPanel,
         #goPanel {
-            width: 900px;
-            height: 750px;
+            min-width: 700px;
+            min-height: 500px;
+            height: calc(100vh - 300px);
+            width: 60%;
             font-size: 12px;
         }
 
@@ -172,6 +174,13 @@
             color: #666;
             margin-bottom: 5px;
         }
+        /*
+        jso-form-box .header{
+            font-size: 13px;
+        }
+        jso-form-box .container {
+            font-size: 12px;
+        }*/
     </style>
     <template>
         <form id="filter_form">
@@ -267,7 +276,7 @@
                 </div>
             </jso-form-box>
 
-            <jso-filter-position id="filterPosition" collapsible enable-importbed enable-snpid></jso-filter-position>
+            <jso-filter-position id="filterPosition" collapsible enable-importbed enable-snpid style="font-size:12px"></jso-filter-position>
 
             <jso-form-box collapsible collapsed>
                 <div class="header">
@@ -478,14 +487,31 @@
                             <input id="ESP_6500_AA" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
                         </div>
                     </div>
+                    <br>
+                    <i class$="{{exac}}" on-click="handleCollapseAction" data-type="exac"></i>
+                    <label class="jso popus" on-click="handleCollapseAction" data-type="exac">EXAC</label>
+                    <div id="exac" hidden>
+                        <label class="jso">EXAC MAF</label>
+                        <div class="horizontal layout">
+                            <jso-select name="EXAC_ALL_op" id="EXAC_ALL_op">
+                                <jso-option value="<" selected>
+                                    <</jso-option>
+                                        <jso-option value="<=">
+                                            <=</jso-option>
+                                                <jso-option value=">">></jso-option>
+                                                <jso-option value=">=">>=</jso-option>
+                            </jso-select>
+                            <input id="EXAC_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.000001" />
+                        </div>
+                    </div>
                 </div>
             </jso-form-box> 
 
-            <jso-filter-scores id="filterScores" collapsible collapsed></jso-filter-scores>
+            <jso-filter-scores id="filterScores" collapsible collapsed style="font-size:12px"></jso-filter-scores>
 
-            <jso-filter-conservation id="filterConservation" collapsible collapsed></jso-filter-conservation>
+            <jso-filter-conservation id="filterConservation" collapsible collapsed style="font-size:12px"></jso-filter-conservation>
 
-            <jso-filter-consequencetypes id="filterCT" collapsible collapsed></jso-filter-consequencetypes>
+            <jso-filter-consequencetypes id="filterCT" collapsible collapsed style="font-size:12px"></jso-filter-consequencetypes>
 
             <jso-form-box collapsible collapsed>
                 <div class="header">
@@ -536,7 +562,7 @@
                 <div class="header">
                     <i class="fa fa-search" aria-hidden="true"></i> Gene Ontology
                 </div>
-                <div class="container">
+                <div class="container" style="width:100%">
                     <jso-go go-value="{{goValue}}" on-added="showGO"></jso-go>
                 </div>
             </jso-panel>
@@ -544,7 +570,7 @@
                 <div class="header">
                     <i class="fa fa-search" aria-hidden="true"></i> Human Phenotype Ontology
                 </div>
-                <div class="container">
+                <div class="container" style="width:100%">
                     <jso-hpo hpo-value="{{hpoValue}}" on-added="showHPO"></jso-hpo>
                 </div>
             </jso-panel>
@@ -674,6 +700,10 @@
                 value: "fa fa-angle-double-right minus"
             },
             esp_6500: {
+                type: String,
+                value: "fa fa-angle-double-right minus"
+            },
+            exac: {
                 type: String,
                 value: "fa fa-angle-double-right minus"
             },
@@ -882,6 +912,8 @@
             this.$["ESP_6500_EA_op"].value = "<";
             this.$["ESP_6500_AA"].value = "";
             this.$["ESP_6500_AA_op"].value = "<";
+            this.$["EXAC_ALL"].value = "";
+            this.$["EXAC_ALL_op"].value = "<";
 
             // Sift
             // Polyphen
@@ -938,11 +970,11 @@
             // GO
             var gosMap = {};
             for (var i = 0; i < this.goValue.length; i++) {
-              if(this.goValue[i].id.indexOf('GO:')>=0){
-                gosMap[this.goValue[i].id] = true;
-              }else{
-                gosMap['GO:'+this.goValue[i].id] = true;
-              }
+                if (this.goValue[i].id.indexOf('GO:') >= 0) {
+                    gosMap[this.goValue[i].id] = true;
+                } else {
+                    gosMap['GO:' + this.goValue[i].id] = true;
+                }
                 if (this.goValue[i].f != null) {
                     if (Object.keys(this.goValue[i].f).length > 0) {
                         for (var j = 0; j < this.goValue[i].f.length; j++) {
@@ -971,7 +1003,7 @@
                 if (GO_GENE[gosAux[i]] != null) {
                     for (var j = 0; j < GO_GENE[gosAux[i]].length; j++) {
                         var gene = GO_GENE[gosAux[i]][j];
-                        genes[gene]=true;
+                        genes[gene] = true;
                     }
                 }
             }
@@ -985,11 +1017,11 @@
             // HPO
             var hposMap = {};
             for (var i = 0; i < this.hpoValue.length; i++) {
-              if(this.hpoValue[i].id.indexOf('HP:')>=0){
-                hposMap[this.hpoValue[i].id] = true;
-              }else{
-                hposMap['HP:' + this.hpoValue[i].id] = true;
-              }
+                if (this.hpoValue[i].id.indexOf('HP:') >= 0) {
+                    hposMap[this.hpoValue[i].id] = true;
+                } else {
+                    hposMap['HP:' + this.hpoValue[i].id] = true;
+                }
                 if (this.hpoValue[i].f != null) {
                     if (Object.keys(this.hpoValue[i].f).length > 0) {
                         for (var j = 0; j < this.hpoValue[i].f.length; j++) {
@@ -1018,7 +1050,7 @@
                 if (HPO_GENE[hposAux[i]] != null) {
                     for (var j = 0; j < HPO_GENE[hposAux[i]].length; j++) {
                         var gene = HPO_GENE[hposAux[i]][j];
-                        genes[gene]=true;
+                        genes[gene] = true;
                     }
                 }
             }
@@ -1109,30 +1141,34 @@
 
             // 1000GENOMES_phase_3
             if (this.$["1000GENOMES_phase_3_ALL"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_ALL", "phase3"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
             }
             if (this.$["1000GENOMES_phase_3_AMR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_AMR", "phase3"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
             }
             if (this.$["1000GENOMES_phase_3_SAS"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_SAS", "phase3"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
             }
             if (this.$["1000GENOMES_phase_3_EAS"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_EAS", "phase3"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
             }
             if (this.$["1000GENOMES_phase_3_AFR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_AFR", "phase3"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
             }
             if (this.$["1000GENOMES_phase_3_EUR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "1000GENOMES_phase_3_EUR", "phase3"));
+                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
             }
 
             //ESP_6500
             if (this.$["ESP_6500_EA"].value != "") {
-                popFreq.push(this._getPopulationQuery("ESP_6500", "European_American", "ESP"));
+                popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
             }
             if (this.$["ESP_6500_AA"].value != "") {
-                popFreq.push(this._getPopulationQuery("ESP_6500", "African_American", "ESP"));
+                popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
+            }
+
+            if (this.$["EXAC_ALL"].value != "") {
+                popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
             }
 
             if (popFreq.length > 0) {
@@ -1174,76 +1210,31 @@
         },
 
         _getPopulationQuery: function(study, population, type) {
-            if (type == "phase1") {
-                if (this.$[study + "_" + population].checkValidity() == false) {
-                    alert(study + " " + population + " must be less than 1 or greater than 0");
-                    return "error";
-                } else {
-                    var value = parseFloat(this.$[study + "_" + population].value);
-                    var value_op = this.$[study + "_" + population + "_op"].value;
-                    value = study + ":" + population + value_op + value;
-                    return value;
-                }
-            } else if (type == "phase3") {
-                if (this.$[population].checkValidity() == false) {
-                    alert(population + " must be less than 1 or greater than 0");
-                    return "error";
-                } else {
-                    var value = parseFloat(this.$[population].value);
-                    var value_op = this.$[population + "_op"].value;
-                    value = study + ":" + population + value_op + value;
-                    return value;
-                }
-            } else if (type == "ESP") {
-                var popAux = "";
-                if (population == "European_American") {
-                    popAux = study + "_EA";
-                } else if (population == "African_American") {
-                    popAux = study + "_AA";
-                }
-                if (this.$[popAux].checkValidity() == false) {
-                    alert(popAux + " must be less than 1 or greater than 0");
-                    return "error";
-                } else {
-                    var value = parseFloat(this.$[popAux].value);
-                    var value_op = this.$[popAux + "_op"].value;
-                    value = study + ":" + population + value_op + value;
-                    return value;
-                }
-
+            if (this.$[study + "_" + population].checkValidity() == false) {
+                alert(study + " " + population + " must be less than 1 or greater than 0");
+                return "error";
+            } else {
+                var value = parseFloat(this.$[study + "_" + population].value);
+                var value_op = this.$[study + "_" + population + "_op"].value;
+                value = study + ":" + population + value_op + value;
+                return value;
             }
         },
-        _setPopulationValue: function(population, value, freq) {
+        _setPopulationValue: function(population, value) {
             var aux = value.split("");
             var n = 0;
             var pop = "";
-
-            if (freq == "ESP") {
-                for (i = 0; i < 4; i++) {
-                    if (isNaN(aux[i])) {
-                        pop += aux[i];
-                        n++;
-                    }
+            for (i = 0; i < 5; i++) {
+                if (isNaN(aux[i]) && aux[i] != '.') {
+                    pop += aux[i];
+                    n++;
                 }
-                var val = "";
-                if (pop.length == 3) {
-                    this.$[population + "_op"].value = aux[2];
-                } else if (pop.length == 4) {
-                    this.$[population + "_op"].value = aux[2] + aux[3];
-                }
-            } else {
-                for (i = 0; i < 5; i++) {
-                    if (isNaN(aux[i])) {
-                        pop += aux[i];
-                        n++;
-                    }
-                }
-                var val = "";
-                if (pop.length == 4) {
-                    this.$[population + "_op"].value = aux[3];
-                } else if (pop.length == 5) {
-                    this.$[population + "_op"].value = aux[3] + aux[4];
-                }
+            }
+            var val = "";
+            if (pop.length == 4) {
+                this.$[population + "_op"].value = aux[3];
+            } else if (pop.length == 5) {
+                this.$[population + "_op"].value = aux[3] + aux[4];
             }
             for (var i = n; i < aux.length; i++) {
                 val += aux[i];
@@ -1392,41 +1383,26 @@
                             this._setPopulationValue("1000GENOMES_phase_1_EUR", type[1]);
                         }
                     } else if (type[0] == "1000GENOMES_phase_3") {
-                        var valueAux = type[1].split("");
-                        var value = "";
-                        for (j = 14; j < valueAux.length; j++) {
-                            value += valueAux[j];
-                        }
                         if (pops[i].indexOf("ALL") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_3_ALL", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_ALL", type[1]);
                         } else if (pops[i].indexOf("AMR") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_3_AMR", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_AMR", type[1]);
                         } else if (pops[i].indexOf("SAS") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_3_SAS", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_SAS", type[1]);
                         } else if (pops[i].indexOf("EAS") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_3_EAS", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_EAS", type[1]);
                         } else if (pops[i].indexOf("AFR") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_3_AFR", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_AFR", type[1]);
                         } else if (pops[i].indexOf("EUR") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_3_EUR", value);
+                            this._setPopulationValue("1000GENOMES_phase_3_EUR", type[1]);
                         }
+                    } else if (type[0] == "EXAC") {
+                        this._setPopulationValue("EXAC_ALL", type[1]);
                     } else if (type[0] == "ESP_6500") {
-                        var valueAux = [];
-                        var value = "";
-                        if (type[1].indexOf("European_American") >= 0) {
-                            valueAux = type[1].split("");
-                            value = "EA";
-                            for (j = 17; j < valueAux.length; j++) {
-                                value += valueAux[j];
-                            }
-                            this._setPopulationValue("ESP_6500_EA", value, "ESP");
-                        } else if (type[1].indexOf("African_American") >= 0) {
-                            valueAux = type[1].split("");
-                            value = "AA";
-                            for (j = 16; j < valueAux.length; j++) {
-                                value += valueAux[j];
-                            }
-                            this._setPopulationValue("ESP_6500_AA", value, "ESP");
+                        if (pops[i].indexOf("EA") >= 0) {
+                            this._setPopulationValue("ESP_6500_EA", type[1]);
+                        } else if (pops[i].indexOf("AA") >= 0) {
+                            this._setPopulationValue("ESP_6500_AA", type[1]);
                         }
                     }
                 }
