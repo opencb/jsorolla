@@ -1473,8 +1473,19 @@
                 }
 
                 cEl.classList.add('column-' + column.name.replace(/\s/g, '_'));
+                if (column.styleFormula) {
+                    var newStyle = column.styleFormula(rowData);
+                    for(var key in newStyle){
+                      cEl.style[key] = newStyle[key];
+                    }
+                }
+                if(column.classFormula){
+                  var newClass = column.classFormula(rowData);
+                  cEl.classList.add(newClass);
+                }
                 el.appendChild(cEl);
             }
+
         },
         _deepValue: function(obj, path) {
             for (var i = 0, path = path.split('.'), len = path.length; i < len; i++) {

@@ -29,7 +29,7 @@ function VCFValidator(options) {
         "actg": /^[ACGTN]+$/i,
         "gt": /^(\.|\d+)([|/](\.|\d+))?$/,
         "alpha": /^(\w+)$/,
-        "idSemiColon": /^(\w+(;\w+)?)$/,
+        "idSemiColon": /^(\w+(;\w+)?)+$/,
         "integer": /^(-+)?(\d+)$/,
         "float": /^(-+)?(\d+(\.\d+)?)$/,
         "altID": /^[<]+(\w+)+[>]$/
@@ -131,7 +131,7 @@ VCFValidator.prototype.parseHeader = function (line) {
         } else if (key.toLowerCase() == "alt") {
             var id = this._getDataFromRegExp(value, "headerId");
             var description = this._getDataFromRegExp(value, "headerDesc");
-            id=id.split(":");
+            id = id.split(":");
             if (id.length == 1) {
                 if (id[0] != "DEL" && id[0] != "INS" && id[0] != "DUP" && id[0] != "INV" && id[0] != "CNV") {
                     this.addLog("warning", "The first level type for the alternate ID must be: DEL,INS,DUP,INV or CNV")
@@ -245,13 +245,16 @@ VCFValidator.prototype.parseData = function (line) {
     var id = columns[2];
 
     if (id != ".") {
-        if (!this._regExp["alpha"].test(id)) {
-            this.addLog("error", "ID must be alphanumeric", 2);
-        }
-
         if (!this._regExp["idSemiColon"].test(id)) {
             this.addLog("error", "If more than one ID is specified, they must be semi-colon separated", 2);
+            idSplits = id.split(";");
+            for (var i = 0; i < idSplits.length; i++) {
+                if (!this._regExp["alpha"].test(idSplits[i])) {
+                    this.addLog("error", "ID must be alphanumeric", 2);
+                }
+            }
         }
+
     }
 
     // ref
@@ -478,35 +481,35 @@ VCFValidator.prototype.parseData = function (line) {
 
                     switch (formatElem.number) {
                     case ".":
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', i);
                         break;
                     case "A":
                         var expected = altSplits.length;
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected one value per alternate)", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', i);
                         break;
                     case "R":
                         var expected = altSplits.length + 1;
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected one value for each possible  allele, including the reference)", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', i);
                         break;
                     case "G":
                         var expected = this._binomial(altSplits.length + this._ploidy, this._ploidy);
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected: '" + expected + "', found: '" + found + "'). Must have one value for each possible genotype", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', i);
                         break;
                     default:
                         var expected = parseInt(formatElem.number);
                         if (expected != found) {
                             this.addLog("error", "Wrong number of values in FORMAT field '" + formatKey + " (expected: '" + expected + "', found: '" + found + "'.", 8);
                         }
-                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT',i);
+                        this._checkFormatDataType(sampleValue.split(","), formatElem, 'FORMAT', i);
                         break;
                     }
                 }
@@ -579,25 +582,25 @@ VCFValidator.prototype._isFloat = function (n) {
     return this._regExp["float"].test(n);
 };
 
-VCFValidator.prototype._checkFormatDataType = function (data, formatElem, field,num) {
-  num=9+num;
+VCFValidator.prototype._checkFormatDataType = function (data, formatElem, field, num) {
+    num = 9 + num;
     for (var i = 0; i < data.length; i++) {
         var elem = data[i];
-        if(elem=="."){
-          continue;
+        if (elem == ".") {
+            continue;
         }
 
         if (formatElem.type === "Integer") {
             if (!this._isInt(elem)) {
-                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.",num);
+                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.", num);
             }
         } else if (formatElem.type === "Float") {
             if (!this._isFloat(elem)) {
-                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.",num);
+                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Value '" + elem + "' is not '" + formatElem.type + "'.", num);
             }
         } else if (formatElem.type === "Character") {
             if (elem.length > 1) {
-                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Expected one character, found '" + elem.length + "'",num);
+                this.addLog("error", field + " field '" + formatElem.id + "' defined as '" + formatElem.type + "' . Expected one character, found '" + elem.length + "'", num);
             }
         }
     }
