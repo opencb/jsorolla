@@ -28,7 +28,7 @@ function GenomeViewer(args) {
 
     //set default args
     this.autoRender = true;
-    this.version = 'Powered by <a target="_blank" href="http://www.genomemaps.org/">Genome Maps</a>';
+    this.version = 'Powered by <a target="_blank" href="http://www.opencb.org/">OpenCB</a>';
     this.target;
 
     this.width;

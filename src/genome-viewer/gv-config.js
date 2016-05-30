@@ -1,6 +1,6 @@
 
 // var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
-var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase-dev-v4.0';
+var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase-4.1.0-beta';
 var CELLBASE_VERSION = 'v4';
 
 
