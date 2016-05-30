@@ -165,19 +165,21 @@
 <body class="ocb">
 
 <script type="text/javascript">
+
+    // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
+    var queryParams = URI.parseQuery(window.location.search);
+    if (typeof queryParams.CELLBASE_HOST !== "undefined") {
+        CELLBASE_HOST = queryParams.CELLBASE_HOST;
+    }
+    if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
+        CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
+    }
+    console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
+
+
     var genomeViewer;
-//    var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
-
-    /*
-     *  For development purpose only
-     */
-//    if (window.location.host.indexOf("localhost") != -1 || window.location.protocol === "file:") {
-//        CELLBASE_HOST = "http://localhost:8080/cellbase/webservices/rest";
-//    }
-
     var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
     //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
-
 
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
@@ -215,7 +217,7 @@
 
         genomeViewer = new GenomeViewer({
             cellBaseHost: CELLBASE_HOST,
-            cellBaseVersion: 'v3',
+            cellBaseVersion: CELLBASE_VERSION,
             target: 'application',
             width: document.querySelector('#application').getBoundingClientRect().width,
             region: region,
