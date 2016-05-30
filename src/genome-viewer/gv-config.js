@@ -303,9 +303,14 @@ FEATURE_TYPES = {
             return 'SNP' + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
-            return 'alleles:&nbsp;<span class="ssel">' + f.reference + '/' + f.alternate + '</span><br>' +
-                FEATURE_TYPES.getTipCommons(f) +
-                'conseq. type :&nbsp;<span class="ssel">' + f.annotation.displayConsequenceType + '</span><br>';
+            var mafString = "N/A";
+            if (typeof f.annotation.minorAlleleFreq !== "undefined") {
+                mafString = f.annotation.minorAlleleFreq + ' (' + f.annotation.minorAllele + ')';
+            }
+            return 'alleles:&nbsp;<span class="ssel">' + f.reference + '/' + f.alternate + '</span><br>'
+                + FEATURE_TYPES.getTipCommons(f)
+                + 'conseq. type :&nbsp;<span class="ssel">' + f.annotation.displayConsequenceType + '</span><br>'
+                + '1000G MAF:&nbsp;<span class="ssel">' + mafString + '</span><br>';
 //                'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
 
         },
