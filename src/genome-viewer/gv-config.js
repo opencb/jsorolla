@@ -279,21 +279,38 @@ FEATURE_TYPES = {
     },
     snp: {
         label: function (f) {
+            // FIXME change this once CellBase is reloaded
+            // debugger
+            if (typeof f.ids !== "undefined" && f.ids.length > 0) {
+                f.id = f.ids[0];
+            } else {
+                if (typeof f.id === "undefined") {
+                    f.id = f.chromosome + ":" + f.start;
+                }
+            }
             return ('name' in f) ? f.name : f.id;
         },
         tooltipTitle: function (f) {
+            // FIXME change this once CellBase is reloaded
+            if (typeof f.ids !== "undefined" && f.ids.length > 0) {
+                f.id = f.ids[0];
+            } else {
+                if (typeof f.id === "undefined") {
+                    f.id = f.chromosome + ":" + f.start;
+                }
+            }
             var name = (f.name != null) ? f.name : f.id;
             return 'SNP' + ' - <span class="ok">' + name + '</span>';
         },
         tooltipText: function (f) {
-            return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
+            return 'alleles:&nbsp;<span class="ssel">' + f.reference + '/' + f.alternate + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) +
-                'conseq. type :&nbsp;<span class="ssel">' + f.displayConsequenceType + '</span><br>';
+                'conseq. type :&nbsp;<span class="ssel">' + f.annotation.displayConsequenceType + '</span><br>';
 //                'source:&nbsp;<span class="ssel">' + f.source + '</span><br>';
 
         },
         color: function (f) {
-            return SNP_BIOTYPE_COLORS[f.displayConsequenceType];
+            return SNP_BIOTYPE_COLORS[f.annotation.displayConsequenceType];
         },
         infoWidgetId: "id",
         height: 8,
