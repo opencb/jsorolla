@@ -166,15 +166,14 @@
 
 <script type="text/javascript">
     var genomeViewer;
-    var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
+//    var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
+
     /*
      *  For development purpose only
      */
-    if (window.location.host.indexOf("localhost") != -1 ||
-            window.location.protocol === "file:"
-    ) {
-        CELLBASE_HOST = "http://localhost:8080/cellbase/webservices/rest";
-    }
+//    if (window.location.host.indexOf("localhost") != -1 || window.location.protocol === "file:") {
+//        CELLBASE_HOST = "http://localhost:8080/cellbase/webservices/rest";
+//    }
 
     var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
     //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});

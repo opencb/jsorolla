@@ -1,3 +1,7 @@
+
+// var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
+var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase-dev-v4.0';
+
 CODON_CONFIG = {
     '': {text: '', color: 'transparent'},
     'R': {text: 'Arg', color: '#BBBFE0'},
