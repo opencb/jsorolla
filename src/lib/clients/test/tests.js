@@ -15,30 +15,17 @@
  */
 
 /**
- * Created by imedina on 18/03/16.
+ * Created with IntelliJ IDEA.
+ * User: imedina
+ * Date: 10/9/13
+ * Time: 6:00 PM
+ * To change this template use File | Settings | File Templates.
  */
 
-class CellBaseClientConfig {
+test("OpenCGAClient", function() {
+    ok( 1 == 1, "Passed!" );
+});
 
-
-    constructor(hosts = ["bioinfo.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v3", species = "hsapiens") {
-        this.setHosts(hosts);
-        this.version = version;
-        this.species = species;
-
-        // default values
-        this.rpc = "rest";
-        this.cache = true;
-        this.cacheDatabase = "cellbase_cache";
-
-    }
-
-    setHosts(hosts) {
-        if (typeof hosts == "string") {
-            this.hosts = hosts.split(",");
-        } else {
-            this.hosts = hosts;
-        }
-    }
-
-}
+test("Adding and Getting", function() {
+    ok( 1 == 1, "Passed!" );
+});

@@ -14,31 +14,16 @@
  * limitations under the License.
  */
 
-/**
- * Created by imedina on 18/03/16.
- */
+class OpenCGAClientConfig {
 
-class CellBaseClientConfig {
-
-
-    constructor(hosts = ["bioinfo.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v3", species = "hsapiens") {
-        this.setHosts(hosts);
+    constructor(host = "172.24.193.208:8080/opencga", version = "v1", cookieSessionId = "catalog_sid", cookieUserName = "catalog_user") {
+        this.host = host;
         this.version = version;
-        this.species = species;
+        this.cookieSessionId = cookieSessionId;
+        this.cookieUserName = cookieUserName;
 
         // default values
         this.rpc = "rest";
-        this.cache = true;
-        this.cacheDatabase = "cellbase_cache";
-
-    }
-
-    setHosts(hosts) {
-        if (typeof hosts == "string") {
-            this.hosts = hosts.split(",");
-        } else {
-            this.hosts = hosts;
-        }
     }
 
 }
