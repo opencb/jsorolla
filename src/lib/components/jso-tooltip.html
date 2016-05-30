@@ -10,7 +10,7 @@
         #messageInfo {
             position: fixed;
             z-index: 200000;
-            box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.30);
+            box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.30);
             min-width: 200px;
             min-height: 100px;
             margin: 0px;
@@ -25,17 +25,22 @@
 
         .closeInfo {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 7px;
+            right: 7px;
             cursor: pointer;
+            color: var(--secondary-text-color);
+        }
+
+        .closeInfo:hover {
+            color: var(--primary-text-color);
         }
 
         .info {
-            color: #6b4dff;
+            color: #4790bf;
         }
 
         .warn {
-            color: #ffbf00;
+            color: #bf9947;
         }
 
         .error {

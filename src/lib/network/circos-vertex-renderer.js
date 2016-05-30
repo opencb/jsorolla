@@ -285,7 +285,7 @@ CircosVertexRenderer.prototype = {
     update: function () {
         this.remove();
         this._render();
-        console.log("update")
+        // console.log("update")
     },
     select: function (color) {
         if (color) {

@@ -3,20 +3,21 @@
 <script src="validator.js"></script>
 <script src="vcf-validator.js"></script>
 
-<dom-module name="jso-validator" noscript>
+<dom-module name="jso-validator">
     <style>
         :host {
             display: block;
             position: relative;
             box-sizing: border-box;
-            height: 100%;
+            height: 300px;
         }
 
         #header,
         #footer {
             box-sizing: border-box;
             background-color: var(--light-secondary-color);
-            padding: 3px 7px;
+            padding: 0 7px;
+            height: 24px;
         }
 
         #header {
@@ -25,6 +26,7 @@
 
         #footer {
             border-top: 1px solid var(--divider-color);
+            padding-left: 0px;
         }
 
         .line {
@@ -33,6 +35,16 @@
 
         .type {
             width: 60px;
+        }
+
+        #stop {
+            margin-left: 7px;
+            background-color: var(--dark-button-color);
+            color: var(--text-primary-color);
+        }
+
+        #stop:hover {
+            background-color: var(--light-button-color);
         }
 
         .type[type="error"],
@@ -55,8 +67,42 @@
             /*position: relative;*/
             /*box-sizing: border-box;*/
             /*height: auto;*/
-            margin: 3px;
-            padding: 3px;
+            /*margin: 3px;*/
+            padding: 1px 2px;
+            height: 50px;
+            border-left: 2px solid transparent;
+        }
+
+        .item:hover {
+            border-left: 2px solid var(--divider-color);
+        }
+
+        .view {
+            cursor: pointer;
+            visibility: hidden;
+        }
+
+        .item:hover > .view {
+            visibility: visible;
+        }
+
+        .view > i:hover {
+            color: var(--dark-button-color);
+        }
+
+        .line {
+            padding-right: 1px;
+            text-align: center;
+        }
+
+        .type {
+            padding: 0 1px;
+            text-align: center;
+        }
+
+        .msg {
+            word-break: break-all;
+            font-size: .95em;
         }
 
         .item[type="error"] {
@@ -71,7 +117,7 @@
 
         .log {
             position: relative;
-            height: 200px;
+            height: calc(100% - 48px);
             overflow-y: auto;
             /*background-color: #FAFAFA;*/
             background-color: white;
@@ -87,10 +133,11 @@
 
         .uploadbar {
             position: relative;
-            height: 20px;
+            height: 18px;
+            width: 100px;
             background-color: var(--light-primary-color);
-            line-height: 20px;
-            border-top: 1px solid var(--divider-color);
+            line-height: 18px;
+            border: 1px solid var(--divider-color);
         }
 
         .uploadprogress {
@@ -99,7 +146,7 @@
             left: 0px;
             height: 100%;
             width: 100%;
-            background-color: var(--divider-color);
+            background-color: var(--hover-color);
             /*margin-top: 10px;*/
         }
 
@@ -118,10 +165,15 @@
 
         .wrapped-text {
             white-space: pre-wrap;
-            min-height: 100px;
-            max-width: 800px;
             padding: 10px;
             overflow-y: auto;
+            min-width: 400px;
+            min-height: 150px;
+            max-width: 800px;
+        }
+
+        #linePreview {
+            max-width: 1000px;
         }
     </style>
     <template>
@@ -129,193 +181,264 @@
         <div id="header" class="horizontal layout center">
             <div class="line">Line </div>
             <div class="type">Type</div>
-            <div class="msg flex">Message</div>
+            <div class="flex">Message</div>
+            <div class="uploadbar" hidden$="{{!uploading}}">
+                <div id="progressBar" class="uploadprogress"></div>
+                <div class="uploadtext">
+                    <i id="spin" hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
+                    <span>{{progress}}</span> %
+                </div>
+                <br>
+            </div>
+            <div id="stop" class="jso-btn jso-btn-shdw" on-click="handleStop">Stop</div>
         </div>
-        <div class="log">
-            <template is="dom-repeat" items="{{log}}">
-                <div class="horizontal layout item" type$="{{item.type}}" on-mouseover="handleLogHover" on-mouseout="handleLogHoverOut">
+        <iron-list class="log" items="{{logIron}}" as="item">
+            <template>
+                <div class="horizontal layout center item" type$="{{item.type}}">
                     <div class="line">{{item.line}}</div>
                     <div class="type" type$="{{item.type}}">{{item.type}}</div>
                     <div class="msg flex">{{item.msg}}</div>
-                    <div class="jso-btn view" line="{{item.line}}" on-click="handleLogViewClick" hidden>View</div>
+                    <div class="view" line="{{item.line}}" column="{{item.column}}" on-click="handleLogViewClick" title="View line"><i class="fa fa-search"></i></div>
                 </div>
             </template>
-        </div>
-        <div id="footer" class="counts horizontal layout">
-            <div class="error-count count">Errors:
-                <span>{{errorCount}}</span>
-            </div>
-            <div class="warning-count count">Warning:
-                <span>{{warningCount}}</span>
-            </div>
-            <div class="info-count count">Info:
-                <span>{{infoCount}}</span>
-            </div>
+        </iron-list>
 
+        <div id="footer" class="counts horizontal layout center">
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="error" data-checked$="{{computeView(view, 'error')}}">
+                <div class="error-count count">Errors:
+                    <span>{{errorCount}}</span>
+                </div>
+            </div>
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="warning" data-checked$="{{computeView(view, 'warning')}}">
+                <div class="warning-count count">Warning:
+                    <span>{{warningCount}}</span>
+                </div>
+            </div>
+            <div class="jso-btn jso-btn-shdw but" on-click="handleView" data-value="info" data-checked$="{{computeView(view, 'info')}}">
+                <div class="info-count count">Info:
+                    <span>{{infoCount}}</span>
+                </div>
+            </div>
+            <div class="flex"></div>
+            <div class="count">Lines:
+                <span>{{numLines}}</span>
+            </div>
         </div>
 
-        <jso-panel modal movable closable hidden id="linePreview" on-close="handleCloseLinePreview">
+        <jso-panel modal movable closable hidden id="linePreviewPanel" on-close="handleCloseLinePreview">
             <div class="header">
                 <i class="fa fa-view"></i> &nbsp; View line
             </div>
-            <div class="container wrapped-text">{{linePreview}}</div>
+            <div class="container wrapped-text" id="linePreview">{{linePreview}}</div>
         </jso-panel>
 
-        <div class="uploadbar" hidden$="{{!uploading}}">
-            <div id="progressBar" class="uploadprogress"></div>
-            <div class="uploadtext">
-                <i hidden$="{{computeSpin(progress)}}" class="fa fa-spinner fa-spin"></i>
-                <span>{{progress}}</span> %
-            </div>
-            <br>
-        </div>
 
     </template>
-</dom-module>
-<script>
-    Polymer({
-        is: "jso-validator",
-        properties: {
-            file: {
-                type: Object,
-                value: function() {
-                    return {};
+
+    <script>
+        Polymer({
+            is: "jso-validator",
+            properties: {
+                file: {
+                    type: Object,
+                    value: function() {
+                        return null;
+                    },
+                    observer: 'fileChanged'
                 },
-                observer: 'fileChanged'
-            },
-            validator: {
-                type: Object,
-                value: function() {
-                    return new Validator({});
+                validator: {
+                    type: Object,
+                    value: function() {
+                        return new Validator({});
+                    },
+                    observer: 'validatorChanged'
                 },
-                observer: 'validatorChanged'
+                logIron: {
+                    type: Array
+                },
+                log: {
+                    type: Object,
+                    value: function() {
+                        return {
+                            error: [],
+                            warning: [],
+                            info: []
+                        }
+                    }
+                },
+                errorCount: {
+                    type: Number,
+                    value: 0
+                },
+                warningCount: {
+                    type: Number,
+                    value: 0
+                },
+                infoCount: {
+                    type: Number,
+                    value: 0
+                },
+                numLines: {
+                    type: Number,
+                    value: 0
+                },
+                progress: {
+                    type: Number,
+                    value: 0,
+                    observer: 'progressChanged'
+                },
+                view: {
+                    type: String,
+                    value: 'error'
+                },
             },
-            log: {
-                type: Array,
-                value: function() {
+            ready: function() {
+                this.set("logIron", this.log[this.view]);
+            },
+            handleView: function(e) {
+                this.view = e.currentTarget.dataset.value;
+                this.set("logIron", this.log[this.view]);
+            },
+            computeView: function(view, value) {
+                return view === value;
+            },
+            reset: function() {
+                this.progress = 0;
+                this.set("log", {
+                    error: [],
+                    warning: [],
+                    info: []
+                });
+                this.set("logIron", this.log[this.view]);
+                this.errorCount = 0;
+                this.warningCount = 0;
+                this.infoCount = 0;
+                this.numLines = 0;
+                if (this.validator) {
+                    this.validator.init();
+                }
+                this.setFile();
+            },
+            validate: function() {
+                this.set("log", {
+                    error: [],
+                    warning: [],
+                    info: []
+                });
+                this.set("logIron", this.log[this.view]);
+                this.errorCount = 0;
+                this.warningCount = 0;
+                this.infoCount = 0;
+                this.numLines = 0;
+                this.validator.validate();
+            },
+            handleStop: function(e) {
+                this.stop();
+            },
+            stop: function() {
+                if (this.validator) {
+                    this.validator.stop();
+                }
+            },
+            setFile: function(file) {
+                this.fileChanged(file);
+            },
+            validatorChanged: function(neo, old) {
+                var me = this;
+                neo.on("end", function(e) {
+                    me.numLines = me.validator.numLines;
+                    me.fire("end");
+                });
+
+                neo.on("err", function(e) {
+                    me.fire("err");
+                });
+
+                neo.on("stop", function(e) {
+                    me.$.spin.setAttribute('hidden', '');
+                    me.fire("stop");
+                });
+
+                neo.on("log", function(e) {
+                    switch (e.type) {
+                        case "error":
+                            me.errorCount++;
+                            // console.log(me.errorCount);
+                            if (me.errorCount == 100) {
+                                me.stop();
+                                alert('File has more than 100 errors, the validation is stopped');
+                            }
+                            break;
+                        case "warning":
+                            me.warningCount++;
+                            break;
+                    }
+                    if (me.log[e.type]==me.logIron) {
+                      me.push("logIron", e);
+                    }else{
+                      me.push('log.' + e.type, e);
+                    }
+                });
+
+                neo.on("lines", function(e) {
+                    me.set('numLines', e);
+                });
+
+                neo.on("progress", function(e) {
+                    me.set('progress', Math.ceil(e));
+                });
+
+                neo.init();
+
+            },
+            fileChanged: function(neo, old) {
+                if (neo && this.validator) {
+                    this.validator.init();
+                    this.validator.file = neo;
+                }
+            },
+            computeLog: function(validator) {
+                if (validator) {
+                    return validator.log;
+                } else {
                     return [];
                 }
             },
-            errorCount: {
-                type: Number,
-                value: 0
+            progressChanged: function(neo, old) {
+                console.log("progress : " + neo);
+                this.$.progressBar.style.width = neo + '%';
             },
-            warningCount: {
-                type: Number,
-                value: 0
+            computeSpin: function(progress) {
+                return progress >= 100 || progress <= 0;
             },
-            infoCount: {
-                type: Number,
-                value: 0
+            handleLogViewClick: function(e) {
+                var me = this;
+                var elem = e.currentTarget;
+                var line = elem.line - 1;
+                this.column = elem.column;
+                this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
+                    if (err) {
+                        return;
+                    }
+
+                    if (lines.length > 0) {
+                        var aux = lines[0].split("\t");
+                        aux[me.column] = '<span style="color:red">' + aux[me.column] + '</span>';
+                        me.$.linePreview.innerHTML = aux.join("\t");
+                        // me.linePreview = lines[0];
+                        me.$.linePreviewPanel.show();
+                    }
+
+                    if (eof) {
+                        return;
+                    }
+
+                });
             },
-            progress: {
-                type: Number,
-                value: 0,
-                observer: 'progressChanged'
+            handleCloseLinePreview: function(e) {
+                e.stopPropagation();
+                this.$.linePreview.innerHTML = "";
             }
-        },
-        ready: function() {
-
-        },
-        reset: function() {
-            this.progress = 0;
-        },
-        validate: function() {
-            this.set("log", []);
-            this.errorCount = 0;
-            this.warningCount = 0;
-            this.infoCount = 0;
-            this.validator.validate();
-        },
-        setFile: function(file) {
-            this.fileChanged(file);
-        },
-        validatorChanged: function(neo, old) {
-            var me = this;
-            neo.on("end", function(e) {
-                me.fire("end");
-            });
-
-            neo.on("err", function(e) {
-                me.fire("err");
-            });
-
-            neo.on("log", function(e) {
-                switch (e.type) {
-                    case "error":
-                        me.errorCount++;
-                        break;
-                    case "warning":
-                        me.warningCount++;
-                        break;
-                }
-                me.push("log", e);
-            });
-
-            neo.on("progress", function(e) {
-                me.progress = Math.ceil(e);
-            })
-
-            neo.init();
-
-        },
-        fileChanged: function(neo, old) {
-            if (neo && this.validator) {
-                this.validator.init();
-                this.validator.file = neo;
-            }
-        },
-        computeLog: function(validator) {
-            if (validator) {
-                return validator.log;
-            } else {
-                return [];
-            }
-        },
-        progressChanged: function(neo, old) {
-            console.log("progress : " + neo);
-            this.$.progressBar.style.width = neo + '%';
-        },
-        computeSpin: function(progress) {
-            return progress >= 100 || progress <= 0;
-        },
-        handleLogViewClick: function(e) {
-            var me = this;
-            var elem = e.currentTarget;
-            var line = elem.line - 1;
-            this.validator._navigator.readLines(line, 1, function linesReadHandler(err, index, lines, eof, progress) {
-                if (err) {
-                    return;
-                }
-
-                if (lines.length > 0) {
-                    me.linePreview = lines[0];
-                    me.$.linePreview.show();
-                }
-
-                if (eof) {
-                    return;
-                }
-
-            });
-        },
-        handleLogHover: function(e) {
-
-            var elem = e.currentTarget;
-
-            var view = elem.getElementsByClassName("view")[0];
-            view.hidden = false;
-        },
-        handleLogHoverOut: function(e) {
-
-            var elem = e.currentTarget;
-
-            var view = elem.getElementsByClassName("view")[0];
-            view.hidden = true;
-        },
-        handleCloseLinePreview: function(e) {
-            this.linePreview = "";
-        }
-
-    })
-</script>
+        })
+    </script>
+</dom-module>

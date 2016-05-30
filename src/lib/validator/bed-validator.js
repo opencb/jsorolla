@@ -24,7 +24,11 @@ BEDValidator.prototype.validateLine = function (line) {
 }
 
 BEDValidator.prototype.isHeaderLine = function (line) {
-    return line.startsWith("#");
+    if (line.startsWith("#") == true || line.startsWith("browser") == true || line.startsWith("track") == true) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 BEDValidator.prototype.parseHeader = function (line) {}

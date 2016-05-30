@@ -12,7 +12,7 @@
 
         #importBox {
             width: 500px;
-            height: 350px;
+            height: 390px;
         }
 
         .importBut {
@@ -21,12 +21,28 @@
         }
 
         .filename {
-            word-break: break-all;
+            /*word-break: break-all;*/
+            padding: 0 4px;
+            border: 1px solid var(--divider-color);
+            background-color: var(--hover-color);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            max-width: 360px;
         }
 
         jso-validator {
             border: 1px solid var(--divider-color);
             ;
+        }
+
+        #recheckButton {
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+        }
+
+        #recheckButton:hover {
+            background-color: var(--light-button-color) !important;
         }
     </style>
     <template>
@@ -38,15 +54,18 @@
                 <div class="flex">
                 </div>
                 <input type="file" hidden id="fileInput" required on-change="handleInputChange" disabled$="{{uploading}}">
-                <div class="jso-btn jso-btn-shdw importBut" on-click="handleValidate"><i class="fa fa-plus-square-o"></i>&nbsp; Import
+                <div class="jso-btn jso-btn-shdw importBut" on-click="handleImport"><i class="fa fa-plus-square-o"></i>&nbsp; Import
                 </div>
             </div>
             <div class="horizontal layout" style="line-height: 22px;margin-top: 5px;">
                 <label class="jso">Selected file name: &nbsp;</label>
-                <div class="filename">{{fileName}}</div>
+                <div class="filename flex">{{fileName}}</div>
+                <div id="recheckButton" class="jso-btn jso-btn-shdw" style="height:24px;" on-click="handleRecheck">
+                    Revalidate
+                </div>
             </div>
             <label class="jso" style="margin-top:15px;">File validation log:</label>
-            <jso-validator id="validator" on-end="handleValidatorEnd"></jso-validator>
+            <jso-validator id="validator" bioformats="{{bioformats}}" on-end="handleValidatorEnd" on-stop="handleValidatorStop"></jso-validator>
         </div>
 
 
@@ -70,17 +89,63 @@
                 fileName: {
                     type: String,
                     value: 'None'
+                },
+                validating: {
+                    type: Boolean,
+                    value: false
+                },
+                bioformats: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
+                stop: {
+                    type: Boolean,
+                    value: false
                 }
 
             },
             ready: function(e) {},
-            handleValidatorEnd: function() {},
+
+            handleValidatorEnd: function(e) {
+                alert('Validation has finished succesfully. Check errors or click on import button');
+                this.validating = false;
+            },
+
+            handleValidatorStop: function(e) {
+                alert('Validation has been stopped.');
+                this.validating = false;
+                this.stop = true;
+                //
+                // if (this._wantRevalidate == true) {
+                //     this._wantRevalidate = null;
+                //     this.revalidate();
+                // }
+            },
+            handleRecheck: function(e) {
+                // this.$.validator.reset();
+                // this.validate();
+                if (this.validating == true) {
+                    this._wantRevalidate = true;
+                    this.$.validator.stop();
+                } else {
+                    this.revalidate(e);
+                }
+            },
+            revalidate: function(e) {
+                this.$.validator.reset();
+                this.handleValidate(e);
+            },
+
             handleBrowseClick: function(e) {
                 if (this.uploading == false) {
                     this.$.fileInput.click();
                 }
             },
             handleValidate: function(e) {
+                this.validating == true;
+                this.stop = false;
                 var file = this.$.fileInput.files[0];
                 if (file != null) {
                     this.$.validator.reset();
@@ -103,12 +168,43 @@
                 }
 
             },
-            handleInputChange: function() {
+            handleInputChange: function(e) {
                 if (this.uploading == false) {
                     this.inputFile = this.$.fileInput.files[0];
-                    this.fileName = this.inputFile.name
+                    this.fileName = this.inputFile.name;
+                    this.handleValidate(e);
+
                 }
             },
+            handleImport: function(e) {
+                var file = this.$.fileInput.files[0];
+                if (file == null) {
+                    alert("No file selected.")
+                    return;
+                }
+                if (this.uploading == true) {
+                    alert("Upload already in progress.")
+                    return;
+                }
+                if (this.validating == false && this.stop == false) {
+
+                    if (this.$.validator.errorCount > 0) {
+                        alert("The file contains errors.")
+                        return;
+                    }
+                    if (this.$.validator.warningCount > 0) {
+                        if (confirm("File contains warning messages, are you sure?")) {
+                            this.fire('importbed');
+                            return;
+                        }
+                    }
+                    this.fire('importbed');
+                }
+                // if (this.validating == false && this.stop==false) {
+                //     // this.uploading=true;
+                //     this.fire('importbed');
+                // }
+            }
         });
     </script>
 </dom-module>

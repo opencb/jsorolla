@@ -1,0 +1,151 @@
+<dom-module id="jso-ontology-tree-item">
+    <style>
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+            /*width:100%;*/
+            /*overflow: hidden;
+            text-overflow: clip;*/
+        }
+
+        .main {
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            /*overflow: hidden;
+            text-overflow: clip;*/
+        }
+
+        .main:hover > * {
+            background-color: var(--hover-color)
+        }
+
+        .folder:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            content: '\f07b';
+        }
+
+        .file:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            content: '\f0f6';
+        }
+        .fOpen:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            content: '\f07c';
+        }
+
+        :host[selected] #name{
+            background-color: var(--selected-color);
+        }
+
+        .arrow:before {
+            font-family: "FontAwesome";
+            display: inline-block;
+            width: 12px;
+            text-align: center;
+            content: '\f0da';
+        }
+
+        .arrow[open]:before {
+            content: '\f0d7';
+        }
+
+        .arrow[empty]:before {
+            content: '\00a0';
+        }
+
+        .arrow {
+            padding: 2px 0 2px 2px;
+        }
+
+        #name {
+            padding: 2px 2px 2px 0;
+        }
+    </style>
+    <template>
+        <div class="main horizontal layout stv-nosel">
+            <div class="arrow" empty$="{{isEmpty(file.f)}}" open$="{{file.open}}" on-click="toggleOpen"></div>
+            <div id="name" class$="{{computeClass(file.f,file.open)}}" on-click="handleClick" on-dblclick="toggleOpen">{{computeName(file.n)}}</div>
+        </div>
+        <div style="margin-left:7px;" hidden$="{{!file.open}}">
+            <template is="dom-repeat" items="{{auxItems}}" as="f">
+                <jso-ontology-tree-item file="{{f}}">
+                </jso-ontology-tree-item>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: "jso-ontology-tree-item",
+            properties: {
+                file: {
+                    type: Object,
+                    observer: 'fileChanged'
+                },
+                auxItems: {
+                    type: Array
+                },
+                selected:{
+                  type: Boolean,
+                  value:false,
+                  reflectToAttribute:true
+                }
+            },
+            fileChanged: function(neo, old) {
+                if (neo) {
+                    this.checkFiles();
+                }
+            },
+            checkFiles: function() {
+                if (this.file.open == true) {
+                    if (this.file.f == null) {
+                        this.set('auxItems', []);
+                    } else {
+                        this.set('auxItems', this.file.f);
+                    }
+                } else {
+                    this.set('auxItems', []);
+                }
+            },
+            isEmpty: function(f) {
+                return f.length == 0;
+            },
+            computeName: function(name) {
+                if (name.indexOf('anonymous___') != -1) {
+                    name = 'anonymous';
+                }
+                return name;
+            },
+            handleClick: function(e) {
+                this.selected=!this.selected;
+            },
+            toggleOpen: function(e) {
+                if (this.file.f.length > 0) {
+                    this.set('file.open', !this.file.open);
+                }
+                this.checkFiles();
+            },
+            computeClass: function(sons, open) {
+                if (Object.keys(sons).length > 0) {
+                    if (open==true) {
+                        return "fOpen flex"
+                    } else {
+                        return "folder flex"
+                    }
+                } else {
+                    return "file flex"
+                }
+            }
+        });
+    </script>
+</dom-module>

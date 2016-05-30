@@ -1,6 +1,6 @@
 <link rel="import" href="../table/jso-table.html">
 <dom-module id="jso-variant-grid">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             display: block;
             position: relative;
@@ -29,8 +29,7 @@
     </style>
     <template>
 
-        <jso-table id="table" enable-resize enable-export$="{{enableExport}}" enable-paging enable-remote enable-select
-                   enable-loading request="{{request}}" on-rowclick="handleRowClick"></jso-table>
+        <jso-table id="table" enable-resize enable-export$="{{enableExport}}" enable-paging enable-remote enable-select enable-loading request="{{request}}" on-rowclick="handleRowClick"></jso-table>
     </template>
 
 </dom-module>
@@ -46,7 +45,7 @@
             },
             study: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {};
                 },
                 observer: 'studyChanged'
@@ -54,7 +53,7 @@
             samples: {
                 type: Array,
                 notify: true,
-                value: function () {
+                value: function() {
                     return [];
                 },
                 observer: 'samplesChanged'
@@ -73,7 +72,7 @@
             },
             query: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {};
                 }
             }
@@ -82,14 +81,14 @@
             name: 'variant',
             title: "Variant",
             width: 100,
-            formula: function (row) {
+            formula: function(row) {
                 return row.chromosome + ":" + row.start;
             }
         }, {
             name: 'alleles',
             title: 'Alleles',
             width: 100,
-            formula: function (row) {
+            formula: function(row) {
                 return row.reference + ">" + row.alternate;
             }
         }, {
@@ -119,6 +118,12 @@
             title: 'Conseq. Type',
             width: 300
         }, {
+            name: 'dp',
+            title: 'DP',
+            width: 50,
+            defaultValue: '.'
+
+        }, {
             name: 'sift',
             title: 'SIFT',
             width: 50,
@@ -147,7 +152,7 @@
                 name: "ALL",
                 title: "ALL",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ALL) {
                         return row['1000GENOMES_phase_1'].ALL;
                     } else {
@@ -158,7 +163,7 @@
                 name: "AMR",
                 title: "AMR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AMR) {
                         return row['1000GENOMES_phase_1'].AMR;
                     } else {
@@ -169,7 +174,7 @@
                 name: "ASN",
                 title: "ASN",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ASN) {
                         return row['1000GENOMES_phase_1'].ASN;
                     } else {
@@ -180,7 +185,7 @@
                 name: "AFR",
                 title: "AFR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AFR) {
                         return row['1000GENOMES_phase_1'].AFR;
                     } else {
@@ -191,7 +196,7 @@
                 name: "EUR",
                 title: "EUR",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].EUR) {
                         return row['1000GENOMES_phase_1'].EUR;
                     } else {
@@ -200,7 +205,7 @@
                 }
             }]
         }, {
-            name: '1000G_PHASE_3',
+            name: '1000GENOMES_phase_3',
             title: '1000G MAF(phase 3)',
             defaultValue: '.',
             width: 300,
@@ -208,9 +213,9 @@
                 name: "ALL",
                 title: "ALL",
                 width: 50,
-                formula: function (row) {
-                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].ALL) {
-                        return row['1000G_PHASE_3'].ALL;
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_3'] && row['1000GENOMES_phase_3'].ALL) {
+                        return row['1000GENOMES_phase_3'].ALL;
                     } else {
                         return ".";
                     }
@@ -219,9 +224,9 @@
                 name: "AMR",
                 title: "AMR",
                 width: 50,
-                formula: function (row) {
-                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].AMR) {
-                        return row['1000G_PHASE_3'].AMR;
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_3'] && row['1000GENOMES_phase_3'].AMR) {
+                        return row['1000GENOMES_phase_3'].AMR;
                     } else {
                         return ".";
                     }
@@ -230,9 +235,9 @@
                 name: "SAS",
                 title: "SAS",
                 width: 50,
-                formula: function (row) {
-                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].SAS) {
-                        return row['1000G_PHASE_3'].SAS;
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_3'] && row['1000GENOMES_phase_3'].SAS) {
+                        return row['1000GENOMES_phase_3'].SAS;
                     } else {
                         return ".";
                     }
@@ -241,9 +246,9 @@
                 name: "EAS",
                 title: "EAS",
                 width: 50,
-                formula: function (row) {
-                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].EAS) {
-                        return row['1000G_PHASE_3'].EAS;
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_3'] && row['1000GENOMES_phase_3'].EAS) {
+                        return row['1000GENOMES_phase_3'].EAS;
                     } else {
                         return ".";
                     }
@@ -252,9 +257,9 @@
                 name: "AFR",
                 title: "AFR",
                 width: 50,
-                formula: function (row) {
-                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].AFR) {
-                        return row['1000G_PHASE_3'].AFR;
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_3'] && row['1000GENOMES_phase_3'].AFR) {
+                        return row['1000GENOMES_phase_3'].AFR;
                     } else {
                         return ".";
                     }
@@ -263,9 +268,9 @@
                 name: "EUR",
                 title: "EUR",
                 width: 50,
-                formula: function (row) {
-                    if (row['1000G_PHASE_3'] && row['1000G_PHASE_3'].EUR) {
-                        return row['1000G_PHASE_3'].EUR;
+                formula: function(row) {
+                    if (row['1000GENOMES_phase_3'] && row['1000GENOMES_phase_3'].EUR) {
+                        return row['1000GENOMES_phase_3'].EUR;
                     } else {
                         return ".";
                     }
@@ -280,7 +285,7 @@
                 name: "EA",
                 title: "Eur.Ame.",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['ESP_6500'] && row['ESP_6500'].EA) {
                         return row['ESP_6500'].EA;
                     } else {
@@ -291,7 +296,7 @@
                 name: "AA",
                 title: "Afr.Ame",
                 width: 50,
-                formula: function (row) {
+                formula: function(row) {
                     if (row['ESP_6500'] && row['ESP_6500'].AA) {
                         return row['ESP_6500'].AA;
                     } else {
@@ -301,6 +306,11 @@
             }]
 
         }, {
+            name: 'exac',
+            title: 'EXAC',
+            width: 50,
+            defaultValue: '.'
+        }, {
             name: 'phenotype',
             title: 'Phenotype',
             defaultValue: '.',
@@ -309,7 +319,7 @@
                 name: "clinvar",
                 title: "Clinvar",
                 width: 200,
-                formula: function (row) {
+                formula: function(row) {
                     if (row.phenotype && row.phenotype.clinvar) {
                         return row.phenotype.clinvar;
                     } else {
@@ -320,7 +330,7 @@
                 name: "cosmic",
                 title: "Cosmic",
                 width: 200,
-                formula: function (row) {
+                formula: function(row) {
                     if (row.phenotype && row.phenotype.cosmic) {
                         return row.phenotype.cosmic;
                     } else {
@@ -331,23 +341,23 @@
                 name: "gwas",
                 title: "GWAS",
                 width: 200,
-                formula: function (row) {
+                formula: function(row) {
                     return ".";
                 }
             }]
         }],
-        studyChanged: function (neo, old) {
+        studyChanged: function(neo, old) {
             if (neo && neo.id != null) {
                 this.$.table.clear();
                 this._updateColumns();
             }
         },
-        samplesChanged: function (neo, old) {
+        samplesChanged: function(neo, old) {
             this.request = null;
             this.$.table.clear();
             this._updateColumns();
         },
-        _updateColumns: function () {
+        _updateColumns: function() {
 
             var sampleColumns = [];
             var colWidth = 80;
@@ -373,8 +383,7 @@
 
             this.$.table.columns = this._columns;
 
-
-            this.$.table.exportParsers.headerParser = function (columns) {
+            this.$.table.exportParsers.headerParser = function(columns) {
                 var headerLine = this.comment;
 
                 for (var i = 0; i < 5; i++) {
@@ -410,7 +419,7 @@
                 return headerLine;
             };
 
-            var getValue = function (row, key) {
+            var getValue = function(row, key) {
                 if (key in row && row[key] != null && row[key] != "") {
                     return row[key];
                 } else {
@@ -418,7 +427,7 @@
                 }
             }
 
-            this.$.table.exportParsers.dataParser = function (columns, row) {
+            this.$.table.exportParsers.dataParser = function(columns, row) {
                 var dataLine = "";
 
                 dataLine += row.chromosome + ":" + row.start + this.separator;
@@ -427,13 +436,13 @@
                 dataLine += getValue(row, "genes") + this.separator;
                 dataLine += getValue(row, "type") + this.separator;
 
-
                 for (var i = 0; row.studies && row.studies[0] && row.studies[0].samplesData && i < row.studies[0].samplesData.length; i++) {
                     var genotype = row.studies[0].samplesData[i];
                     dataLine += genotype + this.separator;
                 }
 
                 dataLine += getValue(row, "ct") + this.separator;
+                dataLine += getValue(row, "dp") + this.separator;
                 dataLine += getValue(row, "sift") + this.separator;
                 dataLine += getValue(row, "polyphen") + this.separator;
                 dataLine += getValue(row, "phylop") + this.separator;
@@ -444,15 +453,15 @@
                 dataLine += getValue(row["1000GENOMES_phase_1"], "ASN") + this.separator;
                 dataLine += getValue(row["1000GENOMES_phase_1"], "AFR") + this.separator;
                 dataLine += getValue(row["1000GENOMES_phase_1"], "EUR") + this.separator;
-                dataLine += getValue(row["1000G_PHASE_3"], "ALL") + this.separator;
-                dataLine += getValue(row["1000G_PHASE_3"], "AMR") + this.separator;
-                dataLine += getValue(row["1000G_PHASE_3"], "SAS") + this.separator;
-                dataLine += getValue(row["1000G_PHASE_3"], "EAS") + this.separator;
-                dataLine += getValue(row["1000G_PHASE_3"], "AFR") + this.separator;
-                dataLine += getValue(row["1000G_PHASE_3"], "EUR") + this.separator;
+                dataLine += getValue(row["1000GENOMES_phase_3"], "ALL") + this.separator;
+                dataLine += getValue(row["1000GENOMES_phase_3"], "AMR") + this.separator;
+                dataLine += getValue(row["1000GENOMES_phase_3"], "SAS") + this.separator;
+                dataLine += getValue(row["1000GENOMES_phase_3"], "EAS") + this.separator;
+                dataLine += getValue(row["1000GENOMES_phase_3"], "AFR") + this.separator;
+                dataLine += getValue(row["1000GENOMES_phase_3"], "EUR") + this.separator;
 
                 dataLine += getValue(row["ESP_6500"], "EA") + this.separator;
-                dataLine += getValue(row["ESP_6500"], "EUR") + this.separator;
+                dataLine += getValue(row["ESP_6500"], "AA") + this.separator;
 
                 if (row.phenotype) {
                     dataLine += getValue(row["phenotype"], "clinvar") + this.separator;
@@ -463,14 +472,13 @@
                     dataLine += "." + this.separator + "." + this.separator + "."
                 }
 
-
                 return dataLine;
             }
         },
-        handleRowClick: function (e) {
+        handleRowClick: function(e) {
             console.log(e.detail.row);
         },
-        urlChanged: function (neo, old) {
+        urlChanged: function(neo, old) {
             var me = this;
             if (neo == null || neo == "") {
                 return;
@@ -478,10 +486,10 @@
             this.request = {
                 url: this.url,
                 auxTotalCount: -1,
-                parse: function (response) {
+                parse: function(response) {
                     return me._parse(response);
                 },
-                parseTotal: function (response) {
+                parseTotal: function(response) {
                     var total = me._parseTotal(response);
 
                     me.numTotalResults = total;
@@ -502,7 +510,7 @@
                 },
             };
         },
-        _parse: function (response) {
+        _parse: function(response) {
             var me = this;
             if (response.response != null) {
                 var data = response.response[0].result;
@@ -532,7 +540,6 @@
 
                                 // SIFT & Polyphen
                                 if (ct.proteinVariantAnnotation && polyphenAux == null && siftAux == null) {
-
                                     if (ct.proteinVariantAnnotation.substitutionScores && (siftAux == null || polyphenAux == null)) {
                                         if (ct.proteinVariantAnnotation.substitutionScores[0] && ct.proteinVariantAnnotation.substitutionScores[1]) {
                                             var pol = ct.proteinVariantAnnotation.substitutionScores[0].score;
@@ -544,6 +551,9 @@
                                                 polyphenAux = pol;
                                                 siftAux = si;
                                             } else if (eval(si + this.query.sift) && this.query.polyphen == null) {
+                                                polyphenAux = pol;
+                                                siftAux = si;
+                                            } else if (this.query.sift == null && this.query.polyphen == null) {
                                                 polyphenAux = pol;
                                                 siftAux = si;
                                             }
@@ -592,13 +602,13 @@
                         if (annotation.populationFrequencies != null) {
                             variant['ESP_6500'] = {};
                             variant['1000GENOMES_phase_1'] = {};
-                            variant['1000G_PHASE_3'] = {};
+                            variant['1000GENOMES_phase_3'] = {};
                             for (var j = 0; j < annotation.populationFrequencies.length; j++) {
                                 var freq = annotation.populationFrequencies[j];
                                 if (freq.study == "ESP_6500") {
-                                    if (freq.population == "European_American") {
+                                    if (freq.population == "EA") {
                                         variant['ESP_6500'].EA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "African_American") {
+                                    } else if (freq.population == "AA") {
                                         variant['ESP_6500'].AA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
 
@@ -615,19 +625,23 @@
                                         variant['1000GENOMES_phase_1'].ALL = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
 
-                                } else if (freq.study == "1000G_PHASE_3") {
-                                    if (freq.population == "1000G_PHASE_3_ALL") {
-                                        variant['1000G_PHASE_3'].ALL = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "1000G_PHASE_3_SAS") {
-                                        variant['1000G_PHASE_3'].SAS = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "1000G_PHASE_3_EAS") {
-                                        variant['1000G_PHASE_3'].EAS = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "1000G_PHASE_3_AMR") {
-                                        variant['1000G_PHASE_3'].AMR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "1000G_PHASE_3_AFR") {
-                                        variant['1000G_PHASE_3'].AFR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "1000G_PHASE_3_EUR") {
-                                        variant['1000G_PHASE_3'].EUR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                } else if (freq.study == "1000GENOMES_phase_3") {
+                                    if (freq.population == "ALL") {
+                                        variant['1000GENOMES_phase_3'].ALL = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                    } else if (freq.population == "SAS") {
+                                        variant['1000GENOMES_phase_3'].SAS = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                    } else if (freq.population == "EAS") {
+                                        variant['1000GENOMES_phase_3'].EAS = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                    } else if (freq.population == "AMR") {
+                                        variant['1000GENOMES_phase_3'].AMR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                    } else if (freq.population == "AFR") {
+                                        variant['1000GENOMES_phase_3'].AFR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                    } else if (freq.population == "EUR") {
+                                        variant['1000GENOMES_phase_3'].EUR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
+                                    }
+                                } else if (freq.study == "EXAC") {
+                                  if (freq.population == "ALL") {
+                                        variant.exac = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
                                 }
                             }
@@ -692,6 +706,16 @@
                         variant.type = typeAux;
                     }
 
+                    //DP
+                    if (variant.studies) {
+                        if (variant.studies[0].files) {
+                            if (variant.studies[0].files[0].attributes) {
+                                var dpAux = variant.studies[0].files[0].attributes["DP"];
+                                variant.dp = dpAux;
+                            }
+                        }
+                    }
+
                 }
 
             } else {
@@ -699,7 +723,7 @@
             }
             return data;
         },
-        _parseTotal: function (response) {
+        _parseTotal: function(response) {
             if (response.response != null) {
                 var total = response.response[0].numTotalResults;
             } else {

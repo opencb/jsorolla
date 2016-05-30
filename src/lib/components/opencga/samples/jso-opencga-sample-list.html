@@ -632,11 +632,11 @@
                                         caseCohort = response.response[0].result[0];
 
                                     } else {
-                                        alert('Server error, try again later.');
+                                        console.log('jso-opencga-sample-list635:Server error, try again later.');
                                     }
                                 },
                                 error: function() {
-                                    alert('Server error, try again later.');
+                                    console.log('jso-opencga-sample-list639:Server error, try again later.');
                                 }
                             }
                         });
@@ -655,11 +655,11 @@
                                     if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                         controlCohort = response.response[0].result[0];
                                     } else {
-                                        alert('Server error, try again later.');
+                                        console.log('jso-opencga-sample-list658:Server error, try again later.');
                                     }
                                 },
                                 error: function() {
-                                    alert('Server error, try again later.');
+                                    console.log('jso-opencga-sample-list662:Server error, try again later.');
                                 }
                             }
                         });
@@ -716,11 +716,11 @@
                                     }
                                 }
                             } else {
-                                alert('Server error, try again later.');
+                                console.log('jso-opencga-sample-list719:Server error, try again later.');
                             }
                         },
                         error: function() {
-                            alert('Server error, try again later.');
+                            console.log('jso-opencga-sample-list723:Server error, try again later.');
                         }
                     }
                 });
@@ -848,11 +848,11 @@
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                     me.set('caseCohort', response.response[0].result[0]);
                                 } else {
-                                    alert('Server error, try again later.');
+                                    console.log('jso-opencga-sample-list851:Server error, try again later.');
                                 }
                             },
                             error: function() {
-                                alert('Server error, try again later.');
+                                console.log('jso-opencga-sample-list855:Server error, try again later.');
                             }
                         }
                     });
@@ -871,11 +871,11 @@
                                 if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                     me.set('controlCohort', response.response[0].result[0]);
                                 } else {
-                                    alert('Server error, try again later.');
+                                    console.log('jso-opencga-sample-list874:Server error, try again later.');
                                 }
                             },
                             error: function() {
-                                alert('Server error, try again later.');
+                                console.log('jso-opencga-sample-list878:Server error, try again later.');
                             }
                         }
                     });
