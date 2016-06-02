@@ -23,6 +23,7 @@ class OpenCGAClient {
         this._studies;
         this._files;
         this._samples;
+        this._panels;
     }
 
     getConfig() {
@@ -67,6 +68,13 @@ class OpenCGAClient {
             this._samples = new Samples(this._config)
         }
         return this._samples;
+    }
+
+    panels() {
+        if (typeof this._panels === "undefined") {
+            this._panels = new Panels(this._config)
+        }
+        return this._panels;
     }
 }
 
@@ -582,6 +590,22 @@ class Cohorts extends OpenCGAParentClass {
 
     remove(ids, params, options) {
         return this.get("cohorts", ids, "remove", params, options);
+    }
+
+}
+
+class Panels extends OpenCGAParentClass {
+
+    constructor(config) {
+        super(config);
+    }
+
+    create(params, options) {
+        return this.get("panels", undefined, "create", params, options);
+    }
+
+    info(id, params, options) {
+        return this.get("panels", id, "info", params, options);
     }
 
 }
