@@ -47,6 +47,7 @@
             <template is="dom-if" if="{{computeViewMode(viewMode,'list')}}">
                 <div class="horizontal layout">
                     <div class="name title" title$="{{sample.name}}">{{sample.name}}</div>
+                    <!-- <div class="name title" title$="{{sample.name}}" contenteditable="true" on-blur="handleSampleRename">{{sample.name}}</div> -->
                 </div>
                 <div id="status" class="title">
                     <i class$="{{computeStatusIcon(sample.status)}}"></i>
@@ -101,5 +102,31 @@
             return '';
           }
         },
+        handleSampleRename: function(e){
+          var me=this;
+          var newName=e.currentTarget.innerHTML;
+          if (this.sample.name!=newName) {
+          OpencgaManager.samples.update({
+                id: me.sample.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                    // name:newName,
+                    // description:"this sample has an user description",
+                    description:me.sample.description,
+                    source:me.sample.source,
+                    individualId:me.sample.individualId
+                },
+                request: {
+                    async: false,
+                    success: function(response) {
+                        debugger
+                    },
+                    error: function() {
+
+                    }
+                }
+            });
+          }
+        }
     });
 </script>

@@ -295,6 +295,9 @@ var OpencgaManager = {
     samples: {
         search: function (args) {
             return OpencgaManager._doRequest(args, 'samples', 'search');
+        },
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'samples', 'update');
         }
     },
     util: {
