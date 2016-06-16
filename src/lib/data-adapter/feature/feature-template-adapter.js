@@ -166,7 +166,7 @@ FeatureTemplateAdapter.prototype = {
 
                     request.onload = function () {
                         args.webServiceCallCount--;
-                        if (request.status !== 400) {
+                        if (request.status !== 400 && request.status !== 500) {
                             var response;
                             try {
                                 response = JSON.parse(this.response);

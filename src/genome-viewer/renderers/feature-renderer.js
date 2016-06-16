@@ -74,6 +74,7 @@ FeatureRenderer.prototype.render = function (features, args) {
 
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
+        var strokeColor = _.isFunction(_this.strokeColor) ? _this.color(feature) : _this.strokeColor;
         var label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
         var height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
         var tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
@@ -123,7 +124,7 @@ FeatureRenderer.prototype.render = function (features, args) {
                     'y': rowY,
                     'width': width,
                     'height': height,
-                    'stroke': '#3B0B0B',
+                    'stroke': strokeColor,
                     'stroke-width': 1,
                     'stroke-opacity': 0.7,
                     'fill': color,

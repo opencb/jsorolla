@@ -39,24 +39,23 @@ function AlignmentTrack(args) {
 
 };
 
-
 AlignmentTrack.prototype.clean = function () {
     this._clean();
 
-//    console.time("-----------------------------------------empty");
+    //    console.time("-----------------------------------------empty");
     while (this.svgCanvasFeatures.firstChild) {
         this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
     }
-//    console.timeEnd("-----------------------------------------empty");
+    //    console.timeEnd("-----------------------------------------empty");
 };
 
 AlignmentTrack.prototype.updateHeight = function () {
-//    this._updateHeight();
+    //    this._updateHeight();
     var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
     this.main.setAttribute('height', renderedHeight);
 };
 
-AlignmentTrack.prototype.setWidth = function(width) {
+AlignmentTrack.prototype.setWidth = function (width) {
     this._setWidth(width);
     this.main.setAttribute("width", this.width);
 };
@@ -113,7 +112,6 @@ AlignmentTrack.prototype.getDataHandler = function (event) {
     this.updateHeight();
 };
 
-
 AlignmentTrack.prototype.draw = function () {
     var _this = this;
 
@@ -155,7 +153,6 @@ AlignmentTrack.prototype.draw = function () {
     }
     _this.updateHeight();
 };
-
 
 AlignmentTrack.prototype.move = function (disp) {
     var _this = this;
@@ -238,18 +235,22 @@ AlignmentTrack.prototype._removeDisplayedChunks = function (response) {
     var newChunks = [];
 
     var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
-    for (var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
-        if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
+    for (var i = 0, leni = chunks.length; i < leni; i++) { //loop over chunks
+        if (this.chunksDisplayed[chunks[i].chunkKey] != true) { //check if any chunk is already displayed and skip it
 
             features = []; //initialize array, will contain features not drawn by other drawn chunks
-            for (var j = 0, lenj = chunks[i].value.alignments.length; j < lenj; j++) {
-                feature = chunks[i].value.alignments[j];
+            var alignments = chunks[i].value.alignments;
+            if (alignments == null) {
+                alignments = chunks[i].value;
+            }
+            for (var j = 0, lenj = alignments.length; j < lenj; j++) {
+                feature = alignments[j];
 
                 //check if any feature has been already displayed by another chunk
                 displayed = false;
                 featureFirstChunk = getChunkId(feature.start);
                 featureLastChunk = getChunkId(feature.end);
-                for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {//loop over chunks touched by this feature
+                for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) { //loop over chunks touched by this feature
                     var chunkKey = getChunkKey(feature.chromosome, chunkId);
                     if (this.chunksDisplayed[chunkKey] == true) {
                         displayed = true;
@@ -261,7 +262,7 @@ AlignmentTrack.prototype._removeDisplayedChunks = function (response) {
                 }
             }
             this.chunksDisplayed[chunks[i].chunkKey] = true;
-            chunks[i].value.alignments = features;//update features array
+            chunks[i].value.alignments = features; //update features array
             newChunks.push(chunks[i]);
         }
     }

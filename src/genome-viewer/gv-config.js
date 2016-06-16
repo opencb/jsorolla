@@ -528,6 +528,74 @@ FEATURE_TYPES = {
         height: 13,
         histogramColor: "grey"
     },
+    bam: {
+        explainFlags: function (flags) {
+            var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags : <span class="ssel">' + flags + '</span></div>';
+            for (var i = 0; i < SAM_FLAGS.length; i++) {
+                if (SAM_FLAGS[i][1] & flags) {
+                    summary += SAM_FLAGS[i][0] + "<br>";
+                }
+            }
+            return summary;
+        },
+        label: function (f) {
+            return "Read  " + f.chromosome + ":" + f.start + "-" + f.end;
+        },
+        tooltipTitle: function (f) {
+            return 'Read' + ' - <span class="ok">' + f.QNAME + '</span>';
+        },
+        tooltipText: function (f) {
+            f.strand = this.strand(f);
+            var cigar = '';
+            for (var i = 0; i < f.differences.length; i++) {
+                var d = f.differences[i];
+                cigar += d.length + d.op
+            }
+
+            var one = 'cigar:&nbsp;<span class="ssel">' + cigar + '</span><br>' +
+                'insert size:&nbsp;<span class="ssel">' + f.inferredInsertSize + '</span><br>' +
+                FEATURE_TYPES.getTipCommons(f) + '<br>' +
+                this.explainFlags(f.FLAG);
+
+            var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
+            delete f.OPTIONAL["BQ"];//for now because is too long
+            for (var key in f.OPTIONAL) {
+                three += key + ":" + f.OPTIONAL[key] + "<br>";
+            }
+            var style = "background:#FFEF93;font-weight:bold;";
+            return '<div style="float:left">' + one + '</div>' +
+                '<div style="float:right">' + three + '</div>';
+        },
+        color: function (f, chr) {
+            if (f.RNEXT == "=" || f.RNAME == f.RNEXT) {
+                return (parseInt(f.FLAG) & (0x10)) == 0 ? "DarkGray" : "LightGray";
+            }else{
+                return "lightgreen";
+            }
+            /**/
+        },
+        strokeColor: function (f) {
+            if (this.mateUnmappedFlag(f)) {
+                return "tomato"
+            }
+            return (parseInt(f.FLAG) & (0x10)) == 0 ? "LightGray" : "DarkGray";
+        },
+        strand: function (f) {
+            return (parseInt(f.FLAG) & (0x10)) == 0 ? "Forward" : "Reverse";
+        },
+        readPairedFlag: function (f) {
+            return (parseInt(f.FLAG) & (0x1)) == 0 ? false : true;
+        },
+        firstOfPairFlag: function (f) {
+            return (parseInt(f.FLAG) & (0x40)) == 0 ? false : true;
+        },
+        mateUnmappedFlag: function (f) {
+            return (parseInt(f.FLAG) & (0x8)) == 0 ? false : true;
+        },
+        infoWidgetId: "id",
+        height: 13,
+        histogramColor: "grey"
+    },
     variantMulti: {
         label: function (f) {
             return f.id;
