@@ -13,7 +13,8 @@
             display: block;
             position: relative;
             box-sizing: border-box;
-            width: 250px;
+            width: 260px;
+            padding-left: 10px;
         }
 
         #filter_form {
@@ -29,7 +30,7 @@
         }
 
         #bar {
-            padding: 0 3px 5px 3px;
+            padding: 0 3px 5px 0;
         }
 
         #bar > .jso-btn {
@@ -181,14 +182,17 @@
         jso-form-box .container {
             font-size: 12px;
         }*/
+        .butstyle{
+          border-radius: 4px;
+        }
     </style>
     <template>
         <form id="filter_form">
             <!--<div class="title">-->
             <!--Filters-->
             <!--</div>-->
-            <div id="bar" class="horizontal layout center-justified">
-                <jso-tooltip id="filterHistoryTooltip" class="jso-btn jso-btn-shdw" title="Filters History" icon="filter">
+            <div id="bar" class="horizontal layout">
+                <jso-tooltip id="filterHistoryTooltip" class="jso-btn jso-btn-shdw butstyle" title="Filters History" icon="filter">
                     <div class="jso-btn jso-btn-shdw clear-but" title="Clear Filters History" on-click="clearFiltersHistory">
                         Clear
                     </div>
@@ -207,8 +211,8 @@
                         </template>
                     </div>
                 </jso-tooltip>
-                <div class="jso-btn jso-btn-shdw flex" on-click="clearForm">Clear</div>
-                <div class="jso-btn jso-btn-shdw flex" on-click="submitForm">Search</div>
+                <div class="jso-btn jso-btn-shdw flex butstyle" on-click="clearForm">Clear</div>
+                <div class="jso-btn jso-btn-shdw flex butstyle" on-click="submitForm">Search</div>
             </div>
             <jso-form-box collapsible id="segregationForm">
                 <div class="header">
@@ -956,9 +960,9 @@
                 var el = els[i];
                 if (el.checked == true) {
                     if (el.value == "germinal") {
-                        querySom.push(el.name+":"+"0/0,0|0");
+                        querySom.push(el.name + ":" + "0/0,0|0");
                     } else if (el.value == "somatic") {
-                        querySom.push(el.name+":"+"0/1,0|1,1/0,1|0,1/1,1|1");
+                        querySom.push(el.name + ":" + "0/1,0|1,1/0,1|0,1/1,1|1");
                     }
                 }
             }
