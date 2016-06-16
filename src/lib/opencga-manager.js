@@ -293,6 +293,9 @@ var OpencgaManager = {
         }
     },
     samples: {
+        info: function (args) {
+            return OpencgaManager._doRequest(args, 'samples', 'info');
+        },
         search: function (args) {
             return OpencgaManager._doRequest(args, 'samples', 'search');
         },

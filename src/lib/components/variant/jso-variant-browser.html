@@ -20,8 +20,12 @@
         }
 
         .title {
-            font-size: 22px;
-            padding: 5px 20px;
+            font-size: 20px;
+            padding: 10px 0 5px 0;
+            border-bottom: thin solid #edebe3;
+            margin-bottom: 10px;
+            margin-left: 12px;
+            color: #204854;
         }
 
         #right {
@@ -30,12 +34,12 @@
             width: calc( 100% - 275px);
         }
 
-        #menu {
+        /*#menu {*/
             /*border-bottom: 1px solid rgba(125, 125, 125, 0.4);*/
-            margin-top: 15px;
-        }
+            /*margin-top: 15px;*/
+        /*}*/
 
-        #menu > div {
+        /*#menu > div {
             font-size: 17px;
             padding: 5px 5px;
             margin: 0 20px;
@@ -50,7 +54,7 @@
 
         #menu > div[selected] {
             border-bottom-color: rgba(125, 125, 125, 0.7);
-        }
+        }*/
 
         #tools {
             /*height: calc(100% - 375px);*/
@@ -62,9 +66,29 @@
         jso-variant-effect-grid {
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
         }
+
+        .tabs {
+            margin: 5px 15px 0 0;
+            padding: 0 2px;
+            border-bottom: 1px solid transparent;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .tabs:hover {
+            border-bottom: 1px solid #8ba7a7;
+            color: #8ba7a7;
+            font-weight: bold;
+        }
+
+        .tabs[selected] {
+            border-bottom: 2px solid #225e71;
+            color: #222;
+            font-size: 13px;
+        }
     </style>
     <template>
-        <div class="title color-2">
+        <div class="title">
             <span>Study:</span>
             <span>{{study.name}}</span>
         </div>
@@ -73,11 +97,14 @@
             <div id="right" class="flex">
                 <jso-variant-grid id="variantGrid" enable-export url="{{url}}" query="{{query}}" study="{{study}}" samples="{{samples}}" num-total-results="{{numTotalResults}}" on-rowclick="handleRowClick"></jso-variant-grid>
 
-                <div id="menu" class="color-2 color-hover-2 horizontal layout">
-                    <div on-click="handleMenuClick" data-option="gv">Genomic context</div>
-                    <div on-click="handleMenuClick" data-option="frequency">Pop. Frequencies</div>
-                    <div on-click="handleMenuClick" data-option="phenotype">Phenotype</div>
-                    <div on-click="handleMenuClick" data-option="effect">Effect</div>
+                <div class="title" style="margin-left:0;font-size:18px;">
+                    Variant Data
+                </div>
+                <div id="menu" class="horizontal layout">
+                    <div class="tabs" on-click="handleMenuClick" data-option="gv">Genomic context</div>
+                    <div class="tabs" on-click="handleMenuClick" data-option="frequency">Pop. Frequencies</div>
+                    <div class="tabs" on-click="handleMenuClick" data-option="phenotype">Phenotype</div>
+                    <div class="tabs" on-click="handleMenuClick" data-option="effect">Effect</div>
                     <!-- <div on-click="handleMenuClick" data-option="stats">Stats</div> -->
                 </div>
 
@@ -127,12 +154,12 @@
                     reflectToAttribute: true,
                     value: false
                 },
-                query:{
-                  type:Object,
-                  notify:true,
-                  value: function(){
-                    return {};
-                  }
+                query: {
+                    type: Object,
+                    notify: true,
+                    value: function() {
+                        return {};
+                    }
                 }
             },
             created: function() {
