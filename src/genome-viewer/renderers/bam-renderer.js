@@ -71,23 +71,28 @@ BamRenderer.prototype.render = function (response, args) {
         for (var i = 0; i < reads.length; i++) {
             var read = reads[i];
             BamRenderer._processRead(read);
-            for (var j = 0; j < read.SEQ.length; j++) {
-                var seqPos = parseInt(read.POS) + j;
-                if (seqPos >= cs && seqPos <= ce) {
-                    coverageList[seqPos - cs]++;
-                    switch (read.SEQ[j]) {
-                    case "A":
-                        coverageListA[seqPos - cs]++;
-                        break;
-                    case "C":
-                        coverageListC[seqPos - cs]++;
-                        break;
-                    case "G":
-                        coverageListG[seqPos - cs]++;
-                        break;
-                    case "T":
-                        coverageListT[seqPos - cs]++;
-                        break;
+            for (var j = 0; j < read.differences.length; j++) {
+                var d = read.differences[j];
+                if (d.op != "S" && d.op != "H" && d.op != "I" && d.seq != null) {
+                    for (var k = 0; k < d.seq.length; k++) {
+                        var nt = d.seq[k];
+                        var ntPos = read.start + d.pos + k;
+                        if (ntPos >= cs && ntPos <= ce) {
+                            switch (nt) {
+                            case "A":
+                                coverageListA[ntPos - cs]++;
+                                break;
+                            case "C":
+                                coverageListC[ntPos - cs]++;
+                                break;
+                            case "G":
+                                coverageListG[ntPos - cs]++;
+                                break;
+                            case "T":
+                                coverageListT[ntPos - cs]++;
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -107,7 +112,7 @@ BamRenderer.prototype.render = function (response, args) {
             lineC = "",
             lineG = "",
             lineT = "";
-        var coverageNorm = 200,
+        var coverageNorm = 300,
             covHeight = 50;
         for (var i = 0; i < coverageList.length; i++) {
             //x = _this.pixelPosition+middle-((_this.position-p)*_this.pixelBase)+baseMid;
@@ -163,17 +168,17 @@ BamRenderer.prototype.render = function (response, args) {
             "fill": "red"
         });
 
-        var dummyRect = SVG.addChild(bamCoverGroup, "rect", {
-            "x": args.pixelPosition + middle - ((args.position - cs) * args.pixelBase),
-            "y": 0,
-            "width": pixelWidth,
-            "height": covHeight,
-            "opacity": "0.5",
-            "fill": "lightgray",
-            "cursor": "pointer"
-        });
+        // var dummyRect = SVG.addChild(bamCoverGroup, "rect", {
+        //     "x": args.pixelPosition + middle - ((args.position - cs) * args.pixelBase),
+        //     "y": 0,
+        //     "width": pixelWidth,
+        //     "height": bamCoverGroup.getBoundingClientRect().height,
+        //     "opacity": "0.5",
+        //     "fill": "lightgray",
+        //     "cursor": "pointer"
+        // });
 
-        $(dummyRect).qtip({
+        $(bamCoverGroup).qtip({
             content: " ",
             position: {
                 target: 'mouse',
@@ -204,7 +209,7 @@ BamRenderer.prototype.render = function (response, args) {
                 '<span style="color:blue">C</span>: <span class="ssel">' + coverageListC[pos] + '</span><br>' +
                 '<span style="color:darkgoldenrod">G</span>: <span class="ssel">' + coverageListG[pos] + '</span><br>' +
                 '<span style="color:red">T</span>: <span class="ssel">' + coverageListT[pos] + '</span><br>';
-            $(dummyRect).qtip('option', 'content.text', str);
+            $(bamCoverGroup).qtip('option', 'content.text', str);
             //}
         });
     };
@@ -256,7 +261,7 @@ BamRenderer.prototype.render = function (response, args) {
         // console.log(length + ' in px: ' + width);
 
         var rowHeight = 16;
-        var rowY = 70;
+        var rowY = bamCoverGroup.getBoundingClientRect().height + 10;
         //		var textY = 12+settings.height;
         while (true) {
             if (args.renderedArea[rowY] == null) {
@@ -296,7 +301,6 @@ BamRenderer.prototype.render = function (response, args) {
                         }
                     },
                     style: {
-                        width: 300,
                         classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'
                     },
                     show: 'mouseenter',
@@ -476,7 +480,6 @@ BamRenderer.prototype.render = function (response, args) {
                         effect: false
                     },
                     style: {
-                        width: 280,
                         classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'
                     },
                     show: 'click',
@@ -506,7 +509,6 @@ BamRenderer.prototype.render = function (response, args) {
                         effect: false
                     },
                     style: {
-                        width: 280,
                         classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'
                     },
                     show: 'click',

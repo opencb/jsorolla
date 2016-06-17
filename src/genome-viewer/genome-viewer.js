@@ -1127,6 +1127,9 @@ GenomeViewer.prototype = {
     containsTrack: function (track) {
         return this.trackListPanel.containsTrack(track);
     },
+    containsTrackById: function (trackId) {
+        return (this.getTrackById(trackId) != null) ? true : false;
+    },
 
     // TODO - DEPRECATED
     checkRenderedTrack: function (trackId) {

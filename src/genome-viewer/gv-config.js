@@ -530,7 +530,7 @@ FEATURE_TYPES = {
     },
     bam: {
         explainFlags: function (flags) {
-            var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags : <span class="ssel">' + flags + '</span></div>';
+            var summary = '<div style="background:#FFEF93;font-weight:bold;">flags : <span>' + flags + '</span></div>';
             for (var i = 0; i < SAM_FLAGS.length; i++) {
                 if (SAM_FLAGS[i][1] & flags) {
                     summary += SAM_FLAGS[i][0] + "<br>";
@@ -552,19 +552,23 @@ FEATURE_TYPES = {
                 cigar += d.length + d.op
             }
 
-            var one = 'cigar:&nbsp;<span class="ssel">' + cigar + '</span><br>' +
-                'insert size:&nbsp;<span class="ssel">' + f.inferredInsertSize + '</span><br>' +
+            var one = 'CIGAR:&nbsp;<b>' + cigar + '</b><br>' +
+                'TLEN:&nbsp;<b>' + f.TLEN + '</b><br>' +
+                'RNAME:&nbsp;<b>' + f.RNAME + '</b><br>' +
+                'POS:&nbsp;<b>' + f.POS + '</b><br>' +
+                'MAPQ:&nbsp;<b>' + f.MAPQ + '</b><br>' +
+                'RNEXT:&nbsp;<b>' + f.RNEXT + '</b><br>' +
+                'PNEXT:&nbsp;<b>' + f.PNEXT + '</b><br>' +
                 FEATURE_TYPES.getTipCommons(f) + '<br>' +
-                this.explainFlags(f.FLAG);
+                this.explainFlags(f.FLAG)+ '<br>';
 
-            var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
-            delete f.OPTIONAL["BQ"];//for now because is too long
+            var three = '<div style="background:#FFEF93;font-weight:bold;">Optional fields</div>';
             for (var key in f.OPTIONAL) {
                 three += key + ":" + f.OPTIONAL[key] + "<br>";
             }
             var style = "background:#FFEF93;font-weight:bold;";
-            return '<div style="float:left">' + one + '</div>' +
-                '<div style="float:right">' + three + '</div>';
+            return '<div>' + one + '</div>' +
+                '<div>' + three + '</div>';
         },
         color: function (f, chr) {
             if (f.RNEXT == "=" || f.RNAME == f.RNEXT) {
