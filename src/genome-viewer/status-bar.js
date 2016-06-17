@@ -68,7 +68,7 @@ StatusBar.prototype = {
     },
     draw: function () {
         var _this = this;
-        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
         if (!this.targetDiv) {
             console.log('target not found');
             return;
@@ -77,7 +77,8 @@ StatusBar.prototype = {
     },
     setRegion: function (event) {
         this.region.load(event.region);
-        $(this.mousePositionEl).html(Utils.formatNumber(event.region.center()));
+        this.mousePositionBase.textContent = "";
+        this.mousePositionRegion.textContent = this.region.chromosome + ':' + Utils.formatNumber(event.region.center());
     },
     setMousePosition: function (event) {
         this.mousePositionBase.style.color = SEQUENCE_COLORS[event.base];
