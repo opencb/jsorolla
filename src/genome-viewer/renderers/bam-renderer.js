@@ -289,6 +289,7 @@ BamRenderer.prototype.render = function (response, args) {
                     },
                     position: {
                         target: "mouse",
+                        viewport: $(window),
                         adjust: {
                             x: 25,
                             y: 15
@@ -672,6 +673,7 @@ BamRenderer.drawBamDifferences = function (refString, differences, size, mainX, 
                 },
                 position: {
                     target: "mouse",
+                    viewport: $(window),
                     adjust: {
                         x: 25,
                         y: 15
