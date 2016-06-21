@@ -30,7 +30,7 @@ function AlignmentTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-    this.histogramRenderer = new HistogramRenderer();
+    this.histogramRenderer = new window[this.histogramRendererName](args);
 
     this.dataType = 'features';
 
@@ -51,8 +51,34 @@ AlignmentTrack.prototype.clean = function () {
 
 AlignmentTrack.prototype.updateHeight = function () {
     //    this._updateHeight();
+    if (this.histogram) {
+        this.contentDiv.style.height = this.histogramRenderer.histogramHeight + 5 + 'px';
+        this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
+        return;
+    }
     var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
     this.main.setAttribute('height', renderedHeight);
+
+    if (this.resizable) {
+        if (this.autoHeight == false) {
+            this.contentDiv.style.height = this.height + 10 + 'px';
+        } else if (this.autoHeight == true) {
+            var x = this.pixelPosition;
+            var width = this.width;
+            var lastContains = 0;
+            for (var i in this.renderedArea) {
+                if (this.renderedArea[i].contains({
+                        start: x,
+                        end: x + width
+                    })) {
+                    lastContains = i;
+                }
+            }
+            var visibleHeight = parseInt(lastContains) + 30;
+            this.contentDiv.style.height = visibleHeight + 10 + 'px';
+            this.main.setAttribute('height', visibleHeight);
+        }
+    }
 };
 
 AlignmentTrack.prototype.setWidth = function (width) {

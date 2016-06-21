@@ -1115,6 +1115,14 @@ TrackListPanel.prototype = {
                 track.dataAdapter.setHost(this.cellBaseHost);
             }
         }
+    },
+    deleteTracksCache:function(){
+        for (var i = 0; i < this.tracks.length; i++) {
+            var track = this.tracks[i];
+            if(track.dataAdapter.deleteCache != null){
+                track.dataAdapter.deleteCache()
+            }
+        }
     }
 
 };

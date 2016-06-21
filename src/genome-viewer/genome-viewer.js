@@ -1130,6 +1130,10 @@ GenomeViewer.prototype = {
     containsTrackById: function (trackId) {
         return (this.getTrackById(trackId) != null) ? true : false;
     },
+    deleteTracksCache:function(){
+         this.overviewTrackListPanel.deleteTracksCache();
+         this.trackListPanel.deleteTracksCache();
+    },
 
     // TODO - DEPRECATED
     checkRenderedTrack: function (trackId) {

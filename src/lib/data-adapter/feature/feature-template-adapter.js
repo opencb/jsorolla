@@ -70,6 +70,9 @@ FeatureTemplateAdapter.prototype = {
         this.configureCache();
         this.host = host;
     },
+    deleteCache:function(){
+        this.cache.delete();
+    },
     configureCache: function () {
         var speciesString = '';
         if (this.species != null) {

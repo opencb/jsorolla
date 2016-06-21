@@ -290,6 +290,7 @@ FEATURE_TYPES = {
             return SNP_BIOTYPE_COLORS[f.displayConsequenceType];
         },
         infoWidgetId: "id",
+        strokeColor: "#555",
         height: 8,
         histogramColor: "orange"
     },
@@ -663,6 +664,7 @@ FEATURE_TYPES = {
             return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
         },
         color: "#8BC34A",
+        strokeColor: "#555",
         infoWidgetId: "id",
         height: 10,
         histogramColor: "#58f3f0"

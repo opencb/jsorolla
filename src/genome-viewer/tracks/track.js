@@ -24,6 +24,7 @@ function Track(args) {
     this.id = Utils.genId('track');
     this.dataAdapter;
     this.renderer;
+    this.histogramRendererName = "HistogramRenderer";
     this.resizable = true;
     this.autoHeight = false;
     this.targetId;

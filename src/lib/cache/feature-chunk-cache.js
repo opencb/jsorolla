@@ -201,6 +201,10 @@ FeatureChunkCache.prototype = {
 
     getDefaultChunkSize: function () {
         return this.defaultChunkSize;
+    },
+
+    delete:function(){
+        this.store.destroyDB();
     }
 
     /* TODO:
@@ -212,5 +216,3 @@ FeatureChunkCache.prototype = {
      });
      },*/
 };
-
-
