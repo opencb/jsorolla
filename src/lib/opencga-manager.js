@@ -306,7 +306,7 @@ var OpencgaManager = {
     panels:{
       create: function (args) {
         return OpencgaManager._doRequest(args, 'panels', 'create');
-      }
+      },
       info: function (args) {
         return OpencgaManager._doRequest(args, 'panels', 'info');
       }
