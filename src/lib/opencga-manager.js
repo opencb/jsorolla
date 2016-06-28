@@ -303,6 +303,14 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'samples', 'update');
         }
     },
+    panels:{
+      create: function (args) {
+        return OpencgaManager._doRequest(args, 'panels', 'create');
+      }
+      info: function (args) {
+        return OpencgaManager._doRequest(args, 'panels', 'info');
+      }
+    },
     util: {
         proxy: function (args) {
             return OpencgaManager._doRequest(args, 'util', 'proxy');
