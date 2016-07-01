@@ -14,12 +14,9 @@
   ~ limitations under the License.
   -->
 
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="iva-shared-styles.html">
-
 <dom-module id="variant-browser-filter">
     <template>
-        <style is="custom-style" include="iva-shared-styles"></style>
+        <style is="custom-style" include="jso-styles"></style>
 
         <div>
             <br>
@@ -58,7 +55,7 @@
                     </div>
                 </div>
 
-                <!--Somatic Filter filter-->
+                <!--Somatic filter-->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingTwo">
                         <h4 class="panel-title">
@@ -115,7 +112,7 @@
                     </div>
                 </div>
 
-                <!--Population Frequency filter menu-->
+                <!--Population Frequency filter-->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingFive">
                         <h4 class="panel-title">
@@ -131,7 +128,7 @@
                     </div>
                 </div>
 
-                <!--Protein Substitution Scores filter menu-->
+                <!--Protein Substitution Scores filter-->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingSix">
                         <h4 class="panel-title">
@@ -147,11 +144,11 @@
                     </div>
                 </div>
 
-                <!--Protein Substitution Scores filter menu-->
+                <!--Conservation Scores filter-->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingSeven">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#conservation" aria-expanded="false" aria-controls="proteinSubstitutionScore">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#conservation" aria-expanded="false" aria-controls="conservation">
                                 Conservation
                             </a>
                         </h4>
@@ -165,34 +162,48 @@
 
                 <!--Consequence Type filter-->
                 <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="headingTwo">
+                    <div class="panel-heading" role="tab" id="headingEight">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#consequenceType" aria-expanded="false" aria-controls="consequenceType">
                                 Consequence Type
                             </a>
                         </h4>
                     </div>
-                    <div id="consequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                    <div id="consequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingEight">
                         <div class="panel-body">
                             Consequence Type
                         </div>
                     </div>
                 </div>
 
-
-
-                <!-- Disease filter menu-->
+                <!-- Gene Ontology filter-->
                 <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="headingFour">
+                    <div class="panel-heading" role="tab" id="headingNine">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#disease" aria-expanded="false" aria-controls="disease">
-                                Disease
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#geneOntology" aria-expanded="false" aria-controls="geneOntology">
+                                Gene Ontology
                             </a>
                         </h4>
                     </div>
-                    <div id="disease" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                    <div id="geneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingNine">
                         <div class="panel-body">
-                            <textarea id="bierAppDiseaseTextarea" class="form-control clearable" rows="3"></textarea>
+                            <textarea id="bierAppGeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Human Phenotype Ontology filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTen">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#humanPhenotypeOntology" aria-expanded="false" aria-controls="humanPhenotypeOntology">
+                                Human Phenotype Ontology
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="humanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTen">
+                        <div class="panel-body">
+                            <textarea id="bierAppHumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
                         </div>
                     </div>
                 </div>
