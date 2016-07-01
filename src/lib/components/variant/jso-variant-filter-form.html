@@ -1350,6 +1350,7 @@
         filesIdChanged: function(neo, old) {
             if (neo.length > 0) {
                 this.query.files = neo.join(',');
+                this.query.returnedStudies=this.study.id;
                 //TODO fsalavert: fix
                 //            query.sessionId = Cookies("bioinfo_sid");
                 var url = OpencgaManager.studies.variants({

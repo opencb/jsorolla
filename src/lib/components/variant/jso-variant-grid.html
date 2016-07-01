@@ -640,7 +640,7 @@
                                         variant['1000GENOMES_phase_3'].EUR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
                                 } else if (freq.study == "EXAC") {
-                                  if (freq.population == "ALL") {
+                                    if (freq.population == "ALL") {
                                         variant.exac = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
                                 }
