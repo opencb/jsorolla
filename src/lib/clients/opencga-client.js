@@ -89,11 +89,20 @@ class OpenCGAParentClass {
         }
     }
 
-    get(category, ids, resource, params, options) {
+    get(category, ids, action, params, options) {
+        return this.getExtended(category, ids, null, null, action, params, options);
+    }
+
+    getExtended(category1, ids1, category2, ids2, action, params, options) {
         // we store the options from the parameter or from the default values in config
         let host = this._config.host;
         let version = this._config.version;
         let rpc = this._config.rpc;
+        let method = "GET";
+
+        if (options !== undefined && options.hasOwnProperty("method")) {
+            method = options.method;
+        }
 
         if (params === undefined || params === null || params === "") {
             params = {};
@@ -108,12 +117,17 @@ class OpenCGAParentClass {
         }
 
         // If category == users and userId is not given, we try to set it
-        if (category === "users" && (ids === undefined || ids === null || ids === "")) {
-            ids = Cookies.get(this._config.cookieUserName);
+        if (category1 === "users" && (ids1 === undefined || ids1 === null || ids1 === "")) {
+            ids1 = Cookies.get(this._config.cookieUserName);
         }
 
         if (rpc.toLowerCase() === "rest") {
-            let url = this._createRestUrl(host, version, category, ids, resource, params);
+            let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action, params);
+            if (method === "GET") {
+                url = this._addQueryParams(url, params);
+            } else {
+                options["data"] = params;
+            }
             console.log(url)
             // if the URL query fails we try with next host
             let response = RestClient.callPromise(url, options);
@@ -121,15 +135,30 @@ class OpenCGAParentClass {
         }
     }
 
-    _createRestUrl(host, version, category, ids, resource, params) {
-        let url = "http://" + host + "/webservices/rest/" + version + "/" + category + "/";
+    _createRestUrl(host, version, category1, ids1, category2, ids2, action) {
+        let url = "http://" + host + "/webservices/rest/" + version + "/" + category1 + "/";
 
         // Some web services do not need IDs
-        if (typeof ids != "undefined" && ids != null) {
-            url += ids + "/";
+        if (typeof ids1 != "undefined" && ids1 != null) {
+            url += ids1 + "/";
         }
-        url += resource;
 
+        // Some web services do not need a second category
+        if (typeof category2 != "undefined" && category2 != null) {
+            url += category2 + "/";
+        }
+
+        // Some web services do not need the second category of ids
+        if (typeof ids2 != "undefined" && ids2 != null) {
+            url += ids2 + "/";
+        }
+
+        url += action;
+
+        return url;
+    }
+
+    _addQueryParams(url, params) {
         // We add the query params formatted in URL
         let queryParamsUrl = this._createQueryParam(params);
         if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
@@ -161,6 +190,10 @@ class Users extends OpenCGAParentClass {
     }
 
     login(userId, params, options) {
+        if (options == undefined) {
+            options = {};
+        }
+        options["method"] = "POST";
         return this.get("users", userId, "login", params, options).then(function(response) {
             if (response.error === "") {
                 Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
@@ -187,8 +220,8 @@ class Users extends OpenCGAParentClass {
         return this.get("users", userId, "change-email", params, options);
     }
 
-    changePassword(userId, params, options) {
-        return this.get("users", userId, "change-password", params, options);
+    update(userId, params, options) {
+        return this.get("users", userId, "update", params, options);
     }
 
     resetPassword(userId, params, options) {
