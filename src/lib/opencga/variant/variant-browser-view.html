@@ -1,0 +1,267 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="iva-shared-styles.html">
+
+<dom-module id="variant-browser-view">
+    <template>
+        <style is="custom-style" include="iva-shared-styles"></style>
+
+        <div>
+            <!--BierApp Grid-->
+            <div style="padding: 10px; ">
+                <table id="bierAppToolGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                       data-show-pagination-switch="true" data-show-export="true">
+
+                </table>
+            </div>
+            <!--Tabs-->
+            <div>
+                <ul id="bierAppViewTabs" class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#bierappGenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
+                    <li role="presentation"><a href="#bierappPopFreq" role="tab" data-toggle="tab">Population Frequency</a></li>
+                    <li role="presentation"><a href="#bierappPhenotype" role="tab" data-toggle="tab">Phenotype</a></li>
+                    <li role="presentation"><a href="#bierappEffect" role="tab" data-toggle="tab">Effect</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <!--Genome Context Tab-->
+                    <div role="tabpanel" class="tab-pane active" id="bierappGenomeView">
+                        Genome Context
+                    </div>
+
+                    <!--Population Frequency Tab-->
+                    <div role="tabpanel" class="tab-pane" id="bierappPopFreq">
+                        Population Frequency
+                    </div>
+
+                    <!--Phenotype Tab-->
+                    <div role="tabpanel" class="tab-pane" id="bierappPhenotype">
+                        Phenotype
+                    </div>
+
+                    <!--Effect Tab-->
+                    <div role="tabpanel" class="tab-pane" id="bierappEffect ">
+                        Effect
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-browser-view',
+            properties: {
+                url: {
+                    type: String,
+                    observer: 'renderFromServer'
+                },
+                data: {
+                    type: Array,
+                    value: [],
+                    observer: 'renderFromLocal'
+                }
+            },
+            ready: function () {
+                this.cols = [
+                    [
+                        {
+                            title: 'Variant',
+                            field: 'variant',
+                            sortable: true,
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Alleles',
+                            field: 'allele',
+//                            formatter: this.refAltFormatter,
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'SNPId',
+                            field: 'id',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Genes',
+                            field: 'genes',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Type',
+                            field: 'type',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Samples',
+                            field: 'samples',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Consequence Type',
+                            field: 'displayConsequenceType',
+                            sortable: true,
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'DP',
+                            field: 'dp',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'SIFT',
+                            field: 'sift',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Polyphen',
+                            field: 'Polyphen',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'PhyloP',
+                            field: 'PhyloP',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'PhastCons',
+                            field: 'PhastCons',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: '1000G MAF(phase 3)',
+                            field: '1000G MAF(phase 3)',
+                            colspan: 6,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'EXAC',
+                            field: 'exac',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Phenotype',
+                            field: 'Phenotype',
+                            colspan: 3,
+                            rowspan: 1
+                        }
+                    ],
+                    [
+                        {
+                            title: 'ALL',
+                            field: 'all',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'AMR',
+                            field: 'amr',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'SAS',
+                            field: 'sas',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'EAS',
+                            field: 'eas',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'AFR',
+                            field: 'afr',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'EUR',
+                            field: 'eur',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'Clinvar',
+                            field: 'clinvar',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'Cosmic',
+                            field: 'cosmic',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'GWAS',
+                            field: 'gwas',
+                            colspan: 1,
+                            rowspan: 1
+                        }
+                    ]
+                ]
+            },
+            renderFromServer: function () {
+                $('#bierAppToolGrid').bootstrapTable('destroy');
+                let _numTotal = -1;
+
+                $('#bierAppToolGrid').bootstrapTable({
+                    url: this.url,
+                    method: 'get',
+                    sidePagination: 'server',
+                    queryParams: function (params) {
+                        return {
+                            limit: params.limit,
+                            skip: params.offset
+                        };
+                    },
+                    responseHandler: function (res) {
+                        if (_numTotal == -1) {
+                            _numTotal = res.response[0].numTotalResults;
+                        }
+                        return {total: _numTotal, rows: res.response[0].result}
+                    },
+                    columns: this.cols
+                });
+                $('#bierAppToolGrid').bootstrapTable('showLoading');
+            },
+            renderFromLocal: function () {
+                $('#bierAppToolGrid').bootstrapTable('destroy');
+                $('#bierAppToolGrid').bootstrapTable({
+                    data: this.data,
+                    columns: this.cols
+                });
+            }
+        });
+    </script>
+</dom-module>

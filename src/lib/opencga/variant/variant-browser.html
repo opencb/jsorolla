@@ -1,0 +1,118 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="iva-shared-styles.html">
+
+<link rel="import" href="variant-browser-filter.html">
+<link rel="import" href="variant-browser-view.html">
+
+<dom-module id="variant-browser">
+    <template>
+        <style is="custom-style" include="iva-shared-styles"></style>
+
+        <div class="panel">
+            <!--Dropdown menu for Studies in case of multiple studies-->
+            <template is="dom-if" if="{{checkForMultiple(studies)}}">
+                <div class="dropdown" style="background-color: transparent">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        {{title}} <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu bierapp-studies-menu">
+                        <template is="dom-repeat" items="{{studies}}" as="study">
+                            <li class="dropdown-submenu">
+                                <input type="radio" name="study" value="{{study}}"> {{study}}
+                                <!--<a href="#">{{study}}</a>-->
+                                <!--<ul class="dropdown-menu">-->
+                                    <!--<template is="dom-repeat" items="{{families}}" as="family">-->
+                                        <!--<li><a href="#">{{family}}</a></li>-->
+                                    <!--</template>-->
+                                <!--</ul>-->
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+
+            <!--Dropdown menu for families corresponding to one study-->
+            <template is="dom-if" if="{{checkForSingle(studies)}}">
+                <div class="dropdown" style="background-color: transparent">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        {{title}} <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu bierapp-studies-menu">
+                        <template is="dom-repeat" items="{{families}}" as="family">
+                            <li class="dropdown-submenu">
+                                <input type="radio" name="study" value="{{family}}"> {{family}}
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+            <br>
+
+            <div class="col-md-2">
+                <variant-browser-filter></variant-browser-filter>
+            </div>
+            <div class="col-md-10">
+                <variant-browser-view data="{{studies}}"></variant-browser-view>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-browser',
+            properties: {
+                host: {
+                    type: String
+                },
+                project: {
+                    type: String
+                },
+                studies: {
+                    type: Array,
+                    value: []
+                },
+                title: {
+                    type: String,
+                    value: ""
+                }
+            },
+            ready: function () {
+                console.log("BierApp tool loaded");
+                let _this = this;
+//                this.families = ["1", "2"];
+                $(document).on('click', '.bierapp-studies-menu li input', function() {
+                    console.log(event)
+                    _this.title = event.target.value;
+//                    _this.title = $(this).text();  //use it for .bierapp-studies-menu li a
+                });
+            },
+            checkForMultiple: function (studies) {
+                if (studies.length > 1) {
+                    this.title = "Select Study";
+                    return true;
+                }
+            },
+            checkForSingle: function (studies) {
+                if (studies.length == 1) {
+                    this.title = "Select Family";
+                    return true;
+                }
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,222 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="iva-shared-styles.html">
+
+<dom-module id="variant-browser-filter">
+    <template>
+        <style is="custom-style" include="iva-shared-styles"></style>
+
+        <div>
+            <br>
+            <div>
+                <button type="button" class="btn btn-default" on-click="fireFilter">
+                    <i class="fa fa-filter" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-default" on-click="fireClear">Clear</button>
+                <button type="button" class="btn btn-default" on-click="fireSearch">Search</button>
+            </div>
+            <br>
+
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <!--Segregation filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#segregation" aria-expanded="true" aria-controls="segregation">
+                                Segregation
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="segregation" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <form class="form-inline" role="form">
+                                <label>Sample:</label>
+                                <template is="dom-repeat" items="{{segregation}}">
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox"> {{item}}
+                                        </label>
+                                    </div>
+                                </template>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Somatic Filter filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#somaticFilter" aria-expanded="false" aria-controls="somaticFilter">
+                                Somatic Filter
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="somaticFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+                            <template is="dom-repeat" items="{{somaticValues}}">
+                                <input type="radio" name="study" value="{{item}}"> {{item}}
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Position filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingThree">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#position" aria-expanded="false" aria-controls="position">
+                                Position
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                        <div class="panel-body">
+                            Chromosomal Location:
+                            <textarea id="locationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"></textarea>
+                            Import from BED:
+                            <button type="button" class="btn btn-xs" on-click="">Import</button><br><br>
+                            Gene or SNPId:
+                            <textarea id="geneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Type filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingFour">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#type" aria-expanded="false" aria-controls="type">
+                                Type
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                        <div class="panel-body">
+                            <template is="dom-repeat" items="{{types}}">
+                                <input type="checkbox" name="type" value="{{item}}"> {{item}}
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Population Frequency filter menu-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingFive">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#populationFrequency" aria-expanded="false" aria-controls="populationFrequency">
+                                Population Frequency
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="populationFrequency" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+                        <div class="panel-body">
+                            <textarea id="bierAppPopulationFreqTextarea" class="form-control clearable" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Protein Substitution Scores filter menu-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingSix">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#proteinSubstitutionScore" aria-expanded="false" aria-controls="proteinSubstitutionScore">
+                                Protein Substitution Score
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="proteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSix">
+                        <div class="panel-body">
+                            <textarea id="bierAppProteinSubstitutionScoreTextarea" class="form-control clearable" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Protein Substitution Scores filter menu-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingSeven">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#conservation" aria-expanded="false" aria-controls="proteinSubstitutionScore">
+                                Conservation
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="conservation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSeven">
+                        <div class="panel-body">
+                            <textarea id="bierAppConservationTextarea" class="form-control clearable" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Consequence Type filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#consequenceType" aria-expanded="false" aria-controls="consequenceType">
+                                Consequence Type
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="consequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+                            Consequence Type
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Disease filter menu-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingFour">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#disease" aria-expanded="false" aria-controls="disease">
+                                Disease
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="disease" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                        <div class="panel-body">
+                            <textarea id="bierAppDiseaseTextarea" class="form-control clearable" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-browser-filter',
+            properties: {
+                segregation: {
+                    type: Array,
+                    value: ["0/0", "0/1", "1/1", "./."]
+                }
+            },
+            fireClear: function () {
+
+            },
+            fireFilter: function () {
+
+            },
+            fireSearch: function () {
+
+            }
+        });
+    </script>
+</dom-module>
