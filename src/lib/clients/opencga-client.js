@@ -190,7 +190,6 @@ class Users extends OpenCGAParentClass {
     }
 
     login(userId, params, options) {
-        debugger
         if (options == undefined) {
             options = {};
         }
@@ -221,8 +220,8 @@ class Users extends OpenCGAParentClass {
         return this.get("users", userId, "change-email", params, options);
     }
 
-    changePassword(userId, params, options) {
-        return this.get("users", userId, "change-password", params, options);
+    update(userId, params, options) {
+        return this.get("users", userId, "update", params, options);
     }
 
     resetPassword(userId, params, options) {
