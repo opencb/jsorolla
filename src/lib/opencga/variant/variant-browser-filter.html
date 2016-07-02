@@ -30,6 +30,25 @@
             <br>
 
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <!--Study filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="studyFilterHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#studyFilter" aria-expanded="false" aria-controls="studyFilter">
+                                Study Filter
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="studyFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="studyFilterHeading">
+                        <div class="panel-body">
+                            <template is="dom-repeat" items="{{studies}}">
+                                <input type="radio" name="study" value="{{item}}" on-click="studySelected" data-id="{{item}}"> {{item}}
+                                <br>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
                 <!--Segregation filter-->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingOne">
@@ -214,10 +233,27 @@
         Polymer({
             is: 'variant-browser-filter',
             properties: {
+                studies: {
+                    type: Array,
+                    value: []
+                },
+                study: {
+                    type: String,
+                    notify: true
+                },
                 segregation: {
                     type: Array,
                     value: ["0/0", "0/1", "1/1", "./."]
                 }
+            },
+            studySelected: function(e) {
+                console.log(e)
+                if (typeof e.target === "undefined") {
+                    this.study = e;
+                } else {
+                    this.study = e.target.dataId;
+                }
+                console.log("study:", this.study);
             },
             fireClear: function () {
 

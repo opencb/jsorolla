@@ -62,10 +62,10 @@
             <br>
 
             <div class="col-md-2">
-                <variant-browser-filter></variant-browser-filter>
+                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}"></variant-browser-filter>
             </div>
             <div class="col-md-10">
-                <variant-browser-view data="{{studies}}"></variant-browser-view>
+                <variant-browser-view study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}"></variant-browser-view>
             </div>
         </div>
     </template>
@@ -79,6 +79,9 @@
                 project: {
                     type: String
                 },
+                study: {
+                    type: String
+                },
                 studies: {
                     type: Array,
                     value: []
@@ -86,6 +89,9 @@
                 title: {
                     type: String,
                     value: ""
+                },
+                opencgaClient: {
+                    type: Object,
                 }
             },
             ready: function () {

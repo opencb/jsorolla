@@ -38,7 +38,8 @@
                 <div class="tab-content">
                     <!--Genome Context Tab-->
                     <div role="tabpanel" class="tab-pane active" id="bierappGenomeView">
-                        Genome Context
+                        <br>
+                        <div id="variationGenomeViewer"></div>
                     </div>
 
                     <!--Population Frequency Tab-->
@@ -67,10 +68,17 @@
                     type: String,
                     observer: 'renderFromServer'
                 },
+                study: {
+                    type: String,
+                    observer: 'renderFromServer'
+                },
                 data: {
                     type: Array,
                     value: [],
                     observer: 'renderFromLocal'
+                },
+                opencgaClient: {
+                    type: Object
                 }
             },
             ready: function () {
@@ -81,14 +89,15 @@
                             field: 'variant',
                             sortable: true,
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.variantFormatter
                         },
                         {
                             title: 'Alleles',
                             field: 'allele',
-//                            formatter: this.refAltFormatter,
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.alleleFormatter
                         },
                         {
                             title: 'SNPId',
@@ -228,29 +237,40 @@
                     ]
                 ]
             },
+            attached: function() {
+                this.renderGenomeViewer();
+            },
             renderFromServer: function () {
-                $('#bierAppToolGrid').bootstrapTable('destroy');
-                let _numTotal = -1;
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    let _this = this;
 
-                $('#bierAppToolGrid').bootstrapTable({
-                    url: this.url,
-                    method: 'get',
-                    sidePagination: 'server',
-                    queryParams: function (params) {
-                        return {
-                            limit: params.limit,
-                            skip: params.offset
-                        };
-                    },
-                    responseHandler: function (res) {
-                        if (_numTotal == -1) {
-                            _numTotal = res.response[0].numTotalResults;
-                        }
-                        return {total: _numTotal, rows: res.response[0].result}
-                    },
-                    columns: this.cols
-                });
-                $('#bierAppToolGrid').bootstrapTable('showLoading');
+                    this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study + '/variants';
+//                    this._url += '?sid=' + this.opencgaClient._config.sessionId;
+                    let _numTotal = -1;
+                    $('#bierAppToolGrid').bootstrapTable('destroy');
+                    $('#bierAppToolGrid').bootstrapTable({
+                        url: this._url,
+                        method: 'get',
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            return {
+                                limit: params.limit,
+                                skip: params.offset,
+                                sid: _this.opencgaClient._config.sessionId
+                            };
+                        },
+                        responseHandler: function (res) {
+                            console.log(res)
+                            if (_numTotal == -1) {
+//                                _numTotal = res.response[0].numTotalResults;
+                                _numTotal = 1150;
+                            }
+                            return {total: _numTotal, rows: res.response[0].result}
+                        },
+                        columns: this.cols
+                    });
+                    $('#bierAppToolGrid').bootstrapTable('showLoading');
+                }
             },
             renderFromLocal: function () {
                 $('#bierAppToolGrid').bootstrapTable('destroy');
@@ -258,6 +278,140 @@
                     data: this.data,
                     columns: this.cols
                 });
+            },
+            variantFormatter: function (value, row, index) {
+                return row.chromosome + ':' + row.start;
+            },
+            alleleFormatter: function (value, row, index) {
+                return row.reference + '/' + row.alternate;
+            },
+            renderGenomeViewer: function() {
+                console.log("genome maps")
+                var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
+                this.genomeViewer = new GenomeViewer({
+                    cellBaseHost: "http://bioinfo.hpc.cam.ac.uk/cellbase",
+                    cellBaseVersion: 'v3',
+                    target: this.$$('#variationGenomeViewer'),
+//                    width: this.$$('#variationGenomeViewer').getBoundingClientRect().width,
+                    width: 1200,
+                    region: region,
+                    availableSpecies: DEFAULT_SPECIES.vertebrates,
+                    species: DEFAULT_SPECIES.vertebrates[0],
+                    sidePanel: false,
+                    autoRender: true,
+                    resizable: true,
+                    karyotypePanelConfig: {
+                        collapsed: false,
+                        collapsible: true
+                    },
+                    chromosomePanelConfig: {
+                        collapsed: false,
+                        collapsible: true
+                    },
+                    navigationBarConfig: {
+                        componentsConfig: {
+                        }
+                    },
+                    handlers: {
+                        'region:change': function(e) {
+                            console.log(e)
+                        }
+                    }
+                });
+                var tracks = [];
+                this.sequence = new FeatureTrack({
+                    title: 'Sequence',
+                    height: 25,
+                    visibleRegionSize: 200,
+                    renderer: new SequenceRenderer(),
+                    dataAdapter: new CellBaseAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "sequence",
+                        params: {},
+                        species: this.genomeViewer.species,
+                        cacheConfig: {
+                            chunkSize: 100
+                        }
+                    })
+                });
+                tracks.push(this.sequence);
+                this.gene = new GeneTrack({
+                    title: 'Gene',
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    minTranscriptRegionSize: 200000,
+                    height: 100,
+                    renderer: new GeneRenderer({
+                        handlers: {
+                            'feature:click': function(e) {
+                                console.log(e)
+                            }
+                        }
+                    }),
+                    dataAdapter: new CellBaseAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "gene",
+                        species: this.genomeViewer.species,
+                        params: {
+                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+                        },
+                        cacheConfig: {
+                            chunkSize: 100000
+                        }
+                    })
+                });
+                tracks.push(this.gene);
+                var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
+                renderer.on({
+                    'feature:click': function(event) {
+                        // feature click event example
+                        console.log(event)
+                    }
+                });
+                var gene = new FeatureTrack({
+                    minHistogramRegionSize: 20000000,
+                    maxLabelRegionSize: 10000000,
+                    height: 100,
+                    renderer: renderer,
+                    dataAdapter: new CellBaseAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "gene",
+                        params: {
+                            exclude: 'transcripts,chunkIds'
+                        },
+                        species: this.genomeViewer.species,
+                        cacheConfig: {
+                            chunkSize: 100000
+                        }
+                    })
+                });
+                this.genomeViewer.addOverviewTrack(gene);
+                this.snp = new FeatureTrack({
+                    title: 'SNP',
+                    featureType: 'SNP',
+                    minHistogramRegionSize: 12000,
+                    maxLabelRegionSize: 3000,
+                    height: 120,
+                    renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+                    dataAdapter: new CellBaseAdapter({
+                        category: "genomic",
+                        subCategory: "region",
+                        resource: "snp",
+                        params: {
+                            exclude: 'transcriptVariations,xrefs,samples'
+                        },
+                        species: this.genomeViewer.species,
+                        cacheConfig: {
+                            chunkSize: 10000
+                        }
+                    })
+                });
+                tracks.push(this.snp);
+                this.genomeViewer.addTrack(tracks);
+                this.genomeViewer.draw();
             }
         });
     </script>
