@@ -42,7 +42,7 @@
                     <div id="studyFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="studyFilterHeading">
                         <div class="panel-body">
                             <template is="dom-repeat" items="{{studies}}">
-                                <input type="radio" name="study" value="{{item}}" on-click="studySelected" data-id="{{item}}"> {{item}}
+                                <input type="radio" name="study" value="{{item.name}}" on-click="studySelected" data-id="{{item.id}}"> {{item.name}}
                                 <br>
                             </template>
                         </div>
