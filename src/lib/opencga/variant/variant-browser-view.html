@@ -65,8 +65,8 @@
             is: 'variant-browser-view',
             properties: {
                 url: {
-                    type: String,
-                    observer: 'renderFromServer'
+                    type: String
+//                    observer: 'renderFromServer'
                 },
                 study: {
                     type: String,
@@ -152,13 +152,15 @@
                             title: 'PhyloP',
                             field: 'PhyloP',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.phylopFormatter
                         },
                         {
                             title: 'PhastCons',
                             field: 'PhastCons',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.phastconsFormatter
                         },
                         {
                             title: '1000G MAF(phase 3)',
@@ -241,7 +243,7 @@
                 this.renderGenomeViewer();
             },
             renderFromServer: function () {
-                if (this.opencgaClient instanceof OpenCGAClient) {
+                if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
                     let _this = this;
 
                     this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study + '/variants';
@@ -284,6 +286,26 @@
             },
             alleleFormatter: function (value, row, index) {
                 return row.reference + '/' + row.alternate;
+            },
+            phylopFormatter: function (value, row, index) {
+                if (typeof row !== "undefined") {
+                    for (let i = 0; i < row.annotation.conservation.length; i++) {
+                        if (row.annotation.conservation[i].source == "phylop") {
+                            return Number(row.annotation.conservation[i].score).toFixed(3)
+                        }
+                    }
+                }
+                return '-';
+            },
+            phastconsFormatter: function (value, row, index) {
+                if (typeof row !== "undefined") {
+                    for (let i = 0; i < row.annotation.conservation.length; i++) {
+                        if (row.annotation.conservation[i].source == "phastCons") {
+                            return Number(row.annotation.conservation[i].score).toFixed(3);
+                        }
+                    }
+                }
+                return '-';
             },
             renderGenomeViewer: function() {
                 console.log("genome maps")
