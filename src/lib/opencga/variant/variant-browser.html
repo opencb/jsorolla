@@ -31,8 +31,7 @@
                     <ul class="dropdown-menu bierapp-studies-menu">
                         <template is="dom-repeat" items="{{studies}}" as="study">
                             <li class="dropdown-submenu">
-                                <input type="radio" name="study" value="{{study}}"> {{study}}
-                                <!--<a href="#">{{study}}</a>-->
+                                <a href="#">{{study}}</a>
                                 <!--<ul class="dropdown-menu">-->
                                     <!--<template is="dom-repeat" items="{{families}}" as="family">-->
                                         <!--<li><a href="#">{{family}}</a></li>-->
@@ -98,10 +97,8 @@
                 console.log("BierApp tool loaded");
                 let _this = this;
 //                this.families = ["1", "2"];
-                $(document).on('click', '.bierapp-studies-menu li input', function() {
-                    console.log(event)
-                    _this.title = event.target.value;
-//                    _this.title = $(this).text();  //use it for .bierapp-studies-menu li a
+                $(document).on('click', '.bierapp-studies-menu li a', function() {
+                    _this.title = $(this).text();
                 });
             },
             checkForMultiple: function (studies) {
