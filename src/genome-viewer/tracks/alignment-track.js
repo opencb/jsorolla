@@ -56,7 +56,15 @@ AlignmentTrack.prototype.updateHeight = function () {
         this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
         return;
     }
-    var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
+
+    var renderedHeight = this.height;
+    var heightKeys = Object.keys(this.renderedArea);
+    heightKeys.sort(function (a, b) {
+        return parseInt(b) - parseInt(a);
+    });
+    if (heightKeys.length > 0) {
+        renderedHeight = parseInt(heightKeys[0]) + 30;
+    }
     this.main.setAttribute('height', renderedHeight);
 
     if (this.resizable) {
