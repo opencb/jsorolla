@@ -103,7 +103,8 @@
                             title: 'SNPId',
                             field: 'id',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.snpFormatter
                         },
                         {
                             title: 'Genes',
@@ -286,6 +287,9 @@
             },
             alleleFormatter: function (value, row, index) {
                 return row.reference + '/' + row.alternate;
+            },
+            snpFormatter: function (value, row, index) {
+                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
             },
             phylopFormatter: function (value, row, index) {
                 if (typeof row !== "undefined") {
