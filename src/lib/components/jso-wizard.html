@@ -31,23 +31,30 @@
             font-size: 15px;
             margin-right: 5px;
         }
+
         .init,
-        .end{
-          text-align: right;
-            color: #445D76;
+        .end {
+            text-align: right;
+            color: #0038cb;
             font-size: 15px;
             margin-right: 5px;
         }
 
-        label:hover {
+        .next{
+            margin-right: 15px;
+        }
+        .prev{
+            margin-left: 15px;
+        }
+
+        .next:hover,
+        .end:hover,
+        .init:hover,
+        .prev:hover {
             /*background-color: #d3d3d3;*/
             color: #6B6B6B;
             cursor: pointer;
             font-weight: bold;
-        }
-
-        i {
-            font-size: 10px;
         }
 
         #header {
@@ -59,9 +66,8 @@
             border-bottom: 1px solid var(--divider-color);
         }
 
-        .title {
+        #title {
             font-size: 20px;
-            color: #445D76;
         }
 
         #wizard-bottom {
@@ -79,31 +85,28 @@
     </style>
     <template>
         <div id="wizard-content" class="vertical layout">
-            <div id="header">
-                <div class="horizontal layout">
+            <div id="header" class="horizontal layout center">
+                <div class="flex horizontal layout center start-justified">
                     <div class="init" on-click="handlegoToInit" hidden="{{!handleHiddenStep1(step)}}">
-                        <label title="Go to Init"><i class="fa fa-fast-backward"></i></label>
+                        <i title="Go to Init" class="fa fa-fast-backward"></i>
                     </div>
-                    <div class="flex" hidden="{{handleHiddenStep1(step)}}"></div>
+                    <div hidden="{{handleHiddenStep1(step)}}"></div>
                     <div class="prev" on-click="handlePrevStepButton" hidden="{{!handleHiddenStep1(step)}}">
-                        <label><i class="fa fa-step-backward"></i>
-                            &nbsp;Step&nbsp;
-                            <span>{{stepPrev}}</span>
-                        </label>
+                        <i class="fa fa-step-backward"></i> Step {{stepPrev}}
                     </div>
                     <div class="flex" hidden="{{!handleHiddenStep1(step)}}"></div>
-                    <div id="title" class="title horizontal layout" style="line-height:25px">Step&nbsp;
-                        <div>{{step}}</div>&nbsp;: &nbsp;
-                        <content select=".title"></content>
+                </div>
+                <div id="title" class="horizontal layout center">
+                    Step {{step}} of {{steps.length}} : &nbsp;
+                    <content select=".title"></content>
+                </div>
+                <div class="flex flex horizontal layout center end-justified">
+                    <div class="next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
+                        Step {{stepNext}} <i class="fa fa-step-forward"></i>
                     </div>
-                    <div class="flex next" on-click="handleNextStepButton" hidden="{{!handleHiddenStepEnd(step)}}">
-                        <label>
-                            Step&nbsp;
-                            <span>{{stepNext}}</span>&nbsp;<i class="fa fa-step-forward"></i></label>
-                    </div>
-                    <div class="flex" hidden="{{handleHiddenStepEnd(step)}}"></div>
+                    <div hidden="{{handleHiddenStepEnd(step)}}"></div>
                     <div class="end" on-click="handlegoToEnd" hidden="{{!handleHiddenStepEnd(step)}}">
-                        <label title="Go to End"><i class="fa fa-fast-forward"></i></label>
+                        <i class="fa fa-fast-forward"></i>
                     </div>
                 </div>
             </div>
@@ -129,12 +132,18 @@
         Polymer({
             is: "jso-wizard",
             properties: {
+                steps: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
                 step: {
                     type: Number,
                     value: 1,
                     observer: 'stepChanged'
                 },
-                steps: {
+                stepsNames: {
                     type: Array,
                     value: function() {
                         return [];
@@ -144,12 +153,6 @@
                     type: Number,
                     value: 1,
                     observer: 'stepNameChanged'
-                },
-                stepsNames: {
-                    type: Array,
-                    value: function() {
-                        return [];
-                    }
                 },
             },
             ready: function() {
@@ -162,10 +165,6 @@
 
                 this.set('stepsNames', stepsNames);
                 this.stepNameChanged(1, 0);
-            },
-            created: function() {
-                this.steps = [];
-                this.stepsNames = [];
             },
             handleHiddenStep1: function(step) {
                 return step != 1;
@@ -219,13 +218,17 @@
                 this.step = step;
                 this.stepName = step;
                 this.stepNext = step + 1;
-                this.stepPrev = step-1;
+                this.stepPrev = step - 1;
             },
             handlegoToInit: function() {
                 this.goToStep(1);
             },
             handlegoToEnd: function() {
                 this.goToStep(this.steps.length);
+            },
+            computeStepLength: function(steps) {
+                debugger
+                return steps.length;
             }
         })
     </script>
