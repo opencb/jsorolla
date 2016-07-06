@@ -255,6 +255,9 @@ GenomeViewer.prototype = {
         this.targetDiv.appendChild(this.div);
     },
     destroy: function () {
+        while (this.div.firstChild) {
+            this.div.removeChild(this.div.firstChild);
+        }
         $(this.div).remove();
         this.off();
         this.rendered = false;

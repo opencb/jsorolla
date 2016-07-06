@@ -132,6 +132,7 @@
             // _resizing: false,
 
             hiddenChanged: function(neo, old) {
+                this.fire('hidden', this.hidden);
                 // if (neo == false && this.genomeViewer == null) {
                 //     this.createGenomeViewer();
                 //     this.genomeViewer.draw();
@@ -176,10 +177,14 @@
 
                 }, 100);
             },
-            createGenomeViewer: function(config) {
+            createGenomeViewer: function(config, region) {
                 var w = this.getBoundingClientRect().width;
                 if (w == 0) {
                     w = this.width;
+                }
+
+                if (region != null) {
+                    this.region.load(region);
                 }
 
                 if (config != null) {
