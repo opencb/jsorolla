@@ -13,10 +13,33 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
+<link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">
 <dom-module id="variant-browser-filter">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        paper-slider::shadow #input {
+                width: calc(20vh - 40px);
+                font-size: 13px;
+            }
+
+            select {
+                height: 20px;
+                width: 45px;
+                align-self: center;
+            }
+
+            .name {
+                font-size: 12px;
+                color: #797979;
+            }
+
+            .popus {
+                font-size: 12px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+        }
+        </style>
 
         <div>
             <br>
@@ -106,8 +129,9 @@
                             Chromosomal Location:
                             <textarea id="locationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"></textarea>
                             Import from BED:
-                            <button type="button" class="btn btn-xs" on-click="">Import</button><br><br>
-                            Gene or SNPId:
+                            <button type="button" class="btn btn-xs" on-click="">Import</button>
+                            <br>
+                            <br> Gene or SNPId:
                             <textarea id="geneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
                         </div>
                     </div>
@@ -124,9 +148,27 @@
                     </div>
                     <div id="type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
                         <div class="panel-body">
-                            <template is="dom-repeat" items="{{types}}">
-                                <input type="checkbox" name="type" value="{{item}}"> {{item}}
-                            </template>
+                            <div>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="SNV,SNP"> SNV
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="MNV"> MNV
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="CNV"> CNV
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="SV"> SV
+                                </label>
+                            </div>
+                            <div>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" value="INDEL"> INDEL
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,7 +184,193 @@
                     </div>
                     <div id="populationFrequency" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
                         <div class="panel-body">
-                            <textarea id="bierAppPopulationFreqTextarea" class="form-control clearable" rows="3"></textarea>
+                            <i class$="{{phase_1}}" on-click="handleCollapseAction" data-type="phase_1"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-type="phase_1"> 1000 Genomes population phase 1</label>
+                            <div id="phase_1" hidden>
+                                <label class="name">All populations MAF [ALL]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_1_ALL_op" id="1000GENOMES_phase_1_ALL_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_ALL" editable></paper-slider>
+                                </div>
+                                <label class="name">American MAF [AMR]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_1_AMR_op" id="1000GENOMES_phase_1_AMR_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_AMR" editable></paper-slider>
+                                </div>
+                                <label class="name">Asian MAF [ASN]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_1_ASN_op" id="1000GENOMES_phase_1_ASN_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_ASN" editable></paper-slider>
+                                </div>
+                                <label class="name">African MAF [AFR]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_1_AFR_op" id="1000GENOMES_phase_1_AFR_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_AFR" editable></paper-slider>
+                                </div>
+                                <label class="name">European MAF [EUR]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_1_EUR_op" id="1000GENOMES_phase_1_EUR_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_EUR" editable></paper-slider>
+                                </div>
+                            </div>
+                            <br>
+                            <i class$="{{phase_3}}" on-click="handleCollapseAction" data-type="phase_3"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-type="phase_3">1000 Genomes population phase 3</label>
+                            <div id="phase_3" hidden>
+                                <label class="name">All populations MAF [ALL]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_3_ALL_op" id="1000GENOMES_phase_3_ALL_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_ALL" editable></paper-slider>
+                                </div>
+                                <label class="name">American MAF [AMR]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_3_AMR_op" id="1000GENOMES_phase_3_AMR_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_AMR" editable></paper-slider>
+                                </div>
+                                <label class="name">South Asian MAF [SAS]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_3_SAS_op" id="1000GENOMES_phase_3_SAS_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_SAS" editable></paper-slider>
+                                </div>
+                                <label class="name">East Asian MAF [EAS]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_3_EAS_op" id="1000GENOMES_phase_3_EAS_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_EAS" editable></paper-slider>
+                                </div>
+                                <label class="name">African MAF [AFR]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_3_AFR_op" id="1000GENOMES_phase_3_AFR_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_AFR" editable></paper-slider>
+                                </div>
+                                <label class="name">European MAF [EUR]</label>
+                                <div class="horizontal layout">
+                                    <select name="1000GENOMES_phase_3_EUR_op" id="1000GENOMES_phase_3_EUR_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_EUR" editable></paper-slider>
+                                </div>
+                            </div>
+                            <br>
+                            <i class$="{{esp_6500}}" on-click="handleCollapseAction" data-type="esp_6500"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-type="esp_6500">ESP 6500</label>
+                            <div id="esp_6500" hidden>
+                                <label class="name">European american MAF</label>
+                                <div class="horizontal layout">
+                                    <select name="ESP_6500_EA_op" id="ESP_6500_EA_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="ESP_6500_EA" editable></paper-slider>
+                                </div>
+                                <label class="name">African american MAF</label>
+                                <div class="horizontal layout">
+                                    <select name="ESP_6500_AA_op" id="ESP_6500_AA_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="ESP_6500_AA" editable></paper-slider>
+                                </div>
+                            </div>
+                            <br>
+                            <i class$="{{exac}}" on-click="handleCollapseAction" data-type="exac"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-type="exac">EXAC</label>
+                            <div id="exac" hidden>
+                                <label class="name">EXAC MAF</label>
+                                <div class="horizontal layout">
+                                    <select name="EXAC_ALL_op" id="EXAC_ALL_op">
+                                        <option value="<" selected>
+                                            <</option>
+                                                <option value="<=">
+                                                    <=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                    </select>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="EXAC_ALL" editable></paper-slider>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,7 +475,23 @@
                 segregation: {
                     type: Array,
                     value: ["0/0", "0/1", "1/1", "./."]
-                }
+                },
+                phase_1: {
+                    type: String,
+                    value: "fa fa-angle-double-right minus"
+                },
+                phase_3: {
+                    type: String,
+                    value: "fa fa-angle-double-right minus"
+                },
+                esp_6500: {
+                    type: String,
+                    value: "fa fa-angle-double-right minus"
+                },
+                exac: {
+                    type: String,
+                    value: "fa fa-angle-double-right minus"
+                },
             },
             studySelected: function(e) {
                 console.log(e)
@@ -258,13 +502,26 @@
                 }
                 console.log("study:", this.study);
             },
-            fireClear: function () {
+            sliderChange: function(e) {
+                var id = e.currentTarget.id + "Value";
+                this.set(id, e.currentTarget.value);
+            },
+            handleCollapseAction: function(e) {
+                var id = e.currentTarget.dataset.type;
+                this.$[id].hidden = !this.$[id].hidden;
+                if (this.$[id].hidden) {
+                    this[id] = "fa fa-angle-double-right minus";
+                } else {
+                    this[id] = "fa fa-angle-double-down minus";
+                }
+            },
+            fireClear: function() {
 
             },
-            fireFilter: function () {
+            fireFilter: function() {
 
             },
-            fireSearch: function () {
+            fireSearch: function() {
 
             }
         });
