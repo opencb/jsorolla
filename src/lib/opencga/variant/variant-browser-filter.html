@@ -492,6 +492,13 @@
                     type: String,
                     value: "fa fa-angle-double-right minus"
                 },
+                query: {
+                    type: Object,
+                    notify: true,
+                    value: function() {
+                        return {};
+                    },
+                },
             },
             studySelected: function(e) {
                 console.log(e)
@@ -516,14 +523,223 @@
                 }
             },
             fireClear: function() {
+                // Type
+                var types = this.$.type.querySelectorAll("input:checked");
+                for (var i = 0; i < types.length; i++) {
+                    var type = types[i];
+                    type.checked = false;
+                }
+                // Freqs
+                this.$["1000GENOMES_phase_1_ALL"].value = 0;
+                this["1000GENOMES_phase_1_ALL"] = "";
+                this.$["1000GENOMES_phase_1_ALL_op"].value = "<";
+                this.$["1000GENOMES_phase_1_AMR"].value = 0;
+                this["1000GENOMES_phase_1_AMR"] = "";
+                this.$["1000GENOMES_phase_1_AMR_op"].value = "<";
+                this.$["1000GENOMES_phase_1_ASN"].value = 0;
+                this["1000GENOMES_phase_1_ASN"] = "";
+                this.$["1000GENOMES_phase_1_ASN_op"].value = "<";
+                this.$["1000GENOMES_phase_1_AFR"].value = 0;
+                this["1000GENOMES_phase_1_AFR"] = "";
+                this.$["1000GENOMES_phase_1_AFR_op"].value = "<";
+                this.$["1000GENOMES_phase_1_EUR"].value = 0;
+                this["1000GENOMES_phase_1_EUR"] = "";
+                this.$["1000GENOMES_phase_1_EUR_op"].value = "<";
+
+                this.$["1000GENOMES_phase_3_ALL"].value = 0;
+                this["1000GENOMES_phase_1_ALL"] = "";
+                this.$["1000GENOMES_phase_3_ALL_op"].value = "<";
+                this.$["1000GENOMES_phase_3_AMR"].value = 0;
+                this["1000GENOMES_phase_3_AMR"] = "";
+                this.$["1000GENOMES_phase_3_AMR_op"].value = "<";
+                this.$["1000GENOMES_phase_3_SAS"].value = 0;
+                this["1000GENOMES_phase_3_SAS"] = "";
+                this.$["1000GENOMES_phase_3_SAS_op"].value = "<";
+                this.$["1000GENOMES_phase_3_EAS"].value = 0;
+                this["1000GENOMES_phase_3_EAS"] = "";
+                this.$["1000GENOMES_phase_3_EAS_op"].value = "<";
+                this.$["1000GENOMES_phase_3_AFR"].value = 0;
+                this["1000GENOMES_phase_3_AFR"] = "";
+                this.$["1000GENOMES_phase_3_AFR_op"].value = "<";
+                this.$["1000GENOMES_phase_3_EUR"].value = 0;
+                this["1000GENOMES_phase_3_EUR"] = "";
+                this.$["1000GENOMES_phase_3_EUR_op"].value = "<";
+
+                this.$["ESP_6500_EA"].value = 0;
+                this["ESP_6500_EA"] = "";
+                this.$["ESP_6500_EA_op"].value = "<";
+                this.$["ESP_6500_AA"].value = 0;
+                this["ESP_6500_AA"] = "";
+                this.$["ESP_6500_AA_op"].value = "<";
+                this.$["EXAC_ALL"].value = 0;
+                this["EXAC_ALL"] = "";
+                this.$["EXAC_ALL_op"].value = "<";
 
             },
             fireFilter: function() {
 
             },
             fireSearch: function() {
+                var query = {};
 
-            }
+                // Type
+                var types = this.$.type.querySelectorAll("input:checked");
+                var typesAux = [];
+                if (types != "") {
+                    for (var i = 0; i < types.length; i++) {
+                        typesAux.push(types[i].value);
+                    }
+                    query["type"] = typesAux;
+                }
+
+                // Population Frequencies
+                // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
+                var popFreq = [];
+
+                // 1000GENOMES_phase_1
+                if (this.$["1000GENOMES_phase_1_ALL"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ALL", "phase1"));
+                }
+                if (this.$["1000GENOMES_phase_1_AMR"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AMR", "phase1"));
+                }
+                if (this.$["1000GENOMES_phase_1_ASN"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ASN", "phase1"));
+                }
+                if (this.$["1000GENOMES_phase_1_AFR"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AFR", "phase1"));
+                }
+                if (this.$["1000GENOMES_phase_1_EUR"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "EUR", "phase1"));
+                }
+
+                // 1000GENOMES_phase_3
+                if (this.$["1000GENOMES_phase_3_ALL"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
+                }
+                if (this.$["1000GENOMES_phase_3_AMR"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
+                }
+                if (this.$["1000GENOMES_phase_3_SAS"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
+                }
+                if (this.$["1000GENOMES_phase_3_EAS"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
+                }
+                if (this.$["1000GENOMES_phase_3_AFR"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
+                }
+                if (this.$["1000GENOMES_phase_3_EUR"].value != "") {
+                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
+                }
+
+                //ESP_6500
+                if (this.$["ESP_6500_EA"].value != "") {
+                    popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
+                }
+                if (this.$["ESP_6500_AA"].value != "") {
+                    popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
+                }
+
+                if (this.$["EXAC_ALL"].value != "") {
+                    popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
+                }
+
+                if (popFreq.length > 0) {
+                    query['annot-population-maf'] = popFreq.join(";");
+                    if (query['annot-population-maf'].indexOf("error") >= 0) {
+                        return;
+                    }
+                }
+
+                query.timeout = 30000;
+
+                this.set('query', query);
+
+                console.log(query);
+                // this.search(query);
+
+            },
+            _getPopulationQuery: function(study, population, type) {
+                var value = parseFloat(this.$[study + "_" + population].value);
+                var value_op = this.$[study + "_" + population + "_op"].value;
+                value = study + ":" + population + value_op + value;
+                return value;
+            },
+            _setPopulationValue: function(population, value) {
+                var aux = value.split("");
+                var n = 0;
+                var pop = "";
+                for (i = 0; i < 5; i++) {
+                    if (isNaN(aux[i]) && aux[i] != '.') {
+                        pop += aux[i];
+                        n++;
+                    }
+                }
+                var val = "";
+                if (pop.length == 4) {
+                    this.$[population + "_op"].value = aux[3];
+                } else if (pop.length == 5) {
+                    this.$[population + "_op"].value = aux[3] + aux[4];
+                }
+                for (var i = n; i < aux.length; i++) {
+                    val += aux[i];
+                }
+                this.$[population].value = val;
+            },
+            search: function(query) {
+                query.sid = Cookies("bioinfo_sid");
+                query.skipCount = false;
+                query.sort = true;
+
+                //****//
+                // var sampleFiles = {};
+                // var filesIdAux = [];
+                var me = this;
+                // var n = 0;
+                //
+                // for (var i = 0; i < this.samples.length; i++) {
+                //     var sample = this.samples[i];
+                //     if (sample.status == 'READY') {
+                //         if (sampleFiles[sample.source] == null) {
+                //             sampleFiles[sample.source] = 1;
+                //             n++;
+                //         }
+                //     }
+                // }
+                // if (n > 0) {
+                var studyId = this.study.id;
+                OpencgaManager.studies.files({
+                    id: studyId,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                    },
+                    request: {
+                        async: true,
+                        success: function(response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                debugger
+                                // var result = response.response[0].result;
+                                // for (var i = 0; i < result.length; i++) {
+                                //     if (result[i].type == "FILE") {
+                                //         if (sampleFiles[result[i].name] != null && result[i].index != null && result[i].index.status == 'READY') {
+                                //             filesIdAux.push(result[i].id);
+                                //         }
+                                //     }
+                                // }
+                                // me.set('filesId', filesIdAux);
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function() {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+                // }
+
+            },
         });
     </script>
 </dom-module>
