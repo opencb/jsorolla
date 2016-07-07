@@ -17,7 +17,7 @@
 <dom-module id="variant-browser-filter">
     <template>
         <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
-        paper-slider::shadow #input {
+            paper-slider::shadow #input {
                 width: calc(20vh - 40px);
                 font-size: 13px;
             }
@@ -38,7 +38,7 @@
                 font-weight: bold;
                 cursor: pointer;
             }
-        }
+            }
         </style>
 
         <div>
@@ -64,12 +64,34 @@
                     </div>
                     <div id="studyFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="studyFilterHeading">
                         <div class="panel-body">
-                            <template is="dom-repeat" items="{{studies}}">
-                                <input type="radio" name="study" value="{{item.name}}" on-click="studySelected" data-id="{{item.id}}"> {{item.name}}
-                                <br>
-                            </template>
+                            <!--<input type="radio" name="study" value="{{item.name}}" on-click="studySelected" data-id="{{item.id}}"> {{item.name}}-->
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Studies
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                    <template is="dom-repeat" items="{{studies}}">
+                                        <li><a href="#" on-click="studySelected" data-id="{{item.id}}">{{item.name}}</a></li>
+                                    </template>
+                                </ul>
+                            </div>
+
+
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Studies
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                    <template is="dom-repeat" items="{{studySamples}}">
+                                        <li><a href="#" data-id="{{item.id}}">{{item.name}}</a></li>
+                                    </template>
+                                </ul>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
                 <!--Segregation filter-->
@@ -108,9 +130,14 @@
                     </div>
                     <div id="somaticFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                         <div class="panel-body">
-                            <template is="dom-repeat" items="{{somaticValues}}">
-                                <input type="radio" name="study" value="{{item}}"> {{item}}
-                            </template>
+                            <!--<template is="dom-repeat" items="{{somaticValues}}">-->
+                            <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
+                            <!--</template>-->
+                            <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family
+                            <br>
+                            <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic
+                            <br>
+                            <input type="radio" name="type" value="cc" on-click="typeSelected" data-id="cc"> cc
                         </div>
                     </div>
                 </div>
@@ -192,10 +219,10 @@
                                     <select name="1000GENOMES_phase_1_ALL_op" id="1000GENOMES_phase_1_ALL_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_ALL" editable></paper-slider>
                                 </div>
@@ -204,10 +231,10 @@
                                     <select name="1000GENOMES_phase_1_AMR_op" id="1000GENOMES_phase_1_AMR_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_AMR" editable></paper-slider>
                                 </div>
@@ -216,10 +243,10 @@
                                     <select name="1000GENOMES_phase_1_ASN_op" id="1000GENOMES_phase_1_ASN_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_ASN" editable></paper-slider>
                                 </div>
@@ -228,10 +255,10 @@
                                     <select name="1000GENOMES_phase_1_AFR_op" id="1000GENOMES_phase_1_AFR_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_AFR" editable></paper-slider>
                                 </div>
@@ -240,10 +267,10 @@
                                     <select name="1000GENOMES_phase_1_EUR_op" id="1000GENOMES_phase_1_EUR_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_EUR" editable></paper-slider>
                                 </div>
@@ -257,10 +284,10 @@
                                     <select name="1000GENOMES_phase_3_ALL_op" id="1000GENOMES_phase_3_ALL_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_ALL" editable></paper-slider>
                                 </div>
@@ -269,10 +296,10 @@
                                     <select name="1000GENOMES_phase_3_AMR_op" id="1000GENOMES_phase_3_AMR_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_AMR" editable></paper-slider>
                                 </div>
@@ -281,10 +308,10 @@
                                     <select name="1000GENOMES_phase_3_SAS_op" id="1000GENOMES_phase_3_SAS_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_SAS" editable></paper-slider>
                                 </div>
@@ -293,10 +320,10 @@
                                     <select name="1000GENOMES_phase_3_EAS_op" id="1000GENOMES_phase_3_EAS_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_EAS" editable></paper-slider>
                                 </div>
@@ -305,10 +332,10 @@
                                     <select name="1000GENOMES_phase_3_AFR_op" id="1000GENOMES_phase_3_AFR_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_AFR" editable></paper-slider>
                                 </div>
@@ -317,10 +344,10 @@
                                     <select name="1000GENOMES_phase_3_EUR_op" id="1000GENOMES_phase_3_EUR_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_EUR" editable></paper-slider>
                                 </div>
@@ -334,10 +361,10 @@
                                     <select name="ESP_6500_EA_op" id="ESP_6500_EA_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="ESP_6500_EA" editable></paper-slider>
                                 </div>
@@ -346,10 +373,10 @@
                                     <select name="ESP_6500_AA_op" id="ESP_6500_AA_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="ESP_6500_AA" editable></paper-slider>
                                 </div>
@@ -363,10 +390,10 @@
                                     <select name="EXAC_ALL_op" id="EXAC_ALL_op">
                                         <option value="<" selected>
                                             <</option>
-                                                <option value="<=">
-                                                    <=</option>
-                                                        <option value=">">></option>
-                                                        <option value=">=">>=</option>
+                                        <option value="<=">
+                                            <=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
                                     </select>
                                     <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="EXAC_ALL" editable></paper-slider>
                                 </div>
@@ -499,6 +526,16 @@
                         return {};
                     },
                 },
+                type: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                samples: {
+                    type: String,
+                    value: [],
+                    notify: true
+                }
             },
             studySelected: function(e) {
                 console.log(e)
@@ -508,6 +545,24 @@
                     this.study = e.target.dataId;
                 }
                 console.log("study:", this.study);
+
+                // fill samples from this study
+                var _this = this;
+                this.samples = ["NA00001", "NA00002", "NA00003"];
+                this.opencgaClient.studies().samples(this.study).then(function(response) {
+                    console.log(response)
+                    _this.studySamples = response.response[0].result;
+                });
+            },
+            typeSelected: function(e) {
+                console.log(e)
+                if (typeof e.target === "undefined") {
+                    this.type = e;
+                } else {
+                    this.type = e.target.defaultValue;
+                }
+
+                console.log("type:", this.type);
             },
             sliderChange: function(e) {
                 var id = e.currentTarget.id + "Value";

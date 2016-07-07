@@ -61,10 +61,10 @@
             <br>
 
             <div class="col-md-2">
-                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}"></variant-browser-filter>
+                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}"></variant-browser-filter>
             </div>
             <div class="col-md-10">
-                <variant-browser-view study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}"></variant-browser-view>
+                <variant-browser-view study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}"></variant-browser-view>
             </div>
         </div>
     </template>
@@ -91,6 +91,14 @@
                 },
                 opencgaClient: {
                     type: Object,
+                },
+                type: {
+                    type: String,
+                    value: ""
+                },
+                samples: {
+                    type: String,
+                    value: []
                 }
             },
             ready: function () {

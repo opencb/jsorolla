@@ -79,6 +79,16 @@
                 },
                 opencgaClient: {
                     type: Object
+                },
+                type: {
+                    type: String,
+                    value: "",
+                    observer: '_refreshTableColumns'
+                },
+                samples: {
+                    type: String,
+                    value: ["this", "is", "amazing!"],
+                    observer: '_refreshTableColumns'
                 }
             },
             ready: function () {
@@ -115,12 +125,6 @@
                         {
                             title: 'Type',
                             field: 'type',
-                            colspan: 1,
-                            rowspan: 2
-                        },
-                        {
-                            title: 'Samples',
-                            field: 'samples',
                             colspan: 1,
                             rowspan: 2
                         },
@@ -164,8 +168,8 @@
                             formatter: this.phastconsFormatter
                         },
                         {
-                            title: '1000G MAF(phase 3)',
-                            field: '1000G MAF(phase 3)',
+                            title: '1000G MAF (phase 3)',
+                            field: '1000G MAF (phase 3)',
                             colspan: 6,
                             rowspan: 1
                         },
@@ -221,13 +225,13 @@
                         },
                         {
                             title: 'Clinvar',
-                            field: 'clinvar',
+                            field: 'annotation.variantTraitAssociation.clinvar.accession',
                             colspan: 1,
                             rowspan: 1
                         },
                         {
                             title: 'Cosmic',
-                            field: 'cosmic',
+                            field: 'annotation.variantTraitAssociation.cosmic.mutationId',
                             colspan: 1,
                             rowspan: 1
                         },
@@ -238,12 +242,17 @@
                             rowspan: 1
                         }
                     ]
-                ]
+                ];
+
+                // TO BE REMOVED!
+                this._refreshTableColumns();
+
             },
             attached: function() {
                 this.renderGenomeViewer();
             },
             renderFromServer: function () {
+                console.log(this.cols)
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
                     let _this = this;
 
@@ -310,6 +319,234 @@
                     }
                 }
                 return '-';
+            },
+            _refreshTableColumns: function() {
+                console.log("In _refreshTableColumns");
+                console.log(this.type)
+                this.cols = this._initColumns();
+                if (typeof this.cols !== "undefined") {
+                    switch(this.type) {
+                        case "family":
+                            // if type is 'family' we expected few samples to be provided in property 'samples'
+                            this.cols[0].splice(5, 0, {
+                                title: 'Samples',
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: this.samples.length
+                            });
+                            for(let i = 0; i < this.samples.length; i++) {
+                                this.cols[1].splice(i, 0,
+                                        {
+                                            title: this.samples[i],
+                                            field: 'samples',
+                                            rowspan: 1,
+                                            colspan: 1
+                                        });
+                            }
+                            break;
+                        case "somatic":
+                            this.cols[0].splice(5, 0, {
+                                title: this.samples[0],
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: 2
+                            });
+                            this.cols[1].splice(0, 0,
+                                    {
+                                        title: 'Somatic',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1
+                                    },
+                                    {
+                                        title: 'Germline',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1
+                                    }
+                            );
+                            break;
+                        case "cc":
+                            this.cols[0].splice(5, 0, {
+                                title: 'Samples',
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: 2
+                            });
+                            this.cols[1].splice(0, 0,
+                                    {
+                                        title: 'Control',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1
+                                    },
+                                    {
+                                        title: 'Case',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1
+                                    }
+                            );
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                this.renderFromServer();
+            },
+            _initColumns: function() {
+                var initCols = [
+                    [
+                        {
+                            title: 'Variant',
+                            field: 'variant',
+                            sortable: true,
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.variantFormatter
+                        },
+                        {
+                            title: 'Alleles',
+                            field: 'allele',
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.alleleFormatter
+                        },
+                        {
+                            title: 'SNPId',
+                            field: 'id',
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.snpFormatter
+                        },
+                        {
+                            title: 'Genes',
+                            field: 'genes',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Type',
+                            field: 'type',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Consequence Type',
+                            field: 'displayConsequenceType',
+                            sortable: true,
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'DP',
+                            field: 'dp',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'SIFT',
+                            field: 'sift',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Polyphen',
+                            field: 'Polyphen',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'PhyloP',
+                            field: 'PhyloP',
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.phylopFormatter
+                        },
+                        {
+                            title: 'PhastCons',
+                            field: 'PhastCons',
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.phastconsFormatter
+                        },
+                        {
+                            title: '1000G MAF (phase 3)',
+                            field: '1000G MAF (phase 3)',
+                            colspan: 6,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'EXAC',
+                            field: 'exac',
+                            colspan: 1,
+                            rowspan: 2
+                        },
+                        {
+                            title: 'Phenotype',
+                            field: 'Phenotype',
+                            colspan: 3,
+                            rowspan: 1
+                        }
+                    ],
+                    [
+                        {
+                            title: 'ALL',
+                            field: 'all',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'AMR',
+                            field: 'amr',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'SAS',
+                            field: 'sas',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'EAS',
+                            field: 'eas',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'AFR',
+                            field: 'afr',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'EUR',
+                            field: 'eur',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'Clinvar',
+                            field: 'annotation.variantTraitAssociation.clinvar.accession',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'Cosmic',
+                            field: 'annotation.variantTraitAssociation.cosmic.mutationId',
+                            colspan: 1,
+                            rowspan: 1
+                        },
+                        {
+                            title: 'GWAS',
+                            field: 'gwas',
+                            colspan: 1,
+                            rowspan: 1
+                        }
+                    ]
+                ];
+                return initCols;
             },
             renderGenomeViewer: function() {
                 console.log("genome maps")
