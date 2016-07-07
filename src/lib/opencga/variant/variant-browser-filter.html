@@ -16,7 +16,8 @@
 <link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">
 <dom-module id="variant-browser-filter">
     <template>
-        <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        <style is="custom-style"
+               include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
             paper-slider::shadow #input {
                 width: calc(20vh - 40px);
                 font-size: 13px;
@@ -38,6 +39,10 @@
                 font-weight: bold;
                 cursor: pointer;
             }
+
+            .sample-scroll {
+                max-height: 150px;
+                overflow-y: scroll;
             }
         </style>
 
@@ -57,34 +62,58 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="studyFilterHeading">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#studyFilter" aria-expanded="false" aria-controls="studyFilter">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#studyFilter" aria-expanded="false" aria-controls="studyFilter">
                                 Study Filter
                             </a>
                         </h4>
                     </div>
-                    <div id="studyFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="studyFilterHeading">
+                    <div id="studyFilter" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="studyFilterHeading">
                         <div class="panel-body">
                             <!--<input type="radio" name="study" value="{{item.name}}" on-click="studySelected" data-id="{{item.id}}"> {{item.name}}-->
                             <div class="dropdown">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                Select one study:<span style="padding-left:20px;"></span>
+                                <button class="btn btn-default dropdown-toggle" type="button" id="studiesDropdownMenu"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                     Studies
                                     <span class="caret"></span>
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                <ul class="dropdown-menu" aria-labelledby="studiesDropdownMenu">
                                     <template is="dom-repeat" items="{{studies}}">
-                                        <li><a href="#" on-click="studySelected" data-id="{{item.id}}">{{item.name}}</a></li>
+                                        <li><a href="#" on-click="studySelected" data-id="{{item.id}}">{{item.name}}</a>
+                                        </li>
                                     </template>
                                 </ul>
                             </div>
 
+                            Select samples: <br>
+                            <div class="sample-scroll">
+                                <template is="dom-repeat" items="{{studySamples}}">
+                                    <input type="checkbox" name="samples" value="{{item.name}}" on-change="addSelectedSamples">
+                                    {{item.name}}<br>
+                                </template>
+                                <!--<span style="padding-left:22px;"></span>-->
+                                <!--<button class="btn btn-default dropdown-toggle" type="button" id="sampleDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
+                                <!--Samples-->
+                                <!--<span class="caret"></span>-->
+                                <!--</button>-->
+                                <!--<ul class="dropdown-menu" aria-labelledby="sampleDropdownMenu">-->
+                                <!--<template is="dom-repeat" items="{{studySamples}}">-->
+                                <!--<li><a href="#" data-id="{{item.id}}">{{item.name}}</a></li>-->
+                                <!--</template>-->
+                                <!--</ul>-->
+                            </div>
 
                             <div class="dropdown">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    Studies
+                                Select a file:<span style="padding-left:63px;"></span>
+                                <button class="btn btn-default dropdown-toggle" type="button" id="filesDropdownMenu"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Files
                                     <span class="caret"></span>
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    <template is="dom-repeat" items="{{studySamples}}">
+                                <ul class="dropdown-menu" aria-labelledby="filesDropdownMenu">
+                                    <template is="dom-repeat" items="{{studyFiles}}">
                                         <li><a href="#" data-id="{{item.id}}">{{item.name}}</a></li>
                                     </template>
                                 </ul>
@@ -98,12 +127,14 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingOne">
                         <h4 class="panel-title">
-                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#segregation" aria-expanded="true" aria-controls="segregation">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#segregation"
+                               aria-expanded="true" aria-controls="segregation">
                                 Segregation
                             </a>
                         </h4>
                     </div>
-                    <div id="segregation" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                    <div id="segregation" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingOne">
                         <div class="panel-body">
                             <form class="form-inline" role="form">
                                 <label>Sample:</label>
@@ -123,19 +154,23 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingTwo">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#somaticFilter" aria-expanded="false" aria-controls="somaticFilter">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#somaticFilter" aria-expanded="false" aria-controls="somaticFilter">
                                 Somatic Filter
                             </a>
                         </h4>
                     </div>
-                    <div id="somaticFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                    <div id="somaticFilter" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingTwo">
                         <div class="panel-body">
                             <!--<template is="dom-repeat" items="{{somaticValues}}">-->
                             <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
                             <!--</template>-->
-                            <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family
+                            <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family">
+                            family
                             <br>
-                            <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic
+                            <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic">
+                            somatic
                             <br>
                             <input type="radio" name="type" value="cc" on-click="typeSelected" data-id="cc"> cc
                         </div>
@@ -146,7 +181,8 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingThree">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#position" aria-expanded="false" aria-controls="position">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#position" aria-expanded="false" aria-controls="position">
                                 Position
                             </a>
                         </h4>
@@ -154,12 +190,14 @@
                     <div id="position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                         <div class="panel-body">
                             Chromosomal Location:
-                            <textarea id="locationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"></textarea>
+                            <textarea id="locationTextarea" class="form-control clearable" rows="3"
+                                      placeholder="3:444-55555, 1:1-1000000"></textarea>
                             Import from BED:
                             <button type="button" class="btn btn-xs" on-click="">Import</button>
                             <br>
                             <br> Gene or SNPId:
-                            <textarea id="geneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
+                            <textarea id="geneSnpTextarea" class="form-control clearable" rows="3"
+                                      placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
                         </div>
                     </div>
                 </div>
@@ -168,7 +206,8 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingFour">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#type" aria-expanded="false" aria-controls="type">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#type" aria-expanded="false" aria-controls="type">
                                 Type
                             </a>
                         </h4>
@@ -204,152 +243,189 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingFive">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#populationFrequency" aria-expanded="false" aria-controls="populationFrequency">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#populationFrequency" aria-expanded="false" aria-controls="populationFrequency">
                                 Population Frequency
                             </a>
                         </h4>
                     </div>
-                    <div id="populationFrequency" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+                    <div id="populationFrequency" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingFive">
                         <div class="panel-body">
                             <i class$="{{phase_1}}" on-click="handleCollapseAction" data-type="phase_1"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="phase_1"> 1000 Genomes population phase 1</label>
+                            <label class="popus" on-click="handleCollapseAction" data-type="phase_1"> 1000 Genomes
+                                population phase 1</label>
                             <div id="phase_1" hidden>
                                 <label class="name">All populations MAF [ALL]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_1_ALL_op" id="1000GENOMES_phase_1_ALL_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_ALL" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_1_ALL" editable></paper-slider>
                                 </div>
                                 <label class="name">American MAF [AMR]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_1_AMR_op" id="1000GENOMES_phase_1_AMR_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_AMR" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_1_AMR" editable></paper-slider>
                                 </div>
                                 <label class="name">Asian MAF [ASN]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_1_ASN_op" id="1000GENOMES_phase_1_ASN_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_ASN" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_1_ASN" editable></paper-slider>
                                 </div>
                                 <label class="name">African MAF [AFR]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_1_AFR_op" id="1000GENOMES_phase_1_AFR_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_AFR" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_1_AFR" editable></paper-slider>
                                 </div>
                                 <label class="name">European MAF [EUR]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_1_EUR_op" id="1000GENOMES_phase_1_EUR_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_1_EUR" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_1_EUR" editable></paper-slider>
                                 </div>
                             </div>
                             <br>
                             <i class$="{{phase_3}}" on-click="handleCollapseAction" data-type="phase_3"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="phase_3">1000 Genomes population phase 3</label>
+                            <label class="popus" on-click="handleCollapseAction" data-type="phase_3">1000 Genomes
+                                population phase 3</label>
                             <div id="phase_3" hidden>
                                 <label class="name">All populations MAF [ALL]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_3_ALL_op" id="1000GENOMES_phase_3_ALL_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_ALL" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_3_ALL" editable></paper-slider>
                                 </div>
                                 <label class="name">American MAF [AMR]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_3_AMR_op" id="1000GENOMES_phase_3_AMR_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_AMR" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_3_AMR" editable></paper-slider>
                                 </div>
                                 <label class="name">South Asian MAF [SAS]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_3_SAS_op" id="1000GENOMES_phase_3_SAS_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_SAS" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_3_SAS" editable></paper-slider>
                                 </div>
                                 <label class="name">East Asian MAF [EAS]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_3_EAS_op" id="1000GENOMES_phase_3_EAS_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_EAS" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_3_EAS" editable></paper-slider>
                                 </div>
                                 <label class="name">African MAF [AFR]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_3_AFR_op" id="1000GENOMES_phase_3_AFR_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_AFR" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_3_AFR" editable></paper-slider>
                                 </div>
                                 <label class="name">European MAF [EUR]</label>
                                 <div class="horizontal layout">
                                     <select name="1000GENOMES_phase_3_EUR_op" id="1000GENOMES_phase_3_EUR_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="1000GENOMES_phase_3_EUR" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="1000GENOMES_phase_3_EUR" editable></paper-slider>
                                 </div>
                             </div>
                             <br>
@@ -360,25 +436,31 @@
                                 <div class="horizontal layout">
                                     <select name="ESP_6500_EA_op" id="ESP_6500_EA_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="ESP_6500_EA" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="ESP_6500_EA" editable></paper-slider>
                                 </div>
                                 <label class="name">African american MAF</label>
                                 <div class="horizontal layout">
                                     <select name="ESP_6500_AA_op" id="ESP_6500_AA_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="ESP_6500_AA" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="ESP_6500_AA" editable></paper-slider>
                                 </div>
                             </div>
                             <br>
@@ -389,13 +471,16 @@
                                 <div class="horizontal layout">
                                     <select name="EXAC_ALL_op" id="EXAC_ALL_op">
                                         <option value="<" selected>
-                                            <</option>
+                                            <
+                                        </option>
                                         <option value="<=">
-                                            <=</option>
+                                            <=
+                                        </option>
                                         <option value=">">></option>
                                         <option value=">=">>=</option>
                                     </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange" value="0" id="EXAC_ALL" editable></paper-slider>
+                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
+                                                  value="0" id="EXAC_ALL" editable></paper-slider>
                                 </div>
                             </div>
                         </div>
@@ -406,14 +491,18 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingSix">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#proteinSubstitutionScore" aria-expanded="false" aria-controls="proteinSubstitutionScore">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#proteinSubstitutionScore" aria-expanded="false"
+                               aria-controls="proteinSubstitutionScore">
                                 Protein Substitution Score
                             </a>
                         </h4>
                     </div>
-                    <div id="proteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSix">
+                    <div id="proteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingSix">
                         <div class="panel-body">
-                            <textarea id="bierAppProteinSubstitutionScoreTextarea" class="form-control clearable" rows="3"></textarea>
+                            <textarea id="bierAppProteinSubstitutionScoreTextarea" class="form-control clearable"
+                                      rows="3"></textarea>
                         </div>
                     </div>
                 </div>
@@ -422,14 +511,17 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingSeven">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#conservation" aria-expanded="false" aria-controls="conservation">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#conservation" aria-expanded="false" aria-controls="conservation">
                                 Conservation
                             </a>
                         </h4>
                     </div>
-                    <div id="conservation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSeven">
+                    <div id="conservation" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingSeven">
                         <div class="panel-body">
-                            <textarea id="bierAppConservationTextarea" class="form-control clearable" rows="3"></textarea>
+                            <textarea id="bierAppConservationTextarea" class="form-control clearable"
+                                      rows="3"></textarea>
                         </div>
                     </div>
                 </div>
@@ -438,12 +530,14 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingEight">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#consequenceType" aria-expanded="false" aria-controls="consequenceType">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#consequenceType" aria-expanded="false" aria-controls="consequenceType">
                                 Consequence Type
                             </a>
                         </h4>
                     </div>
-                    <div id="consequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingEight">
+                    <div id="consequenceType" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingEight">
                         <div class="panel-body">
                             Consequence Type
                         </div>
@@ -454,14 +548,17 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingNine">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#geneOntology" aria-expanded="false" aria-controls="geneOntology">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#geneOntology" aria-expanded="false" aria-controls="geneOntology">
                                 Gene Ontology
                             </a>
                         </h4>
                     </div>
-                    <div id="geneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingNine">
+                    <div id="geneOntology" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingNine">
                         <div class="panel-body">
-                            <textarea id="bierAppGeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
+                            <textarea id="bierAppGeneOntologyTextarea" class="form-control clearable" rows="3"
+                                      placeholder="GO:0000001, GO:0001177"></textarea>
                         </div>
                     </div>
                 </div>
@@ -470,14 +567,18 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingTen">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#humanPhenotypeOntology" aria-expanded="false" aria-controls="humanPhenotypeOntology">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#humanPhenotypeOntology" aria-expanded="false"
+                               aria-controls="humanPhenotypeOntology">
                                 Human Phenotype Ontology
                             </a>
                         </h4>
                     </div>
-                    <div id="humanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTen">
+                    <div id="humanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingTen">
                         <div class="panel-body">
-                            <textarea id="bierAppHumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
+                            <textarea id="bierAppHumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3"
+                                      placeholder="HP:0000001, HP:3000079"></textarea>
                         </div>
                     </div>
                 </div>
@@ -522,9 +623,9 @@
                 query: {
                     type: Object,
                     notify: true,
-                    value: function() {
+                    value: function () {
                         return {};
-                    },
+                    }
                 },
                 type: {
                     type: String,
@@ -537,38 +638,46 @@
                     notify: true
                 }
             },
-            studySelected: function(e) {
-                console.log(e)
+            studySelected: function (e) {
                 if (typeof e.target === "undefined") {
                     this.study = e;
                 } else {
                     this.study = e.target.dataId;
                 }
-                console.log("study:", this.study);
-
-                // fill samples from this study
+                // samples from the selected study
                 var _this = this;
-                this.samples = ["NA00001", "NA00002", "NA00003"];
-                this.opencgaClient.studies().samples(this.study).then(function(response) {
-                    console.log(response)
+                this.samples = []; // empty the selected samples whenever a new study is selected
+//                this.samples = ["NA00001", "NA00002", "NA00003"];
+                this.opencgaClient.studies().samples(this.study).then(function (response) {
                     _this.studySamples = response.response[0].result;
                 });
+                // files from the selected study
+                this.opencgaClient.studies().files(this.study).then(function (response) {
+                    _this.studyFiles = response.response[0].result;
+                })
             },
-            typeSelected: function(e) {
-                console.log(e)
+            typeSelected: function (e) {
                 if (typeof e.target === "undefined") {
                     this.type = e;
                 } else {
                     this.type = e.target.defaultValue;
                 }
-
                 console.log("type:", this.type);
             },
-            sliderChange: function(e) {
+            addSelectedSamples: function(e) {
+                if (e.target.checked) {
+                    this.push('samples', e.target.value);
+                } else {
+                    var index = this.samples.indexOf(e.target.value);
+                    this.splice('samples', index, 1);
+                }
+                console.log(this.samples)
+            },
+            sliderChange: function (e) {
                 var id = e.currentTarget.id + "Value";
                 this.set(id, e.currentTarget.value);
             },
-            handleCollapseAction: function(e) {
+            handleCollapseAction: function (e) {
                 var id = e.currentTarget.dataset.type;
                 this.$[id].hidden = !this.$[id].hidden;
                 if (this.$[id].hidden) {
@@ -577,7 +686,7 @@
                     this[id] = "fa fa-angle-double-down minus";
                 }
             },
-            fireClear: function() {
+            fireClear: function () {
                 // Type
                 var types = this.$.type.querySelectorAll("input:checked");
                 for (var i = 0; i < types.length; i++) {
@@ -631,10 +740,10 @@
                 this.$["EXAC_ALL_op"].value = "<";
 
             },
-            fireFilter: function() {
+            fireFilter: function () {
 
             },
-            fireSearch: function() {
+            fireSearch: function () {
                 var query = {};
 
                 // Type
@@ -715,13 +824,13 @@
                 // this.search(query);
 
             },
-            _getPopulationQuery: function(study, population, type) {
+            _getPopulationQuery: function (study, population, type) {
                 var value = parseFloat(this.$[study + "_" + population].value);
                 var value_op = this.$[study + "_" + population + "_op"].value;
                 value = study + ":" + population + value_op + value;
                 return value;
             },
-            _setPopulationValue: function(population, value) {
+            _setPopulationValue: function (population, value) {
                 var aux = value.split("");
                 var n = 0;
                 var pop = "";
@@ -742,7 +851,7 @@
                 }
                 this.$[population].value = val;
             },
-            search: function(query) {
+            search: function (query) {
                 query.sid = Cookies("bioinfo_sid");
                 query.skipCount = false;
                 query.sort = true;
@@ -771,7 +880,7 @@
                     },
                     request: {
                         async: true,
-                        success: function(response) {
+                        success: function (response) {
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 debugger
                                 // var result = response.response[0].result;
@@ -787,7 +896,7 @@
                                 console.log(response.response[0].errorMsg);
                             }
                         },
-                        error: function() {
+                        error: function () {
                             console.log('Server error, try again later.');
                         }
                     }
