@@ -24,7 +24,7 @@
                 </table>
             </div>
             <!--File Tree-->
-            <div id="fileTreeView" class="hide-content">
+            <div id="fileTreeView" class="collapse hide-content">
                 Tree
                 <div id="fileTree"></div>
 
@@ -63,14 +63,17 @@
                         {
                             title: 'Source',
                             field: 'source'
+                        },
+                        {
+                            title: 'Creation Date',
+                            formatter: this.dateFormatter,
+                            sortable: true
                         }
                     ]
                 ];
-                $('#sampleGridView').show();
             },
             attached: function() {
                 $(".sample-browser-menu a").on('click', function(e) {
-                    console.log("clicked");
                     e.preventDefault(); // stops link form loading
                     $('.hide-content').hide(); // hides all content divs
                     $($(this).attr('href')).show(); //get the href and use it find which div to show
@@ -120,7 +123,6 @@
                             data: _this.getTree(studyFiles)
                         });
                     });
-
                 }
             },
             getSampleName: function () {
@@ -128,12 +130,23 @@
                     return row.name
                 });
             },
+            dateFormatter: function (value, row, index) {
+                return row.status.date;
+                // TODO convert date to UTC string
+            },
             getTree: function (studyFiles) {
                 let data = [];
                 for (let i=0; i<studyFiles.length; i++) {
                     let obj = {};
                     obj.text = studyFiles[i].name;
-//                    obj.nodes = studyFiles[i].sampleIds;
+                    // TODO Two level heirarchy is achieved and yet the data load is so heavy. Need to find a way to load data dynamically
+//                    let nodes = [];
+//                    for (let j=0; j<studyFiles[i].sampleIds.length; j++) {
+//                        let child = {};
+//                        child.text = studyFiles[i].sampleIds[j];
+//                        nodes.push(child);
+//                    }
+//                    obj.nodes = nodes;
                     data.push(obj);
                 }
                 return data;
