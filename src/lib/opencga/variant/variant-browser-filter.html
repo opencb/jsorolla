@@ -13,16 +13,16 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">
+<!--<link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">-->
 <link rel="import" href="opencga-sample-browser.html">
+
 <dom-module id="variant-browser-filter">
     <template>
-        <style is="custom-style"
-               include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
-            paper-slider::shadow #input {
-                width: calc(20vh - 40px);
-                font-size: 13px;
-            }
+        <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+            /*paper-slider::shadow #input {*/
+            /*width: calc(20vh - 40px);*/
+            /*font-size: 13px;*/
+            /*}*/
 
             select {
                 height: 20px;
@@ -648,6 +648,9 @@
                     type: String,
                     value: [],
                     notify: true
+                },
+                cellbaseClient: {
+                    type: Object
                 }
             },
             studySelected: function (e) {
@@ -915,7 +918,7 @@
                 });
                 // }
 
-            },
+            }
         });
     </script>
 </dom-module>
