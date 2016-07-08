@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 <link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="opencga-sample-browser.html">
 <dom-module id="variant-browser-filter">
     <template>
         <style is="custom-style"
@@ -86,38 +87,31 @@
                                     </template>
                                 </ul>
                             </div>
+                            <br>
+                            <button data-toggle="modal" role="button" data-placement="bottom" data-target="#sampleBrowser" title="Sample Browser ..." >Sample Browser</button>
+                            <br>
 
-                            Select samples: <br>
-                            <div class="sample-scroll">
-                                <template is="dom-repeat" items="{{studySamples}}">
-                                    <input type="checkbox" name="samples" value="{{item.name}}" on-change="addSelectedSamples">
-                                    {{item.name}}<br>
-                                </template>
-                                <!--<span style="padding-left:22px;"></span>-->
-                                <!--<button class="btn btn-default dropdown-toggle" type="button" id="sampleDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
-                                <!--Samples-->
-                                <!--<span class="caret"></span>-->
-                                <!--</button>-->
-                                <!--<ul class="dropdown-menu" aria-labelledby="sampleDropdownMenu">-->
+                            <!--Select samples: <br>-->
+                            <!--<div class="sample-scroll">-->
                                 <!--<template is="dom-repeat" items="{{studySamples}}">-->
-                                <!--<li><a href="#" data-id="{{item.id}}">{{item.name}}</a></li>-->
+                                    <!--<input type="checkbox" name="samples" value="{{item.name}}" on-change="addSelectedSamples">-->
+                                    <!--{{item.name}}<br>-->
                                 <!--</template>-->
-                                <!--</ul>-->
-                            </div>
+                            <!--</div>-->
 
-                            <div class="dropdown">
-                                Select a file:<span style="padding-left:63px;"></span>
-                                <button class="btn btn-default dropdown-toggle" type="button" id="filesDropdownMenu"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    Files
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="filesDropdownMenu">
-                                    <template is="dom-repeat" items="{{studyFiles}}">
-                                        <li><a href="#" data-id="{{item.id}}">{{item.name}}</a></li>
-                                    </template>
-                                </ul>
-                            </div>
+                            <!--<div class="dropdown">-->
+                                <!--Select a file:<span style="padding-left:63px;"></span>-->
+                                <!--<button class="btn btn-default dropdown-toggle" type="button" id="filesDropdownMenu"-->
+                                        <!--data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
+                                    <!--Files-->
+                                    <!--<span class="caret"></span>-->
+                                <!--</button>-->
+                                <!--<ul class="dropdown-menu" aria-labelledby="filesDropdownMenu">-->
+                                    <!--<template is="dom-repeat" items="{{studyFiles}}">-->
+                                        <!--<li><a href="#" data-id="{{item.id}}">{{item.name}}</a></li>-->
+                                    <!--</template>-->
+                                <!--</ul>-->
+                            <!--</div>-->
                         </div>
                     </div>
 
@@ -580,6 +574,24 @@
                             <textarea id="bierAppHumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3"
                                       placeholder="HP:0000001, HP:3000079"></textarea>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal dialog for Sample Browser -->
+        <div class="modal fade" id="sampleBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Sample Browser</h4>
+                    </div>
+                    <div class="modal-body">
+                        <opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"></opencga-sample-browser>
+                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
                     </div>
                 </div>
             </div>
