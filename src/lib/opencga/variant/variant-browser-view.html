@@ -14,6 +14,8 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+
 <dom-module id="variant-browser-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
@@ -26,37 +28,39 @@
 
                 </table>
             </div>
+
             <!--Tabs-->
             <div>
-                <ul id="bierAppViewTabs" class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#bierappGenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
-                    <li role="presentation"><a href="#bierappPopFreq" role="tab" data-toggle="tab">Population Frequency</a></li>
-                    <li role="presentation"><a href="#bierappPhenotype" role="tab" data-toggle="tab">Phenotype</a></li>
-                    <li role="presentation"><a href="#bierappEffect" role="tab" data-toggle="tab">Effect</a></li>
-                </ul>
+                <cellbase-variantannotation-view data="{{variant}}" prefix="bierapp" cellbase-client="{{cellbaseClient}}"></cellbase-variantannotation-view>
+                <!--<ul id="bierAppViewTabs" class="nav nav-tabs" role="tablist">-->
+                <!--<li role="presentation" class="active"><a href="#bierappGenomeView" role="tab" data-toggle="tab">Genome Context</a></li>-->
+                <!--<li role="presentation"><a href="#bierappPopFreq" role="tab" data-toggle="tab">Population Frequency</a></li>-->
+                <!--<li role="presentation"><a href="#bierappPhenotype" role="tab" data-toggle="tab">Phenotype</a></li>-->
+                <!--<li role="presentation"><a href="#bierappEffect" role="tab" data-toggle="tab">Effect</a></li>-->
+                <!--</ul>-->
 
-                <div class="tab-content">
-                    <!--Genome Context Tab-->
-                    <div role="tabpanel" class="tab-pane active" id="bierappGenomeView">
-                        <br>
-                        <div id="variationGenomeViewer"></div>
-                    </div>
+                <!--<div class="tab-content">-->
+                <!--&lt;!&ndash;Genome Context Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane active" id="bierappGenomeView">-->
+                <!--<br>-->
+                <!--<div id="variationGenomeViewer"></div>-->
+                <!--</div>-->
 
-                    <!--Population Frequency Tab-->
-                    <div role="tabpanel" class="tab-pane" id="bierappPopFreq">
-                        Population Frequency
-                    </div>
+                <!--&lt;!&ndash;Population Frequency Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane" id="bierappPopFreq">-->
+                <!--Population Frequency-->
+                <!--</div>-->
 
-                    <!--Phenotype Tab-->
-                    <div role="tabpanel" class="tab-pane" id="bierappPhenotype">
-                        Phenotype
-                    </div>
+                <!--&lt;!&ndash;Phenotype Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane" id="bierappPhenotype">-->
+                <!--Phenotype-->
+                <!--</div>-->
 
-                    <!--Effect Tab-->
-                    <div role="tabpanel" class="tab-pane" id="bierappEffect">
-                        Effect
-                    </div>
-                </div>
+                <!--&lt;!&ndash;Effect Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane" id="bierappEffect">-->
+                <!--Effect-->
+                <!--</div>-->
+                <!--</div>-->
             </div>
         </div>
     </template>
@@ -89,9 +93,13 @@
                     type: String,
                     value: ["this", "is", "amazing!"],
                     observer: '_refreshTableColumns'
+                },
+                cellbaseClient: {
+                    type: Object,
                 }
             },
             ready: function () {
+
                 this.cols = [
                     [
                         {
@@ -267,7 +275,8 @@
                             return {
                                 limit: params.limit,
                                 skip: params.offset,
-                                sid: _this.opencgaClient._config.sessionId
+                                sid: _this.opencgaClient._config.sessionId,
+                                exclude: 'studies'
                             };
                         },
                         responseHandler: function (res) {
@@ -278,7 +287,13 @@
                             }
                             return {total: _numTotal, rows: res.response[0].result}
                         },
-                        columns: this.cols
+                        columns: this.cols,
+                        onClickRow: function (row, $element) {
+                            _this.fire('selected', {variant: row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate});
+                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                            $('#' + _this.prefix + 'VariationTable' + ' tr').removeClass("highlight");
+                            $element.addClass("highlight");
+                        }
                     });
                     $('#bierAppToolGrid').bootstrapTable('showLoading');
                 }
@@ -298,6 +313,61 @@
             },
             snpFormatter: function (value, row, index) {
                 return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+            },
+            geneFormatter: function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+                        return "<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[0].geneName + "'>"
+                                + row.annotation.consequenceTypes[0].geneName+ "</a>";
+                    }
+                }
+                return '-';
+            },
+            siftFormatter: function (value, row, index) {
+                var min = 10;
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "sift") {
+                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
+                                            min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (min != 10) {
+                    return min;
+                } else {
+                    return '-';
+                }
+            },
+            polyphenFormatter: function (value, row, index) {
+                var max = 0;
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "polyphen") {
+                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
+                                            max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (max != 0) {
+                    return max;
+                } else {
+                    return '-';
+                }
             },
             phylopFormatter: function (value, row, index) {
                 if (typeof row !== "undefined") {
@@ -420,7 +490,8 @@
                             title: 'Genes',
                             field: 'genes',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.geneFormatter
                         },
                         {
                             title: 'Type',
@@ -445,13 +516,15 @@
                             title: 'SIFT',
                             field: 'sift',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.siftFormatter
                         },
                         {
                             title: 'Polyphen',
                             field: 'Polyphen',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.polyphenFormatter
                         },
                         {
                             title: 'PhyloP',

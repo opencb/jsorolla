@@ -208,6 +208,9 @@
                 }
             },
             _variantChanged: function () {
+                console.log("cellbaseClient");
+                console.log(this.cellbaseClient);
+
                 let _this = this;
                 var success = function (response) {
                     _this.variantAnnotation = response.response[0].result[0];
