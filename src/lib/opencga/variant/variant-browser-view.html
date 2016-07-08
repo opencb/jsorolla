@@ -252,7 +252,6 @@
                 this.renderGenomeViewer();
             },
             renderFromServer: function () {
-                console.log(this.cols)
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
                     let _this = this;
 
@@ -321,8 +320,6 @@
                 return '-';
             },
             _refreshTableColumns: function() {
-                console.log("In _refreshTableColumns");
-                console.log(this.type)
                 this.cols = this._initColumns();
                 if (typeof this.cols !== "undefined") {
                     switch(this.type) {
