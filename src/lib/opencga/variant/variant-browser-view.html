@@ -105,6 +105,26 @@
                 },
                 cellbaseClient: {
                     type: Object
+                },
+                populationFreq: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                sift: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                polyphen: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                conservation: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
                 }
             },
             ready: function () {
@@ -285,11 +305,23 @@
                         queryParams.exclude = "studies";
                     }
                     if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
-                        console.log(this.sampleGenotypes)
                         queryParams.genotype = this.sampleGenotypes;
                     }
-
-
+                    if (typeof this.populationFreq !== "undefined" && this.populationFreq != "") {
+                        queryParams["annot-population-maf"] = this.populationFreq;
+                    }
+                    if (typeof this.sift !== "undefined" && this.sift != "") {
+                        console.log('sift', this.sift)
+                        queryParams["sift"] = this.sift;
+                    }
+                    if (typeof this.polyphen !== "undefined" && this.polyphen != "") {
+                        console.log('polyphen', this.polyphen)
+                        queryParams["polyphen"] = this.polyphen;
+                    }
+                    if (typeof this.conservation !== "undefined" && this.conservation != "") {
+                        console.log('conservation', this.conservation)
+                        queryParams["conservation"] = this.conservation;
+                    }
 
                     let _numTotal = -1;
                     $('#bierAppToolGrid').bootstrapTable('destroy');

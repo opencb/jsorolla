@@ -61,10 +61,12 @@
             <br>
 
             <div class="col-md-2">
-                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
+                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                                        population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
             </div>
             <div class="col-md-10">
-                <variant-browser-view study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}" cellbase-client="{{cellbaseClient}}"></variant-browser-view>
+                <variant-browser-view study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                                      population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-view>
             </div>
         </div>
     </template>
@@ -90,7 +92,7 @@
                     value: ""
                 },
                 opencgaClient: {
-                    type: Object,
+                    type: Object
                 },
                 type: {
                     type: String,
@@ -104,8 +106,24 @@
                     type: Object,
                     value: {}
                 },
+                populationFreq: {
+                    type: String,
+                    value: ""
+                },
+                sift: {
+                    type: String,
+                    value: ""
+                },
+                polyphen: {
+                    type: String,
+                    value: ""
+                },
+                conservation: {
+                    type: String,
+                    value: ""
+                },
                 cellbaseClient: {
-                    type: Object,
+                    type: Object
                 }
             },
             ready: function () {
