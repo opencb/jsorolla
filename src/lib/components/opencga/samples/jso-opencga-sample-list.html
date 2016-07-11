@@ -229,8 +229,8 @@
                 <div class="name title">Name</div>
                 <div class="status title">Status</div>
                 <div class="source title">Source</div>
-                <div class="title">Suspicious</div>
-                <div class="title">Diagnostic</div>
+                <div class="title" hidden$="{{!enableDiagnostic}}">Suspicious</div>
+                <div class="title" hidden$="{{!enableDiagnostic}}">Diagnostic</div>
                 <div id="typeC" class="title" hidden>Type</div>
             </div>
         </div>
@@ -238,7 +238,7 @@
         <div id="content" class$="{{computeContentClass(viewMode,showInfo)}}">
             <div class$="{{computeClassViewMode(viewMode)}}" id="sampleList">
                 <template is="dom-repeat" items="{{filteredSamples}}" class="wrap">
-                    <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}" disable-case-control="{{disableCaseControl}}">
+                    <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}" disable-case-control="{{disableCaseControl}}" enable-diagnostic$="{{enableDiagnostic}}">
                     </jso-opencga-sample-list-item>
                 </template>
             </div>
@@ -483,6 +483,11 @@
                 },
             },
             disableCaseControl: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            enableDiagnostic: {
                 type: Boolean,
                 value: false,
                 reflectToAttribute: true

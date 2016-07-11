@@ -41,13 +41,26 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .addButton{
+          text-align: center;
+          color: #445D76;
+          margin: 2px;
+          width: 50px;
+          height: 18px;
+          line-height: 17px;
+        }
+        #addSuspPanel .container{
+          padding: 5px;
+          height: 55px;
+          width: 300px;
+        }
     </style>
     <template>
         <div class="horizontal layout">
             <template is="dom-if" if="{{computeViewMode(viewMode,'list')}}">
                 <div class="horizontal layout">
-                    <!-- <div class="name title" title$="{{sample.name}}">{{sample.name}}</div> -->
-                    <div class="name title" title$="{{sample.name}}" contenteditable="true" on-blur="handleSampleRename">{{sample.name}}</div>
+                    <div class="name title" title$="{{sample.name}}">{{sample.name}}</div>
+                    <!-- <div class="name title" title$="{{sample.name}}" contenteditable="true" on-blur="handleSampleRename">{{sample.name}}</div> -->
                 </div>
                 <div id="status" class="title">
                     <i class$="{{computeStatusIcon(sample.status)}}"></i>
@@ -56,16 +69,26 @@
                 <div id="source" class="title" title$="{{sample.source}}">
                     <span>{{sample.source}}</span>
                 </div>
-                <div id="susp" class="title" title$="{{suspicious}}">
-                    <span contenteditable="true" on-blur="handleAddSuspicious">{{suspicious}}</span>
+                <div id="susp" class="title" title$="{{suspicious}}" hidden$="{{!enableDiagnostic}}">
+                    <span hidden$="{{!isSuspAdded}}">{{suspicious}}</span>
+                    <div class="jso-btn jso-btn-shdw addButton" on-click="showListICD" title="Add suspicious diagnostic for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
                 </div>
-                <div id="diag" class="title" title$="{{diagnostic}}">
+                <div id="diag" class="title" title$="{{diagnostic}}" hidden$="{{!enableDiagnostic}}">
                     <span>{{diagnostic}}</span>
                 </div>
                 <div id="Cohort" class="title" hidden$="{{disableCaseControl}}">
                     <span style="">{{sample.cohort}}</span>
                 </div>
             </template>
+            <jso-panel id="addSuspPanel" modal closable hidden>
+                <div class="header">
+                  Add suspicious diagnostic
+                </div>
+                <div class="container">
+                  <input type="text" id="{{sample.name}}" style="width:98%">
+                  <div style="margin:0 auto; margin-top:5px;" class="jso-btn jso-btn-shdw addButton" on-click="handleAddSuspicious" title="Add suspicious diagnostic for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
+                </div>
+            </jso-panel>
 
             <template is="dom-if" if="{{computeViewMode(viewMode,'icon')}}">
                 <div class="icon">
@@ -102,13 +125,23 @@
                 value: false,
                 reflectToAttribute: true
             },
+            enableDiagnostic: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
+            isSuspAdded: {
+                type: Boolean,
+            }
         },
         sampleChanged: function(neo, old) {
             this.set('suspicious', "");
             this.set('diagnostic', "");
+            this.set("isSuspAdded", false);
             if (neo.description != "") {
                 var information = JSON.parse(neo.description);
-                if (information.suspDiag != null) {
+                if (information.suspDiag != null && information.suspDiag != "") {
+                    this.set("isSuspAdded", true);
                     this.set('suspicious', information.suspDiag);
                 }
                 if (information.confDiag != null) {
@@ -155,33 +188,42 @@
                 });
             }
         },
+        showListICD:function(e){
+          this.$.addSuspPanel.hidden=false;
+        },
         handleAddSuspicious: function(e) {
             var me = this;
             var infor = {};
             if (this.sample.description != "") {
                 infor = JSON.parse(this.sample.description);
             }
-            var susp = e.currentTarget.innerHTML;
-            infor["suspDiag"] = susp;
-            var description = JSON.stringify(infor);
-            OpencgaManager.samples.update({
-                id: me.sample.id,
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                    description: description,
-                    source: me.sample.source,
-                    individualId: me.sample.individualId
-                },
-                request: {
-                    async: false,
-                    success: function(response) {
-                        alert("The sample name has been changed succesfully.")
+            elem = this.$.addSuspPanel.querySelectorAll('input');
+            var susp = elem[0].value;
+            this.set('suspicious', susp);
+            if (susp != infor["suspDiag"]) {
+                infor["suspDiag"] = susp;
+                var description = JSON.stringify(infor);
+                OpencgaManager.samples.update({
+                    id: me.sample.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        description: description,
+                        source: me.sample.source,
+                        individualId: me.sample.individualId
                     },
-                    error: function() {
+                    request: {
+                        async: false,
+                        success: function(response) {
+                            me.$.addSuspPanel.hidden=true;
+                            me.set("isSuspAdded", true);
+                            alert("Suspicious Diagnostic has been added succesfully.")
+                        },
+                        error: function() {
 
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     });
 </script>
