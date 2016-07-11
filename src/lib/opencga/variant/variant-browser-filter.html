@@ -19,11 +19,6 @@
 <dom-module id="variant-browser-filter">
     <template>
         <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
-            /*paper-slider::shadow #input {*/
-            /*width: calc(20vh - 40px);*/
-            /*font-size: 13px;*/
-            /*}*/
-
             select {
                 height: 20px;
                 width: 45px;
@@ -63,13 +58,12 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="studyFilterHeading">
                         <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
-                               href="#studyFilter" aria-expanded="false" aria-controls="studyFilter">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#studyFilter" aria-expanded="true" aria-controls="studyFilter">
                                 Study Filter
                             </a>
                         </h4>
                     </div>
-                    <div id="studyFilter" class="panel-collapse collapse" role="tabpanel"
+                    <div id="studyFilter" class="panel-collapse collapse in" role="tabpanel"
                          aria-labelledby="studyFilterHeading">
                         <div class="panel-body">
                             <!--<input type="radio" name="study" value="{{item.name}}" on-click="studySelected" data-id="{{item.id}}"> {{item.name}}-->
@@ -86,71 +80,57 @@
                                 </ul>
                             </div>
                             <br>
-                            <!--<div id="somaticFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">-->
-                                <div>
-                                    <!--<template is="dom-repeat" items="{{somaticValues}}">-->
-                                        <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
-                                    <!--</template>-->
-                                    <h4>Select type of analysis</h4>
-                                    <input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>
-                                    <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>
-                                    <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>
-                                    <input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control
-                                </div>
-                            <!--</div>-->
+                            <div>
+                                <!--<template is="dom-repeat" items="{{somaticValues}}">-->
+                                <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
+                                <!--</template>-->
+                                <h5>Select type of analysis</h5>
+                                <input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>
+                                <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>
+                                <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>
+                                <input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control
+                            </div>
                             <br>
                             <button data-toggle="modal" role="button" data-placement="bottom" data-target="#sampleBrowser" title="Sample Browser..." >Sample Browser...</button>
                             <br>
-
-                            <!--Select samples: <br>-->
-                            <!--<div class="sample-scroll">-->
-                                <!--<template is="dom-repeat" items="{{studySamples}}">-->
-                                    <!--<input type="checkbox" name="samples" value="{{item.name}}" on-change="addSelectedSamples">-->
-                                    <!--{{item.name}}<br>-->
-                                <!--</template>-->
-                            <!--</div>-->
-
-                            <!--<div class="dropdown">-->
-                                <!--Select a file:<span style="padding-left:63px;"></span>-->
-                                <!--<button class="btn btn-default dropdown-toggle" type="button" id="filesDropdownMenu"-->
-                                        <!--data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
-                                    <!--Files-->
-                                    <!--<span class="caret"></span>-->
-                                <!--</button>-->
-                                <!--<ul class="dropdown-menu" aria-labelledby="filesDropdownMenu">-->
-                                    <!--<template is="dom-repeat" items="{{studyFiles}}">-->
-                                        <!--<li><a href="#" data-id="{{item.id}}">{{item.name}}</a></li>-->
-                                    <!--</template>-->
-                                <!--</ul>-->
-                            <!--</div>-->
                         </div>
                     </div>
 
                 </div>
 
-                <!--Segregation filter-->
+                <!-- Segregation filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingOne">
                         <h4 class="panel-title">
-                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#segregation"
-                               aria-expanded="true" aria-controls="segregation">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#segregation" aria-expanded="false" aria-controls="segregation">
                                 Segregation
                             </a>
                         </h4>
                     </div>
-                    <div id="segregation" class="panel-collapse collapse in" role="tabpanel"
-                         aria-labelledby="headingOne">
+                    <div id="segregation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
                         <div class="panel-body">
-                            <form class="form-inline" role="form">
-                                <label>Sample:</label>
-                                <template is="dom-repeat" items="{{segregation}}">
-                                    <div class="form-group">
-                                        <label>
-                                            <input type="checkbox"> {{item}}
-                                        </label>
-                                    </div>
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Sample</th>
+                                    <th>0/0</th>
+                                    <th>0/1</th>
+                                    <th>1/1</th>
+                                    <th>./.</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <template is="dom-repeat" items="{{samples}}">
+                                    <tr id="{{item}}" on-click="sampleGenotypeSelected">
+                                        <td>{{item}}</td>
+                                        <td><input type="checkbox" value="0/0" data-id="{{item}}"></td>
+                                        <td><input type="checkbox" value="0/1" data-id="{{item}}"></td>
+                                        <td><input type="checkbox" value="1/1" data-id="{{item}}"></td>
+                                        <td><input type="checkbox" value="./." data-id="{{item}}"></td>
+                                    </tr>
                                 </template>
-                            </form>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -166,19 +146,19 @@
                         </h4>
                     </div>
                     <!--<div id="somaticFilter" class="panel-collapse collapse" role="tabpanel"-->
-                         <!--aria-labelledby="headingTwo">-->
-                        <!--<div class="panel-body">-->
-                            <!--<template is="dom-repeat" items="{{somaticValues}}">-->
-                            <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
-                            <!--</template>-->
-                            <!--<input type="radio" name="type" value="family" on-click="typeSelected" data-id="family">-->
-                            <!--family-->
-                            <!--<br>-->
-                            <!--<input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic">-->
-                            <!--somatic-->
-                            <!--<br>-->
-                            <!--<input type="radio" name="type" value="cc" on-click="typeSelected" data-id="cc"> cc-->
-                        <!--</div>-->
+                    <!--aria-labelledby="headingTwo">-->
+                    <!--<div class="panel-body">-->
+                    <!--<template is="dom-repeat" items="{{somaticValues}}">-->
+                    <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
+                    <!--</template>-->
+                    <!--<input type="radio" name="type" value="family" on-click="typeSelected" data-id="family">-->
+                    <!--family-->
+                    <!--<br>-->
+                    <!--<input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic">-->
+                    <!--somatic-->
+                    <!--<br>-->
+                    <!--<input type="radio" name="type" value="cc" on-click="typeSelected" data-id="cc"> cc-->
+                    <!--</div>-->
                     <!--</div>-->
                 </div>
 
@@ -207,7 +187,7 @@
                     </div>
                 </div>
 
-                <!--Type filter-->
+                <!-- Variant Type filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingFour">
                         <h4 class="panel-title">
@@ -226,16 +206,12 @@
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="MNV"> MNV
                                 </label>
-                            </div>
-                            <div>
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="CNV"> CNV
                                 </label>
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="SV"> SV
                                 </label>
-                            </div>
-                            <div>
                                 <label class="checkbox-inline">
                                     <input type="checkbox" value="INDEL"> INDEL
                                 </label>
@@ -408,8 +384,7 @@
                     <div id="conservation" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="headingSeven">
                         <div class="panel-body">
-                            <textarea id="bierAppConservationTextarea" class="form-control clearable"
-                                      rows="3"></textarea>
+                            <textarea id="bierAppConservationTextarea" class="form-control clearable" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
@@ -483,7 +458,7 @@
                     </div>
                     <div class="modal-body">
                         <opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}"></opencga-sample-browser>
-                        </div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
                     </div>
@@ -506,10 +481,10 @@
                 opencgaClient: {
                     type: Object
                 },
-                segregation: {
-                    type: Array,
-                    value: ["0/0", "0/1", "1/1", "./."]
-                },
+//                segregation: {
+//                    type: Array,
+//                    value: ["0/0", "0/1", "1/1", "./."]
+//                },
                 query: {
                     type: Object,
                     notify: true,
@@ -527,16 +502,22 @@
                     value: [],
                     notify: true
                 },
+                sampleGenotypes: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
                 cellbaseClient: {
                     type: Object
                 }
+            },
+            ready: function() {
+                this.sampleGenotypesObj = {};
             },
             studySelected: function (e) {
                 if (typeof e.target === "undefined") {
                     this.study = {name: e};
                 } else {
-//                    console.log("Study Event:")
-//                    console.log(e)
                     this.study = {id: e.target.dataId, name: e.target.innerText};
                 }
                 // samples from the selected study
@@ -558,6 +539,29 @@
                     this.type = e.target.defaultValue;
                 }
                 console.log("type:", this.type);
+            },
+            sampleGenotypeSelected: function(e) {
+                if (typeof e !== "undefined") {
+                    if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
+                        this.sampleGenotypesObj[e.target.dataId] = {};
+                    }
+                    this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
+
+                    let arr = [];
+                    for (let sampleName in this.sampleGenotypesObj) {
+                        let gts = [];
+                        for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
+                            if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
+                                gts.push(sampleGT);
+                                gts.push(sampleGT.replace('/', '|'));
+                            }
+                        }
+                        if (gts.length > 0) {
+                            arr.push(sampleName + ':' + gts.join(','));
+                        }
+                    }
+                    this.sampleGenotypes = arr.join(';');
+                }
             },
             addSelectedSamples: function(e) {
                 if (e.target.checked) {

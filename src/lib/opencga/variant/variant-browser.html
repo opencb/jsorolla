@@ -61,10 +61,10 @@
             <br>
 
             <div class="col-md-2">
-                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
+                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
             </div>
             <div class="col-md-10">
-                <variant-browser-view study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" cellbase-client="{{cellbaseClient}}"></variant-browser-view>
+                <variant-browser-view study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}" cellbase-client="{{cellbaseClient}}"></variant-browser-view>
             </div>
         </div>
     </template>
@@ -99,6 +99,10 @@
                 samples: {
                     type: String,
                     value: []
+                },
+                sampleGenotypes: {
+                    type: Object,
+                    value: {}
                 },
                 cellbaseClient: {
                     type: Object,

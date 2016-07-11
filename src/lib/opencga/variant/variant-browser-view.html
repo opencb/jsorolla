@@ -98,12 +98,16 @@
                     value: [],
                     observer: '_refreshTableColumns'
                 },
+                sampleGenotypes: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
                 cellbaseClient: {
-                    type: Object,
+                    type: Object
                 }
             },
             ready: function () {
-
                 this.cols = [
                     [
                         {
@@ -269,6 +273,24 @@
 
                     this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.id + '/variants';
 //                    this._url += '?sid=' + this.opencgaClient._config.sessionId;
+
+
+                    var queryParams = {
+                        sid: _this.opencgaClient._config.sessionId,
+                        timeout: 10000
+                    };
+                    if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+                        queryParams.returnedSamples = this.samples.join();
+                    } else {
+                        queryParams.exclude = "studies";
+                    }
+                    if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
+                        console.log(this.sampleGenotypes)
+                        queryParams.genotype = this.sampleGenotypes;
+                    }
+
+
+
                     let _numTotal = -1;
                     $('#bierAppToolGrid').bootstrapTable('destroy');
                     $('#bierAppToolGrid').bootstrapTable({
@@ -276,12 +298,15 @@
                         method: 'get',
                         sidePagination: 'server',
                         queryParams: function (params) {
-                            return {
-                                limit: params.limit,
-                                skip: params.offset,
-                                sid: _this.opencgaClient._config.sessionId,
-                                exclude: 'studies'
-                            };
+                            queryParams.limit = params.limit;
+                            queryParams.skip = params.offset;
+                            return queryParams;
+//                            return {
+//                                limit: params.limit,
+//                                skip: params.offset,
+//                                sid: _this.opencgaClient._config.sessionId,
+//                                exclude: 'studies'
+//                            };
                         },
                         responseHandler: function (res) {
                             console.log(res)
@@ -393,6 +418,13 @@
                 }
                 return '-';
             },
+            sampleFormatter: function (value, row, index) {
+                if (typeof row !== "undefined") {
+                    // NOTE:
+                    return row.studies[0].samplesData[this.fieldIndex - 5][0];
+                }
+                return '-';
+            },
             _refreshTableColumns: function() {
                 this.cols = this._initColumns();
                 if (typeof this.cols !== "undefined") {
@@ -409,9 +441,10 @@
                                 this.cols[1].splice(i, 0,
                                         {
                                             title: this.samples[i],
-                                            field: 'samples',
+//                                            field: 'studies',
                                             rowspan: 1,
-                                            colspan: 1
+                                            colspan: 1,
+                                            formatter: this.sampleFormatter
                                         });
                             }
                             break;
