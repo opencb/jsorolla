@@ -257,87 +257,6 @@
                     <div id="populationFrequency" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="headingFive">
                         <div class="panel-body">
-                            <i class$="{{phase_1}}" on-click="handleCollapseAction" data-type="phase_1"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="phase_1"> 1000 Genomes
-                                population phase 1</label>
-                            <div id="phase_1" hidden>
-                                <label class="name">All populations MAF [ALL]</label>
-                                <div class="horizontal layout">
-                                    <select name="1000GENOMES_phase_1_ALL_op" id="1000GENOMES_phase_1_ALL_op">
-                                        <option value="<" selected>
-                                            <
-                                        </option>
-                                        <option value="<=">
-                                            <=
-                                        </option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
-                                                  value="0" id="1000GENOMES_phase_1_ALL" editable></paper-slider>
-                                </div>
-                                <label class="name">American MAF [AMR]</label>
-                                <div class="horizontal layout">
-                                    <select name="1000GENOMES_phase_1_AMR_op" id="1000GENOMES_phase_1_AMR_op">
-                                        <option value="<" selected>
-                                            <
-                                        </option>
-                                        <option value="<=">
-                                            <=
-                                        </option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
-                                                  value="0" id="1000GENOMES_phase_1_AMR" editable></paper-slider>
-                                </div>
-                                <label class="name">Asian MAF [ASN]</label>
-                                <div class="horizontal layout">
-                                    <select name="1000GENOMES_phase_1_ASN_op" id="1000GENOMES_phase_1_ASN_op">
-                                        <option value="<" selected>
-                                            <
-                                        </option>
-                                        <option value="<=">
-                                            <=
-                                        </option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
-                                                  value="0" id="1000GENOMES_phase_1_ASN" editable></paper-slider>
-                                </div>
-                                <label class="name">African MAF [AFR]</label>
-                                <div class="horizontal layout">
-                                    <select name="1000GENOMES_phase_1_AFR_op" id="1000GENOMES_phase_1_AFR_op">
-                                        <option value="<" selected>
-                                            <
-                                        </option>
-                                        <option value="<=">
-                                            <=
-                                        </option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
-                                                  value="0" id="1000GENOMES_phase_1_AFR" editable></paper-slider>
-                                </div>
-                                <label class="name">European MAF [EUR]</label>
-                                <div class="horizontal layout">
-                                    <select name="1000GENOMES_phase_1_EUR_op" id="1000GENOMES_phase_1_EUR_op">
-                                        <option value="<" selected>
-                                            <
-                                        </option>
-                                        <option value="<=">
-                                            <=
-                                        </option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select>
-                                    <paper-slider pin min="0" max="1" step="0.0000001" on-value-change="sliderChange"
-                                                  value="0" id="1000GENOMES_phase_1_EUR" editable></paper-slider>
-                                </div>
-                            </div>
-                            <br>
                             <i class$="{{phase_3}}" on-click="handleCollapseAction" data-type="phase_3"></i>
                             <label class="popus" on-click="handleCollapseAction" data-type="phase_3">1000 Genomes
                                 population phase 3</label>
@@ -722,22 +641,6 @@
                     type.checked = false;
                 }
                 // Freqs
-                this.$["1000GENOMES_phase_1_ALL"].value = 0;
-                this["1000GENOMES_phase_1_ALL"] = "";
-                this.$["1000GENOMES_phase_1_ALL_op"].value = "<";
-                this.$["1000GENOMES_phase_1_AMR"].value = 0;
-                this["1000GENOMES_phase_1_AMR"] = "";
-                this.$["1000GENOMES_phase_1_AMR_op"].value = "<";
-                this.$["1000GENOMES_phase_1_ASN"].value = 0;
-                this["1000GENOMES_phase_1_ASN"] = "";
-                this.$["1000GENOMES_phase_1_ASN_op"].value = "<";
-                this.$["1000GENOMES_phase_1_AFR"].value = 0;
-                this["1000GENOMES_phase_1_AFR"] = "";
-                this.$["1000GENOMES_phase_1_AFR_op"].value = "<";
-                this.$["1000GENOMES_phase_1_EUR"].value = 0;
-                this["1000GENOMES_phase_1_EUR"] = "";
-                this.$["1000GENOMES_phase_1_EUR_op"].value = "<";
-
                 this.$["1000GENOMES_phase_3_ALL"].value = 0;
                 this["1000GENOMES_phase_1_ALL"] = "";
                 this.$["1000GENOMES_phase_3_ALL_op"].value = "<";
@@ -787,23 +690,6 @@
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 var popFreq = [];
-
-                // 1000GENOMES_phase_1
-                if (this.$["1000GENOMES_phase_1_ALL"].value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ALL", "phase1"));
-                }
-                if (this.$["1000GENOMES_phase_1_AMR"].value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AMR", "phase1"));
-                }
-                if (this.$["1000GENOMES_phase_1_ASN"].value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ASN", "phase1"));
-                }
-                if (this.$["1000GENOMES_phase_1_AFR"].value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AFR", "phase1"));
-                }
-                if (this.$["1000GENOMES_phase_1_EUR"].value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "EUR", "phase1"));
-                }
 
                 // 1000GENOMES_phase_3
                 if (this.$["1000GENOMES_phase_3_ALL"].value != "") {
