@@ -44,15 +44,6 @@
         #content.icon.info {
             height: calc(100% - 120px);
         }
-        /*.source {
-            color: #444;
-            width: 120px;
-        }
-
-        .status {
-            color: #444;
-            width: 120px;
-        }*/
 
         jso-opencga-sample-list-item[view-mode='list'] {
             padding: 3px 7px;
@@ -205,7 +196,13 @@
 
         .title {
             margin-right: 10px;
-            width: 100px;
+            width: 110px;
+        }
+        .description{
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
         }
     </style>
     <template>
@@ -232,6 +229,8 @@
                 <div class="name title">Name</div>
                 <div class="status title">Status</div>
                 <div class="source title">Source</div>
+                <div class="title">Suspicious</div>
+                <div class="title">Diagnostic</div>
                 <div id="typeC" class="title" hidden>Type</div>
             </div>
         </div>
@@ -369,10 +368,10 @@
                 <span class="data">Source: &nbsp;</span>
                 <span class="value lowercase">{{sampleSource}}</span>
             </div>
-            <!-- <div class="horizontal layout">
-                <span class="data">Description: &nbsp;</span>
-                <span>{{sampleDescription}}</span>
-            </div> -->
+            <div class="horizontal layout">
+                <span class="data">Aditional Data: &nbsp;</span>
+                <span class="description" title="{{sampleDescription}}">{{sampleDescription}}</span>
+            </div>
         </div>
     </template>
 </dom-module>
@@ -528,6 +527,8 @@
             // study - info
             this.sampleName = this.selected.name;
             this.sampleSource = this.selected.source;
+            this.sampleDescription = this.selected.description;
+
 
             if (this.study.type == "CASE_CONTROL") {
                 this.selected.description = "No Choose Case/Control";

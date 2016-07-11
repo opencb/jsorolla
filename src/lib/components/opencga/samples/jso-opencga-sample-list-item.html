@@ -46,8 +46,8 @@
         <div class="horizontal layout">
             <template is="dom-if" if="{{computeViewMode(viewMode,'list')}}">
                 <div class="horizontal layout">
-                    <div class="name title" title$="{{sample.name}}">{{sample.name}}</div>
-                    <!-- <div class="name title" title$="{{sample.name}}" contenteditable="true" on-blur="handleSampleRename">{{sample.name}}</div> -->
+                    <!-- <div class="name title" title$="{{sample.name}}">{{sample.name}}</div> -->
+                    <div class="name title" title$="{{sample.name}}" contenteditable="true" on-blur="handleSampleRename">{{sample.name}}</div>
                 </div>
                 <div id="status" class="title">
                     <i class$="{{computeStatusIcon(sample.status)}}"></i>
@@ -55,6 +55,12 @@
                 </div>
                 <div id="source" class="title" title$="{{sample.source}}">
                     <span>{{sample.source}}</span>
+                </div>
+                <div id="susp" class="title" title$="{{suspicious}}">
+                    <span contenteditable="true" on-blur="handleAddSuspicious">{{suspicious}}</span>
+                </div>
+                <div id="diag" class="title" title$="{{diagnostic}}">
+                    <span>{{diagnostic}}</span>
                 </div>
                 <div id="Cohort" class="title" hidden$="{{disableCaseControl}}">
                     <span style="">{{sample.cohort}}</span>
@@ -75,12 +81,21 @@
         properties: {
             sample: {
                 type: Object,
-                notify: true
+                notify: true,
+                observer: "sampleChanged"
             },
             viewMode: {
                 type: String,
                 value: 'list',
                 reflectToAttribute: true
+            },
+            confDiag: {
+                type: String,
+                value: ''
+            },
+            suspDiag: {
+                type: String,
+                value: ''
             },
             disableCaseControl: {
                 type: Boolean,
@@ -88,43 +103,85 @@
                 reflectToAttribute: true
             },
         },
+        sampleChanged: function(neo, old) {
+            this.set('suspicious', "");
+            this.set('diagnostic', "");
+            if (neo.description != "") {
+                var information = JSON.parse(neo.description);
+                if (information.suspDiag != null) {
+                    this.set('suspicious', information.suspDiag);
+                }
+                if (information.confDiag != null) {
+                    this.set('diagnostic', information.confDiag);
+                }
+            }
+        },
         computeViewMode: function(viewMode, value) {
             return viewMode == value;
         },
         computeStatusIcon: function(status) {
-          if(status=="INDEXING"){
-            return 'fa fa-cog fa-spin';
-          }else if(status== "READY"){
-            return'fa fa-check';
-          }else if(status== "NONE"){
-            return 'fa fa-check';
-          }else{
-            return '';
-          }
+            if (status == "INDEXING") {
+                return 'fa fa-cog fa-spin';
+            } else if (status == "READY") {
+                return 'fa fa-check';
+            } else if (status == "NONE") {
+                return 'fa fa-check';
+            } else {
+                return '';
+            }
         },
-        handleSampleRename: function(e){
-          var me=this;
-          var newName=e.currentTarget.innerHTML;
-          if (this.sample.name!=newName) {
-          OpencgaManager.samples.update({
+        handleSampleRename: function(e) {
+            var me = this;
+            var newName = e.currentTarget.innerHTML;
+            if (this.sample.name != newName) {
+                OpencgaManager.samples.update({
+                    id: me.sample.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        name: newName,
+                        description: me.sample.description,
+                        source: me.sample.source,
+                        individualId: me.sample.individualId
+                    },
+                    request: {
+                        async: false,
+                        success: function(response) {
+                            alert("The sample name has been changed succesfully.")
+                        },
+                        error: function() {
+
+                        }
+                    }
+                });
+            }
+        },
+        handleAddSuspicious: function(e) {
+            var me = this;
+            var infor = {};
+            if (this.sample.description != "") {
+                infor = JSON.parse(this.sample.description);
+            }
+            var susp = e.currentTarget.innerHTML;
+            infor["suspDiag"] = susp;
+            var description = JSON.stringify(infor);
+            OpencgaManager.samples.update({
                 id: me.sample.id,
                 query: {
                     sid: Cookies('bioinfo_sid'),
-                    name:newName,
-                    description:me.sample.description,
-                    source:me.sample.source,
-                    individualId:me.sample.individualId
+                    description: description,
+                    source: me.sample.source,
+                    individualId: me.sample.individualId
                 },
                 request: {
                     async: false,
                     success: function(response) {
+                        alert("The sample name has been changed succesfully.")
                     },
                     error: function() {
 
                     }
                 }
             });
-          }
         }
     });
 </script>
