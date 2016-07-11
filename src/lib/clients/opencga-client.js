@@ -193,7 +193,7 @@ class Users extends OpenCGAParentClass {
         if (options == undefined) {
             options = {};
         }
-        options["method"] = "POST";
+        options["method"] = "GET";
         return this.get("users", userId, "login", params, options).then(function(response) {
             if (response.error === "") {
                 Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);

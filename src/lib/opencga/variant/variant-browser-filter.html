@@ -75,20 +75,31 @@
                             <!--<input type="radio" name="study" value="{{item.name}}" on-click="studySelected" data-id="{{item.id}}"> {{item.name}}-->
                             <div class="dropdown">
                                 Select one study:<span style="padding-left:20px;"></span>
-                                <button class="btn btn-default dropdown-toggle" type="button" id="studiesDropdownMenu"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="studiesDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                     Studies
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="studiesDropdownMenu">
                                     <template is="dom-repeat" items="{{studies}}">
-                                        <li><a href="#" on-click="studySelected" data-id="{{item.id}}">{{item.name}}</a>
-                                        </li>
+                                        <li><a href="#" on-click="studySelected" data-id="{{item.id}}">{{item.name}}</a></li>
                                     </template>
                                 </ul>
                             </div>
                             <br>
-                            <button data-toggle="modal" role="button" data-placement="bottom" data-target="#sampleBrowser" title="Sample Browser ..." >Sample Browser</button>
+                            <!--<div id="somaticFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">-->
+                                <div>
+                                    <!--<template is="dom-repeat" items="{{somaticValues}}">-->
+                                        <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
+                                    <!--</template>-->
+                                    <h4>Select type of analysis</h4>
+                                    <input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>
+                                    <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>
+                                    <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>
+                                    <input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control
+                                </div>
+                            <!--</div>-->
+                            <br>
+                            <button data-toggle="modal" role="button" data-placement="bottom" data-target="#sampleBrowser" title="Sample Browser..." >Sample Browser...</button>
                             <br>
 
                             <!--Select samples: <br>-->
@@ -154,21 +165,21 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="somaticFilter" class="panel-collapse collapse" role="tabpanel"
-                         aria-labelledby="headingTwo">
-                        <div class="panel-body">
+                    <!--<div id="somaticFilter" class="panel-collapse collapse" role="tabpanel"-->
+                         <!--aria-labelledby="headingTwo">-->
+                        <!--<div class="panel-body">-->
                             <!--<template is="dom-repeat" items="{{somaticValues}}">-->
                             <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
                             <!--</template>-->
-                            <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family">
-                            family
-                            <br>
-                            <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic">
-                            somatic
-                            <br>
-                            <input type="radio" name="type" value="cc" on-click="typeSelected" data-id="cc"> cc
-                        </div>
-                    </div>
+                            <!--<input type="radio" name="type" value="family" on-click="typeSelected" data-id="family">-->
+                            <!--family-->
+                            <!--<br>-->
+                            <!--<input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic">-->
+                            <!--somatic-->
+                            <!--<br>-->
+                            <!--<input type="radio" name="type" value="cc" on-click="typeSelected" data-id="cc"> cc-->
+                        <!--</div>-->
+                    <!--</div>-->
                 </div>
 
                 <!--Position filter-->
@@ -588,7 +599,7 @@
                         <h4 class="modal-title" id="myModalLabel">Sample Browser</h4>
                     </div>
                     <div class="modal-body">
-                        <opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study}}" samples="{{samples}}"></opencga-sample-browser>
+                        <opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}"></opencga-sample-browser>
                         </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
@@ -606,7 +617,7 @@
                     value: []
                 },
                 study: {
-                    type: String,
+                    type: Object,
                     notify: true
                 },
                 opencgaClient: {
@@ -655,19 +666,21 @@
             },
             studySelected: function (e) {
                 if (typeof e.target === "undefined") {
-                    this.study = e;
+                    this.study = {name: e};
                 } else {
-                    this.study = e.target.dataId;
+//                    console.log("Study Event:")
+//                    console.log(e)
+                    this.study = {id: e.target.dataId, name: e.target.innerText};
                 }
                 // samples from the selected study
                 var _this = this;
                 this.samples = []; // empty the selected samples whenever a new study is selected
 //                this.samples = ["NA00001", "NA00002", "NA00003"];
-                this.opencgaClient.studies().samples(this.study).then(function (response) {
+                this.opencgaClient.studies().samples(this.study.id).then(function (response) {
                     _this.studySamples = response.response[0].result;
                 });
                 // files from the selected study
-                this.opencgaClient.studies().files(this.study).then(function (response) {
+                this.opencgaClient.studies().files(this.study.id).then(function (response) {
                     _this.studyFiles = response.response[0].result;
                 })
             },
