@@ -1,4 +1,5 @@
 <script src="../../../../../file-saver.js/FileSaver.js"></script>
+<link rel="import" href="../../../../../iron-resizable-behavior/iron-resizable-behavior.html">
 
 <dom-module id="jso-table">
     <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
@@ -181,9 +182,9 @@
             background-color: #bbb !important;
         }
 
-        div.table-row:last-of-type {
+        /*div.table-row:last-of-type {
             border-bottom-width: 0;
-        }
+        }*/
 
         .table-row:nth-child(2n) {
             background-color: #fbfbfb;
@@ -461,6 +462,9 @@
 <script>
     Polymer({
         is: 'jso-table',
+        behaviors: [
+            Polymer.IronResizableBehavior
+        ],
         properties: {
             columns: {
                 type: Array,
@@ -610,8 +614,22 @@
         listeners: {
             'wheel': 'handleScroll',
             'mouseleave': 'handleColumnsMenuLeave',
+            'iron-resize': '_onIronResize'
+        },
+        _onIronResize: function() {
+            this._setPageSizeAuto();
+        },
+        _setPageSizeAuto: function() {
+            this.async(function() {
+                var listHeight = this.$.list.getBoundingClientRect().height;
+                if (listHeight != 0) {
+                    var n = listHeight / 30;
+                    this.set('pageSize', parseInt(Math.floor(n)))
+                }
+            }, 150);
         },
         ready: function() {
+            var me = this;
 
             this.exportParsers.separator = "\t";
             this.exportParsers.comment = "#";
@@ -651,6 +669,23 @@
                 }
                 return dataLine;
             }
+
+            this.async(function() {
+                this._setPageSizeAuto();
+                var hiddenParent = Utils.closest(this, "[hidden]");
+                if (hiddenParent != null) {
+                    var observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type == 'attributes' && mutation.attributeName == 'hidden') {
+                                me._setPageSizeAuto();
+                            }
+                        });
+                    });
+                    observer.observe(hiddenParent, {
+                        attributes: true
+                    });
+                }
+            }, 10);
         },
         isColumnVisible: function(v) {
             return v.visible !== false;
@@ -1475,13 +1510,13 @@
                 cEl.classList.add('column-' + column.name.replace(/\s/g, '_'));
                 if (column.styleFormula) {
                     var newStyle = column.styleFormula(rowData);
-                    for(var key in newStyle){
-                      cEl.style[key] = newStyle[key];
+                    for (var key in newStyle) {
+                        cEl.style[key] = newStyle[key];
                     }
                 }
-                if(column.classFormula){
-                  var newClass = column.classFormula(rowData);
-                  cEl.classList.add(newClass);
+                if (column.classFormula) {
+                    var newClass = column.classFormula(rowData);
+                    cEl.classList.add(newClass);
                 }
                 el.appendChild(cEl);
             }
