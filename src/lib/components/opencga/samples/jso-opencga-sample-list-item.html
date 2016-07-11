@@ -110,8 +110,7 @@
                 id: me.sample.id,
                 query: {
                     sid: Cookies('bioinfo_sid'),
-                    // name:newName,
-                    // description:"this sample has an user description",
+                    name:newName,
                     description:me.sample.description,
                     source:me.sample.source,
                     individualId:me.sample.individualId
@@ -119,7 +118,6 @@
                 request: {
                     async: false,
                     success: function(response) {
-                        debugger
                     },
                     error: function() {
 
