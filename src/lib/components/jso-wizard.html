@@ -40,10 +40,11 @@
             margin-right: 5px;
         }
 
-        .next{
+        .next {
             margin-right: 15px;
         }
-        .prev{
+
+        .prev {
             margin-left: 15px;
         }
 
@@ -66,6 +67,16 @@
             border-bottom: 1px solid var(--divider-color);
         }
 
+        #container {
+          height: calc(100% - 80px);
+        }
+
+        #footer {
+            height: 40px;
+            padding: 7px 10px;
+            box-sizing: border-box;
+        }
+
         #title {
             font-size: 20px;
         }
@@ -84,7 +95,7 @@
         }
     </style>
     <template>
-        <div id="wizard-content" class="vertical layout">
+        <div id="wizard-content">
             <div id="header" class="horizontal layout center">
                 <div class="flex horizontal layout center start-justified">
                     <div class="init" on-click="handlegoToInit" hidden="{{!handleHiddenStep1(step)}}">
