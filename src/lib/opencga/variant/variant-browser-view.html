@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="variant-browser-gene-view.html">
 
 <dom-module id="variant-browser-view">
     <template>
@@ -25,6 +26,10 @@
             <div style="padding: 10px; ">
                 <template is="dom-if" if="{{study.name != ''}}">
                     <h3>{{study.name}}</h3>
+                </template>
+                <button type="button" class="btn btn-primary" on-click="loadGene">Click to view Gene</button>
+                <template is="dom-if" if="{{showGene}}">
+                    <variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>
                 </template>
 
                 <table id="bierAppToolGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
@@ -125,6 +130,14 @@
                     type: String,
                     value: "",
                     observer: 'renderFromServer'
+                },
+                showGene: {
+                    type: Boolean,
+                    value: false
+                },
+                gene: {
+                    type: String,
+                    value: "CERK"
                 }
             },
             ready: function () {
@@ -286,6 +299,9 @@
             },
             attached: function() {
                 this.renderGenomeViewer();
+            },
+            loadGene: function () {
+                this.showGene = true;
             },
             renderFromServer: function () {
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
