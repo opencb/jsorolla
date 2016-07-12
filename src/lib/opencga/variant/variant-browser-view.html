@@ -378,8 +378,21 @@
             geneFormatter: function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                        return "<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[0].geneName + "'>"
-                                + row.annotation.consequenceTypes[0].geneName+ "</a>";
+//                        return "<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[0].geneName + "'>"
+//                                + row.annotation.consequenceTypes[0].geneName+ "</a>";
+                        var visited = {};
+                        var geneLinks = [];
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            console.log("row.annotation.consequenceTypes[i]")
+                            console.log(row.annotation.consequenceTypes[i])
+                            console.log(visited)
+                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != "" && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
+                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                visited[row.annotation.consequenceTypes[i].geneName] = true;
+                            }
+                        }
+                        return geneLinks.join(',');
                     }
                 }
                 return '-';
