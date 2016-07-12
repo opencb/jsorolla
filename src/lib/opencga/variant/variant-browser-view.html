@@ -312,15 +312,15 @@
                     }
                     if (typeof this.sift !== "undefined" && this.sift != "") {
                         console.log('sift', this.sift)
-                        queryParams["sift"] = this.sift;
+                        queryParams.sift = this.sift;
                     }
                     if (typeof this.polyphen !== "undefined" && this.polyphen != "") {
                         console.log('polyphen', this.polyphen)
-                        queryParams["polyphen"] = this.polyphen;
+                        queryParams.polyphen = this.polyphen;
                     }
                     if (typeof this.conservation !== "undefined" && this.conservation != "") {
                         console.log('conservation', this.conservation)
-                        queryParams["conservation"] = this.conservation;
+                        queryParams.conservation = this.conservation;
                     }
 
                     let _numTotal = -1;

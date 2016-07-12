@@ -440,12 +440,12 @@
                     <div class="panel-heading" role="tab" id="headingSeven">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
-                               href="#conservation" aria-expanded="false" aria-controls="conservation">
+                               href="#conservationFilter" aria-expanded="false" aria-controls="conservationFilter">
                                 Conservation
                             </a>
                         </h4>
                     </div>
-                    <div id="conservation" class="panel-collapse collapse" role="tabpanel"
+                    <div id="conservationFilter" class="panel-collapse collapse" role="tabpanel"
                          aria-labelledby="headingSeven">
                         <div class="panel-body">
                             <div class="horizontal layout">
@@ -464,7 +464,7 @@
                             <div class="horizontal layout">
                                 <span>PhastCons</span>
                                     <span>
-                                        <select name="phastconsOperator" id=phastconsOperator">
+                                        <select name="phastconsOperator" id="phastconsOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
                                             <option value=">">></option>
@@ -795,20 +795,25 @@
                 }
 
                 if (popFreq.length > 0) {
-                    this.populationFreq = popFreq.join(';');
                     query['annot-population-maf'] = popFreq.join(";");
                     if (query['annot-population-maf'].indexOf("error") >= 0) {
                         return;
                     }
                 }
 
+                this.populationFreq = popFreq.join(';');
+
                 // Protein Substitution scores
+                var sift;
+                var polyphen;
                 if (this.$.siftInput.value != "") {
-                    this.sift = this.$.siftOperator.value + this.$.siftInput.value;
+                    sift = this.$.siftOperator.value + this.$.siftInput.value;
                 }
+                this.sift = sift;
                 if (this.$.polyphenInput.value != "") {
-                    this.polyphen = this.$.polyphenOperator.value + this.$.polyphenInput.value;
+                    polyphen = this.$.polyphenOperator.value + this.$.polyphenInput.value;
                 }
+                this.polyphen = polyphen;
 
                 // Conservation
                 var conserArr = [];
