@@ -430,39 +430,50 @@
                 }
                 return '-';
             },
-            siftFormatter: function (value, row, index) {
+//            siftFormatter: function (value, row, index) {
+//                var min = 10;
+//                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+//                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
+//                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+//                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+//                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+//                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "sift") {
+//                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
+//                                            min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                if (min != 10) {
+//                    return min;
+//                } else {
+//                    return '-';
+//                }
+//            },
+            proteinScoreFormatter: function (value, row, index) {
+                console.log('proteinScoreFormatter', this)
                 var min = 10;
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
-                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "sift") {
-                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
-                                            min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (min != 10) {
-                    return min;
-                } else {
-                    return '-';
-                }
-            },
-            polyphenFormatter: function (value, row, index) {
                 var max = 0;
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
                                 for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "polyphen") {
-                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
-                                            max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field) {
+                                        switch (this.field) {
+                                            case "sift":
+                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
+                                                    min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                                }
+                                                break;
+                                            case "polyphen":
+                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
+                                                    max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                                }
+                                                break;
                                         }
                                     }
                                 }
@@ -470,12 +481,42 @@
                         }
                     }
                 }
-                if (max != 0) {
-                    return max;
+                if (this.field == 'sift') {
+                    if (min != 10) {
+                        return min;
+                    }
+                } else if (this.field == 'polyphen') {
+                    if (max != 0) {
+                        return max;
+                    }
                 } else {
-                    return '-';
+                        return '-';
                 }
+
             },
+//            polyphenFormatter: function (value, row, index) {
+//                var max = 0;
+//                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+//                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
+//                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+//                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+//                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+//                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "polyphen") {
+//                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
+//                                            max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                if (max != 0) {
+//                    return max;
+//                } else {
+//                    return '-';
+//                }
+//            },
             phylopFormatter: function (value, row, index) {
                 if (typeof row !== "undefined") {
                     for (let i = 0; i < row.annotation.conservation.length; i++) {
@@ -633,14 +674,14 @@
                             field: 'sift',
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.siftFormatter
+                            formatter: this.proteinScoreFormatter
                         },
                         {
                             title: 'Polyphen',
-                            field: 'Polyphen',
+                            field: 'polyphen',
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.polyphenFormatter
+                            formatter: this.proteinScoreFormatter
                         },
                         {
                             title: 'PhyloP',
