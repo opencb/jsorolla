@@ -162,11 +162,11 @@
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
 //                    host: 'http://wwwdev.ebi.ac.uk/cellbase/webservices/rest',
-                    version: 'v3',
+                    // version: 'v4',
                     species: 'hsapiens',
                     category: 'genomic',
                     subCategory: 'variant',
-                    resource: 'full_annotation',
+                    resource: 'annotation',
                     query: variant,
                     async: false,
                     success: function (response) {
