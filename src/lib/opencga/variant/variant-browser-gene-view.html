@@ -1,0 +1,94 @@
+<dom-module id="variant-browser-gene-view">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <div>
+            <h3>Gene: {{geneObj.name}}</h3>
+            {{geneObj.name}} - {{geneObj.description}}<br>
+            Number of Variants - {{totalVariants}} <br>
+            Genome Browser - <a target="_blank"
+                                href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
+            {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
+            </a> <br>
+
+            <h4>Transcripts</h4>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Ensembl ID</th>
+                    <th>Biotype</th>
+                    <th>Location</th>
+                    <th>Coding</th>
+                    <th>cDNA</th>
+                    <th>CDS Length</th>
+                    <th>Annotation Flags</th>
+                </tr>
+                </thead>
+                <tbody>
+                <template is="dom-repeat" items="{{geneObj.transcripts}}" as="transcript">
+                    <tr>
+                        <td>{{transcript.name}}</td>
+                        <td>
+                            <a target="_blank"
+                               href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;t={{transcript.id}}">{{transcript.id}}</a>
+                        </td>
+                        <td>{{transcript.biotype}}</td>
+                        <td>
+                            <a target="_blank"
+                               href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}">
+                                {{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}
+                            </a>
+                        </td>
+                        <td>
+                            <a target="_blank"
+                               href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}">
+                                {{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}
+                            </a>
+                        </td>
+                        <td>
+                            {{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}
+                        </td>
+                        <td>{{transcript.cdsLength}}</td>
+                        <td>{{transcript.annotationFlags}}</td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-browser-gene-view',
+            properties: {
+                cellbaseClient: {
+                    type: Object
+                },
+                gene: {
+                    type: String,
+                    value: ""
+                },
+                geneObj: {
+                    type: Object
+                }
+            },
+            observers: [
+                'geneChanged(gene, cellbaseClient)'
+            ],
+            geneChanged: function (gene, cellbaseClient) {
+                let _this = this;
+                var success = function (response) {
+                    _this.geneObj = response.response[0].result[0];
+                };
+                var variationSuccess = function (response) {
+                    _this.totalVariants = response.response[0].numTotalResults;
+                };
+                var error = function (response) {
+                    alert("Invalid gene");
+                };
+                this.cellbaseClient.getGeneClient(this.gene, 'info', {}, {success: success, error: error, async: true});
+                this.cellbaseClient.getGeneClient(this.gene, 'snp', {include: "id", limit: "0"},  {success: variationSuccess, error: error, async: true});
+            }
+        });
+    </script>
+</dom-module>

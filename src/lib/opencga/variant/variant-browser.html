@@ -22,6 +22,14 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div class="panel">
+            <ol class="breadcrumb" style="margin-bottom: 5px;">
+                <template is="dom-repeat" items="{{navigation}}">
+                    <li>{{item}}</li>
+                </template>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">{{project}}</a></li>
+                <li class="active">{{study.name}}</li>
+            </ol>
             <!--Dropdown menu for Studies in case of multiple studies-->
             <template is="dom-if" if="{{checkForMultiple(studies)}}">
                 <div class="dropdown" style="background-color: transparent">
@@ -94,6 +102,9 @@
                 opencgaClient: {
                     type: Object
                 },
+                cellbaseClient: {
+                    type: Object
+                },
                 type: {
                     type: String,
                     value: ""
@@ -121,10 +132,8 @@
                 conservation: {
                     type: String,
                     value: ""
-                },
-                cellbaseClient: {
-                    type: Object
                 }
+
             },
             ready: function () {
                 console.log("BierApp tool loaded");
