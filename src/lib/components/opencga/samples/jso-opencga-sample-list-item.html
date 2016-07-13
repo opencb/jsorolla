@@ -189,7 +189,11 @@
             }
         },
         showListICD:function(e){
-          this.$.addSuspPanel.hidden=false;
+          if (this.sample.status=="INDEXING") {
+            alert("VCF is indexing, try later");
+          }else{
+            this.$.addSuspPanel.hidden=false;
+          }
         },
         handleAddSuspicious: function(e) {
             var me = this;
