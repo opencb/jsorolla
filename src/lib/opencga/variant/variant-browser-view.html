@@ -213,7 +213,8 @@
                             title: 'EXAC',
                             field: 'exac',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.populationFrequenciesFormatter
                         },
                         {
                             title: 'Phenotype',
@@ -227,13 +228,15 @@
                             title: 'ALL',
                             field: 'all',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.populationFrequenciesFormatter
                         },
                         {
                             title: 'AMR',
                             field: 'amr',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.populationFrequenciesFormatter
                         },
                         {
                             title: 'SAS',
@@ -415,6 +418,7 @@
                 return '-';
             },
             siftFormatter: function (value, row, index) {
+                console.log(this)
                 var min = 10;
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
@@ -438,6 +442,7 @@
                 }
             },
             polyphenFormatter: function (value, row, index) {
+                console.log(this)
                 var max = 0;
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
@@ -486,6 +491,10 @@
                     return row.studies[0].samplesData[this.fieldIndex - 5][0];
                 }
                 return '-';
+            },
+            populationFrequenciesFormatter: function(value, row, index) {
+//                console.log("ALL")
+//                console.log(this)
             },
             _refreshTableColumns: function() {
                 this.cols = this._initColumns();
@@ -621,7 +630,7 @@
                         },
                         {
                             title: 'Polyphen',
-                            field: 'Polyphen',
+                            field: 'polyphen',
                             colspan: 1,
                             rowspan: 2,
                             formatter: this.polyphenFormatter
@@ -650,7 +659,8 @@
                             title: 'EXAC',
                             field: 'exac',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            formatter: this.populationFrequenciesFormatter
                         },
                         {
                             title: 'Phenotype',
@@ -664,13 +674,15 @@
                             title: 'ALL',
                             field: 'all',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.populationFrequenciesFormatter
                         },
                         {
                             title: 'AMR',
                             field: 'amr',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.populationFrequenciesFormatter
                         },
                         {
                             title: 'SAS',
