@@ -36,11 +36,6 @@
                 cursor: pointer;
             }
 
-            .sample-scroll {
-                max-height: 150px;
-                overflow-y: scroll;
-            }
-
             .custom-sixed-input {
                 max-width: 100px;
             }
@@ -74,7 +69,6 @@
                     <div id="studyFilter" class="panel-collapse collapse in" role="tabpanel"
                          aria-labelledby="studyFilterHeading">
                         <div class="panel-body">
-                            <!--<input type="radio" name="study" value="{{item.name}}" on-click="studySelected" data-id="{{item.id}}"> {{item.name}}-->
                             <div class="dropdown">
                                 Select one study:<span style="padding-left:20px;"></span>
                                 <button class="btn btn-default dropdown-toggle" type="button" id="studiesDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -569,10 +563,6 @@
                 opencgaClient: {
                     type: Object
                 },
-//                segregation: {
-//                    type: Array,
-//                    value: ["0/0", "0/1", "1/1", "./."]
-//                },
                 query: {
                     type: Object,
                     notify: true,
@@ -628,17 +618,6 @@
                 } else {
                     this.study = {id: e.target.dataId, name: e.target.innerText};
                 }
-                // samples from the selected study
-                var _this = this;
-                this.samples = []; // empty the selected samples whenever a new study is selected
-//                this.samples = ["NA00001", "NA00002", "NA00003"];
-                this.opencgaClient.studies().samples(this.study.id).then(function (response) {
-                    _this.studySamples = response.response[0].result;
-                });
-                // files from the selected study
-                this.opencgaClient.studies().files(this.study.id).then(function (response) {
-                    _this.studyFiles = response.response[0].result;
-                });
             },
             typeSelected: function (e) {
                 if (typeof e.target === "undefined") {
@@ -671,19 +650,10 @@
                     this.sampleGenotypes = arr.join(';');
                 }
             },
-            addSelectedSamples: function(e) {
-                if (e.target.checked) {
-                    this.push('samples', e.target.value);
-                } else {
-                    var index = this.samples.indexOf(e.target.value);
-                    this.splice('samples', index, 1);
-                }
-                console.log(this.samples)
-            },
-            sliderChange: function (e) {
-                var id = e.currentTarget.id + "Value";
-                this.set(id, e.currentTarget.value);
-            },
+//            sliderChange: function (e) {
+//                var id = e.currentTarget.id + "Value";
+//                this.set(id, e.currentTarget.value);
+//            },
             handleCollapseAction: function (e) {
                 var id = e.currentTarget.dataset.type;
                 this.$[id].hidden = !this.$[id].hidden;

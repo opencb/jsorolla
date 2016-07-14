@@ -153,8 +153,8 @@
                 this.showGene = true;
             },
             renderFromServer: function () {
+                let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
-                    let _this = this;
 
                     if (typeof this.study.id !== "undefined") {
                         this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.id + '/variants';
@@ -284,7 +284,6 @@
                 return '-';
             },
             proteinScoreFormatter: function (value, row, index) {
-                console.log('proteinScoreFormatter', this)
                 var min = 10;
                 var max = 0;
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {

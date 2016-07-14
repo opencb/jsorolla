@@ -80,8 +80,8 @@
                 });
             },
             fetchSamples: function () {
+                let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
-                    let _this = this;
 
                     // Bootstrap grid
                     this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study + '/samples';
@@ -112,7 +112,6 @@
                     $('#sampleGrid').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table ' +
                             'check-some.bs.table uncheck-some.bs.table' , function () {
                         _this.samples = _this.getSampleName();
-                        console.log(_this.samples)
                     });
 
                     // Bootstrap Tree View
