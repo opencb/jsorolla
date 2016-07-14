@@ -421,14 +421,18 @@
         _showStudyFolder: function() {
             var me = this;
             this.loading = true;
-            me._getSamples(me.selectedStudy.study.id, function(samples) {
-                me.set('samples', samples);
-                me.loading = false;
-                if (me.enableAutoIndex && me.samples.length > 0) {
-                    me.autoIndex();
-                }
+            if (me.selectedStudy != null) {
+                me._getSamples(me.selectedStudy.study.id, function(samples) {
+                    me.set('samples', samples);
+                    me.loading = false;
+                    if (me.enableAutoIndex && me.samples.length > 0) {
+                        me.autoIndex();
+                    }
 
-            });
+                });
+            }else{
+              me.loading = false;
+            }
         },
         _getSamples: function(studyId, callback) {
             var me = this;

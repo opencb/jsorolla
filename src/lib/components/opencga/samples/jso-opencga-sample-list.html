@@ -3,7 +3,7 @@
 
 <dom-module id="jso-opencga-sample-list">
     <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
-        :host {
+    :host {
             position: relative;
             display: block;
             box-sizing: border-box;
@@ -198,16 +198,17 @@
             margin-right: 10px;
             width: 110px;
         }
-        .description{
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-      }
+
+        .description {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
+    }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
-            <div class="jso-btn jso-btn-shdw upload-btn" hidden$="{{isFolderMode(mode)}}" on-click="handleUploadFile">
+            <div id="uploadButton" class="jso-btn jso-btn-shdw upload-btn" hidden$="{{isFolderMode(mode)}}" on-click="handleUploadFile">
                 <i class="fa fa-cloud-upload"></i> Upload
             </div>
             <div class="bar horizontal layout flex end-justified">
@@ -413,6 +414,10 @@
                 },
                 observer: "studyChanged"
             },
+            mode: {
+                type: String,
+                reflectToAttribute: true,
+            },
             viewMode: {
                 type: String,
                 value: 'list'
@@ -507,8 +512,8 @@
                 reflectToAttribute: true
             }
         },
-        ready: function() {
-
+        isFolderMode: function(mode) {
+            return mode === 'folder';
         },
         handleSampleClick: function(e) {
             var selected = e.currentTarget;
@@ -533,7 +538,6 @@
             this.sampleName = this.selected.name;
             this.sampleSource = this.selected.source;
             this.sampleDescription = this.selected.description;
-
 
             if (this.study.type == "CASE_CONTROL") {
                 this.selected.description = "No Choose Case/Control";
@@ -1022,7 +1026,11 @@
             }
         },
         handleUploadFile: function(e) {
-            this.fire('upload-file');
+            if (this.study != null) {
+                this.fire('upload-file');
+            } else {
+                alert("You must select a study before uploading a file.")
+            }
         },
         handleViewVariantBrowswer: function(e) {
             this.fire('viewvariantbrowser');
