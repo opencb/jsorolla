@@ -25,7 +25,8 @@
             <!-- Variant Browser Grid -->
             <div style="padding: 10px; ">
                 <template is="dom-if" if="{{study.name != ''}}">
-                    <h3>{{study.name}}</h3>
+                    <!--<h3>{{study.name}}</h3>-->
+                    <h3>{{title}}</h3>
                 </template>
                 <button type="button" class="btn btn-primary" on-click="loadGene">Click to view Gene</button>
                 <template is="dom-if" if="{{showGene}}">
@@ -77,7 +78,7 @@
         Polymer({
             is: 'variant-browser-view',
             properties: {
-                url: {
+                title: {
                     type: String
 //                    observer: 'renderFromServer'
                 },
@@ -141,161 +142,6 @@
                 }
             },
             ready: function () {
-                this.cols = [
-                    [
-                        {
-                            title: 'Variant',
-                            field: 'variant',
-                            sortable: true,
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.variantFormatter
-                        },
-                        {
-                            title: 'Alleles',
-                            field: 'allele',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.alleleFormatter
-                        },
-                        {
-                            title: 'SNPId',
-                            field: 'id',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.snpFormatter
-                        },
-                        {
-                            title: 'Genes',
-                            field: 'genes',
-                            colspan: 1,
-                            rowspan: 2
-                        },
-                        {
-                            title: 'Type',
-                            field: 'type',
-                            colspan: 1,
-                            rowspan: 2
-                        },
-                        {
-                            title: 'Consequence Type',
-                            field: 'displayConsequenceType',
-                            sortable: true,
-                            colspan: 1,
-                            rowspan: 2
-                        },
-                        {
-                            title: 'DP',
-                            field: 'dp',
-                            colspan: 1,
-                            rowspan: 2
-                        },
-                        {
-                            title: 'SIFT',
-                            field: 'sift',
-                            colspan: 1,
-                            rowspan: 2
-                        },
-                        {
-                            title: 'Polyphen',
-                            field: 'Polyphen',
-                            colspan: 1,
-                            rowspan: 2
-                        },
-                        {
-                            title: 'PhyloP',
-                            field: 'PhyloP',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.phylopFormatter
-                        },
-                        {
-                            title: 'PhastCons',
-                            field: 'PhastCons',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.phastconsFormatter
-                        },
-                        {
-                            title: '1000G MAF (phase 3)',
-                            field: '1000G MAF (phase 3)',
-                            colspan: 6,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'EXAC',
-                            field: 'exac',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.populationFrequenciesFormatter
-                        },
-                        {
-                            title: 'Phenotype',
-                            field: 'Phenotype',
-                            colspan: 3,
-                            rowspan: 1
-                        }
-                    ],
-                    [
-                        {
-                            title: 'ALL',
-                            field: 'all',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.populationFrequenciesFormatter
-                        },
-                        {
-                            title: 'AMR',
-                            field: 'amr',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.populationFrequenciesFormatter
-                        },
-                        {
-                            title: 'SAS',
-                            field: 'sas',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'EAS',
-                            field: 'eas',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'AFR',
-                            field: 'afr',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'EUR',
-                            field: 'eur',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'Clinvar',
-                            field: 'annotation.variantTraitAssociation.clinvar.accession',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'Cosmic',
-                            field: 'annotation.variantTraitAssociation.cosmic.mutationId',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'GWAS',
-                            field: 'gwas',
-                            colspan: 1,
-                            rowspan: 1
-                        }
-                    ]
-                ];
-
                 // TO BE REMOVED!
                 this._refreshTableColumns();
 
@@ -310,7 +156,11 @@
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
                     let _this = this;
 
-                    this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.id + '/variants';
+                    if (typeof this.study.id !== "undefined") {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.id + '/variants';
+                    } else {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.name + '/variants';
+                    }
 //                    this._url += '?sid=' + this.opencgaClient._config.sessionId;
 
 
@@ -433,29 +283,6 @@
                 }
                 return '-';
             },
-//            siftFormatter: function (value, row, index) {
-//                var min = 10;
-//                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-//                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-//                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-//                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
-//                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-//                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "sift") {
-//                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
-//                                            min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                if (min != 10) {
-//                    return min;
-//                } else {
-//                    return '-';
-//                }
-//            },
             proteinScoreFormatter: function (value, row, index) {
                 console.log('proteinScoreFormatter', this)
                 var min = 10;
@@ -484,42 +311,13 @@
                         }
                     }
                 }
-                if (this.field == 'sift') {
-                    if (min != 10) {
-                        return min;
-                    }
-                } else if (this.field == 'polyphen') {
-                    if (max != 0) {
-                        return max;
-                    }
-                } else {
-                        return '-';
+                if (this.field == 'sift' && min != 10) {
+                    return min;
+                } else if (this.field == 'polyphen' && max != 0) {
+                    return max;
                 }
-
+                return '-';
             },
-//            polyphenFormatter: function (value, row, index) {
-//                var max = 0;
-//                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-//                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-//                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-//                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
-//                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-//                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == "polyphen") {
-//                                        if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
-//                                            max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                if (max != 0) {
-//                    return max;
-//                } else {
-//                    return '-';
-//                }
-//            },
             phylopFormatter: function (value, row, index) {
                 if (typeof row !== "undefined") {
                     for (let i = 0; i < row.annotation.conservation.length; i++) {
@@ -542,7 +340,7 @@
             },
             sampleFormatter: function (value, row, index) {
                 if (typeof row !== "undefined") {
-                    // NOTE:
+                    // NOTE: There are always 5 columns before the samples
                     return row.studies[0].samplesData[this.fieldIndex - 5][0];
                 }
                 return '-';
