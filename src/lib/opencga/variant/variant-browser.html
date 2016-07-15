@@ -26,8 +26,8 @@
                 <!--<template is="dom-repeat" items="{{navigation}}">-->
                 <!--<li>{{item}}</li>-->
                 <!--</template>-->
-                <li><a href="#">Projects</a></li>
-                <li><a href="#">{{project}}</a></li>
+                <li><a href="#projectList">Projects</a></li>
+                <li><a href="#projectSummary">{{project}}</a></li>
                 <!--<li><a href="#">{{study.name}}</a></li>-->
                 <!--<li class="active">{{samples}}</li>-->
                 <template is="dom-if" if="{{study.name != ''}}">
@@ -76,15 +76,21 @@
             <!--</div>-->
             <!--</template>-->
 
-            <div class="col-md-2">
-                <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                        population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
-            </div>
-            <div class="col-md-10">
-                <variant-browser-view title="{{title}}" study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                      population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-view>
+            <div class="browser-filter-view">
+                <div class="col-md-2">
+                    <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                                            population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
+                </div>
+                <div class="col-md-10">
+                    <variant-browser-view title="{{title}}" study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                                          population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
+                                          on-selected="selectedGene"></variant-browser-view>
+                </div>
             </div>
         </div>
+        <!--<div id="geneView">-->
+            <!--<variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>-->
+        <!--</div>-->
     </template>
     <script>
         Polymer({
@@ -145,14 +151,20 @@
                 mode: {
                     type: String,
                     value: "browser"
+                },
+                gene: {
+                    type: String
                 }
-
             },
             ready: function () {
                 let _this = this;
-                $(document).on('click', '.bierapp-studies-menu li a', function() {
-                    _this.title = $(this).text();
-                });
+//                $(document).on('click', '.bierapp-studies-menu li a', function() {
+//                    _this.title = $(this).text();
+//                });
+            },
+            selectedGene: function (e) {
+                this.gene = e.detail.gene;
+                $('#geneView').show();
             },
             checkForMultiple: function (studies) {
                 if (studies.length > 1) {

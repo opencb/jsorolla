@@ -77,17 +77,19 @@
             ],
             geneChanged: function (gene, cellbaseClient) {
                 let _this = this;
-                var success = function (response) {
-                    _this.geneObj = response.response[0].result[0];
-                };
-                var variationSuccess = function (response) {
-                    _this.totalVariants = response.response[0].numTotalResults;
-                };
-                var error = function (response) {
-                    alert("Invalid gene");
-                };
-                this.cellbaseClient.getGeneClient(this.gene, 'info', {}, {success: success, error: error, async: true});
-                this.cellbaseClient.getGeneClient(this.gene, 'snp', {include: "id", limit: "0"},  {success: variationSuccess, error: error, async: true});
+                if (this.gene != "") {
+                    var success = function (response) {
+                        _this.geneObj = response.response[0].result[0];
+                    };
+                    var variationSuccess = function (response) {
+                        _this.totalVariants = response.response[0].numTotalResults;
+                    };
+                    var error = function (response) {
+                        alert("Invalid gene");
+                    };
+                    this.cellbaseClient.getGeneClient(this.gene, 'info', {}, {success: success, error: error, async: true});
+                    this.cellbaseClient.getGeneClient(this.gene, 'snp', {include: "id", limit: "0"},  {success: variationSuccess, error: error, async: true});
+                }
             }
         });
     </script>

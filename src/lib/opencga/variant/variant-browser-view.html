@@ -28,10 +28,6 @@
                     <!--<h3>{{study.name}}</h3>-->
                     <h3>{{title}}</h3>
                 </template>
-                <button type="button" class="btn btn-primary" on-click="loadGene">Click to view Gene</button>
-                <template is="dom-if" if="{{showGene}}">
-                    <variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>
-                </template>
 
                 <table id="bierAppToolGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                        data-show-pagination-switch="true" data-show-export="true">
@@ -131,14 +127,6 @@
                     type: String,
                     value: "",
                     observer: 'renderFromServer'
-                },
-                showGene: {
-                    type: Boolean,
-                    value: false
-                },
-                gene: {
-                    type: String,
-                    value: "CERK"
                 }
             },
             ready: function () {
@@ -148,9 +136,6 @@
             },
             attached: function() {
                 this.renderGenomeViewer();
-            },
-            loadGene: function () {
-                this.showGene = true;
             },
             renderFromServer: function () {
                 let _this = this;
@@ -219,10 +204,14 @@
                         },
                         columns: this.cols,
                         onClickRow: function (row, $element) {
-                            _this.fire('selected', {variant: row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate});
                             _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                             $('#' + _this.prefix + 'VariationTable' + ' tr').removeClass("highlight");
                             $element.addClass("highlight");
+                        },
+                        onClickCell: function (field, value, row, $element) {
+                            if (field == "genes") {
+                                _this.fire('selected', {gene: $element[0].innerHTML});
+                            }
                         }
                     });
                     $('#bierAppToolGrid').bootstrapTable('showLoading');
@@ -253,9 +242,10 @@
                         var geneLinks = [];
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != "" && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
-                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
-                                visited[row.annotation.consequenceTypes[i].geneName] = true;
+//                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
+//                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
+//                                visited[row.annotation.consequenceTypes[i].geneName] = true;
+                                geneLinks.push(row.annotation.consequenceTypes[i].geneName);
                             }
                         }
                         return geneLinks.join(',');
