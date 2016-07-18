@@ -343,76 +343,6 @@
                     Population Freqs.
                 </div>
                 <div class="container">
-                    <i class$="{{phase_1}}" on-click="handleCollapseAction" data-type="phase_1"></i>
-                    <label class="jso popus" on-click="handleCollapseAction" data-type="phase_1"> 1000 Genomes population phase 1</label>
-                    <div id="phase_1" hidden>
-                        <label class="jso">All populations MAF [ALL]</label>
-                        <div class="horizontal layout">
-                            <jso-select name="1000GENOMES_phase_1_ALL_op" id="1000GENOMES_phase_1_ALL_op">
-                                <jso-option value="<" selected>
-                                    <</jso-option>
-                                        <jso-option value="<=">
-                                            <=</jso-option>
-                                                <jso-option value=">">></jso-option>
-                                                <jso-option value=">=">>=</jso-option>
-                            </jso-select>
-                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_1_ALL" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_1_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
-                        </div>
-                        <label class="jso">American MAF [AMR]</label>
-                        <div class="horizontal layout">
-                            <jso-select name="1000GENOMES_phase_1_AMR_op" id="1000GENOMES_phase_1_AMR_op">
-                                <jso-option value="<" selected>
-                                    <</jso-option>
-                                        <jso-option value="<=">
-                                            <=</jso-option>
-                                                <jso-option value=">">></jso-option>
-                                                <jso-option value=">=">>=</jso-option>
-                            </jso-select>
-                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_1_AMR" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_1_AMR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
-                        </div>
-                        <label class="jso">Asian MAF [ASN]</label>
-                        <div class="horizontal layout">
-                            <jso-select name="1000GENOMES_phase_1_ASN_op" id="1000GENOMES_phase_1_ASN_op">
-                                <jso-option value="<" selected>
-                                    <</jso-option>
-                                        <jso-option value="<=">
-                                            <=</jso-option>
-                                                <jso-option value=">">></jso-option>
-                                                <jso-option value=">=">>=</jso-option>
-                            </jso-select>
-                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_1_ASN" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_1_ASN" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
-                        </div>
-                        <label class="jso">African MAF [AFR]</label>
-                        <div class="horizontal layout">
-                            <jso-select name="1000GENOMES_phase_1_AFR_op" id="1000GENOMES_phase_1_AFR_op">
-                                <jso-option value="<" selected>
-                                    <</jso-option>
-                                        <jso-option value="<=">
-                                            <=</jso-option>
-                                                <jso-option value=">">></jso-option>
-                                                <jso-option value=">=">>=</jso-option>
-                            </jso-select>
-                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_1_AFR" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_1_AFR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
-                        </div>
-                        <label class="jso">European MAF [EUR]</label>
-                        <div class="horizontal layout">
-                            <jso-select name="1000GENOMES_phase_1_EUR_op" id="1000GENOMES_phase_1_EUR_op">
-                                <jso-option value="<" selected>
-                                    <</jso-option>
-                                        <jso-option value="<=">
-                                            <=</jso-option>
-                                                <jso-option value=">">></jso-option>
-                                                <jso-option value=">=">>=</jso-option>
-                            </jso-select>
-                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_1_EUR" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_1_EUR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
-                        </div>
-                    </div>
-                    <br>
                     <i class$="{{phase_3}}" on-click="handleCollapseAction" data-type="phase_3"></i>
                     <label class="jso popus" on-click="handleCollapseAction" data-type="phase_3">1000 Genomes population phase 3</label>
                     <div id="phase_3" hidden>
@@ -427,7 +357,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                             <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_ALL" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_3_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                         <label class="jso">American MAF [AMR]</label>
                         <div class="horizontal layout">
@@ -440,7 +369,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                               <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AMR" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_3_AMR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                         <label class="jso">South Asian MAF [SAS]</label>
                         <div class="horizontal layout">
@@ -453,7 +381,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                               <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_SAS" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_3_SAS" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                         <label class="jso">East Asian MAF [EAS]</label>
                         <div class="horizontal layout">
@@ -466,7 +393,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                               <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EAS" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_3_EAS" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                         <label class="jso">African MAF [AFR]</label>
                         <div class="horizontal layout">
@@ -479,7 +405,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                               <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AFR" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_3_AFR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                         <label class="jso">European MAF [EUR]</label>
                         <div class="horizontal layout">
@@ -492,7 +417,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                               <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EUR" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="1000GENOMES_phase_3_EUR" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                     </div>
                     <br>
@@ -510,7 +434,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                               <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="ESP_6500_EA" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="ESP_6500_EA" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                         <label class="jso">African american MAF</label>
                         <div class="horizontal layout">
@@ -523,7 +446,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                             <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="ESP_6500_AA" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="ESP_6500_AA" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                     </div>
                     <br>
@@ -541,7 +463,6 @@
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
                             <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="EXAC_ALL" editable on-value-change="sliderChange"></paper-slider>
-                            <!-- <input id="EXAC_ALL" class="jso inputValue" type="number" min="0" max="1" step="0.000001" /> -->
                         </div>
                     </div>
                 </div>
@@ -641,13 +562,6 @@
                 },
                 observer: 'samplesChanged'
             },
-            // samplesView: {
-            //     type: Array,
-            //     notify: true,
-            //     value: function() {
-            //         return []
-            //     }
-            // },
             regionValue: {
                 type: String,
                 notify: true,
@@ -730,10 +644,6 @@
                 value: function() {
                     return {};
                 },
-            },
-            phase_1: {
-                type: String,
-                value: "fa fa-angle-double-right minus"
             },
             phase_3: {
                 type: String,
@@ -923,22 +833,6 @@
             }
 
             // Freqs
-
-            this.$["1000GENOMES_phase_1_ALL"].value = 0;
-            this["1000GENOMES_phase_1_ALL"] = "";
-            this.$["1000GENOMES_phase_1_ALL_op"].value = "<";
-            this.$["1000GENOMES_phase_1_AMR"].value = 0;
-            this["1000GENOMES_phase_1_AMR"] = "";
-            this.$["1000GENOMES_phase_1_AMR_op"].value = "<";
-            this.$["1000GENOMES_phase_1_ASN"].value = 0;
-            this["1000GENOMES_phase_1_ASN"] = "";
-            this.$["1000GENOMES_phase_1_ASN_op"].value = "<";
-            this.$["1000GENOMES_phase_1_AFR"].value = 0;
-            this["1000GENOMES_phase_1_AFR"] = "";
-            this.$["1000GENOMES_phase_1_AFR_op"].value = "<";
-            this.$["1000GENOMES_phase_1_EUR"].value = 0;
-            this["1000GENOMES_phase_1_EUR"] = "";
-            this.$["1000GENOMES_phase_1_EUR_op"].value = "<";
 
             this.$["1000GENOMES_phase_3_ALL"].value = 0;
             this["1000GENOMES_phase_3_ALL"] = "";
@@ -1175,23 +1069,6 @@
             // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
             var popFreq = [];
 
-            // 1000GENOMES_phase_1
-            if (this.$["1000GENOMES_phase_1_ALL"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ALL", "phase1"));
-            }
-            if (this.$["1000GENOMES_phase_1_AMR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AMR", "phase1"));
-            }
-            if (this.$["1000GENOMES_phase_1_ASN"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "ASN", "phase1"));
-            }
-            if (this.$["1000GENOMES_phase_1_AFR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "AFR", "phase1"));
-            }
-            if (this.$["1000GENOMES_phase_1_EUR"].value != "") {
-                popFreq.push(this._getPopulationQuery("1000GENOMES_phase_1", "EUR", "phase1"));
-            }
-
             // 1000GENOMES_phase_3
             if (this.$["1000GENOMES_phase_3_ALL"].value != "") {
                 popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
@@ -1263,15 +1140,10 @@
         },
 
         _getPopulationQuery: function(study, population, type) {
-            // if (this.$[study + "_" + population].checkValidity() == false) {
-            //     alert(study + " " + population + " must be less than 1 or greater than 0");
-            //     return "error";
-            // } else {
                 var value = parseFloat(this.$[study + "_" + population].value);
                 var value_op = this.$[study + "_" + population + "_op"].value;
                 value = study + ":" + population + value_op + value;
                 return value;
-            // }
         },
         _setPopulationValue: function(population, value) {
             var aux = value.split("");
@@ -1424,19 +1296,7 @@
                 var pops = hf['annot-population-maf'].split(";");
                 for (var i = 0; i < pops.length; i++) {
                     var type = pops[i].split(":");
-                    if (type[0] == "1000GENOMES_phase_1") {
-                        if (pops[i].indexOf("ALL") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_1_ALL", type[1]);
-                        } else if (pops[i].indexOf("AMR") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_1_AMR", type[1]);
-                        } else if (pops[i].indexOf("ASN") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_1_ASN", type[1]);
-                        } else if (pops[i].indexOf("AFR") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_1_AFR", type[1]);
-                        } else if (pops[i].indexOf("EUR") >= 0) {
-                            this._setPopulationValue("1000GENOMES_phase_1_EUR", type[1]);
-                        }
-                    } else if (type[0] == "1000GENOMES_phase_3") {
+                    if (type[0] == "1000GENOMES_phase_3") {
                         if (pops[i].indexOf("ALL") >= 0) {
                             this._setPopulationValue("1000GENOMES_phase_3_ALL", type[1]);
                         } else if (pops[i].indexOf("AMR") >= 0) {

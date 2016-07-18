@@ -144,67 +144,6 @@
             width: 57,
             defaultValue: '.'
         }, {
-            name: '1000GENOMES_phase_1',
-            title: '1000G MAF(phase 1)',
-            defaultValue: '.',
-            width: 250,
-            columns: [{
-                name: "ALL",
-                title: "ALL",
-                width: 50,
-                formula: function(row) {
-                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ALL) {
-                        return row['1000GENOMES_phase_1'].ALL;
-                    } else {
-                        return ".";
-                    }
-                }
-            }, {
-                name: "AMR",
-                title: "AMR",
-                width: 50,
-                formula: function(row) {
-                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AMR) {
-                        return row['1000GENOMES_phase_1'].AMR;
-                    } else {
-                        return ".";
-                    }
-                }
-            }, {
-                name: "ASN",
-                title: "ASN",
-                width: 50,
-                formula: function(row) {
-                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].ASN) {
-                        return row['1000GENOMES_phase_1'].ASN;
-                    } else {
-                        return ".";
-                    }
-                }
-            }, {
-                name: "AFR",
-                title: "AFR",
-                width: 50,
-                formula: function(row) {
-                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].AFR) {
-                        return row['1000GENOMES_phase_1'].AFR;
-                    } else {
-                        return ".";
-                    }
-                }
-            }, {
-                name: "EUR",
-                title: "EUR",
-                width: 50,
-                formula: function(row) {
-                    if (row['1000GENOMES_phase_1'] && row['1000GENOMES_phase_1'].EUR) {
-                        return row['1000GENOMES_phase_1'].EUR;
-                    } else {
-                        return ".";
-                    }
-                }
-            }]
-        }, {
             name: '1000GENOMES_phase_3',
             title: '1000G MAF(phase 3)',
             defaultValue: '.',
@@ -448,11 +387,6 @@
                 dataLine += getValue(row, "phylop") + this.separator;
                 dataLine += getValue(row, "phastCons") + this.separator;
 
-                dataLine += getValue(row["1000GENOMES_phase_1"], "ALL") + this.separator;
-                dataLine += getValue(row["1000GENOMES_phase_1"], "AMR") + this.separator;
-                dataLine += getValue(row["1000GENOMES_phase_1"], "ASN") + this.separator;
-                dataLine += getValue(row["1000GENOMES_phase_1"], "AFR") + this.separator;
-                dataLine += getValue(row["1000GENOMES_phase_1"], "EUR") + this.separator;
                 dataLine += getValue(row["1000GENOMES_phase_3"], "ALL") + this.separator;
                 dataLine += getValue(row["1000GENOMES_phase_3"], "AMR") + this.separator;
                 dataLine += getValue(row["1000GENOMES_phase_3"], "SAS") + this.separator;
@@ -601,7 +535,7 @@
                         // Population Frequencies
                         if (annotation.populationFrequencies != null) {
                             variant['ESP_6500'] = {};
-                            variant['1000GENOMES_phase_1'] = {};
+                            // variant['1000GENOMES_phase_1'] = {};
                             variant['1000GENOMES_phase_3'] = {};
                             for (var j = 0; j < annotation.populationFrequencies.length; j++) {
                                 var freq = annotation.populationFrequencies[j];
@@ -610,19 +544,6 @@
                                         variant['ESP_6500'].EA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     } else if (freq.population == "AA") {
                                         variant['ESP_6500'].AA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    }
-
-                                } else if (freq.study == "1000GENOMES_phase_1") {
-                                    if (freq.population == "AFR") {
-                                        variant['1000GENOMES_phase_1'].AFR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "AMR") {
-                                        variant['1000GENOMES_phase_1'].AMR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "ASN") {
-                                        variant['1000GENOMES_phase_1'].ASN = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "EUR") {
-                                        variant['1000GENOMES_phase_1'].EUR = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
-                                    } else if (freq.population == "ALL") {
-                                        variant['1000GENOMES_phase_1'].ALL = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
 
                                 } else if (freq.study == "1000GENOMES_phase_3") {
