@@ -88,9 +88,9 @@
                 </div>
             </div>
         </div>
-        <!--<div id="geneView">-->
-            <!--<variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>-->
-        <!--</div>-->
+        <div id="geneView">
+            <variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>
+        </div>
     </template>
     <script>
         Polymer({
@@ -104,7 +104,8 @@
                 },
                 study: {
                     type: Object,
-                    value: {}
+                    value: {},
+                    notify: true
                 },
                 studies: {
                     type: Array,
