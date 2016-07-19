@@ -22,23 +22,6 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div class="panel">
-            <ol class="breadcrumb" style="margin-bottom: 1px;padding-left: 40px">
-                <!--<template is="dom-repeat" items="{{navigation}}">-->
-                <!--<li>{{item}}</li>-->
-                <!--</template>-->
-                <li><a href="#projectList">Projects</a></li>
-                <li><a href="#projectSummary">{{project}}</a></li>
-                <!--<li><a href="#">{{study.name}}</a></li>-->
-                <!--<li class="active">{{samples}}</li>-->
-                <template is="dom-if" if="{{study.name != ''}}">
-                    <li class="active"><a href="#">{{study.name}}</a></li>
-
-                    <template is="dom-if" if="{{samples.length != 0}}">
-                        <li class="active">{{samples}}</li>
-                    </template>
-                </template>
-            </ol>
-
             <!--Dropdown menu for Studies in case of multiple studies-->
             <!--<template is="dom-if" if="{{checkForMultiple(studies)}}">-->
             <!--<div class="dropdown" style="background-color: transparent">-->
@@ -104,7 +87,6 @@
                 },
                 study: {
                     type: Object,
-                    value: {},
                     notify: true
                 },
                 studies: {
@@ -158,7 +140,7 @@
                 }
             },
             ready: function () {
-                let _this = this;
+//                let _this = this;
 //                $(document).on('click', '.bierapp-studies-menu li a', function() {
 //                    _this.title = $(this).text();
 //                });
