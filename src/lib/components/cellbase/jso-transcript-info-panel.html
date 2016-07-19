@@ -7,7 +7,7 @@
 <link rel="import" href="jso-proteins-3d.html">
 
 <dom-module id="jso-transcript-info-panel">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             display: block;
             position: relative;
@@ -286,7 +286,7 @@
                 category: 'genomic',
                 subCategory: 'region',
                 query: new Region(this.feature),
-                resource: 'snp',
+                resource: 'variation',
                 params: {
                     exclude: 'consequenceTypes,transcriptVariations,populationFrequencies,xrefs,_chunkIds'
                 },
