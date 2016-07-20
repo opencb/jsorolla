@@ -71,7 +71,7 @@
                 </div>
                 <div id="susp" class="title" title$="{{suspicious}}" hidden$="{{!enableDiagnostic}}">
                     <span hidden$="{{!isSuspAdded}}">{{suspicious}}</span>
-                    <div class="jso-btn jso-btn-shdw addButton" on-click="showListICD" title="Add suspicious diagnostic for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
+                    <div class="jso-btn jso-btn-shdw addButton" on-click="showListICD" title="Add suspected diagnosis for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
                 </div>
                 <div id="diag" class="title" title$="{{diagnostic}}" hidden$="{{!enableDiagnostic}}">
                     <span>{{diagnostic}}</span>
@@ -82,11 +82,11 @@
             </template>
             <jso-panel id="addSuspPanel" modal closable hidden>
                 <div class="header">
-                  Add suspicious diagnostic
+                  Add suspected diagnosis
                 </div>
                 <div class="container">
                   <input type="text" id="{{sample.name}}" style="width:98%">
-                  <div style="margin:0 auto; margin-top:5px;" class="jso-btn jso-btn-shdw addButton" on-click="handleAddSuspicious" title="Add suspicious diagnostic for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
+                  <div style="margin:0 auto; margin-top:5px;" class="jso-btn jso-btn-shdw addButton" on-click="handleAddSuspicious" title="Add suspected diagnosis for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
                 </div>
             </jso-panel>
 
