@@ -34,31 +34,6 @@
             margin-right: 5px;
             width: calc( 100% - 275px);
         }
-        /*#menu {*/
-        /*border-bottom: 1px solid rgba(125, 125, 125, 0.4);*/
-        /*margin-top: 15px;*/
-        /*}*/
-        /*#menu > div {
-            font-size: 17px;
-            padding: 5px 5px;
-            margin: 0 20px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.1s;
-            cursor: pointer;
-        }
-
-        #menu > div:hover {
-            border-bottom-color: rgba(125, 125, 125, 0.4);
-        }
-
-        #menu > div[selected] {
-            border-bottom-color: rgba(125, 125, 125, 0.7);
-        }*/
-
-        #tools {
-            /*height: calc(100% - 375px);*/
-            /*overflow-x: hidden;*/
-        }
 
         jso-variant-grid,
         jso-genome-viewer-element,
@@ -111,11 +86,6 @@
                 <br>
 
                 <div id="tools">
-                    <!-- <div id="overview">
-                        <div id="overview">
-                        </div>
-                        <div style="font-style:italic">{{overviewComent}}</div>
-                    </div> -->
                     <jso-variant-overview id="overview"></jso-variant-overview>
                     <jso-genome-viewer-element id="gv" hidden></jso-genome-viewer-element>
                     <jso-variant-frequencies-grid id="frequency" hidden></jso-variant-frequencies-grid>
@@ -211,9 +181,7 @@
                 this.$.effect.row = e.detail.row;
                 this.$.frequency.row = e.detail.row;
                 this.$.phenotype.row = e.detail.row;
-                // this.$.stats.row = e.detail.row;
-                // this.overviewComent = "Graphic weighted between zero and one"
-                // this._createPolarChart(e.detail.row);
+                this.$.overview.row = e.detail.row;
             },
             handleDataGridSelected: function(oldValue, newValue) {
                 var me = this;

@@ -1,4 +1,4 @@
-<dom-module id="jso-variant-browser">
+<dom-module id="jso-variant-overview">
     <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             display: block;
@@ -7,73 +7,73 @@
         }
     </style>
     <template>
-        <div id="overview">
-            <div id="overview">
-            </div>
-            <div style="font-style:italic">{{overviewComent}}</div>
+        <div id="overview" on-rowclick="handleRowClick">
         </div>
+        <div style="font-style:italic">{{overviewComent}}</div>
     </template>
     <script>
         Polymer({
-            is: 'jso-variant-browser',
+            is: 'jso-variant-overview',
             properties: {
                 row: {
                     type: Object,
                     observer: 'rowChanged'
                 },
-                cadd: {
+                params: {
                     type: Array,
                     value: function() {
                         return [];
                     }
-                },
-                conservation: {
-                    type: Array,
-                    value: function() {
-                        return [];
-                    }
-                },
-                functionalScores: {
-                    type: Array,
-                    value: function() {
-                        return [];
-                    }
-                },
+                }
             },
             rowChanged: function(neo, old) {
-                var variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                var me = this;
-                CellBaseManager.get({
-                    // version: 'v4',
-                    species: 'hsapiens',
-                    category: 'genomic',
-                    subCategory: 'variant',
-                    resource: 'annotation',
-                    query: variant,
-                    async: false,
-                    success: function(response) {
-                        if (response.response[0].result[0]) {
-                            if (response.response[0].result[0].functionalScore) {
-                                me.cadd = me._getScores(response.response[0].result[0].functionalScore);
+                if (neo) {
+                    this.params = [];
+                    var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                    var me = this;
+                    CellBaseManager.get({
+                        // version: 'v4',
+                        species: 'hsapiens',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'annotation',
+                        query: variant,
+                        async: false,
+                        success: function(response) {
+                            if (response.response[0].result[0]) {
+                                var row = response.response[0].result[0];
+                                if (row.functionalScore) {
+                                    me._getScores(row.functionalScore);
+                                }
+                                if (row.conservation) {
+                                    me._getScores(row.conservation);
+                                }
+                                if (row.consequenceTypes) {
+                                    var ct = row.consequenceTypes;
+                                    if (ct[0].proteinVariantAnnotation && ct[0].proteinVariantAnnotation.substitutionScores) {
+                                        me._getScores(ct[0].proteinVariantAnnotation.substitutionScores);
+                                    }
+                                }
+                                me._createPolarChart(row);
                             }
-                            if (response.response[0].result[0].conservation) {
-                                me.conservation = me._getScores(response.response[0].result[0].conservation);
-                            }
-                            // if(){
-                            // me.functionalScores=
-                            // }
-                            me._createPolarChart();
                         }
-                    }
-                });
+                    });
+                }
             },
-            _createPolarChart: function() {
-                this
+            _createPolarChart: function(row) {
+                var me = this;
+                var variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                var categories = [];
+                var data = [];
+                for (var i = 0; i < this.params.length; i++) {
+                    categories.push(this.params[i].source);
+                    data.push(this._parseFloat(this.params[i].score));
+                }
                 var chart = new Highcharts.Chart({
                     chart: {
                         polar: true,
                         type: 'line',
-                        renderTo: this.$.overview,
+                        renderTo: me.$.overview,
                         width: 510,
                         height: 300
 
@@ -85,11 +85,11 @@
                         enabled: false
                     },
                     title: {
-                        text: row.gene,
+                        text: variant,
                         x: -80
                     },
                     xAxis: {
-                        categories: ['Sift', '1 - Polyphen', 'Gerp', 'Phylop', 'Phastcons', 'CADD_raw', 'CADD_scaled'],
+                        categories: categories,
                         tickmarkPlacement: 'on',
                         lineWidth: 1
                     },
@@ -103,8 +103,8 @@
 
                     series: [{
                         type: 'area',
-                        name: row.gene,
-                        data: [this._parseFloat(this.functionalScores[0]), 1 - this._parseFloat(this.functionalScores[1]), this._parseFloat(this.conservation[0]), this._parseFloat(this.conservation[1]), this._parseFloat(this.conservation[2]), this._parseFloat(this.cadd[0]), this._parseFloat(this.cadd[1])],
+                        name: variant,
+                        data: data,
                         pointPlacement: 'on'
                     }]
 
@@ -116,7 +116,6 @@
                 return aux;
             },
             _getScores: function(data) {
-                var res = [];
                 for (var i = 0; i < data.length; i++) {
                     var elem = data[i];
                     var aux = Utils.clone(elem);
@@ -126,9 +125,8 @@
                     }
                     aux.source = elem.source;
 
-                    res.push(aux);
+                    this.params.push(aux);
                 }
-                return res;
             }
         })
     </script>
