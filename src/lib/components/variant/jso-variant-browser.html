@@ -5,6 +5,7 @@
 <link rel="import" href="jso-variant-frequencies-grid.html">
 <link rel="import" href="jso-variant-phenotype-grid.html">
 <link rel="import" href="jso-variant-stats.html">
+<link rel="import" href="jso-variant-overview.html">
 <link rel="import" href="../jso-genome-viewer-element.html">
 
 <dom-module id="jso-variant-browser">
@@ -110,11 +111,12 @@
                 <br>
 
                 <div id="tools">
-                    <div id="overview">
+                    <!-- <div id="overview">
                         <div id="overview">
                         </div>
                         <div style="font-style:italic">{{overviewComent}}</div>
-                    </div>
+                    </div> -->
+                    <jso-variant-overview id="overview"></jso-variant-overview>
                     <jso-genome-viewer-element id="gv" hidden></jso-genome-viewer-element>
                     <jso-variant-frequencies-grid id="frequency" hidden></jso-variant-frequencies-grid>
                     <jso-variant-phenotype-grid id="phenotype" hidden></jso-variant-phenotype-grid>
@@ -210,8 +212,8 @@
                 this.$.frequency.row = e.detail.row;
                 this.$.phenotype.row = e.detail.row;
                 // this.$.stats.row = e.detail.row;
-                this.overviewComent = "Graphic weighted between zero and one"
-                this._createPolarChart(e.detail.row);
+                // this.overviewComent = "Graphic weighted between zero and one"
+                // this._createPolarChart(e.detail.row);
             },
             handleDataGridSelected: function(oldValue, newValue) {
                 var me = this;
@@ -225,68 +227,7 @@
 
                 this.$.gvEl.genomeViewer.setRegion(region);
             },
-            _createPolarChart: function(row) {
-                var phylop = Math.abs(row.phylop);
-                if (phylop > 1) {
-                    phylop = 1 / phylop;
-                }
-                var phastcons = Math.abs(row.phastCons);
-                if (phastcons > 1) {
-                    phastcons = 1 / phastcons;
-                }
-                var cadd = Math.abs(row.cadd);
-                if (cadd > 1) {
-                    cadd = 1 / cadd;
-                }
 
-                var chart = new Highcharts.Chart({
-                    chart: {
-                        polar: true,
-                        type: 'line',
-                        renderTo: this.$.overview,
-                        width: 510,
-                        height: 300
-
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    legend: {
-                        enabled: false
-                    },
-                    title: {
-                        text: row.gene,
-                        x: -80
-                    },
-                    xAxis: {
-                        categories: ['Sift', '1 - Polyphen', 'Phylop', 'Phastcons', 'CADD'],
-                        tickmarkPlacement: 'on',
-                        lineWidth: 1
-                    },
-
-                    yAxis: {
-                        gridLineInterpolation: 'polygon',
-                        lineWidth: 0,
-                        min: 0,
-                        max: 1
-                    },
-
-                    series: [{
-                        type: 'area',
-                        name: row.gene,
-                        data: [this._parseFloat(row.sift), 1 - this._parseFloat(row.polyphen), this._parseFloat(phylop),
-                            this._parseFloat(phastcons), this._parseFloat(cadd)
-                        ],
-                        pointPlacement: 'on'
-                    }]
-
-                });
-            },
-            _parseFloat: function(data) {
-              var aux = parseFloat(data);
-              aux = isNaN(aux) ? null : aux;
-              return aux;
-          },
         })
     </script>
 </dom-module>

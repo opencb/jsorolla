@@ -1,0 +1,135 @@
+<dom-module id="jso-variant-browser">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+    </style>
+    <template>
+        <div id="overview">
+            <div id="overview">
+            </div>
+            <div style="font-style:italic">{{overviewComent}}</div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'jso-variant-browser',
+            properties: {
+                row: {
+                    type: Object,
+                    observer: 'rowChanged'
+                },
+                cadd: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
+                conservation: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
+                functionalScores: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                },
+            },
+            rowChanged: function(neo, old) {
+                var variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                var me = this;
+                CellBaseManager.get({
+                    // version: 'v4',
+                    species: 'hsapiens',
+                    category: 'genomic',
+                    subCategory: 'variant',
+                    resource: 'annotation',
+                    query: variant,
+                    async: false,
+                    success: function(response) {
+                        if (response.response[0].result[0]) {
+                            if (response.response[0].result[0].functionalScore) {
+                                me.cadd = me._getScores(response.response[0].result[0].functionalScore);
+                            }
+                            if (response.response[0].result[0].conservation) {
+                                me.conservation = me._getScores(response.response[0].result[0].conservation);
+                            }
+                            // if(){
+                            // me.functionalScores=
+                            // }
+                            me._createPolarChart();
+                        }
+                    }
+                });
+            },
+            _createPolarChart: function() {
+                this
+                var chart = new Highcharts.Chart({
+                    chart: {
+                        polar: true,
+                        type: 'line',
+                        renderTo: this.$.overview,
+                        width: 510,
+                        height: 300
+
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    title: {
+                        text: row.gene,
+                        x: -80
+                    },
+                    xAxis: {
+                        categories: ['Sift', '1 - Polyphen', 'Gerp', 'Phylop', 'Phastcons', 'CADD_raw', 'CADD_scaled'],
+                        tickmarkPlacement: 'on',
+                        lineWidth: 1
+                    },
+
+                    yAxis: {
+                        gridLineInterpolation: 'polygon',
+                        lineWidth: 0,
+                        min: 0,
+                        max: 1
+                    },
+
+                    series: [{
+                        type: 'area',
+                        name: row.gene,
+                        data: [this._parseFloat(this.functionalScores[0]), 1 - this._parseFloat(this.functionalScores[1]), this._parseFloat(this.conservation[0]), this._parseFloat(this.conservation[1]), this._parseFloat(this.conservation[2]), this._parseFloat(this.cadd[0]), this._parseFloat(this.cadd[1])],
+                        pointPlacement: 'on'
+                    }]
+
+                });
+            },
+            _parseFloat: function(data) {
+                var aux = parseFloat(data);
+                aux = isNaN(aux) ? null : aux;
+                return aux;
+            },
+            _getScores: function(data) {
+                var res = [];
+                for (var i = 0; i < data.length; i++) {
+                    var elem = data[i];
+                    var aux = Utils.clone(elem);
+                    aux.score = Math.abs(elem.score);
+                    if (aux.score > 1) {
+                        aux.score = 1 / aux.score;
+                    }
+                    aux.source = elem.source;
+
+                    res.push(aux);
+                }
+                return res;
+            }
+        })
+    </script>
+</dom-module>

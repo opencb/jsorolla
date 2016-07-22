@@ -95,10 +95,7 @@
             name: 'snpId',
             title: 'SNP Id',
             width: 80,
-            defaultValue: '.',
-            // formula: function(row) {
-            //     return row.id;
-            // }
+            defaultValue: '.'
         }, {
             name: 'genes',
             title: 'Genes',
@@ -127,12 +124,17 @@
             name: 'sift',
             title: 'SIFT',
             width: 50,
-            defaultValue: '.',
+            defaultValue: '.'
         }, {
             name: 'polyphen',
             title: 'Polyphen',
             width: 50,
             defaultValue: '.'
+                // }, {
+                //     name: 'cadd',
+                //     title: 'CADD',
+                //     width: 50,
+                //     defaultValue: '.'
         }, {
             name: 'phylop',
             title: 'phyloP',
@@ -452,7 +454,6 @@
 
                 for (var i = 0; i < data.length; i++) {
                     var variant = data[i];
-
                     if (variant.annotation) {
                         var annotation = variant.annotation;
 

@@ -187,11 +187,11 @@
             for (var i = 0; i < data.length; i++) {
                 var elem = data[i];
 
-                for (var j = 0; j < elem.soTerms.length; j++) {
-                    var soTerm = elem.soTerms[j];
+                for (var j = 0; j < elem.sequenceOntologyTerms.length; j++) {
+                    var soTerm = elem.sequenceOntologyTerms[j];
                     var aux = Utils.clone(elem);
-                    aux.soName = soTerm.soName;
-                    aux.soAccession = soTerm.soAccession;
+                    aux.soName = soTerm.name;
+                    aux.soAccession = soTerm.accession;
 
                     res.push(aux);
                 }
