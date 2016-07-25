@@ -131,7 +131,7 @@
                 xhr.setRequestHeader("Content-Type", "application/json");
 
                 xhr.onload = function(e) {
-                    var response = JSON.parse(e.srcElement.response);
+                    var response = JSON.parse(this.response);
                     if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                         me.name = "";
                         me.fire('need-refresh');
