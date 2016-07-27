@@ -5,10 +5,10 @@
         <div>
             <!--Different views: List, File, Cohort -->
             <div class="btn-group sample-browser-menu">
-                <a class="btn btn-default" href="#sampleGridView">
+                <a class="btn btn-default" href="#{{prefix}}SampleGridView">
                     <i class="fa fa-list" title="List of Samples"></i>
                 </a>
-                <a class="btn btn-default" href="#fileTreeView">
+                <a class="btn btn-default" href="#{{prefix}}FileTreeView">
                     <i class="fa fa-folder-open" title="View by Files"></i>
                 </a>
                 <a class="btn btn-default" href="#">
@@ -17,16 +17,16 @@
             </div>
 
             <!--Sample Grid-->
-            <div style="padding: 10px;" id="sampleGridView" class="hide-content">
-                <table id="sampleGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+            <div style="padding: 10px;" id="{{prefix}}SampleGridView" class="hide-content">
+                <table id="{{prefix}}SampleGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                        data-show-pagination-switch="true" data-show-export="true">
 
                 </table>
             </div>
             <!--File Tree-->
-            <div id="fileTreeView" class="collapse hide-content">
+            <div id="{{prefix}}FileTreeView" class="collapse hide-content">
                 Tree
-                <div id="fileTree"></div>
+                <div id="{{prefix}}fileTree"></div>
 
             </div>
         </div>
@@ -46,6 +46,9 @@
                     type: Array,
                     value: [],
                     notify: true
+                },
+                prefix: {
+                    type: String
                 }
             },
             ready: function () {
@@ -86,8 +89,8 @@
                     // Bootstrap grid
                     this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study + '/samples';
                     let _numTotal = -1;
-                    $('#sampleGrid').bootstrapTable('destroy');
-                    $('#sampleGrid').bootstrapTable({
+                    $('#' + _this.prefix +'SampleGrid').bootstrapTable('destroy');
+                    $('#' + _this.prefix +'SampleGrid').bootstrapTable({
                         url: this._url,
                         method: 'get',
                         sidePagination: 'server',
@@ -106,10 +109,10 @@
                         },
                         columns: this.cols
                     });
-                    $('#sampleGrid').bootstrapTable('showLoading');
+                    $('#' + _this.prefix +'SampleGrid').bootstrapTable('showLoading');
 
                     // Getting the selected samples through onCheck event of bootstrap table and passing to the filter
-                    $('#sampleGrid').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table ' +
+                    $('#' + _this.prefix +'SampleGrid').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table ' +
                             'check-some.bs.table uncheck-some.bs.table' , function () {
                         _this.samples = _this.getSampleName();
                     });
@@ -118,14 +121,14 @@
                     let studyFiles = [];
                     this.opencgaClient.studies().files(this.study).then(function (response) {
                         studyFiles = response.response[0].result;
-                        $('#fileTree').treeview({
+                        $('#' + _this.prefix +'FileTree').treeview({
                             data: _this.getTree(studyFiles)
                         });
                     });
                 }
             },
             getSampleName: function () {
-                return $.map($('#sampleGrid').bootstrapTable('getSelections'), function (row) {
+                return $.map($('#' + this.prefix +'SampleGrid').bootstrapTable('getSelections'), function (row) {
                     return row.name
                 });
             },

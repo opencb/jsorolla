@@ -29,7 +29,7 @@
                     <h3>{{title}}</h3>
                 </template>
 
-                <table id="bierAppToolGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                <table id="{{prefix}}BierAppToolGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                        data-show-pagination-switch="true" data-show-export="true">
 
                 </table>
@@ -37,7 +37,7 @@
 
             <!--Tabs-->
             <div>
-                <cellbase-variantannotation-view data="{{variant}}" prefix="bierapp" cellbase-client="{{cellbaseClient}}"></cellbase-variantannotation-view>
+                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}"></cellbase-variantannotation-view>
                 <!--<ul id="bierAppViewTabs" class="nav nav-tabs" role="tablist">-->
                 <!--<li role="presentation" class="active"><a href="#bierappGenomeView" role="tab" data-toggle="tab">Genome Context</a></li>-->
                 <!--<li role="presentation"><a href="#bierappPopFreq" role="tab" data-toggle="tab">Population Frequency</a></li>-->
@@ -92,11 +92,10 @@
                 },
                 type: {
                     type: String,
-                    value: "",
                     observer: '_refreshTableColumns'
                 },
                 samples: {
-                    type: String,
+                    type: Array,
                     value: [],
                     observer: '_refreshTableColumns'
                 },
@@ -127,6 +126,9 @@
                     type: String,
                     value: "",
                     observer: 'renderFromServer'
+                },
+                prefix: {
+                    type: String
                 }
             },
             ready: function () {
@@ -147,7 +149,6 @@
                         this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.name + '/variants';
                     }
 //                    this._url += '?sid=' + this.opencgaClient._config.sessionId;
-
 
                     var queryParams = {
                         sid: _this.opencgaClient._config.sessionId,
@@ -178,8 +179,8 @@
                     }
 
                     let _numTotal = -1;
-                    $('#bierAppToolGrid').bootstrapTable('destroy');
-                    $('#bierAppToolGrid').bootstrapTable({
+                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable('destroy');
+                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable({
                         url: this._url,
                         method: 'get',
                         sidePagination: 'server',
@@ -214,12 +215,12 @@
                             }
                         }
                     });
-                    $('#bierAppToolGrid').bootstrapTable('showLoading');
+                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable('showLoading');
                 }
             },
             renderFromLocal: function () {
-                $('#bierAppToolGrid').bootstrapTable('destroy');
-                $('#bierAppToolGrid').bootstrapTable({
+                $('#' + this.prefix + 'BierAppToolGrid').bootstrapTable('destroy');
+                $('#' + this.prefix + 'BierAppToolGrid').bootstrapTable({
                     data: this.data,
                     columns: this.cols
                 });

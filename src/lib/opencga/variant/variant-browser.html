@@ -61,19 +61,19 @@
 
             <div class="browser-filter-view">
                 <div class="col-md-2">
-                    <variant-browser-filter study="{{study}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                    <variant-browser-filter study="{{study}}" prefix="{{prefix}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
                                             population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
                 </div>
                 <div class="col-md-10">
-                    <variant-browser-view title="{{title}}" study="{{study}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                    <variant-browser-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
                                           population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
                                           on-selected="selectedGene"></variant-browser-view>
                 </div>
             </div>
         </div>
-        <div id="geneView">
-            <variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>
-        </div>
+        <!--<div id="{{prefix}}geneView">-->
+            <!--<variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>-->
+        <!--</div>-->
     </template>
     <script>
         Polymer({
@@ -104,12 +104,10 @@
                     type: Object
                 },
                 type: {
-                    type: String,
-                    value: ""
+                    type: String
                 },
                 samples: {
-                    type: String,
-                    value: []
+                    type: Array
                 },
                 sampleGenotypes: {
                     type: Object,
@@ -137,13 +135,10 @@
                 },
                 gene: {
                     type: String
+                },
+                prefix: {
+                    type: String
                 }
-            },
-            ready: function () {
-//                let _this = this;
-//                $(document).on('click', '.bierapp-studies-menu li a', function() {
-//                    _this.title = $(this).text();
-//                });
             },
             selectedGene: function (e) {
                 this.gene = e.detail.gene;
