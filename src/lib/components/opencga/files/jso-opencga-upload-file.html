@@ -405,23 +405,20 @@
                         fileFormat: 'PLAIN',
                         bioFormat: selBioformat.value,
                         description: '',
-                        callbackProgress: function(chunk, total, response) {
-                            me.percentProgress = Math.round((chunk.id / total) * 100);
-                            if (chunk.last) {
-                                me.message = "Upload complete.";
-                                me.percentProgress = 0;
-                                me.uploading = false;
-                                me.$.fileInput.value = null;
-                                me.fileName = 'None';
-                                me.$.validator.reset();
-                                me.fire('need-refresh');
+                        success: function(response) {
+                            me.message = "Upload complete.";
+                            me.percentProgress = 0;
+                            me.uploading = false;
+                            me.$.fileInput.value = null;
+                            me.fileName = 'None';
+                            me.$.validator.reset();
+                            me.fire('need-refresh');
 
-                                var uploadedFile = response.response[0].result[0];
-                                me.async(function() {
-                                    me.fire('file-uploaded', uploadedFile);
-                                }, 50);
-                                //                                me._indexFile(uploadedFile);
-                            }
+                            var uploadedFile = response.response[0].result[0];
+                            me.async(function() {
+                                me.fire('file-uploaded', uploadedFile);
+                                me._indexFile(uploadedFile);
+                            }, 50);
                         },
                         error: function(msg) {
                             me.percentProgress = 0;
@@ -432,7 +429,45 @@
                             me.message = msg;
                         }
                     };
-                    OpencgaManager.files.upload2(config);
+                    // var config = {
+                    //     inputFile: this.$.fileInput.files[0],
+                    //     fileName: this.fileName.replace(/[^a-zA-Z0-9._\-]/g, "_"),
+                    //     userId: Cookies("bioinfo_user"),
+                    //     sid: Cookies("bioinfo_sid"),
+                    //     studyId: selStudy.id,
+                    //     relativeFilePath: folder + this.fileName,
+                    //     fileFormat: 'PLAIN',
+                    //     bioFormat: selBioformat.value,
+                    //     description: '',
+                    //     callbackProgress: function(chunk, total, response) {
+                    //         me.percentProgress = Math.round((chunk.id / total) * 100);
+                    //         if (chunk.last) {
+                    //             me.message = "Upload complete.";
+                    //             me.percentProgress = 0;
+                    //             me.uploading = false;
+                    //             me.$.fileInput.value = null;
+                    //             me.fileName = 'None';
+                    //             me.$.validator.reset();
+                    //             me.fire('need-refresh');
+                    //
+                    //             var uploadedFile = response.response[0].result[0];
+                    //             me.async(function() {
+                    //                 me.fire('file-uploaded', uploadedFile);
+                    //             }, 50);
+                    //             //                                me._indexFile(uploadedFile);
+                    //         }
+                    //     },
+                    //     error: function(msg) {
+                    //         me.percentProgress = 0;
+                    //         me.$.fileInput.value = null;
+                    //         me.fileName = 'None';
+                    //         me.$.validator.reset();
+                    //         me.uploading = false;
+                    //         me.message = msg;
+                    //     }
+                    // };
+                    OpencgaManager.files.upload(config);
+                    // OpencgaManager.files.upload2(config);
                 } else {
                     alert("Please select a file");
                     return;
@@ -465,6 +500,7 @@
                     },
                     request: {
                         success: function(response) {
+                          debugger
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 console.log("index");
                                 console.log(response);

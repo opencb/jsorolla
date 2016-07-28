@@ -165,8 +165,8 @@ var OpencgaManager = {
         variants: function (args) {
             return OpencgaManager._doRequest(args, 'studies', 'variants');
         },
-        files: function (args){
-          return OpencgaManager._doRequest(args, 'studies', 'files');
+        files: function (args) {
+            return OpencgaManager._doRequest(args, 'studies', 'files');
         }
     },
     cohorts: {
@@ -234,9 +234,7 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'files', 'download');
         },
         upload: function (args) {
-            return OpencgaManager._doRequest(args, 'files', 'upload');
-        },
-        upload2: function (args) {
+            // return OpencgaManager._doRequest(args, 'files', 'upload');
             /** Check if exists a file with the same name **/
             var query = {
                 sid: Cookies('bioinfo_sid'),
@@ -278,6 +276,49 @@ var OpencgaManager = {
                     }
                 }
             });
+        },
+        upload2: function (args) {
+            /** Check if exists a file with the same name **/
+            var query = {
+                sid: Cookies('bioinfo_sid'),
+                studyId: args.studyId,
+            };
+            // if (window.OPENCGA_OLD_URL_FORMAT != null && OPENCGA_OLD_URL_FORMAT === true) {
+            //     var splitIndex = args.relativeFilePath.lastIndexOf("/") + 1;
+            //     query.name = args.relativeFilePath.substring(splitIndex);
+            //     query.directory = args.relativeFilePath.substring(0, splitIndex);
+            // } else {
+            // }
+            query.path = args.relativeFilePath;
+            OpencgaManager.files.search({
+                query: query,
+                request: {
+                    success: function (response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            if (response.response[0].result.length == 0) {
+
+                                /** No file found with the same name -> start upload **/
+                                var url = OpencgaManager._url({
+                                    query: {
+                                        sid: args.sid
+                                    },
+                                    request: {}
+                                }, 'files', 'upload');
+                                args.url = url;
+                                OpencgaManager._uploadFile2(args);
+
+                            } else {
+                                args.error('File already exists', response.response[0].result);
+                            }
+                        } else {
+                            args.error(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function () {
+                        args.error('Server error, try again later.');
+                    }
+                }
+            });
         }
 
     },
@@ -303,13 +344,13 @@ var OpencgaManager = {
             return OpencgaManager._doRequest(args, 'samples', 'update');
         }
     },
-    panels:{
-      create: function (args) {
-        return OpencgaManager._doRequest(args, 'panels', 'create');
-      },
-      info: function (args) {
-        return OpencgaManager._doRequest(args, 'panels', 'info');
-      }
+    panels: {
+        create: function (args) {
+            return OpencgaManager._doRequest(args, 'panels', 'create');
+        },
+        info: function (args) {
+            return OpencgaManager._doRequest(args, 'panels', 'info');
+        }
     },
     util: {
         proxy: function (args) {
@@ -417,6 +458,50 @@ var OpencgaManager = {
         }
     },
     _uploadFile: function (args) {
+        var url = args.url;
+        var inputFile = args.inputFile;
+        var fileName = args.fileName;
+        var userId = args.userId;
+        var studyId = args.studyId;
+        var relativeFilePath = args.relativeFilePath;
+        var fileFormat = args.fileFormat;
+        var bioFormat = args.bioFormat;
+        var description = args.description;
+
+        var formData = new FormData();
+
+        var chunkId = 0;
+
+        formData.append('chunk_content', inputFile);
+        formData.append('chunk_id', chunkId);
+        formData.append('chunk_size', inputFile.size);
+        /*formData.append('chunk_hash', hash);*/
+        formData.append("filename", fileName);
+        formData.append('userId', userId);
+        formData.append('studyId', studyId);
+        formData.append('relativeFilePath', relativeFilePath);
+        /*formData.append('chunk_gzip', );*/
+        formData.append("last_chunk", true);
+        formData.append("total_size", inputFile.size);
+        formData.append("fileFormat", fileFormat);
+        formData.append("bioFormat", bioFormat);
+        formData.append("description", description);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+
+        xhr.onload = function (e) {
+            var response = JSON.parse(this.response);
+            args.success(response);
+            console.log('upload Done!');
+        };
+        xhr.onerror = function (e) {
+            args.error("Server error");
+            console.log('upload error!');
+        };
+        xhr.send(formData);
+    },
+    _uploadFile2: function (args) {
         var url = args.url;
         var inputFile = args.inputFile;
         var fileName = args.fileName;
