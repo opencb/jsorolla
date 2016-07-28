@@ -580,6 +580,10 @@
             },
             ready: function() {
                 this.sampleGenotypesObj = {};
+
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
             },
             studySelected: function (e) {
                 if (typeof e.target === "undefined") {

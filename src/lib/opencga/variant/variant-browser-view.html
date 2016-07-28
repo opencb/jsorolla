@@ -135,6 +135,10 @@
                 // TO BE REMOVED!
                 this._refreshTableColumns();
 
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+                console.log("prefix", this.prefix);
             },
             attached: function() {
                 this.renderGenomeViewer();
