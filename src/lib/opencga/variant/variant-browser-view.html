@@ -148,10 +148,17 @@
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
 
                     if (typeof this.study.id !== "undefined") {
-                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.id + '/variants';
+                        this._studyId = this.study.id;
                     } else {
-                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study.name + '/variants';
+                        this._studyId = this.study.alias;
                     }
+
+                    if (typeof this._studyId !== "undefined" && this._studyId != "") {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this._studyId + '/variants';
+                    } else {
+                        return;
+                    }
+
 //                    this._url += '?sid=' + this.opencgaClient._config.sessionId;
 
                     var queryParams = {
