@@ -22,50 +22,13 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div class="panel">
-            <!--Dropdown menu for Studies in case of multiple studies-->
-            <!--<template is="dom-if" if="{{checkForMultiple(studies)}}">-->
-            <!--<div class="dropdown" style="background-color: transparent">-->
-            <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">-->
-            <!--{{title}} <span class="caret"></span>-->
-            <!--</a>-->
-            <!--<ul class="dropdown-menu bierapp-studies-menu">-->
-            <!--<template is="dom-repeat" items="{{studies}}" as="study">-->
-            <!--<li class="dropdown-submenu">-->
-            <!--<a href="#">{{study}}</a>-->
-            <!--&lt;!&ndash;<ul class="dropdown-menu">&ndash;&gt;-->
-            <!--&lt;!&ndash;<template is="dom-repeat" items="{{families}}" as="family">&ndash;&gt;-->
-            <!--&lt;!&ndash;<li><a href="#">{{family}}</a></li>&ndash;&gt;-->
-            <!--&lt;!&ndash;</template>&ndash;&gt;-->
-            <!--&lt;!&ndash;</ul>&ndash;&gt;-->
-            <!--</li>-->
-            <!--</template>-->
-            <!--</ul>-->
-            <!--</div>-->
-            <!--</template>-->
-
-            <!--Dropdown menu for families corresponding to one study-->
-            <!--<template is="dom-if" if="{{checkForSingle(studies)}}">-->
-            <!--<div class="dropdown" style="background-color: transparent">-->
-            <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">-->
-            <!--{{title}} <span class="caret"></span>-->
-            <!--</a>-->
-            <!--<ul class="dropdown-menu bierapp-studies-menu">-->
-            <!--<template is="dom-repeat" items="{{families}}" as="family">-->
-            <!--<li class="dropdown-submenu">-->
-            <!--<input type="radio" name="study" value="{{family}}"> {{family}}-->
-            <!--</li>-->
-            <!--</template>-->
-            <!--</ul>-->
-            <!--</div>-->
-            <!--</template>-->
-
             <div class="browser-filter-view">
                 <div class="col-md-2">
-                    <variant-browser-filter study="{{study}}" prefix="{{prefix}}" studies="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                    <variant-browser-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
                                             population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
                 </div>
                 <div class="col-md-10">
-                    <variant-browser-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" data="{{studies}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                    <variant-browser-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
                                           population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
                                           on-selected="selectedGene"></variant-browser-view>
                 </div>
@@ -86,12 +49,7 @@
                     type: String
                 },
                 study: {
-                    type: Object,
-                    notify: true
-                },
-                studies: {
-                    type: Array,
-                    value: []
+                    type: Object
                 },
                 title: {
                     type: String,
@@ -144,18 +102,6 @@
             selectedGene: function (e) {
                 this.gene = e.detail.gene;
                 $('#geneView').show();
-            },
-            checkForMultiple: function (studies) {
-                if (studies.length > 1) {
-                    this.title = "Select Study";
-                    return true;
-                }
-            },
-            checkForSingle: function (studies) {
-                if (studies.length == 1) {
-                    this.title = "Select Family";
-                    return true;
-                }
             }
         });
     </script>

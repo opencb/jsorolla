@@ -69,19 +69,6 @@
                     <div id="{{prefix}}StudyFilter" class="panel-collapse collapse in" role="tabpanel"
                          aria-labelledby="{{prefix}}StudyFilterHeading">
                         <div class="panel-body">
-                            <div class="dropdown">
-                                Select one study:<span style="padding-left:20px;"></span>
-                                <button class="btn btn-default dropdown-toggle" type="button" id="{{prefix}}StudiesDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    Studies
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="{{prefix}}StudiesDropdownMenu">
-                                    <template is="dom-repeat" items="{{studies}}">
-                                        <li><a on-click="studySelected" data-id="{{item.id}}">{{item.name}}</a></li>
-                                    </template>
-                                </ul>
-                            </div>
-                            <br>
                             <div>
                                 <!--<template is="dom-repeat" items="{{somaticValues}}">-->
                                 <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
@@ -519,13 +506,8 @@
         Polymer({
             is: 'variant-browser-filter',
             properties: {
-                studies: {
-                    type: Array,
-                    value: []
-                },
                 study: {
-                    type: Object,
-                    notify: true
+                    type: Object
                 },
                 opencgaClient: {
                     type: Object
@@ -583,13 +565,6 @@
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
-                }
-            },
-            studySelected: function (e) {
-                if (typeof e.target === "undefined") {
-                    this.study = {name: e};
-                } else {
-                    this.study = {id: e.target.dataId, name: e.target.innerText};
                 }
             },
             typeSelected: function (e) {

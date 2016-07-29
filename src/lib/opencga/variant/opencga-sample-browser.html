@@ -83,6 +83,7 @@
                 });
             },
             fetchSamples: function () {
+                this.samples = []; // When study changes , empty the samples
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
 
