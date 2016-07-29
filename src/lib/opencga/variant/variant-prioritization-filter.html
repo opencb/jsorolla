@@ -13,10 +13,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!--<link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">-->
+
 <link rel="import" href="opencga-sample-browser.html">
 
-<dom-module id="variant-browser-filter">
+<dom-module id="variant-prioritization-filter">
     <template>
         <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
             select {
@@ -57,6 +57,72 @@
             <br>
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+                <!--Study filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}StudyFilterHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}StudyFilter" aria-expanded="true" aria-controls="{{prefix}}StudyFilter">
+                                Study Filter
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}StudyFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudyFilterHeading">
+                        <div class="panel-body">
+                            <div>
+                                <!--<template is="dom-repeat" items="{{somaticValues}}">-->
+                                <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
+                                <!--</template>-->
+                                <h5>Select type of analysis</h5>
+                                <input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>
+                                <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>
+                                <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>
+                                <input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control
+                            </div>
+                            <br>
+                            <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser">Sample Browser...</button>
+                            <br>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Segregation filter -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}SegregationHeading">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Segregation" aria-expanded="false" aria-controls="{{prefix}}SegregationHeading">
+                                Segregation
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}Segregation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">
+                        <div class="panel-body">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Sample</th>
+                                    <th>0/0</th>
+                                    <th>0/1</th>
+                                    <th>1/1</th>
+                                    <th>./.</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <template is="dom-repeat" items="{{samples}}">
+                                    <tr id="{{item}}" on-click="sampleGenotypeSelected">
+                                        <td>{{item}}</td>
+                                        <td><input type="checkbox" value="0/0" data-id="{{item}}"></td>
+                                        <td><input type="checkbox" value="0/1" data-id="{{item}}"></td>
+                                        <td><input type="checkbox" value="1/1" data-id="{{item}}"></td>
+                                        <td><input type="checkbox" value="./." data-id="{{item}}"></td>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!--Somatic filter-->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
@@ -299,7 +365,7 @@
                         <div class="panel-body">
                             <div class="horizontal layout">
                                 <span>SIFT</span>
-                                <span>
+                                    <span>
                                         <select name="siftOperator" id="{{prefix}}SiftOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -312,7 +378,7 @@
                             <br>
                             <div class="horizontal layout">
                                 <span>Polyphen</span>
-                                <span>
+                                    <span>
                                         <select name="polyphenOperator" id="{{prefix}}PolyphenOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -339,7 +405,7 @@
                         <div class="panel-body">
                             <div class="horizontal layout">
                                 <span>PhyloP</span>
-                                <span>
+                                    <span>
                                         <select name="phylopOperator" id="{{prefix}}PhylopOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -352,7 +418,7 @@
                             <br>
                             <div class="horizontal layout">
                                 <span>PhastCons</span>
-                                <span>
+                                    <span>
                                         <select name="phastconsOperator" id="{{prefix}}PhastconsOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -416,10 +482,28 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal dialog for Sample Browser -->
+        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Sample Browser</h4>
+                    </div>
+                    <div class="modal-body">
+                        <opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-sample-browser>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
     <script>
         Polymer({
-            is: 'variant-browser-filter',
+            is: 'variant-prioritization-filter',
             properties: {
                 study: {
                     type: Object
@@ -480,6 +564,8 @@
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
+                    console.log("whaatttt?!")
+                    console.log(this.prefix)
                 }
             },
             typeSelected: function (e) {

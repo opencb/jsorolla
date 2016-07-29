@@ -1,0 +1,108 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="variant-prioritization-filter.html">
+<link rel="import" href="variant-prioritization-view.html">
+
+<dom-module id="variant-prioritization">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div class="panel">
+            <div class="prioritization-filter-view">
+                <div class="col-md-2">
+                    <variant-prioritization-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                                            population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-prioritization-filter>
+                </div>
+                <div class="col-md-10">
+                    <variant-prioritization-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                                          population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
+                                          on-selected="selectedGene"></variant-prioritization-view>
+                </div>
+            </div>
+        </div>
+        <!--<div id="{{prefix}}geneView">-->
+            <!--<variant-prioritization-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-prioritization-gene-view>-->
+        <!--</div>-->
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-prioritization',
+            properties: {
+                host: {
+                    type: String
+                },
+                project: {
+                    type: String
+                },
+                study: {
+                    type: Object
+                },
+                title: {
+                    type: String,
+                    value: ""
+                },
+                opencgaClient: {
+                    type: Object
+                },
+                cellbaseClient: {
+                    type: Object
+                },
+                type: {
+                    type: String
+                },
+                samples: {
+                    type: Array,
+                    notify: true
+                },
+                sampleGenotypes: {
+                    type: Object,
+                    value: {}
+                },
+                populationFreq: {
+                    type: String,
+                    value: ""
+                },
+                sift: {
+                    type: String,
+                    value: ""
+                },
+                polyphen: {
+                    type: String,
+                    value: ""
+                },
+                conservation: {
+                    type: String,
+                    value: ""
+                },
+                mode: {
+                    type: String,
+                    value: "browser"
+                },
+                gene: {
+                    type: String
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            selectedGene: function (e) {
+                this.gene = e.detail.gene;
+                $('#geneView').show();
+            }
+        });
+    </script>
+</dom-module>
