@@ -9,6 +9,7 @@
         jso-table {
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
             overflow-y: hidden;
+            height: 375px;
         }
 
         jso-table::shadow #list {
@@ -37,7 +38,7 @@
     </style>
     <template>
         <div hidden$="{{isEmpty}}" class="horizontal layout wrap center-justified">
-            <jso-table id="table" enable-export></jso-table>
+            <jso-table id="table" enable-export enable-paging></jso-table>
             <div id="mafChart" hidden></div>
         </div>
         <div hidden$="{{!isEmpty}}" style="padding:20px 50px;">
