@@ -32,7 +32,8 @@
                     var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                     var me = this;
                     CellBaseManager.get({
-                        // version: 'v4',
+                        host: 'http://bioinfodev.hpc.cam.ac.uk/cellbase-dev-v4.0',
+                        version: 'v4',
                         species: 'hsapiens',
                         category: 'genomic',
                         subCategory: 'variant',
@@ -74,10 +75,10 @@
                 var data = [];
                 for (var i = 0; i < this.params.length; i++) {
                     categories.push(this.params[i].source);
-                    if(this.params[i].source=="polyphen"){
-                      data.push(1-this._parseFloat(this.params[i].score));
-                    }else{                      
-                      data.push(this._parseFloat(this.params[i].score));
+                    if (this.params[i].source == "polyphen") {
+                        data.push(1 - this._parseFloat(this.params[i].score));
+                    } else {
+                        data.push(this._parseFloat(this.params[i].score));
                     }
                 }
                 var chart = new Highcharts.Chart({

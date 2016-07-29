@@ -34,7 +34,6 @@
             overflow-x: auto;
             height: 350px;
         }
-
     </style>
     <template>
         <div hidden$="{{isEmpty}}" class="horizontal layout wrap center-justified">
@@ -59,7 +58,7 @@
                 type: Boolean
             }
         },
-        ready: function () {
+        ready: function() {
             this.$.table.columns = this._columns;
         },
         _columns: [{
@@ -86,7 +85,7 @@
             name: "refAlleleFreq",
             title: "Ref. Allele Freq.",
             cellTemplate: 'alleleFreqCT',
-            formula: function (row) {
+            formula: function(row) {
                 var val = ".";
                 if (row.refAlleleFreq != null) {
                     val = row.refAlleleFreq.toFixed(3);
@@ -97,7 +96,7 @@
         }, {
             name: "altAlleleFreq",
             title: "Alt. Allele Freq.",
-            formula: function (row) {
+            formula: function(row) {
                 var val = ".";
                 if (row.altAlleleFreq != null) {
                     val = row.altAlleleFreq.toFixed(3);
@@ -108,7 +107,7 @@
         }, {
             name: "maf",
             title: "MAF",
-            formula: function (row) {
+            formula: function(row) {
                 return Math.min(row.refAlleleFreq, row.altAlleleFreq).toFixed(3);
             },
             width: 70
@@ -125,7 +124,7 @@
             title: "1/1",
             width: 30
         }],
-        rowChanged: function (neo, old) {
+        rowChanged: function(neo, old) {
             var me = this;
 
             this.$.table.currentPage = 1;
@@ -133,14 +132,15 @@
             if (neo) {
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 CellBaseManager.get({
-                    // version: 'v3',
+                    host: 'http://bioinfodev.hpc.cam.ac.uk/cellbase-dev-v4.0',
+                    version: 'v4',
                     species: 'hsapiens',
                     category: 'genomic',
                     subCategory: 'variant',
                     resource: 'annotation',
                     query: variant,
                     async: false,
-                    success: function (response) {
+                    success: function(response) {
                         try {
                             me.$.table.data = response.response[0].result[0].populationFrequencies;
                             me.isEmpty = (me.$.table.data.length > 0) ? false : true;
@@ -201,8 +201,7 @@
                 });
                 this.$.mafChart.hidden = false;
 
-
             }
-        }        
+        }
     });
 </script>
