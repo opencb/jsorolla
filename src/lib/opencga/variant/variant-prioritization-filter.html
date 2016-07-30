@@ -212,8 +212,8 @@
                          aria-labelledby="{{prefix}}PopulationFrequencyHeading">
                         <div class="panel-body">
 
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-type="{{prefix}}Phase_3"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="{{prefix}}Phase_3">1000 Genomes
+                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3">1000 Genomes
                                 population phase 3</label>
                             <div id="{{prefix}}Phase_3" hidden>
                                 <label class="name">All populations MAF [ALL]</label>
@@ -297,8 +297,8 @@
                             </div>
 
                             <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-type="{{prefix}}Esp_6500"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="{{prefix}}Esp_6500">ESP 6500</label>
+                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500">ESP 6500</label>
                             <div id="{{prefix}}Esp_6500" hidden>
                                 <label class="name">European american MAF</label>
                                 <div class="horizontal layout">
@@ -330,8 +330,8 @@
                             </div>
 
                             <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-type="{{prefix}}Exac"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="{{prefix}}Exac">EXAC</label>
+                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Exac"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Exac">EXAC</label>
                             <div id="{{prefix}}Exac" hidden>
                                 <label class="name">EXAC MAF</label>
                                 <div class="horizontal layout">
@@ -600,15 +600,21 @@
                 }
             },
             handleCollapseAction: function (e) {
-                console.log("HANDLE COLLAPSE ACTION", e)
+                console.log("HANDLE COLLAPSE ACTION", e);
 //                var id = e.currentTarget.dataset.type;
-                let id = e.srcElement.dataType;
-                debugger
-                this.$[id].hidden = !this.$[id].hidden;
-                if (this.$[id].hidden) {
-                    this[id] = "fa fa-angle-double-right minus";
+                let id = e.srcElement.dataId;
+                let elem = $('#' + id)[0];
+//                this.$[id].hidden = !this.$[id].hidden;
+//                if (this.$[id].hidden) {
+//                    this[id] = "fa fa-angle-double-right minus";
+//                } else {
+//                    this[id] = "fa fa-angle-double-down minus";
+//                }
+                elem.hidden = !elem.hidden;
+                if (elem.hidden) {
+                    elem.css = "fa fa-angle-double-right minus";
                 } else {
-                    this[id] = "fa fa-angle-double-down minus";
+                    elem.css = "fa fa-angle-double-down minus";
                 }
             },
             fireClear: function () {

@@ -13,12 +13,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!--<link rel="import" href="../../../../../../bower_components/paper-slider/paper-slider.html">-->
+
 <link rel="import" href="opencga-sample-browser.html">
 
 <dom-module id="variant-browser-filter">
     <template>
-        <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        <style is="custom-style" include="jso-styles">
             select {
                 height: 20px;
                 width: 45px;
@@ -57,23 +57,6 @@
             <br>
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-                <!--Somatic filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SomaticFilter" aria-expanded="false" aria-controls="{{prefix}}somaticFilter">
-                                Somatic Filter
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}SomaticFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}somaticFilterHeading">
-                        <div class="panel-body">
-                            <template is="dom-repeat" items="{{somaticValues}}">
-                                <input type="radio" name="study" value="{{item}}"> {{item}}
-                            </template>
-                        </div>
-                    </div>
-                </div>
 
                 <!--Position filter-->
                 <div class="panel panel-default">
@@ -85,15 +68,14 @@
                             </a>
                         </h4>
                     </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
+                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
-                            Chromosomal Location:
-                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3"
-                                      placeholder="3:444-55555, 1:1-1000000"></textarea>
-                            Import from BED:
-                            <button type="button" class="btn btn-xs" on-click="">Import</button>
-                            <br>
-                            <br> Gene or SNPId:
+                            Chromosomal location:
+                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"></textarea>
+                            <!--Import from BED:-->
+                            <!--<button type="button" class="btn btn-xs" on-click="">Import</button>-->
+                            <!--<br>-->
+                            <br> Gene name or SNP id:
                             <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3"
                                       placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
                         </div>
@@ -112,21 +94,25 @@
                     <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
                         <div class="panel-body">
                             <div>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="SNV,SNP"> SNV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="MNV"> MNV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="CNV"> CNV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="SV"> SV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="INDEL"> INDEL
-                                </label>
+                                <!--<label class="checkbox-inline">-->
+                                <input type="checkbox" value="SNV,SNP"> SNV
+                                <br>
+                                <!--</label>-->
+                                <!--<label class="checkbox-inline">-->
+                                <input type="checkbox" value="MNV"> MNV
+                                <br>
+                                <!--</label>-->
+                                <!--<label class="checkbox-inline">-->
+                                <input type="checkbox" value="CNV"> CNV
+                                <br>
+                                <!--</label>-->
+                                <!--<label class="checkbox-inline">-->
+                                <input type="checkbox" value="SV"> SV
+                                <br>
+                                <!--</label>-->
+                                <!--<label class="checkbox-inline">-->
+                                <input type="checkbox" value="INDEL"> INDEL
+                                <!--</label>-->
                             </div>
                         </div>
                     </div>
@@ -146,9 +132,10 @@
                          aria-labelledby="{{prefix}}PopulationFrequencyHeading">
                         <div class="panel-body">
 
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-type="{{prefix}}Phase_3"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="{{prefix}}Phase_3">1000 Genomes
-                                population phase 3</label>
+                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3">
+                                1000 Genomes Phase 3
+                            </label>
                             <div id="{{prefix}}Phase_3" hidden>
                                 <label class="name">All populations MAF [ALL]</label>
                                 <div class="horizontal layout">
@@ -231,8 +218,8 @@
                             </div>
 
                             <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-type="{{prefix}}Esp_6500"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="{{prefix}}Esp_6500">ESP 6500</label>
+                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500">ESP 6500</label>
                             <div id="{{prefix}}Esp_6500" hidden>
                                 <label class="name">European american MAF</label>
                                 <div class="horizontal layout">
@@ -264,8 +251,8 @@
                             </div>
 
                             <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-type="{{prefix}}Exac"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-type="{{prefix}}Exac">EXAC</label>
+                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Exac"></i>
+                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Exac">EXAC</label>
                             <div id="{{prefix}}Exac" hidden>
                                 <label class="name">EXAC MAF</label>
                                 <div class="horizontal layout">
@@ -300,26 +287,26 @@
                             <div class="horizontal layout">
                                 <span>SIFT</span>
                                 <span>
-                                        <select name="siftOperator" id="{{prefix}}SiftOperator">
+                                    <select name="siftOperator" id="{{prefix}}SiftOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
                                             <option value=">">></option>
                                             <option value=">=">>=</option>
-                                        </select>
-                                    </span>
+                                    </select>
+                                </span>
                                 <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}SiftInput"></span>
                             </div>
                             <br>
                             <div class="horizontal layout">
                                 <span>Polyphen</span>
                                 <span>
-                                        <select name="polyphenOperator" id="{{prefix}}PolyphenOperator">
+                                    <select name="polyphenOperator" id="{{prefix}}PolyphenOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
                                             <option value=">">></option>
                                             <option value=">=">>=</option>
-                                        </select>
-                                    </span>
+                                    </select>
+                                </span>
                                 <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PolyphenInput"></span>
                             </div>
                         </div>
@@ -417,6 +404,7 @@
             </div>
         </div>
     </template>
+
     <script>
         Polymer({
             is: 'variant-browser-filter',
@@ -514,15 +502,21 @@
                 }
             },
             handleCollapseAction: function (e) {
-                console.log("HANDLE COLLAPSE ACTION", e)
+                console.log("HANDLE COLLAPSE ACTION", e);
 //                var id = e.currentTarget.dataset.type;
-                let id = e.srcElement.dataType;
-                debugger
-                this.$[id].hidden = !this.$[id].hidden;
-                if (this.$[id].hidden) {
-                    this[id] = "fa fa-angle-double-right minus";
+                let id = e.srcElement.dataId;
+                let elem = $('#' + id)[0];
+//                this.$[id].hidden = !this.$[id].hidden;
+//                if (this.$[id].hidden) {
+//                    this[id] = "fa fa-angle-double-right minus";
+//                } else {
+//                    this[id] = "fa fa-angle-double-down minus";
+//                }
+                elem.hidden = !elem.hidden;
+                if (elem.hidden) {
+                    elem.css = "fa fa-angle-double-right minus";
                 } else {
-                    this[id] = "fa fa-angle-double-down minus";
+                    elem.css = "fa fa-angle-double-down minus";
                 }
             },
             fireClear: function () {
