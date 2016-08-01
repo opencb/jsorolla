@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="../cellbase-annotation-consequencetype-grid.html">
+<link rel="import" href="../cellbase-population-frequency-grid.html">
 
 <dom-module id="cellbase-variantannotation-view">
     <template>
@@ -22,16 +23,11 @@
 
         <div>
             <ul id="myTabs" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab"
-                                                          data-toggle="tab">Consequence Types</a></li>
-                <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab"
-                                           data-toggle="tab">Population Frequencies</a></li>
-                <li role="presentation"><a href="#{{prefix}}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene
-                    Trait Association</a></li>
-                <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant
-                    Trait Association</a></li>
-                <li role="presentation"><a href="#{{prefix}}VariantAnnotationConservation" role="tab" data-toggle="tab">Conservation</a>
-                </li>
+                <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types</a></li>
+                <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab" data-toggle="tab">Population Frequencies</a></li>
+                <li role="presentation"><a href="#{{prefix}}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene Trait Association</a></li>
+                <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait Association</a></li>
+                <li role="presentation"><a href="#{{prefix}}VariantAnnotationConservation" role="tab" data-toggle="tab">Conservation</a></li>
                 <li role="presentation"><a href="#{{prefix}}VariantAnnotationCadd" role="tab" data-toggle="tab">CADD</a>
                 </li>
             </ul>
@@ -44,21 +40,13 @@
 
                 <!--Population frequency Tab-->
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationPopulationFrequencies">
-                    <table id="{{prefix}}populationFreqTable" data-search="true" data-show-columns="true"
-                           data-pagination="true"
-                           data-page-list="[5, 15, 30]"
-                           data-show-pagination-switch="true" data-show-export="true">
-
-                    </table>
-                    <div id="{{prefix}}Container"></div>
+                    <cellbase-population-frequency-grid data="{{variantAnnotation.populationFrequencies}}" prefix="{{prefix}}annotationView"></cellbase-population-frequency-grid>
                 </div>
 
                 <!--Gene Trait Association Tab-->
                 <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationGTA">
-                    <table id="{{prefix}}GTATable" data-search="true" data-show-columns="true" data-pagination="true"
-                           data-page-list="[10, 25, 50]"
+                    <table id="{{prefix}}GTATable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                            data-show-pagination-switch="true" data-show-export="true">
-
                     </table>
                 </div>
 
@@ -208,104 +196,9 @@
                 }
             },
             _variantChanged: function () {
-                console.log("cellbaseClient");
-                console.log(this.cellbaseClient);
-
                 let _this = this;
                 var success = function (response) {
                     _this.variantAnnotation = response.response[0].result[0];
-
-                    let popArray = [];
-                    let mafArray = [];
-                    for (let i = 0; i < _this.variantAnnotation.populationFrequencies.length; i++) {
-                        popArray.push(_this.variantAnnotation.populationFrequencies[i].study + "-" + _this.variantAnnotation.populationFrequencies[i].population);
-                        mafArray.push(Math.min(_this.variantAnnotation.populationFrequencies[i].refAlleleFreq, _this.variantAnnotation.populationFrequencies[i].altAlleleFreq))
-                    }
-
-                    $('#' + _this.prefix + 'Container').highcharts({
-                        chart: {
-                            type: 'bar'
-                        },
-                        title: {
-                            text: 'Population Frequencies'
-                        },
-                        xAxis: {
-                            categories: popArray,
-                            title: {
-                                text: null
-                            }
-                        },
-                        yAxis: {
-                            min: 0,
-                            title: {
-                                text: 'Minor Allele Frequency (MAF)',
-                                align: 'high'
-                            },
-                            labels: {
-                                overflow: 'justify'
-                            },
-                            max: 0.5
-                        },
-//                        tooltip: {
-//                            valueSuffix: ' millions'
-//                        },
-                        plotOptions: {
-                            bar: {
-                                dataLabels: {
-                                    enabled: true
-                                }
-                            }
-                        },
-                        legend: {
-                            layout: 'vertical',
-                            align: 'right',
-                            verticalAlign: 'top',
-                            x: -40,
-                            y: 80,
-                            floating: true,
-                            borderWidth: 1,
-                            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                            shadow: true
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        series: [{
-                            name: 'Minor Allele Frequency (MAF)',
-                            data: mafArray
-                        }]
-                    });
-
-                    // Population grid definition
-                    $('#' + _this.prefix + 'populationFreqTable').bootstrapTable('destroy');
-                    $('#' + _this.prefix + 'populationFreqTable').bootstrapTable({
-                        data: _this.variantAnnotation.populationFrequencies,
-                        pageSize: 5,
-                        columns: [
-                            [
-                                {
-                                    title: 'Study',
-                                    field: 'study'
-                                },
-                                {
-                                    title: 'Population',
-                                    field: 'population'
-                                },
-                                {
-                                    title: 'Ref/Alt',
-                                    formatter: _this.alleleFormatter
-                                },
-                                {
-                                    title: 'RefAlleleFreq',
-                                    field: 'refAlleleFreq'
-                                },
-                                {
-                                    title: 'AltAlleleFreq',
-                                    field: 'altAlleleFreq'
-                                }
-                            ]
-                        ]
-                    });
 
                     // Gene Trait Association definition
                     $('#' + _this.prefix + 'GTATable').bootstrapTable('destroy');
@@ -337,10 +230,6 @@
                     success: success,
                     async: true
                 });
-            },
-
-            alleleFormatter: function (value, row, index) {
-                return row.refAllele + "/" + row.altAllele;
             }
         });
     </script>

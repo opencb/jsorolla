@@ -1,0 +1,81 @@
+<dom-module id="beacon-tool">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div style="width: 60%; margin-left: 50px">
+            <button type="button" class="btn btn-secondary" on-click="loadExample">Example</button>
+            <br><br>
+            <div class="form-group row">
+                <label for="datasetInput" class="col-xs-2 col-form-label">Dataset</label>
+                <div class="col-xs-8">
+                    <select class="form-control" id="datasetInput">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="refNameInput" class="col-xs-2 col-form-label">Reference Name</label>
+                <div class="col-xs-3">
+                    <select class="form-control" id="refNameInput">
+                        <option>1</option>
+                        <option>2</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="startInput" class="col-xs-2 col-form-label">Start</label>
+                <div class="col-xs-3">
+                    <input class="form-control" type="text" value="" id="startInput">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="alleleInput" class="col-xs-2 col-form-label">Allele</label>
+                <div class="col-xs-3">
+                    <input class="form-control" type="text" value="" id="alleleInput">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-xs-2 col-form-label">Format Type</label>
+                <div class="col-xs-3">
+                    <input class="form-check-input" type="radio" name="formatType" id="textType" value="text"> Text
+                    <input class="form-check-input" type="radio" name="formatType" id="jsonType" value="json"> JSON
+                </div>
+            </div>
+            <div class="form-group row col-xs-2">
+                <button type="reset" class="btn btn-primary" on-click="clearFields">Reset</button>
+                <button type="submit" class="btn btn-primary" on-click="execute">Submit</button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'beacon-tool',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                }
+            },
+            clearFields: function(e) {
+                this.$.datasetInput.value = "";
+                this.$.refNameInput.value = "";
+                this.$.startInput.value = "";
+                this.$.alleleInput.value = "";
+                this.$.textType.checked = false;
+                this.$.jsonType.checked = false;
+            },
+            loadExample: function() {
+//                this.$.datasetInput.value = "PRJEB4019 - 1000 Genomes Phase 1 Analysis";
+//                this.$.refNameInput.value = "11";
+//                $("#refNameInput").val(11);
+//                $("#refNameInput").change();
+                this.$.startInput.value = "110993";
+                this.$.alleleInput.value = "INDEL";
+                this.$.jsonType.checked = true;
+            },
+            execute: function(e) {
+                console.log(this.opencgaClient)
+            }
+        });
+    </script>
+</dom-module>
