@@ -8,17 +8,17 @@
             <div class="form-group row">
                 <label for="datasetInput" class="col-xs-2 col-form-label">Dataset</label>
                 <div class="col-xs-8">
-                    <select class="form-control" id="datasetInput">
-                        <option></option>
+                    <select class="form-control" name="dataset" id="datasetInput">
+                        <option>PRJEB4019 - 1000 Genomes Phase 1 Analysis</option>
                     </select>
                 </div>
             </div>
             <div class="form-group row">
                 <label for="refNameInput" class="col-xs-2 col-form-label">Reference Name</label>
                 <div class="col-xs-3">
-                    <select class="form-control" id="refNameInput">
+                    <select class="form-control" name="refName" id="refNameInput">
                         <option>1</option>
-                        <option>2</option>
+                        <option>11</option>
                     </select>
                 </div>
             </div>
@@ -65,10 +65,8 @@
                 this.$.jsonType.checked = false;
             },
             loadExample: function() {
-//                this.$.datasetInput.value = "PRJEB4019 - 1000 Genomes Phase 1 Analysis";
-//                this.$.refNameInput.value = "11";
-//                $("#refNameInput").val(11);
-//                $("#refNameInput").change();
+                this.$.datasetInput.value = "PRJEB4019 - 1000 Genomes Phase 1 Analysis";
+                this.$.refNameInput.value = "11";
                 this.$.startInput.value = "110993";
                 this.$.alleleInput.value = "INDEL";
                 this.$.jsonType.checked = true;

@@ -63,7 +63,7 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}Position" aria-expanded="false" aria-controls="{{prefix}}Position">
+                               href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
                                 Position
                             </a>
                         </h4>
@@ -380,7 +380,7 @@
                     </div>
                     <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
-                            <textarea id="{{prefix}}bierAppGeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
+                            <textarea id="{{prefix}}GeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
                         </div>
                     </div>
                 </div>
@@ -397,7 +397,7 @@
                     </div>
                     <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
                         <div class="panel-body">
-                            <textarea id="{{prefix}}bierAppHumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
+                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
                         </div>
                     </div>
                 </div>
@@ -502,16 +502,8 @@
                 }
             },
             handleCollapseAction: function (e) {
-                console.log("HANDLE COLLAPSE ACTION", e);
-//                var id = e.currentTarget.dataset.type;
                 let id = e.srcElement.dataId;
                 let elem = $('#' + id)[0];
-//                this.$[id].hidden = !this.$[id].hidden;
-//                if (this.$[id].hidden) {
-//                    this[id] = "fa fa-angle-double-right minus";
-//                } else {
-//                    this[id] = "fa fa-angle-double-down minus";
-//                }
                 elem.hidden = !elem.hidden;
                 if (elem.hidden) {
                     elem.css = "fa fa-angle-double-right minus";
@@ -520,53 +512,48 @@
                 }
             },
             fireClear: function () {
+                // Position
+                this.$$("#" + this.prefix + "LocationTextarea").value = "";
+                this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
                 // Type
-                var types = this.$.type.querySelectorAll("input:checked");
+                var types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
                 for (var i = 0; i < types.length; i++) {
                     var type = types[i];
                     type.checked = false;
                 }
                 // Freqs
-                this.$["1000GENOMES_phase_3_ALL"].value = "";
-                this["1000GENOMES_phase_1_ALL"] = "";
-                this.$["1000GENOMES_phase_3_ALL_op"].value = "<";
-                this.$["1000GENOMES_phase_3_AMR"].value = "";
-                this["1000GENOMES_phase_3_AMR"] = "";
-                this.$["1000GENOMES_phase_3_AMR_op"].value = "<";
-                this.$["1000GENOMES_phase_3_SAS"].value = "";
-                this["1000GENOMES_phase_3_SAS"] = "";
-                this.$["1000GENOMES_phase_3_SAS_op"].value = "<";
-                this.$["1000GENOMES_phase_3_EAS"].value = "";
-                this["1000GENOMES_phase_3_EAS"] = "";
-                this.$["1000GENOMES_phase_3_EAS_op"].value = "<";
-                this.$["1000GENOMES_phase_3_AFR"].value = "";
-                this["1000GENOMES_phase_3_AFR"] = "";
-                this.$["1000GENOMES_phase_3_AFR_op"].value = "<";
-                this.$["1000GENOMES_phase_3_EUR"].value = "";
-                this["1000GENOMES_phase_3_EUR"] = "";
-                this.$["1000GENOMES_phase_3_EUR_op"].value = "<";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value = "";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL_op").value = "<";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value = "";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR_op").value = "<";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value = "";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS_op").value = "<";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value = "";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS_op").value = "<";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value = "";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR_op").value = "<";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value = "";
+                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR_op").value = "<";
 
-                this.$["ESP_6500_EA"].value = "";
-                this["ESP_6500_EA"] = "";
-                this.$["ESP_6500_EA_op"].value = "<";
-                this.$["ESP_6500_AA"].value = "";
-                this["ESP_6500_AA"] = "";
-                this.$["ESP_6500_AA_op"].value = "<";
-                this.$["EXAC_ALL"].value = "";
-                this["EXAC_ALL"] = "";
-                this.$["EXAC_ALL_op"].value = "<";
-
+                this.$$("#" + this.prefix + "ESP_6500_EA").value = "";
+                this.$$("#" + this.prefix + "ESP_6500_EA_op").value = "<";
+                this.$$("#" + this.prefix + "ESP_6500_AA").value = "";
+                this.$$("#" + this.prefix + "ESP_6500_AA_op").value = "<";
+                this.$$("#" + this.prefix + "EXAC_ALL").value = "";
+                this.$$("#" + this.prefix + "EXAC_ALL_op").value = "<";
                 // Protein Substitution scores
-                this.$.siftInput.value = "";
-                this.$.siftOperator.value = "<";
-                this.$.polyphenInput.value = "";
-                this.$.polyphenOperator.value = "<";
-
+                this.$$("#" + this.prefix + "SiftInput").value = "";
+                this.$$("#" + this.prefix + "SiftOperator").value = "<";
+                this.$$("#" + this.prefix + "PolyphenInput").value = "";
+                this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
                 // Conservation
-                this.$.phylopInput.value = "";
-                this.$.phylopOperator.value = "<";
-                this.$.phastconsInput.value = "";
-                this.$.phastconsOperator.value = "<";
+                this.$$("#" + this.prefix + "PhylopInput").value = "";
+                this.$$("#" + this.prefix + "PhylopOperator").value = "<";
+                this.$$("#" + this.prefix + "PhastconsInput").value = "";
+                this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
+                // TODO add consequence type
+                this.$$("#" + this.prefix + "GeneOntologyTextarea").value = "";
+                this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = "";
             },
             fireFilter: function () {
 
@@ -575,7 +562,7 @@
                 var query = {};
 
                 // Type
-                var types = this.$.type.querySelectorAll("input:checked");
+                var types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
                 var typesAux = [];
                 if (types != "") {
                     for (var i = 0; i < types.length; i++) {
@@ -589,34 +576,34 @@
                 var popFreq = [];
 
                 // 1000GENOMES_phase_3
-                if (this.$["1000GENOMES_phase_3_ALL"].value != "") {
+                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value != "") {
                     popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
                 }
-                if (this.$["1000GENOMES_phase_3_AMR"].value != "") {
+                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value != "") {
                     popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
                 }
-                if (this.$["1000GENOMES_phase_3_SAS"].value != "") {
+                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value != "") {
                     popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
                 }
-                if (this.$["1000GENOMES_phase_3_EAS"].value != "") {
+                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value != "") {
                     popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
                 }
-                if (this.$["1000GENOMES_phase_3_AFR"].value != "") {
+                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value != "") {
                     popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
                 }
-                if (this.$["1000GENOMES_phase_3_EUR"].value != "") {
+                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value != "") {
                     popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
                 }
 
                 //ESP_6500
-                if (this.$["ESP_6500_EA"].value != "") {
+                if (this.$$("#" + this.prefix + "ESP_6500_EA").value != "") {
                     popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
                 }
-                if (this.$["ESP_6500_AA"].value != "") {
+                if (this.$$("#" + this.prefix + "ESP_6500_AA").value != "") {
                     popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
                 }
 
-                if (this.$["EXAC_ALL"].value != "") {
+                if (this.$$("#" + this.prefix + "EXAC_ALL").value != "") {
                     popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
                 }
 
@@ -632,23 +619,23 @@
                 // Protein Substitution scores
                 var sift;
                 var polyphen;
-                if (this.$.siftInput.value != "") {
-                    sift = this.$.siftOperator.value + this.$.siftInput.value;
+                if (this.$$("#" + this.prefix + "SiftInput").value != "") {
+                    sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                 }
                 this.sift = sift;
-                if (this.$.polyphenInput.value != "") {
-                    polyphen = this.$.polyphenOperator.value + this.$.polyphenInput.value;
+                if (this.$$("#" + this.prefix + "PolyphenInput").value != "") {
+                    polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                 }
                 this.polyphen = polyphen;
 
                 // Conservation
                 var conserArr = [];
-                if (this.$.phylopInput.value != "") {
-                    let phylop = "phylop" + this.$.phylopOperator.value + this.$.phylopInput.value;
+                if (this.$$("#" + this.prefix + "PhylopInput").value != "") {
+                    let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
                     conserArr.push(phylop);
                 }
-                if (this.$.phastconsInput.value != "") {
-                    let phastCons = "phastCons" + this.$.phastconsOperator.value + this.$.phastconsInput.value;
+                if (this.$$("#" + this.prefix + "PhastconsInput").value != "") {
+                    let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
                     conserArr.push(phastCons);
                 }
                 this.conservation = conserArr.join(',');
@@ -662,8 +649,8 @@
 
             },
             _getPopulationQuery: function (study, population, type) {
-                var value = parseFloat(this.$[study + "_" + population].value);
-                var value_op = this.$[study + "_" + population + "_op"].value;
+                var value = parseFloat(this.$$("#" + this.prefix + study + "_" + population).value);
+                var value_op = this.$$("#" + this.prefix + study + "_" + population + "_op").value;
                 value = study + ":" + population + value_op + value;
                 return value;
             },
@@ -679,14 +666,14 @@
                 }
                 var val = "";
                 if (pop.length == 4) {
-                    this.$[population + "_op"].value = aux[3];
+                    this.$$("#" + this.prefix + population + "_op").value = aux[3];
                 } else if (pop.length == 5) {
-                    this.$[population + "_op"].value = aux[3] + aux[4];
+                    this.$$("#" + this.prefix + population + "_op").value = aux[3] + aux[4];
                 }
                 for (var i = n; i < aux.length; i++) {
                     val += aux[i];
                 }
-                this.$[population].value = val;
+                this.$$("#" + this.prefix + population).value = val;
             },
             search: function (query) {
                 query.sid = Cookies("bioinfo_sid");
