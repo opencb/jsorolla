@@ -4,17 +4,19 @@
 
         <div>
             <!--Different views: List, File, Cohort -->
-            <div class="btn-group sample-browser-menu">
-                <a class="btn btn-default" href="#{{prefix}}SampleGridView">
-                    <i class="fa fa-list" title="List of Samples"></i>
-                </a>
-                <a class="btn btn-default" href="#{{prefix}}FileTreeView">
-                    <i class="fa fa-folder-open" title="View by Files"></i>
-                </a>
-                <a class="btn btn-default" href="#">
-                    <i class="fa fa-sitemap" title="View by Cohorts"></i>
-                </a>
+            <div class="btn-group" style="float: right;">
+                <!--Add href to both button and icon so that it loads the corresponding div correctly-->
+                <button class="btn btn-default" type="button" href="#{{prefix}}SampleGridView" on-click="changeView">
+                    <i class="fa fa-list" title="List of Samples" href="#{{prefix}}SampleGridView"></i>
+                </button>
+                <button class="btn btn-default" type="button" href="#{{prefix}}FileTreeView" on-click="changeView">
+                    <i class="fa fa-folder-open" title="View by Files" href="#{{prefix}}FileTreeView"></i>
+                </button>
+                <button class="btn btn-default" type="button" href="#{{prefix}}CohortsView" on-click="changeView">
+                    <i class="fa fa-sitemap" title="View by Cohorts" href="#{{prefix}}CohortsView"></i>
+                </button>
             </div>
+            <br><br>
 
             <!--Sample Grid-->
             <div style="padding: 10px;" id="{{prefix}}SampleGridView" class="hide-content">
@@ -26,8 +28,11 @@
             <!--File Tree-->
             <div id="{{prefix}}FileTreeView" class="collapse hide-content">
                 Tree
-                <div id="{{prefix}}fileTree"></div>
-
+                <div id="{{prefix}}FileTree"></div>
+            </div>
+            <!--Cohort view-->
+            <div id="{{prefix}}CohortsView" class="collapse hide-content">
+                Yet to work on it!
             </div>
         </div>
     </template>
@@ -80,12 +85,10 @@
                     ]
                 ];
             },
-            attached: function() {
-                $(".sample-browser-menu a").on('click', function(e) {
-                    e.preventDefault(); // stops link form loading
-                    $('.hide-content').hide(); // hides all content divs
-                    $($(this).attr('href')).show(); //get the href and use it find which div to show
-                });
+            changeView: function(e) {
+                e.preventDefault();
+                $('.hide-content').hide();
+                $(e.target.href).show(); // event triggered contains href as it is added in both button and icon
             },
             fetchSamples: function () {
                 this.samples = []; // When study changes , empty the samples
