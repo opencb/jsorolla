@@ -1,0 +1,62 @@
+<dom-module id="opencga-projects">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .center {
+                margin: auto;
+                text-align: justify;
+                width: 60%;
+            }
+        </style>
+
+        <div>
+            <h2 class="center">Projects</h2>
+            <br>
+            <table class="table table-bordered center">
+                <thead>
+                    <tr class="table-header" style="background-color: #eee">
+                        <th>Project</th>
+                        <th>Studies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template is="dom-repeat" items="{{projects}}">
+                        <tr>
+                            <td>
+                                <a href="#" on-click="fireSelectProject">{{item.name}}</a>
+                            </td>
+                            <td>
+                                <ul class="list-unstyled">
+                                    <template is="dom-repeat" items="{{item.studies}}" as="study">
+                                        <li>
+                                            <a href="#" on-click="fireSelectStudy" data-id="{{study.id}}">{{study.name}}</a>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-projects',
+            properties: {
+                projects: {
+                    type: Array,
+                    value: []
+                }
+            },
+            fireSelectProject: function (e) {
+                e.preventDefault();
+                this.fire('project', {project: e.target.innerHTML});
+            },
+            fireSelectStudy: function (e) {
+                e.preventDefault();
+                this.fire('study', {studyName: e.target.innerHTML, studyId: e.target.dataId});
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,59 @@
+<dom-module id="opencga-project">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .center {
+                margin: auto;
+                text-align: justify;
+                width: 60%;
+            }
+        </style>
+
+        <div>
+            <h2 class="center">{{project.name}}</h2>
+            <br>
+
+            <table class="table table-bordered center">
+                <thead>
+                <tr class="table-header" style="background-color: #eee">
+                    <th>Study</th>
+                    <th>Date</th>
+                    <th>Files</th>
+                    <th>Samples</th>
+                    <th>Jobs</th>
+                    <th>Individuals</th>
+                </tr>
+                </thead>
+                <tbody>
+                <template is="dom-repeat" items="{{project.studies}}">
+                    <tr>
+                        <td>
+                            <a href="#" on-click="fireSelectStudy" data-id="{{study.id}}">{{item.name}}</a>
+                        </td>
+                        <td>{{item.creationDate}}</td>
+                        <td>{{item.files}}</td>
+                        <td>{{item.samples}}</td>
+                        <td>{{item.jobs}}</td>
+                        <td>{{item.individuals}}</td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-project',
+            properties: {
+                project: {
+                    type: Object,
+                    value: []
+                }
+            },
+            fireSelectStudy: function (e) {
+                e.preventDefault();
+                this.fire('study', {studyName: e.target.innerHTML, studyId: e.target.dataId});
+            }
+        });
+    </script>
+</dom-module>
