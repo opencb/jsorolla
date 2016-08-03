@@ -428,7 +428,7 @@
                             me.uploading = false;
                             me.message = msg;
                         }
-                    };                    
+                    };
                     OpencgaManager.files.upload(config);
                 } else {
                     alert("Please select a file");
@@ -462,7 +462,6 @@
                     },
                     request: {
                         success: function(response) {
-                          debugger
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 console.log("index");
                                 console.log(response);
