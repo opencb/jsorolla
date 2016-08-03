@@ -485,7 +485,7 @@
 
         <!-- Modal dialog for Sample Browser -->
         <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
-            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -564,8 +564,6 @@
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
-                    console.log("whaatttt?!")
-                    console.log(this.prefix)
                 }
             },
             typeSelected: function (e) {
