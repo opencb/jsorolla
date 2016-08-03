@@ -373,6 +373,14 @@ class Files extends OpenCGAParentClass {
         return this.get("files", id, "info", params, options);
     }
 
+    groupBy(params, options) {
+        return this.get("files", undefined, "groupBy", params, options);
+    }
+
+    treeView(id, params, options) {
+        return this.get("files", id, "tree-view", params, options);
+    }
+
     refresh(id, params, options) {
         return this.get("files", id, "refresh", params, options);
     }
