@@ -25,11 +25,45 @@
 
                 </table>
             </div>
+
             <!--File Tree-->
             <div id="{{prefix}}FileTreeView" class="collapse hide-content">
-                Tree
-                <div id="{{prefix}}FileTree"></div>
+                <div class="col-sm-4">
+                    <h4>Search</h4>
+                    <div class="form-group">
+                        <label for="input-search" class="sr-only">Search Tree:</label>
+                        <input type="text" class="form-control" id="input-search" placeholder="Type to search..." value="" on-keyup="search">
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox" id="chk-ignore-case" value="false">
+                            Ignore Case
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox" id="chk-exact-match" value="false">
+                            Exact Match
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox" id="chk-reveal-results" value="false">
+                            Reveal Results
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-default" id="btn-search" on-click="search">Search</button>
+                    <button type="button" class="btn btn-default" id="btn-clear-search" on-click="clear">Clear</button>
+                    <br><br>
+                    <h4>Results</h4>
+                    <div id="search-output"></div>
+                </div>
+                <div class="col-sm-8">
+                    <h4>Tree</h4>
+                    <div id="{{prefix}}FileTree"></div>
+                </div>
             </div>
+
             <!--Cohort view-->
             <div id="{{prefix}}CohortsView" class="collapse hide-content">
                 Yet to work on it!
@@ -130,8 +164,9 @@
                     let studyFiles = [];
                     this.opencgaClient.studies().files(this.study).then(function (response) {
                         studyFiles = response.response[0].result;
+                        console.log('studyFiles', studyFiles)
                         $('#' + _this.prefix +'FileTree').treeview({
-                            data: _this.getTree(studyFiles)
+                            data: _this.getTree(studyFiles) // default : two levels
                         });
                     });
                 }
@@ -145,12 +180,14 @@
                 return row.status.date;
                 // TODO convert date to UTC string
             },
+            
+            // Bootstrap Tree 
             getTree: function (studyFiles) {
                 let data = [];
                 for (let i=0; i<studyFiles.length; i++) {
                     let obj = {};
                     obj.text = studyFiles[i].name;
-                    // TODO Two level heirarchy is achieved and yet the data load is so heavy. Need to find a way to load data dynamically
+                    // TODO Two level hierarchy is achieved and yet the data load is so heavy. Need to find a way to load data dynamically
 //                    let nodes = [];
 //                    for (let j=0; j<studyFiles[i].sampleIds.length; j++) {
 //                        let child = {};
@@ -161,6 +198,28 @@
                     data.push(obj);
                 }
                 return data;
+            },
+            search: function (e) {
+                let pattern = this.$['input-search'].value;
+                let options = {
+                    ignoreCase: this.$['chk-ignore-case'].checked,
+                    exactMatch: this.$['chk-exact-match'].checked,
+                    revealResults: this.$['chk-reveal-results'].checked
+                };
+                let results = $('#' + this.prefix +'FileTree').treeview('search', [ pattern, options ]);
+                let output = '<p><b>' + results.length + '</b> matches found</p><hr>';
+                for (let i in results) {
+                    output += '<p> ' + results[i].text + '</p>';
+                }
+                $('#search-output').html(output);
+            },
+            clear: function(e) {
+                $('#' + this.prefix +'FileTree').treeview('clearSearch');
+                this.$['input-search'].value = "";
+                this.$['search-output'].value = "";
+                this.$['chk-ignore-case'].checked = false;
+                this.$['chk-exact-match'].checked = false;
+                this.$['chk-reveal-results'].checked = false;
             }
         });
     </script>
