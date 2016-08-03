@@ -404,6 +404,9 @@ class Files extends OpenCGAParentClass {
     filesByFolder(id, params, options) {
         return this.get("files", id, "files", params, options);
     }
+    treeView(id, params, options) {
+        return this.get("files", id, "tree-view", params, options);
+    }
 
     createFolder(params, options) {
         return this.get("files", undefined, "create-folder", params, options);

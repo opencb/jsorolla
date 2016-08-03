@@ -88,6 +88,10 @@
                 },
                 prefix: {
                     type: String
+                },
+                data: {
+                    type: Array,
+                    value: []
                 }
             },
             ready: function () {
@@ -162,13 +166,24 @@
 
                     // Bootstrap Tree View
                     let studyFiles = [];
-                    this.opencgaClient.studies().files(this.study).then(function (response) {
+                    // Testing
+                    let opencgaClientConfig1 = new OpenCGAClientConfig('squalet.hpc.cam.ac.uk:8080/opencga',
+                            'v1', 'opencga_sId', 'opencga_userId');
+                    let opencgaClient1 = new OpenCGAClient(opencgaClientConfig1);
+                    opencgaClient1.files().treeView('7', {sid: 'xV5Z3mSEdRPmM3XQS1jG', include: 'path,name'}).then(function (response) {
+                        console.log('opencgaClient1 response', response)
                         studyFiles = response.response[0].result;
-                        console.log('studyFiles', studyFiles)
                         $('#' + _this.prefix +'FileTree').treeview({
                             data: _this.getTree(studyFiles) // default : two levels
                         });
                     });
+//                    this.opencgaClient.studies().files(this.study).then(function (response) {
+//                        studyFiles = response.response[0].result;
+//                        console.log('studyFiles', studyFiles)
+//                        $('#' + _this.prefix +'FileTree').treeview({
+//                            data: _this.getTree(studyFiles) // default : two levels
+//                        });
+//                    });
                 }
             },
             getSampleName: function () {
@@ -180,22 +195,16 @@
                 return row.status.date;
                 // TODO convert date to UTC string
             },
-            
-            // Bootstrap Tree 
+
+            // Bootstrap Tree
             getTree: function (studyFiles) {
                 let data = [];
                 for (let i=0; i<studyFiles.length; i++) {
-                    let obj = {};
-                    obj.text = studyFiles[i].name;
-                    // TODO Two level hierarchy is achieved and yet the data load is so heavy. Need to find a way to load data dynamically
-//                    let nodes = [];
-//                    for (let j=0; j<studyFiles[i].sampleIds.length; j++) {
-//                        let child = {};
-//                        child.text = studyFiles[i].sampleIds[j];
-//                        nodes.push(child);
-//                    }
-//                    obj.nodes = nodes;
-                    data.push(obj);
+                    if (studyFiles[i].children.length > 0) {
+                        data.push({text: studyFiles[i].file.name, nodes: this.getTree(studyFiles[i].children)});
+                    } else {
+                        data.push({text: studyFiles[i].file.name});
+                    }
                 }
                 return data;
             },
