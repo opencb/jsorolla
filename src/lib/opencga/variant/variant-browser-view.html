@@ -15,21 +15,28 @@
   -->
 
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="../../cellbase/genome-context.html">
 <link rel="import" href="variant-browser-gene-view.html">
 
 <dom-module id="variant-browser-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
+        <style>
+            /*doesn't work*/
+            .addStyle table thead th{
+                background-color: #eee;
+            }
+        </style>
 
         <div>
             <!-- Variant Browser Grid -->
-            <div style="padding: 10px; ">
+            <div style="padding: 10px;" class="addStyle">
                 <template is="dom-if" if="{{study.name != ''}}">
                     <!--<h3>{{study.name}}</h3>-->
                     <h3>{{title}}</h3>
                 </template>
 
-                <table id="{{prefix}}BierAppToolGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                        data-show-pagination-switch="true" data-show-export="true">
 
                 </table>
@@ -37,36 +44,30 @@
 
             <!--Tabs-->
             <div>
-                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}"></cellbase-variantannotation-view>
-                <!--<ul id="bierAppViewTabs" class="nav nav-tabs" role="tablist">-->
-                <!--<li role="presentation" class="active"><a href="#bierappGenomeView" role="tab" data-toggle="tab">Genome Context</a></li>-->
-                <!--<li role="presentation"><a href="#bierappPopFreq" role="tab" data-toggle="tab">Population Frequency</a></li>-->
-                <!--<li role="presentation"><a href="#bierappPhenotype" role="tab" data-toggle="tab">Phenotype</a></li>-->
-                <!--<li role="presentation"><a href="#bierappEffect" role="tab" data-toggle="tab">Effect</a></li>-->
-                <!--</ul>-->
+                <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab">Genotypes & Files</a></li>
+                </ul>
 
-                <!--<div class="tab-content">-->
-                <!--&lt;!&ndash;Genome Context Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane active" id="bierappGenomeView">-->
-                <!--<br>-->
-                <!--<div id="variationGenomeViewer"></div>-->
-                <!--</div>-->
+                <div class="tab-content">
+                    <!--Genome Context Tab-->
+                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
+                        <br>
+                        <genome-context></genome-context>
+                    </div>
 
-                <!--&lt;!&ndash;Population Frequency Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane" id="bierappPopFreq">-->
-                <!--Population Frequency-->
-                <!--</div>-->
+                    <!--Annotation Tab-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Annotation">
+                        <br>
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
+                    </div>
 
-                <!--&lt;!&ndash;Phenotype Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane" id="bierappPhenotype">-->
-                <!--Phenotype-->
-                <!--</div>-->
-
-                <!--&lt;!&ndash;Effect Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane" id="bierappEffect">-->
-                <!--Effect-->
-                <!--</div>-->
-                <!--</div>-->
+                    <!--Genotypes & Files Tab-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                        Genotypes and files
+                    </div>
+                </div>
             </div>
         </div>
     </template>
@@ -139,9 +140,6 @@
                     this.prefix = Utils.randomString(6);
                 }
             },
-            attached: function() {
-                this.renderGenomeViewer();
-            },
             renderFromServer: function () {
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
@@ -189,8 +187,8 @@
                     }
 
                     let _numTotal = -1;
-                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable('destroy');
-                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable({
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
                         url: this._url,
                         method: 'get',
                         sidePagination: 'server',
@@ -225,12 +223,12 @@
                             }
                         }
                     });
-                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable('showLoading');
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
             },
             renderFromLocal: function () {
-                $('#' + this.prefix + 'BierAppToolGrid').bootstrapTable('destroy');
-                $('#' + this.prefix + 'BierAppToolGrid').bootstrapTable({
+                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                     data: this.data,
                     columns: this.cols
                 });
@@ -338,6 +336,16 @@
                 }
                 return '-';
             },
+            gerpFormatter: function (value, row, index) {
+                if (typeof row !== "undefined") {
+                    for (let i = 0; i < row.annotation.conservation.length; i++) {
+                        if (row.annotation.conservation[i].source == "gerp") {
+                            return Number(row.annotation.conservation[i].score).toFixed(3);
+                        }
+                    }
+                }
+                return '-';
+            },
             sampleFormatter: function (value, row, index) {
                 if (typeof row !== "undefined") {
                     // NOTE: There are always 5 columns before the samples
@@ -431,34 +439,39 @@
                             sortable: true,
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.variantFormatter
+                            formatter: this.variantFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Alleles',
                             field: 'allele',
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.alleleFormatter
+                            formatter: this.alleleFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'SNPId',
                             field: 'id',
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.snpFormatter
+                            formatter: this.snpFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Genes',
                             field: 'genes',
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.geneFormatter
+                            formatter: this.geneFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Type',
                             field: 'type',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            halign: 'center'
                         },
                         {
                             title: 'Consequence Type',
@@ -466,250 +479,128 @@
                             sortable: true,
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.consequenceTypeFormatter
+                            formatter: this.consequenceTypeFormatter,
+                            halign: 'center'
                         },
                         {
-                            title: 'DP',
-                            field: 'dp',
-                            colspan: 1,
-                            rowspan: 2
+                            title: 'Protein Substitution Score',
+                            field: 'Protein Substitution Score',
+                            colspan: 2,
+                            rowspan: 1,
+                            halign: 'center'
                         },
                         {
-                            title: 'SIFT',
-                            field: 'sift',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.proteinScoreFormatter
+                            title: 'Conservation',
+                            field: 'Conservation',
+                            colspan: 3,
+                            rowspan: 1,
+                            halign: 'center'
                         },
+
                         {
-                            title: 'Polyphen',
-                            field: 'polyphen',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.proteinScoreFormatter
-                        },
-                        {
-                            title: 'PhyloP',
-                            field: 'PhyloP',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.phylopFormatter
-                        },
-                        {
-                            title: 'PhastCons',
-                            field: 'PhastCons',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.phastconsFormatter
-                        },
-                        {
-                            title: '1000G MAF (phase 3)',
-                            field: '1000G MAF (phase 3)',
-                            colspan: 6,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'EXAC',
-                            field: 'exac',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.populationFrequenciesFormatter
+                            title: 'Population Frequency',
+                            field: 'Population Frequency',
+                            colspan: 3,
+                            rowspan: 1,
+                            halign: 'center'
                         },
                         {
                             title: 'Phenotype',
                             field: 'Phenotype',
                             colspan: 3,
-                            rowspan: 1
+                            rowspan: 1,
+                            halign: 'center'
                         }
                     ],
                     [
                         {
-                            title: 'ALL',
-                            field: 'all',
+                            title: 'SIFT',
+                            field: 'sift',
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.populationFrequenciesFormatter
+                            formatter: this.proteinScoreFormatter,
+                            halign: 'center'
                         },
                         {
-                            title: 'AMR',
-                            field: 'amr',
+                            title: 'Polyphen',
+                            field: 'polyphen',
                             colspan: 1,
                             rowspan: 1,
-                            formatter: this.populationFrequenciesFormatter
+                            formatter: this.proteinScoreFormatter,
+                            halign: 'center'
                         },
                         {
-                            title: 'SAS',
-                            field: 'sas',
+                            title: 'PhyloP',
+                            field: 'PhyloP',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.phylopFormatter,
+                            halign: 'center'
                         },
                         {
-                            title: 'EAS',
-                            field: 'eas',
+                            title: 'PhastCons',
+                            field: 'PhastCons',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.phastconsFormatter,
+                            halign: 'center'
                         },
                         {
-                            title: 'AFR',
-                            field: 'afr',
+                            title: 'Gerp',
+                            field: 'gerp',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.gerpFormatter,
+                            halign: 'center'
                         },
                         {
-                            title: 'EUR',
-                            field: 'eur',
+                            title: '1000G_P3',
+                            field: '1000G_P3',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            formatter: this.populationFrequenciesFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'ExAC',
+                            field: 'ExAC',
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: this.populationFrequenciesFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'ESP_6500',
+                            field: 'ESP_6500',
+                            colspan: 1,
+                            rowspan: 1,
+                            formatter: this.populationFrequenciesFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Clinvar',
                             field: 'annotation.variantTraitAssociation.clinvar.accession',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            halign: 'center'
                         },
                         {
                             title: 'Cosmic',
                             field: 'annotation.variantTraitAssociation.cosmic.mutationId',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            halign: 'center'
                         },
                         {
                             title: 'GWAS',
                             field: 'gwas',
                             colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            halign: 'center'
                         }
                     ]
                 ];
                 return initCols;
-            },
-            renderGenomeViewer: function() {
-                console.log("genome maps")
-                var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-                this.genomeViewer = new GenomeViewer({
-                    cellBaseHost: "http://bioinfo.hpc.cam.ac.uk/cellbase",
-                    cellBaseVersion: 'v3',
-                    target: this.$$('#variationGenomeViewer'),
-//                    width: this.$$('#variationGenomeViewer').getBoundingClientRect().width,
-                    width: 1200,
-                    region: region,
-                    availableSpecies: DEFAULT_SPECIES.vertebrates,
-                    species: DEFAULT_SPECIES.vertebrates[0],
-                    sidePanel: false,
-                    autoRender: true,
-                    resizable: true,
-                    karyotypePanelConfig: {
-                        collapsed: false,
-                        collapsible: true
-                    },
-                    chromosomePanelConfig: {
-                        collapsed: false,
-                        collapsible: true
-                    },
-                    navigationBarConfig: {
-                        componentsConfig: {
-                        }
-                    },
-                    handlers: {
-                        'region:change': function(e) {
-                            console.log(e)
-                        }
-                    }
-                });
-                var tracks = [];
-                this.sequence = new FeatureTrack({
-                    title: 'Sequence',
-                    height: 25,
-                    visibleRegionSize: 200,
-                    renderer: new SequenceRenderer(),
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "sequence",
-                        params: {},
-                        species: this.genomeViewer.species,
-                        cacheConfig: {
-                            chunkSize: 100
-                        }
-                    })
-                });
-                tracks.push(this.sequence);
-                this.gene = new GeneTrack({
-                    title: 'Gene',
-                    minHistogramRegionSize: 20000000,
-                    maxLabelRegionSize: 10000000,
-                    minTranscriptRegionSize: 200000,
-                    height: 100,
-                    renderer: new GeneRenderer({
-                        handlers: {
-                            'feature:click': function(e) {
-                                console.log(e)
-                            }
-                        }
-                    }),
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "gene",
-                        species: this.genomeViewer.species,
-                        params: {
-                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                        },
-                        cacheConfig: {
-                            chunkSize: 100000
-                        }
-                    })
-                });
-                tracks.push(this.gene);
-                var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
-                renderer.on({
-                    'feature:click': function(event) {
-                        // feature click event example
-                        console.log(event)
-                    }
-                });
-                var gene = new FeatureTrack({
-                    minHistogramRegionSize: 20000000,
-                    maxLabelRegionSize: 10000000,
-                    height: 100,
-                    renderer: renderer,
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "gene",
-                        params: {
-                            exclude: 'transcripts,chunkIds'
-                        },
-                        species: this.genomeViewer.species,
-                        cacheConfig: {
-                            chunkSize: 100000
-                        }
-                    })
-                });
-                this.genomeViewer.addOverviewTrack(gene);
-                this.snp = new FeatureTrack({
-                    title: 'SNP',
-                    featureType: 'SNP',
-                    minHistogramRegionSize: 12000,
-                    maxLabelRegionSize: 3000,
-                    height: 120,
-                    renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "snp",
-                        params: {
-                            exclude: 'transcriptVariations,xrefs,samples'
-                        },
-                        species: this.genomeViewer.species,
-                        cacheConfig: {
-                            chunkSize: 10000
-                        }
-                    })
-                });
-                tracks.push(this.snp);
-                this.genomeViewer.addTrack(tracks);
-                this.genomeViewer.draw();
             }
         });
     </script>

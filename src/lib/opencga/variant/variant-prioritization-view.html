@@ -29,7 +29,7 @@
                     <h3>{{title}}</h3>
                 </template>
 
-                <table id="{{prefix}}BierAppToolGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                        data-show-pagination-switch="true" data-show-export="true">
 
                 </table>
@@ -37,36 +37,36 @@
 
             <!--Tabs-->
             <div>
-                <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}"></cellbase-variantannotation-view>
-                <!--<ul id="bierAppViewTabs" class="nav nav-tabs" role="tablist">-->
-                <!--<li role="presentation" class="active"><a href="#bierappGenomeView" role="tab" data-toggle="tab">Genome Context</a></li>-->
-                <!--<li role="presentation"><a href="#bierappPopFreq" role="tab" data-toggle="tab">Population Frequency</a></li>-->
-                <!--<li role="presentation"><a href="#bierappPhenotype" role="tab" data-toggle="tab">Phenotype</a></li>-->
-                <!--<li role="presentation"><a href="#bierappEffect" role="tab" data-toggle="tab">Effect</a></li>-->
-                <!--</ul>-->
+                <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Files" role="tab" data-toggle="tab">Files</a></li>
+                    <li role="presentation"><a href="#{{prefix}}SampleComparator" role="tab" data-toggle="tab">Sample Comparator</a></li>
+                </ul>
 
-                <!--<div class="tab-content">-->
-                <!--&lt;!&ndash;Genome Context Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane active" id="bierappGenomeView">-->
-                <!--<br>-->
-                <!--<div id="variationGenomeViewer"></div>-->
-                <!--</div>-->
+                <div class="tab-content">
+                    <!--Genome Context Tab-->
+                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
+                        <br>
+                        <genome-context></genome-context>
+                    </div>
 
-                <!--&lt;!&ndash;Population Frequency Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane" id="bierappPopFreq">-->
-                <!--Population Frequency-->
-                <!--</div>-->
+                    <!--Annotation Tab-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Annotation">
+                        <br>
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
+                    </div>
 
-                <!--&lt;!&ndash;Phenotype Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane" id="bierappPhenotype">-->
-                <!--Phenotype-->
-                <!--</div>-->
+                    <!--Files Tab-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Files">
+                        Files
+                    </div>
 
-                <!--&lt;!&ndash;Effect Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane" id="bierappEffect">-->
-                <!--Effect-->
-                <!--</div>-->
-                <!--</div>-->
+                    <!--Sample comparator-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}SampleComparator">
+                        Sample Comparator
+                    </div>
+                </div>
             </div>
         </div>
     </template>
@@ -189,8 +189,8 @@
                     }
 
                     let _numTotal = -1;
-                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable('destroy');
-                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable({
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
                         url: this._url,
                         method: 'get',
                         sidePagination: 'server',
@@ -225,12 +225,12 @@
                             }
                         }
                     });
-                    $('#' + _this.prefix + 'BierAppToolGrid').bootstrapTable('showLoading');
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
             },
             renderFromLocal: function () {
-                $('#' + this.prefix + 'BierAppToolGrid').bootstrapTable('destroy');
-                $('#' + this.prefix + 'BierAppToolGrid').bootstrapTable({
+                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                     data: this.data,
                     columns: this.cols
                 });
