@@ -119,13 +119,13 @@
                 "NONE": 'fa fa-check'
             };
             if (file.index) {
-                return iconMap[file.index.status];
+                return iconMap[file.index.status.name];
             }
             return '';
         },
         computeStatus: function(file) {
             if (file.index && this.indexableBioFormats.indexOf(file.bioformat) != -1) {
-                return file.index.status;
+                return file.index.status.name;
             }
             return '--';
         },

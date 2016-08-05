@@ -707,7 +707,7 @@
                             if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                                 for (var j = 0; j < response.response[0].result.length; j++) {
                                     var result = response.response[0].result[j];
-                                    if (result.index != null && result.index.status == "INDEXING") {
+                                    if (result.index != null && result.index.status.name == "INDEXING") {
                                         for (var k = 0; k < me.filteredSamples.length; k++) {
                                             if (me.filteredSamples[k].source == result.name) {
                                                 me.set("filteredSamples." + k + ".status", "INDEXING");
@@ -717,9 +717,9 @@
                                         me.set('indexMsg', msg);
                                     } else {
                                         for (var k = 0; k < me.filteredSamples.length; k++) {
-                                            var status = (result.index) ? result.index.status : "NOT INDEXED";
+                                            var status = (result.index) ? result.index.status.name : "NOT INDEXED";
                                             if (me.filteredSamples[k].source == result.name) {
-                                                me.set("filteredSamples." + k + ".status", status);
+                                                me.set("filteredSamples." + k + ".status", status.name);
                                             }
                                         }
                                         me.set('indexMsg', "");
