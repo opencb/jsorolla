@@ -64,6 +64,7 @@
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationGTA">
                         <table id="{{prefix}}GTATable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                                data-show-pagination-switch="true" data-show-export="true">
+                            <thead style="background-color: #eee"></thead>
                         </table>
                     </div>
 
@@ -72,7 +73,7 @@
                         <template is="dom-if" if="{{check(variantAnnotation)}}">
                             <h4>Clinvar</h4>
                             <table class="table table-hover">
-                                <thead>
+                                <thead style="background-color: #eee">
                                 <tr>
                                     <th>Accession</th>
                                     <th>Clinical Significance</th>
@@ -101,7 +102,7 @@
                             </table>
                             <h4>Cosmic</h4>
                             <table class="table table-hover">
-                                <thead>
+                                <thead style="background-color: #eee">
                                 <tr>
                                     <th>Mutation Id</th>
                                     <th>Primary Site</th>
@@ -140,7 +141,7 @@
                     <!--Conservation Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationConservation">
                         <table class="table table-hover">
-                            <thead>
+                            <thead style="background-color: #eee">
                             <tr>
                                 <th>Source</th>
                                 <th>Score</th>
@@ -160,7 +161,7 @@
                     <!--CADD Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationCadd">
                         <table class="table table-hover">
-                            <thead>
+                            <thead style="background-color: #eee">
                             <tr>
                                 <th>Source</th>
                                 <th>Score</th>

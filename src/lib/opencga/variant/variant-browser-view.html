@@ -21,16 +21,10 @@
 <dom-module id="variant-browser-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
-        <style>
-            /*doesn't work*/
-            .addStyle table thead th{
-                background-color: #eee;
-            }
-        </style>
 
         <div>
             <!-- Variant Browser Grid -->
-            <div style="padding: 10px;" class="addStyle">
+            <div style="padding: 10px;">
                 <template is="dom-if" if="{{study.name != ''}}">
                     <!--<h3>{{study.name}}</h3>-->
                     <h3>{{title}}</h3>
@@ -38,6 +32,7 @@
 
                 <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                        data-show-pagination-switch="true" data-show-export="true">
+                    <thead style="background-color: #eee"></thead>
 
                 </table>
             </div>
