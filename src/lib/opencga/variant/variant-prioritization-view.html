@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="../../cellbase/genome-context.html">
 <link rel="import" href="variant-browser-gene-view.html">
 
 <dom-module id="variant-prioritization-view">
@@ -138,9 +139,6 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
-            },
-            attached: function() {
-                this.renderGenomeViewer();
             },
             renderFromServer: function () {
                 let _this = this;
@@ -482,8 +480,8 @@
                             formatter: this.proteinScoreFormatter
                         },
                         {
-                            title: 'Polyphen',
-                            field: 'polyphen',
+                            title: 'Polyphen2',
+                            field: 'polyphen2',
                             colspan: 1,
                             rowspan: 2,
                             formatter: this.proteinScoreFormatter
@@ -582,134 +580,6 @@
                     ]
                 ];
                 return initCols;
-            },
-            renderGenomeViewer: function() {
-                console.log("genome maps")
-                var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
-                this.genomeViewer = new GenomeViewer({
-                    cellBaseHost: "http://bioinfo.hpc.cam.ac.uk/cellbase",
-                    cellBaseVersion: 'v3',
-                    target: this.$$('#variationGenomeViewer'),
-//                    width: this.$$('#variationGenomeViewer').getBoundingClientRect().width,
-                    width: 1200,
-                    region: region,
-                    availableSpecies: DEFAULT_SPECIES.vertebrates,
-                    species: DEFAULT_SPECIES.vertebrates[0],
-                    sidePanel: false,
-                    autoRender: true,
-                    resizable: true,
-                    karyotypePanelConfig: {
-                        collapsed: false,
-                        collapsible: true
-                    },
-                    chromosomePanelConfig: {
-                        collapsed: false,
-                        collapsible: true
-                    },
-                    navigationBarConfig: {
-                        componentsConfig: {
-                        }
-                    },
-                    handlers: {
-                        'region:change': function(e) {
-                            console.log(e)
-                        }
-                    }
-                });
-                var tracks = [];
-                this.sequence = new FeatureTrack({
-                    title: 'Sequence',
-                    height: 25,
-                    visibleRegionSize: 200,
-                    renderer: new SequenceRenderer(),
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "sequence",
-                        params: {},
-                        species: this.genomeViewer.species,
-                        cacheConfig: {
-                            chunkSize: 100
-                        }
-                    })
-                });
-                tracks.push(this.sequence);
-                this.gene = new GeneTrack({
-                    title: 'Gene',
-                    minHistogramRegionSize: 20000000,
-                    maxLabelRegionSize: 10000000,
-                    minTranscriptRegionSize: 200000,
-                    height: 100,
-                    renderer: new GeneRenderer({
-                        handlers: {
-                            'feature:click': function(e) {
-                                console.log(e)
-                            }
-                        }
-                    }),
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "gene",
-                        species: this.genomeViewer.species,
-                        params: {
-                            exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                        },
-                        cacheConfig: {
-                            chunkSize: 100000
-                        }
-                    })
-                });
-                tracks.push(this.gene);
-                var renderer = new FeatureRenderer(FEATURE_TYPES.gene);
-                renderer.on({
-                    'feature:click': function(event) {
-                        // feature click event example
-                        console.log(event)
-                    }
-                });
-                var gene = new FeatureTrack({
-                    minHistogramRegionSize: 20000000,
-                    maxLabelRegionSize: 10000000,
-                    height: 100,
-                    renderer: renderer,
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "gene",
-                        params: {
-                            exclude: 'transcripts,chunkIds'
-                        },
-                        species: this.genomeViewer.species,
-                        cacheConfig: {
-                            chunkSize: 100000
-                        }
-                    })
-                });
-                this.genomeViewer.addOverviewTrack(gene);
-                this.snp = new FeatureTrack({
-                    title: 'SNP',
-                    featureType: 'SNP',
-                    minHistogramRegionSize: 12000,
-                    maxLabelRegionSize: 3000,
-                    height: 120,
-                    renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-                    dataAdapter: new CellBaseAdapter({
-                        category: "genomic",
-                        subCategory: "region",
-                        resource: "snp",
-                        params: {
-                            exclude: 'transcriptVariations,xrefs,samples'
-                        },
-                        species: this.genomeViewer.species,
-                        cacheConfig: {
-                            chunkSize: 10000
-                        }
-                    })
-                });
-                tracks.push(this.snp);
-                this.genomeViewer.addTrack(tracks);
-                this.genomeViewer.draw();
             }
         });
     </script>
