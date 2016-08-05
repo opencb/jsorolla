@@ -3,23 +3,22 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div style="width: 60%; margin-left: 50px">
-            <button type="button" class="btn btn-default" on-click="loadExample">Example</button>
+            <a on-click="loadExample">Click to load example</a>
             <br><br>
             <div class="form-group row">
                 <label for="datasetInput" class="col-xs-2 col-form-label">Dataset</label>
-                <div class="col-xs-8">
+                <div class="col-xs-6">
                     <select class="form-control" name="dataset" id="datasetInput">
-                        <option>PRJEB4019 - 1000 Genomes Phase 1 Analysis</option>
+                        <template is="dom-repeat" items="{{studies}}">
+                            <option>{{item.name}}</option>
+                        </template>
                     </select>
                 </div>
             </div>
             <div class="form-group row">
                 <label for="refNameInput" class="col-xs-2 col-form-label">Reference Name</label>
                 <div class="col-xs-3">
-                    <select class="form-control" name="refName" id="refNameInput">
-                        <option>1</option>
-                        <option>11</option>
-                    </select>
+                    <input class="form-control" type="text" value="" id="refNameInput">
                 </div>
             </div>
             <div class="form-group row">
@@ -37,8 +36,8 @@
             <div class="form-group row">
                 <label class="col-xs-2 col-form-label">Format Type</label>
                 <div class="col-xs-3">
-                    <input class="form-check-input" type="radio" name="formatType" id="textType" value="text"> Text
-                    <input class="form-check-input" type="radio" name="formatType" id="jsonType" value="json"> JSON
+                    <input class="form-check-input" type="checkbox" name="formatType" id="textType" value="text" checked> Text
+                    <input class="form-check-input" type="checkbox" name="formatType" id="jsonType" value="json"> JSON
                 </div>
             </div>
             <div class="form-group row col-xs-2">
@@ -54,6 +53,10 @@
             properties: {
                 opencgaClient: {
                     type: Object
+                },
+                studies: {
+                    type: Array,
+                    value: []
                 }
             },
             clearFields: function(e) {
@@ -65,7 +68,7 @@
                 this.$.jsonType.checked = false;
             },
             loadExample: function() {
-                this.$.datasetInput.value = "PRJEB4019 - 1000 Genomes Phase 1 Analysis";
+                this.$.datasetInput.value = this.studies[0].name;
                 this.$.refNameInput.value = "11";
                 this.$.startInput.value = "110993";
                 this.$.alleleInput.value = "INDEL";

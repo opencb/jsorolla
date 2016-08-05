@@ -5,6 +5,7 @@
         <div style="padding: 10px; ">
             <table id="{{prefix}}populationFreqTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[5, 15, 30]"
                    data-show-pagination-switch="true" data-show-export="true">
+                <thead style="background-color: #eee"></thead>
             </table>
             <div id="{{prefix}}Container"></div>
         </div>
@@ -94,7 +95,8 @@
                         [
                             {
                                 title: 'Study',
-                                field: 'study'
+                                field: 'study',
+                                sortable: true
                             },
                             {
                                 title: 'Population',
@@ -106,11 +108,13 @@
                             },
                             {
                                 title: 'RefAlleleFreq',
-                                field: 'refAlleleFreq'
+                                field: 'refAlleleFreq',
+                                sortable: true
                             },
                             {
                                 title: 'AltAlleleFreq',
-                                field: 'altAlleleFreq'
+                                field: 'altAlleleFreq',
+                                sortable: true
                             }
                         ]
                     ]
