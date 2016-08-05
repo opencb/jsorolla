@@ -1,76 +1,129 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 
+<link rel="import" href="opencga-annotation-filter-selector.html">
+
 <dom-module id="opencga-study">
     <template>
         <style is="custom-style" include="jso-styles"></style>
         <style>
             .center {
-                margin: auto;
+                margin: 10px;
                 text-align: justify;
-                width: 60%;
             }
         </style>
 
         <div class="center">
-            <h2>{{study.name}}</h2>
+            <!--<h2>{{study.name}}</h2>-->
 
-            <div class="col-md-4" style="padding: 10px;">
-                <h3>Information</h3>
-                </br>
-                <div style="max-height: 250px; overflow-y:scroll;">
-                    <!--<p><span style="color:#000080;"><strong>Name: </strong></span>{{study.name}}</p>-->
-                    <p><span style="color:#000080;"><strong>Alias: </strong></span>{{study.alias}}</p>
-                    <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
-                        <p><span style="color:#000080;"><strong>Type: </strong></span>{{study.type}}</p>
-                    </template>
-                    <p><span style="color:#000080;"><strong>Type: </strong></span>{{study.creationDate}}</p>
-                    <p><span style="color:#000080;"><strong>DiskUsage: </strong></span>{{_getDiskUsage(study.diskUsage)}}</p>
-                    <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
-                        <p><span style="color:#000080;"><strong>Description: </strong></span>{{study.description}}</p>
+            <div style="height: 250px;">
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3>Information</h3>
+                    </br>
+                    <div style="max-height: 250px; overflow-y:scroll;">
+                        <!--<p><span style="color:#000080;"><strong>Name: </strong></span>{{study.name}}</p>-->
+                        <p><span style="color:#000080;"><strong>Alias: </strong></span>{{study.alias}}</p>
+                        <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
+                            <p><span style="color:#000080;"><strong>Type: </strong></span>{{study.type}}</p>
+                        </template>
+                        <p><span style="color:#000080;"><strong>Date: </strong></span>{{_formatDate(study.creationDate)}}</p>
+                        <p><span style="color:#000080;"><strong>DiskUsage: </strong></span>{{_getDiskUsage(study.diskUsage)}}</p>
+                        <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
+                            <p><span style="color:#000080;"><strong>Description: </strong></span>{{study.description}}</p>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3>Users shared with</h3>
+                    </br>
+                    <div id="userlist" class="list-group" style="max-height: 250px; overflow-y:scroll;">
+                        <template is="dom-repeat" items="{{_users}}" as="user">
+                            <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                  on-click="_userSelectedChanged" class="list-group-item" user="{{user}}">
+                                {{user.id}}
+                                <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
+                                    <span style="color: #2e6da4"> ({{user.group}})</span>
+                                </template>
+                            </span>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3>Variable sets</h3>
+                    </br>
+                    <!--<template is="dom-if" if="{{_isUserSelected}}">-->
+                        <!--<template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">-->
+                            <!--<ul class="list-group" style="max-height: 250px; overflow-y:scroll;">-->
+                                <!--<template is="dom-repeat" items="{{_selectedUser.permissions}}" as="permission">-->
+                                    <!--<li class="list-group-item">{{permission}}</li>-->
+                                <!--</template>-->
+                            <!--</ul>-->
+                        <!--</template>-->
+                        <!--<template is="dom-if" if="{{!_isNotEmpty(_selectedUser.permissions)}}">-->
+                            <!--<span>"{{_selectedUser.id}}"</span> does not have any permissions.-->
+                        <!--</template>-->
+                    <!--</template>-->
+                    <template is="dom-repeat" items="{{study.variableSets}}" as="variableSet">
+                        <a class="fa fa-caret-down" role="button" data-toggle="collapse" aria-hidden="true"
+                           href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
+                        <span style="font-weight: bold"> {{variableSet.name}}</span>
+                        <button type="button" class="btn btn-link" style="position: absolute; right: 0px;" data-variable="{{variableSet}}"
+                                on-click="showFilter">
+                            (Filter)
+                        </button>
+                        <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
+                            {{variableSet.description}}
+                        </div>
                     </template>
                 </div>
             </div>
+            <div style="height: 250px; padding: 10px;">
+                <div id="{{prefix}}files-piechart" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
+                <div id="{{prefix}}files-barplot" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
+                <div id="{{prefix}}samples-barplot" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
+            </div>
 
-            <div class="col-md-4" style="padding: 10px;">
-                <h3>Users shared with</h3>
-                </br>
-                <div id="userlist" class="list-group" style="max-height: 250px; overflow-y:scroll;">
-                    <template is="dom-repeat" items="{{_users}}" as="user">
-                        <a href="#{{user.id}}" on-click="_userSelectedChanged" class="list-group-item" user="{{user}}">
-                            {{user.id}}
-                            <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
-                                <span style="color: #2e6da4"> ({{user.group}})</span>
+            <!-- Permission modal window -->
+            <div class="modal fade" id="{{prefix}}ModalPermissions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Permissions ({{getTotalPermissions(_selectedUser.permissions)}})</h4>
+                        </div>
+                        <div class="modal-body">
+                            <template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">
+                                <ul class="list-unstyled" style="max-height: 250px; overflow-y:scroll;">
+                                    <template is="dom-repeat" items="{{_selectedUser.permissions}}" as="permission">
+                                        <!--<li class="list-group-item">{{permission}}</li>-->
+                                        <li>{{permission}}</li>
+                                    </template>
+                                </ul>
                             </template>
-                        </a>
-                    </template>
+                            <template is="dom-if" if="{{!_isNotEmpty(_selectedUser.permissions)}}">
+                                <span>"{{_selectedUser.id}}"</span> does not have any permissions.
+                            </template>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-4" style="padding: 10px;">
-                <h3>Permissions</h3>
-                </br>
-                <template is="dom-if" if="{{_isUserSelected}}">
-                    <template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">
-                        <ul class="list-group" style="max-height: 250px; overflow-y:scroll;">
-                            <template is="dom-repeat" items="{{_selectedUser.permissions}}" as="permission">
-                                <li class="list-group-item">{{permission}}</li>
-                            </template>
-                        </ul>
-                    </template>
-                    <template is="dom-if" if="{{!_isNotEmpty(_selectedUser.permissions)}}">
-                        <span>"{{_selectedUser.id}}"</span> does not have permissions set.
-                    </template>
-                </template>
+
+            <!--Filter modal window-->
+            <div class="modal fade" id="{{prefix}}ModalFilter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Variable set</h4>
+                        </div>
+                        <div class="modal-body">
+                            <opencga-annotation-filter-selector variable-set="{{_selectedVariableSet}}"></opencga-annotation-filter-selector>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="col-md-6" style="padding: 10px;">
-
-            </div>
-
-            <div id="{{prefix}}files-piechart" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
-            <div id="{{prefix}}files-barplot" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
-            <div id="{{prefix}}samples-barplot" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
-
         </div>
 
 
@@ -124,6 +177,22 @@
                 if (response.response[0].numResults === 1) {
                     this._study = response.response[0].result[0];
                 }
+            },
+
+            _formatDate: function(dateStr) {
+                return moment(dateStr).format('D MMM Y');
+            },
+
+            getTotalPermissions: function(permissions) {
+                if (permissions !== undefined) {
+                    return permissions.length;
+                }
+                return 0;
+            },
+
+            showFilter: function(e) {
+              this._selectedVariableSet = e.target.dataVariable;
+                $("#" + this.prefix + "ModalFilter").modal('show');
             },
 
             _updatePieChart: function(response) {
@@ -212,6 +281,7 @@
                     for (let i = 0; i < this.study.acl.length; i++) {
                         let member = this.study.acl[i].member;
                         let permissions = this.study.acl[i].permissions;
+                        permissions.sort();
 
                         if (userHash.hasOwnProperty(member)) {
                             let positions = userHash[member];
@@ -241,6 +311,7 @@
                     this._selectedUser = e.target.parentElement.user;
                 }
                 this._isUserSelected = true;
+                $(e.target.dataTarget).modal('show')
             },
 
             _updateGraphics: function() {
@@ -356,7 +427,7 @@
                 if(bytes == 0) return '0 Byte';
                 var k = 1000;
                 var dm = 3;
-                var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+                var sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
                 var i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
             }

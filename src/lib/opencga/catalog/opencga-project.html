@@ -25,7 +25,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <template is="dom-repeat" items="{{project.studies}}">
+                <template is="dom-repeat" items="{{_studies}}">
                     <tr>
                         <td>
                             <a href="#" on-click="fireSelectStudy" data-id="{{study.id}}">{{item.name}}</a>
@@ -45,14 +45,43 @@
         Polymer({
             is: 'opencga-project',
             properties: {
+                opencgaClient: {
+                    type: Object
+                },
                 project: {
                     type: Object,
-                    value: []
+                    observer: 'projectChanged'
+                },
+                _studies: {
+                    type: Object
                 }
             },
             fireSelectStudy: function (e) {
                 e.preventDefault();
                 this.fire('study', {studyName: e.target.innerHTML, studyId: e.target.dataId});
+            },
+            projectChanged: function() {
+                if (this.project !== undefined) {
+                    let _this = this;
+                    // Obtain the summary of the studies
+                    let studyPromises = [];
+                    this.project.studies.forEach(function(study) {
+                        studyPromises.push(_this.opencgaClient.studies().summary(study.id));
+                    });
+
+                    Promise.all(studyPromises).then(function(responses) {
+                        let studies = [];
+                        responses.forEach(function (response) {
+                            let study = response.response[0].result[0];
+                            study.creationDate = _this._formatDate(study.creationDate);
+                            studies.push(study);
+                        });
+                        _this._studies = studies;
+                    });
+                }
+            },
+            _formatDate: function(dateStr) {
+                return moment(dateStr).format('D MMM Y');
             }
         });
     </script>
