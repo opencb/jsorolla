@@ -72,7 +72,7 @@
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationVTA">
                         <template is="dom-if" if="{{check(variantAnnotation)}}">
                             <h4>Clinvar</h4>
-                            <table class="table table-hover">
+                            <table class="table table-hover table-bordered">
                                 <thead style="background-color: #eee">
                                 <tr>
                                     <th>Accession</th>
@@ -140,7 +140,7 @@
 
                     <!--Conservation Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationConservation">
-                        <table class="table table-hover">
+                        <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
                             <thead style="background-color: #eee">
                             <tr>
                                 <th>Source</th>
@@ -148,7 +148,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <template is="dom-repeat" items="{{variantAnnotation.conservation}}">
+                            <template is="dom-repeat" items="{{conservation}}">
                                 <tr>
                                     <td>{{item.source}}</td>
                                     <td>{{item.score}}</td>
@@ -160,7 +160,7 @@
 
                     <!--CADD Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationCadd">
-                        <table class="table table-hover">
+                        <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
                             <thead style="background-color: #eee">
                             <tr>
                                 <th>Source</th>
@@ -168,7 +168,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <template is="dom-repeat" items="{{variantAnnotation.functionalScore}}">
+                            <template is="dom-repeat" items="{{functionalScore}}">
                                 <tr>
                                     <td>{{item.source}}</td>
                                     <td>{{item.score}}</td>
@@ -203,6 +203,14 @@
                 mode: {
                     type: String,
                     value: "horizontal"
+                },
+                conservation: {
+                    type: Array,
+                    value: []
+                },
+                functionalScore: {
+                    type: Array,
+                    value: []
                 }
             },
             check: function (data) {
@@ -247,6 +255,16 @@
                             ]
                         ]
                     });
+
+                    for (let i in _this.variantAnnotation.conservation) {
+                        _this.push('conservation', {source: _this.variantAnnotation.conservation[i].source,
+                            score: Number(_this.variantAnnotation.conservation[i].score).toFixed(3)});
+                    }
+                    
+                    for (let i in _this.variantAnnotation.functionalScore) {
+                        _this.push('functionalScore', {source: _this.variantAnnotation.functionalScore[i].source,
+                            score: Number(_this.variantAnnotation.functionalScore[i].score).toFixed(3)});
+                    }
                 };
                 this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {
                     success: success,

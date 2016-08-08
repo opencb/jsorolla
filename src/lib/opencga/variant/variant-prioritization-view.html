@@ -35,7 +35,7 @@
                     <thead style="background-color: #eee"></thead>
                 </table>
             </div>
-
+            <h4>Variant: {{variant}}</h4>
             <!--Tabs-->
             <div>
                 <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
@@ -214,8 +214,8 @@
                         columns: this.cols,
                         onClickRow: function (row, $element) {
                             _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                            $('#' + _this.prefix + 'VariationTable' + ' tr').removeClass("highlight");
-                            $element.addClass("highlight");
+                            $('.success').removeClass('success');
+                            $($element).addClass('success');
                         },
                         onClickCell: function (field, value, row, $element) {
                             if (field == "genes") {
@@ -251,10 +251,9 @@
                         var geneLinks = [];
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != "" && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-//                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
-//                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
-//                                visited[row.annotation.consequenceTypes[i].geneName] = true;
-                                geneLinks.push(row.annotation.consequenceTypes[i].geneName);
+                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
+                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }
                         return geneLinks.join(',');

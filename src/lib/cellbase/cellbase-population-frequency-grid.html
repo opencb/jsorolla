@@ -28,8 +28,8 @@
                 let popArray = [];
                 let mafArray = [];
                 for (let i = 0; i < this.data.length; i++) {
-                    popArray.push(this.data[i].study + "-" +this.data[i].population);
-                    mafArray.push(Math.min(this.data[i].refAlleleFreq, this.data[i].altAlleleFreq));
+                    popArray.push(this.data[i].study + "-" + this.data[i].population);
+                    mafArray.push(Math.min(Number(this.data[i].refAlleleFreq).toFixed(3), Number(this.data[i].altAlleleFreq).toFixed(3)));
                 }
 
                 $('#' + this.prefix + 'Container').highcharts({
@@ -109,12 +109,14 @@
                             {
                                 title: 'RefAlleleFreq',
                                 field: 'refAlleleFreq',
-                                sortable: true
+                                sortable: true,
+                                formatter: this.numFormatter
                             },
                             {
                                 title: 'AltAlleleFreq',
                                 field: 'altAlleleFreq',
-                                sortable: true
+                                sortable: true,
+                                formatter: this.numFormatter
                             }
                         ]
                     ]
@@ -123,6 +125,13 @@
             },
             alleleFormatter: function (value, row, index) {
                 return row.refAllele + "/" + row.altAllele;
+            },
+            numFormatter: function (value, row, index) {
+                if (this.field == 'refAlleleFreq') {
+                    return Number(row.refAlleleFreq).toFixed(3);
+                } else if (this.field == 'altAlleleFreq') {
+                    return Number(row.altAlleleFreq).toFixed(3);
+                }
             }
         });
     </script>
