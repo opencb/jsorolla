@@ -28,7 +28,7 @@
                 <template is="dom-repeat" items="{{_studies}}">
                     <tr>
                         <td>
-                            <a href="#" on-click="fireSelectStudy" data-id="{{study.id}}">{{item.name}}</a>
+                            <a href="#" on-click="fireSelectStudy" data-id="{{item.id}}">{{item.name}}</a>
                         </td>
                         <td>{{item.creationDate}}</td>
                         <td>{{item.files}}</td>
@@ -53,7 +53,7 @@
                     observer: 'projectChanged'
                 },
                 _studies: {
-                    type: Object
+                    type: Array
                 }
             },
             fireSelectStudy: function (e) {
@@ -61,7 +61,7 @@
                 this.fire('study', {studyName: e.target.innerHTML, studyId: e.target.dataId});
             },
             projectChanged: function() {
-                if (this.project !== undefined) {
+                if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined") {
                     let _this = this;
                     // Obtain the summary of the studies
                     let studyPromises = [];
