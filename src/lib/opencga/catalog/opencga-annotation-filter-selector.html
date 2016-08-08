@@ -13,6 +13,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
+<link rel="import" href="opencga-annotation-filters.html">
+
 <dom-module id="opencga-annotation-filter-selector">
     <template>
         <style is="custom-style" include="jso-styles"></style>
@@ -21,26 +24,65 @@
                 margin: auto;
                 display: block;
                 text-align: justify;
-                max-width: 95%;
                 font-size: 18px;
                 color: #797979;
             }
         </style>
 
-        <div class="row center">
-            <!--LEFT-->
-            <div class="col-md-5">
-                <div class="form-group has-feedback">
-                    <input type="text" class="form-control" placeholder="Search variable">
-                    <i class="fa fa-search form-control-feedback" aria-hidden="true"></i>
+        <div class="center">
+            <!--Variables-->
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Variables <span class="badge">{{getLength(filteredVariables)}}</span></div>
+                        <div class="panel-body">
+                            <div class="form-group has-feedback">
+                                <input type="text" id="{{prefix}}VariableNameText" class="form-control" placeholder="Search variable"
+                                       on-keyup="filterVariables">
+                                <i class="fa fa-search form-control-feedback" aria-hidden="true"></i>
+                            </div>
+                            <ul class="list-unstyled" style="max-height: 300px; overflow-y: auto; padding: 10px;">
+                                <template is="dom-repeat" items="{{filteredVariables}}" as="variable">
+                                    <!--<li data-variable="{{variable}}">{{variable.name}}</li>-->
+                                    <li style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalFilters"
+                                          on-click="variableSelected" data-variable="{{variable}}">
+                                            {{variable.name}}
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
+                <!--Filters applied-->
+                <div class="col-md-7">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Active filters <span class="badge">{{_totalFilters}}</span></div>
+                        <ul class="list-group" style="max-height: 300px; overflow-y: auto;">
+                            <template is="dom-repeat" items="{{filters}}" as="filter">
+                                <li class="list-group-item">
+                                    <a href="dummy" class="btn btn-default">
+                                        <i class="fa fa-times add-right-margin" aria-hidden="true"></i>
+                                        {{filter.name}}: {{filter.value}}
+                                    </a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="row add-right-margin">
+                <button type="button" class="btn btn-default add-right-margin" on-click="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" on-click="filterCohorts">Filter cohorts</button>
+                <button type="button" class="btn btn-primary" on-click="filterSamples">Filter samples</button>
+                <button type="button" class="btn btn-primary" on-click="filterIndividuals">Filter individuals</button>
             </div>
 
-            <div class="col-md-7">
-                {{variableSet.name}}
-            </div>
-
+            <!-- Modal filters -->
+            <opencga-annotation-filters hidden$="{{!isVariableSelected}}" prefix="{{prefix}}" variable="{{selectedVariable}}"
+            on-opencga-filter-added="addFilter"></opencga-annotation-filters>
         </div>
     </template>
     <script>
@@ -53,6 +95,16 @@
                 },
                 prefix: {
                     type: String
+                },
+                filteredVariables: {
+                    type: Array
+                },
+                filters: {
+                    type: Array
+                },
+                isVariableSelected: {
+                    type: Boolean,
+                    value: false
                 }
             },
 
@@ -62,7 +114,89 @@
                 }
             },
             updateVariables: function() {
+                if (this.variableSet === undefined || Object.getOwnPropertyNames(this.variableSet).length === 0) {
+                    return;
+                }
 
+                this._totalFilters = 0;
+
+                // Initialize and sort variables by rank value
+                function compare(a,b) {
+                    if (a.rank < b.rank)
+                        return -1;
+                    if (a.rank > b.rank)
+                        return 1;
+                    return 0;
+                }
+
+                let variables = this.variableSet.variables;
+                variables.sort(compare);
+
+                this.filteredVariables = variables;
+                this._remainingVariables = variables;
+                this.filters = [];
+                this.selectedVariable = {};
+            },
+
+            variableSelected: function(e) {
+                this.isVariableSelected = true;
+                this.selectedVariable = e.target.dataVariable;
+                $(e.target.dataTarget).modal('show');
+            },
+
+            filterVariables: function(e) {
+                let text = e.target.value;
+                if (text.length > 1) {
+                    let filtered = [];
+                    this._remainingVariables.forEach(function(variable) {
+                       if (variable.name.toLowerCase().indexOf(text.toLowerCase()) !== -1) {
+                           filtered.push(variable);
+                       }
+                    });
+                    this.filteredVariables = filtered;
+                } else {
+                    if (this.filteredVariables.length < this._remainingVariables.length) {
+                        // Restore the variables
+                        this.filteredVariables = this._remainingVariables;
+                    }
+                }
+            },
+
+            isEmpty: function(selected) {
+                if (Object.getOwnPropertyNames(selected).length == 0) {
+                    return true;
+                }
+                return false;
+            },
+
+            getLength: function(element) {
+                return element.length;
+            },
+
+            addFilter: function(e) {
+                debugger
+                let newFilter = e.detail;
+                newFilter["variable"] = this.selectedVariable;
+                this.selectedVariable = {};
+                this.push('filters', newFilter);
+                this._totalFilters += 1;
+            },
+
+            cancel: function() {
+                this.fire('opencga-filter-selector-cancel');
+            },
+
+            filterCohorts: function(e) {
+                this.fire('opencga-filter-selector-cohort');
+            },
+
+            filterSamples: function(e) {
+                debugger
+                this.fire('opencga-filter-selector-sample');
+            },
+
+            filterIndividuals: function(e) {
+                this.fire('opencga-filter-selector-individual');
             }
         });
     </script>

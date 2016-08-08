@@ -1,7 +1,5 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 
-<link rel="import" href="opencga-annotation-filter-selector.html">
-
 <dom-module id="opencga-study">
     <template>
         <style is="custom-style" include="jso-styles"></style>
@@ -17,65 +15,59 @@
 
             <div style="height: 250px;">
                 <div class="col-md-4" style="padding: 10px;">
-                    <h3>Information</h3>
-                    </br>
-                    <div style="max-height: 250px; overflow-y:scroll;">
-                        <!--<p><span style="color:#000080;"><strong>Name: </strong></span>{{study.name}}</p>-->
-                        <p><span style="color:#000080;"><strong>Alias: </strong></span>{{study.alias}}</p>
-                        <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
-                            <p><span style="color:#000080;"><strong>Type: </strong></span>{{study.type}}</p>
-                        </template>
-                        <p><span style="color:#000080;"><strong>Date: </strong></span>{{_formatDate(study.creationDate)}}</p>
-                        <p><span style="color:#000080;"><strong>DiskUsage: </strong></span>{{_getDiskUsage(study.diskUsage)}}</p>
-                        <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
-                            <p><span style="color:#000080;"><strong>Description: </strong></span>{{study.description}}</p>
-                        </template>
-                    </div>
-                </div>
-
-                <div class="col-md-4" style="padding: 10px;">
-                    <h3>Users shared with</h3>
-                    </br>
-                    <div id="userlist" class="list-group" style="max-height: 250px; overflow-y:scroll;">
-                        <template is="dom-repeat" items="{{_users}}" as="user">
-                            <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
-                                  on-click="_userSelectedChanged" class="list-group-item" user="{{user}}">
-                                {{user.id}}
-                                <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
-                                    <span style="color: #2e6da4"> ({{user.group}})</span>
-                                </template>
-                            </span>
-                        </template>
-                    </div>
-                </div>
-
-                <div class="col-md-4" style="padding: 10px;">
-                    <h3>Variable sets</h3>
-                    </br>
-                    <!--<template is="dom-if" if="{{_isUserSelected}}">-->
-                        <!--<template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">-->
-                            <!--<ul class="list-group" style="max-height: 250px; overflow-y:scroll;">-->
-                                <!--<template is="dom-repeat" items="{{_selectedUser.permissions}}" as="permission">-->
-                                    <!--<li class="list-group-item">{{permission}}</li>-->
-                                <!--</template>-->
-                            <!--</ul>-->
-                        <!--</template>-->
-                        <!--<template is="dom-if" if="{{!_isNotEmpty(_selectedUser.permissions)}}">-->
-                            <!--<span>"{{_selectedUser.id}}"</span> does not have any permissions.-->
-                        <!--</template>-->
-                    <!--</template>-->
-                    <template is="dom-repeat" items="{{study.variableSets}}" as="variableSet">
-                        <a class="fa fa-caret-down" role="button" data-toggle="collapse" aria-hidden="true"
-                           href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
-                        <span style="font-weight: bold"> {{variableSet.name}}</span>
-                        <button type="button" class="btn btn-link" style="position: absolute; right: 0px;" data-variable="{{variableSet}}"
-                                on-click="showFilter">
-                            (Filter)
-                        </button>
-                        <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
-                            {{variableSet.description}}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Information</div>
+                        <div class="panel-body" style="max-height: 250px; overflow-y:scroll;">
+                            <!--<p><span style="color:#000080;"><strong>Name: </strong></span>{{study.name}}</p>-->
+                            <p><span style="color:#000080;"><strong>Alias: </strong></span>{{study.alias}}</p>
+                            <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
+                                <p><span style="color:#000080;"><strong>Type: </strong></span>{{study.type}}</p>
+                            </template>
+                            <p><span style="color:#000080;"><strong>Date: </strong></span>{{_formatDate(study.creationDate)}}</p>
+                            <p><span style="color:#000080;"><strong>DiskUsage: </strong></span>{{_getDiskUsage(study.diskUsage)}}</p>
+                            <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
+                                <p><span style="color:#000080;"><strong>Description: </strong></span>{{study.description}}</p>
+                            </template>
                         </div>
-                    </template>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Users shared with <span class="badge">{{getLength(_users)}}</span></div>
+                        <div id="userlist" class="panel-body list-group"  style="max-height: 250px; overflow-y:scroll;">
+                            <template is="dom-repeat" items="{{_users}}" as="user">
+                                <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                      on-click="_userSelectedChanged" class="list-group-item" user="{{user}}">
+                                    {{user.id}}
+                                    <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
+                                        <span style="color: #2e6da4"> ({{user.group}})</span>
+                                    </template>
+                                </span>
+                            </template>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Variable sets <span class="badge">{{getLength(study.variableSets)}}</span></div>
+                        <div class="panel-body">
+                            <template is="dom-repeat" items="{{study.variableSets}}" as="variableSet">
+                                <a class="fa fa-caret-down" role="button" data-toggle="collapse" aria-hidden="true"
+                                   href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
+                                <span style="font-weight: bold"> {{variableSet.name}}</span>
+                                <button type="button" class="btn btn-link" style="position: absolute; right: 10px;" data-variable="{{variableSet}}"
+                                        on-click="showFilter">
+                                    (Filter)
+                                </button>
+                                <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
+                                    {{variableSet.description}}
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div style="height: 250px; padding: 10px;">
@@ -90,7 +82,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Permissions ({{getTotalPermissions(_selectedUser.permissions)}})</h4>
+                            <h4 class="modal-title">Permissions <span class="badge">{{getTotalPermissions(_selectedUser.permissions)}}</span></h4>
                         </div>
                         <div class="modal-body">
                             <template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">
@@ -111,19 +103,19 @@
 
 
             <!--Filter modal window-->
-            <div class="modal fade" id="{{prefix}}ModalFilter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Variable set</h4>
-                        </div>
-                        <div class="modal-body">
-                            <opencga-annotation-filter-selector variable-set="{{_selectedVariableSet}}"></opencga-annotation-filter-selector>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!--<div class="modal fade" id="{{prefix}}ModalFilter" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">-->
+                <!--<div class="modal-dialog" role="document" style="width: 800px; height: 450px;">-->
+                    <!--<div class="modal-content">-->
+                        <!--<div class="modal-header">-->
+                            <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+                            <!--<h4 class="modal-title">Variable set</h4>-->
+                        <!--</div>-->
+                        <!--<div class="modal-body">-->
+                            <!--<opencga-annotation-filter-selector variable-set="{{_selectedVariableSet}}"></opencga-annotation-filter-selector>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
         </div>
 
 
@@ -191,8 +183,11 @@
             },
 
             showFilter: function(e) {
-              this._selectedVariableSet = e.target.dataVariable;
-                $("#" + this.prefix + "ModalFilter").modal('show');
+                this.fire('filter-variable-set', {
+                    variableSet: e.target.dataVariable
+                });
+//              this._selectedVariableSet = e.target.dataVariable;
+//                $("#" + this.prefix + "ModalFilter").modal('show');
             },
 
             _updatePieChart: function(response) {
@@ -430,8 +425,14 @@
                 var sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
                 var i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
-            }
+            },
 
+            getLength: function(items) {
+                if (items === undefined) {
+                    return 0;
+                }
+                return items.length;
+            }
 
         });
     </script>
