@@ -120,8 +120,8 @@
                     columns: this.cols,
                     onClickRow: function (row, $element) {
                         _this.fire('selected', {variant: row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate});
-                        $('#' + _this.prefix + 'VariationTable' + ' tr').removeClass("highlight");
-                        $element.addClass("highlight");
+                        $('.success').removeClass('success');
+                        $($element).addClass('success');
                     },
                     onSearch: function (text) {
                         $.each($('#' + _this.prefix + 'VariationTable' + ' tbody tr'), function() {

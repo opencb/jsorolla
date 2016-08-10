@@ -19,15 +19,11 @@
 
 <dom-module id="cellbase-transcripts-view">
     <template>
-        <style is="custom-style" include="jso-styles">
-            .highlight {
-                background-color: darkgray;
-            }
-        </style>
+        <style is="custom-style" include="jso-styles"></style>
 
         <!--Transcripts table-->
         <div>
-            <table class="table table-hover" id="{{prefix}}Transcripts">
+            <table class="table table-hover table-bordered" id="{{prefix}}Transcripts">
                 <thead style="background-color: #eee">
                 <tr>
                     <th>Name</th>
@@ -97,7 +93,12 @@
 
                     <div id="{{prefix}}TranscriptViewSequence" role="tabpanel" class="tab-pane">
                         <br>
-                        cDNA Sequence:<textarea class="form-control" rows="10" readonly>{{selected.cDnaSequence}}</textarea> <br>
+                        <template is="dom-if" if="{{selected.cDnaSequence}}">
+                            cDNA Sequence:<textarea class="form-control" rows="10" readonly>{{selected.cDnaSequence}}</textarea> <br>
+                        </template>
+                        <template is="dom-if" if="{{!selected.cDnaSequence}}">
+                            No cDNA Sequence
+                        </template>
                         <template is="dom-if" if="{{selected.proteinSequence}}">
                             Protein Sequence:<textarea class="form-control" rows="10" readonly>{{selected.proteinSequence}}</textarea>
                             <br>
@@ -124,8 +125,6 @@
                 }
             },
             loadTabs: function (e) {
-                $('#' + this.prefix + 'Transcripts' + ' tbody tr').removeClass("highlight");
-                $(e.currentTarget).addClass("highlight");
                 var item = this.$.transcriptList.itemForElement(e.target);
                 this.$.selector.select(item);
             }

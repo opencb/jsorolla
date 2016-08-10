@@ -101,7 +101,7 @@
                                 </tbody>
                             </table>
                             <h4>Cosmic</h4>
-                            <table class="table table-hover">
+                            <table class="table table-hover table-bordered">
                                 <thead style="background-color: #eee">
                                 <tr>
                                     <th>Mutation Id</th>
@@ -140,6 +140,7 @@
 
                     <!--Conservation Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationConservation">
+                        <br>
                         <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
                             <thead style="background-color: #eee">
                             <tr>
@@ -160,6 +161,7 @@
 
                     <!--CADD Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationCadd">
+                        <br>
                         <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
                             <thead style="background-color: #eee">
                             <tr>
@@ -203,14 +205,6 @@
                 mode: {
                     type: String,
                     value: "horizontal"
-                },
-                conservation: {
-                    type: Array,
-                    value: []
-                },
-                functionalScore: {
-                    type: Array,
-                    value: []
                 }
             },
             check: function (data) {
@@ -256,15 +250,18 @@
                         ]
                     });
 
+                    let conservation = [];
                     for (let i in _this.variantAnnotation.conservation) {
-                        _this.push('conservation', {source: _this.variantAnnotation.conservation[i].source,
+                        conservation.push({source: _this.variantAnnotation.conservation[i].source,
                             score: Number(_this.variantAnnotation.conservation[i].score).toFixed(3)});
                     }
-                    
+                    _this.conservation = conservation;
+                    let functionalScore = [];
                     for (let i in _this.variantAnnotation.functionalScore) {
-                        _this.push('functionalScore', {source: _this.variantAnnotation.functionalScore[i].source,
+                        functionalScore.push({source: _this.variantAnnotation.functionalScore[i].source,
                             score: Number(_this.variantAnnotation.functionalScore[i].score).toFixed(3)});
                     }
+                    _this.functionalScore = functionalScore;
                 };
                 this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {
                     success: success,
