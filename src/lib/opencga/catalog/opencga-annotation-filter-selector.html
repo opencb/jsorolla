@@ -34,7 +34,7 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class="panel panel-default">
-                        <div class="panel-heading">Variables <span class="badge">{{getLength(filteredVariables)}}</span></div>
+                        <div class="panel-heading">Variables <span class="badge">{{filteredVariables.length}}</span></div>
                         <div class="panel-body">
                             <div class="form-group has-feedback">
                                 <input type="text" id="{{prefix}}VariableNameText" class="form-control" placeholder="Search variable"
@@ -97,7 +97,8 @@
                     type: String
                 },
                 filteredVariables: {
-                    type: Array
+                    type: Array,
+                    reflectToAttribute: true
                 },
                 filters: {
                     type: Array
@@ -169,17 +170,27 @@
                 return false;
             },
 
-            getLength: function(element) {
-                return element.length;
-            },
-
             addFilter: function(e) {
-                debugger
                 let newFilter = e.detail;
                 newFilter["variable"] = this.selectedVariable;
                 this.selectedVariable = {};
                 this.push('filters', newFilter);
                 this._totalFilters += 1;
+                // Remove selected variable from available
+                for (let i = 0; i < this.filteredVariables.length; i++) {
+                    if (this.filteredVariables[i].name === e.detail.name) {
+                        this.splice("filteredVariables", i, 1);
+//                        this.filteredVariables.splice(i, 1);
+                        break;
+                    }
+                }
+                for (let i = 0; i < this._remainingVariables.length; i++) {
+                    if (this._remainingVariables[i].name === e.detail.name) {
+                        this.splice("_remainingVariables", i, 1);
+//                        this._remainingVariables.splice(i, 1);
+                        break;
+                    }
+                }
             },
 
             cancel: function() {
