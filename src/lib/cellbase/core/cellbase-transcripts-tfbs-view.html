@@ -16,12 +16,14 @@
 
 <dom-module id="cellbase-transcritps-tfbs-view">
     <template>
+        <style is="custom-style" include="jso-styles"></style>
+
         <div>
             <template is="dom-repeat" items="{{data}}" as="transcript">
                 <h3>{{transcript.id}} ({{transcript.name}})</h3> <i id={{transcript.name}} class="fa fa-minus-circle" aria-hidden="true" on-click="iconChange"></i>
         
                 <template is="dom-if" if="{{transcript.tfbs}}">
-                    <table id="{{transcript.id}}" class="table table-hover">
+                    <table id="{{transcript.id}}" class="table table-hover table-bordered">
                         <thead style="background-color: #eee">
                         <tr>
                             <th>TfName</th>
