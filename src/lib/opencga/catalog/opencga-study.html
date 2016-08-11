@@ -59,8 +59,8 @@
                                    href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
                                 <span style="font-weight: bold"> {{variableSet.name}}</span>
                                 <button type="button" class="btn btn-link" style="position: absolute; right: 10px;" data-variable="{{variableSet}}"
-                                        on-click="showFilter">
-                                    (Filter)
+                                        on-click="showVariableSet">
+                                    (show)
                                 </button>
                                 <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
                                     {{variableSet.description}}
@@ -88,7 +88,6 @@
                             <template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">
                                 <ul class="list-unstyled" style="max-height: 250px; overflow-y:scroll;">
                                     <template is="dom-repeat" items="{{_selectedUser.permissions}}" as="permission">
-                                        <!--<li class="list-group-item">{{permission}}</li>-->
                                         <li>{{permission}}</li>
                                     </template>
                                 </ul>
@@ -101,21 +100,6 @@
                 </div>
             </div>
 
-
-            <!--Filter modal window-->
-            <!--<div class="modal fade" id="{{prefix}}ModalFilter" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">-->
-                <!--<div class="modal-dialog" role="document" style="width: 800px; height: 450px;">-->
-                    <!--<div class="modal-content">-->
-                        <!--<div class="modal-header">-->
-                            <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
-                            <!--<h4 class="modal-title">Variable set</h4>-->
-                        <!--</div>-->
-                        <!--<div class="modal-body">-->
-                            <!--<opencga-annotation-filter-selector variable-set="{{_selectedVariableSet}}"></opencga-annotation-filter-selector>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
         </div>
 
 
@@ -181,13 +165,11 @@
                 }
                 return 0;
             },
-
-            showFilter: function(e) {
-                this.fire('filter-variable-set', {
+//
+            showVariableSet: function(e) {
+                this.fire('show-variable-set', {
                     variableSet: e.target.dataVariable
                 });
-//              this._selectedVariableSet = e.target.dataVariable;
-//                $("#" + this.prefix + "ModalFilter").modal('show');
             },
 
             _updatePieChart: function(response) {
