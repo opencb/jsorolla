@@ -24,6 +24,7 @@ class OpenCGAClient {
         this._files;
         this._samples;
         this._panels;
+        this._variables;
     }
 
     getConfig() {
@@ -75,6 +76,13 @@ class OpenCGAClient {
             this._panels = new Panels(this._config)
         }
         return this._panels;
+    }
+
+    variables() {
+        if (typeof this._variables === "undefined") {
+            this._variables = new Variables(this._config)
+        }
+        return this._variables;
     }
 }
 
@@ -582,27 +590,31 @@ class Variables extends OpenCGAParentClass {
     }
 
     create(params, options) {
-        return this.get("variables", undefined, "create", params, options);
+        return this.get("variableSet", undefined, "create", params, options);
     }
 
     search(params, options) {
-        return this.get("variables", undefined, "search", params, options);
+        return this.get("variableSet", undefined, "search", params, options);
     }
 
     info(id, params, options) {
-        return this.get("variables", id, "info", params, options);
+        return this.get("variableSet", id, "info", params, options);
+    }
+
+    summary(id) {
+        return this.get("variableSet", id, "summary", {}, {});
     }
 
     update(id, params, options) {
-        return this.get("variables", id, "update", params, options);
+        return this.get("variableSet", id, "update", params, options);
     }
 
     delete(id, params, options) {
-        return this.get("variables", id, "delete", params, options);
+        return this.get("variableSet", id, "delete", params, options);
     }
 
     remove(ids, params, options) {
-        return this.get("variables", ids, "remove", params, options);
+        return this.get("variableSet", ids, "remove", params, options);
     }
 
 }

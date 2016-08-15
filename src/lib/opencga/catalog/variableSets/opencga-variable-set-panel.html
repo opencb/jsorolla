@@ -1,0 +1,242 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<link rel="import" href="opencga-annotation-count.html">
+
+<dom-module id="opencga-variable-set-panel">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div style="padding: 10px;">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Variable sets <span class="badge">{{variableSets.length}}</span></div>
+                        <div class="panel-body">
+                            <template is="dom-repeat" items="{{variableSets}}" as="variableSet">
+                                <a class="fa fa-caret-down" role="button" data-toggle="collapse" aria-hidden="true"
+                                   href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
+                                <span style="font-weight: bold"> {{variableSet.name}}</span>
+                                <button type="button" class="btn btn-link" style="position: absolute; right: 10px;" data-variable="{{variableSet}}"
+                                        on-click="showVariableSet">
+                                    (show)
+                                </button>
+                                <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
+                                    <dl>
+                                        <dt>Id</dt>
+                                        <dd>{{variableSet.id}}</dd>
+
+                                        <dt>Description</dt>
+                                        <dd>{{variableSet.description}}</dd>
+                                    </dl>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <div hidden$="{{!variableSet.variables.length}}" class="panel panel-default">
+                        <div class="panel-heading">
+                            {{variableSet.name}} <span class="badge">{{variableSet.variables.length}}</span>
+                        </div>
+                        <div class="panel-body" style="height: 250px; overflow-y: auto;">
+                            <table id="{{prefix}}VariableTable" data-search="true" data-show-columns="true" data-pagination="true"
+                                   data-page-list="[5]" data-show-export="true" data-show-toggle="true" style="cursor: pointer;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+
+                <div class="col-md-2">
+                    <ul class="nav nav-pills nav-stacked" role="tablist">
+                        <li role="presentation" class="active"><a href="#{{prefix}}sampleVariables" role="tab" data-toggle="tab">Samples</a></li>
+                        <li role="presentation"><a href="#{{prefix}}cohortVariables" role="tab" data-toggle="tab">Cohorts</a></li>
+                        <li role="presentation"><a href="#{{prefix}}individualVariables" role="tab" data-toggle="tab">Individuals</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-10">
+                    <div class="tab-content">
+                        <div id="{{prefix}}sampleVariables" role="tabpanel" class="tab-pane active">
+                            <opencga-annotation-count variable="{{obtainVariable(variableSetSummary.samples, variable.name)}}"></opencga-annotation-count>
+                        </div>
+
+                        <div id="{{prefix}}cohortVariables" role="tabpanel" class="tab-pane">
+                            <opencga-annotation-count variable="{{obtainVariable(variableSetSummary.cohorts, variable.name)}}"></opencga-annotation-count>
+                        </div>
+
+                        <div id="{{prefix}}individualVariables" role="tabpanel" class="tab-pane">
+                            <opencga-annotation-count variable="{{obtainVariable(variableSetSummary.individuals, variable.name)}}"></opencga-annotation-count>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-variable-set-panel',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                studyId: {
+                    type: Number,
+                    observer: 'getVariableSets'
+                },
+                prefix: {
+                    type: String
+                },
+                variableSets: {
+                    type: Array,
+                    value: function() { return [] }
+                },
+                variableSet: {
+                    type: Object,
+                    value: function() { return {} },
+                    observer: 'variableSetChanged'
+                }
+            },
+
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+
+                // Columns that will be represented
+                this._columns = [
+                    [
+                        {
+                            title: 'Name',
+                            field: 'name',
+                            sortable: true
+                        },
+                        {
+                            title: 'Category',
+                            field: 'category',
+                            sortable: true
+                        },
+                        {
+                            title: 'Type',
+                            field: 'type',
+                            sortable: true
+                        },
+                        {
+                            title: 'Default value',
+                            field: 'defaultValue'
+                        },
+                        {
+                            title: 'Required',
+                            field: 'required',
+                            formatter: this.getIcon
+                        },
+                        {
+                            title: 'Multivalue',
+                            field: 'multiValue',
+                            formatter: this.getIcon
+                        },
+                        {
+                            title: 'Rank',
+                            field: 'rank',
+                            visible: false,
+                            sortable: true,
+                            order: 'asc'
+                        }
+                    ]
+                ];
+            },
+
+            getVariableSets: function() {
+                if (this.opencgaClient !== undefined && this.studyId != null && this.studyId > 0) {
+                    let _this = this;
+                    _this.variableSets = [];
+                    _this.variableSet = {};
+                    _this.variableSetSummary = {};
+                    this.opencgaClient.studies().info(this.studyId, {include: "variableSets"}).then(function(response) {
+                        _this.variableSets = response.response[0].result[0].variableSets;
+                        if (_this.variableSets.length > 0) {
+                            _this.variableSet = _this.variableSets[0];
+                        }
+                    })
+                }
+            },
+            variableSetChanged: function() {
+                this.renderVariableSet();
+                this.obtainVariableSummary();
+            },
+            renderVariableSet: function() {
+                let _this = this;
+                $('#' + this.prefix + 'VariableTable').bootstrapTable('destroy');
+                $('#' + this.prefix + 'VariableTable').bootstrapTable({
+                    data: this.variableSet.variables,
+                    columns: this._columns,
+                    onClickRow: function(row) {
+                        _this.variable = row;
+                    }
+                });
+            },
+            obtainVariableSummary: function() {
+                let _this = this;
+                if (this.opencgaClient !== undefined && this.variableSet !== undefined && this.variableSet.hasOwnProperty("id")) {
+                    this.opencgaClient.variables().summary(this.variableSet.id).then(function (response) {
+                        let result = response.response[0].result[0];
+
+                        // Convert the arrays to hash
+                        let cohorts = {};
+                        for (let i = 0; i < result.cohorts.length; i++) {
+                            cohorts[result.cohorts[i].name] = result.cohorts[i];
+                        }
+
+                        let samples = {};
+                        for (let i = 0; i < result.samples.length; i++) {
+                            samples[result.samples[i].name] = result.samples[i];
+                        }
+
+                        let individuals = {};
+                        for (let i = 0; i < result.individuals.length; i++) {
+                            individuals[result.individuals[i].name] = result.individuals[i];
+                        }
+
+                        result["samples"] = samples;
+                        result["individuals"] = individuals;
+                        result["cohorts"] = cohorts;
+
+                        _this.variableSetSummary = result;
+                    });
+                }
+            },
+            obtainVariable: function(variableObject, variableName) {
+                if (variableObject === undefined || variableObject === null) {
+                    return undefined;
+                }
+                if (Object.getOwnPropertyNames(variableObject).length === 0) {
+                    return undefined;
+                }
+                return variableObject[variableName];
+            },
+            getIcon: function(value) {
+                if (value === true) {
+                    return '<i class="fa fa-check" style="color: green;" aria-hidden="true"></i>'
+                }
+                return '<i class="fa fa-times" style="color: red;" aria-hidden="true"></i>'
+            }
+        });
+    </script>
+</dom-module>
