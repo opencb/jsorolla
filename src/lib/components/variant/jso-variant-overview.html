@@ -5,11 +5,22 @@
             position: relative;
             width: 100%;
         }
+        #legend{
+          margin: 0 auto;
+          width: 50%;
+        }
     </style>
     <template>
-        <div id="overview" on-rowclick="handleRowClick">
+        <div class="horizontal layout">
+            <div id="overview" on-rowclick="handleRowClick">
+            </div>
+            <div id="legend">
+                <i class="fa fa-lightbulb-o" aria-hidden="true" style="font-size:16px;color:#32b0cd"></i>
+                <br>- All values are normalized between zero and one.
+                <br>- Values closest to zero are deleterious and closest to one are benign.
+                <br>- Polyphen and Sift are opposed, but in this case, Polyphen has been calculated as 1 - Polyphen.
+            </div>
         </div>
-        <div style="font-style:italic">{{overviewComent}}</div>
     </template>
     <script>
         Polymer({
