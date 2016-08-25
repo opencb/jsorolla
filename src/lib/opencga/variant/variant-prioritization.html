@@ -25,7 +25,7 @@
             <div class="prioritization-filter-view">
                 <div class="col-md-2">
                     <variant-prioritization-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                                   variant-list="{{variantList}}" variant="{{variant}}" population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}"
+                                                   variant-list="{{variantList}}" variant="{{variant}}" population-freq="{{populationFreq}}" population-frequencies="{{populationFrequencies}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}"
                                                    change-variant-tab="{{changeVariantTab}}" change-to-default="{{changeToDefault}}" cellbase-client="{{cellbaseClient}}"></variant-prioritization-filter>
                 </div>
                 <div class="col-md-10">
@@ -76,6 +76,9 @@
                 populationFreq: {
                     type: String,
                     value: ""
+                },
+                populationFrequencies: {
+                    type: Array
                 },
                 sift: {
                     type: String,

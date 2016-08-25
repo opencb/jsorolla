@@ -221,6 +221,7 @@
                             </div>
                         </div>
 
+
                         <!--Population Frequency filter-->
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">
@@ -231,159 +232,189 @@
                                     </a>
                                 </h4>
                             </div>
-                            <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel"
-                                 aria-labelledby="{{prefix}}PopulationFrequencyHeading">
+                            <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PopulationFrequencyHeading">
                                 <div class="panel-body">
 
-                                    <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction"
-                                       data-id="{{prefix}}Phase_3"></i>
-                                    <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3">1000
-                                        Genomes
-                                        population phase 3</label>
-                                    <div id="{{prefix}}Phase_3" hidden>
-                                        <label class="name">All populations MAF [ALL]</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="1000GENOMES_phase_3_ALL_op"
-                                                id="{{prefix}}1000GENOMES_phase_3_ALL_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_ALL"></span>
-                                        </div>
-                                        <label class="name">American MAF [AMR]</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="1000GENOMES_phase_3_AMR_op"
-                                                id="{{prefix}}1000GENOMES_phase_3_AMR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AMR"></span>
-                                        </div>
-                                        <label class="name">South Asian MAF [SAS]</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="1000GENOMES_phase_3_SAS_op"
-                                                id="{{prefix}}1000GENOMES_phase_3_SAS_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_SAS"></span>
-                                        </div>
-                                        <label class="name">East Asian MAF [EAS]</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="1000GENOMES_phase_3_EAS_op"
-                                                id="{{prefix}}1000GENOMES_phase_3_EAS_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EAS"></span>
-                                        </div>
-                                        <label class="name">African MAF [AFR]</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="1000GENOMES_phase_3_AFR_op"
-                                                id="{{prefix}}1000GENOMES_phase_3_AFR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AFR"></span>
-                                        </div>
-                                        <label class="name">European MAF [EUR]</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="1000GENOMES_phase_3_EUR_op"
-                                                id="{{prefix}}1000GENOMES_phase_3_EUR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EUR"></span>
-                                        </div>
-                                    </div>
 
-                                    <br>
-                                    <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500"></i>
-                                    <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500">ESP
-                                        6500</label>
-                                    <div id="{{prefix}}Esp_6500" hidden>
-                                        <label class="name">European american MAF</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="ESP_6500_EA_op" id="{{prefix}}ESP_6500_EA_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input"
-                                                         id="{{prefix}}ESP_6500_EA"></span>
-                                        </div>
-                                        <label class="name">African american MAF</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="ESP_6500_AA_op" id="{{prefix}}ESP_6500_AA_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input"
-                                                         id="{{prefix}}ESP_6500_AA"></span>
 
-                                        </div>
-                                    </div>
+                                    <template is="dom-repeat" items="{{populationFrequencies}}" as="popFreq">
 
-                                    <br>
-                                    <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction"
-                                       data-id="{{prefix}}Exac"></i>
-                                    <label class="popus" on-click="handleCollapseAction"
-                                           data-id="{{prefix}}Exac">EXAC</label>
-                                    <div id="{{prefix}}Exac" hidden>
-                                        <label class="name">EXAC MAF</label>
-                                        <div class="horizontal layout">
-                                            <span>MAF</span>
-                                            <span>
-                                        <select name="EXAC_ALL_op" id="{{prefix}}EXAC_ALL_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                            <span><input type="text" value="" class="custom-sixed-input"
-                                                         id="{{prefix}}EXAC_ALL"></span>
-                                        </div>
-                                    </div>
+                                        <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}{{popFreq.id}}"></i>
+                                        <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}{{popFreq.id}}">{{popFreq.title}}</label>
+
+                                        <!-- If there is not submenu we just display a button -->
+                                        <template is="dom-if" if="{{popFreq.subpopulations}}">
+                                            <div id="{{prefix}}{{popFreq.id}}" hidden>
+                                                <template is="dom-repeat" items="{{popFreq.subpopulations}}" as="subpopFreq">
+                                                    <label class="name">{{subpopFreq.title}}</label>
+                                                    <div class="horizontal layout">
+                                                        <span>MAF</span>
+                                                        <span>
+                                                            <select name="{{subpopFreq.id}}Operator" id="{{prefix}}{{popFreq.id}}{{subpopFreq.id}}Operator">
+                                                                <option value="<" selected><</option>
+                                                                <option value="<="><=</option>
+                                                                <option value=">">></option>
+                                                                <option value=">=">>=</option>
+                                                            </select>
+                                                        </span>
+                                                        <span>
+                                                            <input type="text" value="" class="custom-sixed-input" id="{{prefix}}{{popFreq.id}}{{subpopFreq.id}}">
+                                                        </span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <br>
+                                        </template>
+                                    </template>
+
+
+
+                                    <!--<i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3"></i>-->
+                                    <!--<label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3">1000 Genomes population phase 3</label>-->
+                                    <!--<div id="{{prefix}}Phase_3" hidden>-->
+                                        <!--<label class="name">All populations MAF [ALL]</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                                    <!--<select name="1000GENOMES_phase_3_ALL_op"-->
+                                                            <!--id="{{prefix}}1000GENOMES_phase_3_ALL_op">-->
+                                                        <!--<option value="<" selected><</option>-->
+                                                        <!--<option value="<="><=</option>-->
+                                                        <!--<option value=">">></option>-->
+                                                        <!--<option value=">=">>=</option>-->
+                                                    <!--</select>-->
+                                                <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_ALL"></span>-->
+                                        <!--</div>-->
+                                        <!--<label class="name">American MAF [AMR]</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="1000GENOMES_phase_3_AMR_op"-->
+                                                <!--id="{{prefix}}1000GENOMES_phase_3_AMR_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AMR"></span>-->
+                                        <!--</div>-->
+                                        <!--<label class="name">South Asian MAF [SAS]</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="1000GENOMES_phase_3_SAS_op"-->
+                                                <!--id="{{prefix}}1000GENOMES_phase_3_SAS_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_SAS"></span>-->
+                                        <!--</div>-->
+                                        <!--<label class="name">East Asian MAF [EAS]</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="1000GENOMES_phase_3_EAS_op"-->
+                                                <!--id="{{prefix}}1000GENOMES_phase_3_EAS_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EAS"></span>-->
+                                        <!--</div>-->
+                                        <!--<label class="name">African MAF [AFR]</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="1000GENOMES_phase_3_AFR_op"-->
+                                                <!--id="{{prefix}}1000GENOMES_phase_3_AFR_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AFR"></span>-->
+                                        <!--</div>-->
+                                        <!--<label class="name">European MAF [EUR]</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="1000GENOMES_phase_3_EUR_op"-->
+                                                <!--id="{{prefix}}1000GENOMES_phase_3_EUR_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EUR"></span>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+
+                                    <!--<br>-->
+                                    <!--<i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500"></i>-->
+                                    <!--<label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500">ESP-->
+                                        <!--6500</label>-->
+                                    <!--<div id="{{prefix}}Esp_6500" hidden>-->
+                                        <!--<label class="name">European american MAF</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="ESP_6500_EA_op" id="{{prefix}}ESP_6500_EA_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input"-->
+                                                         <!--id="{{prefix}}ESP_6500_EA"></span>-->
+                                        <!--</div>-->
+                                        <!--<label class="name">African american MAF</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="ESP_6500_AA_op" id="{{prefix}}ESP_6500_AA_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input"-->
+                                                         <!--id="{{prefix}}ESP_6500_AA"></span>-->
+
+                                        <!--</div>-->
+                                    <!--</div>-->
+
+                                    <!--<br>-->
+                                    <!--<i class="fa fa-angle-double-right minus" on-click="handleCollapseAction"-->
+                                       <!--data-id="{{prefix}}Exac"></i>-->
+                                    <!--<label class="popus" on-click="handleCollapseAction"-->
+                                           <!--data-id="{{prefix}}Exac">EXAC</label>-->
+                                    <!--<div id="{{prefix}}Exac" hidden>-->
+                                        <!--<label class="name">EXAC MAF</label>-->
+                                        <!--<div class="horizontal layout">-->
+                                            <!--<span>MAF</span>-->
+                                            <!--<span>-->
+                                        <!--<select name="EXAC_ALL_op" id="{{prefix}}EXAC_ALL_op">-->
+                                            <!--<option value="<" selected><</option>-->
+                                            <!--<option value="<="><=</option>-->
+                                            <!--<option value=">">></option>-->
+                                            <!--<option value=">=">>=</option>-->
+                                        <!--</select>-->
+                                    <!--</span>-->
+                                            <!--<span><input type="text" value="" class="custom-sixed-input"-->
+                                                         <!--id="{{prefix}}EXAC_ALL"></span>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
                                 </div>
                             </div>
                         </div>
@@ -597,6 +628,9 @@
                     value: "",
                     notify: true
                 },
+                populationFrequencies: {
+                    type: Array
+                },
                 sift: {
                     type: String,
                     value: "",
@@ -637,6 +671,10 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+            },
+            attached: function() {
+                console.log("this.populationFrequencies:")
+                console.log(this.populationFrequencies)
             },
             typeSelected: function (e) {
                 if (typeof e.target === "undefined") {
@@ -681,53 +719,53 @@
                 }
             },
             sampleChanged: function (neo, old) {
-              // sample object -- > father, mother, child
-                if (seggretation == "dominant") {
-                    if (father.isAffected) {
-                        switch (true) {
-                            case mother.isAffected && child.isAffected:
-                                // 0/1, 1/1 for all
-                                break;
-                            case !mother.isAffected && child.isAffected:
-                                // father 0/1, 1/1
-                                // mother 0/0
-                                // child 0/1
-                                break;
-                            case mother.isAffected && !child.isAffected:
-                                // father 0/1
-                                // mother 0/1
-                                // child 0/0
-                                break;
-                            case !mother.isAffected && !child.isAffected:
-                                // father 0/1
-                                // mother 0/0
-                                // child 0/0
-                                break;
-                        }
-                    } else if (mother.isAffected) {
-                        switch (true) {
-                            case father.isAffected && child.isAffected:
-                                // 0/1, 1/1 for all
-                                break;
-                            case !father.isAffected && child.isAffected:
-                                // father 0/0
-                                // mother 0/1, 1/1
-                                // child 0/1
-                                break;
-                            case father.isAffected && !child.isAffected:
-                                // father 0/1
-                                // mother 0/1
-                                // child 0/0
-                                break;
-                            case !father.isAffected && !child.isAffected:
-                                // father 0/0
-                                // mother 0/1
-                                // child 0/0
-                                break;
-                        }
-                    }
-
-                }
+                // sample object -- > father, mother, child
+//                if (seggretation == "dominant") {
+//                    if (father.isAffected) {
+//                        switch (true) {
+//                            case mother.isAffected && child.isAffected:
+//                                // 0/1, 1/1 for all
+//                                break;
+//                            case !mother.isAffected && child.isAffected:
+//                                // father 0/1, 1/1
+//                                // mother 0/0
+//                                // child 0/1
+//                                break;
+//                            case mother.isAffected && !child.isAffected:
+//                                // father 0/1
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                            case !mother.isAffected && !child.isAffected:
+//                                // father 0/1
+//                                // mother 0/0
+//                                // child 0/0
+//                                break;
+//                        }
+//                    } else if (mother.isAffected) {
+//                        switch (true) {
+//                            case father.isAffected && child.isAffected:
+//                                // 0/1, 1/1 for all
+//                                break;
+//                            case !father.isAffected && child.isAffected:
+//                                // father 0/0
+//                                // mother 0/1, 1/1
+//                                // child 0/1
+//                                break;
+//                            case father.isAffected && !child.isAffected:
+//                                // father 0/1
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                            case !father.isAffected && !child.isAffected:
+//                                // father 0/0
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                        }
+//                    }
+//
+//                }
             },
             handleCollapseAction: function (e) {
                 let id = e.srcElement.dataId;
@@ -749,27 +787,29 @@
                     var type = types[i];
                     type.checked = false;
                 }
+
                 // Freqs
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR_op").value = "<";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value = "";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL_op").value = "<";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value = "";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR_op").value = "<";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value = "";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS_op").value = "<";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value = "";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS_op").value = "<";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value = "";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR_op").value = "<";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value = "";
+//                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR_op").value = "<";
+//
+//
+//                this.$$("#" + this.prefix + "ESP_6500_EA").value = "";
+//                this.$$("#" + this.prefix + "ESP_6500_EA_op").value = "<";
+//                this.$$("#" + this.prefix + "ESP_6500_AA").value = "";
+//                this.$$("#" + this.prefix + "ESP_6500_AA_op").value = "<";
+//                this.$$("#" + this.prefix + "EXAC_ALL").value = "";
+//                this.$$("#" + this.prefix + "EXAC_ALL_op").value = "<";
 
-
-                this.$$("#" + this.prefix + "ESP_6500_EA").value = "";
-                this.$$("#" + this.prefix + "ESP_6500_EA_op").value = "<";
-                this.$$("#" + this.prefix + "ESP_6500_AA").value = "";
-                this.$$("#" + this.prefix + "ESP_6500_AA_op").value = "<";
-                this.$$("#" + this.prefix + "EXAC_ALL").value = "";
-                this.$$("#" + this.prefix + "EXAC_ALL_op").value = "<";
                 // Protein Substitution scores
                 this.$$("#" + this.prefix + "SiftInput").value = "";
                 this.$$("#" + this.prefix + "SiftOperator").value = "<";
@@ -802,48 +842,59 @@
 
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
-                var popFreq = [];
-
-                // 1000GENOMES_phase_3
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
+                // New code to parse all population frequencies
+                var popFreqs = [];
+                for (popIdx in populationFrequencies) {
+                    let popFreq = populationFrequencies[popIdx];
+                    for (subPropIdx in popFreq.subpopulations) {
+                        let subpopFreq = popFreq.subpopulations[subPropIdx];
+                        if (this.$$("#" + this.prefix + popFreq.id + subpopFreq.id).value != "") {
+                            let value = this.$$("#" + this.prefix + popFreq.id + subpopFreq.id).value;
+                            let valueOperator = this.$$("#" + this.prefix + popFreq.id + subpopFreq.id + "Operator").value;
+                            popFreqs.push(popFreq.study + ":" + subpopFreq.id + valueOperator + value);
+                        }
+                    }
                 }
 
-                //ESP_6500
-                if (this.$$("#" + this.prefix + "ESP_6500_EA").value != "") {
-                    popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
-                }
-                if (this.$$("#" + this.prefix + "ESP_6500_AA").value != "") {
-                    popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
-                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
+//                }
+//
+//                //ESP_6500
+//                if (this.$$("#" + this.prefix + "ESP_6500_EA").value != "") {
+//                    popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
+//                }
+//                if (this.$$("#" + this.prefix + "ESP_6500_AA").value != "") {
+//                    popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
+//                }
+//
+//                if (this.$$("#" + this.prefix + "EXAC_ALL").value != "") {
+//                    popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
+//                }
 
-                if (this.$$("#" + this.prefix + "EXAC_ALL").value != "") {
-                    popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
-                }
-
-                if (popFreq.length > 0) {
-                    query['annot-population-maf'] = popFreq.join(";");
+                if (popFreqs.length > 0) {
+                    query['annot-population-maf'] = popFreqs.join(";");
                     if (query['annot-population-maf'].indexOf("error") >= 0) {
                         return;
                     }
                 }
 
-                this.populationFreq = popFreq.join(';');
+                this.populationFreq = popFreqs.join(';');
 
                 // Protein Substitution scores
                 var sift;

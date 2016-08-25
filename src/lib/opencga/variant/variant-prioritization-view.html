@@ -33,45 +33,94 @@
                 <template is="dom-if" if="{{study.name != ''}}">
                     <h3>{{title}}</h3>
                 </template>
-                <ul id="{{prefix}}ViewTabs" class="nav nav-pills">
-                    <li role="presentation" class="active highlight" on-click="_triggerChange"><a href="#{{prefix}}BrowserTable" role="tab" data-toggle="tab">
-                        <b>Results</b></a></li>
-                    <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
-                    <li role="presentation" on-click="_triggerChangeVariantTab"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>
-                    <li role="presentation"><a href="#{{prefix}}Files" role="tab" data-toggle="tab">Files</a></li>
-                    <li role="presentation"><a href="#{{prefix}}SampleComparator" role="tab" data-toggle="tab">Sample Comparator</a></li>
-                </ul>
 
-                <div class="tab-content">
-                    <!--Results Table-->
-                    <div role="tabpanel" class="tab-pane fade in active" id="{{prefix}}BrowserTable" style="padding: 10px;">
+                <div class="btn-group" role="group" aria-label="...">
+                    <button id="{{prefix}}Results" type="button" class="btn btn-primary btn-lg" on-click="_triggerChange">Results</button>
+                </div>
+
+                <div class="btn-group" style="float: right" aria-label="...">
+                    <button id="{{prefix}}GenomeContext" type="button" class="btn btn-default" on-click="_triggerChange">Genome Context</button>
+                    <button id="{{prefix}}Annotation" type="button" class="btn btn-default" on-click="_triggerChange">Annotation</button>
+                    <button id="{{prefix}}Files" type="button" class="btn btn-default" on-click="_triggerChange">Files</button>
+                    <button id="{{prefix}}SampleComparator" type="button" class="btn btn-default" on-click="_triggerChange">Sample Comparator</button>
+                </div>
+
+
+
+
+                <div class="">
+                    <div class$="{{prefix}}Content" id="{{prefix}}ResultsDiv">
                         <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                                data-show-pagination-switch="true" data-show-export="true">
                             <thead style="background-color: #eee"></thead>
                         </table>
                     </div>
-                    <!--Genome Context Tab-->
-                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}GenomeView">
-                        <br>
-                        <genome-context></genome-context>
+
+                    <div class$="{{prefix}}Content" id="{{prefix}}GenomeContextDiv" style="display: none">
+                        <!--<genome-context></genome-context>-->
+                        No yet
                     </div>
 
                     <!--Annotation Tab-->
-                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}Annotation">
+                    <div class$="{{prefix}}Content" id="{{prefix}}AnnotationDiv"  style="display: none">
                         <br>
-                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="horizontal"></cellbase-variantannotation-view>
                     </div>
 
                     <!--Files Tab-->
-                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}Files">
-                        Files
+                    <div class$="{{prefix}}Content" id="{{prefix}}FilesDiv" style="display: none">
+                    Files
                     </div>
 
                     <!--Sample comparator-->
-                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}SampleComparator">
-                        Sample Comparator
+                    <div class$="{{prefix}}Content" id="{{prefix}}SampleComparatorDiv" style="display: none">
+                    Sample Comparator
                     </div>
                 </div>
+
+
+
+                <!--<ul id="{{prefix}}ViewTabs" class="nav nav-pills" style="float: right" role="tablist">-->
+                <!--<li role="presentation" class="active highlight" on-click="_triggerChange"><a href="#{{prefix}}BrowserTable" role="tab" data-toggle="tab">-->
+                <!--<b>Results</b></a>-->
+                <!--</li>-->
+                <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>-->
+                <!--<li role="presentation" on-click="_triggerChangeVariantTab"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>-->
+                <!--<li role="presentation"><a href="#{{prefix}}Files" role="tab" data-toggle="tab">Files</a></li>-->
+                <!--<li role="presentation"><a href="#{{prefix}}SampleComparator" role="tab" data-toggle="tab">Sample Comparator</a></li>-->
+                <!--</ul>-->
+
+                <!--<div class="tab-content">-->
+                <!--&lt;!&ndash;Results Table&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade in active" id="{{prefix}}BrowserTable" style="padding: 10px;">-->
+                <!--<br>-->
+                <!--<table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"-->
+                <!--data-show-pagination-switch="true" data-show-export="true">-->
+                <!--<thead style="background-color: #eee"></thead>-->
+                <!--</table>-->
+                <!--</div>-->
+                <!--&lt;!&ndash;Genome Context Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}GenomeView">-->
+                <!--<br>-->
+                <!--<genome-context></genome-context>-->
+                <!--</div>-->
+
+                <!--&lt;!&ndash;Annotation Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}Annotation">-->
+                <!--<br>-->
+                <!--<cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>-->
+                <!--</div>-->
+
+                <!--&lt;!&ndash;Files Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}Files">-->
+                <!--Files-->
+                <!--</div>-->
+
+                <!--&lt;!&ndash;Sample comparator&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}SampleComparator">-->
+                <!--Sample Comparator-->
+                <!--</div>-->
+                <!--</div>-->
             </div>
         </div>
     </template>
@@ -159,9 +208,20 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+
             },
             _triggerChange: function (e) {
-                this.changeToDefault = Utils.randomString(6);
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $('.' + this.prefix + 'Content').hide(); // hides all content divs
+                if (typeof e.srcElement.id !== "undefined") {
+                    $('#' + e.srcElement.id + 'Div').show(); // get the href and use it find which div to show
+                }
+
+                if (e.srcElement.id == (this.prefix + "Annotation")) {
+                    this.changeVariantTab = Utils.randomString(6);
+                } else {
+                    this.changeToDefault = Utils.randomString(6);
+                }
             },
             _triggerChangeVariantTab: function (e) {
                 this.changeVariantTab = Utils.randomString(6);
