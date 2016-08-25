@@ -411,7 +411,7 @@
             this.$.jsoLogin._login();
         },
         anonymousSign: function() {
-            this.$.jsoSignup.user = "anonymous" + Utils.randomString(40);
+            this.$.jsoSignup.user = "anonymous" + Utils.randomString(40).toLowerCase(); // all usernames must be lowercased because opencga fails  creating default projects with users like "Zaida" & "zaida".
             this.$.jsoSignup.name = "anonymous";
             this.$.jsoSignup.email = "anonymous@anonymous.anonymous";
             this.$.jsoSignup.organization = "none";
