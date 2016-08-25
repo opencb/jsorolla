@@ -682,52 +682,52 @@
             },
             sampleChanged: function (neo, old) {
               // sample object -- > father, mother, child
-                if (seggretation == "dominant") {
-                    if (father.isAffected) {
-                        switch (true) {
-                            case mother.isAffected && child.isAffected:
-                                // 0/1, 1/1 for all
-                                break;
-                            case !mother.isAffected && child.isAffected:
-                                // father 0/1, 1/1
-                                // mother 0/0
-                                // child 0/1
-                                break;
-                            case mother.isAffected && !child.isAffected:
-                                // father 0/1
-                                // mother 0/1
-                                // child 0/0
-                                break;
-                            case !mother.isAffected && !child.isAffected:
-                                // father 0/1
-                                // mother 0/0
-                                // child 0/0
-                                break;
-                        }
-                    } else if (mother.isAffected) {
-                        switch (true) {
-                            case father.isAffected && child.isAffected:
-                                // 0/1, 1/1 for all
-                                break;
-                            case !father.isAffected && child.isAffected:
-                                // father 0/0
-                                // mother 0/1, 1/1
-                                // child 0/1
-                                break;
-                            case father.isAffected && !child.isAffected:
-                                // father 0/1
-                                // mother 0/1
-                                // child 0/0
-                                break;
-                            case !father.isAffected && !child.isAffected:
-                                // father 0/0
-                                // mother 0/1
-                                // child 0/0
-                                break;
-                        }
-                    }
-
-                }
+//                if (seggretation == "dominant") {
+//                    if (father.isAffected) {
+//                        switch (true) {
+//                            case mother.isAffected && child.isAffected:
+//                                // 0/1, 1/1 for all
+//                                break;
+//                            case !mother.isAffected && child.isAffected:
+//                                // father 0/1, 1/1
+//                                // mother 0/0
+//                                // child 0/1
+//                                break;
+//                            case mother.isAffected && !child.isAffected:
+//                                // father 0/1
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                            case !mother.isAffected && !child.isAffected:
+//                                // father 0/1
+//                                // mother 0/0
+//                                // child 0/0
+//                                break;
+//                        }
+//                    } else if (mother.isAffected) {
+//                        switch (true) {
+//                            case father.isAffected && child.isAffected:
+//                                // 0/1, 1/1 for all
+//                                break;
+//                            case !father.isAffected && child.isAffected:
+//                                // father 0/0
+//                                // mother 0/1, 1/1
+//                                // child 0/1
+//                                break;
+//                            case father.isAffected && !child.isAffected:
+//                                // father 0/1
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                            case !father.isAffected && !child.isAffected:
+//                                // father 0/0
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                        }
+//                    }
+//
+//                }
             },
             handleCollapseAction: function (e) {
                 let id = e.srcElement.dataId;
