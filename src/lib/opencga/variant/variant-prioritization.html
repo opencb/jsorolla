@@ -25,12 +25,13 @@
             <div class="prioritization-filter-view">
                 <div class="col-md-2">
                     <variant-prioritization-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                            population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-prioritization-filter>
+                                                   variant-list="{{variantList}}" variant="{{variant}}" population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}"
+                                                   change-variant-tab="{{changeVariantTab}}" change-to-default="{{changeToDefault}}" cellbase-client="{{cellbaseClient}}"></variant-prioritization-filter>
                 </div>
                 <div class="col-md-10">
                     <variant-prioritization-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                          population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
-                                          on-selected="selectedGene"></variant-prioritization-view>
+                                                 variant-list="{{variantList}}" variant="{{variant}}" population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
+                                                 change-variant-tab="{{changeVariantTab}}" change-to-default="{{changeToDefault}}" on-selected="selectedGene"></variant-prioritization-view>
                 </div>
             </div>
         </div>
@@ -96,6 +97,18 @@
                     type: String
                 },
                 prefix: {
+                    type: String
+                },
+                variantList: {
+                    type: Array
+                },
+                variant: {
+                    type: String
+                },
+                changeToDefault: {
+                    type: String
+                },
+                changeVariantTab: {
                     type: String
                 }
             },

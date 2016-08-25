@@ -21,50 +21,54 @@
 <dom-module id="variant-prioritization-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .nav-pills > .highlight {
+                background: whitesmoke;
+            }
+        </style>
 
         <div>
             <!-- Variant Browser Grid -->
-            <div style="padding: 10px; ">
+            <div>
                 <template is="dom-if" if="{{study.name != ''}}">
-                    <!--<h3>{{study.name}}</h3>-->
                     <h3>{{title}}</h3>
                 </template>
-
-                <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                       data-show-pagination-switch="true" data-show-export="true">
-                    <thead style="background-color: #eee"></thead>
-                </table>
-            </div>
-            <h4>Variant: {{variant}}</h4>
-            <!--Tabs-->
-            <div>
-                <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
-                    <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>
+                <ul id="{{prefix}}ViewTabs" class="nav nav-pills">
+                    <li role="presentation" class="active highlight" on-click="_triggerChange"><a href="#{{prefix}}BrowserTable" role="tab" data-toggle="tab">
+                        <b>Results</b></a></li>
+                    <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
+                    <li role="presentation" on-click="_triggerChangeVariantTab"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>
                     <li role="presentation"><a href="#{{prefix}}Files" role="tab" data-toggle="tab">Files</a></li>
                     <li role="presentation"><a href="#{{prefix}}SampleComparator" role="tab" data-toggle="tab">Sample Comparator</a></li>
                 </ul>
 
                 <div class="tab-content">
+                    <!--Results Table-->
+                    <div role="tabpanel" class="tab-pane fade in active" id="{{prefix}}BrowserTable" style="padding: 10px;">
+                        <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                               data-show-pagination-switch="true" data-show-export="true">
+                            <thead style="background-color: #eee"></thead>
+                        </table>
+                    </div>
                     <!--Genome Context Tab-->
-                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
+                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}GenomeView">
                         <br>
                         <genome-context></genome-context>
                     </div>
 
                     <!--Annotation Tab-->
-                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Annotation">
+                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}Annotation">
                         <br>
                         <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
                     </div>
 
                     <!--Files Tab-->
-                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Files">
+                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}Files">
                         Files
                     </div>
 
                     <!--Sample comparator-->
-                    <div role="tabpanel" class="tab-pane" id="{{prefix}}SampleComparator">
+                    <div role="tabpanel" class="tab-pane fade" id="{{prefix}}SampleComparator">
                         Sample Comparator
                     </div>
                 </div>
@@ -130,6 +134,22 @@
                 },
                 prefix: {
                     type: String
+                },
+                variantList: {
+                    type: Array,
+                    value: [],
+                    notify: true
+                },
+                variant: {
+                    type: String
+                },
+                changeToDefault: {
+                    type: String,
+                    notify: true
+                },
+                changeVariantTab: {
+                    type: String,
+                    notify: true
                 }
             },
             ready: function () {
@@ -139,6 +159,12 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+            },
+            _triggerChange: function (e) {
+                this.changeToDefault = Utils.randomString(6);
+            },
+            _triggerChangeVariantTab: function (e) {
+                this.changeVariantTab = Utils.randomString(6);
             },
             renderFromServer: function () {
                 let _this = this;
@@ -209,6 +235,8 @@
 //                                _numTotal = res.response[0].numTotalResults;
                                 _numTotal = 1150;
                             }
+                            _this.variantList = res.response[0].result;
+                            console.log("_this.variantList", _this.variantList)
                             return {total: _numTotal, rows: res.response[0].result}
                         },
                         columns: this.cols,

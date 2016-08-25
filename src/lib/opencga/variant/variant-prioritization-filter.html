@@ -18,7 +18,7 @@
 
 <dom-module id="variant-prioritization-filter">
     <template>
-        <style is="custom-style" include="jso-styles iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        <style is="custom-style" include="jso-styles">
             select {
                 height: 20px;
                 width: 45px;
@@ -43,267 +43,299 @@
             span + span {
                 margin-left: 10px;
             }
+
+            .variants-display{
+                max-height: 700px;
+                overflow: auto;
+            }
         </style>
 
         <div>
+            <ul id="{{prefix}}FilterTabs" class="nav nav-tabs">
+                <li role="presentation" class="active"><a href="#{{prefix}}MainFilter" role="tab" data-toggle="tab">
+                    <b>Filter</b></a></li>
+                <template is="dom-if" if="{{showVariant}}">
+                    <li role="presentation"><a href="#{{prefix}}VariantFilter" role="tab" data-toggle="tab">Variants</a>
+                    </li>
+                </template>
+            </ul>
             <br>
-            <div>
-                <button type="button" class="btn btn-default" on-click="fireFilter">
-                    <i class="fa fa-filter" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-default" on-click="fireClear">Clear</button>
-                <button type="button" class="btn btn-default" on-click="fireSearch">Search</button>
-            </div>
-            <br>
-
-            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-                <!--Study filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter" aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
-                                Sample Filter
-                            </a>
-                        </h4>
+            <div class="tab-content">
+                <!--Main Filter-->
+                <div role="tabpanel" class="tab-pane fade in active" id="{{prefix}}MainFilter" style="padding: 10px;">
+                    <div>
+                        <button type="button" class="btn btn-default" on-click="fireFilter">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-default" on-click="fireClear">Clear</button>
+                        <button type="button" class="btn btn-default" on-click="fireSearch">Search</button>
                     </div>
-                    <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}SampleFilterHeading">
-                        <div class="panel-body">
-                            <div>
-                                <!--<template is="dom-repeat" items="{{somaticValues}}">-->
-                                <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
-                                <!--</template>-->
-                                <h5>Select type of analysis</h5>
-                                <input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>
-                                <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>
-                                <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>
-                                <input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control
+                    <br>
+
+                    <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+                        <!--Study filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
+                                       aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
+                                        Sample Filter
+                                    </a>
+                                </h4>
                             </div>
-                            <br>
-                            <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser">Sample Browser...</button>
-                            <br>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Segregation filter -->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}SegregationHeading">
-                        <h4 class="panel-title">
-                            <a role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Segregation" aria-expanded="false" aria-controls="{{prefix}}SegregationHeading">
-                                Segregation
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}Segregation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">
-                        <div class="panel-body">
-                            <table class="table table-hover">
-                                <thead>
-                                <tr>
-                                    <th>Sample</th>
-                                    <th>0/0</th>
-                                    <th>0/1</th>
-                                    <th>1/1</th>
-                                    <th>./.</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <template is="dom-repeat" items="{{samples}}">
-                                    <tr id="{{item}}" on-click="sampleGenotypeSelected">
-                                        <td>{{item}}</td>
-                                        <td><input type="checkbox" value="0/0" data-id="{{item}}"></td>
-                                        <td><input type="checkbox" value="0/1" data-id="{{item}}"></td>
-                                        <td><input type="checkbox" value="1/1" data-id="{{item}}"></td>
-                                        <td><input type="checkbox" value="./." data-id="{{item}}"></td>
-                                    </tr>
-                                </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!--Somatic filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SomaticFilter" aria-expanded="false" aria-controls="{{prefix}}somaticFilter">
-                                Somatic Filter
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}SomaticFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}somaticFilterHeading">
-                        <div class="panel-body">
-                            <template is="dom-repeat" items="{{somaticValues}}">
-                                <input type="radio" name="study" value="{{item}}"> {{item}}
-                            </template>
-                        </div>
-                    </div>
-                </div>
-
-                <!--Position filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}Position" aria-expanded="false" aria-controls="{{prefix}}Position">
-                                Position
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
-                        <div class="panel-body">
-                            Chromosomal Location:
-                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3"
-                                      placeholder="3:444-55555, 1:1-1000000"></textarea>
-                            Import from BED:
-                            <button type="button" class="btn btn-xs" on-click="">Import</button>
-                            <br>
-                            <br> Gene or SNPId:
-                            <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3"
-                                      placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Variant Type filter -->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}TypeHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Type" aria-expanded="false" aria-controls="{{prefix}}Type">
-                                Type
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
-                        <div class="panel-body">
-                            <div>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="SNV,SNP"> SNV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="MNV"> MNV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="CNV"> CNV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="SV"> SV
-                                </label>
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" value="INDEL"> INDEL
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!--Population Frequency filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
-                                Population Frequency
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel"
-                         aria-labelledby="{{prefix}}PopulationFrequencyHeading">
-                        <div class="panel-body">
-
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3">1000 Genomes
-                                population phase 3</label>
-                            <div id="{{prefix}}Phase_3" hidden>
-                                <label class="name">All populations MAF [ALL]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_ALL_op" id="{{prefix}}1000GENOMES_phase_3_ALL_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_ALL"></span>
-                                </div>
-                                <label class="name">American MAF [AMR]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_AMR_op" id="{{prefix}}1000GENOMES_phase_3_AMR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AMR"></span>
-                                </div>
-                                <label class="name">South Asian MAF [SAS]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_SAS_op" id="{{prefix}}1000GENOMES_phase_3_SAS_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_SAS"></span>
-                                </div>
-                                <label class="name">East Asian MAF [EAS]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_EAS_op" id="{{prefix}}1000GENOMES_phase_3_EAS_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EAS"></span>
-                                </div>
-                                <label class="name">African MAF [AFR]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_AFR_op" id="{{prefix}}1000GENOMES_phase_3_AFR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AFR"></span>
-                                </div>
-                                <label class="name">European MAF [EUR]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_EUR_op" id="{{prefix}}1000GENOMES_phase_3_EUR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EUR"></span>
+                            <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel"
+                                 aria-labelledby="{{prefix}}SampleFilterHeading">
+                                <div class="panel-body">
+                                    <div>
+                                        <!--<template is="dom-repeat" items="{{somaticValues}}">-->
+                                        <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
+                                        <!--</template>-->
+                                        <h5>Select type of analysis</h5>
+                                        <input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>
+                                        <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>
+                                        <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>
+                                        <input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control
+                                    </div>
+                                    <br>
+                                    <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser">Sample Browser...
+                                    </button>
+                                    <br>
                                 </div>
                             </div>
 
-                            <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500">ESP 6500</label>
-                            <div id="{{prefix}}Esp_6500" hidden>
-                                <label class="name">European american MAF</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
+                        </div>
+
+                        <!-- Segregation filter -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}SegregationHeading">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Segregation" aria-expanded="false"
+                                       aria-controls="{{prefix}}SegregationHeading">
+                                        Segregation
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}Segregation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">
+                                <div class="panel-body">
+                                    <table class="table table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Sample</th>
+                                            <th>0/0</th>
+                                            <th>0/1</th>
+                                            <th>1/1</th>
+                                            <th>./.</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <template is="dom-repeat" items="{{samples}}">
+                                            <tr id="{{item}}" on-click="sampleGenotypeSelected">
+                                                <td>{{item}}</td>
+                                                <td><input type="checkbox" value="0/0" data-id="{{item}}"></td>
+                                                <td><input type="checkbox" value="0/1" data-id="{{item}}"></td>
+                                                <td><input type="checkbox" value="1/1" data-id="{{item}}"></td>
+                                                <td><input type="checkbox" value="./." data-id="{{item}}"></td>
+                                            </tr>
+                                        </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Somatic filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SomaticFilter"
+                                       aria-expanded="false" aria-controls="{{prefix}}somaticFilter">
+                                        Somatic Filter
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}SomaticFilter" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}somaticFilterHeading">
+                                <div class="panel-body">
+                                    <template is="dom-repeat" items="{{somaticValues}}">
+                                        <input type="radio" name="study" value="{{item}}"> {{item}}
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Position filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                       href="#{{prefix}}Position" aria-expanded="false" aria-controls="{{prefix}}Position">
+                                        Position
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}Position" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}PositionHeading">
+                                <div class="panel-body">
+                                    Chromosomal Location:
+                                    <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"></textarea>
+                                    Import from BED:
+                                    <button type="button" class="btn btn-xs" on-click="">Import</button>
+                                    <br>
+                                    <br> Gene or SNPId:
+                                    <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variant Type filter -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}TypeHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Type" aria-expanded="false"
+                                       aria-controls="{{prefix}}Type">
+                                        Type
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}TypeHeading">
+                                <div class="panel-body">
+                                    <div>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" value="SNV,SNP"> SNV
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" value="MNV"> MNV
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" value="CNV"> CNV
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" value="SV"> SV
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" value="INDEL"> INDEL
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Population Frequency filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                       href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
+                                        Population Frequency
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}PopulationFrequencyHeading">
+                                <div class="panel-body">
+
+                                    <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction"
+                                       data-id="{{prefix}}Phase_3"></i>
+                                    <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3">1000
+                                        Genomes
+                                        population phase 3</label>
+                                    <div id="{{prefix}}Phase_3" hidden>
+                                        <label class="name">All populations MAF [ALL]</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
+                                        <select name="1000GENOMES_phase_3_ALL_op"
+                                                id="{{prefix}}1000GENOMES_phase_3_ALL_op">
+                                            <option value="<" selected><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">">></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </span>
+                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_ALL"></span>
+                                        </div>
+                                        <label class="name">American MAF [AMR]</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
+                                        <select name="1000GENOMES_phase_3_AMR_op"
+                                                id="{{prefix}}1000GENOMES_phase_3_AMR_op">
+                                            <option value="<" selected><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">">></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </span>
+                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AMR"></span>
+                                        </div>
+                                        <label class="name">South Asian MAF [SAS]</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
+                                        <select name="1000GENOMES_phase_3_SAS_op"
+                                                id="{{prefix}}1000GENOMES_phase_3_SAS_op">
+                                            <option value="<" selected><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">">></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </span>
+                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_SAS"></span>
+                                        </div>
+                                        <label class="name">East Asian MAF [EAS]</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
+                                        <select name="1000GENOMES_phase_3_EAS_op"
+                                                id="{{prefix}}1000GENOMES_phase_3_EAS_op">
+                                            <option value="<" selected><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">">></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </span>
+                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EAS"></span>
+                                        </div>
+                                        <label class="name">African MAF [AFR]</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
+                                        <select name="1000GENOMES_phase_3_AFR_op"
+                                                id="{{prefix}}1000GENOMES_phase_3_AFR_op">
+                                            <option value="<" selected><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">">></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </span>
+                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AFR"></span>
+                                        </div>
+                                        <label class="name">European MAF [EUR]</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
+                                        <select name="1000GENOMES_phase_3_EUR_op"
+                                                id="{{prefix}}1000GENOMES_phase_3_EUR_op">
+                                            <option value="<" selected><</option>
+                                            <option value="<="><=</option>
+                                            <option value=">">></option>
+                                            <option value=">=">>=</option>
+                                        </select>
+                                    </span>
+                                            <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EUR"></span>
+                                        </div>
+                                    </div>
+
+                                    <br>
+                                    <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500"></i>
+                                    <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500">ESP
+                                        6500</label>
+                                    <div id="{{prefix}}Esp_6500" hidden>
+                                        <label class="name">European american MAF</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
                                         <select name="ESP_6500_EA_op" id="{{prefix}}ESP_6500_EA_op">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -311,12 +343,13 @@
                                             <option value=">=">>=</option>
                                         </select>
                                     </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}ESP_6500_EA"></span>
-                                </div>
-                                <label class="name">African american MAF</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
+                                            <span><input type="text" value="" class="custom-sixed-input"
+                                                         id="{{prefix}}ESP_6500_EA"></span>
+                                        </div>
+                                        <label class="name">African american MAF</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
                                         <select name="ESP_6500_AA_op" id="{{prefix}}ESP_6500_AA_op">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -324,19 +357,22 @@
                                             <option value=">=">>=</option>
                                         </select>
                                     </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}ESP_6500_AA"></span>
+                                            <span><input type="text" value="" class="custom-sixed-input"
+                                                         id="{{prefix}}ESP_6500_AA"></span>
 
-                                </div>
-                            </div>
+                                        </div>
+                                    </div>
 
-                            <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Exac"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Exac">EXAC</label>
-                            <div id="{{prefix}}Exac" hidden>
-                                <label class="name">EXAC MAF</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
+                                    <br>
+                                    <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction"
+                                       data-id="{{prefix}}Exac"></i>
+                                    <label class="popus" on-click="handleCollapseAction"
+                                           data-id="{{prefix}}Exac">EXAC</label>
+                                    <div id="{{prefix}}Exac" hidden>
+                                        <label class="name">EXAC MAF</label>
+                                        <div class="horizontal layout">
+                                            <span>MAF</span>
+                                            <span>
                                         <select name="EXAC_ALL_op" id="{{prefix}}EXAC_ALL_op">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -344,28 +380,30 @@
                                             <option value=">=">>=</option>
                                         </select>
                                     </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}EXAC_ALL"></span>
+                                            <span><input type="text" value="" class="custom-sixed-input"
+                                                         id="{{prefix}}EXAC_ALL"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!--Protein Substitution Scores filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}}ProteinSubstitutionScoreHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ProteinSubstitutionScore"
-                               aria-expanded="false" aria-controls="{{prefix}}ProteinSubstitutionScore">
-                                Protein Substitution Score
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
-                        <div class="panel-body">
-                            <div class="horizontal layout">
-                                <span>SIFT</span>
-                                    <span>
+                        <!--Protein Substitution Scores filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}}ProteinSubstitutionScoreHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ProteinSubstitutionScore"
+                                       aria-expanded="false" aria-controls="{{prefix}}ProteinSubstitutionScore">
+                                        Protein Substitution Score
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
+                                <div class="panel-body">
+                                    <div class="horizontal layout">
+                                        <span>SIFT</span>
+                                        <span>
                                         <select name="siftOperator" id="{{prefix}}SiftOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -373,12 +411,12 @@
                                             <option value=">=">>=</option>
                                         </select>
                                     </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}SiftInput"></span>
-                            </div>
-                            <br>
-                            <div class="horizontal layout">
-                                <span>Polyphen</span>
-                                    <span>
+                                        <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}SiftInput"></span>
+                                    </div>
+                                    <br>
+                                    <div class="horizontal layout">
+                                        <span>Polyphen</span>
+                                        <span>
                                         <select name="polyphenOperator" id="{{prefix}}PolyphenOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -386,26 +424,28 @@
                                             <option value=">=">>=</option>
                                         </select>
                                     </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PolyphenInput"></span>
+                                        <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PolyphenInput"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!--Conservation Scores filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}conservationFilterHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ConservationFilter" aria-expanded="false" aria-controls="{{prefix}}ConservationFilter">
-                                Conservation
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}conservationFilterHeading">
-                        <div class="panel-body">
-                            <div class="horizontal layout">
-                                <span>PhyloP</span>
-                                    <span>
+                        <!--Conservation Scores filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}conservationFilterHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                       href="#{{prefix}}ConservationFilter" aria-expanded="false" aria-controls="{{prefix}}ConservationFilter">
+                                        Conservation
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}conservationFilterHeading">
+                                <div class="panel-body">
+                                    <div class="horizontal layout">
+                                        <span>PhyloP</span>
+                                        <span>
                                         <select name="phylopOperator" id="{{prefix}}PhylopOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -413,12 +453,12 @@
                                             <option value=">=">>=</option>
                                         </select>
                                     </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhylopInput"></span>
-                            </div>
-                            <br>
-                            <div class="horizontal layout">
-                                <span>PhastCons</span>
-                                    <span>
+                                        <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhylopInput"></span>
+                                    </div>
+                                    <br>
+                                    <div class="horizontal layout">
+                                        <span>PhastCons</span>
+                                        <span>
                                         <select name="phastconsOperator" id="{{prefix}}PhastconsOperator">
                                             <option value="<" selected><</option>
                                             <option value="<="><=</option>
@@ -426,65 +466,81 @@
                                             <option value=">=">>=</option>
                                         </select>
                                     </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhastconsInput"></span>
+                                        <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhastconsInput"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Consequence Type filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                       href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
+                                        Consequence Type
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
+                                <div class="panel-body">
+                                    Consequence Type
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gene Ontology filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                       href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">
+                                        Gene Ontology
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
+                                <div class="panel-body">
+                                    <textarea id="{{prefix}}bierAppGeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Human Phenotype Ontology filter-->
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}HumanPhenotypeOntologyHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}HumanPhenotypeOntology" aria-expanded="false" aria-controls="{{prefix}}HumanPhenotypeOntology">
+                                        Human Phenotype Ontology
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
+                                <div class="panel-body">
+                                    <textarea id="{{prefix}}bierAppHumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!--Consequence Type filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
-                                Consequence Type
-                            </a>
-                        </h4>
+                <template is="dom-if" if="{{showVariant}}">
+                    <div role="tabpanel" class="tab-pane fade variants-display" id="{{prefix}}VariantFilter">
+                        <template is="dom-repeat" items="{{variantList}}">
+                            <div>
+                                <b on-click="_updateVariant" id="{{item.chromosome}}:{{item.start}}:{{item.reference}}:{{item.alternate}}" style="cursor: pointer">
+                                    {{item.chromosome}}:{{item.start}}:{{item.reference}}:{{item.alternate}}</b><br>
+                                {{item.id}}
+                                <hr>
+                            </div>
+                        </template>
                     </div>
-                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
-                        <div class="panel-body">
-                            Consequence Type
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gene Ontology filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">
-                                Gene Ontology
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
-                        <div class="panel-body">
-                            <textarea id="{{prefix}}bierAppGeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Human Phenotype Ontology filter-->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}HumanPhenotypeOntologyHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}HumanPhenotypeOntology" aria-expanded="false"
-                               aria-controls="{{prefix}}HumanPhenotypeOntology">
-                                Human Phenotype Ontology
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
-                        <div class="panel-body">
-                            <textarea id="{{prefix}}bierAppHumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
-                        </div>
-                    </div>
-                </div>
+                </template>
             </div>
         </div>
-
         <!-- Modal dialog for Sample Browser -->
-        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog" aria-labelledby="sampleBrowserLabel">
+        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
             <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -525,7 +581,8 @@
                 samples: {
                     type: Array,
                     value: [],
-                    notify: true
+                    notify: true,
+                    observer: "sampleChanged"
                 },
                 sampleGenotypes: {
                     type: String,
@@ -557,9 +614,24 @@
                 },
                 prefix: {
                     type: String
+                },
+                variantList: {
+                    type: Array
+                },
+                variant: {
+                    type: String,
+                    notify: true
+                },
+                changeToDefault: {
+                    type: String,
+                    observer: "changeToFilterTab"
+                },
+                changeVariantTab: {
+                    type: String,
+                    observer: "changeToVariantTab"
                 }
             },
-            ready: function() {
+            ready: function () {
                 this.sampleGenotypesObj = {};
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
@@ -574,7 +646,18 @@
                 }
                 console.log("type:", this.type);
             },
-            sampleGenotypeSelected: function(e) {
+            _updateVariant: function (e) {
+                this.variant = e.srcElement.id;
+            },
+            changeToVariantTab: function (neo, old) {
+                this.showVariant = true;
+                $('.nav-tabs a[href="#' + this.prefix + 'VariantFilter"]').tab('show');
+            },
+            changeToFilterTab: function (neo, old) {
+                this.showVariant = false;
+                $('.nav-tabs a[href="#' + this.prefix + 'MainFilter"]').tab('show');
+            },
+            sampleGenotypeSelected: function (e) {
                 if (typeof e !== "undefined") {
                     if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
                         this.sampleGenotypesObj[e.target.dataId] = {};
@@ -595,6 +678,55 @@
                         }
                     }
                     this.sampleGenotypes = arr.join(';');
+                }
+            },
+            sampleChanged: function (neo, old) {
+              // sample object -- > father, mother, child
+                if (seggretation == "dominant") {
+                    if (father.isAffected) {
+                        switch (true) {
+                            case mother.isAffected && child.isAffected:
+                                // 0/1, 1/1 for all
+                                break;
+                            case !mother.isAffected && child.isAffected:
+                                // father 0/1, 1/1
+                                // mother 0/0
+                                // child 0/1
+                                break;
+                            case mother.isAffected && !child.isAffected:
+                                // father 0/1
+                                // mother 0/1
+                                // child 0/0
+                                break;
+                            case !mother.isAffected && !child.isAffected:
+                                // father 0/1
+                                // mother 0/0
+                                // child 0/0
+                                break;
+                        }
+                    } else if (mother.isAffected) {
+                        switch (true) {
+                            case father.isAffected && child.isAffected:
+                                // 0/1, 1/1 for all
+                                break;
+                            case !father.isAffected && child.isAffected:
+                                // father 0/0
+                                // mother 0/1, 1/1
+                                // child 0/1
+                                break;
+                            case father.isAffected && !child.isAffected:
+                                // father 0/1
+                                // mother 0/1
+                                // child 0/0
+                                break;
+                            case !father.isAffected && !child.isAffected:
+                                // father 0/0
+                                // mother 0/1
+                                // child 0/0
+                                break;
+                        }
+                    }
+
                 }
             },
             handleCollapseAction: function (e) {
