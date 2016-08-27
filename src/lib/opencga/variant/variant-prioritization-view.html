@@ -69,12 +69,12 @@
 
                     <!--Files Tab-->
                     <div class$="{{prefix}}Content" id="{{prefix}}FilesDiv" style="display: none">
-                    Files
+                        Files
                     </div>
 
                     <!--Sample comparator-->
                     <div class$="{{prefix}}Content" id="{{prefix}}SampleComparatorDiv" style="display: none">
-                    Sample Comparator
+                        Sample Comparator
                     </div>
                 </div>
 
@@ -165,6 +165,9 @@
                     type: String,
                     value: "",
                     observer: 'renderFromServer'
+                },
+                populationFrequencies: {
+                    type: Array
                 },
                 sift: {
                     type: String,
@@ -322,7 +325,7 @@
                 });
             },
             variantFormatter: function (value, row, index) {
-                return row.chromosome + ':' + row.start;
+                return "<span style='white-space: nowrap;'>" + row.chromosome + ':' + row.start + " " + row.reference + '/' + row.alternate + "</span>";
             },
             alleleFormatter: function (value, row, index) {
                 return row.reference + '/' + row.alternate;
@@ -353,14 +356,18 @@
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
                         var consequenceTypesArr = [];
+                        var visited = new Set();
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-                                let transcriptId = '-';
-                                if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
-                                    transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
-                                }
-                                if (typeof row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name !== "undefined" && row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name != "") { //&& typeof visited[row.annotation.consequenceTypes[i].sequenceOntologyTerms.name] === "undefined"
-                                    consequenceTypesArr.push(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name + "(" + transcriptId + ")");
+//                                let transcriptId = '-';
+//                                if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
+//                                    transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
+//                                }
+                                if (typeof row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name !== "undefined"
+                                        && row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name != ""
+                                        && !visited.has(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name)) { //&& typeof visited[row.annotation.consequenceTypes[i].sequenceOntologyTerms.name] === "undefined"
+                                    consequenceTypesArr.push(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name); // + "(" + transcriptId + ")");
+                                    visited.add(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name);
                                 }
                             }
                         }
@@ -425,22 +432,60 @@
             },
             sampleFormatter: function (value, row, index) {
                 if (typeof row !== "undefined") {
-                    // NOTE: There are always 5 columns before the samples
-                    return row.studies[0].samplesData[this.fieldIndex - 5][0];
+                    // NOTE: There are always 4 columns before the samples
+                    return row.studies[0].samplesData[this.fieldIndex - 4][0];
                 }
                 return '-';
             },
             populationFrequenciesFormatter: function(value, row, index) {
-//                console.log("ALL")
-//                console.log(this)
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    for (popFreqIdx in row.annotation.populationFrequencies) {
+                        let popFreq = row.annotation.populationFrequencies[popFreqIdx];
+                        let studyPopulation = popFreq.study + ":" + popFreq.population;
+                        if (studyPopulation == this.field) {
+                            return Number(popFreq.altAlleleFreq).toFixed(4);
+                        }
+                    }
+                }
+                return '-';
             },
             _refreshTableColumns: function() {
                 this.cols = this._initColumns();
+
+                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                    let popIdx = 0;
+                    for (let i = 0; i < this.populationFrequencies.length; i++) {
+                        let study = this.populationFrequencies[i];
+                        console.log(study)
+                        this.cols[0].splice(9 + i, 0, {
+                            title: study.title,
+                            field: study.id,
+                            rowspan: 1,
+                            colspan: study.populations.length
+                        });
+                        if (i > 0) {
+                            popIdx += this.populationFrequencies[i - 1].populations.length;
+                        }
+                        for(let j = 0; j < study.populations.length; j++) {
+                            this.cols[1].splice(j + popIdx, 0,
+                                    {
+                                        title: study.populations[j].id,
+                                        field: study.id + ":" + study.populations[j].id,
+                                        rowspan: 1,
+                                        colspan: 1,
+//                                        visible: false,
+                                        formatter: this.populationFrequenciesFormatter
+                                    });
+                        }
+                    }
+                }
+
+
                 if (typeof this.cols !== "undefined") {
                     switch(this.type) {
                         case "family":
                             // if type is 'family' we expected few samples to be provided in property 'samples'
-                            this.cols[0].splice(5, 0, {
+                            this.cols[0].splice(4, 0, {
                                 title: 'Samples',
                                 field: 'samples',
                                 rowspan: 1,
@@ -458,7 +503,7 @@
                             }
                             break;
                         case "somatic":
-                            this.cols[0].splice(5, 0, {
+                            this.cols[0].splice(4, 0, {
                                 title: this.samples[0],
                                 field: 'samples',
                                 rowspan: 1,
@@ -480,7 +525,7 @@
                             );
                             break;
                         case "cc":
-                            this.cols[0].splice(5, 0, {
+                            this.cols[0].splice(4, 0, {
                                 title: 'Samples',
                                 field: 'samples',
                                 rowspan: 1,
@@ -505,6 +550,9 @@
                             break;
                     }
                 }
+
+
+
                 this.renderFromServer();
             },
             _initColumns: function() {
@@ -518,15 +566,15 @@
                             rowspan: 2,
                             formatter: this.variantFormatter
                         },
+//                        {
+//                            title: 'Alleles',
+//                            field: 'allele',
+//                            colspan: 1,
+//                            rowspan: 2,
+//                            formatter: this.alleleFormatter
+//                        },
                         {
-                            title: 'Alleles',
-                            field: 'allele',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.alleleFormatter
-                        },
-                        {
-                            title: 'SNPId',
+                            title: 'SNP Id',
                             field: 'id',
                             colspan: 1,
                             rowspan: 2,
@@ -553,53 +601,53 @@
                             rowspan: 2,
                             formatter: this.consequenceTypeFormatter
                         },
-                        {
-                            title: 'DP',
-                            field: 'dp',
-                            colspan: 1,
-                            rowspan: 2
-                        },
+//                        {
+//                            title: 'DP',
+//                            field: 'dp',
+//                            colspan: 1,
+//                            rowspan: 2
+//                        },
                         {
                             title: 'SIFT',
                             field: 'sift',
-                            colspan: 1,
                             rowspan: 2,
+                            colspan: 1,
                             formatter: this.proteinScoreFormatter
                         },
                         {
                             title: 'Polyphen2',
                             field: 'polyphen2',
-                            colspan: 1,
                             rowspan: 2,
+                            colspan: 1,
                             formatter: this.proteinScoreFormatter
                         },
                         {
                             title: 'PhyloP',
                             field: 'PhyloP',
-                            colspan: 1,
                             rowspan: 2,
+                            colspan: 1,
                             formatter: this.phylopFormatter
                         },
                         {
                             title: 'PhastCons',
                             field: 'PhastCons',
-                            colspan: 1,
                             rowspan: 2,
+                            colspan: 1,
                             formatter: this.phastconsFormatter
                         },
-                        {
-                            title: '1000G MAF (phase 3)',
-                            field: '1000G MAF (phase 3)',
-                            colspan: 6,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'EXAC',
-                            field: 'exac',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.populationFrequenciesFormatter
-                        },
+//                        {
+//                            title: '1000G MAF (phase 3)',
+//                            field: '1000G MAF (phase 3)',
+//                            rowspan: 1,
+//                            colspan: 6
+//                        },
+//                        {
+//                            title: 'EXAC',
+//                            field: 'exac',
+//                            colspan: 1,
+//                            rowspan: 2,
+//                            formatter: this.populationFrequenciesFormatter
+//                        },
                         {
                             title: 'Phenotype',
                             field: 'Phenotype',
@@ -608,44 +656,44 @@
                         }
                     ],
                     [
-                        {
-                            title: 'ALL',
-                            field: 'all',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.populationFrequenciesFormatter
-                        },
-                        {
-                            title: 'AMR',
-                            field: 'amr',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.populationFrequenciesFormatter
-                        },
-                        {
-                            title: 'SAS',
-                            field: 'sas',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'EAS',
-                            field: 'eas',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'AFR',
-                            field: 'afr',
-                            colspan: 1,
-                            rowspan: 1
-                        },
-                        {
-                            title: 'EUR',
-                            field: 'eur',
-                            colspan: 1,
-                            rowspan: 1
-                        },
+//                        {
+//                            title: 'ALL',
+//                            field: 'all',
+//                            colspan: 1,
+//                            rowspan: 1,
+//                            formatter: this.populationFrequenciesFormatter
+//                        },
+//                        {
+//                            title: 'AMR',
+//                            field: 'amr',
+//                            colspan: 1,
+//                            rowspan: 1,
+//                            formatter: this.populationFrequenciesFormatter
+//                        },
+//                        {
+//                            title: 'SAS',
+//                            field: 'sas',
+//                            colspan: 1,
+//                            rowspan: 1
+//                        },
+//                        {
+//                            title: 'EAS',
+//                            field: 'eas',
+//                            colspan: 1,
+//                            rowspan: 1
+//                        },
+//                        {
+//                            title: 'AFR',
+//                            field: 'afr',
+//                            colspan: 1,
+//                            rowspan: 1
+//                        },
+//                        {
+//                            title: 'EUR',
+//                            field: 'eur',
+//                            colspan: 1,
+//                            rowspan: 1
+//                        },
                         {
                             title: 'Clinvar',
                             field: 'annotation.variantTraitAssociation.clinvar.accession',
