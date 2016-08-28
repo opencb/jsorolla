@@ -31,28 +31,58 @@
             <!-- Variant Browser Grid -->
             <div>
                 <template is="dom-if" if="{{study.name != ''}}">
-                    <h3>{{title}}</h3>
+                    <h2>{{title}}</h2>
                 </template>
 
-                <div class="btn-group" role="group" aria-label="...">
-                    <button id="{{prefix}}Results" type="button" class="btn btn-primary btn-lg" on-click="_triggerChange">Results</button>
+                <template is="dom-if" if="{{!resultsViewActive}}">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button id="{{prefix}}Results" type="button" class="btn btn-primary" on-click="_triggerChange">Back to Results</button>
+                    </div>
+                </template>
+
+                <div style="float: right" aria-label="...">
+                    <span>
+                        <!--<i class="fa fa-area-chart"></i>-->
+                        <i class="fa fa-credit-card"></i>
+                        <a id="{{prefix}}GenomeContext" on-click="_triggerChange">GENOME CONTEXT</a>
+                    </span>
+                    <span>&nbsp;</span>
+                    <span>
+                        <i class="fa fa-search-plus"></i>
+                        <a id="{{prefix}}Annotation" on-click="_triggerChange">ADVANCED ANNOTATION</a>
+                    </span>
+                    <span>&nbsp;</span>
+                    <span>
+                        <i class="fa fa-file-text-o"></i>
+                        <a id="{{prefix}}Files" on-click="_triggerChange">FILE INFO</a>
+                    </span>
+                    <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                    <span>
+                        <i class="fa fa-user-md"></i>
+                        <a id="{{prefix}}Family" on-click="_triggerChange">FAMILY DATA</a>
+                    </span>
+                    <span>&nbsp;</span>
+                    <span>
+                        <i class="fa fa-save"></i>
+                        <a id="{{prefix}}Save" on-click="_triggerChange">SAVE</a>
+                    </span>
+                    <!--<button id="{{prefix}}GenomeContext" type="button" class="btn btn-default" on-click="_triggerChange">Genome Context</button>-->
+                    <!--<button id="{{prefix}}Annotation" type="button" class="btn btn-default" on-click="_triggerChange">Advance Annotation</button>-->
+                    <!--<button id="{{prefix}}Files" type="button" class="btn btn-default" on-click="_triggerChange">File Info</button>-->
+                    <!--<button id="{{prefix}}SampleComparator" type="button" class="btn btn-default" on-click="_triggerChange">Clinical Data</button>-->
+                    <!--<button id="{{prefix}}Save" type="button" class="btn btn-default" on-click="_triggerChange">Save</button>-->
                 </div>
 
-                <div class="btn-group" style="float: right" aria-label="...">
-                    <button id="{{prefix}}GenomeContext" type="button" class="btn btn-default" on-click="_triggerChange">Genome Context</button>
-                    <button id="{{prefix}}Annotation" type="button" class="btn btn-default" on-click="_triggerChange">Annotation</button>
-                    <button id="{{prefix}}Files" type="button" class="btn btn-default" on-click="_triggerChange">Files</button>
-                    <button id="{{prefix}}SampleComparator" type="button" class="btn btn-default" on-click="_triggerChange">Sample Comparator</button>
-                </div>
 
 
-
-
+                <!-- CONTENT -->
+                <br>
                 <div class="">
                     <div class$="{{prefix}}Content" id="{{prefix}}ResultsDiv">
-                        <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                               data-show-pagination-switch="true" data-show-export="true">
-                            <thead style="background-color: #eee"></thead>
+                        <h4>Variants for ...</h4>
+                        <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true"
+                               data-pagination="true" data-page-list="[10, 25, 50]" data-show-pagination-switch="true" data-show-export="true">
+                            <thead style="background-color: #eeeeee"></thead>
                         </table>
                     </div>
 
@@ -212,6 +242,12 @@
                     this.prefix = Utils.randomString(6);
                 }
 
+                this.resultsViewActive = true;
+
+            },
+            attached: function () {
+                this.resultsViewActive = true;
+
             },
             _triggerChange: function (e) {
                 e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
@@ -219,6 +255,9 @@
                 if (typeof e.srcElement.id !== "undefined") {
                     $('#' + e.srcElement.id + 'Div').show(); // get the href and use it find which div to show
                 }
+
+                // Set Results view button visible or hidden
+                this.resultsViewActive = (e.srcElement.id == this.prefix + "Results");
 
                 if (e.srcElement.id == (this.prefix + "Annotation")) {
                     this.changeVariantTab = Utils.randomString(6);
