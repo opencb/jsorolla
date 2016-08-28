@@ -114,6 +114,16 @@
                             sortable: true
                         },
                         {
+                            title: 'Family member',
+                            field: 'familiyMember',
+                            formatter: this.familyMemberFormatter
+                        },
+                        {
+                            title: 'Affected',
+                            field: 'affected',
+                            formatter: this.affectedFormatter
+                        },
+                        {
                             title: 'Source',
                             field: 'source'
                         },
@@ -192,6 +202,23 @@
                 return $.map($('#' + this.prefix +'SampleGrid').bootstrapTable('getSelections'), function (row) {
                     return row.name
                 });
+            },
+            familyMemberFormatter: function (value, row, index) {
+                let dropdown = `
+                        <div>
+                            <select name="siftOperator" id="{{prefix}}SiftOperator">
+                                <option value="unknown" selected>-</option>
+                                <option value="father">Father</option>
+                                <option value="mother">Mother</option>
+                                <option value="child">Child</option>
+                            </select>
+                        </div>
+                `;
+                return dropdown;
+            },
+            affectedFormatter: function (value, row, index) {
+                let checkbox = "<input type='checkbox'>";
+                return checkbox;
             },
             dateFormatter: function (value, row, index) {
                 return row.status.date;
