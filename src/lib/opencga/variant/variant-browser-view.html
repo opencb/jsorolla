@@ -352,7 +352,7 @@
 //                console.log(this)
             },
             _refreshTableColumns: function() {
-                this.cols = this._initColumns();
+                this.cols = this._createDefaultColumns();
                 if (typeof this.cols !== "undefined") {
                     switch(this.type) {
                         case "family":
@@ -424,7 +424,7 @@
                 }
                 this.renderFromServer();
             },
-            _initColumns: function() {
+            _createDefaultColumns: function() {
                 var initCols = [
                     [
                         {

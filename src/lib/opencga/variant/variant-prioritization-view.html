@@ -25,6 +25,12 @@
             .nav-pills > .highlight {
                 background: whitesmoke;
             }
+
+            .variant-menu-link:hover {
+                cursor: pointer;
+                background-color: #EEEEEE;
+                text-decoration: none;
+            }
         </style>
 
         <div>
@@ -44,27 +50,27 @@
                     <span>
                         <!--<i class="fa fa-area-chart"></i>-->
                         <i class="fa fa-credit-card"></i>
-                        <a id="{{prefix}}GenomeContext" on-click="_triggerChange">GENOME CONTEXT</a>
+                        <a id="{{prefix}}GenomeContext" class="variant-menu-link" on-click="_triggerChange">GENOME CONTEXT</a>
                     </span>
                     <span>&nbsp;</span>
                     <span>
                         <i class="fa fa-search-plus"></i>
-                        <a id="{{prefix}}Annotation" on-click="_triggerChange">ADVANCED ANNOTATION</a>
+                        <a id="{{prefix}}Annotation" class="variant-menu-link" on-click="_triggerChange">ADVANCED ANNOTATION</a>
                     </span>
                     <span>&nbsp;</span>
                     <span>
                         <i class="fa fa-file-text-o"></i>
-                        <a id="{{prefix}}Files" on-click="_triggerChange">FILE INFO</a>
+                        <a id="{{prefix}}Files" class="variant-menu-link" on-click="_triggerChange">FILE INFO</a>
                     </span>
                     <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                     <span>
                         <i class="fa fa-user-md"></i>
-                        <a id="{{prefix}}Family" on-click="_triggerChange">FAMILY DATA</a>
+                        <a id="{{prefix}}Family" class="variant-menu-link" on-click="_triggerChange">FAMILY DATA</a>
                     </span>
                     <span>&nbsp;</span>
                     <span>
                         <i class="fa fa-save"></i>
-                        <a id="{{prefix}}Save" on-click="_triggerChange">SAVE</a>
+                        <a id="{{prefix}}Save" class="variant-menu-link" on-click="_triggerChange">SAVE</a>
                     </span>
                     <!--<button id="{{prefix}}GenomeContext" type="button" class="btn btn-default" on-click="_triggerChange">Genome Context</button>-->
                     <!--<button id="{{prefix}}Annotation" type="button" class="btn btn-default" on-click="_triggerChange">Advance Annotation</button>-->
@@ -79,7 +85,7 @@
                 <br>
                 <div class="">
                     <div class$="{{prefix}}Content" id="{{prefix}}ResultsDiv">
-                        <h4>Variants for ...</h4>
+                        <h3>Variant result</h3>
                         <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true"
                                data-pagination="true" data-page-list="[10, 25, 50]" data-show-pagination-switch="true" data-show-export="true">
                             <thead style="background-color: #eeeeee"></thead>
@@ -87,13 +93,14 @@
                     </div>
 
                     <div class$="{{prefix}}Content" id="{{prefix}}GenomeContextDiv" style="display: none">
+                        <br><h3>Genome context for {{variant}}</h3><br>
                         <!--<genome-context></genome-context>-->
                         No yet
                     </div>
 
                     <!--Annotation Tab-->
                     <div class$="{{prefix}}Content" id="{{prefix}}AnnotationDiv"  style="display: none">
-                        <br>
+                        <br><h3>Variant annotation for {{variant}}</h3><br>
                         <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="horizontal"></cellbase-variantannotation-view>
                     </div>
 
@@ -238,14 +245,11 @@
                 // TO BE REMOVED!
                 this._refreshTableColumns();
 
+                // To allow more than 'prioritization instance in the same web application we add a prefix to all elements ID
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
 
-                this.resultsViewActive = true;
-
-            },
-            attached: function () {
                 this.resultsViewActive = true;
 
             },
@@ -302,15 +306,15 @@
                         queryParams["annot-population-maf"] = this.populationFreq;
                     }
                     if (typeof this.sift !== "undefined" && this.sift != "") {
-                        console.log('sift', this.sift)
+//                        console.log('sift', this.sift)
                         queryParams.sift = this.sift;
                     }
                     if (typeof this.polyphen !== "undefined" && this.polyphen != "") {
-                        console.log('polyphen', this.polyphen)
+//                        console.log('polyphen', this.polyphen)
                         queryParams.polyphen = this.polyphen;
                     }
                     if (typeof this.conservation !== "undefined" && this.conservation != "") {
-                        console.log('conservation', this.conservation)
+//                        console.log('conservation', this.conservation)
                         queryParams.conservation = this.conservation;
                     }
 
@@ -336,9 +340,10 @@
                             if (_numTotal == -1) {
 //                                _numTotal = res.response[0].numTotalResults;
                                 _numTotal = 1150;
+                                console.log("numTotalresults", res.response[0].numTotalResults)
                             }
                             _this.variantList = res.response[0].result;
-                            console.log("_this.variantList", _this.variantList)
+//                            console.log("_this.variantList", _this.variantList)
                             return {total: _numTotal, rows: res.response[0].result}
                         },
                         columns: this.cols,
@@ -449,30 +454,13 @@
                 }
                 return '-';
             },
-            phylopFormatter: function (value, row, index) {
+            conservationFormatter:  function (value, row, index) {
                 if (typeof row !== "undefined") {
                     for (let i = 0; i < row.annotation.conservation.length; i++) {
-                        if (row.annotation.conservation[i].source == "phylop") {
-                            return Number(row.annotation.conservation[i].score).toFixed(3)
-                        }
-                    }
-                }
-                return '-';
-            },
-            phastconsFormatter: function (value, row, index) {
-                if (typeof row !== "undefined") {
-                    for (let i = 0; i < row.annotation.conservation.length; i++) {
-                        if (row.annotation.conservation[i].source == "phastCons") {
+                        if (row.annotation.conservation[i].source == this.field) {
                             return Number(row.annotation.conservation[i].score).toFixed(3);
                         }
                     }
-                }
-                return '-';
-            },
-            sampleFormatter: function (value, row, index) {
-                if (typeof row !== "undefined") {
-                    // NOTE: There are always 4 columns before the samples
-                    return row.studies[0].samplesData[this.fieldIndex - 4][0];
                 }
                 return '-';
             },
@@ -488,15 +476,28 @@
                 }
                 return '-';
             },
+            clinicalFormatter: function(value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    console.log(row.annotation)
+                }
+                return '-';
+            },
+            sampleFormatter: function (value, row, index) {
+                if (typeof row !== "undefined") {
+                    // NOTE: There are always 4 columns before the samples
+                    return row.studies[0].samplesData[this.fieldIndex - 4][0];
+                }
+                return '-';
+            },
             _refreshTableColumns: function() {
-                this.cols = this._initColumns();
+                // We first get the default columns, and then we dynamically add the population frequencies and sample columns
+                this.cols = this._createDefaultColumns();
 
                 if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
-                    let popIdx = 0;
+                    let popIdx = 2;
                     for (let i = 0; i < this.populationFrequencies.length; i++) {
                         let study = this.populationFrequencies[i];
-                        console.log(study)
-                        this.cols[0].splice(9 + i, 0, {
+                        this.cols[0].splice(8 + i, 0, {
                             title: study.title,
                             field: study.id,
                             rowspan: 1,
@@ -506,21 +507,20 @@
                             popIdx += this.populationFrequencies[i - 1].populations.length;
                         }
                         for(let j = 0; j < study.populations.length; j++) {
-                            this.cols[1].splice(j + popIdx, 0,
-                                    {
-                                        title: study.populations[j].id,
-                                        field: study.id + ":" + study.populations[j].id,
-                                        rowspan: 1,
-                                        colspan: 1,
+                            this.cols[1].splice(j + popIdx, 0, {
+                                title: study.populations[j].id,
+                                field: study.id + ":" + study.populations[j].id,
+                                rowspan: 1,
+                                colspan: 1,
 //                                        visible: false,
-                                        formatter: this.populationFrequenciesFormatter
-                                    });
+                                formatter: this.populationFrequenciesFormatter
+                            });
                         }
                     }
                 }
 
 
-                if (typeof this.cols !== "undefined") {
+                if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
                     switch(this.type) {
                         case "family":
                             // if type is 'family' we expected few samples to be provided in property 'samples'
@@ -531,14 +531,13 @@
                                 colspan: this.samples.length
                             });
                             for(let i = 0; i < this.samples.length; i++) {
-                                this.cols[1].splice(i, 0,
-                                        {
-                                            title: this.samples[i],
-//                                            field: 'studies',
-                                            rowspan: 1,
-                                            colspan: 1,
-                                            formatter: this.sampleFormatter
-                                        });
+                                this.cols[1].splice(i, 0, {
+                                    title: this.samples[i],
+                                    field: 'samples',
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    formatter: this.sampleFormatter
+                                });
                             }
                             break;
                         case "somatic":
@@ -548,8 +547,7 @@
                                 rowspan: 1,
                                 colspan: 2
                             });
-                            this.cols[1].splice(0, 0,
-                                    {
+                            this.cols[1].splice(0, 0, {
                                         title: 'Somatic',
                                         field: 'samples',
                                         rowspan: 1,
@@ -570,8 +568,7 @@
                                 rowspan: 1,
                                 colspan: 2
                             });
-                            this.cols[1].splice(0, 0,
-                                    {
+                            this.cols[1].splice(0, 0, {
                                         title: 'Control',
                                         field: 'samples',
                                         rowspan: 1,
@@ -590,11 +587,9 @@
                     }
                 }
 
-
-
                 this.renderFromServer();
             },
-            _initColumns: function() {
+            _createDefaultColumns: function() {
                 var initCols = [
                     [
                         {
@@ -640,12 +635,6 @@
                             rowspan: 2,
                             formatter: this.consequenceTypeFormatter
                         },
-//                        {
-//                            title: 'DP',
-//                            field: 'dp',
-//                            colspan: 1,
-//                            rowspan: 2
-//                        },
                         {
                             title: 'SIFT',
                             field: 'sift',
@@ -661,95 +650,50 @@
                             formatter: this.proteinScoreFormatter
                         },
                         {
-                            title: 'PhyloP',
-                            field: 'PhyloP',
-                            rowspan: 2,
-                            colspan: 1,
-                            formatter: this.phylopFormatter
+                            title: 'Conservation',
+                            field: 'conservation',
+                            rowspan: 1,
+                            colspan: 2
                         },
-                        {
-                            title: 'PhastCons',
-                            field: 'PhastCons',
-                            rowspan: 2,
-                            colspan: 1,
-                            formatter: this.phastconsFormatter
-                        },
-//                        {
-//                            title: '1000G MAF (phase 3)',
-//                            field: '1000G MAF (phase 3)',
-//                            rowspan: 1,
-//                            colspan: 6
-//                        },
-//                        {
-//                            title: 'EXAC',
-//                            field: 'exac',
-//                            colspan: 1,
-//                            rowspan: 2,
-//                            formatter: this.populationFrequenciesFormatter
-//                        },
                         {
                             title: 'Phenotype',
                             field: 'Phenotype',
-                            colspan: 3,
-                            rowspan: 1
+                            rowspan: 1,
+                            colspan: 3
                         }
                     ],
                     [
-//                        {
-//                            title: 'ALL',
-//                            field: 'all',
-//                            colspan: 1,
-//                            rowspan: 1,
-//                            formatter: this.populationFrequenciesFormatter
-//                        },
-//                        {
-//                            title: 'AMR',
-//                            field: 'amr',
-//                            colspan: 1,
-//                            rowspan: 1,
-//                            formatter: this.populationFrequenciesFormatter
-//                        },
-//                        {
-//                            title: 'SAS',
-//                            field: 'sas',
-//                            colspan: 1,
-//                            rowspan: 1
-//                        },
-//                        {
-//                            title: 'EAS',
-//                            field: 'eas',
-//                            colspan: 1,
-//                            rowspan: 1
-//                        },
-//                        {
-//                            title: 'AFR',
-//                            field: 'afr',
-//                            colspan: 1,
-//                            rowspan: 1
-//                        },
-//                        {
-//                            title: 'EUR',
-//                            field: 'eur',
-//                            colspan: 1,
-//                            rowspan: 1
-//                        },
                         {
-                            title: 'Clinvar',
-                            field: 'annotation.variantTraitAssociation.clinvar.accession',
+                            title: 'PhyloP',
+                            field: 'phylop',
+                            rowspan: 1,
                             colspan: 1,
-                            rowspan: 1
+                            formatter: this.conservationFormatter
+                        },
+                        {
+                            title: 'PhastCons',
+                            field: 'phastCons',
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.conservationFormatter
+                        },
+                        {
+                            title: 'ClinVar',
+                            field: 'annotation.variantTraitAssociation.clinvar.accession',
+                            rowspan: 1,
+                            colspan: 1
                         },
                         {
                             title: 'Cosmic',
                             field: 'annotation.variantTraitAssociation.cosmic.mutationId',
-                            colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            colspan: 1
                         },
                         {
                             title: 'GWAS',
                             field: 'gwas',
-                            colspan: 1,
-                            rowspan: 1
+                            rowspan: 1,
+                            colspan: 1
                         }
                     ]
                 ];
