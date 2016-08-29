@@ -170,7 +170,7 @@
 
                             let i = _this._samples.findIndex(x => x.member == member);
                             if (i != -1) {
-                                alert("There cannot be two '" + member + "'");
+                                console.error("There cannot be two '" + member + "'");
                             }
 
                             let affectedCheckBox = _this.$$('#' + row.name + "AffectedCheckbox");

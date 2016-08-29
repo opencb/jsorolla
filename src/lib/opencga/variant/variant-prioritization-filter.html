@@ -76,95 +76,140 @@
                     <br>
 
                     <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
-                        <!--Study filter-->
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
-                                <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
-                                       aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
-                                        Sample Filter
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel"
-                                 aria-labelledby="{{prefix}}SampleFilterHeading">
-                                <div class="panel-body">
-                                    <div>
-                                        <!--<template is="dom-repeat" items="{{somaticValues}}">-->
-                                        <!--<input type="radio" name="study" value="{{item}}"> {{item}}-->
-                                        <!--</template>-->
-                                        <h5>Select type of analysis</h5>
-                                        <input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>
-                                        <input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>
-                                        <input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>
-                                        <input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control
-                                    </div>
-                                    <br>
-                                    <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser">Sample Browser...
-                                    </button>
-                                    <br>
+
+                        <!-- Family: Sample and Segregation -->
+                        <template is="dom-if" if="{{isFamilyMode}}">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
+                                    <h4 class="panel-title">
+                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
+                                           aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
+                                            Samples and Segregation
+                                        </a>
+                                    </h4>
                                 </div>
-                            </div>
+                                <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel"
+                                     aria-labelledby="{{prefix}}SampleFilterHeading">
+                                    <div class="panel-body">
+                                        <!--<div>-->
+                                        <!--<h5>Select type of analysis</h5>-->
+                                        <!--<input type="radio" name="type" value="none" on-click="typeSelected" data-id="none" checked="true"> none<br>-->
+                                        <!--<input type="radio" name="type" value="family" on-click="typeSelected" data-id="family"> family<br>-->
+                                        <!--<input type="radio" name="type" value="somatic" on-click="typeSelected" data-id="somatic"> somatic<br>-->
+                                        <!--<input type="radio" name="type" value="case-control" on-click="typeSelected" data-id="case-control"> case-control-->
+                                        <!--</div>-->
+                                        <!--<br>-->
 
-                        </div>
+                                        <span>Select samples: &nbsp;
+                                            <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser">Browse...</button>
+                                        </span>
+                                        <br>
+                                        <br>
+                                        <!--<div class="dropdown">-->
+                                            <!--Segregation-->
+                                            <!--<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
+                                                <!--Segregation-->
+                                                <!--<span class="caret"></span>-->
+                                            <!--</button>-->
+                                            <!--<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">-->
+                                                <!--<li><a>Autosomal Dominant</a></li>-->
+                                                <!--<li><a>Autosomal Recessive</a></li>-->
+                                                <!--<li><a>Compund Heterozygotous</a></li>-->
+                                            <!--</ul>-->
+                                        <!--</div>-->
 
-                        <!-- Segregation filter -->
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="{{prefix}}SegregationHeading">
-                                <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Segregation" aria-expanded="false"
-                                       aria-controls="{{prefix}}SegregationHeading">
-                                        Segregation
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}Segregation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">
-                                <div class="panel-body">
-                                    <table class="table table-hover">
-                                        <thead>
-                                        <tr>
-                                            <th>Sample</th>
-                                            <th>0/0</th>
-                                            <th>0/1</th>
-                                            <th>1/1</th>
-                                            <th>./.</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <template is="dom-repeat" items="{{samples}}">
-                                            <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
-                                                <td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>
-                                                <td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>
-                                                <td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>
-                                                <td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>
-                                                <td><input type="checkbox" value="./." data-id="{{item.name}}"></td>
+                                        <!--<div id="{{prefix}}Segregation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">-->
+                                        <!--<div class="panel-body">-->
+                                        <h5>Family segregation:</h5>
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>Sample</th>
+                                                <th>0/0</th>
+                                                <th>0/1</th>
+                                                <th>1/1</th>
+                                                <th>./.</th>
                                             </tr>
-                                        </template>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                            <template is="dom-repeat" items="{{samples}}">
+                                                <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
+                                                    <td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>
+                                                    <td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>
+                                                    <td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>
+                                                    <td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>
+                                                    <td><input type="checkbox" value="./." data-id="{{item.name}}"></td>
+                                                </tr>
+                                            </template>
+                                            </tbody>
+                                        </table>
+                                        <!--</div>-->
+                                        <!--</div>-->
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!--Somatic filter-->
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
-                                <h4 class="panel-title">
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SomaticFilter"
-                                       aria-expanded="false" aria-controls="{{prefix}}somaticFilter">
-                                        Somatic Filter
-                                    </a>
-                                </h4>
                             </div>
-                            <div id="{{prefix}}SomaticFilter" class="panel-collapse collapse" role="tabpanel"
-                                 aria-labelledby="{{prefix}}somaticFilterHeading">
-                                <div class="panel-body">
-                                    <template is="dom-repeat" items="{{somaticValues}}">
-                                        <input type="radio" name="study" value="{{item}}"> {{item}}
-                                    </template>
+
+                            <!--Segregation filter-->
+                            <!--<div class="panel panel-default">-->
+                            <!--<div class="panel-heading" role="tab" id="{{prefix}}SegregationHeading">-->
+                            <!--<h4 class="panel-title">-->
+                            <!--<a role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Segregation" aria-expanded="false"-->
+                            <!--aria-controls="{{prefix}}SegregationHeading">-->
+                            <!--Segregation-->
+                            <!--</a>-->
+                            <!--</h4>-->
+                            <!--</div>-->
+                            <!--<div id="{{prefix}}Segregation1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">-->
+                            <!--<div class="panel-body">-->
+                            <!--<table class="table table-hover">-->
+                            <!--<thead>-->
+                            <!--<tr>-->
+                            <!--<th>Sample</th>-->
+                            <!--<th>0/0</th>-->
+                            <!--<th>0/1</th>-->
+                            <!--<th>1/1</th>-->
+                            <!--<th>./.</th>-->
+                            <!--</tr>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                            <!--<template is="dom-repeat" items="{{samples}}">-->
+                            <!--<tr id="{{item.name}}1" on-click="sampleGenotypeSelected">-->
+                            <!--<td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>-->
+                            <!--<td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>-->
+                            <!--<td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>-->
+                            <!--<td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>-->
+                            <!--<td><input type="checkbox" value="./." data-id="{{item.name}}"></td>-->
+                            <!--</tr>-->
+                            <!--</template>-->
+                            <!--</tbody>-->
+                            <!--</table>-->
+                            <!--</div>-->
+                            <!--</div>-->
+                            <!--</div>-->
+                        </template>
+
+                        <!-- Cancer filter-->
+                        <template is="dom-if" if="{{isCancerMode}}">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
+                                    <h4 class="panel-title">
+                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SomaticFilter"
+                                           aria-expanded="false" aria-controls="{{prefix}}somaticFilter">
+                                            Somatic Filter
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="{{prefix}}SomaticFilter" class="panel-collapse collapse" role="tabpanel"
+                                     aria-labelledby="{{prefix}}somaticFilterHeading">
+                                    <div class="panel-body">
+                                        <template is="dom-repeat" items="{{somaticValues}}">
+                                            <input type="radio" name="study" value="{{item}}"> {{item}}
+                                        </template>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </template>
 
                         <!--Position filter-->
                         <div class="panel panel-default">
@@ -445,6 +490,10 @@
         Polymer({
             is: 'variant-prioritization-filter',
             properties: {
+                mode: {
+                    type: String,
+                    observer: '_updateMode'
+                },
                 study: {
                     type: Object
                 },
@@ -458,10 +507,10 @@
                         return {};
                     }
                 },
-                type: {
-                    type: String,
-                    notify: true
-                },
+//                type: {
+//                    type: String,
+//                    notify: true
+//                },
                 samples: {
                     type: Array,
                     value: [],
@@ -574,7 +623,7 @@
             sampleChanged: function (neo, old) {
                 console.log("sampleChanged")
                 console.log("neo", neo)
-              // sample object -- > father, mother, child
+                // sample object -- > father, mother, child
 //                if (seggretation == "dominant") {
 //                    if (father.isAffected) {
 //                        switch (true) {
@@ -809,6 +858,21 @@
                 });
                 // }
 
+            },
+            _updateMode: function () {
+                switch (this.mode) {
+                    case "family":
+                        this.isFamilyMode = true;
+                        break;
+                    case "cancer":
+                        this.isCancerMode = true;
+                        break;
+                    case "case-control":
+                        this.isCaseControlMode = true;
+                        break
+                    default:
+                        break;
+                }
             }
         });
     </script>

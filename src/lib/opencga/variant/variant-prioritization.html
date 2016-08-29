@@ -24,12 +24,12 @@
         <div class="panel">
             <div class="prioritization-filter-view">
                 <div class="col-md-2">
-                    <variant-prioritization-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                    <variant-prioritization-filter mode="{{mode}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
                                                    variant-list="{{variantList}}" variant="{{variant}}" population-freq="{{populationFreq}}" population-frequencies="{{populationFrequencies}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}"
                                                    change-variant-tab="{{changeVariantTab}}" change-to-default="{{changeToDefault}}" cellbase-client="{{cellbaseClient}}"></variant-prioritization-filter>
                 </div>
                 <div class="col-md-10">
-                    <variant-prioritization-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
+                    <variant-prioritization-view mode="{{mode}}" title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
                                                  variant-list="{{variantList}}" variant="{{variant}}" population-freq="{{populationFreq}}" population-frequencies="{{populationFrequencies}}" sift="{{sift}}" polyphen="{{polyphen}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
                                                  change-variant-tab="{{changeVariantTab}}" change-to-default="{{changeToDefault}}" on-selected="selectedGene"></variant-prioritization-view>
                 </div>
@@ -43,6 +43,10 @@
         Polymer({
             is: 'variant-prioritization',
             properties: {
+                mode: {
+                    type: String,
+                    value: "family"
+                },
                 host: {
                     type: String
                 },
@@ -62,9 +66,9 @@
                 cellbaseClient: {
                     type: Object
                 },
-                type: {
-                    type: String
-                },
+//                type: {
+//                    type: String
+//                },
                 samples: {
                     type: Array,
                     notify: true
