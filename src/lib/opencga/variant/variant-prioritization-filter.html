@@ -129,12 +129,12 @@
                                         </thead>
                                         <tbody>
                                         <template is="dom-repeat" items="{{samples}}">
-                                            <tr id="{{item}}" on-click="sampleGenotypeSelected">
-                                                <td>{{item}}</td>
-                                                <td><input type="checkbox" value="0/0" data-id="{{item}}"></td>
-                                                <td><input type="checkbox" value="0/1" data-id="{{item}}"></td>
-                                                <td><input type="checkbox" value="1/1" data-id="{{item}}"></td>
-                                                <td><input type="checkbox" value="./." data-id="{{item}}"></td>
+                                            <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
+                                                <td>{{item.name}}</td>
+                                                <td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>
+                                                <td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>
+                                                <td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>
+                                                <td><input type="checkbox" value="./." data-id="{{item.name}}"></td>
                                             </tr>
                                         </template>
                                         </tbody>
@@ -569,6 +569,8 @@
                 }
             },
             sampleChanged: function (neo, old) {
+                console.log("sampleChanged")
+                console.log("neo", neo)
               // sample object -- > father, mother, child
 //                if (seggretation == "dominant") {
 //                    if (father.isAffected) {

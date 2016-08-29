@@ -295,7 +295,12 @@
                         timeout: 10000
                     };
                     if (typeof this.samples !== "undefined" && this.samples.length > 0) {
-                        queryParams.returnedSamples = this.samples.join();
+//                        queryParams.returnedSamples = this.samples.join();
+                        let sampleNames = [];
+                        for (sampleIdx in this.samples) {
+                            sampleNames.push(this.samples[sampleIdx].name)
+                        }
+                        queryParams.returnedSamples = sampleNames.join();
                     } else {
                         queryParams.exclude = "studies";
                     }
@@ -530,9 +535,11 @@
                                 rowspan: 1,
                                 colspan: this.samples.length
                             });
+                                console.log("=====================");
+                                console.log(this.samples)
                             for(let i = 0; i < this.samples.length; i++) {
                                 this.cols[1].splice(i, 0, {
-                                    title: this.samples[i],
+                                    title: this.samples[i].name,
                                     field: 'samples',
                                     rowspan: 1,
                                     colspan: 1,
@@ -542,7 +549,7 @@
                             break;
                         case "somatic":
                             this.cols[0].splice(4, 0, {
-                                title: this.samples[0],
+                                title: this.samples[0].name,
                                 field: 'samples',
                                 rowspan: 1,
                                 colspan: 2

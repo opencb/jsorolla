@@ -102,6 +102,9 @@
                     this.prefix = Utils.randomString(6);
                 }
 
+                // Auxiliary internal array
+                this._samples = [];
+
                 this.cols = [
                     [
                         {
@@ -153,6 +156,47 @@
                         url: this._url,
                         method: 'get',
                         sidePagination: 'server',
+
+                        onCheck: function (row, elem) {
+                            let familyDropdown = _this.$$('#' + row.name + "FamilyDropdown");
+                            let member;
+                            for (opt in familyDropdown.options) {
+                                if (familyDropdown.options[opt].selected) {
+                                    member = familyDropdown.options[opt].value;
+                                    break;
+                                }
+                            }
+                            familyDropdown.disabled = "disabled";
+
+                            let affectedCheckBox = _this.$$('#' + row.name + "AffectedCheckbox");
+                            let affected = affectedCheckBox.checked;
+                            affectedCheckBox.disabled = "disabled";
+
+                            // This is needed for POlymer to notify correctly
+                            _this.push('_samples', {name: row.name, member: member, affected: affected});
+                            _this.set('samples', _this._samples.slice());
+                        },
+                        onUncheck: function (row, elem) {
+                            let familyDropdown = _this.$$('#' + row.name + "FamilyDropdown");
+                            familyDropdown.disabled = null;
+
+                            let affectedCheckBox = _this.$$('#' + row.name + "AffectedCheckbox");
+                            affectedCheckBox.disabled = null;
+
+                            // we delete the sample from the property 'samples'
+                            let sampleToDeleteIdx;
+                            for (sampleIdx in _this._samples) {
+                                if (row.name == _this._samples[sampleIdx].name) {
+                                    sampleToDeleteIdx = sampleIdx;
+                                    break;
+                                }
+                            }
+
+                            // This is needed for POlymer to notify correctly
+                            _this.splice('_samples', sampleToDeleteIdx, 1);
+                            _this.set('samples', _this._samples.slice());
+                        },
+
                         queryParams: function (params) {
                             return {
                                 limit: params.limit,
@@ -173,7 +217,9 @@
                     // Getting the selected samples through onCheck event of bootstrap table and passing to the filter
                     $('#' + _this.prefix +'SampleGrid').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table ' +
                             'check-some.bs.table uncheck-some.bs.table' , function () {
-                        _this.samples = _this.getSampleName();
+//                        _this.samples = _this.getSampleName();
+//                        let x = $('#' + _this.prefix + "SampleBrowser");
+//                        console.log("x", x)
                     });
 
                     // Bootstrap Tree View
@@ -204,11 +250,11 @@
                 });
             },
             familyMemberFormatter: function (value, row, index) {
+                // <option value="unknown" selected>NA</option>
                 let dropdown = `
                         <div>
-                            <select name="siftOperator" id="{{prefix}}SiftOperator">
-                                <option value="unknown" selected>-</option>
-                                <option value="father">Father</option>
+                            <select id="`+ row.name +`FamilyDropdown" name="familyDropdown">
+                                <option value="father" selected>Father</option>
                                 <option value="mother">Mother</option>
                                 <option value="child">Child</option>
                             </select>
@@ -217,7 +263,7 @@
                 return dropdown;
             },
             affectedFormatter: function (value, row, index) {
-                let checkbox = "<input type='checkbox'>";
+                let checkbox = "<input id='" + row.name + "AffectedCheckbox' type='checkbox'>";
                 return checkbox;
             },
             dateFormatter: function (value, row, index) {
