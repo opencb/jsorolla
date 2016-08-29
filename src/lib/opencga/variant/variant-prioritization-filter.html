@@ -48,6 +48,9 @@
                 max-height: 700px;
                 overflow: auto;
             }
+            .affected {
+                color: #b30000;
+            }
         </style>
 
         <div>
@@ -130,7 +133,7 @@
                                         <tbody>
                                         <template is="dom-repeat" items="{{samples}}">
                                             <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
-                                                <td>{{item.name}}</td>
+                                                <td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>
                                                 <td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>
                                                 <td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>
                                                 <td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>

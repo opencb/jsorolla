@@ -169,11 +169,11 @@
                             familyDropdown.disabled = "disabled";
 
                             let affectedCheckBox = _this.$$('#' + row.name + "AffectedCheckbox");
-                            let affected = affectedCheckBox.checked;
+                            let affected = (affectedCheckBox.checked) ? "affected" : "unaffected";
                             affectedCheckBox.disabled = "disabled";
 
                             // This is needed for POlymer to notify correctly
-                            _this.push('_samples', {name: row.name, member: member, affected: affected});
+                            _this.push('_samples', {name: row.name, member: member, status: affected, memberCode: member.substring(0, 1).toUpperCase()});
                             _this.set('samples', _this._samples.slice());
                         },
                         onUncheck: function (row, elem) {
@@ -256,7 +256,8 @@
                             <select id="`+ row.name +`FamilyDropdown" name="familyDropdown">
                                 <option value="father" selected>Father</option>
                                 <option value="mother">Mother</option>
-                                <option value="child">Child</option>
+                                <option value="son">Son</option>
+                                <option value="daughter">Daughter</option>
                             </select>
                         </div>
                 `;
