@@ -130,142 +130,35 @@
                          aria-labelledby="{{prefix}}PopulationFrequencyHeading">
                         <div class="panel-body">
 
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Phase_3">
-                                1000 Genomes Phase 3
-                            </label>
-                            <div id="{{prefix}}Phase_3" hidden>
-                                <label class="name">All populations MAF [ALL]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_ALL_op" id="{{prefix}}1000GENOMES_phase_3_ALL_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_ALL"></span>
-                                </div>
-                                <label class="name">American MAF [AMR]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_AMR_op" id="{{prefix}}1000GENOMES_phase_3_AMR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AMR"></span>
-                                </div>
-                                <label class="name">South Asian MAF [SAS]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_SAS_op" id="{{prefix}}1000GENOMES_phase_3_SAS_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_SAS"></span>
-                                </div>
-                                <label class="name">East Asian MAF [EAS]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_EAS_op" id="{{prefix}}1000GENOMES_phase_3_EAS_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EAS"></span>
-                                </div>
-                                <label class="name">African MAF [AFR]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_AFR_op" id="{{prefix}}1000GENOMES_phase_3_AFR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_AFR"></span>
-                                </div>
-                                <label class="name">European MAF [EUR]</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="1000GENOMES_phase_3_EUR_op" id="{{prefix}}1000GENOMES_phase_3_EUR_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}1000GENOMES_phase_3_EUR"></span>
-                                </div>
-                            </div>
+                            <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
+                            <template is="dom-repeat" items="{{populationFrequencies}}" as="study">
+                                <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}"></i>
+                                <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}">{{study.title}}</label>
 
-                            <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Esp_6500">ESP 6500</label>
-                            <div id="{{prefix}}Esp_6500" hidden>
-                                <label class="name">European american MAF</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="ESP_6500_EA_op" id="{{prefix}}ESP_6500_EA_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}ESP_6500_EA"></span>
-                                </div>
-                                <label class="name">African american MAF</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="ESP_6500_AA_op" id="{{prefix}}ESP_6500_AA_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}ESP_6500_AA"></span>
-
-                                </div>
-                            </div>
-
-                            <br>
-                            <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}Exac"></i>
-                            <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}Exac">EXAC</label>
-                            <div id="{{prefix}}Exac" hidden>
-                                <label class="name">EXAC MAF</label>
-                                <div class="horizontal layout">
-                                    <span>MAF</span>
-                                    <span>
-                                        <select name="EXAC_ALL_op" id="{{prefix}}EXAC_ALL_op">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                    <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}EXAC_ALL"></span>
-                                </div>
-                            </div>
+                                <!-- If there is not submenu we just display a button -->
+                                <template is="dom-if" if="{{study.populations}}">
+                                    <div id="{{prefix}}{{study.id}}" hidden>
+                                        <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
+                                            <label class="name">{{popFreq.title}}</label>
+                                            <div class="horizontal layout">
+                                                <span>MAF</span>
+                                                <span>
+                                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}{{popFreq.id}}Operator">
+                                                        <option value="<" selected><</option>
+                                                        <option value="<="><=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                                    </select>
+                                                </span>
+                                                <span>
+                                                    <input type="text" value="" class="custom-sixed-input" id="{{prefix}}{{study.id}}{{popFreq.id}}">
+                                                </span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <br>
+                                </template>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -456,6 +349,9 @@
                     type: String,
                     value: "",
                     notify: true
+                },
+                populationFrequencies: {
+                    type: Array
                 },
                 prefix: {
                     type: String

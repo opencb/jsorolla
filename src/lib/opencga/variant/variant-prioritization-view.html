@@ -185,10 +185,6 @@
                 opencgaClient: {
                     type: Object
                 },
-//                type: {
-//                    type: String,
-//                    observer: '_refreshTableColumns'
-//                },
                 samples: {
                     type: Array,
                     value: [],
@@ -292,8 +288,6 @@
                         return;
                     }
 
-//                    this._url += '?sid=' + this.opencgaClient._config.sessionId;
-
                     var queryParams = {
                         sid: _this.opencgaClient._config.sessionId,
                         timeout: 10000
@@ -315,15 +309,12 @@
                         queryParams["annot-population-maf"] = this.populationFreq;
                     }
                     if (typeof this.sift !== "undefined" && this.sift != "") {
-//                        console.log('sift', this.sift)
                         queryParams.sift = this.sift;
                     }
                     if (typeof this.polyphen !== "undefined" && this.polyphen != "") {
-//                        console.log('polyphen', this.polyphen)
                         queryParams.polyphen = this.polyphen;
                     }
                     if (typeof this.conservation !== "undefined" && this.conservation != "") {
-//                        console.log('conservation', this.conservation)
                         queryParams.conservation = this.conservation;
                     }
 
@@ -337,12 +328,6 @@
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
                             return queryParams;
-//                            return {
-//                                limit: params.limit,
-//                                skip: params.offset,
-//                                sid: _this.opencgaClient._config.sessionId,
-//                                exclude: 'studies'
-//                            };
                         },
                         responseHandler: function (res) {
                             console.log(res)
@@ -352,7 +337,6 @@
                                 console.log("numTotalresults", res.response[0].numTotalResults)
                             }
                             _this.variantList = res.response[0].result;
-//                            console.log("_this.variantList", _this.variantList)
                             return {total: _numTotal, rows: res.response[0].result}
                         },
                         columns: this.cols,
@@ -379,9 +363,6 @@
             },
             variantFormatter: function (value, row, index) {
                 return "<span style='white-space: nowrap;'>" + row.chromosome + ':' + row.start + " " + row.reference + '/' + row.alternate + "</span>";
-            },
-            alleleFormatter: function (value, row, index) {
-                return row.reference + '/' + row.alternate;
             },
             snpFormatter: function (value, row, index) {
                 return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
@@ -510,7 +491,8 @@
                             title: study.title,
                             field: study.id,
                             rowspan: 1,
-                            colspan: study.populations.length
+                            colspan: study.populations.length,
+                            halign: 'center'
                         });
                         if (i > 0) {
                             popIdx += this.populationFrequencies[i - 1].populations.length;
@@ -522,7 +504,8 @@
                                 rowspan: 1,
                                 colspan: 1,
 //                                        visible: false,
-                                formatter: this.populationFrequenciesFormatter
+                                formatter: this.populationFrequenciesFormatter,
+                                halign: 'center'
                             });
                         }
                     }
@@ -537,17 +520,17 @@
                                 title: 'Samples',
                                 field: 'samples',
                                 rowspan: 1,
-                                colspan: this.samples.length
+                                colspan: this.samples.length,
+                                halign: 'center'
                             });
-                                console.log("=====================");
-                                console.log(this.samples)
                             for(let i = 0; i < this.samples.length; i++) {
                                 this.cols[1].splice(i, 0, {
                                     title: this.samples[i].name,
                                     field: 'samples',
                                     rowspan: 1,
                                     colspan: 1,
-                                    formatter: this.sampleFormatter
+                                    formatter: this.sampleFormatter,
+                                    halign: 'center'
                                 });
                             }
                             break;
@@ -556,19 +539,22 @@
                                 title: this.samples[0].name,
                                 field: 'samples',
                                 rowspan: 1,
-                                colspan: 2
+                                colspan: 2,
+                                halign: 'center'
                             });
                             this.cols[1].splice(0, 0, {
                                         title: 'Somatic',
                                         field: 'samples',
                                         rowspan: 1,
-                                        colspan: 1
+                                        colspan: 1,
+                                        halign: 'center'
                                     },
                                     {
                                         title: 'Germline',
                                         field: 'samples',
                                         rowspan: 1,
-                                        colspan: 1
+                                        colspan: 1,
+                                        halign: 'center'
                                     }
                             );
                             break;
@@ -577,19 +563,22 @@
                                 title: 'Samples',
                                 field: 'samples',
                                 rowspan: 1,
-                                colspan: 2
+                                colspan: 2,
+                                halign: 'center'
                             });
                             this.cols[1].splice(0, 0, {
                                         title: 'Control',
                                         field: 'samples',
                                         rowspan: 1,
-                                        colspan: 1
+                                        colspan: 1,
+                                        halign: 'center'
                                     },
                                     {
                                         title: 'Case',
                                         field: 'samples',
                                         rowspan: 1,
-                                        colspan: 1
+                                        colspan: 1,
+                                        halign: 'center'
                                     }
                             );
                             break;
@@ -609,34 +598,31 @@
                             sortable: true,
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.variantFormatter
+                            formatter: this.variantFormatter,
+                            halign: 'center'
                         },
-//                        {
-//                            title: 'Alleles',
-//                            field: 'allele',
-//                            colspan: 1,
-//                            rowspan: 2,
-//                            formatter: this.alleleFormatter
-//                        },
                         {
                             title: 'SNP Id',
                             field: 'id',
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.snpFormatter
+                            formatter: this.snpFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Genes',
                             field: 'genes',
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.geneFormatter
+                            formatter: this.geneFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Type',
                             field: 'type',
                             colspan: 1,
-                            rowspan: 2
+                            rowspan: 2,
+                            halign: 'center'
                         },
                         {
                             title: 'Consequence Type',
@@ -644,33 +630,38 @@
                             sortable: true,
                             colspan: 1,
                             rowspan: 2,
-                            formatter: this.consequenceTypeFormatter
+                            formatter: this.consequenceTypeFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'SIFT',
                             field: 'sift',
                             rowspan: 2,
                             colspan: 1,
-                            formatter: this.proteinScoreFormatter
+                            formatter: this.proteinScoreFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Polyphen2',
                             field: 'polyphen2',
                             rowspan: 2,
                             colspan: 1,
-                            formatter: this.proteinScoreFormatter
+                            formatter: this.proteinScoreFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'Conservation',
                             field: 'conservation',
                             rowspan: 1,
-                            colspan: 2
+                            colspan: 2,
+                            halign: 'center'
                         },
                         {
                             title: 'Phenotype',
                             field: 'Phenotype',
                             rowspan: 1,
-                            colspan: 3
+                            colspan: 3,
+                            halign: 'center'
                         }
                     ],
                     [
@@ -679,32 +670,37 @@
                             field: 'phylop',
                             rowspan: 1,
                             colspan: 1,
-                            formatter: this.conservationFormatter
+                            formatter: this.conservationFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'PhastCons',
                             field: 'phastCons',
                             rowspan: 1,
                             colspan: 1,
-                            formatter: this.conservationFormatter
+                            formatter: this.conservationFormatter,
+                            halign: 'center'
                         },
                         {
                             title: 'ClinVar',
                             field: 'annotation.variantTraitAssociation.clinvar.accession',
                             rowspan: 1,
-                            colspan: 1
+                            colspan: 1,
+                            halign: 'center'
                         },
                         {
                             title: 'Cosmic',
                             field: 'annotation.variantTraitAssociation.cosmic.mutationId',
                             rowspan: 1,
-                            colspan: 1
+                            colspan: 1,
+                            halign: 'center'
                         },
                         {
                             title: 'GWAS',
                             field: 'gwas',
                             rowspan: 1,
-                            colspan: 1
+                            colspan: 1,
+                            halign: 'center'
                         }
                     ]
                 ];
@@ -720,7 +716,7 @@
                         break;
                     case "case-control":
                         this.isCaseControlMode = true;
-                        break
+                        break;
                     default:
                         break;
                 }
