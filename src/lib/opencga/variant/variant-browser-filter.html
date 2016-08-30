@@ -38,6 +38,10 @@
                 max-width: 100px;
             }
 
+            .table-borderless tbody tr td, .table-borderless tbody tr th, .table-borderless thead tr th {
+                border: none;
+            }
+
             span + span {
                 margin-left: 10px;
             }
@@ -92,25 +96,11 @@
                     <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
                         <div class="panel-body">
                             <div>
-                                <!--<label class="checkbox-inline">-->
-                                <input type="checkbox" value="SNV,SNP"> SNV
-                                <br>
-                                <!--</label>-->
-                                <!--<label class="checkbox-inline">-->
-                                <input type="checkbox" value="MNV"> MNV
-                                <br>
-                                <!--</label>-->
-                                <!--<label class="checkbox-inline">-->
-                                <input type="checkbox" value="CNV"> CNV
-                                <br>
-                                <!--</label>-->
-                                <!--<label class="checkbox-inline">-->
-                                <input type="checkbox" value="SV"> SV
-                                <br>
-                                <!--</label>-->
-                                <!--<label class="checkbox-inline">-->
+                                <input type="checkbox" value="SNV,SNP"> SNV<br>
+                                <input type="checkbox" value="MNV"> MNV<br>
+                                <input type="checkbox" value="CNV"> CNV<br>
+                                <input type="checkbox" value="SV"> SV<br>
                                 <input type="checkbox" value="INDEL"> INDEL
-                                <!--</label>-->
                             </div>
                         </div>
                     </div>
@@ -175,31 +165,30 @@
                     </div>
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <div class="horizontal layout">
-                                <span>SIFT</span>
-                                <span>
-                                    <select name="siftOperator" id="{{prefix}}SiftOperator">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                    </select>
-                                </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}SiftInput"></span>
-                            </div>
-                            <br>
-                            <div class="horizontal layout">
-                                <span>Polyphen</span>
-                                <span>
-                                    <select name="polyphenOperator" id="{{prefix}}PolyphenOperator">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                    </select>
-                                </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PolyphenInput"></span>
-                            </div>
+                            <table class="table table-borderless">
+                                <tbody>
+                                <tr>
+                                    <td>SIFT</td>
+                                    <td><select name="siftOperator" id="{{prefix}}SiftOperator">
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select></td>
+                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}SiftInput"></td>
+                                </tr>
+                                <tr>
+                                    <td>Polyphen</td>
+                                    <td><select name="siftOperator" id="{{prefix}}PolyphenOperator">
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select></td>
+                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PolyphenInput"></td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -215,31 +204,30 @@
                     </div>
                     <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}conservationFilterHeading">
                         <div class="panel-body">
-                            <div class="horizontal layout">
-                                <span>PhyloP</span>
-                                <span>
-                                        <select name="phylopOperator" id="{{prefix}}PhylopOperator">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhylopInput"></span>
-                            </div>
-                            <br>
-                            <div class="horizontal layout">
-                                <span>PhastCons</span>
-                                <span>
-                                        <select name="phastconsOperator" id="{{prefix}}PhastconsOperator">
-                                            <option value="<" selected><</option>
-                                            <option value="<="><=</option>
-                                            <option value=">">></option>
-                                            <option value=">=">>=</option>
-                                        </select>
-                                    </span>
-                                <span><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhastconsInput"></span>
-                            </div>
+                            <table class="table table-borderless">
+                                <tbody>
+                                <tr>
+                                    <td>PhyloP</td>
+                                    <td><select name="siftOperator" id="{{prefix}}PhylopOperator">
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select></td>
+                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhylopInput"></td>
+                                </tr>
+                                <tr>
+                                    <td>PhastCons</td>
+                                    <td><select name="siftOperator" id="{{prefix}}PhastconsOperator">
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select></td>
+                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhastconsInput"></td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

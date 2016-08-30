@@ -118,7 +118,7 @@
                         },
                         {
                             title: 'Family member',
-                            field: 'familiyMember',
+                            field: 'familyMember',
                             formatter: this.familyMemberFormatter
                         },
                         {
@@ -273,8 +273,10 @@
                 return checkbox;
             },
             dateFormatter: function (value, row, index) {
+                // TODO convert date to UTC string (Check the following line)
+//                return moment(row.status.date).format('D MMM Y');
                 return row.status.date;
-                // TODO convert date to UTC string
+
             },
 
             // Bootstrap Tree
