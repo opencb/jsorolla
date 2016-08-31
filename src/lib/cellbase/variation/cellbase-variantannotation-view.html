@@ -25,12 +25,11 @@
             <template is="dom-if" if="{{checkVertical(mode)}}">
                 <div class="col-xs-2">
                     <ul id="stackedPills" class="nav nav-pills nav-stacked" role="tablist">
-                        <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types</a></li>
+                        <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationSummary" role="tab" data-toggle="tab">Summary</a></li>
+                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types</a></li>
                         <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab" data-toggle="tab">Population Frequencies</a></li>
                         <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait Association</a></li>
                         <li role="presentation"><a href="#{{prefix}}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene Trait Association</a></li>
-                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationConservation" role="tab" data-toggle="tab">Conservation</a></li>
-                        <li role="presentation"><a href="#{{prefix}}VariantAnnotationCadd" role="tab" data-toggle="tab">CADD</a>
                         </li>
                     </ul>
                 </div>
@@ -38,20 +37,52 @@
 
             <template is="dom-if" if="{{checkHorizontal(mode)}}">
                 <ul id="myTabs" class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types</a></li>
+                    <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationSummary" role="tab" data-toggle="tab">Summary</a></li>
+                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationConsequenceTypes" role="tab" data-toggle="tab">Consequence Types</a></li>
                     <li role="presentation"><a href="#{{prefix}}VariantAnnotationPopulationFrequencies" role="tab" data-toggle="tab">Population Frequencies</a></li>
                     <li role="presentation"><a href="#{{prefix}}VariantAnnotationVTA" role="tab" data-toggle="tab">Variant Trait Association</a></li>
                     <li role="presentation"><a href="#{{prefix}}VariantAnnotationGTA" role="tab" data-toggle="tab">Gene Trait Association</a></li>
-                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationConservation" role="tab" data-toggle="tab">Conservation</a></li>
-                    <li role="presentation"><a href="#{{prefix}}VariantAnnotationCadd" role="tab" data-toggle="tab">CADD</a>
                     </li>
                 </ul>
             </template>
 
             <div class="col-xs-10">
                 <div class="tab-content">
+                    <!--Summary Tab-->
+                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}VariantAnnotationSummary">
+                        <b>Variant:</b> {{variantAnnotation.chromosome}}:{{variantAnnotation.start}}:{{variantAnnotation.reference}}:{{variantAnnotation.alternate}}<br>
+                        <b>Consequence Type:</b> {{variantAnnotation.displayConsequenceType}}<br>
+                        <b>Population Frequency:</b><br>
+                        <b>Number of Variant Trait Association:</b> {{numberVTA}}<br>
+                        <b>Number of Gene Trait Association:</b> {{numberGTA}}<br>
+                        <b>Conservation and Cadd Scores:</b>
+                        <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
+                            <thead style="background-color: #eee">
+                            <tr>
+                                <th>Source</th>
+                                <th>Score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <template is="dom-repeat" items="{{conservation}}">
+                                <tr>
+                                    <td>{{item.source}}</td>
+                                    <td>{{item.score}}</td>
+                                </tr>
+                            </template>
+                            <template is="dom-repeat" items="{{functionalScore}}">
+                                <tr>
+                                    <td>{{item.source}}</td>
+                                    <td>{{item.score}}</td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+
+                    </div>
+
                     <!--Consequence types Tab-->
-                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}VariantAnnotationConsequenceTypes">
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationConsequenceTypes">
                         <cellbase-annotation-consequencetype-grid data="{{variantAnnotation.consequenceTypes}}" prefix="{{prefix}}annotationView"></cellbase-annotation-consequencetype-grid>
                     </div>
 
@@ -137,48 +168,6 @@
                             No ClinVar and Cosmic data available
                         </template>
                     </div>
-
-                    <!--Conservation Tab-->
-                    <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationConservation">
-                        <br>
-                        <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
-                            <thead style="background-color: #eee">
-                            <tr>
-                                <th>Source</th>
-                                <th>Score</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <template is="dom-repeat" items="{{conservation}}">
-                                <tr>
-                                    <td>{{item.source}}</td>
-                                    <td>{{item.score}}</td>
-                                </tr>
-                            </template>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!--CADD Tab-->
-                    <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationCadd">
-                        <br>
-                        <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
-                            <thead style="background-color: #eee">
-                            <tr>
-                                <th>Source</th>
-                                <th>Score</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <template is="dom-repeat" items="{{functionalScore}}">
-                                <tr>
-                                    <td>{{item.source}}</td>
-                                    <td>{{item.score}}</td>
-                                </tr>
-                            </template>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>
@@ -223,6 +212,13 @@
                 let _this = this;
                 var success = function (response) {
                     _this.variantAnnotation = response.response[0].result[0];
+                    if (_this.variantAnnotation.variantTraitAssociation != null) {
+                        _this.numberVTA = Object.keys(_this.variantAnnotation.variantTraitAssociation).length;
+                    } else {
+                        _this.numberVTA = 0;
+                    }
+
+                    _this.numberGTA = _this.variantAnnotation.geneTraitAssociation.length;
 
                     // Gene Trait Association definition
                     $('#' + _this.prefix + 'GTATable').bootstrapTable('destroy');
@@ -252,14 +248,14 @@
 
                     let conservation = [];
                     for (let i in _this.variantAnnotation.conservation) {
-                        conservation.push({source: _this.variantAnnotation.conservation[i].source,
-                            score: Number(_this.variantAnnotation.conservation[i].score).toFixed(3)});
+                        conservation.push({source: _this.variantAnnotation.conservation[i].source.charAt(0).toUpperCase()
+                        + _this.variantAnnotation.conservation[i].source.slice(1), score: Number(_this.variantAnnotation.conservation[i].score).toFixed(3)});
                     }
                     _this.conservation = conservation;
                     let functionalScore = [];
                     for (let i in _this.variantAnnotation.functionalScore) {
-                        functionalScore.push({source: _this.variantAnnotation.functionalScore[i].source,
-                            score: Number(_this.variantAnnotation.functionalScore[i].score).toFixed(3)});
+                        functionalScore.push({source: _this.variantAnnotation.functionalScore[i].source.charAt(0).toUpperCase()
+                        + _this.variantAnnotation.functionalScore[i].source.slice(1), score: Number(_this.variantAnnotation.functionalScore[i].score).toFixed(3)});
                     }
                     _this.functionalScore = functionalScore;
                 };

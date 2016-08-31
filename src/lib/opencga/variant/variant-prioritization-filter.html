@@ -110,22 +110,19 @@
                                         <br>
                                         <br>
                                         <!--<div class="dropdown">-->
-                                            <!--Segregation-->
-                                            <!--<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
+                                            <!--<button class="btn btn-default dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
                                                 <!--Segregation-->
                                                 <!--<span class="caret"></span>-->
                                             <!--</button>-->
-                                            <!--<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">-->
+                                            <!--<ul class="dropdown-menu" aria-labelledby="segregationDropdown">-->
                                                 <!--<li><a>Autosomal Dominant</a></li>-->
                                                 <!--<li><a>Autosomal Recessive</a></li>-->
-                                                <!--<li><a>Compund Heterozygotous</a></li>-->
+                                                <!--<li><a>Compound Heterozygotous</a></li>-->
                                             <!--</ul>-->
                                         <!--</div>-->
 
-                                        <!--<div id="{{prefix}}Segregation" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">-->
-                                        <!--<div class="panel-body">-->
                                         <h5>Family segregation:</h5>
-                                        <table class="table table-hover">
+                                        <table class="table table-hover" id="segregationTable">
                                             <thead>
                                             <tr>
                                                 <th>Sample</th>
@@ -499,10 +496,6 @@
                         return {};
                     }
                 },
-//                type: {
-//                    type: String,
-//                    notify: true
-//                },
                 samples: {
                     type: Array,
                     value: [],
@@ -566,10 +559,6 @@
                     this.prefix = Utils.randomString(6);
                 }
             },
-            attached: function() {
-                console.log("this.populationFrequencies:")
-                console.log(this.populationFrequencies)
-            },
             typeSelected: function (e) {
                 if (typeof e.target === "undefined") {
                     this.type = e;
@@ -615,53 +604,65 @@
             sampleChanged: function (neo, old) {
                 console.log("sampleChanged")
                 console.log("neo", neo)
-                // sample object -- > father, mother, child
-//                if (seggretation == "dominant") {
-//                    if (father.isAffected) {
-//                        switch (true) {
-//                            case mother.isAffected && child.isAffected:
-//                                // 0/1, 1/1 for all
-//                                break;
-//                            case !mother.isAffected && child.isAffected:
-//                                // father 0/1, 1/1
-//                                // mother 0/0
-//                                // child 0/1
-//                                break;
-//                            case mother.isAffected && !child.isAffected:
-//                                // father 0/1
-//                                // mother 0/1
-//                                // child 0/0
-//                                break;
-//                            case !mother.isAffected && !child.isAffected:
-//                                // father 0/1
-//                                // mother 0/0
-//                                // child 0/0
-//                                break;
-//                        }
-//                    } else if (mother.isAffected) {
-//                        switch (true) {
-//                            case father.isAffected && child.isAffected:
-//                                // 0/1, 1/1 for all
-//                                break;
-//                            case !father.isAffected && child.isAffected:
-//                                // father 0/0
-//                                // mother 0/1, 1/1
-//                                // child 0/1
-//                                break;
-//                            case father.isAffected && !child.isAffected:
-//                                // father 0/1
-//                                // mother 0/1
-//                                // child 0/0
-//                                break;
-//                            case !father.isAffected && !child.isAffected:
-//                                // father 0/0
-//                                // mother 0/1
-//                                // child 0/0
-//                                break;
-//                        }
-//                    }
-//
-//                }
+                let father;
+                let mother;
+                let child;
+                if (typeof neo !== "undefined" && neo != "" && neo.length == 3) {
+                    for (let i in neo) {
+                        switch (neo[i].memberCode) {
+                            case "F":
+                                father = neo[i];
+                                break;
+                            case "M":
+                                mother = neo[i];
+                                break;
+                            case "S":
+                            case "D":
+                                child = neo[i];
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    let segregation = "dominant"; // replace with the value selected in dropdown
+
+                    if (segregation == "dominant") {
+                        switch (true) {
+                            case father.status == "affected" && mother.status == "affected" && child.status == "affected":
+                                let cell = $("#segregationTable tr:eq(1) td:eq(2)")[0].children[0];
+                                $(cell).prop("checked", true);
+                                console.log("0/1, 1/1 for all")
+                                // 0/1, 1/1 for all
+                                break;
+                            case father.status == "affected" && mother.status == "unaffected" && child.status == "affected":
+                                // father 0/1, 1/1
+                                // mother 0/0
+                                // child 0/1
+                                break;
+                            case father.status == "affected" && mother.status == "affected" && child.status == "unaffected":
+                                // father 0/1
+                                // mother 0/1
+                                // child 0/0
+                                break;
+                            case father.status == "affected" && mother.status == "unaffected" && child.status == "unaffected":
+                                // father 0/1
+                                // mother 0/0
+                                // child 0/0
+                                break;
+                            case father.status == "unaffected" && mother.status == "affected" && child.status == "affected":
+                                // father 0/0
+                                // mother 0/1, 1/1
+                                // child 0/1
+                                break;
+                            case father.status == "unaffected" && mother.status == "affected" && child.status == "unaffected":
+                                // father 0/0
+                                // mother 0/1
+                                // child 0/0
+                                break;
+                        }
+                    }
+                }
+
             },
             handleCollapseAction: function (e) {
                 let id = e.srcElement.dataId;

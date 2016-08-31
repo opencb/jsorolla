@@ -16,7 +16,7 @@
 
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="../../cellbase/genome-context.html">
-<link rel="import" href="variant-browser-gene-view.html">
+<link rel="import" href="../opencga-gene-view.html">
 
 <dom-module id="variant-browser-view">
     <template>
@@ -197,7 +197,8 @@
                         },
                         onClickCell: function (field, value, row, $element) {
                             if (field == "genes") {
-                                _this.fire('selected', {gene: $element[0].innerHTML});
+                                let geneHtml = $element[0].innerHTML;
+                                _this.fire('selected', {gene: geneHtml.replace(/<[^>]*>/g, "")});
                             }
                         }
                     });
@@ -220,14 +221,13 @@
             geneFormatter: function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-//                        return "<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[0].geneName + "'>"
-//                                + row.annotation.consequenceTypes[0].geneName+ "</a>";
                         var visited = {};
                         var geneLinks = [];
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != "" && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
-                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
+//                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
+//                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                geneLinks.push("<a>" + row.annotation.consequenceTypes[i].geneName + "</a>");
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }

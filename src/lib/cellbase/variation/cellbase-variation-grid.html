@@ -122,14 +122,6 @@
                         _this.fire('selected', {variant: row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate});
                         $('.success').removeClass('success');
                         $($element).addClass('success');
-                    },
-                    onSearch: function (text) {
-                        $.each($('#' + _this.prefix + 'VariationTable' + ' tbody tr'), function() {
-                            if($(this).text().toLowerCase().indexOf(text.toLowerCase()) === -1)
-                                $('#' + _this.prefix + 'VariationTable').bootstrapTable('hideRow', {index: Number($(this).attr('data-index'))});
-                            else
-                                $('#' + _this.prefix + 'VariationTable').bootstrapTable('showRow', {index: Number($(this).attr('data-index'))});
-                        });
                     }
                 });
                 $('#' + this.prefix + 'VariationTable').bootstrapTable('showLoading');
@@ -145,8 +137,8 @@
                 });
             },
             idFormatter: function (value, row, index) {
-                if (typeof row.ids !== 'undefined' && row.ids.length > 0) {
-                    return '<a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Variation/Explore?v=' + row.ids[0] + '">' + row.ids + '</a>';
+                if (typeof row.id !== 'undefined' && row.id.length > 0) {
+                    return '<a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Variation/Explore?v=' + row.id[0] + '">' + row.id + '</a>';
                 } else {
                     return '-';
                 }

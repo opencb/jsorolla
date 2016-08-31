@@ -219,14 +219,6 @@
                     });
                     $('#' + _this.prefix +'SampleGrid').bootstrapTable('showLoading');
 
-                    // Getting the selected samples through onCheck event of bootstrap table and passing to the filter
-                    $('#' + _this.prefix +'SampleGrid').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table ' +
-                            'check-some.bs.table uncheck-some.bs.table' , function () {
-//                        _this.samples = _this.getSampleName();
-//                        let x = $('#' + _this.prefix + "SampleBrowser");
-//                        console.log("x", x)
-                    });
-
                     // Bootstrap Tree View
                     let studyFiles = [];
                     // Testing
@@ -249,11 +241,6 @@
 //                    });
                 }
             },
-            getSampleName: function () {
-                return $.map($('#' + this.prefix +'SampleGrid').bootstrapTable('getSelections'), function (row) {
-                    return row.name
-                });
-            },
             familyMemberFormatter: function (value, row, index) {
                 // <option value="unknown" selected>NA</option>
                 let dropdown = `
@@ -273,10 +260,7 @@
                 return checkbox;
             },
             dateFormatter: function (value, row, index) {
-                // TODO convert date to UTC string (Check the following line)
-//                return moment(row.status.date).format('D MMM Y');
-                return row.status.date;
-
+                return moment(row.status.date).format('D MMM Y');
             },
 
             // Bootstrap Tree

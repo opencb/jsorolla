@@ -34,9 +34,6 @@
                 </div>
             </div>
         </div>
-        <!--<div id="{{prefix}}geneView">-->
-            <!--<variant-browser-gene-view cellbase-client="{{cellbaseClient}}" gene="{{gene}}"></variant-browser-gene-view>-->
-        <!--</div>-->
     </template>
     <script>
         Polymer({
@@ -92,9 +89,6 @@
                     type: String,
                     value: "browser"
                 },
-                gene: {
-                    type: String
-                },
                 prefix: {
                     type: String
                 },
@@ -103,8 +97,7 @@
                 },
             },
             selectedGene: function (e) {
-                this.gene = e.detail.gene;
-                $('#geneView').show();
+                this.fire('gene', {gene: e.detail.gene});
             }
         });
     </script>
