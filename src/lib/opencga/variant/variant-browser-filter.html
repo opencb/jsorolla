@@ -122,8 +122,8 @@
 
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
                             <template is="dom-repeat" items="{{populationFrequencies}}" as="study">
-                                <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}"></i>
-                                <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}">{{study.title}}</label>
+                                <label class="popus"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}">&nbsp;{{study.title}}</i></label>
+                                <!--<label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}">&nbsp;{{study.title}}</label>-->
 
                                 <!-- If there is not submenu we just display a button -->
                                 <template is="dom-if" if="{{study.populations}}">
@@ -341,6 +341,16 @@
                 populationFrequencies: {
                     type: Array
                 },
+                geneOntology: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                hpo: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
                 prefix: {
                     type: String
                 }
@@ -388,9 +398,9 @@
                 let elem = $('#' + id)[0];
                 elem.hidden = !elem.hidden;
                 if (elem.hidden) {
-                    elem.css = "fa fa-angle-double-right minus";
+                    e.srcElement.className = "fa fa-plus";
                 } else {
-                    elem.css = "fa fa-angle-double-down minus";
+                    e.srcElement.className = "fa fa-minus";
                 }
             },
             fireClear: function () {
@@ -458,45 +468,45 @@
                 var popFreq = [];
 
                 // 1000GENOMES_phase_3
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
-                }
-                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value != "") {
-                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
-                }
-
-                //ESP_6500
-                if (this.$$("#" + this.prefix + "ESP_6500_EA").value != "") {
-                    popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
-                }
-                if (this.$$("#" + this.prefix + "ESP_6500_AA").value != "") {
-                    popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
-                }
-
-                if (this.$$("#" + this.prefix + "EXAC_ALL").value != "") {
-                    popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
-                }
-
-                if (popFreq.length > 0) {
-                    query['annot-population-maf'] = popFreq.join(";");
-                    if (query['annot-population-maf'].indexOf("error") >= 0) {
-                        return;
-                    }
-                }
-
-                this.populationFreq = popFreq.join(';');
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
+//                }
+//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value != "") {
+//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
+//                }
+//
+//                //ESP_6500
+//                if (this.$$("#" + this.prefix + "ESP_6500_EA").value != "") {
+//                    popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
+//                }
+//                if (this.$$("#" + this.prefix + "ESP_6500_AA").value != "") {
+//                    popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
+//                }
+//
+//                if (this.$$("#" + this.prefix + "EXAC_ALL").value != "") {
+//                    popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
+//                }
+//
+//                if (popFreq.length > 0) {
+//                    query['annot-population-maf'] = popFreq.join(";");
+//                    if (query['annot-population-maf'].indexOf("error") >= 0) {
+//                        return;
+//                    }
+//                }
+//
+//                this.populationFreq = popFreq.join(';');
 
                 // Protein Substitution scores
                 var sift;
@@ -521,6 +531,10 @@
                     conserArr.push(phastCons);
                 }
                 this.conservation = conserArr.join(',');
+
+                //Gene Ontology
+                this.geneOntology = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+                this.hpo = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
 
                 query.timeout = 30000;
 

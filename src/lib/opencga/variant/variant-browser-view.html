@@ -117,6 +117,16 @@
                     value: "",
                     observer: 'renderFromServer'
                 },
+                geneOntology: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                hpo: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
                 prefix: {
                     type: String
                 }
@@ -169,6 +179,12 @@
                     if (typeof this.conservation !== "undefined" && this.conservation != "") {
                         queryParams.conservation = this.conservation;
                     }
+                    if (typeof this.geneOntology != "undefined" && this.geneOntology != "") {
+                        queryParams["annot-go"] = this.geneOntology;
+                    }
+                    if (typeof this.hpo != "undefined" && this.hpo != "") {
+                        queryParams["annot-hpo"] = this.hpo;
+                    }
 
                     let _numTotal = -1;
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -197,6 +213,7 @@
                         },
                         onClickCell: function (field, value, row, $element) {
                             if (field == "genes") {
+                                // TODO bug when more than one gene is shown
                                 let geneHtml = $element[0].innerHTML;
                                 _this.fire('selected', {gene: geneHtml.replace(/<[^>]*>/g, "")});
                             }

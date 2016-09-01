@@ -53,6 +53,11 @@
                         <b>Variant:</b> {{variantAnnotation.chromosome}}:{{variantAnnotation.start}}:{{variantAnnotation.reference}}:{{variantAnnotation.alternate}}<br>
                         <b>Consequence Type:</b> {{variantAnnotation.displayConsequenceType}}<br>
                         <b>Population Frequency:</b><br>
+                        <template is="dom-repeat" items="{{variantAnnotation.populationFrequencies}}">
+                            <template is="dom-if" if="{{checkforAll(item.population)}}">
+                                {{item.study}} ({{item.population}}) - {{item.altAlleleFreq}} <br>
+                            </template>
+                        </template>
                         <b>Number of Variant Trait Association:</b> {{numberVTA}}<br>
                         <b>Number of Gene Trait Association:</b> {{numberGTA}}<br>
                         <b>Conservation and Cadd Scores:</b>
@@ -207,6 +212,9 @@
             },
             checkHorizontal: function (mode) {
                 return this.mode == 'horizontal';
+            },
+            checkforAll: function(population) {
+                return population == "ALL";
             },
             _variantChanged: function () {
                 let _this = this;
