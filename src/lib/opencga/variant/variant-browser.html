@@ -25,12 +25,12 @@
             <div class="browser-filter-view">
                 <div class="col-md-2">
                     <variant-browser-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                            population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}"
-                                            population-frequencies="{{populationFrequencies}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
+                                            population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}"
+                                            population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
                 </div>
                 <div class="col-md-10">
                     <variant-browser-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                          population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
+                                          population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
                                           on-selected="selectedGene"></variant-browser-view>
                 </div>
             </div>
@@ -74,6 +74,10 @@
                     type: String,
                     value: ""
                 },
+                soTerms: {
+                    type: Array,
+                    value: []
+                },
                 sift: {
                     type: String,
                     value: ""
@@ -104,6 +108,9 @@
                 populationFrequencies: {
                     type: Array
                 },
+                consequenceTypes: {
+                    type: Array
+                }
             },
             selectedGene: function (e) {
                 this.fire('gene', {gene: e.detail.gene});

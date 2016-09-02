@@ -199,6 +199,7 @@
 
                             // This is needed for POlymer to notify correctly
                             _this.splice('_samples', sampleToDeleteIdx, 1);
+                            // sort the samples
                             _this.set('samples', _this._samples.slice());
                         },
 

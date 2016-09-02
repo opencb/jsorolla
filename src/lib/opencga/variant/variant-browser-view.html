@@ -117,6 +117,11 @@
                     value: "",
                     observer: 'renderFromServer'
                 },
+                soTerms: {
+                    type: Array,
+                    value: [],
+                    observer: 'renderFromServer'
+                },
                 geneOntology: {
                     type: String,
                     value: "",
@@ -178,6 +183,9 @@
                     }
                     if (typeof this.conservation !== "undefined" && this.conservation != "") {
                         queryParams.conservation = this.conservation;
+                    }
+                    if (typeof this.soTerms !== "undefined" && this.soTerms.length > 0) {
+                        queryParams["annot-ct"] = this.soTerms.join(',');
                     }
                     if (typeof this.geneOntology != "undefined" && this.geneOntology != "") {
                         queryParams["annot-go"] = this.geneOntology;
@@ -244,7 +252,7 @@
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != "" && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
 //                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
 //                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
-                                geneLinks.push("<a>" + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                geneLinks.push("<a href='' target='_blank' on-click=''>" + row.annotation.consequenceTypes[i].geneName + "</a>");
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }
