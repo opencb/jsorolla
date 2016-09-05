@@ -24,14 +24,16 @@
         <div class="panel">
             <div class="browser-filter-view">
                 <div class="col-md-2">
-                    <variant-browser-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                            population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}"
-                                            population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
+                    <variant-browser-filter study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
+                                            variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
+                                            sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
+                                            consequence-types="{{consequenceTypes}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
                 </div>
                 <div class="col-md-10">
-                    <variant-browser-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" type="{{type}}" samples="{{samples}}" sample-genotypes="{{sampleGenotypes}}"
-                                          population-freq="{{populationFreq}}" sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"
-                                          on-selected="selectedGene"></variant-browser-view>
+                    <variant-browser-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
+                                          variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
+                                          sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
+                                          conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-view>
                 </div>
             </div>
         </div>
@@ -59,12 +61,20 @@
                 cellbaseClient: {
                     type: Object
                 },
+                region: {
+                    type: String,
+                    value:""
+                },
+                geneIds: {
+                    type: String,
+                    value:""
+                },
+                variantIds: {
+                    type: String,
+                    value:""
+                },
                 type: {
                     type: String
-                },
-                samples: {
-                    type: Array,
-                    notify: true
                 },
                 sampleGenotypes: {
                     type: Object,

@@ -29,8 +29,8 @@
             }
 
             .popus {
-                font-size: 12px;
-                font-weight: bold;
+                /*font-size: 12px;*/
+                /*font-weight: bold;*/
                 cursor: pointer;
             }
 
@@ -259,6 +259,16 @@
                                     </select></td>
                                     <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhastconsInput"></td>
                                 </tr>
+                                <tr>
+                                    <td>Gerp</td>
+                                    <td><select name="siftOperator" id="{{prefix}}GerpOperator">
+                                        <option value="<" selected><</option>
+                                        <option value="<="><=</option>
+                                        <option value=">">></option>
+                                        <option value=">=">>=</option>
+                                    </select></td>
+                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}GerpInput"></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -284,11 +294,11 @@
                                                 <input type="checkbox" on-change="handleChildNodes"> {{consequenceType.title}}
                                             </template>
                                             <template is="dom-if" if="{{!checkTitle(consequenceType)}}">
-                                                <input type="checkbox"> {{consequenceType.name}}
+                                                <input type="checkbox" on-change="handleChildNodes"> {{consequenceType.name}}
                                             </template>
                                             <ul>
                                                 <template is="dom-repeat" items="{{consequenceType.items}}">
-                                                    <li><input type="checkbox" id="{{item.id}}" on-change="editCT"> {{item.name}}</li>
+                                                    <li><input type="checkbox" id="{{item.id}}" on-change="editCT"> <span title="{{item.description}}">{{item.name}}</span></li>
                                                 </template>
                                             </ul>
                                         </li>
@@ -345,20 +355,23 @@
                 opencgaClient: {
                     type: Object
                 },
-                query: {
-                    type: Object,
-                    notify: true,
-                    value: function () {
-                        return {};
-                    }
+                region: {
+                    type: String,
+                    value:"",
+                    notify: true
+                },
+                geneIds: {
+                    type: String,
+                    value:"",
+                    notify: true
+                },
+                variantIds: {
+                    type: String,
+                    value:"",
+                    notify: true
                 },
                 type: {
                     type: String,
-                    notify: true
-                },
-                samples: {
-                    type: Array,
-                    value: [],
                     notify: true
                 },
                 sampleGenotypes: {
@@ -497,46 +510,52 @@
                 this.set('soTerms', this.soTerms.slice());
             },
             fireClear: function () {
-                // Position
+                let _this = this;
+
+                // Position and  Gene or Variant Ids
                 this.$$("#" + this.prefix + "LocationTextarea").value = "";
                 this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
+
                 // Type
-                var types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
-                for (var i = 0; i < types.length; i++) {
-                    var type = types[i];
+                let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+                for (let i = 0; i < types.length; i++) {
+                    let type = types[i];
                     type.checked = false;
                 }
-                // Freqs
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR_op").value = "<";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value = "";
-                this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR_op").value = "<";
 
-                this.$$("#" + this.prefix + "ESP_6500_EA").value = "";
-                this.$$("#" + this.prefix + "ESP_6500_EA_op").value = "<";
-                this.$$("#" + this.prefix + "ESP_6500_AA").value = "";
-                this.$$("#" + this.prefix + "ESP_6500_AA_op").value = "<";
-                this.$$("#" + this.prefix + "EXAC_ALL").value = "";
-                this.$$("#" + this.prefix + "EXAC_ALL_op").value = "<";
+                // Population Freqs
+                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.length; i++) {
+                        let study = _this.populationFrequencies[i].id;
+                        for (let j = 0; j < _this.populationFrequencies[i].populations.length; j++) {
+                            let population = _this.populationFrequencies[i].populations[j].id;
+                            this.$$("#" + this.prefix + study + population).value = "";
+                            this.$$("#" + this.prefix + study + population + "Operator").value = "<";
+                        }
+                    }
+                }
+
                 // Protein Substitution scores
                 this.$$("#" + this.prefix + "SiftInput").value = "";
                 this.$$("#" + this.prefix + "SiftOperator").value = "<";
                 this.$$("#" + this.prefix + "PolyphenInput").value = "";
                 this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+
                 // Conservation
                 this.$$("#" + this.prefix + "PhylopInput").value = "";
                 this.$$("#" + this.prefix + "PhylopOperator").value = "<";
                 this.$$("#" + this.prefix + "PhastconsInput").value = "";
                 this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
-                // TODO add consequence type
+                this.$$("#" + this.prefix + "GerpInput").value = "";
+                this.$$("#" + this.prefix + "GerpOperator").value = "<";
+
+                // Consequence Type
+                let selected = this.$$("#consequenceTypeFilter").querySelectorAll("li input:checked");
+                for (let i = 0; i < selected.length; i++) {
+                    selected[i].checked = false;
+                }
+
+                // Gene Ontology and Human Phenotype Ontology
                 this.$$("#" + this.prefix + "GeneOntologyTextarea").value = "";
                 this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = "";
             },
@@ -544,66 +563,54 @@
 
             },
             fireSearch: function () {
-                var query = {};
+                let _this = this;
+
+                // Region
+                this.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+
+                // Gene or Variant Id
+                _this.variantIds = ""; // Clearing the previous value every time search is fired
+                _this.geneIds = "";
+                if (this.$$("#" + this.prefix + "GeneSnpTextarea").value != "") {
+                    if (this.$$("#" + this.prefix + "GeneSnpTextarea").value.startsWith("rs")) {
+                        _this.variantIds = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                    } else {
+                        _this.geneIds = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                    }
+                }
 
                 // Type
-//                var types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
-//                var typesAux = [];
-//                if (types != "") {
-//                    for (var i = 0; i < types.length; i++) {
-//                        typesAux.push(types[i].value);
-//                    }
-//                    query["type"] = typesAux;
-//                }
+                this.type = "";
+                let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+                let typesAux = [];
+                if (types != "") {
+                    for (var i = 0; i < types.length; i++) {
+                        typesAux.push(types[i].value);
+                    }
+                    _this.type = typesAux.join(',');
+                }
 
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
-                var popFreq = [];
-
-                // 1000GENOMES_phase_3
-//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_ALL").value != "") {
-//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "ALL", "phase3"));
-//                }
-//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AMR").value != "") {
-//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AMR", "phase3"));
-//                }
-//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_SAS").value != "") {
-//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "SAS", "phase3"));
-//                }
-//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EAS").value != "") {
-//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EAS", "phase3"));
-//                }
-//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_AFR").value != "") {
-//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "AFR", "phase3"));
-//                }
-//                if (this.$$("#" + this.prefix + "1000GENOMES_phase_3_EUR").value != "") {
-//                    popFreq.push(this._getPopulationQuery("1000GENOMES_phase_3", "EUR", "phase3"));
-//                }
-//
-//                //ESP_6500
-//                if (this.$$("#" + this.prefix + "ESP_6500_EA").value != "") {
-//                    popFreq.push(this._getPopulationQuery("ESP_6500", "EA", "ESP"));
-//                }
-//                if (this.$$("#" + this.prefix + "ESP_6500_AA").value != "") {
-//                    popFreq.push(this._getPopulationQuery("ESP_6500", "AA", "ESP"));
-//                }
-//
-//                if (this.$$("#" + this.prefix + "EXAC_ALL").value != "") {
-//                    popFreq.push(this._getPopulationQuery("EXAC", "ALL", "exac"));
-//                }
-//
-//                if (popFreq.length > 0) {
-//                    query['annot-population-maf'] = popFreq.join(";");
-//                    if (query['annot-population-maf'].indexOf("error") >= 0) {
-//                        return;
-//                    }
-//                }
-//
-//                this.populationFreq = popFreq.join(';');
+                let popFreq = [];
+                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.length; i++) {
+                        let study = _this.populationFrequencies[i].id;
+                        for (let j = 0; j < _this.populationFrequencies[i].populations.length; j++) {
+                            let population = _this.populationFrequencies[i].populations[j].id;
+                            if (this.$$("#" + this.prefix + study + population).value != "") {
+                                let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
+                                let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
+                                popFreq.push(pf);
+                            }
+                        }
+                    }
+                }
+                this.populationFreq = popFreq.join(';');
 
                 // Protein Substitution scores
-                var sift;
-                var polyphen;
+                let sift = "";
+                let polyphen = "";
                 if (this.$$("#" + this.prefix + "SiftInput").value != "") {
                     sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                 }
@@ -614,7 +621,7 @@
                 this.polyphen = polyphen;
 
                 // Conservation
-                var conserArr = [];
+                let conserArr = [];
                 if (this.$$("#" + this.prefix + "PhylopInput").value != "") {
                     let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
                     conserArr.push(phylop);
@@ -623,99 +630,15 @@
                     let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
                     conserArr.push(phastCons);
                 }
+                if (this.$$("#" + this.prefix + "GerpInput").value != "") {
+                    let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
+                    conserArr.push(gerp);
+                }
                 this.conservation = conserArr.join(',');
 
-                //Gene Ontology
+                //Gene Ontology and Human Phenotype Ontology
                 this.geneOntology = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
                 this.hpo = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
-
-                query.timeout = 30000;
-
-                this.set('query', query);
-
-                console.log(query);
-                // this.search(query);
-
-            },
-            _getPopulationQuery: function (study, population, type) {
-                var value = parseFloat(this.$$("#" + this.prefix + study + "_" + population).value);
-                var value_op = this.$$("#" + this.prefix + study + "_" + population + "_op").value;
-                value = study + ":" + population + value_op + value;
-                return value;
-            },
-            _setPopulationValue: function (population, value) {
-                var aux = value.split("");
-                var n = 0;
-                var pop = "";
-                for (i = 0; i < 5; i++) {
-                    if (isNaN(aux[i]) && aux[i] != '.') {
-                        pop += aux[i];
-                        n++;
-                    }
-                }
-                var val = "";
-                if (pop.length == 4) {
-                    this.$$("#" + this.prefix + population + "_op").value = aux[3];
-                } else if (pop.length == 5) {
-                    this.$$("#" + this.prefix + population + "_op").value = aux[3] + aux[4];
-                }
-                for (var i = n; i < aux.length; i++) {
-                    val += aux[i];
-                }
-                this.$$("#" + this.prefix + population).value = val;
-            },
-            search: function (query) {
-                query.sid = Cookies("bioinfo_sid");
-                query.skipCount = false;
-                query.sort = true;
-
-                //****//
-                // var sampleFiles = {};
-                // var filesIdAux = [];
-                var me = this;
-                // var n = 0;
-                //
-                // for (var i = 0; i < this.samples.length; i++) {
-                //     var sample = this.samples[i];
-                //     if (sample.status == 'READY') {
-                //         if (sampleFiles[sample.source] == null) {
-                //             sampleFiles[sample.source] = 1;
-                //             n++;
-                //         }
-                //     }
-                // }
-                // if (n > 0) {
-                var studyId = this.study.id;
-                OpencgaManager.studies.files({
-                    id: studyId,
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                    },
-                    request: {
-                        async: true,
-                        success: function (response) {
-                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                                debugger
-                                // var result = response.response[0].result;
-                                // for (var i = 0; i < result.length; i++) {
-                                //     if (result[i].type == "FILE") {
-                                //         if (sampleFiles[result[i].name] != null && result[i].index != null && result[i].index.status == 'READY') {
-                                //             filesIdAux.push(result[i].id);
-                                //         }
-                                //     }
-                                // }
-                                // me.set('filesId', filesIdAux);
-                            } else {
-                                console.log(response.response[0].errorMsg);
-                            }
-                        },
-                        error: function () {
-                            console.log('Server error, try again later.');
-                        }
-                    }
-                });
-                // }
-
             }
         });
     </script>

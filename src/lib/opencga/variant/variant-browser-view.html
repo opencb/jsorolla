@@ -89,6 +89,26 @@
                     value: [],
                     observer: '_refreshTableColumns'
                 },
+                region: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                geneIds: {
+                    type: String,
+                    value:"",
+                    observer: 'renderFromServer'
+                },
+                variantIds: {
+                    type: String,
+                    value:"",
+                    observer: 'renderFromServer'
+                },
+                type: {
+                    type: String,
+                    value:"",
+                    observer: 'renderFromServer'
+                },
                 sampleGenotypes: {
                     type: String,
                     value: "",
@@ -164,10 +184,20 @@
                         sid: _this.opencgaClient._config.sessionId,
                         timeout: 10000
                     };
-                    if (typeof this.samples !== "undefined" && this.samples.length > 0) {
-                        queryParams.returnedSamples = this.samples.join();
-                    } else {
-                        queryParams.exclude = "studies";
+
+                    queryParams.exclude = "studies";
+
+                    if (typeof this.region !== "undefined" && this.region != "") {
+                        queryParams.region = this.region;
+                    }
+                    if (typeof this.geneIds !== "undefined" && this.geneIds != "") {
+                        queryParams.gene = this.geneIds;
+                    }
+                    if (typeof this.variantIds !== "undefined" && this.variantIds != "") {
+                        queryParams.ids = this.variantIds;
+                    }
+                    if (typeof this.type !== "undefined" && this.type != "") {
+                        queryParams.type = this.type;
                     }
                     if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
                         queryParams.genotype = this.sampleGenotypes;
@@ -288,6 +318,7 @@
             proteinScoreFormatter: function (value, row, index) {
                 var min = 10;
                 var max = 0;
+
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
@@ -450,7 +481,7 @@
                         },
                         {
                             title: 'Polyphen2',
-                            field: 'polyphen2',
+                            field: 'polyphen',
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.proteinScoreFormatter,
@@ -458,7 +489,7 @@
                         },
                         {
                             title: 'PhyloP',
-                            field: 'PhyloP',
+                            field: 'phylop',
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.conservationFormatter,
@@ -466,7 +497,7 @@
                         },
                         {
                             title: 'PhastCons',
-                            field: 'PhastCons',
+                            field: 'phastCons',
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.conservationFormatter,
