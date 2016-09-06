@@ -434,14 +434,6 @@
                     this.prefix = Utils.randomString(6);
                 }
             },
-            typeSelected: function (e) {
-                if (typeof e.target === "undefined") {
-                    this.type = e;
-                } else {
-                    this.type = e.target.defaultValue;
-                }
-                console.log("type:", this.type);
-            },
             sampleGenotypeSelected: function(e) {
                 if (typeof e !== "undefined") {
                     if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
@@ -515,6 +507,9 @@
                 // Position and  Gene or Variant Ids
                 this.$$("#" + this.prefix + "LocationTextarea").value = "";
                 this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
+                this.region = "";
+                this.variantIds = "";
+                this.geneIds = "";
 
                 // Type
                 let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
@@ -522,6 +517,7 @@
                     let type = types[i];
                     type.checked = false;
                 }
+                this.type = "";
 
                 // Population Freqs
                 if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
@@ -534,12 +530,15 @@
                         }
                     }
                 }
+                this.populationFreq = [];
 
                 // Protein Substitution scores
                 this.$$("#" + this.prefix + "SiftInput").value = "";
                 this.$$("#" + this.prefix + "SiftOperator").value = "<";
                 this.$$("#" + this.prefix + "PolyphenInput").value = "";
                 this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+                this.sift = "";
+                this.polyphen = "";
 
                 // Conservation
                 this.$$("#" + this.prefix + "PhylopInput").value = "";
@@ -548,6 +547,7 @@
                 this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
                 this.$$("#" + this.prefix + "GerpInput").value = "";
                 this.$$("#" + this.prefix + "GerpOperator").value = "<";
+                this.conservation = [];
 
                 // Consequence Type
                 let selected = this.$$("#consequenceTypeFilter").querySelectorAll("li input:checked");
@@ -558,6 +558,8 @@
                 // Gene Ontology and Human Phenotype Ontology
                 this.$$("#" + this.prefix + "GeneOntologyTextarea").value = "";
                 this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = "";
+                this.geneOntology = "";
+                this.hpo = "";
             },
             fireFilter: function () {
 

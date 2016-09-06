@@ -1,4 +1,4 @@
-<link rel="import" href="../cellbase/variation/cellbase-variation-grid.html">
+<link rel="import" href="../opencga/variant/variant-browser-grid.html">
 
 <dom-module id="opencga-gene-view">
     <template>
@@ -62,7 +62,7 @@
             </div>
             <div>
                 <h4>Variants</h4>
-                <cellbase-variation-grid cellbase-client="{{cellbaseClient}}" url="{{variationUrl}}" prefix="gene"></cellbase-variation-grid>
+                <variant-browser-grid study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" gene-ids="{{gene}}" population-frequencies="{{populationFrequencies}}"></variant-browser-grid>
             </div>
 
         </div>
@@ -74,19 +74,34 @@
                 cellbaseClient: {
                     type: Object
                 },
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
                 gene: {
                     type: String,
                     value: ""
                 },
                 geneObj: {
                     type: Object
+                },
+                populationFrequencies: {
+                    type: Array
                 }
             },
             observers: [
                 'geneChanged(gene, cellbaseClient)'
             ],
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
             geneChanged: function (gene, cellbaseClient) {
-                let _this = this;
+                let _this= this;
+
                 if (typeof this.gene !== "undefined" && this.gene != "") {
                     _this.variationUrl = 'http://' + cellbase.hosts[0] + '/webservices/rest/v4/hsapiens/feature/gene/'
                             + this.gene + '/snp?exclude=annotation.additionalAttributes,annotation.populationFrequencies';
@@ -101,7 +116,7 @@
                         alert("Invalid gene");
                     };
                     this.cellbaseClient.getGeneClient(this.gene, 'info', {}, {success: success, error: error, async: true});
-                    this.cellbaseClient.getGeneClient(this.gene, 'snp', {include: "id", limit: "0"},  {success: variationSuccess, error: error, async: true});
+//                    this.cellbaseClient.getGeneClient(this.gene, 'snp', {include: "id", limit: "0"},  {success: variationSuccess, error: error, async: true});
                 }
             }
         });

@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="cellbase-variant-annotation-summary.html">
 <link rel="import" href="../cellbase-annotation-consequencetype-grid.html">
 <link rel="import" href="../cellbase-population-frequency-grid.html">
 
@@ -50,40 +51,7 @@
                 <div class="tab-content">
                     <!--Summary Tab-->
                     <div role="tabpanel" class="tab-pane active" id="{{prefix}}VariantAnnotationSummary">
-                        <b>Variant:</b> {{variantAnnotation.chromosome}}:{{variantAnnotation.start}}:{{variantAnnotation.reference}}:{{variantAnnotation.alternate}}<br>
-                        <b>Consequence Type:</b> {{variantAnnotation.displayConsequenceType}}<br>
-                        <b>Population Frequency:</b><br>
-                        <template is="dom-repeat" items="{{variantAnnotation.populationFrequencies}}">
-                            <template is="dom-if" if="{{checkforAll(item.population)}}">
-                                {{item.study}} ({{item.population}}) - {{item.altAlleleFreq}} <br>
-                            </template>
-                        </template>
-                        <b>Number of Variant Trait Association:</b> {{numberVTA}}<br>
-                        <b>Number of Gene Trait Association:</b> {{numberGTA}}<br>
-                        <b>Conservation and Cadd Scores:</b>
-                        <table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">
-                            <thead style="background-color: #eee">
-                            <tr>
-                                <th>Source</th>
-                                <th>Score</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <template is="dom-repeat" items="{{conservation}}">
-                                <tr>
-                                    <td>{{item.source}}</td>
-                                    <td>{{item.score}}</td>
-                                </tr>
-                            </template>
-                            <template is="dom-repeat" items="{{functionalScore}}">
-                                <tr>
-                                    <td>{{item.source}}</td>
-                                    <td>{{item.score}}</td>
-                                </tr>
-                            </template>
-                            </tbody>
-                        </table>
-
+                        <cellbase-variant-annotation-summary data="{{variantAnnotation}}"></cellbase-variant-annotation-summary>
                     </div>
 
                     <!--Consequence types Tab-->
@@ -213,20 +181,10 @@
             checkHorizontal: function (mode) {
                 return this.mode == 'horizontal';
             },
-            checkforAll: function(population) {
-                return population == "ALL";
-            },
             _variantChanged: function () {
                 let _this = this;
                 var success = function (response) {
                     _this.variantAnnotation = response.response[0].result[0];
-                    if (_this.variantAnnotation.variantTraitAssociation != null) {
-                        _this.numberVTA = Object.keys(_this.variantAnnotation.variantTraitAssociation).length;
-                    } else {
-                        _this.numberVTA = 0;
-                    }
-
-                    _this.numberGTA = _this.variantAnnotation.geneTraitAssociation.length;
 
                     // Gene Trait Association definition
                     $('#' + _this.prefix + 'GTATable').bootstrapTable('destroy');
@@ -253,19 +211,6 @@
                             ]
                         ]
                     });
-
-                    let conservation = [];
-                    for (let i in _this.variantAnnotation.conservation) {
-                        conservation.push({source: _this.variantAnnotation.conservation[i].source.charAt(0).toUpperCase()
-                        + _this.variantAnnotation.conservation[i].source.slice(1), score: Number(_this.variantAnnotation.conservation[i].score).toFixed(3)});
-                    }
-                    _this.conservation = conservation;
-                    let functionalScore = [];
-                    for (let i in _this.variantAnnotation.functionalScore) {
-                        functionalScore.push({source: _this.variantAnnotation.functionalScore[i].source.charAt(0).toUpperCase()
-                        + _this.variantAnnotation.functionalScore[i].source.slice(1), score: Number(_this.variantAnnotation.functionalScore[i].score).toFixed(3)});
-                    }
-                    _this.functionalScore = functionalScore;
                 };
                 this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {
                     success: success,

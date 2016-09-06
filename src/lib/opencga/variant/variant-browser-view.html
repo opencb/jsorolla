@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="../../cellbase/genome-context.html">
 <link rel="import" href="../opencga-gene-view.html">
@@ -28,12 +29,10 @@
                 <template is="dom-if" if="{{study.name != ''}}">
                     <h2>{{title}}</h2>
                 </template>
-
-                <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
-                       data-show-pagination-switch="true" data-show-export="true">
-                    <thead style="background-color: #eee"></thead>
-
-                </table>
+                <variant-browser-grid study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
+                                      variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
+                                      sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
+                                      conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-grid>
             </div>
             <h4>Variant: {{variant}}</h4>
             <!--Tabs-->
@@ -73,468 +72,81 @@
                     type: String
                 },
                 study: {
-                    type: Object,
-                    observer: 'renderFromServer'
+                    type: Object
                 },
                 data: {
                     type: Array,
-                    value: [],
-                    observer: 'renderFromLocal'
+                    value: []
                 },
                 opencgaClient: {
                     type: Object
                 },
                 populationFrequencies: {
                     type: Array,
-                    value: [],
-                    observer: '_refreshTableColumns'
+                    value: []
                 },
                 region: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 geneIds: {
                     type: String,
-                    value:"",
-                    observer: 'renderFromServer'
+                    value:""
                 },
                 variantIds: {
                     type: String,
-                    value:"",
-                    observer: 'renderFromServer'
+                    value:""
                 },
                 type: {
                     type: String,
-                    value:"",
-                    observer: 'renderFromServer'
+                    value:""
                 },
                 sampleGenotypes: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 cellbaseClient: {
                     type: Object
                 },
                 populationFreq: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 sift: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 polyphen: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 conservation: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 soTerms: {
                     type: Array,
-                    value: [],
-                    observer: 'renderFromServer'
+                    value: []
                 },
                 geneOntology: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 hpo: {
                     type: String,
-                    value: "",
-                    observer: 'renderFromServer'
+                    value: ""
                 },
                 prefix: {
                     type: String
                 }
             },
             ready: function () {
-                // TO BE REMOVED!
-                this._refreshTableColumns();
-
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
             },
-            renderFromServer: function () {
-                let _this = this;
-                if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
-
-                    if (typeof this.study.id !== "undefined") {
-                        this._studyId = this.study.id;
-                    } else {
-                        this._studyId = this.study.alias;
-                    }
-
-                    if (typeof this._studyId !== "undefined" && this._studyId != "") {
-                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this._studyId + '/variants';
-                    } else {
-                        return;
-                    }
-
-                    var queryParams = {
-                        sid: _this.opencgaClient._config.sessionId,
-                        timeout: 10000
-                    };
-
-                    queryParams.exclude = "studies";
-
-                    if (typeof this.region !== "undefined" && this.region != "") {
-                        queryParams.region = this.region;
-                    }
-                    if (typeof this.geneIds !== "undefined" && this.geneIds != "") {
-                        queryParams.gene = this.geneIds;
-                    }
-                    if (typeof this.variantIds !== "undefined" && this.variantIds != "") {
-                        queryParams.ids = this.variantIds;
-                    }
-                    if (typeof this.type !== "undefined" && this.type != "") {
-                        queryParams.type = this.type;
-                    }
-                    if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
-                        queryParams.genotype = this.sampleGenotypes;
-                    }
-                    if (typeof this.populationFreq !== "undefined" && this.populationFreq != "") {
-                        queryParams["annot-population-maf"] = this.populationFreq;
-                    }
-                    if (typeof this.sift !== "undefined" && this.sift != "") {
-                        queryParams.sift = this.sift;
-                    }
-                    if (typeof this.polyphen !== "undefined" && this.polyphen != "") {
-                        queryParams.polyphen = this.polyphen;
-                    }
-                    if (typeof this.conservation !== "undefined" && this.conservation != "") {
-                        queryParams.conservation = this.conservation;
-                    }
-                    if (typeof this.soTerms !== "undefined" && this.soTerms.length > 0) {
-                        queryParams["annot-ct"] = this.soTerms.join(',');
-                    }
-                    if (typeof this.geneOntology != "undefined" && this.geneOntology != "") {
-                        queryParams["annot-go"] = this.geneOntology;
-                    }
-                    if (typeof this.hpo != "undefined" && this.hpo != "") {
-                        queryParams["annot-hpo"] = this.hpo;
-                    }
-
-                    let _numTotal = -1;
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
-                        url: this._url,
-                        method: 'get',
-                        sidePagination: 'server',
-                        queryParams: function (params) {
-                            queryParams.limit = params.limit;
-                            queryParams.skip = params.offset;
-                            return queryParams;
-                        },
-                        responseHandler: function (res) {
-                            console.log(res)
-                            if (_numTotal == -1) {
-//                                _numTotal = res.response[0].numTotalResults;
-                                _numTotal = 1150;
-                            }
-                            return {total: _numTotal, rows: res.response[0].result}
-                        },
-                        columns: this.cols,
-                        onClickRow: function (row, $element) {
-                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                            $('.success').removeClass('success');
-                            $($element).addClass('success');
-                        },
-                        onClickCell: function (field, value, row, $element) {
-                            if (field == "genes") {
-                                // TODO bug when more than one gene is shown
-                                let geneHtml = $element[0].innerHTML;
-                                _this.fire('selected', {gene: geneHtml.replace(/<[^>]*>/g, "")});
-                            }
-                        }
-                    });
-                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
-                }
-            },
-            renderFromLocal: function () {
-                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
-                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
-                    data: this.data,
-                    columns: this.cols
-                });
-            },
-            variantFormatter: function (value, row, index) {
-                return "<span style='white-space: nowrap;'>" + row.chromosome + ':' + row.start + " " + row.reference + '/' + row.alternate + "</span>";
-            },
-            snpFormatter: function (value, row, index) {
-                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
-            },
-            geneFormatter: function (value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                        var visited = {};
-                        var geneLinks = [];
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != "" && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-//                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
-//                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
-                                geneLinks.push("<a href='' target='_blank' on-click=''>" + row.annotation.consequenceTypes[i].geneName + "</a>");
-                                visited[row.annotation.consequenceTypes[i].geneName] = true;
-                            }
-                        }
-                        return geneLinks.join(',');
-                    }
-                }
-                return '-';
-            },
-            consequenceTypeFormatter: function (value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
-                        var consequenceTypesArr = [];
-                        var visited = new Set();
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-                                let transcriptId = '-';
-                                if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
-                                    transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
-                                }
-                                if (typeof row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name !== "undefined"
-                                        && row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name != ""
-                                        && !visited.has(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name)) { //&& typeof visited[row.annotation.consequenceTypes[i].sequenceOntologyTerms.name] === "undefined"
-                                    consequenceTypesArr.push(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name); // + "(" + transcriptId + ")");
-                                    visited.add(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name);
-                                }
-                            }
-                        }
-                        return consequenceTypesArr.join('<br>');
-                    }
-                }
-                return '-';
-            },
-            proteinScoreFormatter: function (value, row, index) {
-                var min = 10;
-                var max = 0;
-
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
-                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field) {
-                                        switch (this.field) {
-                                            case "sift":
-                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
-                                                    min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                                }
-                                                break;
-                                            case "polyphen":
-                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
-                                                    max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                                }
-                                                break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (this.field == 'sift' && min != 10) {
-                    return min;
-                } else if (this.field == 'polyphen' && max != 0) {
-                    return max;
-                }
-                return '-';
-            },
-            conservationFormatter:  function (value, row, index) {
-                if (typeof row !== "undefined") {
-                    for (let i = 0; i < row.annotation.conservation.length; i++) {
-                        if (row.annotation.conservation[i].source == this.field) {
-                            return Number(row.annotation.conservation[i].score).toFixed(3);
-                        }
-                    }
-                }
-                return '-';
-            },
-            populationFrequenciesFormatter: function(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    for (popFreqIdx in row.annotation.populationFrequencies) {
-                        let popFreq = row.annotation.populationFrequencies[popFreqIdx];
-                        let studyPopulation = popFreq.study + ":" + popFreq.population;
-                        if (studyPopulation == this.field) {
-                            return Number(popFreq.altAlleleFreq).toFixed(4);
-                        }
-                    }
-                }
-                return '-';
-            },
-            _refreshTableColumns: function() {
-                this.cols = this._createDefaultColumns();
-
-                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
-                    let popIdx = 5;
-                    for (let i = 0; i < this.populationFrequencies.length; i++) {
-                        let study = this.populationFrequencies[i];
-                        this.cols[0].splice(7 + i, 0, {
-                            title: study.title,
-                            field: study.id,
-                            rowspan: 1,
-                            colspan: study.populations.length,
-                            halign: 'center'
-                        });
-                        if (i > 0) {
-                            popIdx += this.populationFrequencies[i - 1].populations.length;
-                        }
-                        for(let j = 0; j < study.populations.length; j++) {
-                            this.cols[1].splice(j + popIdx, 0, {
-                                title: study.populations[j].id,
-                                field: study.id + ":" + study.populations[j].id,
-                                rowspan: 1,
-                                colspan: 1,
-//                                        visible: false,
-                                formatter: this.populationFrequenciesFormatter,
-                                halign: 'center'
-                            });
-                        }
-                    }
-                }
-                this.renderFromServer();
-            },
-            _createDefaultColumns: function() {
-                var initCols = [
-                    [
-                        {
-                            title: 'Variant',
-                            field: 'variant',
-                            sortable: true,
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.variantFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'SNPId',
-                            field: 'id',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.snpFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Genes',
-                            field: 'genes',
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.geneFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Type',
-                            field: 'type',
-                            colspan: 1,
-                            rowspan: 2,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Consequence Type',
-//                            field: 'displayConsequenceType',
-                            sortable: true,
-                            colspan: 1,
-                            rowspan: 2,
-                            formatter: this.consequenceTypeFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Protein Substitution Score',
-                            field: 'Protein Substitution Score',
-                            colspan: 2,
-                            rowspan: 1,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Conservation',
-                            field: 'Conservation',
-                            colspan: 3,
-                            rowspan: 1,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Phenotype',
-                            field: 'Phenotype',
-                            colspan: 3,
-                            rowspan: 1,
-                            halign: 'center'
-                        }
-                    ],
-                    [
-                        {
-                            title: 'SIFT',
-                            field: 'sift',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.proteinScoreFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Polyphen2',
-                            field: 'polyphen',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.proteinScoreFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'PhyloP',
-                            field: 'phylop',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.conservationFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'PhastCons',
-                            field: 'phastCons',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.conservationFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Gerp',
-                            field: 'gerp',
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: this.conservationFormatter,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Clinvar',
-                            field: 'annotation.variantTraitAssociation.clinvar.accession',
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'Cosmic',
-                            field: 'annotation.variantTraitAssociation.cosmic.mutationId',
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center'
-                        },
-                        {
-                            title: 'GWAS',
-                            field: 'gwas',
-                            colspan: 1,
-                            rowspan: 1,
-                            halign: 'center'
-                        }
-                    ]
-                ];
-                return initCols;
+            selectedGene: function (e) {
+                this.fire('propagate', {gene: e.detail.gene});
             }
         });
     </script>

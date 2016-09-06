@@ -1,0 +1,112 @@
+
+<dom-module id="cellbase-variant-annotation-summary">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div>
+            <b>Variant:</b> {{data.chromosome}}:{{data.start}}:{{data.reference}}:{{data.alternate}}<br>
+            <b>Consequence Type:</b> {{data.displayConsequenceType}}<br>
+            <b>Population Frequency:</b><br>
+            <template is="dom-repeat" items="{{data.populationFrequencies}}">
+                <template is="dom-if" if="{{checkforAll(item)}}">
+                    {{item.study}} ({{item.population}}) - {{item.altAlleleFreq}} <br>
+                </template>
+            </template>
+            Minimum Frequency - {{minFrequency.freq}} ({{minFrequency.study}}_{{minFrequency.population}}) <br>
+            <b>Number of Variant Trait Association:</b> {{numberVTA}}<br>
+            <b>Number of Gene Trait Association:</b> {{numberGTA}}<br>
+            <b>Conservation:</b><br>
+            <template is="dom-repeat" items="{{conservation}}">
+                {{item.source}} - {{item.score}} <br>
+            </template>
+            <b>Cadd:</b><br>
+            <template is="dom-repeat" items="{{functionalScore}}">
+                {{item.source}} - {{item.score}}<br>
+            </template>
+            <!--<table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">-->
+                <!--<thead style="background-color: #eee">-->
+                <!--<tr>-->
+                    <!--<th>Source</th>-->
+                    <!--<th>Score</th>-->
+                <!--</tr>-->
+                <!--</thead>-->
+                <!--<tbody>-->
+                <!--<template is="dom-repeat" items="{{conservation}}">-->
+                    <!--<tr>-->
+                        <!--<td>{{item.source}}</td>-->
+                        <!--<td>{{item.score}}</td>-->
+                    <!--</tr>-->
+                <!--</template>-->
+                <!--<template is="dom-repeat" items="{{functionalScore}}">-->
+                    <!--<tr>-->
+                        <!--<td>{{item.source}}</td>-->
+                        <!--<td>{{item.score}}</td>-->
+                    <!--</tr>-->
+                <!--</template>-->
+                <!--</tbody>-->
+            <!--</table>-->
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'cellbase-variant-annotation-summary',
+            properties: {
+                data: {
+                    type: Object,
+                    value: {},
+                    observer: 'variantAnnotationChanged'
+                },
+                minFrequency: {
+                    type: Object,
+                    value: {}
+                }
+            },
+            checkforAll: function(populationFreq) {
+                // Calculate the minimum frequency
+                let obj = {};
+                if (Object.keys(this.minFrequency).length === 0 && this.minFrequency.constructor === Object) {
+                    obj.freq = populationFreq.altAlleleFreq;
+                    obj.population = populationFreq.population;
+                    obj.study = populationFreq.study;
+                } else if (populationFreq.altAlleleFreq < this.minFrequency.freq) {
+                    obj.freq = populationFreq.altAlleleFreq;
+                    obj.population = populationFreq.population;
+                    obj.study = populationFreq.study;
+                } else {
+                    obj = this.minFrequency;
+                }
+                this.minFrequency = obj;
+                return populationFreq.population == "ALL";
+            },
+            variantAnnotationChanged: function(neo, old) {
+                let _this = this;
+                this.minFrequency = {};
+                if (typeof this.data !== "undefined") {
+                    if (_this.data.variantTraitAssociation != null) {
+                        _this.numberVTA = Object.keys(_this.data.variantTraitAssociation).length;
+                    } else {
+                        _this.numberVTA = 0;
+                    }
+
+                    if (_this.data.geneTraitAssociation != null) {
+                        _this.numberGTA = _this.data.geneTraitAssociation.length;
+                    }
+
+                    let conservation = [];
+                    for (let i in _this.data.conservation) {
+                        conservation.push({source: _this.data.conservation[i].source.charAt(0).toUpperCase()
+                        + _this.data.conservation[i].source.slice(1), score: Number(_this.data.conservation[i].score).toFixed(3)});
+                    }
+                    _this.conservation = conservation;
+
+                    let functionalScore = [];
+                    for (let i in _this.data.functionalScore) {
+                        functionalScore.push({source: _this.data.functionalScore[i].source.charAt(0).toUpperCase()
+                        + _this.data.functionalScore[i].source.slice(1), score: Number(_this.data.functionalScore[i].score).toFixed(3)});
+                    }
+                    _this.functionalScore = functionalScore;
+                }
+            }
+        });
+    </script>
+</dom-module>

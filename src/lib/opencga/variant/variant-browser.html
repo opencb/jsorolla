@@ -33,7 +33,7 @@
                     <variant-browser-view title="{{title}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
                                           variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
                                           sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
-                                          conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-view>
+                                          conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-propagate="propagateGeneEvent"></variant-browser-view>
                 </div>
             </div>
         </div>
@@ -122,7 +122,7 @@
                     type: Array
                 }
             },
-            selectedGene: function (e) {
+            propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});
             }
         });
