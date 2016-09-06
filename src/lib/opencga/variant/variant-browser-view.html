@@ -29,8 +29,8 @@
                 <template is="dom-if" if="{{study.name != ''}}">
                     <h2>{{title}}</h2>
                 </template>
-                <variant-browser-grid study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
-                                      variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
+                <variant-browser-grid study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" variant="{{variant}}"
+                                      gene-ids="{{geneIds}}" variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
                                       sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
                                       conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-grid>
             </div>
@@ -80,6 +80,9 @@
                 },
                 opencgaClient: {
                     type: Object
+                },
+                variant: {
+                    type: String
                 },
                 populationFrequencies: {
                     type: Array,
