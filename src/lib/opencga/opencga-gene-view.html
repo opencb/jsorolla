@@ -7,7 +7,7 @@
             <div>
                 <h3>Gene: {{geneObj.name}}</h3>
                 {{geneObj.name}} - {{geneObj.description}}<br>
-                Number of Variants - {{totalVariants}} <br>
+                <!--Number of Variants - {{totalVariants}} <br>-->
                 Genome Browser - <a target="_blank"
                                     href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
                 {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
@@ -15,7 +15,7 @@
             </div>
 
             <div>
-                <h4>Transcripts</h4>
+                <h3>Transcripts</h3>
                 <table class="table table-hover">
                     <thead>
                     <tr>
@@ -61,7 +61,7 @@
                 </table>
             </div>
             <div>
-                <h4>Variants</h4>
+                <h3>Variants</h3>
                 <variant-browser-grid study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" gene-ids="{{gene}}" population-frequencies="{{populationFrequencies}}"></variant-browser-grid>
             </div>
 
@@ -82,7 +82,8 @@
                 },
                 gene: {
                     type: String,
-                    value: ""
+                    value: "",
+                    observer: 'geneChanged'
                 },
                 geneObj: {
                     type: Object
@@ -91,32 +92,21 @@
                     type: Array
                 }
             },
-            observers: [
-                'geneChanged(gene, cellbaseClient)'
-            ],
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
             },
-            geneChanged: function (gene, cellbaseClient) {
+            geneChanged: function (neo, old) {
                 let _this= this;
-
                 if (typeof this.gene !== "undefined" && this.gene != "") {
-                    _this.variationUrl = 'http://' + cellbase.hosts[0] + '/webservices/rest/v4/hsapiens/feature/gene/'
-                            + this.gene + '/snp?exclude=annotation.additionalAttributes,annotation.populationFrequencies';
                     var success = function (response) {
                         _this.geneObj = response.response[0].result[0];
-                    };
-                    var variationSuccess = function (response) {
-                        _this.totalVariants = response.response[0].numTotalResults;
-//                        _this.totalVariants = response.response[0].numResults;
                     };
                     var error = function (response) {
                         alert("Invalid gene");
                     };
-                    this.cellbaseClient.getGeneClient(this.gene, 'info', {}, {success: success, error: error, async: true});
-//                    this.cellbaseClient.getGeneClient(this.gene, 'snp', {include: "id", limit: "0"},  {success: variationSuccess, error: error, async: true});
+                    this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {success: success, error: error, async: true});
                 }
             }
         });
