@@ -105,21 +105,22 @@
                                         <!--<br>-->
 
                                         <span>Select samples: &nbsp;
-                                            <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser">Browse...</button>
+                                            <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                                Browse...</button>
                                         </span>
                                         <br>
                                         <br>
-                                        <!--<div class="dropdown">-->
-                                            <!--<button class="btn btn-default dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
-                                                <!--Segregation-->
-                                                <!--<span class="caret"></span>-->
-                                            <!--</button>-->
-                                            <!--<ul class="dropdown-menu" aria-labelledby="segregationDropdown">-->
-                                                <!--<li><a>Autosomal Dominant</a></li>-->
-                                                <!--<li><a>Autosomal Recessive</a></li>-->
-                                                <!--<li><a>Compound Heterozygotous</a></li>-->
-                                            <!--</ul>-->
-                                        <!--</div>-->
+                                        <div class="dropdown">
+                                            <button class="btn btn-default dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                {{segregation}}
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
+                                                <li><a>Autosomal Dominant</a></li>
+                                                <li><a>Autosomal Recessive</a></li>
+                                                <li><a>Compound Heterozygotous</a></li>
+                                            </ul>
+                                        </div>
 
                                         <h5>Family segregation:</h5>
                                         <table class="table table-hover" id="segregationTable">
@@ -543,6 +544,11 @@
                     type: String,
                     notify: true
                 },
+                segregation: {
+                    type: String,
+                    value: "Select Segregation",
+                    observer: "segregate"
+                },
                 changeToDefault: {
                     type: String,
                     observer: "changeToFilterTab"
@@ -558,6 +564,13 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+            },
+            selectSegregation: function (e) {
+                e.preventDefault();
+                this.segregation = e.srcElement.innerHTML;
+            },
+            refreshSegregationTable: function () {
+                this.samples = [];
             },
             typeSelected: function (e) {
                 if (typeof e.target === "undefined") {
@@ -601,68 +614,94 @@
                     this.sampleGenotypes = arr.join(';');
                 }
             },
-            sampleChanged: function (neo, old) {
-                console.log("sampleChanged")
-                console.log("neo", neo)
-                let father;
-                let mother;
-                let child;
-                if (typeof neo !== "undefined" && neo != "" && neo.length == 3) {
-                    for (let i in neo) {
-                        switch (neo[i].memberCode) {
-                            case "F":
-                                father = neo[i];
-                                break;
-                            case "M":
-                                mother = neo[i];
-                                break;
-                            case "S":
-                            case "D":
-                                child = neo[i];
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    let segregation = "dominant"; // replace with the value selected in dropdown
+            sampleChanged: function () {
+                this.segregation = "Select Segregation";
+            },
+            segregate: function () {
+                let cell;
+                let samples = this.samples;
 
-                    if (segregation == "dominant") {
-                        switch (true) {
-                            case father.status == "affected" && mother.status == "affected" && child.status == "affected":
-                                let cell = $("#segregationTable tr:eq(1) td:eq(2)")[0].children[0];
+                if (typeof samples !== "undefined" && samples != "" && samples.length >= 3) {
+                    if (this.segregation == "Autosomal Dominant") {
+                        for (let i = 0; i < samples.length; i++) {
+                            let index = i + 1;
+                            if (samples[i].status == "unaffected") {
+                                cell = $("#segregationTable tr:eq(" + index + ") td:eq(1)")[0].children[0];
                                 $(cell).prop("checked", true);
-                                console.log("0/1, 1/1 for all")
-                                // 0/1, 1/1 for all
-                                break;
-                            case father.status == "affected" && mother.status == "unaffected" && child.status == "affected":
-                                // father 0/1, 1/1
-                                // mother 0/0
-                                // child 0/1
-                                break;
-                            case father.status == "affected" && mother.status == "affected" && child.status == "unaffected":
-                                // father 0/1
-                                // mother 0/1
-                                // child 0/0
-                                break;
-                            case father.status == "affected" && mother.status == "unaffected" && child.status == "unaffected":
-                                // father 0/1
-                                // mother 0/0
-                                // child 0/0
-                                break;
-                            case father.status == "unaffected" && mother.status == "affected" && child.status == "affected":
-                                // father 0/0
-                                // mother 0/1, 1/1
-                                // child 0/1
-                                break;
-                            case father.status == "unaffected" && mother.status == "affected" && child.status == "unaffected":
-                                // father 0/0
-                                // mother 0/1
-                                // child 0/0
-                                break;
+                            } else if (samples[i].status == "affected") {
+                                for (let j = 0; j < samples.length; j++) {
+                                    if (i == j) {
+                                        continue;
+                                    }
+                                    if (samples[j].status == "unaffected") {
+                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                        $(cell).prop("checked", true);
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "F") {
+                                        if (i == 0 && j == 1) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        } else if (i == 0 && j != 1) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "M") {
+                                        if (i == 1 && j == 0) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        } else if (i == 1 && j != 0) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "D" || samples[i].memberCode == "S") {
+                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                        $(cell).prop("checked", true);
+                                        if (samples[j + 1].status == "affected" && samples[j + 1].memberCode == "M") {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+//                        switch (true) {
+//                            case father.status == "affected" && mother.status == "affected" && child.status == "affected":
+//                                let cell = $("#segregationTable tr:eq(1) td:eq(2)")[0].children[0];
+//                                $(cell).prop("checked", true);
+//                                console.log("0/1, 1/1 for all")
+//                                // 0/1, 1/1 for all
+//                                break;
+//                            case father.status == "affected" && mother.status == "unaffected" && child.status == "affected":
+//                                // father 0/1, 1/1
+//                                // mother 0/0
+//                                // child 0/1
+//                                break;
+//                            case father.status == "affected" && mother.status == "affected" && child.status == "unaffected":
+//                                // father 0/1
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                            case father.status == "affected" && mother.status == "unaffected" && child.status == "unaffected":
+//                                // father 0/1
+//                                // mother 0/0
+//                                // child 0/0
+//                                break;
+//                            case father.status == "unaffected" && mother.status == "affected" && child.status == "affected":
+//                                // father 0/0
+//                                // mother 0/1, 1/1
+//                                // child 0/1
+//                                break;
+//                            case father.status == "unaffected" && mother.status == "affected" && child.status == "unaffected":
+//                                // father 0/0
+//                                // mother 0/1
+//                                // child 0/0
+//                                break;
+//                        }
                 }
-
             },
             handleCollapseAction: function (e) {
                 let id = e.srcElement.dataId;

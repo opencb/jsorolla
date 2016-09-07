@@ -177,8 +177,11 @@
                             let affected = (affectedCheckBox.checked) ? "affected" : "unaffected";
                             affectedCheckBox.disabled = "disabled";
 
-                            // This is needed for POlymer to notify correctly
+                            // This is needed for Polymer to notify correctly
                             _this.push('_samples', {name: row.name, member: member, status: affected, memberCode: member.substring(0, 1).toUpperCase()});
+                            if ( _this._samples.length > 1) {
+                                _this._samples.sort(_this.sortSamples);
+                            }
                             _this.set('samples', _this._samples.slice());
                         },
                         onUncheck: function (row, elem) {
@@ -197,9 +200,11 @@
                                 }
                             }
 
-                            // This is needed for POlymer to notify correctly
+                            // This is needed for Polymer to notify correctly
                             _this.splice('_samples', sampleToDeleteIdx, 1);
-                            // sort the samples
+                            if ( _this._samples.length > 1) {
+                                _this._samples.sort(_this.sortSamples);
+                            }
                             _this.set('samples', _this._samples.slice());
                         },
 
@@ -240,6 +245,41 @@
 //                            data: _this.getTree(studyFiles) // default : two levels
 //                        });
 //                    });
+                }
+            },
+            sortSamples: function (a, b) {
+                let priority_a;
+                let priority_b;
+                switch (a.memberCode) {
+                    case 'F':
+                        priority_a = 1;
+                        break;
+                    case 'M':
+                        priority_a = 2;
+                        break;
+                    case 'D':
+                    case 'S':
+                        priority_a = 3;
+                        break;
+                }
+                switch (b.memberCode) {
+                    case 'F':
+                        priority_b = 1;
+                        break;
+                    case 'M':
+                        priority_b = 2;
+                        break;
+                    case 'D':
+                    case 'S':
+                        priority_b = 3;
+                        break;
+                }
+                if (priority_a < priority_b) {
+                    return -1;
+                } else if (priority_a > priority_b) {
+                    return 1;
+                } else {
+                    return 0;
                 }
             },
             familyMemberFormatter: function (value, row, index) {
