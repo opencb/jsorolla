@@ -458,13 +458,13 @@
                 }
             },
             handleCollapseAction: function (e) {
-                let id = e.srcElement.dataId;
+                let id = e.target.dataId;
                 let elem = $('#' + id)[0];
                 elem.hidden = !elem.hidden;
                 if (elem.hidden) {
-                    e.srcElement.className = "fa fa-plus";
+                    e.target.className = "fa fa-plus";
                 } else {
-                    e.srcElement.className = "fa fa-minus";
+                    e.target.className = "fa fa-minus";
                 }
             },
             checkTitle: function(consequenceType) {

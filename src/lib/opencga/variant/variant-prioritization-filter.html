@@ -529,7 +529,7 @@
             },
             selectSegregation: function (e) {
                 e.preventDefault();
-                this.segregation = e.srcElement.innerHTML;
+                this.segregation = e.target.innerHTML;
             },
             refreshSegregationTable: function () {
                 this.samples = [];
@@ -543,7 +543,7 @@
                 console.log("type:", this.type);
             },
             _updateVariant: function (e) {
-                this.variant = e.srcElement.id;
+                this.variant = e.target.id;
             },
             changeToVariantTab: function (neo, old) {
                 this.showVariant = true;
@@ -703,7 +703,7 @@
                 }
             },
             handleCollapseAction: function (e) {
-                let id = e.srcElement.dataId;
+                let id = e.target.dataId;
                 let elem = $('#' + id)[0];
                 elem.hidden = !elem.hidden;
                 if (elem.hidden) {
