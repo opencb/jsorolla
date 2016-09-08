@@ -151,44 +151,6 @@
                                 </div>
 
                             </div>
-
-                            <!--Segregation filter-->
-                            <!--<div class="panel panel-default">-->
-                            <!--<div class="panel-heading" role="tab" id="{{prefix}}SegregationHeading">-->
-                            <!--<h4 class="panel-title">-->
-                            <!--<a role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Segregation" aria-expanded="false"-->
-                            <!--aria-controls="{{prefix}}SegregationHeading">-->
-                            <!--Segregation-->
-                            <!--</a>-->
-                            <!--</h4>-->
-                            <!--</div>-->
-                            <!--<div id="{{prefix}}Segregation1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}SegregationHeading">-->
-                            <!--<div class="panel-body">-->
-                            <!--<table class="table table-hover">-->
-                            <!--<thead>-->
-                            <!--<tr>-->
-                            <!--<th>Sample</th>-->
-                            <!--<th>0/0</th>-->
-                            <!--<th>0/1</th>-->
-                            <!--<th>1/1</th>-->
-                            <!--<th>./.</th>-->
-                            <!--</tr>-->
-                            <!--</thead>-->
-                            <!--<tbody>-->
-                            <!--<template is="dom-repeat" items="{{samples}}">-->
-                            <!--<tr id="{{item.name}}1" on-click="sampleGenotypeSelected">-->
-                            <!--<td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>-->
-                            <!--<td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>-->
-                            <!--<td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>-->
-                            <!--<td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>-->
-                            <!--<td><input type="checkbox" value="./." data-id="{{item.name}}"></td>-->
-                            <!--</tr>-->
-                            <!--</template>-->
-                            <!--</tbody>-->
-                            <!--</table>-->
-                            <!--</div>-->
-                            <!--</div>-->
-                            <!--</div>-->
                         </template>
 
                         <!-- Cancer filter-->
@@ -592,6 +554,17 @@
                 $('.nav-tabs a[href="#' + this.prefix + 'MainFilter"]').tab('show');
             },
             sampleGenotypeSelected: function (e) {
+                // TODO coordinate manual selection and event driven selection
+//                if (this.sampleGenotypes != "") {
+//                    let genotypes = this.sampleGenotypes.split(';');
+//                    this.sampleGenotypesObj = genotypes.reduce(function(result, item) {
+//                        debugger
+//                        let items = item.split(':');
+//                        result[items[0]] = {};
+//                        result[items[0]][items[1]] = true;
+//                        return result;
+//                    }, {});
+//                }
                 if (typeof e !== "undefined") {
                     if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
                         this.sampleGenotypesObj[e.target.dataId] = {};
@@ -603,7 +576,6 @@
                         let gts = [];
                         for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
                             if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
-                                gts.push(sampleGT);
                                 gts.push(sampleGT.replace('/', '|'));
                             }
                         }
@@ -616,6 +588,28 @@
             },
             sampleChanged: function () {
                 this.segregation = "Select Segregation";
+            },
+            sampleGenotypeManual: function () {
+                let arr = [];
+                if (this.samples != "" && this.samples.length > 1) {
+                    for (let i = 0; i < this.samples.length; i++) {
+                        let sample = this.samples[i].name;
+                        let gts = [];
+                        let children = $("#" + sample).children();
+                        for (let j = 0; j < children.length; j++) {
+                            let child = $("#" + sample).children()[j];
+                            let input = $(child).children()[0];
+                            let cb = $(input)[0];
+                            if ($(cb).is(':checked')) {
+                                gts.push($(cb).val().replace('/', '|'));
+                            }
+                        }
+                        if (gts.length > 0) {
+                            arr.push(sample + ':' + gts.join(','));
+                        }
+                    }
+                }
+                this.sampleGenotypes = arr.join(';');
             },
             segregate: function () {
                 let cell;
@@ -633,7 +627,7 @@
                                     if (i == j) {
                                         continue;
                                     }
-                                    if (samples[j].status == "unaffected") {
+                                    if (samples[j].status == "unaffected" && samples[j].memberCode == "D" || samples[j].memberCode == "S") {
                                         cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
                                         $(cell).prop("checked", true);
                                     } else if (samples[j].status == "affected" && samples[i].memberCode == "F") {
@@ -657,8 +651,12 @@
                                             $(cell).prop("checked", true);
                                         }
                                     } else if (samples[j].status == "affected" && samples[i].memberCode == "D" || samples[i].memberCode == "S") {
-                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                        $(cell).prop("checked", true);
+                                        if (i > 2 && j < 2) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        } else {
+                                            window.alert("Case impossible");
+                                        }
                                         if (samples[j + 1].status == "affected" && samples[j + 1].memberCode == "M") {
                                             cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
                                             $(cell).prop("checked", true);
@@ -667,6 +665,7 @@
                                 }
                             }
                         }
+                        this.sampleGenotypeManual();
                     }
 //                        switch (true) {
 //                            case father.status == "affected" && mother.status == "affected" && child.status == "affected":
