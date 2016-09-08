@@ -445,7 +445,7 @@
                 return '-';
             },
             conservationFormatter:  function (value, row, index) {
-                if (typeof row !== "undefined") {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     for (let i = 0; i < row.annotation.conservation.length; i++) {
                         if (row.annotation.conservation[i].source == this.field) {
                             return Number(row.annotation.conservation[i].score).toFixed(3);
