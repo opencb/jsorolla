@@ -651,12 +651,8 @@
                                             $(cell).prop("checked", true);
                                         }
                                     } else if (samples[j].status == "affected" && samples[i].memberCode == "D" || samples[i].memberCode == "S") {
-                                        if (i > 2 && j < 2) {
-                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
-                                            $(cell).prop("checked", true);
-                                        } else {
-                                            window.alert("Case impossible");
-                                        }
+                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                        $(cell).prop("checked", true);
                                         if (samples[j + 1].status == "affected" && samples[j + 1].memberCode == "M") {
                                             cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
                                             $(cell).prop("checked", true);
