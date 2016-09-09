@@ -7,12 +7,17 @@
             <b>Variant:</b> {{data.chromosome}}:{{data.start}}:{{data.reference}}:{{data.alternate}}<br>
             <b>Consequence Type:</b> {{data.displayConsequenceType}}<br>
             <b>Population Frequency:</b><br>
-            <template is="dom-repeat" items="{{data.populationFrequencies}}">
-                <template is="dom-if" if="{{checkforAll(item)}}">
-                    {{item.study}} ({{item.population}}) - {{item.altAlleleFreq}} <br>
+            <template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">
+                <template is="dom-if" if="{{checkforAll(popFreq)}}">
+                    {{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;
+                    <template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">
+                        <template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">
+                            <b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}}) <br>
+                        </template>
+                    </template>
                 </template>
             </template>
-            Minimum Frequency - {{minFrequency.freq}} ({{minFrequency.study}}_{{minFrequency.population}}) <br>
+
             <b>Number of Variant Trait Association:</b> {{numberVTA}}<br>
             <b>Number of Gene Trait Association:</b> {{numberGTA}}<br>
             <b>Conservation:</b><br>
@@ -56,31 +61,19 @@
                     value: {},
                     observer: 'variantAnnotationChanged'
                 },
-                minFrequency: {
-                    type: Object,
-                    value: {}
+                minimumFreq: {
+                    type: Array
                 }
             },
             checkforAll: function(populationFreq) {
-                // Calculate the minimum frequency
-                let obj = {};
-                if (Object.keys(this.minFrequency).length === 0 && this.minFrequency.constructor === Object) {
-                    obj.freq = populationFreq.altAlleleFreq;
-                    obj.population = populationFreq.population;
-                    obj.study = populationFreq.study;
-                } else if (populationFreq.altAlleleFreq < this.minFrequency.freq) {
-                    obj.freq = populationFreq.altAlleleFreq;
-                    obj.population = populationFreq.population;
-                    obj.study = populationFreq.study;
-                } else {
-                    obj = this.minFrequency;
-                }
-                this.minFrequency = obj;
                 return populationFreq.population == "ALL";
+            },
+            checkSameStudy: function(popFreq, minFreq) {
+                return popFreq.study == minFreq.study;
             },
             variantAnnotationChanged: function(neo, old) {
                 let _this = this;
-                this.minFrequency = {};
+
                 if (typeof this.data !== "undefined") {
                     if (_this.data.variantTraitAssociation != null) {
                         _this.numberVTA = Object.keys(_this.data.variantTraitAssociation).length;
@@ -105,6 +98,33 @@
                         + _this.data.functionalScore[i].source.slice(1), score: Number(_this.data.functionalScore[i].score).toFixed(3)});
                     }
                     _this.functionalScore = functionalScore;
+
+                    let minimumFreq = [];
+                    if (_this.data.populationFrequencies != null) {
+                        let minFreq = {};
+                        for (let i in _this.data.populationFrequencies) {
+                            let populationFreq = _this.data.populationFrequencies[i];
+                            if (Object.keys(minFreq).length === 0 && minFreq.constructor === Object) {
+                                minFreq.freq = populationFreq.altAlleleFreq;
+                                minFreq.population = populationFreq.population;
+                                minFreq.study = populationFreq.study;
+                            } else if (populationFreq.study == minFreq.study) {
+                                if (populationFreq.altAlleleFreq < minFreq.freq) {
+                                    minFreq.freq = populationFreq.altAlleleFreq;
+                                    minFreq.population = populationFreq.population;
+                                    minFreq.study = populationFreq.study;
+                                }
+                            } else {
+                                minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study});
+                                minFreq.freq = populationFreq.altAlleleFreq;
+                                minFreq.population = populationFreq.population;
+                                minFreq.study = populationFreq.study;
+                            }
+                        }
+                        minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study}); // last study's minimum frequency have to be pushed
+                    }
+                    _this.minimumFreq = minimumFreq;
+
                 }
             }
         });
