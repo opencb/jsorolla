@@ -12,9 +12,10 @@
                     {{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;
                     <template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">
                         <template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">
-                            <b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}}) <br>
+                            <b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})
                         </template>
                     </template>
+                    <br>
                 </template>
             </template>
 
@@ -69,7 +70,7 @@
                 return populationFreq.population == "ALL";
             },
             checkSameStudy: function(popFreq, minFreq) {
-                return popFreq.study == minFreq.study;
+                return !!(popFreq.study == minFreq.study && minFreq.population != "ALL");
             },
             variantAnnotationChanged: function(neo, old) {
                 let _this = this;
