@@ -475,7 +475,9 @@
             sampleFormatter: function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
                     // NOTE: There are always 4 columns before the samples
-                    return row.studies[0].samplesData[this.fieldIndex - 4][0];
+                    if (typeof row.studies[0].samplesData[this.fieldIndex - 4] !== "undefined") {
+                        return row.studies[0].samplesData[this.fieldIndex - 4][0];
+                    }
                 }
                 return '-';
             },
