@@ -194,8 +194,8 @@
                     this.addOverviewTracks();
                 } else {
                     this.genomeViewer = new GenomeViewer({
-                        cellBaseHost: 'http://bioinfo.hpc.cam.ac.uk/cellbase',
-                        cellBaseVersion: 'v3',
+                        cellBaseHost: CELLBASE_HOST,
+                        cellBaseVersion: CELLBASE_VERSION,
                         target: this.$.gv,
                         width: w,
                         region: this.region,
