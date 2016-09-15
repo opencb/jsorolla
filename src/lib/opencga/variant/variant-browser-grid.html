@@ -252,7 +252,7 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
                                     && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                geneLinks.push("<a>" + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                geneLinks.push("<a style='cursor: pointer'>" + row.annotation.consequenceTypes[i].geneName + "</a>");
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }

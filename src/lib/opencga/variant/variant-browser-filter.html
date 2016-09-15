@@ -47,30 +47,31 @@
             }
 
             .ct-tree-view,
-            .ct-tree-view *
-            {
+            .ct-tree-view * {
                 padding: 0;
                 margin: 0;
                 list-style: none;
             }
 
-            .ct-tree-view li ul
-            {
+            .ct-tree-view li ul {
                 margin: 0 0 0 22px;
             }
 
-            .ct-tree-view *
-            {
+            .ct-tree-view * {
                 vertical-align: middle;
             }
 
             .ct-tree-view {
-                font-size: 12px;
+                font-size: 14px;
             }
 
-            .ct-tree-view input[type="checkbox"]
-            {
+            .ct-tree-view input[type="checkbox"] {
                 cursor: pointer;
+            }
+
+            .item {
+                white-space: nowrap;
+                display:inline
             }
 
             div.block{
@@ -293,24 +294,24 @@
                     </div>
                     <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
                         <div class="panel-body ct-scroll">
-                            <div class="ct-tree-view">
-                                <ul id="consequenceTypeFilter">
-                                    <template is="dom-repeat" items="{{consequenceTypes}}" as="consequenceType">
-                                        <li id="{{consequenceType.title}}">
-                                            <template is="dom-if" if="{{checkTitle(consequenceType)}}">
-                                                <input type="checkbox" on-change="handleChildNodes"> {{consequenceType.title}}
-                                            </template>
-                                            <template is="dom-if" if="{{!checkTitle(consequenceType)}}">
-                                                <input type="checkbox" on-change="handleChildNodes"> {{consequenceType.name}}
-                                            </template>
-                                            <ul>
-                                                <template is="dom-repeat" items="{{consequenceType.items}}">
-                                                    <li><input type="checkbox" id="{{item.id}}" on-change="editCT"> <span title="{{item.description}}">{{item.name}}</span></li>
+                            <div class="ct-tree-view item">
+                                    <ul id="consequenceTypeFilter">
+                                        <template is="dom-repeat" items="{{consequenceTypes}}" as="consequenceType">
+                                            <li id="{{consequenceType.title}}">
+                                                <template is="dom-if" if="{{checkTitle(consequenceType)}}">
+                                                    <input type="checkbox" on-change="editCT"> {{consequenceType.title}}
                                                 </template>
-                                            </ul>
-                                        </li>
-                                    </template>
-                                </ul>
+                                                <template is="dom-if" if="{{!checkTitle(consequenceType)}}">
+                                                    <input type="checkbox" on-change="editCT"> {{consequenceType.name}}
+                                                </template>
+                                                <ul>
+                                                    <template is="dom-repeat" items="{{consequenceType.items}}">
+                                                        <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">{{item.name}}</span></li>
+                                                    </template>
+                                                </ul>
+                                            </li>
+                                        </template>
+                                    </ul>
                             </div>
                         </div>
                     </div>
@@ -480,36 +481,17 @@
             checkTitle: function(consequenceType) {
                 return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
             },
-            handleChildNodes: function(e) {
-                let _this = this;
-                if (e.target.checked) {
-                    $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", true);
-                    let children = $("#" + e.target.parentNode.id).children('ul').children('li').children('input');
-                    for (let i = 0; i < children.length; i++) {
-                        let node = children[i];
-                        if (_this.soTerms.indexOf($(node).attr('id')) == -1) {  // checking if the element is present already
-                            _this.push("soTerms", $(node).attr('id'));
-                        }
-                    }
-                } else {
-                    $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", false);
-                    let children = $("#" + e.target.parentNode.id).children('ul').children('li').children('input');
-                    for (let i = 0; i < children.length; i++) {
-                        let node = children[i];
-                        let index = _this.soTerms.indexOf($(node).attr('id'));
-                        _this.splice('soTerms', index, 1);
-                    }
+            editCT: function(e) {
+                let soTerms = [];
+                if (e.target.parentNode.id != "") {
+                    $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
                 }
-                this.set('soTerms', this.soTerms.slice());
-            },
-            editCT: function (e) {
-                if (e.target.checked) {
-                    this.push("soTerms", e.target.id);
-                } else {
-                    let index = this.soTerms.indexOf(e.target.id);
-                    this.splice("soTerms", index, 1);
+                let selected = $('.soTermCheckBox:checked');
+                for (let i = 0; i < selected.length; i++) {
+                    let node = selected[i];
+                    soTerms.push($(node).attr('id'));
                 }
-                this.set('soTerms', this.soTerms.slice());
+                this.set('soTerms', soTerms);
             },
             fireClear: function () {
                 let _this = this;
