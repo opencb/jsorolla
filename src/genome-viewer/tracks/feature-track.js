@@ -70,6 +70,7 @@ FeatureTrack.prototype.updateHeight = function () {
     if (heightKeys.length > 0) {
         renderedHeight = parseInt(heightKeys[0]) + 30;
     }
+    renderedHeight = Math.max(renderedHeight,this.height);
     this.main.setAttribute('height', renderedHeight);
 
     if (this.resizable) {
@@ -87,7 +88,7 @@ FeatureTrack.prototype.updateHeight = function () {
                     lastContains = i;
                 }
             }
-            var visibleHeight = parseInt(lastContains) + 30;
+            var visibleHeight = Math.max(parseInt(lastContains) + 30 , this.height);
             this.contentDiv.style.height = visibleHeight + 10 + 'px';
             this.main.setAttribute('height', visibleHeight);
         }

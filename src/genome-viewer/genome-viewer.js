@@ -285,7 +285,8 @@ GenomeViewer.prototype = {
                 species: this.species,
                 category: 'genomic',
                 subCategory: 'chromosome',
-                resource: 'all',
+                resource: 'search',
+                // resource: 'all',
                 async: false,
                 success: function (data) {
                     chromosomes = saveChromosomes(data.response[0].result[0].chromosomes);
