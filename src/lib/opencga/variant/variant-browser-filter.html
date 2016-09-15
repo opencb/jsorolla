@@ -28,14 +28,9 @@
                 color: #797979;
             }
 
-            .popus {
-                /*font-size: 12px;*/
-                /*font-weight: bold;*/
-                cursor: pointer;
-            }
-
-            .custom-sixed-input {
+            .custom-sized-input {
                 max-width: 60px;
+                height: 20px;
             }
 
             .table-borderless tbody tr td, .table-borderless tbody tr th, .table-borderless thead tr th {
@@ -76,6 +71,27 @@
             .ct-tree-view input[type="checkbox"]
             {
                 cursor: pointer;
+            }
+
+            div.block{
+                overflow:hidden;
+            }
+            div.block label{
+                width:80px;
+                display:block;
+                float:left;
+                text-align:left;
+                font-weight: normal;
+            }
+            div.block select{
+                width:40px;
+                display:block;
+                float:left;
+                text-align:left;
+            }
+            div.block input{
+                margin-left: 20px;
+                float: left;
             }
 
         </style>
@@ -155,8 +171,7 @@
 
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
                             <template is="dom-repeat" items="{{populationFrequencies}}" as="study">
-                                <label class="popus"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}">&nbsp;{{study.title}}</i></label>
-                                <!--<label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}">&nbsp;{{study.title}}</label>-->
+                                <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}" style="cursor: pointer;"></i>&nbsp;{{study.title}}</label>
 
                                 <!-- If there is not submenu we just display a button -->
                                 <template is="dom-if" if="{{study.populations}}">
@@ -174,7 +189,7 @@
                                                     </select>
                                                 </span>
                                                 <span>
-                                                    <input type="text" value="" class="custom-sixed-input" id="{{prefix}}{{study.id}}{{popFreq.id}}">
+                                                    <input type="text" value="" class="custom-sized-input" id="{{prefix}}{{study.id}}{{popFreq.id}}">
                                                 </span>
                                             </div>
                                         </template>
@@ -198,30 +213,26 @@
                     </div>
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <table class="table table-borderless">
-                                <tbody>
-                                <tr>
-                                    <td>SIFT</td>
-                                    <td><select name="siftOperator" id="{{prefix}}SiftOperator">
-                                        <option value="<" selected><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select></td>
-                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}SiftInput"></td>
-                                </tr>
-                                <tr>
-                                    <td>Polyphen</td>
-                                    <td><select name="siftOperator" id="{{prefix}}PolyphenOperator">
-                                        <option value="<" selected><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select></td>
-                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PolyphenInput"></td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            <div class="block">
+                                <label>SIFT</label>
+                                <select name="siftOperator" id="{{prefix}}SiftOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput"></td>
+                            </div>
+                            <div class="block">
+                                <label>Polyphen</label>
+                                <select name="siftOperator" id="{{prefix}}PolyphenOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput"></td>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -237,40 +248,36 @@
                     </div>
                     <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}conservationFilterHeading">
                         <div class="panel-body">
-                            <table class="table table-borderless">
-                                <tbody>
-                                <tr>
-                                    <td>PhyloP</td>
-                                    <td><select name="siftOperator" id="{{prefix}}PhylopOperator">
-                                        <option value="<" selected><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select></td>
-                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhylopInput"></td>
-                                </tr>
-                                <tr>
-                                    <td>PhastCons</td>
-                                    <td><select name="siftOperator" id="{{prefix}}PhastconsOperator">
-                                        <option value="<" selected><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select></td>
-                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}PhastconsInput"></td>
-                                </tr>
-                                <tr>
-                                    <td>Gerp</td>
-                                    <td><select name="siftOperator" id="{{prefix}}GerpOperator">
-                                        <option value="<" selected><</option>
-                                        <option value="<="><=</option>
-                                        <option value=">">></option>
-                                        <option value=">=">>=</option>
-                                    </select></td>
-                                    <td><input type="text" value="" class="custom-sixed-input" id="{{prefix}}GerpInput"></td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            <div class="block">
+                                <label>PhyloP</label>
+                                <select name="siftOperator" id="{{prefix}}PhylopOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput"></td>
+                            </div>
+                            <div class="block">
+                                <label>PhastCons</label>
+                                <select name="siftOperator" id="{{prefix}}PhastconsOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput"></td>
+                            </div>
+                            <div class="block">
+                                <label>Gerp</label>
+                                <select name="siftOperator" id="{{prefix}}GerpOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput"></td>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -349,6 +356,9 @@
         Polymer({
             is: 'variant-browser-filter',
             properties: {
+                project: {
+                    type: String
+                },
                 study: {
                     type: Object
                 },

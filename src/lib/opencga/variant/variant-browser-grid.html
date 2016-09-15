@@ -29,6 +29,9 @@
         Polymer({
             is: 'variant-browser-grid',
             properties: {
+                project: {
+                    type: String
+                },
                 study: {
                     type: Object,
                     observer: 'renderFromServer'
@@ -124,16 +127,22 @@
             },
             renderFromServer: function () {
                 let _this = this;
-                if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
+                if (this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
 
-                    if (typeof this.study.id !== "undefined") {
-                        this._studyId = this.study.id;
-                    } else {
-                        this._studyId = this.study.alias;
-                    }
+//                    if (typeof this.study.id !== "undefined") {
+//                        this._studyId = this.study.id;
+//                    } else {
+//                        this._studyId = this.study.alias;
+//                    }
+//
+//                    if (typeof this._studyId !== "undefined" && this._studyId != "") {
+//                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this._studyId + '/variants';
+//                    } else {
+//                        return;
+//                    }
 
-                    if (typeof this._studyId !== "undefined" && this._studyId != "") {
-                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this._studyId + '/variants';
+                    if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
                     } else {
                         return;
                     }
