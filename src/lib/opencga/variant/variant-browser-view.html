@@ -17,25 +17,25 @@
 <link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="../../cellbase/genome-context.html">
-<link rel="import" href="../opencga-gene-view.html">
 
 <dom-module id="variant-browser-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
         <div>
+            <template is="dom-if" if="{{study.name != ''}}">
+                <h2>{{title}}</h2>
+            </template>
+
             <!-- Variant Browser Grid -->
             <div style="padding: 10px;">
-                <template is="dom-if" if="{{study.name != ''}}">
-                    <h2>{{title}}</h2>
-                </template>
                 <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" variant="{{variant}}"
                                       gene-ids="{{geneIds}}" variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
                                       sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
                                       conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-grid>
             </div>
+
             <h4>Variant: {{variant}}</h4>
-            <!--Tabs-->
             <div>
                 <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>

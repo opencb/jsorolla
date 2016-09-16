@@ -23,18 +23,22 @@
 
         <div class="panel">
             <div class="browser-filter-view">
-                <div class="col-md-2">
+                <div class="col-md-2" hidden$="{{checkProject(project)}}">
                     <variant-browser-filter study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
                                             variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
                                             sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
                                             consequence-types="{{consequenceTypes}}" conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}"></variant-browser-filter>
                 </div>
-                <div class="col-md-10">
-                    <variant-browser-view title="{{title}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
+                <div class="col-md-10" hidden$="{{checkProject(project)}}">
+                    <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" gene-ids="{{geneIds}}"
                                           variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
                                           sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
                                           conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-propagate="propagateGeneEvent"></variant-browser-view>
                 </div>
+
+                <template is="dom-if" if="{{checkProject(project)}}">
+                    <span style="text-align: center"><h3>No public projects available to browse. Please login to continue</h3></span>
+                </template>
             </div>
         </div>
     </template>
@@ -121,6 +125,9 @@
                 consequenceTypes: {
                     type: Array
                 }
+            },
+            checkProject: function (project) {
+                return project == "";
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});
