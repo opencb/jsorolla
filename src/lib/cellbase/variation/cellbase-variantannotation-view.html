@@ -162,6 +162,16 @@
                     value: "horizontal"
                 }
             },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+            attached: function () {
+                if (this.mode == "vertical") {
+                    $('#' + this.prefix + 'Div').addClass('col-xs-10');
+                }
+            },
             check: function (data) {
                 return data.variantTraitAssociation != null;
             },
@@ -169,15 +179,10 @@
                 return data.variantTraitAssociation == null;
             },
             checkVertical: function (mode) {
-                if (this.mode == 'vertical') {
-                    $('#' + this.prefix + 'Div').addClass('col-xs-10');
-                    return true;
-                } else {
-                    return false;
-                }
+                return this.mode == "vertical";
             },
             checkHorizontal: function (mode) {
-                return this.mode == 'horizontal';
+                return this.mode == "horizontal";
             },
             _variantChanged: function () {
                 let _this = this;
