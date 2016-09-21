@@ -306,7 +306,8 @@
                                                 </template>
                                                 <ul>
                                                     <template is="dom-repeat" items="{{consequenceType.items}}">
-                                                        <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">{{item.name}}</span></li>
+                                                        <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">
+                                                            {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
                                                     </template>
                                                 </ul>
                                             </li>
