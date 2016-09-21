@@ -261,7 +261,7 @@
             //     type: Boolean,
             //     value: true,
             //     observer: 'hideValidationLogChanged'
-            // }
+            // },
         },
         ready: function(e) {
             var me = this;
@@ -329,7 +329,11 @@
                 var inputFile = this.$.fileInput.files[0];
                 this.fileName = inputFile.name
 
-                this.validate();
+                if (window.VCF_VALIDATOR== null || window.VCF_VALIDATOR == true) {
+                  this.validate();
+                } else {
+                  this.handleValidatorEnd();
+                }
 
                 // console.log(inputFile.type)
             }
