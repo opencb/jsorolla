@@ -296,7 +296,7 @@
                         <div class="panel-body ct-scroll">
                             <div class="ct-tree-view item">
                                     <ul id="consequenceTypeFilter">
-                                        <template is="dom-repeat" items="{{consequenceTypes}}" as="consequenceType">
+                                        <template is="dom-repeat" items="{{consequenceTypes.items}}" as="consequenceType">
                                             <li id="{{consequenceType.title}}">
                                                 <template is="dom-if" if="{{checkTitle(consequenceType)}}">
                                                     <input type="checkbox" on-change="editCT"> {{consequenceType.title}}
@@ -423,7 +423,7 @@
                     type: Array
                 },
                 consequenceTypes: {
-                    type: Array
+                    type: Object
                 },
                 geneOntology: {
                     type: String,
