@@ -8,7 +8,7 @@
             box-shadow: 0px 0px 6px 3px rgba(0, 0, 0, 0.30);
             height: 100px;
             width: 500px;
-            background-color: #445D76;
+            background-color:var(--light-secondary-color);
             top: 400px;
             left: 500px;
         }
@@ -18,8 +18,8 @@
             position: absolute;
             height: 20px;
             width: 475px;
-            border: 1px solid #d3d3d3;
-            background-color: white;
+            border: 1px solid var(--divider-color);
+            background-color: var(--text-primary-color);
             line-height: 20px;
         }
 
@@ -29,7 +29,7 @@
             left: 0px;
             height: 100%;
             width: 100%;
-            background-color: #ced9e3;
+            background-color: var(--default-primary-color);
         }
 
         .percent {
@@ -44,8 +44,8 @@
         .text {
             text-align: center;
             margin: 10px;
-            font-size: 18px;
-            color: #d3d3d3;
+            font-size: 16px;
+            color: var(--primary-text-color);
         }
     </style>
     <template>
@@ -62,17 +62,7 @@
 <script>
     Polymer({
         is: "jso-progress-bar",
-        properties: {
-            // percentProgress: {
-            //     type: Number,
-            //     value: 0,
-            //     observer: 'percentProgressChange'
-            // },
-            // total: {
-            //     type: Number,
-            //     reflectToAttribute: true,
-            //     value: 0
-            // },
+        properties: {        
             percent: {
                 type: Number,
                 value: 0,
@@ -86,7 +76,7 @@
             }
         },
         progressChange: function(neo, old) {
-        this.$.progressBar.style.width = neo + '%';
+            this.$.progressBar.style.width = neo + '%';
         }
     });
 </script>
