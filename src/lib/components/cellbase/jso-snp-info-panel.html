@@ -4,7 +4,7 @@
 <link rel="import" href="jso-snp-info.html">
 
 <dom-module id="jso-snp-info-panel">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             display: block;
             position: relative;
@@ -108,12 +108,12 @@
             }
         },
         getInfo: function () {
-            var me = this;
+            var me = this;            
             CellBaseManager.get({
                 host: this.host,
                 species: this.species,
                 category: 'feature',
-                subCategory: 'snp',
+                subCategory: 'variation',
                 query: this.query,
                 resource: 'info',
                 success: function (response) {
@@ -124,6 +124,7 @@
                     console.log('Server error');
                 }
             });
+
             CellBaseManager.get({
                 host: this.host,
                 species: this.species,

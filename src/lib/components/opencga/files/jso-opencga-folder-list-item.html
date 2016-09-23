@@ -1,5 +1,5 @@
 <dom-module id="jso-opencga-folder-list-item">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             position: relative;
             display: block;
@@ -102,9 +102,7 @@
         },
         computeDate: function(file) {
             var date = new Date(Date.parse(Utils.parseDate(file.creationDate)));
-            return date.toLocaleString("en-us", {
-                month: "short"
-            }) + " " + date.getDate() + ", " + date.getFullYear();
+            return Utils.months[date.getMonth()]+ " " + date.getDate() + ", " + date.getFullYear();
         },
         computeIcon: function(file) {
             var iconMap = {

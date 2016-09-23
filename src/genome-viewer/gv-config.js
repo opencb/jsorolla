@@ -1,6 +1,6 @@
 
 // var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
-var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase-4.1.0-beta';
+var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-beta';
 var CELLBASE_VERSION = 'v4';
 
 
@@ -279,28 +279,48 @@ FEATURE_TYPES = {
     },
     snp: {
         label: function (f) {
-            // FIXME change this once CellBase is reloaded
-            // debugger
-            if (typeof f.ids !== "undefined" && f.ids.length > 0) {
-                f.id = f.ids[0];
-            } else {
-                if (typeof f.id === "undefined") {
-                    f.id = f.chromosome + ":" + f.start;
-                }
+// <<<<<<< HEAD
+//             // FIXME change this once CellBase is reloaded
+//             // debugger
+//             if (typeof f.ids !== "undefined" && f.ids.length > 0) {
+//                 f.id = f.ids[0];
+//             } else {
+//                 if (typeof f.id === "undefined") {
+//                     f.id = f.chromosome + ":" + f.start;
+//                 }
+//             }
+//             return ('name' in f) ? f.name : f.id;
+//         },
+//         tooltipTitle: function (f) {
+//             // FIXME change this once CellBase is reloaded
+//             if (typeof f.ids !== "undefined" && f.ids.length > 0) {
+//                 f.id = f.ids[0];
+//             } else {
+//                 if (typeof f.id === "undefined") {
+//                     f.id = f.chromosome + ":" + f.start;
+//                 }
+//             }
+//             var name = (f.name != null) ? f.name : f.id;
+//             return 'SNP' + ' - <span class="ok">' + name + '</span>';
+// =======
+            var change = f.reference + ' > ' + f.alternate;
+            var name = '';
+            if('name' in f){
+              name += f.name;
+            }else if('id' in f){
+              name += f.id;
             }
-            return ('name' in f) ? f.name : f.id;
+            return name + ' ' + change;
         },
         tooltipTitle: function (f) {
-            // FIXME change this once CellBase is reloaded
-            if (typeof f.ids !== "undefined" && f.ids.length > 0) {
-                f.id = f.ids[0];
-            } else {
-                if (typeof f.id === "undefined") {
-                    f.id = f.chromosome + ":" + f.start;
-                }
-            }
-            var name = (f.name != null) ? f.name : f.id;
-            return 'SNP' + ' - <span class="ok">' + name + '</span>';
+          var change = f.reference + ' > ' + f.alternate;
+          var name = '';
+          if('name' in f){
+            name += f.name;
+          }else if('id' in f){
+            name += f.id;
+          }
+            return 'SNP' + ' - <span class="ok">' +  name + ' ' + change + '</span>';
         },
         tooltipText: function (f) {
             var mafString = "N/A";
@@ -318,6 +338,7 @@ FEATURE_TYPES = {
             return SNP_BIOTYPE_COLORS[f.annotation.displayConsequenceType];
         },
         infoWidgetId: "id",
+        strokeColor: "#555",
         height: 8,
         histogramColor: "orange"
     },
@@ -556,6 +577,78 @@ FEATURE_TYPES = {
         height: 13,
         histogramColor: "grey"
     },
+    bam: {
+        explainFlags: function (flags) {
+            var summary = '<div style="background:#FFEF93;font-weight:bold;">flags : <span>' + flags + '</span></div>';
+            for (var i = 0; i < SAM_FLAGS.length; i++) {
+                if (SAM_FLAGS[i][1] & flags) {
+                    summary += SAM_FLAGS[i][0] + "<br>";
+                }
+            }
+            return summary;
+        },
+        label: function (f) {
+            return "Read  " + f.chromosome + ":" + f.start + "-" + f.end;
+        },
+        tooltipTitle: function (f) {
+            return 'Read' + ' - <span class="ok">' + f.QNAME + '</span>';
+        },
+        tooltipText: function (f) {
+            f.strand = this.strand(f);
+            var cigar = '';
+            for (var i = 0; i < f.differences.length; i++) {
+                var d = f.differences[i];
+                cigar += d.length + d.op
+            }
+
+            var one = 'CIGAR:&nbsp;<b>' + cigar + '</b><br>' +
+                'TLEN:&nbsp;<b>' + f.TLEN + '</b><br>' +
+                'RNAME:&nbsp;<b>' + f.RNAME + '</b><br>' +
+                'POS:&nbsp;<b>' + f.POS + '</b><br>' +
+                'MAPQ:&nbsp;<b>' + f.MAPQ + '</b><br>' +
+                'RNEXT:&nbsp;<b>' + f.RNEXT + '</b><br>' +
+                'PNEXT:&nbsp;<b>' + f.PNEXT + '</b><br>' +
+                FEATURE_TYPES.getTipCommons(f) + '<br>' +
+                this.explainFlags(f.FLAG)+ '<br>';
+
+            var three = '<div style="background:#FFEF93;font-weight:bold;">Optional fields</div>';
+            for (var key in f.OPTIONAL) {
+                three += key + ":" + f.OPTIONAL[key] + "<br>";
+            }
+            var style = "background:#FFEF93;font-weight:bold;";
+            return '<div>' + one + '</div>' +
+                '<div>' + three + '</div>';
+        },
+        color: function (f, chr) {
+            if (f.RNEXT == "=" || f.RNAME == f.RNEXT) {
+                return (parseInt(f.FLAG) & (0x10)) == 0 ? "DarkGray" : "LightGray";
+            }else{
+                return "lightgreen";
+            }
+            /**/
+        },
+        strokeColor: function (f) {
+            if (this.mateUnmappedFlag(f)) {
+                return "tomato"
+            }
+            return (parseInt(f.FLAG) & (0x10)) == 0 ? "LightGray" : "DarkGray";
+        },
+        strand: function (f) {
+            return (parseInt(f.FLAG) & (0x10)) == 0 ? "Forward" : "Reverse";
+        },
+        readPairedFlag: function (f) {
+            return (parseInt(f.FLAG) & (0x1)) == 0 ? false : true;
+        },
+        firstOfPairFlag: function (f) {
+            return (parseInt(f.FLAG) & (0x40)) == 0 ? false : true;
+        },
+        mateUnmappedFlag: function (f) {
+            return (parseInt(f.FLAG) & (0x8)) == 0 ? false : true;
+        },
+        infoWidgetId: "id",
+        height: 13,
+        histogramColor: "grey"
+    },
     variantMulti: {
         label: function (f) {
             return f.id;
@@ -619,6 +712,7 @@ FEATURE_TYPES = {
             return FEATURE_TYPES.getTipCommons(f) + FEATURE_TYPES._getSimpleKeys(f);
         },
         color: "#8BC34A",
+        strokeColor: "#555",
         infoWidgetId: "id",
         height: 10,
         histogramColor: "#58f3f0"

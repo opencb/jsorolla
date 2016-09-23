@@ -1,6 +1,6 @@
 <link rel="import" href="jso-opencga-project-select.html">
 <dom-module id="jso-opencga-create-study">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             display: block;
             position: relative;
@@ -131,7 +131,7 @@
                 xhr.setRequestHeader("Content-Type", "application/json");
 
                 xhr.onload = function(e) {
-                    var response = JSON.parse(e.srcElement.response);
+                    var response = JSON.parse(this.response);
                     if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
                         me.name = "";
                         me.fire('need-refresh');

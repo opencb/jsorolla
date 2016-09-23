@@ -1,7 +1,7 @@
 <link rel="import" href="jso-opencga-create-folder.html">
 <link rel="import" href="jso-opencga-folder-list-item.html">
 <dom-module id="jso-opencga-folder-list">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             position: relative;
             display: block;
@@ -238,7 +238,11 @@
             }
         },
         handleUploadFile: function(e) {
-            this.fire('upload-file');
+            if (this.study != null) {
+                this.fire('upload-file');
+            } else {
+                alert("You must select a study before uploading a file.")
+            }
         },
         handleCreateFolder: function(e) {
             if (this.$.createFolderModal.hasAttribute('hidden')) {
@@ -259,9 +263,9 @@
         handleIndexFile: function(e) {
             this._indexFile();
         },
-        _autoIndexfile: function(file){
-          this.selected= file;
-          this._indexFile();
+        _autoIndexfile: function(file) {
+            this.selected = file;
+            this._indexFile();
         },
         handleFileClick: function(e) {
 
@@ -371,7 +375,7 @@
                             }
                         },
                         error: function() {
-                              console.log('jso-opencga-folder-list374:Server error, try again later.');
+                            console.log('jso-opencga-folder-list374:Server error, try again later.');
                         }
                     }
                 });

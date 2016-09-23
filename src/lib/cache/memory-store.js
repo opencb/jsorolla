@@ -17,7 +17,7 @@ function MemoryStore(args) {
     _.extend(this, Backbone.Events);
 
     // configurable parameters
-//    this.limit = 500;
+    //    this.limit = 500;
 
     // Now we set the args parameters
     _.extend(this, args);
@@ -30,7 +30,10 @@ MemoryStore.prototype = {
         if (typeof this.stores[category] === 'undefined') {
             this.init(category);
         }
-        var item = {key: key, value: value};
+        var item = {
+            key: key,
+            value: value
+        };
 
         // a item can be overwritten
         this.stores[category][key] = item;
@@ -46,13 +49,13 @@ MemoryStore.prototype = {
         // add new item to the end of the linked list, it's now the freshest item.
         this.tails[category] = item;
 
-//        if (this.size === this.limit) {
-//            // we hit the limit, remove the head
-//            this.shift();
-//        } else {
-//            // increase the size counter
-//            this.size++;
-//        }
+        //        if (this.size === this.limit) {
+        //            // we hit the limit, remove the head
+        //            this.shift();
+        //        } else {
+        //            // increase the size counter
+        //            this.size++;
+        //        }
         this.sizes[category]++;
 
     },
@@ -82,7 +85,7 @@ MemoryStore.prototype = {
             delete this.stores[category][item.key];
         }
     },
-    get : function(category, key, callback) {
+    get: function (category, key, callback) {
         if (typeof this.stores[category] === 'undefined') {
             this.init(category);
         }
@@ -107,12 +110,12 @@ MemoryStore.prototype = {
         //  <--- add direction --
         //   A  B  C  <D>  E
         if (item.newer) {
-            if (item === this.heads[category]){
+            if (item === this.heads[category]) {
                 this.heads[category] = item.newer;
             }
             item.newer.older = item.older; // C <-- E.
         }
-        if (item.older){
+        if (item.older) {
             item.older.newer = item.newer; // C. --> E
         }
         item.newer = undefined; // D --x
@@ -156,56 +159,59 @@ MemoryStore.prototype = {
     clear: function () {
         this.stores = null; // TODO delete?
         this.init();
+    },
+    
+    delete: function () {
+        this.clear();
     }
 
+    //    get: function (key) {
+    //        if (typeof this.dataStore === 'undefined') {
+    //            return undefined;
+    //        } else {
+    //            var ms = this.counter++;
+    //            this.dataStore[key].ms = ms;
+    //            return this.dataStore[key].data;
+    //        }
+    //    },
 
-//    get: function (key) {
-//        if (typeof this.dataStore === 'undefined') {
-//            return undefined;
-//        } else {
-//            var ms = this.counter++;
-//            this.dataStore[key].ms = ms;
-//            return this.dataStore[key].data;
-//        }
-//    },
+    //    addCollection: function (key, featureArray) {
+    //        // If 'featureArray' is an Array then we add all elements,
+    //        // otherwise we call to add()
+    //        if ($.isArray(featureArray)) {
+    //            if (typeof this.dataStore === 'undefined') {
+    //                this.dataStore = {};
+    //            }
+    //            for (var feature in featureArray) {
+    //                this.dataStore[key] = feature;
+    //                this.lru.push({key: key, ms: this.counter});
+    //            }
+    //        } else {
+    //            this.add(key, featureArray);
+    //        }
+    //    },
 
-//    addCollection: function (key, featureArray) {
-//        // If 'featureArray' is an Array then we add all elements,
-//        // otherwise we call to add()
-//        if ($.isArray(featureArray)) {
-//            if (typeof this.dataStore === 'undefined') {
-//                this.dataStore = {};
-//            }
-//            for (var feature in featureArray) {
-//                this.dataStore[key] = feature;
-//                this.lru.push({key: key, ms: this.counter});
-//            }
-//        } else {
-//            this.add(key, featureArray);
-//        }
-//    },
+    //    delete: function (key) {
+    //        if (typeof this.dataStore !== 'undefined') {
+    //            var aux = this.dataStore[key];
+    //            delete this.dataStore[key];
+    //            return aux;
+    //        }
+    //    },
 
-//    delete: function (key) {
-//        if (typeof this.dataStore !== 'undefined') {
-//            var aux = this.dataStore[key];
-//            delete this.dataStore[key];
-//            return aux;
-//        }
-//    },
-
-//    free: function () {
-//        this.lru = [];
-//        for (var i in this.dataStore) {
-//            this.lru.push({key: i, ms: this.dataStore[i].ms});
-//        }
-//        this.lru.sort(function (a, b) {
-//            return a.ms - b.ms;
-//        });
-//        this.delete(this.lru[0].key);
-//        this.lru.splice(0, 1);
-//    },
-//
-//    close: function () {
-//        this.dataStore = null;
-//    }
+    //    free: function () {
+    //        this.lru = [];
+    //        for (var i in this.dataStore) {
+    //            this.lru.push({key: i, ms: this.dataStore[i].ms});
+    //        }
+    //        this.lru.sort(function (a, b) {
+    //            return a.ms - b.ms;
+    //        });
+    //        this.delete(this.lru[0].key);
+    //        this.lru.splice(0, 1);
+    //    },
+    //
+    //    close: function () {
+    //        this.dataStore = null;
+    //    }
 };

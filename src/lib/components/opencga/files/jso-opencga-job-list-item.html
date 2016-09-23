@@ -1,5 +1,5 @@
 <dom-module id="jso-opencga-job-list-item">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             display: block;
             position: relative;
@@ -104,6 +104,12 @@
             overflow-y: auto;
             overflow-x: auto;
         }
+        #content.infoError{
+          height: 120px;
+        }
+        #content.info{
+            height: 60px;
+        }
     </style>
     <template>
         <div id="content" class$="{{computeClass(showInfo)}}">
@@ -127,7 +133,7 @@
                     </div>
                 </div>
             </div>
-            <!-- <div id="fileInfo" class="vertical layout flex" hidden="{{!showInfo}}">
+            <div id="fileInfo" class="vertical layout flex" hidden="{{!showInfo}}">
                 <div class="horizontal layout">
                     <span class="data">Description:&nbsp;</span>
                     <span class="value">{{jobDescription}}</span>
@@ -149,7 +155,7 @@
                     </div>
                 </div>
 
-            </div> -->
+            </div>
             <jso-panel modal fixed closable hidden id="filePreviewPanel">
                 <div class="header">
                     <i class="fa fa-eye"></i> File Preview

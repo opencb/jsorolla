@@ -28,7 +28,8 @@ function HistogramRenderer(args) {
 
     //set default args
     this.histogramHeight = 75;
-//    this.multiplier = 7;
+    this.histogramColor = '#428bca';
+    //    this.multiplier = 7;
 
     this.maxValue = 10;
     this.updateScale(args);
@@ -37,9 +38,9 @@ function HistogramRenderer(args) {
 
 };
 
-HistogramRenderer.prototype._checkFeatureValue = function(feature) {
+HistogramRenderer.prototype._checkFeatureValue = function (feature) {
     if (feature.features_count == null) {
-//            var height = Math.log(features[i].absolute);
+        //            var height = Math.log(features[i].absolute);
         if (feature.absolute != 0 && feature.absolute > 0) {
             // take care of feature.absolute==1 counts and set scaled value to 0.2 as log(2) ~= 0.3
             feature.features_count = Math.max(0.2, Math.log(feature.absolute));
@@ -48,19 +49,19 @@ HistogramRenderer.prototype._checkFeatureValue = function(feature) {
         }
     }
 
-//        var height = features[i].features_count;
-//        if (height == null) {
-//            height = features[i].value;
-//            height = this.histogramHeight * height;
-//        } else {
-//        }
+    //        var height = features[i].features_count;
+    //        if (height == null) {
+    //            height = features[i].value;
+    //            height = this.histogramHeight * height;
+    //        } else {
+    //        }
 }
 
 /**
  * updates "this.multiplier" using "histogramMaxFreqValue" and "height"
  * @param args
  */
-HistogramRenderer.prototype.updateScale = function(args) {
+HistogramRenderer.prototype.updateScale = function (args) {
     if (args != null) {
         if (args.height != null) {
             this.histogramHeight = args.height * 0.95;
@@ -73,11 +74,10 @@ HistogramRenderer.prototype.updateScale = function(args) {
     this.multiplier = this.histogramHeight / this.maxValue;
 };
 
-HistogramRenderer.prototype.render = function(features, args) {
-    features.sort(function(a, b) {
+HistogramRenderer.prototype.render = function (features, args) {
+    features.sort(function (a, b) {
         return a.value.start - b.value.start;
     });
-
 
     var middle = args.width / 2;
     //console.log(middle);
@@ -125,7 +125,7 @@ HistogramRenderer.prototype.render = function(features, args) {
             "points": points,
             //        "stroke": "#000000",
             //        "stroke-width": 0.2,
-            "fill": '#428bca',
+            "fill": this.histogramColor,
             "cursor": "pointer"
         });
 

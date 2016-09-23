@@ -2,8 +2,8 @@
 <link rel="import" href="../../jso-select-box.html">
 
 <dom-module id="jso-opencga-sample-list">
-    <style>
-        :host {
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+    :host {
             position: relative;
             display: block;
             box-sizing: border-box;
@@ -44,15 +44,6 @@
         #content.icon.info {
             height: calc(100% - 120px);
         }
-        /*.source {
-            color: #444;
-            width: 120px;
-        }
-
-        .status {
-            color: #444;
-            width: 120px;
-        }*/
 
         jso-opencga-sample-list-item[view-mode='list'] {
             padding: 3px 7px;
@@ -205,12 +196,19 @@
 
         .title {
             margin-right: 10px;
-            width: 100px;
+            width: 110px;
         }
+
+        .description {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
     </style>
     <template>
         <div id="bar" class="horizontal layout">
-            <div class="jso-btn jso-btn-shdw upload-btn" hidden$="{{isFolderMode(mode)}}" on-click="handleUploadFile">
+            <div id="uploadButton" class="jso-btn jso-btn-shdw upload-btn" hidden$="{{isFolderMode(mode)}}" on-click="handleUploadFile">
                 <i class="fa fa-cloud-upload"></i> Upload
             </div>
             <div class="bar horizontal layout flex end-justified">
@@ -232,6 +230,8 @@
                 <div class="name title">Name</div>
                 <div class="status title">Status</div>
                 <div class="source title">Source</div>
+                <div class="title" hidden$="{{!enableDiagnostic}}">Suspected</div>
+                <div class="title" hidden$="{{!enableDiagnostic}}">Diagnosis</div>
                 <div id="typeC" class="title" hidden>Type</div>
             </div>
         </div>
@@ -239,7 +239,7 @@
         <div id="content" class$="{{computeContentClass(viewMode,showInfo)}}">
             <div class$="{{computeClassViewMode(viewMode)}}" id="sampleList">
                 <template is="dom-repeat" items="{{filteredSamples}}" class="wrap">
-                    <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}" disable-case-control="{{disableCaseControl}}">
+                    <jso-opencga-sample-list-item sample="{{item}}" on-click="handleSampleClick" view-mode="{{viewMode}}" disable-case-control="{{disableCaseControl}}" enable-diagnostic$="{{enableDiagnostic}}">
                     </jso-opencga-sample-list-item>
                 </template>
             </div>
@@ -370,8 +370,8 @@
                 <span class="value lowercase">{{sampleSource}}</span>
             </div>
             <div class="horizontal layout">
-                <span class="data">Description: &nbsp;</span>
-                <span>{{sampleDescription}}</span>
+                <span class="data">Aditional Data: &nbsp;</span>
+                <span class="description" title="{{sampleDescription}}">{{sampleDescription}}</span>
             </div>
         </div>
     </template>
@@ -413,6 +413,10 @@
                     return {};
                 },
                 observer: "studyChanged"
+            },
+            mode: {
+                type: String,
+                reflectToAttribute: true,
             },
             viewMode: {
                 type: String,
@@ -488,6 +492,11 @@
                 value: false,
                 reflectToAttribute: true
             },
+            enableDiagnostic: {
+                type: Boolean,
+                value: false,
+                reflectToAttribute: true
+            },
             indexMsg: {
                 type: String,
                 value: ""
@@ -503,8 +512,8 @@
                 reflectToAttribute: true
             }
         },
-        ready: function() {
-
+        isFolderMode: function(mode) {
+            return mode === 'folder';
         },
         handleSampleClick: function(e) {
             var selected = e.currentTarget;
@@ -528,6 +537,7 @@
             // study - info
             this.sampleName = this.selected.name;
             this.sampleSource = this.selected.source;
+            this.sampleDescription = this.selected.description;
 
             if (this.study.type == "CASE_CONTROL") {
                 this.selected.description = "No Choose Case/Control";
@@ -1016,7 +1026,11 @@
             }
         },
         handleUploadFile: function(e) {
-            this.fire('upload-file');
+            if (this.study != null) {
+                this.fire('upload-file');
+            } else {
+                alert("You must select a study before uploading a file.")
+            }
         },
         handleViewVariantBrowswer: function(e) {
             this.fire('viewvariantbrowser');
