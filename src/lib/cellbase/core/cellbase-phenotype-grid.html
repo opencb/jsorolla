@@ -1,0 +1,73 @@
+
+<dom-module id="cellbase-phenotype-grid">
+    <template>
+
+        <div>
+            <br>
+            <table id="{{prefix}}PhenotypeTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                   data-show-pagination-switch="true" data-show-export="true">
+                <thead style="background-color: #eee"></thead>
+            </table>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'cellbase-phenotype-grid',
+            properties: {
+                cellbase: {
+                    type: Object
+                },
+                data: {
+                    type: Array,
+                    value: [],
+                    observer: 'phenotypeChanged'
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            phenotypeChanged: function() {
+                $('#' + this.prefix + 'PhenotypeTable').bootstrapTable('destroy');
+                $('#' + this.prefix + 'PhenotypeTable').bootstrapTable({
+                    data: this.data,
+                    columns: [
+                        [
+                            {
+                                title: 'ID',
+                                field: 'id'
+                            },
+                            {
+                                title: 'Name',
+                                field: 'name'
+                            },
+                            {
+                                title: 'HPO',
+                                field: 'hpo'
+                            },
+                            {
+                                title: 'Score',
+                                field: 'score'
+                            },
+                            {
+                                title: 'Source',
+                                field: 'source'
+                            },
+                            {
+                                title: 'Number of Pubmeds',
+                                field: 'numberOfPubmeds'
+                            },
+                            {
+                                title: 'Association Types',
+                                field: 'associationTypes'
+                            },
+                            {
+                                title: 'Sources',
+                                field: 'sources'
+                            }
+                        ]
+                    ]
+                });
+            }
+        });
+    </script>
+</dom-module>

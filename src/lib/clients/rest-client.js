@@ -93,7 +93,6 @@ class RestClient {
                         console.log(this.response)
                     }
                 } else {
-                    debugger
                     reject(JSON.parse(request.response));
                 }
             };
@@ -115,8 +114,18 @@ class RestClient {
             };
 
             request.open(method, url, async);
+
             // request.timeout = options.timeout || 0;
-            request.send();
+            if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {
+                request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                // request.setRequestHeader("Access-Control-Allow-Credentials", "true");
+                request.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                request.setRequestHeader("Content-type", "application/json");
+                request.send(JSON.stringify(options.data));
+            } else {
+                console.log("Calling GET");
+                request.send();
+            }
         });
     }
 }

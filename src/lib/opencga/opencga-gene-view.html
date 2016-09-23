@@ -1,0 +1,114 @@
+<link rel="import" href="../opencga/variant/variant-browser-grid.html">
+
+<dom-module id="opencga-gene-view">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <div>
+            <div>
+                <h3>Gene: {{geneObj.name}}</h3>
+                {{geneObj.name}} - {{geneObj.description}}<br>
+                <!--Number of Variants - {{totalVariants}} <br>-->
+                Genome Browser - <a target="_blank"
+                                    href="http://genomemaps.org/?region={{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}">
+                {{geneObj.chromosome}}:{{geneObj.start}}-{{geneObj.end}}
+            </a> <br>
+            </div>
+
+            <div>
+                <h3>Transcripts</h3>
+                <table class="table table-bordered">
+                    <thead style="background-color: #eeeeee">
+                    <tr>
+                        <th>Name</th>
+                        <th>Ensembl ID</th>
+                        <th>Biotype</th>
+                        <th>Location</th>
+                        <th>Coding</th>
+                        <th>cDNA</th>
+                        <th>CDS Length</th>
+                        <th>Annotation Flags</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <template is="dom-repeat" items="{{geneObj.transcripts}}" as="transcript">
+                        <tr>
+                            <td>{{transcript.name}}</td>
+                            <td>
+                                <a target="_blank"
+                                   href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;t={{transcript.id}}">{{transcript.id}}</a>
+                            </td>
+                            <td>{{transcript.biotype}}</td>
+                            <td>
+                                <a target="_blank"
+                                   href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}">
+                                    {{transcript.chromosome}}:{{transcript.start}}-{{transcript.end}}
+                                </a>
+                            </td>
+                            <td>
+                                <a target="_blank"
+                                   href="http://genomemaps.org/?region={{transcript.chromosome}}:{{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}">
+                                    {{transcript.genomicCodingStart}}-{{transcript.genomicCodingEnd}}
+                                </a>
+                            </td>
+                            <td>
+                                {{transcript.cdnaCodingStart}}-{{transcript.cdnaCodingEnd}}
+                            </td>
+                            <td>{{transcript.cdsLength}}</td>
+                            <td>{{transcript.annotationFlags}}</td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h3>Variants</h3>
+                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" gene-ids="{{gene}}" population-frequencies="{{populationFrequencies}}"></variant-browser-grid>
+            </div>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-gene-view',
+            properties: {
+                cellbaseClient: {
+                    type: Object
+                },
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                gene: {
+                    type: String,
+                    value: "",
+                    observer: 'geneChanged'
+                },
+                geneObj: {
+                    type: Object
+                },
+                populationFrequencies: {
+                    type: Array
+                }
+            },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+            geneChanged: function (neo, old) {
+                let _this= this;
+                if (typeof this.gene !== "undefined" && this.gene != "") {
+                    var success = function (response) {
+                        _this.geneObj = response.response[0].result[0];
+                    };
+                    var error = function (response) {
+                        alert("Invalid gene");
+                    };
+                    this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {success: success, error: error, async: true});
+                }
+            }
+        });
+    </script>
+</dom-module>

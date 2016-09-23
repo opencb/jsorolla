@@ -1,0 +1,159 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="variant-browser-grid.html">
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="../../cellbase/genome-context.html">
+
+<dom-module id="variant-browser-view">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div>
+            <template is="dom-if" if="{{study.name != ''}}">
+                <h2>{{title}}</h2>
+            </template>
+
+            <!-- Variant Browser Grid -->
+            <div style="padding: 10px;">
+                <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" variant="{{variant}}"
+                                      gene-ids="{{geneIds}}" variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
+                                      sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
+                                      conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-grid>
+            </div>
+
+            <h4>Variant: {{variant}}</h4>
+            <div>
+                <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab">Genotypes & Files</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <!--Genome Context Tab-->
+                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
+                        <br>
+                        <!--<genome-context></genome-context>-->
+                    </div>
+
+                    <!--Annotation Tab-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Annotation">
+                        <br>
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
+                    </div>
+
+                    <!--Genotypes & Files Tab-->
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                        Genotypes and files
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-browser-view',
+            properties: {
+                title: {
+                    type: String
+                },
+                project: {
+                    type: String
+                },
+                study: {
+                    type: Object
+                },
+                data: {
+                    type: Array,
+                    value: []
+                },
+                opencgaClient: {
+                    type: Object
+                },
+                variant: {
+                    type: String
+                },
+                populationFrequencies: {
+                    type: Array,
+                    value: []
+                },
+                region: {
+                    type: String,
+                    value: ""
+                },
+                geneIds: {
+                    type: String,
+                    value:""
+                },
+                variantIds: {
+                    type: String,
+                    value:""
+                },
+                type: {
+                    type: String,
+                    value:""
+                },
+                sampleGenotypes: {
+                    type: String,
+                    value: ""
+                },
+                cellbaseClient: {
+                    type: Object
+                },
+                populationFreq: {
+                    type: String,
+                    value: ""
+                },
+                sift: {
+                    type: String,
+                    value: ""
+                },
+                polyphen: {
+                    type: String,
+                    value: ""
+                },
+                conservation: {
+                    type: String,
+                    value: ""
+                },
+                soTerms: {
+                    type: Array,
+                    value: []
+                },
+                geneOntology: {
+                    type: String,
+                    value: ""
+                },
+                hpo: {
+                    type: String,
+                    value: ""
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+            selectedGene: function (e) {
+                this.fire('propagate', {gene: e.detail.gene});
+            }
+        });
+    </script>
+</dom-module>

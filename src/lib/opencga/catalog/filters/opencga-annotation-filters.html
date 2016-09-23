@@ -1,0 +1,162 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<dom-module id="opencga-annotation-filters">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .category-filter-label {
+                display: block;
+                border: 1px solid #ccc;
+                background: #f3f3f3;
+                margin: 5px 0;
+                padding: 3px 5px;
+                padding-left: 25px !important;
+                border-radius: 3px;
+            }
+        </style>
+
+        <div class="modal fade" tabindex="-1" role="dialog" id="{{prefix}}ModalFilters">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Filter by {{ variable.name }}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <!--CATEGORICAL-->
+                        <template is="dom-if" if="{{_isCategorical}}">
+                            <div class="row">
+                                <template is="dom-repeat" items="{{variable.allowedValues}}" as="allowedValue">
+                                    <div class="col-md-4">
+                                        <div class="checkbox" style="margin: 0">
+                                            <label class="category-filter-label js-label-toggle">
+                                                <input name="{{prefix}}Categorical" type="checkbox" value="{{allowedValue}}"> {{allowedValue}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <!--TEXT-->
+                        <template is="dom-if" if="{{_isText}}">
+                            <div class="form-group">
+                                <input type="text" name="{{prefix}}Text" class="form-control" />
+                            </div>
+                        </template>
+                        <!--NUMERIC-->
+                        <template is="dom-if" if="{{_isNumerical}}">
+                            <div class="form-group">
+                                <input type="text" name="{{prefix}}Numerical" class="form-control" />
+                            </div>
+                        </template>
+                        <!--BOOLEAN-->
+                        <template is="dom-if" if="{{_isBoolean}}">
+                            <input type="checkbox" checked>
+                        </template>
+                        <!--OBJECT-->
+                        <template is="dom-if" if="{{_isObject}}">
+                            Not implemented
+                        </template>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default add-right-margin" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" on-click="updateFilter" data-dismiss="modal">Update filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-annotation-filters',
+            properties: {
+                variable: {
+                    type: Object,
+                    observer: 'updateVariable'
+                },
+                prefix: {
+                    type: String
+                }
+            },
+
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+            updateVariable: function() {
+                if (this.variable === undefined || Object.getOwnPropertyNames(this.variable).length === 0) {
+                    return;
+                }
+
+                this._isCategorical = false;
+                this._isText = false;
+                this._isNumerical = false;
+                this._isBoolean = false;
+                this._isObject = false;
+
+                if (this.variable.type.toLowerCase() === "categorical") {
+                    this._isCategorical = true;
+                } else if (this.variable.type.toLowerCase() === "text") {
+                    this._isText = true;
+                } else if (this.variable.type.toLowerCase() === "numeric") {
+                    this._isNumerical = true;
+                } else if (this.variable.type.toLowerCase() === "boolean") {
+                    this._isBoolean = true;
+                } else if (this.variable.type.toLowerCase() === "object") {
+                    this._isObject = true;
+                }
+            },
+            updateFilter: function(e) {
+                let myFilter = {};
+
+                if (this.variable.type.toLowerCase() === "categorical") {
+                    let allValues = [];
+                    let selected = $("input[name='" + this.prefix + "Categorical']:checked");
+
+                    for (let i = 0; i < selected.length; i++) {
+                       allValues.push(selected[i].value);
+                    };
+
+                    myFilter = {
+                        name: this.variable.name,
+                        value: allValues.join()
+                    };
+                } else if (this.variable.type.toLowerCase() === "text") {
+                    let value = this.$$("input[name='" + this.prefix + "Text']");
+                            myFilter = {
+                        name: this.variable.name,
+                        value: value.value
+                    };
+                    value.value = "";
+                } else if (this.variable.type.toLowerCase() === "numeric") {
+                    let value = this.$$("input[name='" + this.prefix + "Numerical']");
+                    myFilter = {
+                        name: this.variable.name,
+                        value: value.value
+                    };
+                    value.value = "";
+                } else if (this.variable.type.toLowerCase() === "boolean") {
+                    this._isBoolean = true;
+                } else if (this.variable.type.toLowerCase() === "object") {
+                    this._isObject = true;
+                }
+
+                this.fire('opencga-filter-added', myFilter);
+            }
+        });
+    </script>
+</dom-module>

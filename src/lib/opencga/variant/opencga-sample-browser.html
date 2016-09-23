@@ -1,0 +1,343 @@
+<dom-module id="opencga-sample-browser">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div>
+            <!--Different views: List, File, Cohort -->
+            <div class="btn-group" style="float: right;">
+                <!--Add href to both button and icon so that it loads the corresponding div correctly-->
+                <button class="btn btn-default" type="button" href="#{{prefix}}SampleGridView" on-click="changeView">
+                    <i class="fa fa-list" title="List of Samples" href="#{{prefix}}SampleGridView"></i>
+                </button>
+                <button class="btn btn-default" type="button" href="#{{prefix}}FileTreeView" on-click="changeView">
+                    <i class="fa fa-folder-open" title="View by Files" href="#{{prefix}}FileTreeView"></i>
+                </button>
+                <button class="btn btn-default" type="button" href="#{{prefix}}CohortsView" on-click="changeView">
+                    <i class="fa fa-sitemap" title="View by Cohorts" href="#{{prefix}}CohortsView"></i>
+                </button>
+            </div>
+            <br><br>
+
+            <!--Sample Grid-->
+            <div id="{{prefix}}SampleGridView" class="hide-content">
+                <table id="{{prefix}}SampleGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+                       data-show-pagination-switch="true" data-show-export="true">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+            </div>
+
+            <!--File Tree-->
+            <div id="{{prefix}}FileTreeView" class="collapse hide-content">
+                <div class="col-sm-4">
+                    <br>
+                    <h4>Search</h4>
+                    <div class="form-group">
+                        <label for="input-search" class="sr-only">Search Tree:</label>
+                        <input type="text" class="form-control" id="input-search" placeholder="Type to search..." value="" on-keyup="search">
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox" id="chk-ignore-case" value="false">
+                            Ignore Case
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox" id="chk-exact-match" value="false">
+                            Exact Match
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="checkbox" id="chk-reveal-results" value="false">
+                            Reveal Results
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-default" id="btn-search" on-click="search">Search</button>
+                    <button type="button" class="btn btn-default" id="btn-clear-search" on-click="clear">Clear</button>
+                    <br><br>
+                    <h4>Results</h4>
+                    <div id="search-output"></div>
+                </div>
+                <div class="col-sm-8">
+                    <br>
+                    <h4>Tree</h4>
+                    <div id="{{prefix}}FileTree"></div>
+                </div>
+            </div>
+
+            <!--Cohort view-->
+            <div id="{{prefix}}CohortsView" class="collapse hide-content">
+                Yet to work on it!
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-sample-browser',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: String,
+                    observer: 'fetchSamples'
+                },
+                samples: {
+                    type: Array,
+                    value: [],
+                    notify: true
+                },
+                prefix: {
+                    type: String
+                },
+                data: {
+                    type: Array,
+                    value: []
+                }
+            },
+            ready: function () {
+
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+
+                // Auxiliary internal array
+                this._samples = [];
+
+                this.cols = [
+                    [
+                        {
+                            field: 'state',
+                            checkbox: true
+                        },
+                        {
+                            title: 'Name',
+                            field: 'name',
+                            sortable: true
+                        },
+                        {
+                            title: 'Family member',
+                            field: 'familyMember',
+                            formatter: this.familyMemberFormatter
+                        },
+                        {
+                            title: 'Affected',
+                            field: 'affected',
+                            formatter: this.affectedFormatter
+                        },
+                        {
+                            title: 'Source',
+                            field: 'source'
+                        },
+                        {
+                            title: 'Creation Date',
+                            formatter: this.dateFormatter,
+                            sortable: true
+                        }
+                    ]
+                ];
+            },
+            changeView: function(e) {
+                e.preventDefault();
+                $('.hide-content').hide();
+                $(e.target.href).show(); // event triggered contains href as it is added in both button and icon
+            },
+            fetchSamples: function () {
+                this.samples = []; // When study changes , empty the samples
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
+
+                    // Bootstrap grid
+                    this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.study + '/samples';
+                    let _numTotal = -1;
+                    $('#' + _this.prefix +'SampleGrid').bootstrapTable('destroy');
+                    $('#' + _this.prefix +'SampleGrid').bootstrapTable({
+                        url: this._url,
+                        method: 'get',
+                        sidePagination: 'server',
+
+                        onCheck: function (row, elem) {
+                            let familyDropdown = _this.$$('#' + row.name + "FamilyDropdown");
+                            let member;
+                            for (opt in familyDropdown.options) {
+                                if (familyDropdown.options[opt].selected) {
+                                    member = familyDropdown.options[opt].value;
+                                    break;
+                                }
+                            }
+                            familyDropdown.disabled = "disabled";
+
+                            let i = _this._samples.findIndex(x => x.member == member);
+                            if (i != -1) {
+                                console.error("There cannot be two '" + member + "'");
+                            }
+
+                            let affectedCheckBox = _this.$$('#' + row.name + "AffectedCheckbox");
+                            let affected = (affectedCheckBox.checked) ? "affected" : "unaffected";
+                            affectedCheckBox.disabled = "disabled";
+
+                            // This is needed for Polymer to notify correctly
+                            _this.push('_samples', {name: row.name, member: member, status: affected, memberCode: member.substring(0, 1).toUpperCase()});
+                            if ( _this._samples.length > 1) {
+                                _this._samples.sort(_this.sortSamples);
+                            }
+                            _this.set('samples', _this._samples.slice());
+                        },
+                        onUncheck: function (row, elem) {
+                            let familyDropdown = _this.$$('#' + row.name + "FamilyDropdown");
+                            familyDropdown.disabled = null;
+
+                            let affectedCheckBox = _this.$$('#' + row.name + "AffectedCheckbox");
+                            affectedCheckBox.disabled = null;
+
+                            // we delete the sample from the property 'samples'
+                            let sampleToDeleteIdx;
+                            for (sampleIdx in _this._samples) {
+                                if (row.name == _this._samples[sampleIdx].name) {
+                                    sampleToDeleteIdx = sampleIdx;
+                                    break;
+                                }
+                            }
+
+                            // This is needed for Polymer to notify correctly
+                            _this.splice('_samples', sampleToDeleteIdx, 1);
+                            if ( _this._samples.length > 1) {
+                                _this._samples.sort(_this.sortSamples);
+                            }
+                            _this.set('samples', _this._samples.slice());
+                        },
+
+                        queryParams: function (params) {
+                            return {
+                                limit: params.limit,
+                                skip: params.offset,
+                                sid: _this.opencgaClient._config.sessionId
+                            };
+                        },
+                        responseHandler: function (res) {
+                            if (_numTotal == -1) {
+                                _numTotal = res.response[0].numTotalResults;
+                            }
+                            return {total: _numTotal, rows: res.response[0].result}
+                        },
+                        columns: this.cols
+                    });
+                    $('#' + _this.prefix +'SampleGrid').bootstrapTable('showLoading');
+
+                    // Bootstrap Tree View
+                    let studyFiles = [];
+                    // Testing
+                    let opencgaClientConfig1 = new OpenCGAClientConfig('squalet.hpc.cam.ac.uk:8080/opencga',
+                            'v1', 'opencga_sId', 'opencga_userId');
+                    let opencgaClient1 = new OpenCGAClient(opencgaClientConfig1);
+                    opencgaClient1.files().treeView('7', {sid: 'xV5Z3mSEdRPmM3XQS1jG', include: 'path,name'}).then(function (response) {
+                        console.log('opencgaClient1 response', response)
+                        studyFiles = response.response[0].result;
+                        $('#' + _this.prefix +'FileTree').treeview({
+                            data: _this.getTree(studyFiles) // default : two levels
+                        });
+                    });
+//                    this.opencgaClient.studies().files(this.study).then(function (response) {
+//                        studyFiles = response.response[0].result;
+//                        console.log('studyFiles', studyFiles)
+//                        $('#' + _this.prefix +'FileTree').treeview({
+//                            data: _this.getTree(studyFiles) // default : two levels
+//                        });
+//                    });
+                }
+            },
+            sortSamples: function (a, b) {
+                let priority_a;
+                let priority_b;
+                switch (a.memberCode) {
+                    case 'F':
+                        priority_a = 1;
+                        break;
+                    case 'M':
+                        priority_a = 2;
+                        break;
+                    case 'D':
+                    case 'S':
+                        priority_a = 3;
+                        break;
+                }
+                switch (b.memberCode) {
+                    case 'F':
+                        priority_b = 1;
+                        break;
+                    case 'M':
+                        priority_b = 2;
+                        break;
+                    case 'D':
+                    case 'S':
+                        priority_b = 3;
+                        break;
+                }
+                if (priority_a < priority_b) {
+                    return -1;
+                } else if (priority_a > priority_b) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            },
+            familyMemberFormatter: function (value, row, index) {
+                // <option value="unknown" selected>NA</option>
+                let dropdown = `
+                        <div>
+                            <select id="`+ row.name +`FamilyDropdown" name="familyDropdown">
+                                <option value="father" selected>Father</option>
+                                <option value="mother">Mother</option>
+                                <option value="son">Son</option>
+                                <option value="daughter">Daughter</option>
+                            </select>
+                        </div>
+                `;
+                return dropdown;
+            },
+            affectedFormatter: function (value, row, index) {
+                let checkbox = "<input id='" + row.name + "AffectedCheckbox' type='checkbox'>";
+                return checkbox;
+            },
+            dateFormatter: function (value, row, index) {
+                return moment(row.status.date).format('D MMM Y');
+            },
+
+            // Bootstrap Tree
+            getTree: function (studyFiles) {
+                let data = [];
+                for (let i=0; i<studyFiles.length; i++) {
+                    if (studyFiles[i].children.length > 0) {
+                        data.push({text: studyFiles[i].file.name, nodes: this.getTree(studyFiles[i].children)});
+                    } else {
+                        data.push({text: studyFiles[i].file.name});
+                    }
+                }
+                return data;
+            },
+            search: function (e) {
+                let pattern = this.$['input-search'].value;
+                let options = {
+                    ignoreCase: this.$['chk-ignore-case'].checked,
+                    exactMatch: this.$['chk-exact-match'].checked,
+                    revealResults: this.$['chk-reveal-results'].checked
+                };
+                let results = $('#' + this.prefix +'FileTree').treeview('search', [ pattern, options ]);
+                let output = '<p><b>' + results.length + '</b> matches found</p><hr>';
+                for (let i in results) {
+                    output += '<p> ' + results[i].text + '</p>';
+                }
+                $('#search-output').html(output);
+            },
+            clear: function(e) {
+                $('#' + this.prefix +'FileTree').treeview('clearSearch');
+                this.$['input-search'].value = "";
+                this.$['search-output'].value = "";
+                this.$['chk-ignore-case'].checked = false;
+                this.$['chk-exact-match'].checked = false;
+                this.$['chk-reveal-results'].checked = false;
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,421 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<dom-module id="opencga-study">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .center {
+                margin: 10px;
+                text-align: justify;
+            }
+        </style>
+
+        <div class="center">
+            <!--<h2>{{study.name}}</h2>-->
+
+            <div style="height: 250px;">
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Information</div>
+                        <div class="panel-body" style="max-height: 250px; overflow-y:scroll;">
+                            <!--<p><span style="color:#000080;"><strong>Name: </strong></span>{{study.name}}</p>-->
+                            <p><span style="color:#000080;"><strong>Alias: </strong></span>{{study.alias}}</p>
+                            <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
+                                <p><span style="color:#000080;"><strong>Type: </strong></span>{{study.type}}</p>
+                            </template>
+                            <p><span style="color:#000080;"><strong>Date: </strong></span>{{_formatDate(study.creationDate)}}</p>
+                            <p><span style="color:#000080;"><strong>DiskUsage: </strong></span>{{_getDiskUsage(study.diskUsage)}}</p>
+                            <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
+                                <p><span style="color:#000080;"><strong>Description: </strong></span>{{study.description}}</p>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Users shared with <span class="badge">{{getLength(_users)}}</span></div>
+                        <div id="userlist" class="panel-body list-group"  style="max-height: 250px; overflow-y:scroll;">
+                            <template is="dom-repeat" items="{{_users}}" as="user">
+                                <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                      on-click="_userSelectedChanged" class="list-group-item" user="{{user}}">
+                                    {{user.id}}
+                                    <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
+                                        <span style="color: #2e6da4"> ({{user.group}})</span>
+                                    </template>
+                                </span>
+                            </template>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Variable sets <span class="badge">{{getLength(study.variableSets)}}</span></div>
+                        <div class="panel-body">
+                            <template is="dom-repeat" items="{{study.variableSets}}" as="variableSet">
+                                <a class="fa fa-caret-down" role="button" data-toggle="collapse" aria-hidden="true"
+                                   href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
+                                <span style="font-weight: bold"> {{variableSet.name}}</span>
+                                <button type="button" class="btn btn-link" style="position: absolute; right: 10px;" data-variable="{{variableSet}}"
+                                        on-click="showVariableSet">
+                                    (show)
+                                </button>
+                                <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
+                                    {{variableSet.description}}
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 250px; padding: 10px;">
+                <div id="{{prefix}}files-piechart" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
+                <div id="{{prefix}}files-barplot" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
+                <div id="{{prefix}}samples-barplot" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
+            </div>
+
+            <!-- Permission modal window -->
+            <div class="modal fade" id="{{prefix}}ModalPermissions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Permissions <span class="badge">{{getTotalPermissions(_selectedUser.permissions)}}</span></h4>
+                        </div>
+                        <div class="modal-body">
+                            <template is="dom-if" if="{{_isNotEmpty(_selectedUser.permissions)}}">
+                                <ul class="list-unstyled" style="max-height: 250px; overflow-y:scroll;">
+                                    <template is="dom-repeat" items="{{_selectedUser.permissions}}" as="permission">
+                                        <li>{{permission}}</li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template is="dom-if" if="{{!_isNotEmpty(_selectedUser.permissions)}}">
+                                <span>"{{_selectedUser.id}}"</span> does not have any permissions.
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-study',
+
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object,
+                    observer: '_getStudyInfo'
+                },
+                prefix: {
+                    type: Object
+                },
+                _pieChartGroupByParams: {
+                    type: Object,
+                    value: {
+                        by: 'format',
+                        format: 'VCF,BAM'
+                    }
+                },
+                _selectedUser: {
+                    type: Object
+                },
+                _isUserSelected: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+
+            _getStudyInfo: function() {
+                if (this.opencgaClient instanceof OpenCGAClient && this.study !== "undefined" && this.study.hasOwnProperty("id")) {
+                    this.opencgaClient.studies().summary(this.study.id).then(this._parseStudySummary.bind(this));
+                    this._updateGraphics();
+                    this._updateSharedUsers();
+                }
+            },
+
+            _parseStudySummary: function(response) {
+                if (response.response[0].numResults === 1) {
+                    this._study = response.response[0].result[0];
+                }
+            },
+
+            _formatDate: function(dateStr) {
+                return moment(dateStr).format('D MMM Y');
+            },
+
+            getTotalPermissions: function(permissions) {
+                if (permissions !== undefined) {
+                    return permissions.length;
+                }
+                return 0;
+            },
+//
+            showVariableSet: function(e) {
+                this.fire('show-variable-set', {
+                    variableSet: e.target.dataVariable
+                });
+            },
+
+            _updatePieChart: function(response) {
+                if (response.hasOwnProperty("response") && response.response[0].numResults > 0) {
+                    let result = response.response[0].result;
+                    let vcfs = 0;
+                    let bams = 0;
+                    for(let i = 0; i < result.length; i++) {
+                        if (result[i]._id === "VCF") {
+                            vcfs = result[i].features.length;
+                        } else if (result[i]._id === "BAM") {
+                            bams = result[i].features.length;
+                        }
+                    }
+                    let vcfPctg = vcfs / (vcfs + bams);
+                    let bamPctg = bams / (vcfs + bams);
+
+                    let variable = '#' + this.prefix + 'files-piechart';
+                    $(function () {
+                        $(variable).highcharts({
+                            chart: {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false,
+                                type: 'pie'
+                            },
+                            title: {
+                                text: 'Format files'
+                            },
+                            tooltip: {
+                                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                            },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                        }
+                                    }
+                                }
+                            },
+                            series: [{
+                                name: 'Type',
+                                colorByPoint: true,
+                                data: [{
+                                    name: 'VCF',
+                                    y: vcfPctg
+                                }, {
+                                    name: 'BAM',
+                                    y: bamPctg
+                                }]
+                            }]
+                        });
+                    });
+                }
+            },
+
+            _updateSharedUsers: function() {
+                let temporalUsers = [];
+
+                let it = 0;
+                let userHash = {};
+
+                if (this.study.groups.length > 0) {
+                    for (let i = 0; i < this.study.groups.length; i++) {
+                        userHash[this.study.groups[i].name] = [];
+                        for (let j = 0; j < this.study.groups[i].userIds.length; j++) {
+                            temporalUsers.push({
+                                id: this.study.groups[i].userIds[j],
+                                group: this.study.groups[i].name,
+                                permissions: []
+                            });
+
+                            // We store the positions where the permissions will be updated
+                            userHash[this.study.groups[i].name].push(it);
+                            it += 1;
+                        }
+                    }
+                }
+
+                if (this.study.acl.length > 0) {
+                    for (let i = 0; i < this.study.acl.length; i++) {
+                        let member = this.study.acl[i].member;
+                        let permissions = this.study.acl[i].permissions;
+                        permissions.sort();
+
+                        if (userHash.hasOwnProperty(member)) {
+                            let positions = userHash[member];
+                            for (let position in positions) {
+                                temporalUsers[position].permissions = permissions;
+                            }
+
+                        } else {
+                            temporalUsers.push({
+                                id: member,
+                                group: undefined,
+                                permissions: permissions
+                            });
+                        }
+                    }
+                }
+
+                // Update the variable
+                this._users = temporalUsers;
+            },
+
+            _userSelectedChanged: function(e) {
+                e.preventDefault();
+                if (e.target.hasOwnProperty("user")) {
+                    this._selectedUser = e.target.user;
+                } else {
+                    this._selectedUser = e.target.parentElement.user;
+                }
+                this._isUserSelected = true;
+                $(e.target.dataTarget).modal('show')
+            },
+
+            _updateGraphics: function() {
+
+                if (this.study.hasOwnProperty("id")) {
+                    this._pieChartGroupByParams["studyId"] = this.study.id;
+                    this.opencgaClient.files().groupBy(this._pieChartGroupByParams).then(this._updatePieChart.bind(this));
+                }
+
+                variable = '#' + this.prefix + 'files-barplot';
+                $(function () {
+                    $(variable).highcharts({
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'File creation'
+                        },
+                        yAxis: {
+                            allowDecimals: false,
+                            title: {
+                                text: 'Units'
+                            }
+                        },
+                        xAxis: {
+                            categories: [
+                                'Jan',
+                                'Feb',
+                                'Mar',
+                                'Apr',
+                                'May',
+                                'Jun',
+                                'Jul',
+                                'Aug',
+                                'Sep',
+                                'Oct',
+                                'Nov',
+                                'Dec'
+                            ]
+                        },
+                        tooltip: {
+                            formatter: function () {
+                                return '<b>' + this.series.name + '</b><br/>' +
+                                        this.series.data;
+                            }
+                        },
+                        series: [{
+                            name: 'BAM',
+                            data: [1, 2, 4, 6, 8, 12, 16, 20, 25, 30, 35, 40]
+                        }, {
+                            name: 'VCF',
+                            data: [1, 2, 4, 6, 8, 12, 16, 20, 25, 30, 35, 40]
+                        }]
+                    });
+                });
+
+                variable = '#' + this.prefix + 'samples-barplot';
+                $(function () {
+                    $(variable).highcharts({
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Sample creation per month'
+                        },
+                        yAxis: {
+                            allowDecimals: false,
+                            title: {
+                                text: 'Units'
+                            }
+                        },
+                        xAxis: {
+                            categories: [
+                                'Jan',
+                                'Feb',
+                                'Mar',
+                                'Apr',
+                                'May',
+                                'Jun',
+                                'Jul',
+                                'Aug',
+                                'Sep',
+                                'Oct',
+                                'Nov',
+                                'Dec'
+                            ]
+                        },
+                        tooltip: {
+                            formatter: function () {
+                                return '<b>' + this.series.name + '</b><br/>' +
+                                        this.series.data;
+                            }
+                        },
+                        series: [{
+                            name: 'Total samples',
+                            data: [1, 2, 4, 6, 8, 12, 16, 20, 25, 30, 35, 40]
+                        }, {
+                            name: 'Accumulated samples',
+                            data: [1, 3, 7, 13, 21, 33, 49, 69, 94, 124, 159, 199]
+                        }]
+                    });
+                });
+            },
+
+            _isNotEmpty: function(field) {
+                if (field !== undefined && field.length > 0) {
+                    return true;
+                }
+                return false;
+            },
+
+            _getDiskUsage: function(bytes) {
+                if(bytes == 0) return '0 Byte';
+                var k = 1000;
+                var dm = 3;
+                var sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
+                var i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
+            },
+
+            getLength: function(items) {
+                if (items === undefined) {
+                    return 0;
+                }
+                return items.length;
+            }
+
+        });
+    </script>
+</dom-module>

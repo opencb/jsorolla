@@ -1,0 +1,728 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="../../cellbase/genome-context.html">
+<link rel="import" href="../opencga-gene-view.html">
+
+<dom-module id="variant-prioritization-view">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .nav-pills > .highlight {
+                background: whitesmoke;
+            }
+
+            .variant-menu-link:hover {
+                cursor: pointer;
+                background-color: #EEEEEE;
+                text-decoration: none;
+            }
+        </style>
+
+        <div>
+            <!-- Variant Browser Grid -->
+            <div>
+                <template is="dom-if" if="{{study.name != ''}}">
+                    <h2>{{title}}</h2>
+                </template>
+
+                <template is="dom-if" if="{{!resultsViewActive}}">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button id="{{prefix}}Results" type="button" class="btn btn-primary" on-click="_triggerChange">Back to Results</button>
+                    </div>
+                </template>
+
+                <div style="float: right" aria-label="...">
+                    <span>
+                        <!--<i class="fa fa-area-chart"></i>-->
+                        <i class="fa fa-credit-card"></i>
+                        <a id="{{prefix}}GenomeContext" class="variant-menu-link" on-click="_triggerChange">GENOME CONTEXT</a>
+                    </span>
+                    <span>&nbsp;</span>
+                    <span>
+                        <i class="fa fa-search-plus"></i>
+                        <a id="{{prefix}}Annotation" class="variant-menu-link" on-click="_triggerChange">ADVANCED ANNOTATION</a>
+                    </span>
+                    <span>&nbsp;</span>
+                    <span>
+                        <i class="fa fa-file-text-o"></i>
+                        <a id="{{prefix}}Files" class="variant-menu-link" on-click="_triggerChange">FILE INFO</a>
+                    </span>
+                    <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                    <span>
+                        <i class="fa fa-user-md"></i>
+                        <a id="{{prefix}}Family" class="variant-menu-link" on-click="_triggerChange">FAMILY DATA</a>
+                    </span>
+                    <span>&nbsp;</span>
+                    <span>
+                        <i class="fa fa-save"></i>
+                        <a id="{{prefix}}Save" class="variant-menu-link" on-click="_triggerChange">SAVE</a>
+                    </span>
+                    <!--<button id="{{prefix}}GenomeContext" type="button" class="btn btn-default" on-click="_triggerChange">Genome Context</button>-->
+                    <!--<button id="{{prefix}}Annotation" type="button" class="btn btn-default" on-click="_triggerChange">Advance Annotation</button>-->
+                    <!--<button id="{{prefix}}Files" type="button" class="btn btn-default" on-click="_triggerChange">File Info</button>-->
+                    <!--<button id="{{prefix}}SampleComparator" type="button" class="btn btn-default" on-click="_triggerChange">Clinical Data</button>-->
+                    <!--<button id="{{prefix}}Save" type="button" class="btn btn-default" on-click="_triggerChange">Save</button>-->
+                </div>
+
+
+
+                <!-- CONTENT -->
+                <br>
+                <div class="">
+                    <div class$="{{prefix}}Content" id="{{prefix}}ResultsDiv">
+                        <h3>Variant result</h3>
+                        <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true"
+                               data-pagination="true" data-page-list="[10, 25, 50]" data-show-pagination-switch="true" data-show-export="true">
+                            <thead style="background-color: #eeeeee"></thead>
+                        </table>
+                    </div>
+
+                    <div class$="{{prefix}}Content" id="{{prefix}}GenomeContextDiv" style="display: none">
+                        <br><h3>Genome context for {{variant}}</h3><br>
+                        <!--<genome-context></genome-context>-->
+                        No yet
+                    </div>
+
+                    <!--Annotation Tab-->
+                    <div class$="{{prefix}}Content" id="{{prefix}}AnnotationDiv"  style="display: none">
+                        <br><h3>Variant annotation for {{variant}}</h3><br>
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="horizontal"></cellbase-variantannotation-view>
+                    </div>
+
+                    <!--Files Tab-->
+                    <div class$="{{prefix}}Content" id="{{prefix}}FilesDiv" style="display: none">
+                        Files
+                    </div>
+
+                    <!--Sample comparator-->
+                    <div class$="{{prefix}}Content" id="{{prefix}}SampleComparatorDiv" style="display: none">
+                        Sample Comparator
+                    </div>
+                </div>
+
+
+
+                <!--<ul id="{{prefix}}ViewTabs" class="nav nav-pills" style="float: right" role="tablist">-->
+                <!--<li role="presentation" class="active highlight" on-click="_triggerChange"><a href="#{{prefix}}BrowserTable" role="tab" data-toggle="tab">-->
+                <!--<b>Results</b></a>-->
+                <!--</li>-->
+                <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>-->
+                <!--<li role="presentation" on-click="_triggerChangeVariantTab"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>-->
+                <!--<li role="presentation"><a href="#{{prefix}}Files" role="tab" data-toggle="tab">Files</a></li>-->
+                <!--<li role="presentation"><a href="#{{prefix}}SampleComparator" role="tab" data-toggle="tab">Sample Comparator</a></li>-->
+                <!--</ul>-->
+
+                <!--<div class="tab-content">-->
+                <!--&lt;!&ndash;Results Table&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade in active" id="{{prefix}}BrowserTable" style="padding: 10px;">-->
+                <!--<br>-->
+                <!--<table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"-->
+                <!--data-show-pagination-switch="true" data-show-export="true">-->
+                <!--<thead style="background-color: #eee"></thead>-->
+                <!--</table>-->
+                <!--</div>-->
+                <!--&lt;!&ndash;Genome Context Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}GenomeView">-->
+                <!--<br>-->
+                <!--<genome-context></genome-context>-->
+                <!--</div>-->
+
+                <!--&lt;!&ndash;Annotation Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}Annotation">-->
+                <!--<br>-->
+                <!--<cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>-->
+                <!--</div>-->
+
+                <!--&lt;!&ndash;Files Tab&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}Files">-->
+                <!--Files-->
+                <!--</div>-->
+
+                <!--&lt;!&ndash;Sample comparator&ndash;&gt;-->
+                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}SampleComparator">-->
+                <!--Sample Comparator-->
+                <!--</div>-->
+                <!--</div>-->
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'variant-prioritization-view',
+            properties: {
+                mode: {
+                    type: String,
+                    observer: '_updateMode'
+                },
+                title: {
+                    type: String
+//                    observer: 'renderFromServer'
+                },
+                study: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
+                data: {
+                    type: Array,
+                    value: [],
+                    observer: 'renderFromLocal'
+                },
+                opencgaClient: {
+                    type: Object
+                },
+                samples: {
+                    type: Array,
+                    value: [],
+                    observer: '_refreshTableColumns'
+                },
+                sampleGenotypes: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                cellbaseClient: {
+                    type: Object
+                },
+                populationFreq: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                populationFrequencies: {
+                    type: Array
+                },
+                sift: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                polyphen: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                conservation: {
+                    type: String,
+                    value: "",
+                    observer: 'renderFromServer'
+                },
+                prefix: {
+                    type: String
+                },
+                variantList: {
+                    type: Array,
+                    value: [],
+                    notify: true
+                },
+                variant: {
+                    type: String
+                },
+                changeToDefault: {
+                    type: String,
+                    notify: true
+                },
+                changeVariantTab: {
+                    type: String,
+                    notify: true
+                }
+            },
+            ready: function () {
+                // TO BE REMOVED!
+                this._refreshTableColumns();
+
+                // To allow more than 'prioritization instance in the same web application we add a prefix to all elements ID
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+
+                this.resultsViewActive = true;
+
+            },
+            _triggerChange: function (e) {
+                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+                $('.' + this.prefix + 'Content').hide(); // hides all content divs
+                if (typeof e.srcElement.id !== "undefined") {
+                    $('#' + e.srcElement.id + 'Div').show(); // get the href and use it find which div to show
+                }
+
+                // Set Results view button visible or hidden
+                this.resultsViewActive = (e.srcElement.id == this.prefix + "Results");
+
+                if (e.srcElement.id == (this.prefix + "Annotation")) {
+                    this.changeVariantTab = Utils.randomString(6);
+                } else {
+                    this.changeToDefault = Utils.randomString(6);
+                }
+            },
+            _triggerChangeVariantTab: function (e) {
+                this.changeVariantTab = Utils.randomString(6);
+            },
+            renderFromServer: function () {
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient && typeof this.study !== "undefined") {
+
+                    if (typeof this.study.id !== "undefined") {
+                        this._studyId = this.study.id;
+                    } else {
+                        this._studyId = this.study.alias;
+                    }
+
+                    if (typeof this._studyId !== "undefined" && this._studyId != "") {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this._studyId + '/variants';
+                    } else {
+                        return;
+                    }
+
+                    var queryParams = {
+                        sid: _this.opencgaClient._config.sessionId,
+                        timeout: 10000
+                    };
+                    if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+//                        queryParams.returnedSamples = this.samples.join();
+                        let sampleNames = [];
+                        for (sampleIdx in this.samples) {
+                            sampleNames.push(this.samples[sampleIdx].name)
+                        }
+                        queryParams.returnedSamples = sampleNames.join();
+                    } else {
+                        queryParams.exclude = "studies";
+                    }
+                    if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
+                        queryParams.genotype = this.sampleGenotypes;
+                    }
+                    if (typeof this.populationFreq !== "undefined" && this.populationFreq != "") {
+                        queryParams["annot-population-maf"] = this.populationFreq;
+                    }
+                    if (typeof this.sift !== "undefined" && this.sift != "") {
+                        queryParams.sift = this.sift;
+                    }
+                    if (typeof this.polyphen !== "undefined" && this.polyphen != "") {
+                        queryParams.polyphen = this.polyphen;
+                    }
+                    if (typeof this.conservation !== "undefined" && this.conservation != "") {
+                        queryParams.conservation = this.conservation;
+                    }
+
+                    let _numTotal = -1;
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
+                        url: this._url,
+                        method: 'get',
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            queryParams.limit = params.limit;
+                            queryParams.skip = params.offset;
+                            return queryParams;
+                        },
+                        responseHandler: function (res) {
+                            console.log(res)
+                            if (_numTotal == -1) {
+//                                _numTotal = res.response[0].numTotalResults;
+                                _numTotal = 1150;
+                                console.log("numTotalresults", res.response[0].numTotalResults)
+                            }
+                            _this.variantList = res.response[0].result;
+                            return {total: _numTotal, rows: res.response[0].result}
+                        },
+                        columns: this.cols,
+                        onClickRow: function (row, $element) {
+                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                            $('.success').removeClass('success');
+                            $($element).addClass('success');
+                        },
+                        onClickCell: function (field, value, row, $element) {
+                            if (field == "genes") {
+                                _this.fire('selected', {gene: $element[0].innerHTML});
+                            }
+                        }
+                    });
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
+                }
+            },
+            renderFromLocal: function () {
+                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
+                    data: this.data,
+                    columns: this.cols
+                });
+            },
+            variantFormatter: function (value, row, index) {
+                return "<span style='white-space: nowrap;'>" + row.chromosome + ':' + row.start + " " + row.reference + '/' + row.alternate + "</span>";
+            },
+            snpFormatter: function (value, row, index) {
+                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+            },
+            geneFormatter: function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+//                        return "<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[0].geneName + "'>"
+//                                + row.annotation.consequenceTypes[0].geneName+ "</a>";
+                        var visited = {};
+                        var geneLinks = [];
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != "" && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
+                                geneLinks.push("<a target=_blank href='http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + row.annotation.consequenceTypes[i].geneName + "'>"
+                                        + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                visited[row.annotation.consequenceTypes[i].geneName] = true;
+                            }
+                        }
+                        return geneLinks.join(',');
+                    }
+                }
+                return '-';
+            },
+            consequenceTypeFormatter: function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
+                        var consequenceTypesArr = [];
+                        var visited = new Set();
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
+//                                let transcriptId = '-';
+//                                if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
+//                                    transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
+//                                }
+                                if (typeof row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name !== "undefined"
+                                        && row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name != ""
+                                        && !visited.has(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name)) { //&& typeof visited[row.annotation.consequenceTypes[i].sequenceOntologyTerms.name] === "undefined"
+                                    consequenceTypesArr.push(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name); // + "(" + transcriptId + ")");
+                                    visited.add(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name);
+                                }
+                            }
+                        }
+                        return consequenceTypesArr.join('<br>');
+                    }
+                }
+                return '-';
+            },
+            proteinScoreFormatter: function (value, row, index) {
+                var min = 10;
+                var max = 0;
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
+                        for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+                                for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field) {
+                                        switch (this.field) {
+                                            case "sift":
+                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
+                                                    min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                                }
+                                                break;
+                                            case "polyphen":
+                                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
+                                                    max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (this.field == 'sift' && min != 10) {
+                    return min;
+                } else if (this.field == 'polyphen' && max != 0) {
+                    return max;
+                }
+                return '-';
+            },
+            conservationFormatter:  function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    for (let i = 0; i < row.annotation.conservation.length; i++) {
+                        if (row.annotation.conservation[i].source == this.field) {
+                            return Number(row.annotation.conservation[i].score).toFixed(3);
+                        }
+                    }
+                }
+                return '-';
+            },
+            populationFrequenciesFormatter: function(value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    for (popFreqIdx in row.annotation.populationFrequencies) {
+                        let popFreq = row.annotation.populationFrequencies[popFreqIdx];
+                        let studyPopulation = popFreq.study + ":" + popFreq.population;
+                        if (studyPopulation == this.field) {
+                            return Number(popFreq.altAlleleFreq).toFixed(4);
+                        }
+                    }
+                }
+                return '-';
+            },
+            clinicalFormatter: function(value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                    console.log(row.annotation)
+                }
+                return '-';
+            },
+            sampleFormatter: function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
+                    // NOTE: There are always 4 columns before the samples
+                    if (typeof row.studies[0].samplesData[this.fieldIndex - 4] !== "undefined") {
+                        return row.studies[0].samplesData[this.fieldIndex - 4][0];
+                    }
+                }
+                return '-';
+            },
+            _refreshTableColumns: function() {
+                // We first get the default columns, and then we dynamically add the population frequencies and sample columns
+                this.cols = this._createDefaultColumns();
+
+                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                    let popIdx = 2;
+                    for (let i = 0; i < this.populationFrequencies.length; i++) {
+                        let study = this.populationFrequencies[i];
+                        this.cols[0].splice(8 + i, 0, {
+                            title: study.title,
+                            field: study.id,
+                            rowspan: 1,
+                            colspan: study.populations.length,
+                            halign: 'center'
+                        });
+                        if (i > 0) {
+                            popIdx += this.populationFrequencies[i - 1].populations.length;
+                        }
+                        for(let j = 0; j < study.populations.length; j++) {
+                            this.cols[1].splice(j + popIdx, 0, {
+                                title: study.populations[j].id,
+                                field: study.id + ":" + study.populations[j].id,
+                                rowspan: 1,
+                                colspan: 1,
+//                                        visible: false,
+                                formatter: this.populationFrequenciesFormatter,
+                                halign: 'center'
+                            });
+                        }
+                    }
+                }
+
+
+                if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
+                    switch(this.mode) {
+                        case "family":
+                            // if type is 'family' we expected few samples to be provided in property 'samples'
+                            this.cols[0].splice(4, 0, {
+                                title: 'Samples',
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: this.samples.length,
+                                halign: 'center'
+                            });
+                            for(let i = 0; i < this.samples.length; i++) {
+                                this.cols[1].splice(i, 0, {
+                                    title: this.samples[i].name,
+                                    field: 'samples',
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    formatter: this.sampleFormatter,
+                                    halign: 'center'
+                                });
+                            }
+                            break;
+                        case "somatic":
+                            this.cols[0].splice(4, 0, {
+                                title: this.samples[0].name,
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: 2,
+                                halign: 'center'
+                            });
+                            this.cols[1].splice(0, 0, {
+                                        title: 'Somatic',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    },
+                                    {
+                                        title: 'Germline',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    }
+                            );
+                            break;
+                        case "cc":
+                            this.cols[0].splice(4, 0, {
+                                title: 'Samples',
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: 2,
+                                halign: 'center'
+                            });
+                            this.cols[1].splice(0, 0, {
+                                        title: 'Control',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    },
+                                    {
+                                        title: 'Case',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    }
+                            );
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                this.renderFromServer();
+            },
+            _createDefaultColumns: function() {
+                var initCols = [
+                    [
+                        {
+                            title: 'Variant',
+                            field: 'variant',
+                            sortable: true,
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.variantFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'SNP Id',
+                            field: 'id',
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.snpFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'Genes',
+                            field: 'genes',
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.geneFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'Type',
+                            field: 'type',
+                            colspan: 1,
+                            rowspan: 2,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'Consequence Type',
+//                            field: 'displayConsequenceType',
+                            sortable: true,
+                            colspan: 1,
+                            rowspan: 2,
+                            formatter: this.consequenceTypeFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'SIFT',
+                            field: 'sift',
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: this.proteinScoreFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'Polyphen2',
+                            field: 'polyphen2',
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: this.proteinScoreFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'Conservation',
+                            field: 'conservation',
+                            rowspan: 1,
+                            colspan: 2,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'Phenotype',
+                            field: 'Phenotype',
+                            rowspan: 1,
+                            colspan: 3,
+                            halign: 'center'
+                        }
+                    ],
+                    [
+                        {
+                            title: 'PhyloP',
+                            field: 'phylop',
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.conservationFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'PhastCons',
+                            field: 'phastCons',
+                            rowspan: 1,
+                            colspan: 1,
+                            formatter: this.conservationFormatter,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'ClinVar',
+                            field: 'annotation.variantTraitAssociation.clinvar.accession',
+                            rowspan: 1,
+                            colspan: 1,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'Cosmic',
+                            field: 'annotation.variantTraitAssociation.cosmic.mutationId',
+                            rowspan: 1,
+                            colspan: 1,
+                            halign: 'center'
+                        },
+                        {
+                            title: 'GWAS',
+                            field: 'gwas',
+                            rowspan: 1,
+                            colspan: 1,
+                            halign: 'center'
+                        }
+                    ]
+                ];
+                return initCols;
+            },
+            _updateMode: function () {
+                switch (this.mode) {
+                    case "family":
+                        this.isFamilyMode = true;
+                        break;
+                    case "cancer":
+                        this.isCancerMode = true;
+                        break;
+                    case "case-control":
+                        this.isCaseControlMode = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    </script>
+</dom-module>

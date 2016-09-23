@@ -1,0 +1,132 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="opencga-annotation-count">
+    <template>
+        <style is="custom-style" include="jso-styles"></style>
+
+        <div hidden$="{{_hidden}}" style="padding: 10px;">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">{{variable.name}} <span class="badge">{{variable.annotations.length}}</span></div>
+                        <div class="panel-body" style="height: 250px; overflow-y: auto;">
+                            <dl class="dl-horizontal">
+                                <template is="dom-repeat" items="{{variable.annotations}}" as="annotation">
+                                    <dt>{{annotation.name}}</dt>
+                                    <dd>{{annotation.count}}</dd>
+                                </template>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div id="{{prefix}}PieChart"></div>
+                </div>
+            </div>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            is: 'opencga-annotation-count',
+            properties: {
+                prefix: {
+                    type: String
+                },
+                variable: {
+                    type: Object,
+                    value: function () { return {} },
+                    observer: 'variableChanged'
+                }
+            },
+
+            ready: function() {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+                this._hidden = true;
+            },
+            variableChanged: function() {
+                debugger
+                if (this.variable !== undefined && Object.getOwnPropertyNames(this.variable).length > 0) {
+                    this.renderPieChart();
+                    this._hidden = false;
+                } else {
+                    this._hidden= true;
+                }
+            },
+            renderPieChart: function() {
+                let _this = this;
+                $(function () {
+                    $('#' + _this.prefix + 'PieChart').highcharts({
+                        chart: {
+                            plotBackgroundColor: null,
+                            plotBorderWidth: null,
+                            plotShadow: false,
+                            type: 'pie'
+                        },
+                        title: {
+                            text: 'Browser market shares January, 2015 to May, 2015'
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                    style: {
+                                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                    }
+                                }
+                            }
+                        },
+                        series: [{
+                            name: 'Brands',
+                            colorByPoint: true,
+                            data: [{
+                                name: 'Microsoft Internet Explorer',
+                                y: 56.33
+                            }, {
+                                name: 'Chrome',
+                                y: 24.03,
+                                sliced: true,
+                                selected: true
+                            }, {
+                                name: 'Firefox',
+                                y: 10.38
+                            }, {
+                                name: 'Safari',
+                                y: 4.77
+                            }, {
+                                name: 'Opera',
+                                y: 0.91
+                            }, {
+                                name: 'Proprietary or Undetectable',
+                                y: 0.2
+                            }]
+                        }]
+                    });
+                });
+            }
+        });
+    </script>
+</dom-module>

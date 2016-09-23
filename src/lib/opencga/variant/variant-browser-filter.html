@@ -1,0 +1,640 @@
+<!--
+  ~ Copyright 2015 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<dom-module id="variant-browser-filter">
+    <template>
+        <style is="custom-style" include="jso-styles">
+            select {
+                height: 20px;
+                width: 45px;
+                align-self: center;
+            }
+
+            .name {
+                font-size: 12px;
+                color: #797979;
+            }
+
+            .custom-sized-input {
+                max-width: 60px;
+                height: 20px;
+            }
+
+            .table-borderless tbody tr td, .table-borderless tbody tr th, .table-borderless thead tr th {
+                border: none;
+            }
+
+            span + span {
+                margin-left: 10px;
+            }
+
+            .ct-scroll {
+                max-height: 450px;
+                overflow-y: scroll;
+            }
+
+            .ct-tree-view,
+            .ct-tree-view * {
+                padding: 0;
+                margin: 0;
+                list-style: none;
+            }
+
+            .ct-tree-view li ul {
+                margin: 0 0 0 22px;
+            }
+
+            .ct-tree-view * {
+                vertical-align: middle;
+            }
+
+            .ct-tree-view {
+                font-size: 14px;
+            }
+
+            .ct-tree-view input[type="checkbox"] {
+                cursor: pointer;
+            }
+
+            .item {
+                white-space: nowrap;
+                display:inline
+            }
+
+            div.block{
+                overflow:hidden;
+            }
+            div.block label{
+                width:80px;
+                display:block;
+                float:left;
+                text-align:left;
+                font-weight: normal;
+            }
+            div.block select{
+                width:40px;
+                display:block;
+                float:left;
+                text-align:left;
+            }
+            div.block input{
+                margin-left: 20px;
+                float: left;
+            }
+
+        </style>
+
+        <div>
+            <br>
+            <div>
+                <button type="button" class="btn btn-default" on-click="fireFilter">
+                    <i class="fa fa-filter" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-default" on-click="fireClear">Clear</button>
+                <button type="button" class="btn btn-default" on-click="fireSearch">Search</button>
+            </div>
+            <br>
+
+            <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+
+                <!--Position filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
+                                Position
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
+                        <div class="panel-body">
+                            Chromosomal location:
+                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"></textarea>
+                            <!--Import from BED:-->
+                            <!--<button type="button" class="btn btn-xs" on-click="">Import</button>-->
+                            <!--<br>-->
+                            <br> Gene name or SNP id:
+                            <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3"
+                                      placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variant Type filter -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}TypeHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}Type" aria-expanded="false" aria-controls="{{prefix}}Type">
+                                Type
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
+                        <div class="panel-body">
+                            <div>
+                                <input type="checkbox" value="SNV,SNP"> SNV<br>
+                                <input type="checkbox" value="MNV"> MNV<br>
+                                <input type="checkbox" value="CNV"> CNV<br>
+                                <input type="checkbox" value="SV"> SV<br>
+                                <input type="checkbox" value="INDEL"> INDEL
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Population Frequency filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}PopulationFrequencyHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}PopulationFrequency" aria-expanded="false" aria-controls="{{prefix}}PopulationFrequency">
+                                Population Frequency
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}PopulationFrequency" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="{{prefix}}PopulationFrequencyHeading">
+                        <div class="panel-body">
+
+                            <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
+                            <template is="dom-repeat" items="{{populationFrequencies}}" as="study">
+                                <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}" style="cursor: pointer;"></i>&nbsp;{{study.title}}</label>
+
+                                <!-- If there is not submenu we just display a button -->
+                                <template is="dom-if" if="{{study.populations}}">
+                                    <div id="{{prefix}}{{study.id}}" hidden>
+                                        <template is="dom-repeat" items="{{study.populations}}" as="popFreq">
+                                            <label class="name">{{popFreq.title}}</label>
+                                            <div class="horizontal layout">
+                                                <span>MAF</span>
+                                                <span>
+                                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}{{popFreq.id}}Operator">
+                                                        <option value="<" selected><</option>
+                                                        <option value="<="><=</option>
+                                                        <option value=">">></option>
+                                                        <option value=">=">>=</option>
+                                                    </select>
+                                                </span>
+                                                <span>
+                                                    <input type="text" value="" class="custom-sized-input" id="{{prefix}}{{study.id}}{{popFreq.id}}">
+                                                </span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <br>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Protein Substitution Scores filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}}ProteinSubstitutionScoreHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ProteinSubstitutionScore"
+                               aria-expanded="false" aria-controls="{{prefix}}ProteinSubstitutionScore">
+                                Protein Substitution Score
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
+                        <div class="panel-body">
+                            <div class="block">
+                                <label>SIFT</label>
+                                <select name="siftOperator" id="{{prefix}}SiftOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput"></td>
+                            </div>
+                            <div class="block">
+                                <label>Polyphen</label>
+                                <select name="siftOperator" id="{{prefix}}PolyphenOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput"></td>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Conservation Scores filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}conservationFilterHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ConservationFilter" aria-expanded="false" aria-controls="{{prefix}}ConservationFilter">
+                                Conservation
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}ConservationFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}conservationFilterHeading">
+                        <div class="panel-body">
+                            <div class="block">
+                                <label>PhyloP</label>
+                                <select name="siftOperator" id="{{prefix}}PhylopOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput"></td>
+                            </div>
+                            <div class="block">
+                                <label>PhastCons</label>
+                                <select name="siftOperator" id="{{prefix}}PhastconsOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput"></td>
+                            </div>
+                            <div class="block">
+                                <label>Gerp</label>
+                                <select name="siftOperator" id="{{prefix}}GerpOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput"></td>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Consequence Type filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}ConsequenceTypeHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}ConsequenceType" aria-expanded="false" aria-controls="{{prefix}}ConsequenceType">
+                                Consequence Type
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
+                        <div class="panel-body ct-scroll">
+                            <div class="ct-tree-view item">
+                                    <ul id="consequenceTypeFilter">
+                                        <template is="dom-repeat" items="{{consequenceTypes.items}}" as="consequenceType">
+                                            <li id="{{consequenceType.title}}">
+                                                <template is="dom-if" if="{{checkTitle(consequenceType)}}">
+                                                    <input type="checkbox" on-change="editCT"> {{consequenceType.title}}
+                                                </template>
+                                                <template is="dom-if" if="{{!checkTitle(consequenceType)}}">
+                                                    <input type="checkbox" on-change="editCT"> {{consequenceType.name}}
+                                                </template>
+                                                <ul>
+                                                    <template is="dom-repeat" items="{{consequenceType.items}}">
+                                                        <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">
+                                                            {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
+                                                    </template>
+                                                </ul>
+                                            </li>
+                                        </template>
+                                    </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gene Ontology filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}GeneOntologyHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}GeneOntology" aria-expanded="false" aria-controls="{{prefix}}GeneOntology">
+                                Gene Ontology
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
+                        <div class="panel-body">
+                            <textarea id="{{prefix}}GeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Human Phenotype Ontology filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}HumanPhenotypeOntologyHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}HumanPhenotypeOntology" aria-expanded="false"
+                               aria-controls="{{prefix}}HumanPhenotypeOntology">
+                                Human Phenotype Ontology
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
+                        <div class="panel-body">
+                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'variant-browser-filter',
+            properties: {
+                project: {
+                    type: String
+                },
+                study: {
+                    type: Object
+                },
+                opencgaClient: {
+                    type: Object
+                },
+                region: {
+                    type: String,
+                    value:"",
+                    notify: true
+                },
+                geneIds: {
+                    type: String,
+                    value:"",
+                    notify: true
+                },
+                variantIds: {
+                    type: String,
+                    value:"",
+                    notify: true
+                },
+                type: {
+                    type: String,
+                    notify: true
+                },
+                sampleGenotypes: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                cellbaseClient: {
+                    type: Object
+                },
+                populationFreq: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                sift: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                polyphen: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                conservation: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                soTerms: {
+                    type: Array,
+                    value: [],
+                    notify: true
+                },
+                populationFrequencies: {
+                    type: Array
+                },
+                consequenceTypes: {
+                    type: Object
+                },
+                geneOntology: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                hpo: {
+                    type: String,
+                    value: "",
+                    notify: true
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            ready: function() {
+                this.sampleGenotypesObj = {};
+
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
+                }
+            },
+            sampleGenotypeSelected: function(e) {
+                if (typeof e !== "undefined") {
+                    if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
+                        this.sampleGenotypesObj[e.target.dataId] = {};
+                    }
+                    this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
+
+                    let arr = [];
+                    for (let sampleName in this.sampleGenotypesObj) {
+                        let gts = [];
+                        for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
+                            if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
+                                gts.push(sampleGT);
+                                gts.push(sampleGT.replace('/', '|'));
+                            }
+                        }
+                        if (gts.length > 0) {
+                            arr.push(sampleName + ':' + gts.join(','));
+                        }
+                    }
+                    this.sampleGenotypes = arr.join(';');
+                }
+            },
+            handleCollapseAction: function (e) {
+                let id = e.target.dataId;
+                let elem = $('#' + id)[0];
+                elem.hidden = !elem.hidden;
+                if (elem.hidden) {
+                    e.target.className = "fa fa-plus";
+                } else {
+                    e.target.className = "fa fa-minus";
+                }
+            },
+            checkTitle: function(consequenceType) {
+                return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
+            },
+            editCT: function(e) {
+                let soTerms = [];
+                if (e.target.parentNode.id != "") {
+                    $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
+                }
+                let selected = $('.soTermCheckBox:checked');
+                for (let i = 0; i < selected.length; i++) {
+                    let node = selected[i];
+                    soTerms.push($(node).attr('id'));
+                }
+                this.set('soTerms', soTerms);
+            },
+            fireClear: function () {
+                let _this = this;
+
+                // Position and  Gene or Variant Ids
+                this.$$("#" + this.prefix + "LocationTextarea").value = "";
+                this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
+                this.region = "";
+                this.variantIds = "";
+                this.geneIds = "";
+
+                // Type
+                let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+                for (let i = 0; i < types.length; i++) {
+                    let type = types[i];
+                    type.checked = false;
+                }
+                this.type = "";
+
+                // Population Freqs
+                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.length; i++) {
+                        let study = _this.populationFrequencies[i].id;
+                        for (let j = 0; j < _this.populationFrequencies[i].populations.length; j++) {
+                            let population = _this.populationFrequencies[i].populations[j].id;
+                            this.$$("#" + this.prefix + study + population).value = "";
+                            this.$$("#" + this.prefix + study + population + "Operator").value = "<";
+                        }
+                    }
+                }
+                this.populationFreq = [];
+
+                // Protein Substitution scores
+                this.$$("#" + this.prefix + "SiftInput").value = "";
+                this.$$("#" + this.prefix + "SiftOperator").value = "<";
+                this.$$("#" + this.prefix + "PolyphenInput").value = "";
+                this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+                this.sift = "";
+                this.polyphen = "";
+
+                // Conservation
+                this.$$("#" + this.prefix + "PhylopInput").value = "";
+                this.$$("#" + this.prefix + "PhylopOperator").value = "<";
+                this.$$("#" + this.prefix + "PhastconsInput").value = "";
+                this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
+                this.$$("#" + this.prefix + "GerpInput").value = "";
+                this.$$("#" + this.prefix + "GerpOperator").value = "<";
+                this.conservation = [];
+
+                // Consequence Type
+                let selected = this.$$("#consequenceTypeFilter").querySelectorAll("li input:checked");
+                for (let i = 0; i < selected.length; i++) {
+                    selected[i].checked = false;
+                }
+
+                // Gene Ontology and Human Phenotype Ontology
+                this.$$("#" + this.prefix + "GeneOntologyTextarea").value = "";
+                this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = "";
+                this.geneOntology = "";
+                this.hpo = "";
+            },
+            fireFilter: function () {
+
+            },
+            fireSearch: function () {
+                let _this = this;
+
+                // Region
+                this.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+
+                // Gene or Variant Id
+                _this.variantIds = ""; // Clearing the previous value every time search is fired
+                _this.geneIds = "";
+                if (this.$$("#" + this.prefix + "GeneSnpTextarea").value != "") {
+                    if (this.$$("#" + this.prefix + "GeneSnpTextarea").value.startsWith("rs")) {
+                        _this.variantIds = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                    } else {
+                        _this.geneIds = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                    }
+                }
+
+                // Type
+                this.type = "";
+                let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+                let typesAux = [];
+                if (types != "") {
+                    for (var i = 0; i < types.length; i++) {
+                        typesAux.push(types[i].value);
+                    }
+                    _this.type = typesAux.join(',');
+                }
+
+                // Population Frequencies
+                // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
+                let popFreq = [];
+                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.length; i++) {
+                        let study = _this.populationFrequencies[i].id;
+                        for (let j = 0; j < _this.populationFrequencies[i].populations.length; j++) {
+                            let population = _this.populationFrequencies[i].populations[j].id;
+                            if (this.$$("#" + this.prefix + study + population).value != "") {
+                                let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
+                                let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
+                                popFreq.push(pf);
+                            }
+                        }
+                    }
+                }
+                this.populationFreq = popFreq.join(';');
+
+                // Protein Substitution scores
+                let sift = "";
+                let polyphen = "";
+                if (this.$$("#" + this.prefix + "SiftInput").value != "") {
+                    sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                }
+                this.sift = sift;
+                if (this.$$("#" + this.prefix + "PolyphenInput").value != "") {
+                    polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                }
+                this.polyphen = polyphen;
+
+                // Conservation
+                let conserArr = [];
+                if (this.$$("#" + this.prefix + "PhylopInput").value != "") {
+                    let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
+                    conserArr.push(phylop);
+                }
+                if (this.$$("#" + this.prefix + "PhastconsInput").value != "") {
+                    let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
+                    conserArr.push(phastCons);
+                }
+                if (this.$$("#" + this.prefix + "GerpInput").value != "") {
+                    let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
+                    conserArr.push(gerp);
+                }
+                this.conservation = conserArr.join(',');
+
+                //Gene Ontology and Human Phenotype Ontology
+                this.geneOntology = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+                this.hpo = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+            }
+        });
+    </script>
+</dom-module>
