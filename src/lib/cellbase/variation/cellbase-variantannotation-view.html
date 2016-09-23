@@ -22,7 +22,8 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div>
+        <div hidden$="{{checkData(data)}}"><h3>Please click on a variant to view annotations</h3></div>
+        <div hidden$="{{!checkData(data)}}">
             <template is="dom-if" if="{{checkVertical(mode)}}">
                 <div class="col-xs-2">
                     <ul id="stackedPills" class="nav nav-pills nav-stacked" role="tablist">
@@ -149,10 +150,11 @@
                 },
                 data: {
                     type: String,
+                    value: "",
                     observer: '_variantChanged'
                 },
                 variantAnnotation: {
-                    type: String
+                    type: Object
                 },
                 prefix: {
                     type: String
@@ -172,6 +174,9 @@
                     $('#' + this.prefix + 'Div').addClass('col-xs-10');
                 }
             },
+            checkData: function(data) {
+                return data != "";
+            },
             check: function (data) {
                 return data.variantTraitAssociation != null;
             },
@@ -186,39 +191,41 @@
             },
             _variantChanged: function () {
                 let _this = this;
-                var success = function (response) {
-                    _this.variantAnnotation = response.response[0].result[0];
+                if (typeof this.cellbaseClient !== "undefined") {
+                    var success = function (response) {
+                        _this.variantAnnotation = response.response[0].result[0];
 
-                    // Gene Trait Association definition
-                    $('#' + _this.prefix + 'GTATable').bootstrapTable('destroy');
-                    $('#' + _this.prefix + 'GTATable').bootstrapTable({
-                        data: _this.variantAnnotation.geneTraitAssociation,
-                        columns: [
-                            [
-                                {
-                                    title: 'id',
-                                    field: 'id'
-                                },
-                                {
-                                    title: 'name',
-                                    field: 'name'
-                                },
-                                {
-                                    title: 'hpo',
-                                    field: 'hpo'
-                                },
-                                {
-                                    title: 'source',
-                                    field: 'source'
-                                }
+                        // Gene Trait Association definition
+                        $('#' + _this.prefix + 'GTATable').bootstrapTable('destroy');
+                        $('#' + _this.prefix + 'GTATable').bootstrapTable({
+                            data: _this.variantAnnotation.geneTraitAssociation,
+                            columns: [
+                                [
+                                    {
+                                        title: 'id',
+                                        field: 'id'
+                                    },
+                                    {
+                                        title: 'name',
+                                        field: 'name'
+                                    },
+                                    {
+                                        title: 'hpo',
+                                        field: 'hpo'
+                                    },
+                                    {
+                                        title: 'source',
+                                        field: 'source'
+                                    }
+                                ]
                             ]
-                        ]
+                        });
+                    };
+                    this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {
+                        success: success,
+                        async: true
                     });
-                };
-                this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {
-                    success: success,
-                    async: true
-                });
+                }
             }
         });
     </script>
