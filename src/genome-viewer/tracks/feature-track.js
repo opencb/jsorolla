@@ -31,13 +31,12 @@ function FeatureTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-//    this.histogramRenderer = new FeatureClusterRenderer();
-    this.histogramRenderer = new HistogramRenderer(args);
+    //    this.histogramRenderer = new FeatureClusterRenderer();
+    this.histogramRenderer = new window[this.histogramRendererName](args);
 
     this.featureType = 'Feature';
     //set instantiation args, must be last
     _.extend(this, args);
-
 
     this.resource = this.dataAdapter.resource;
     this.species = this.dataAdapter.species;
@@ -45,15 +44,14 @@ function FeatureTrack(args) {
     this.dataType = 'features';
 };
 
-
 FeatureTrack.prototype.clean = function () {
     this._clean();
 
-//    console.time("-----------------------------------------empty");
+    //    console.time("-----------------------------------------empty");
     while (this.svgCanvasFeatures.firstChild) {
         this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
     }
-//    console.timeEnd("-----------------------------------------empty");
+    //    console.timeEnd("-----------------------------------------empty");
 };
 
 FeatureTrack.prototype.updateHeight = function () {
@@ -64,7 +62,15 @@ FeatureTrack.prototype.updateHeight = function () {
         return;
     }
 
-    var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
+    var renderedHeight = this.height;
+    var heightKeys = Object.keys(this.renderedArea);
+    heightKeys.sort(function (a, b) {
+        return parseInt(b) - parseInt(a);
+    });
+    if (heightKeys.length > 0) {
+        renderedHeight = parseInt(heightKeys[0]) + 30;
+    }
+    renderedHeight = Math.max(renderedHeight,this.height);
     this.main.setAttribute('height', renderedHeight);
 
     if (this.resizable) {
@@ -82,14 +88,14 @@ FeatureTrack.prototype.updateHeight = function () {
                     lastContains = i;
                 }
             }
-            var visibleHeight = parseInt(lastContains) + 30;
+            var visibleHeight = Math.max(parseInt(lastContains) + 30 , this.height);
             this.contentDiv.style.height = visibleHeight + 10 + 'px';
             this.main.setAttribute('height', visibleHeight);
         }
     }
 };
 
-FeatureTrack.prototype.setWidth = function(width) {
+FeatureTrack.prototype.setWidth = function (width) {
     this._setWidth(width);
     this.main.setAttribute("width", this.width);
 };
@@ -161,7 +167,6 @@ FeatureTrack.prototype.draw = function () {
         this.dataType = 'histogram';
     }
 
-
     if (typeof this.visibleRegionSize === 'undefined' || this.region.length() < this.visibleRegionSize) {
         this.setLoading(true);
         this.dataAdapter.getData({
@@ -183,13 +188,12 @@ FeatureTrack.prototype.draw = function () {
             }
         });
 
-//        this.invalidZoomText.setAttribute("visibility", "hidden");
+        //        this.invalidZoomText.setAttribute("visibility", "hidden");
     } else {
-//        this.invalidZoomText.setAttribute("visibility", "visible");
+        //        this.invalidZoomText.setAttribute("visibility", "visible");
     }
     this.updateHeight();
 };
-
 
 FeatureTrack.prototype.move = function (disp) {
     var _this = this;

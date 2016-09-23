@@ -142,11 +142,11 @@
                 var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
                 variant =
                     CellBaseManager.get({
-                        version: 'v3',
+                        // version: 'v3',
                         species: 'hsapiens',
                         category: 'genomic',
                         subCategory: 'variant',
-                        resource: 'full_annotation',
+                        resource: 'annotation',
                         query: variant,
                         async: false,
                         success: function(response) {

@@ -30,7 +30,7 @@ function AlignmentTrack(args) {
 
     //save default render reference;
     this.defaultRenderer = this.renderer;
-    this.histogramRenderer = new HistogramRenderer();
+    this.histogramRenderer = new window[this.histogramRendererName](args);
 
     this.dataType = 'features';
 
@@ -39,24 +39,57 @@ function AlignmentTrack(args) {
 
 };
 
-
 AlignmentTrack.prototype.clean = function () {
     this._clean();
 
-//    console.time("-----------------------------------------empty");
+    //    console.time("-----------------------------------------empty");
     while (this.svgCanvasFeatures.firstChild) {
         this.svgCanvasFeatures.removeChild(this.svgCanvasFeatures.firstChild);
     }
-//    console.timeEnd("-----------------------------------------empty");
+    //    console.timeEnd("-----------------------------------------empty");
 };
 
 AlignmentTrack.prototype.updateHeight = function () {
-//    this._updateHeight();
-    var renderedHeight = this.svgCanvasFeatures.getBoundingClientRect().height;
+    //    this._updateHeight();
+    if (this.histogram) {
+        this.contentDiv.style.height = this.histogramRenderer.histogramHeight + 5 + 'px';
+        this.main.setAttribute('height', this.histogramRenderer.histogramHeight);
+        return;
+    }
+
+    var renderedHeight = this.height;
+    var heightKeys = Object.keys(this.renderedArea);
+    heightKeys.sort(function (a, b) {
+        return parseInt(b) - parseInt(a);
+    });
+    if (heightKeys.length > 0) {
+        renderedHeight = parseInt(heightKeys[0]) + 30;
+    }
     this.main.setAttribute('height', renderedHeight);
+
+    if (this.resizable) {
+        if (this.autoHeight == false) {
+            this.contentDiv.style.height = this.height + 10 + 'px';
+        } else if (this.autoHeight == true) {
+            var x = this.pixelPosition;
+            var width = this.width;
+            var lastContains = 0;
+            for (var i in this.renderedArea) {
+                if (this.renderedArea[i].contains({
+                        start: x,
+                        end: x + width
+                    })) {
+                    lastContains = i;
+                }
+            }
+            var visibleHeight = parseInt(lastContains) + 30;
+            this.contentDiv.style.height = visibleHeight + 10 + 'px';
+            this.main.setAttribute('height', visibleHeight);
+        }
+    }
 };
 
-AlignmentTrack.prototype.setWidth = function(width) {
+AlignmentTrack.prototype.setWidth = function (width) {
     this._setWidth(width);
     this.main.setAttribute("width", this.width);
 };
@@ -113,7 +146,6 @@ AlignmentTrack.prototype.getDataHandler = function (event) {
     this.updateHeight();
 };
 
-
 AlignmentTrack.prototype.draw = function () {
     var _this = this;
 
@@ -155,7 +187,6 @@ AlignmentTrack.prototype.draw = function () {
     }
     _this.updateHeight();
 };
-
 
 AlignmentTrack.prototype.move = function (disp) {
     var _this = this;
@@ -238,18 +269,22 @@ AlignmentTrack.prototype._removeDisplayedChunks = function (response) {
     var newChunks = [];
 
     var feature, displayed, featureFirstChunk, featureLastChunk, features = [];
-    for (var i = 0, leni = chunks.length; i < leni; i++) {//loop over chunks
-        if (this.chunksDisplayed[chunks[i].chunkKey] != true) {//check if any chunk is already displayed and skip it
+    for (var i = 0, leni = chunks.length; i < leni; i++) { //loop over chunks
+        if (this.chunksDisplayed[chunks[i].chunkKey] != true) { //check if any chunk is already displayed and skip it
 
             features = []; //initialize array, will contain features not drawn by other drawn chunks
-            for (var j = 0, lenj = chunks[i].value.alignments.length; j < lenj; j++) {
-                feature = chunks[i].value.alignments[j];
+            var alignments = chunks[i].value.alignments;
+            if (alignments == null) {
+                alignments = chunks[i].value;
+            }
+            for (var j = 0, lenj = alignments.length; j < lenj; j++) {
+                feature = alignments[j];
 
                 //check if any feature has been already displayed by another chunk
                 displayed = false;
                 featureFirstChunk = getChunkId(feature.start);
                 featureLastChunk = getChunkId(feature.end);
-                for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {//loop over chunks touched by this feature
+                for (var chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) { //loop over chunks touched by this feature
                     var chunkKey = getChunkKey(feature.chromosome, chunkId);
                     if (this.chunksDisplayed[chunkKey] == true) {
                         displayed = true;
@@ -261,7 +296,7 @@ AlignmentTrack.prototype._removeDisplayedChunks = function (response) {
                 }
             }
             this.chunksDisplayed[chunks[i].chunkKey] = true;
-            chunks[i].value.alignments = features;//update features array
+            chunks[i].value.alignments = features; //update features array
             newChunks.push(chunks[i]);
         }
     }

@@ -1,5 +1,5 @@
 <dom-module id="jso-opencga-signup">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             display: block;
             position: absolute;
@@ -42,7 +42,7 @@
         </div>
         <form id="form" on-keypress="handleFormKey">
             <label class="jso">User name</label>
-            <input class="jso" type="text" value="{{user::input}}" required pattern="[a-zA-Z0-9\.]+">
+            <input class="jso" type="text" value="{{user::input}}" required pattern="[a-z0-9\.]+">
             <label class="jso">E-mail</label>
             <input class="jso" type="email" value="{{email::input}}" required>
             <br>
@@ -112,9 +112,10 @@
         },
         _signup: function () {
             var me = this;
+            var userid=this.user.toLowerCase();
             OpencgaManager.users.create({
                 query: {
-                    userId: this.user,
+                    userId: userid,
                     name: this.user,
                     email: this.email,
                     organization: '',
@@ -134,8 +135,14 @@
                             Cookies.expire('bioinfo_user');
                         }
                     },
-                    error: function () {
+                    error: function (error) {
+                      if(error.error.indexOf('already') >=0){
+                        var err="User '" + me.user + "' already exists."
+                        alert(err);
+                        me.message = err;
+                      }else{
                         me.message = 'Server error, try again later.';
+                      }
                     }
                 }
             });

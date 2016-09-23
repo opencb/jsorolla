@@ -4,7 +4,7 @@
 <link rel="import" href="jso-opencga-remember.html">
 
 <dom-module id="jso-opencga-header">
-    <style>
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
         :host {
             position: relative;
             display: block;
@@ -411,7 +411,7 @@
             this.$.jsoLogin._login();
         },
         anonymousSign: function() {
-            this.$.jsoSignup.user = "anonymous" + Utils.randomString(40);
+            this.$.jsoSignup.user = "anonymous" + Utils.randomString(40).toLowerCase(); // all usernames must be lowercased because opencga fails  creating default projects with users like "Zaida" & "zaida".
             this.$.jsoSignup.name = "anonymous";
             this.$.jsoSignup.email = "anonymous@anonymous.anonymous";
             this.$.jsoSignup.organization = "none";

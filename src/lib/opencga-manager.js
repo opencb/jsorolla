@@ -293,9 +293,23 @@ var OpencgaManager = {
         }
     },
     samples: {
+        info: function (args) {
+            return OpencgaManager._doRequest(args, 'samples', 'info');
+        },
         search: function (args) {
             return OpencgaManager._doRequest(args, 'samples', 'search');
+        },
+        update: function (args) {
+            return OpencgaManager._doRequest(args, 'samples', 'update');
         }
+    },
+    panels:{
+      create: function (args) {
+        return OpencgaManager._doRequest(args, 'panels', 'create');
+      },
+      info: function (args) {
+        return OpencgaManager._doRequest(args, 'panels', 'info');
+      }
     },
     util: {
         proxy: function (args) {

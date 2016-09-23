@@ -255,6 +255,9 @@ GenomeViewer.prototype = {
         this.targetDiv.appendChild(this.div);
     },
     destroy: function () {
+        while (this.div.firstChild) {
+            this.div.removeChild(this.div.firstChild);
+        }
         $(this.div).remove();
         this.off();
         this.rendered = false;
@@ -283,6 +286,7 @@ GenomeViewer.prototype = {
                 category: 'genomic',
                 subCategory: 'chromosome',
                 resource: 'search',
+                // resource: 'all',
                 async: false,
                 success: function (data) {
                     chromosomes = saveChromosomes(data.response[0].result[0].chromosomes);
@@ -1126,6 +1130,13 @@ GenomeViewer.prototype = {
     },
     containsTrack: function (track) {
         return this.trackListPanel.containsTrack(track);
+    },
+    containsTrackById: function (trackId) {
+        return (this.getTrackById(trackId) != null) ? true : false;
+    },
+    deleteTracksCache:function(){
+         this.overviewTrackListPanel.deleteTracksCache();
+         this.trackListPanel.deleteTracksCache();
     },
 
     // TODO - DEPRECATED

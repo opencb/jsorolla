@@ -41,6 +41,9 @@ CellBaseAdapter.prototype = {
         this.configureCache();
         this.host = host;
     },
+    deleteCache:function(){
+        this.cache.delete();
+    },
     configureCache: function() {
         var host = this.host || CellBaseManager.host;
         var speciesString = this.species.id + this.species.assembly.name.replace(/[/_().\ -]/g, '');
@@ -197,4 +200,3 @@ CellBaseAdapter.prototype = {
 
 
 };
-

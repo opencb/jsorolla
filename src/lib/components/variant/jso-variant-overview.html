@@ -1,0 +1,154 @@
+<dom-module id="jso-variant-overview">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        :host {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+        #legend{
+          margin: 0 auto;
+          width: 50%;
+        }
+    </style>
+    <template>
+        <div class="horizontal layout">
+            <div id="overview" on-rowclick="handleRowClick">
+            </div>
+            <div id="legend">
+                <i class="fa fa-lightbulb-o" aria-hidden="true" style="font-size:16px;color:#32b0cd"></i>
+                <br>- All values are normalized between zero and one.
+                <br>- Values closest to zero are deleterious and closest to one are benign.
+                <br>- Polyphen and Sift are opposed, but in this case, Polyphen has been calculated as 1 - Polyphen.
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'jso-variant-overview',
+            properties: {
+                row: {
+                    type: Object,
+                    observer: 'rowChanged'
+                },
+                params: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    }
+                }
+            },
+            rowChanged: function(neo, old) {
+                if (neo) {
+                    this.params = [];
+                    var variant = neo.chromosome + ":" + neo.start + ":" + neo.reference + ":" + neo.alternate;
+                    var me = this;
+                    CellBaseManager.get({
+                        species: 'hsapiens',
+                        category: 'genomic',
+                        subCategory: 'variant',
+                        resource: 'annotation',
+                        query: variant,
+                        async: false,
+                        success: function(response) {
+                            if (response.response[0].result[0]) {
+                                var row = response.response[0].result[0];
+                                if (row.functionalScore) {
+                                    me._getScores(row.functionalScore);
+                                }
+                                if (row.conservation) {
+                                    me._getScores(row.conservation);
+                                }
+                                if (row.consequenceTypes) {
+                                    var ct = row.consequenceTypes;
+                                    var n = 0;
+                                    for (var i = 0; i < ct.length; i++) {
+                                        if (ct[i].proteinVariantAnnotation && ct[i].proteinVariantAnnotation.substitutionScores) {
+                                            if (ct[i].proteinVariantAnnotation.substitutionScores.length == 2 && n == 0) {
+                                                n++;
+                                                me._getScores(ct[i].proteinVariantAnnotation.substitutionScores);
+                                            }
+                                        }
+                                    }
+
+                                }
+                                me._createPolarChart(row);
+                            }
+                        }
+                    });
+                }
+            },
+            _createPolarChart: function(row) {
+                var me = this;
+                var variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                var categories = [];
+                var data = [];
+                for (var i = 0; i < this.params.length; i++) {
+                    categories.push(this.params[i].source);
+                    if (this.params[i].source == "polyphen") {
+                        data.push(1 - this._parseFloat(this.params[i].score));
+                    } else {
+                        data.push(this._parseFloat(this.params[i].score));
+                    }
+                }
+                var chart = new Highcharts.Chart({
+                    chart: {
+                        polar: true,
+                        type: 'line',
+                        renderTo: me.$.overview,
+                        width: 510,
+                        height: 300
+
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    title: {
+                        text: variant,
+                        x: -80
+                    },
+                    xAxis: {
+                        categories: categories,
+                        tickmarkPlacement: 'on',
+                        lineWidth: 1
+                    },
+
+                    yAxis: {
+                        gridLineInterpolation: 'polygon',
+                        lineWidth: 0,
+                        min: 0,
+                        max: 1
+                    },
+
+                    series: [{
+                        type: 'area',
+                        name: variant,
+                        data: data,
+                        pointPlacement: 'on'
+                    }]
+
+                });
+            },
+            _parseFloat: function(data) {
+                var aux = parseFloat(data);
+                aux = isNaN(aux) ? null : aux;
+                return aux;
+            },
+            _getScores: function(data) {
+                for (var i = 0; i < data.length; i++) {
+                    var elem = data[i];
+                    var aux = Utils.clone(elem);
+                    aux.score = Math.abs(elem.score);
+                    if (aux.score > 1) {
+                        aux.score = 1 / aux.score;
+                    }
+                    aux.source = elem.source;
+
+                    this.params.push(aux);
+                }
+            }
+        })
+    </script>
+</dom-module>

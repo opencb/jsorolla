@@ -204,7 +204,7 @@ ChromosomePanel.prototype = {
         /**/
         var backrect = SVG.addChild(group, 'rect', {
             'x': offset,
-            'y': 4,
+            'y': 39,
             'width': this.width - 40 + 1,
             'height': 22,
             'fill': '#555555'
@@ -224,12 +224,12 @@ ChromosomePanel.prototype = {
             cytobandsByStain[cytoband.stain].push(cytoband);
 
             var middleX = textDrawingOffset + (cytoband.pixelSize / 2);
-            var textY = 28;
+            var textY =35;
             var text = SVG.addChild(group, "text", {
                 "x": middleX,
                 "y": textY,
                 "font-size": 10,
-                "transform": "rotate(90, " + middleX + ", " + textY + ")",
+                "transform": "rotate(-90, " + middleX + ", " + textY + ")",
                 "fill": "black"
             });
             text.textContent = cytoband.name;
@@ -241,7 +241,7 @@ ChromosomePanel.prototype = {
             if (cytobandStain != 'acen') {
                 for (var j = 0; j < cytobandsByStain[cytobandStain].length; j++) {
                     var cytoband = cytobandsByStain[cytobandStain][j];
-                    cytobands_d += 'M' + (cytoband.pixelStart + offset + 1) + ',15' + ' L' + (cytoband.pixelEnd + offset) + ',15 ';
+                    cytobands_d += 'M' + (cytoband.pixelStart + offset + 1) + ',50' + ' L' + (cytoband.pixelEnd + offset) + ',50 ';
                 }
                 var path = SVG.addChild(group, 'path', {
                     "d": cytobands_d,
@@ -258,7 +258,7 @@ ChromosomePanel.prototype = {
             var lastStain = cytobandsByStain['acen'][1];
             var backrect = SVG.addChild(group, 'rect', {
                 'x': (firstStain.pixelStart + offset + 1),
-                'y': 4,
+                'y': 39,
                 'width': (lastStain.pixelEnd + offset) - (firstStain.pixelStart + offset + 1),
                 'height': 22,
                 'fill': 'white'
@@ -268,11 +268,11 @@ ChromosomePanel.prototype = {
             var lastStainXStart = (lastStain.pixelStart + offset + 1);
             var lastStainXEnd = (lastStain.pixelEnd + offset);
             var path = SVG.addChild(group, 'path', {
-                'd': 'M' + firstStainXStart + ',4' + ' L' + (firstStainXEnd - 5) + ',4 ' + ' L' + firstStainXEnd + ',15 ' + ' L ' + (firstStainXEnd - 5) + ',26 ' + ' L ' + firstStainXStart + ',26 z',
+                'd': 'M' + firstStainXStart + ',39' + ' L' + (firstStainXEnd - 5) + ',39 ' + ' L' + firstStainXEnd + ',50 ' + ' L ' + (firstStainXEnd - 5) + ',61 ' + ' L ' + firstStainXStart + ',61 z',
                 'fill': this.colors['acen']
             });
             var path = SVG.addChild(group, 'path', {
-                'd': 'M' + lastStainXStart + ',15' + ' L' + (lastStainXStart + 5) + ',4 ' + ' L' + lastStainXEnd + ',4 ' + ' L ' + lastStainXEnd + ',26 ' + ' L ' + (lastStainXStart + 5) + ',26 z',
+                'd': 'M' + lastStainXStart + ',50' + ' L' + (lastStainXStart + 5) + ',39 ' + ' L' + lastStainXEnd + ',39 ' + ' L ' + lastStainXEnd + ',61 ' + ' L ' + (lastStainXStart + 5) + ',61 z',
                 'fill': this.colors['acen']
             });
         }

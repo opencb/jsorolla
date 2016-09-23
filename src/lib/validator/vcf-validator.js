@@ -23,6 +23,9 @@ function VCFValidator(options) {
 
     this._regExp = {
         "headerId": /ID=(\w+)/,
+        "chrId": /ID=([\w\.]+)/,
+        "filterId": /ID=([\w\s\.]+)/,
+        // "filterId": /ID=\"?([\w\s\.]+)\"?/,
         "headerNumber": /Number=(\w+|\.)/,
         "headerType": /Type=(\w+)/,
         "headerDesc": /Description=\"(.+)\"/,
@@ -31,7 +34,7 @@ function VCFValidator(options) {
         "alpha": /^(\w+)$/,
         "idSemiColon": /^(\w+(;\w+)?)+$/,
         "integer": /^(-+)?(\d+)$/,
-        "float": /^(-+)?(\d+(\.\d+)?)$/,
+        "float": /^(-+)?(\d+(\.\d+)?(e-\d+)?)$/,
         "altID": /^[<]+(\w+)+[>]$/
 
     }
@@ -81,7 +84,7 @@ VCFValidator.prototype.parseHeader = function (line) {
             this._fileFormat = true;
 
         } else if (key.toLowerCase() == "contig") {
-            var contigId = this._getDataFromRegExp(value, "headerId");
+            var contigId = this._getDataFromRegExp(value, "chrId");
             this._contigs[contigId] = contigId;
         } else if (key.toLowerCase() == "info") {
             var id = this._getDataFromRegExp(value, "headerId");
@@ -116,7 +119,8 @@ VCFValidator.prototype.parseHeader = function (line) {
                 description: description
             }
         } else if (key.toLowerCase() == "filter") {
-            var id = this._getDataFromRegExp(value, "headerId");
+            var id = this._getDataFromRegExp(value, "filterId");
+            // var id = this._getDataFromRegExp(value, "headerId");
             var description = this._getDataFromRegExp(value, "headerDesc");
 
             if (id == null || description == null) {
@@ -516,27 +520,27 @@ VCFValidator.prototype.parseData = function (line) {
 
                 var gt = sampleDataSplit[0];
                 if (!this._regExp["gt"].test(gt)) {
-                    this.addLog("error", "GT must match the regular expression ^(\.|\d+)([|/]?)", 8);
+                    this.addLog("error", "GT must match the regular expression ^(\.|\d+)([|/]?)", 8 + i);
                 } else {
                     var gtGroups = this._regExp["gt"].exec(gt);
                     if (gtGroups.length == 2) { // GT = 0,1
                         var gtAllele = parseInt(gtGroups[1]);
                         if (gtAllele > altSplits.length) {
-                            this.addLog("error", "An allele index must not be greater than the number of alleles in that variant", 8);
+                            this.addLog("error", "An allele index must not be greater than the number of alleles in that variant", 8 + i);
                         }
                     } else if (gtGroups.length == 4) { // GT = 0/0,0/1,....
                         var gtAllele0 = parseInt(gtGroups[1]);
                         var gtAllele1 = parseInt(gtGroups[3]);
 
                         if (gtAllele0 > altSplits.length || gtAllele1 > altSplits.length) {
-                            this.addLog("error", "An allele index must not be greater than the number of alleles in that variant", 8);
+                            this.addLog("error", "An allele index must not be greater than the number of alleles in that variant", 8 + i);
                         }
 
                     }
                 }
 
-                if (sampleDataSplit.length != formatSplits.length) {
-                    this.addLog("error", "The number of sub-fields can not be greater than the number in the FORMAT column. Expected : " + formatSplits.length + ", found: " + sampleDataSplit.length, 8);
+                if (sampleDataSplit.length != formatSplits.length && sampleDataSplit[0] != "./.") {
+                    this.addLog("error", "The number of sub-fields can not be greater than the number in the FORMAT column. Expected : " + formatSplits.length + ", found: " + sampleDataSplit.length, 8 + i);
                 }
             }
         }
