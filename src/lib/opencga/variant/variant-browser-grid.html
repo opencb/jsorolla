@@ -26,6 +26,20 @@
         </div>
     </template>
     <script>
+
+        let consequenceTypeToImpact = new Map();
+        if (typeof consequenceTypes !== "undefined") {
+            for (let i = 0; i < consequenceTypes.items.length; i++) {
+                if (typeof consequenceTypes.items[i].items !== "undefined") {
+                    for (let j = 0; j < consequenceTypes.items[i].items.length; j++) {
+                        consequenceTypeToImpact.set(consequenceTypes.items[i].items[j].name, consequenceTypes.color[consequenceTypes.items[i].items[j].impact]);
+                    }
+                } else if (typeof consequenceTypes.items[i].id !== "undefined" && typeof consequenceTypes.items[i].name !== "undefined") {
+                    consequenceTypeToImpact.set(consequenceTypes.items[i].name, consequenceTypes.color[consequenceTypes.items[i].impact]);
+                }
+            }
+        }
+
         Polymer({
             is: 'variant-browser-grid',
             properties: {
@@ -124,6 +138,12 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+
+//                this.consequenceTypeToImpact = new Map();
+//                this.consequenceTypeToImpact.set("2KB_upstream_variant", "#ddaaff");
+//                this.consequenceTypeToImpact.set("regulatory_region_variant", "#dea2fc");
+
+
             },
             renderFromServer: function () {
                 let _this = this;
@@ -239,10 +259,12 @@
 //                console.log("showGene", e)
 //            },
             variantFormatter: function (value, row, index) {
-                return "<span style='white-space: nowrap;'>" + row.chromosome + ':' + row.start + " " + row.reference + '/' + row.alternate + "</span>";
+                let ref = (row.reference != "") ? row.reference : "-";
+                let alt = (row.alternate != "") ? row.alternate : "-";
+                return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
             },
             snpFormatter: function (value, row, index) {
-                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
             },
             geneFormatter: function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
@@ -252,7 +274,7 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
                                     && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                geneLinks.push("<a style='cursor: pointer'>" + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                geneLinks.push("<a style='cursor: pointer;white-space: nowrap'>" + row.annotation.consequenceTypes[i].geneName + "</a>");
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }
@@ -262,6 +284,7 @@
                 return '-';
             },
             consequenceTypeFormatter: function (value, row, index) {
+                console.log(this)
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
                         var consequenceTypesArr = [];
@@ -272,11 +295,16 @@
                                 if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
                                     transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
                                 }
-                                if (typeof row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name !== "undefined"
-                                        && row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name != ""
-                                        && !visited.has(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name)) { //&& typeof visited[row.annotation.consequenceTypes[i].sequenceOntologyTerms.name] === "undefined"
-                                    consequenceTypesArr.push(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name); // + "(" + transcriptId + ")");
-                                    visited.add(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name);
+
+                                let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
+                                if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visited.has(consequenceTypeName)) {
+//                                    consequenceTypesArr.push(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name);
+                                    if (typeof consequenceTypeToImpact !== "undefined" && consequenceTypeToImpact.has(consequenceTypeName)) {
+                                        consequenceTypesArr.push('<span style="color: ' + consequenceTypeToImpact.get(consequenceTypeName) + '">' + consequenceTypeName + '</span>');
+                                    } else {
+                                        consequenceTypesArr.push('<span>' + consequenceTypeName + '</span>');
+                                    }
+                                    visited.add(consequenceTypeName);
                                 }
                             }
                         }
@@ -387,7 +415,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'SNPId',
+                            title: 'SNP Id',
                             field: 'id',
                             colspan: 1,
                             rowspan: 2,
