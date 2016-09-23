@@ -28,17 +28,18 @@
             <div class="block">
                 <label class="align-left">Population Frequency</label>
                 <div class="align-right">
-                    <template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">
-                        <template is="dom-if" if="{{checkforAll(popFreq)}}">
-                            {{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;
-                            <template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">
-                                <template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">
-                                    <b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})
-                                </template>
-                            </template>
-                            <br>
-                        </template>
-                    </template>
+                    <div id="{{prefix}}Container"></div>
+                    <!--<template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">-->
+                        <!--<template is="dom-if" if="{{checkforAll(popFreq)}}">-->
+                            <!--{{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;-->
+                            <!--<template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">-->
+                                <!--<template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">-->
+                                    <!--<b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})-->
+                                <!--</template>-->
+                            <!--</template>-->
+                            <!--<br>-->
+                        <!--</template>-->
+                    <!--</template>-->
                 </div> <br>
             </div>
 
@@ -46,14 +47,14 @@
                 <label class="align-left">Variant Trait Association</label>
                 <div class="align-right">
                     <template is="dom-repeat" items="{{vta}}">
-                        {{vta.source}} - {{vta.traits}}
+                        <label>{{item.source}}</label> - {{item.traits}} <br>
                     </template>
                 </div> <br>
             </div>
 
             <div class="block">
                 <label class="align-left">Gene Trait Association</label>
-                <div class="align-right">{{numberGTA}}</div> <br>
+                <div class="align-right">This variant has <b>{{numberGTA}}</b> gene traits</div> <br>
             </div>
 
             <div class="block">
@@ -93,6 +94,14 @@
                 },
                 minimumFreq: {
                     type: Array
+                },
+                prefix: {
+                    type: String
+                }
+            },
+            ready: function () {
+                if (typeof this.prefix === "undefined" || this.prefix == "") {
+                    this.prefix = Utils.randomString(6);
                 }
             },
             checkforAll: function(populationFreq) {
@@ -117,7 +126,9 @@
                                     traits.push(clinicalData[j].primaryHistology);
                                 }
                             }
-                            vta.push({source: i, traits: traits.join(',')});
+                            if (traits.length > 0) {
+                                vta.push({source: i.charAt(0).toUpperCase() + i.slice(1).toLowerCase(), traits: traits.join(',')});
+                            }
                         }
                     } else {
                         vta.push('-');
@@ -142,31 +153,94 @@
                     }
                     _this.functionalScore = functionalScore;
 
-                    let minimumFreq = [];
-                    if (_this.data.populationFrequencies != null) {
-                        let minFreq = {};
-                        for (let i in _this.data.populationFrequencies) {
-                            let populationFreq = _this.data.populationFrequencies[i];
-                            if (Object.keys(minFreq).length === 0 && minFreq.constructor === Object) {
-                                minFreq.freq = populationFreq.altAlleleFreq;
-                                minFreq.population = populationFreq.population;
-                                minFreq.study = populationFreq.study;
-                            } else if (populationFreq.study == minFreq.study) {
-                                if (populationFreq.altAlleleFreq < minFreq.freq) {
-                                    minFreq.freq = populationFreq.altAlleleFreq;
-                                    minFreq.population = populationFreq.population;
-                                    minFreq.study = populationFreq.study;
-                                }
-                            } else {
-                                minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study});
-                                minFreq.freq = populationFreq.altAlleleFreq;
-                                minFreq.population = populationFreq.population;
-                                minFreq.study = populationFreq.study;
+
+                    let popArray = [];
+                    let mafArray = [];
+                    if (typeof _this.data.populationFrequencies !== "undefined") {
+                        for (let i = 0; i < _this.data.populationFrequencies.length; i++) {
+                            if (_this.data.populationFrequencies[i].population == "ALL") {
+                                popArray.push(_this.data.populationFrequencies[i].study + "-" + _this.data.populationFrequencies[i].population);
+                                mafArray.push(Math.min(Number(_this.data.populationFrequencies[i].refAlleleFreq).toFixed(3), Number(_this.data.populationFrequencies[i].altAlleleFreq).toFixed(3)));
                             }
                         }
-                        minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study}); // last study's minimum frequency have to be pushed
+
+                        $('#' + _this.prefix + 'Container').highcharts({
+                            chart: {
+                                type: 'bar'
+                            },
+                            title: {
+                                text: 'Population Frequencies'
+                            },
+                            xAxis: {
+                                categories: popArray,
+                                title: {
+                                    text: null
+                                }
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Minor Allele Frequency (MAF)',
+                                    align: 'high'
+                                },
+                                labels: {
+                                    overflow: 'justify'
+                                },
+                                max: 0.5
+                            },
+                            plotOptions: {
+                                bar: {
+                                    dataLabels: {
+                                        enabled: true
+                                    }
+                                }
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'top',
+                                x: -40,
+                                y: 80,
+                                floating: true,
+                                borderWidth: 1,
+                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                                shadow: true
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            series: [{
+                                name: 'Minor Allele Frequency (MAF)',
+                                data: mafArray
+                            }]
+                        });
                     }
-                    _this.minimumFreq = minimumFreq;
+
+//                    let minimumFreq = [];
+//                    if (_this.data.populationFrequencies != null) {
+//                        let minFreq = {};
+//                        for (let i in _this.data.populationFrequencies) {
+//                            let populationFreq = _this.data.populationFrequencies[i];
+//                            if (Object.keys(minFreq).length === 0 && minFreq.constructor === Object) {
+//                                minFreq.freq = populationFreq.altAlleleFreq;
+//                                minFreq.population = populationFreq.population;
+//                                minFreq.study = populationFreq.study;
+//                            } else if (populationFreq.study == minFreq.study) {
+//                                if (populationFreq.altAlleleFreq < minFreq.freq) {
+//                                    minFreq.freq = populationFreq.altAlleleFreq;
+//                                    minFreq.population = populationFreq.population;
+//                                    minFreq.study = populationFreq.study;
+//                                }
+//                            } else {
+//                                minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study});
+//                                minFreq.freq = populationFreq.altAlleleFreq;
+//                                minFreq.population = populationFreq.population;
+//                                minFreq.study = populationFreq.study;
+//                            }
+//                        }
+//                        minimumFreq.push({freq: minFreq.freq, population: minFreq.population, study: minFreq.study}); // last study's minimum frequency have to be pushed
+//                    }
+//                    _this.minimumFreq = minimumFreq;
 
                 }
             }
