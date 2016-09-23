@@ -284,7 +284,6 @@
                 return '-';
             },
             consequenceTypeFormatter: function (value, row, index) {
-                console.log(this)
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
                         var consequenceTypesArr = [];
@@ -298,7 +297,6 @@
 
                                 let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
                                 if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visited.has(consequenceTypeName)) {
-//                                    consequenceTypesArr.push(row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name);
                                     if (typeof consequenceTypeToImpact !== "undefined" && consequenceTypeToImpact.has(consequenceTypeName)) {
                                         consequenceTypesArr.push('<span style="color: ' + consequenceTypeToImpact.get(consequenceTypeName) + '">' + consequenceTypeName + '</span>');
                                     } else {
@@ -364,7 +362,11 @@
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
                         let studyPopulation = popFreq.study + ":" + popFreq.population;
                         if (studyPopulation == this.field) {
-                            return Number(popFreq.altAlleleFreq).toFixed(4);
+                            if (Number(popFreq.altAlleleFreq).toFixed(4) < 0.001) {
+                                return '<span style="color: red">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                            } else {
+                                return Number(popFreq.altAlleleFreq).toFixed(4);
+                            }
                         }
                     }
                 }
