@@ -28,8 +28,8 @@ function KaryotypePanel(args) {
     this.autoRender = true;
     this.id = Utils.genId('KaryotypePanel');
 
-    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
-    this.cellBaseVersion = 'v3';
+    this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase-4.5.0-beta';
+    this.cellBaseVersion = 'v4';
 
     this.pixelBase;
     this.species;
