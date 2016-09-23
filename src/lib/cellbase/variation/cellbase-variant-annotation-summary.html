@@ -2,55 +2,84 @@
 <dom-module id="cellbase-variant-annotation-summary">
     <template>
         <style is="custom-style" include="jso-styles"></style>
+        <style>
+            div.block{
+                overflow:hidden;
+            }
+            .align-left {
+                width:20%;
+                display:block;
+                float:left;
+                text-align:left;
+            }
+            .align-right{
+                width:70%;
+                display:block;
+                float:left;
+                text-align:left;
+            }
+        </style>
 
         <div>
-            <b>Variant:</b> {{data.chromosome}}:{{data.start}}:{{data.reference}}:{{data.alternate}}<br>
-            <b>Consequence Type:</b> {{data.displayConsequenceType}}<br>
-            <b>Population Frequency:</b><br>
-            <template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">
-                <template is="dom-if" if="{{checkforAll(popFreq)}}">
-                    {{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;
-                    <template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">
-                        <template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">
-                            <b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})
+            <div class="block">
+                <label class="align-left">Consequence Type</label>
+                <div class="align-right">{{data.displayConsequenceType}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">Population Frequency</label>
+                <div class="align-right">
+                    <template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">
+                        <template is="dom-if" if="{{checkforAll(popFreq)}}">
+                            {{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;
+                            <template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">
+                                <template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">
+                                    <b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})
+                                </template>
+                            </template>
+                            <br>
                         </template>
                     </template>
-                    <br>
-                </template>
-            </template>
+                </div> <br>
+            </div>
 
-            <b>Number of Variant Trait Association:</b> {{numberVTA}}<br>
-            <b>Number of Gene Trait Association:</b> {{numberGTA}}<br>
-            <b>Conservation:</b><br>
-            <template is="dom-repeat" items="{{conservation}}">
-                {{item.source}} - {{item.score}} <br>
-            </template>
-            <b>Cadd:</b><br>
-            <template is="dom-repeat" items="{{functionalScore}}">
-                {{item.source}} - {{item.score}}<br>
-            </template>
-            <!--<table class="table table-hover table-bordered" style="width: 60%; margin: auto; text-align: justify;">-->
-                <!--<thead style="background-color: #eee">-->
-                <!--<tr>-->
-                    <!--<th>Source</th>-->
-                    <!--<th>Score</th>-->
-                <!--</tr>-->
-                <!--</thead>-->
-                <!--<tbody>-->
-                <!--<template is="dom-repeat" items="{{conservation}}">-->
-                    <!--<tr>-->
-                        <!--<td>{{item.source}}</td>-->
-                        <!--<td>{{item.score}}</td>-->
-                    <!--</tr>-->
-                <!--</template>-->
-                <!--<template is="dom-repeat" items="{{functionalScore}}">-->
-                    <!--<tr>-->
-                        <!--<td>{{item.source}}</td>-->
-                        <!--<td>{{item.score}}</td>-->
-                    <!--</tr>-->
-                <!--</template>-->
-                <!--</tbody>-->
-            <!--</table>-->
+            <div class="block">
+                <label class="align-left">Variant Trait Association</label>
+                <div class="align-right">
+                    <template is="dom-repeat" items="{{vta}}">
+                        {{vta.source}} - {{vta.traits}}
+                    </template>
+                </div> <br>
+            </div>
+
+            <div class="block">
+                <label class="align-left">Gene Trait Association</label>
+                <div class="align-right">{{numberGTA}}</div> <br>
+            </div>
+
+            <div class="block">
+                <label class="align-left">Scores</label>
+                <div>
+                    <div>
+                        <!--<label style="width: 23%;display:block;float:left;text-align:left;">Protein Substitution Score</label>-->
+                        <label style="width: 23%;display:block;float:left;text-align:left;">Conservation</label>
+                        <label style="width: 23%;display:block;float:left;text-align:left;">Cadd</label> <br>
+                    </div>
+
+                    <div style="margin-left: 20%;width: 23%;display:block;float:left;text-align:left;">
+                        <template is="dom-repeat" items="{{conservation}}">
+                            <div style="width: 30%;display:block;float:left;text-align:left;">{{item.source}}</div>
+                            <div style="width: 50%;display:block;float:left;text-align:left;">{{item.score}}</div> <br>
+                        </template>
+                    </div>
+
+                    <div style="width: 23%;display:block;float:left;text-align:left;">
+                        <template is="dom-repeat" items="{{functionalScore}}">
+                            <div style="width: 35%;display:block;float:left;text-align:left;">{{item.source}}</div>
+                            <div style="width: 50%;display:block;float:left;text-align:left;">{{item.score}}</div> <br>
+                        </template>
+                    </div>
+                </div>
+            </div>
         </div>
     </template>
     <script>
@@ -76,11 +105,24 @@
                 let _this = this;
 
                 if (typeof this.data !== "undefined") {
+                    let vta = [];
                     if (_this.data.variantTraitAssociation != null) {
-                        _this.numberVTA = Object.keys(_this.data.variantTraitAssociation).length;
+                        for (let i in _this.data.variantTraitAssociation) {
+                            let traits = [];
+                            let clinicalData = _this.data.variantTraitAssociation[i];
+                            for (let j = 0; j < clinicalData.length; j++) {
+                                if (i == "clinvar" && traits.indexOf(clinicalData[j].traits[0]) == -1) {
+                                    traits.push(clinicalData[j].traits[0]);
+                                } else if (i == "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) == -1) {
+                                    traits.push(clinicalData[j].primaryHistology);
+                                }
+                            }
+                            vta.push({source: i, traits: traits.join(',')});
+                        }
                     } else {
-                        _this.numberVTA = 0;
+                        vta.push('-');
                     }
+                    _this.vta = vta;
 
                     if (_this.data.geneTraitAssociation != null) {
                         _this.numberGTA = _this.data.geneTraitAssociation.length;
