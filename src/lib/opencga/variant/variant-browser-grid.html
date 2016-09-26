@@ -296,6 +296,12 @@
                                 }
 
                                 let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
+
+                                // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
+                                if (consequenceTypeName == "2KB_downstream_gene_variant") {
+                                    consequenceTypeName = "2KB_downstream_variant";
+                                }
+
                                 if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visited.has(consequenceTypeName)) {
                                     if (typeof consequenceTypeToImpact !== "undefined" && consequenceTypeToImpact.has(consequenceTypeName)) {
                                         consequenceTypesArr.push('<span style="color: ' + consequenceTypeToImpact.get(consequenceTypeName) + '">' + consequenceTypeName + '</span>');
@@ -372,36 +378,114 @@
                 }
                 return '-';
             },
+            populationFrequenciesFormatter2: function(value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+
+                    let data = new Map();
+                    for (popFreqIdx in row.annotation.populationFrequencies) {
+                        let popFreq = row.annotation.populationFrequencies[popFreqIdx];
+                        if (this.field.study == popFreq.study && this.field.populationMap[popFreq.population] == true) {
+                            data.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                        }
+                    }
+
+                    let tableSize = this.field.populations.length * 15;
+                    // Creates the colored table with one row and as many columns as populations
+                    let htmlPopFreqTable = "<table style='width: " + tableSize + "px'><tr>";
+                    for (p in this.field.populations) {
+                        let popFreq = this.field.populations[p];
+                        if (typeof data.get(popFreq) !== "undefined") {
+                            let freq = data.get(this.field.populations[p]);
+                            if (freq < 0.001) {
+                                htmlPopFreqTable += "<td style='width: 15px; background: red;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            } else if (freq < 0.005) {
+                                htmlPopFreqTable += "<td style='width: 15px; background: orange;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            } else if (freq < 0.05) {
+                                htmlPopFreqTable += "<td style='width: 15px; background: yellow;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            } else {
+                                htmlPopFreqTable += "<td style='width: 15px; background: blue;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                            }
+                        } else  {
+                            htmlPopFreqTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
+                        }
+                    }
+                    htmlPopFreqTable += "</tr></table>";
+
+                    return htmlPopFreqTable;
+                }
+                return '-';
+            },
+            clinvarFormatter:  function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+//                    console.log("clinvar")
+//                    console.log(value)
+//                    console.log(row)
+                }
+                return '-';
+            },
             _refreshTableColumns: function() {
                 this.cols = this._createDefaultColumns();
 
-                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
-                    let popIdx = 5;
-                    for (let i = 0; i < this.populationFrequencies.length; i++) {
-                        let study = this.populationFrequencies[i];
-                        this.cols[0].splice(7 + i, 0, {
-                            title: study.title,
-                            field: study.id,
+                if (true) {
+                    if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                        let popIdx = 5;
+
+                        // Just one column called 'Population Frequencies'
+                        this.cols[0].splice(7, 0, {
+                            title: 'Population Frequencies',
+                            field: '',
                             rowspan: 1,
-                            colspan: study.populations.length,
+                            colspan: this.populationFrequencies.length,
                             halign: 'center'
                         });
-                        if (i > 0) {
-                            popIdx += this.populationFrequencies[i - 1].populations.length;
-                        }
-                        for(let j = 0; j < study.populations.length; j++) {
+
+                        for(let j = 0; j < this.populationFrequencies.length; j++) {
+                            let populations = [];
+                            let populationMap = {};
+                            for (pop in this.populationFrequencies[j].populations) {
+                                populations.push(this.populationFrequencies[j].populations[pop].id);
+                                populationMap[this.populationFrequencies[j].populations[pop].id] = true;
+                            }
+
                             this.cols[1].splice(j + popIdx, 0, {
-                                title: study.populations[j].id,
-                                field: study.id + ":" + study.populations[j].id,
+                                title: this.populationFrequencies[j].title,
+                                field: {study: this.populationFrequencies[j].id, populations: populations, populationMap: populationMap},
                                 rowspan: 1,
                                 colspan: 1,
-//                                        visible: false,
-                                formatter: this.populationFrequenciesFormatter,
+                                formatter: this.populationFrequenciesFormatter2,
                                 halign: 'center'
                             });
                         }
                     }
+                } else {
+                    if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                        let popIdx = 5;
+                        for (let i = 0; i < this.populationFrequencies.length; i++) {
+                            let study = this.populationFrequencies[i];
+                            this.cols[0].splice(7 + i, 0, {
+                                title: study.title,
+                                field: study.id,
+                                rowspan: 1,
+                                colspan: study.populations.length,
+                                halign: 'center'
+                            });
+                            if (i > 0) {
+                                popIdx += this.populationFrequencies[i - 1].populations.length;
+                            }
+                            for(let j = 0; j < study.populations.length; j++) {
+                                this.cols[1].splice(j + popIdx, 0, {
+                                    title: study.populations[j].id,
+                                    field: study.id + ":" + study.populations[j].id,
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    formatter: this.populationFrequenciesFormatter,
+                                    halign: 'center'
+                                });
+                            }
+                        }
+                    }
                 }
+
                 this.renderFromServer();
             },
             _createDefaultColumns: function() {
@@ -449,8 +533,8 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Protein Substitution Score',
-                            field: 'Protein Substitution Score',
+                            title: 'Protein Substitution',
+//                            field: 'Protein Substitution',
                             colspan: 2,
                             rowspan: 1,
                             halign: 'center'
@@ -480,7 +564,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Polyphen2',
+                            title: 'Polyphen',
                             field: 'polyphen',
                             colspan: 1,
                             rowspan: 1,
@@ -504,7 +588,7 @@
                             halign: 'center'
                         },
                         {
-                            title: 'Gerp',
+                            title: 'GERP',
                             field: 'gerp',
                             colspan: 1,
                             rowspan: 1,
@@ -516,6 +600,7 @@
                             field: 'annotation.variantTraitAssociation.clinvar.accession',
                             colspan: 1,
                             rowspan: 1,
+                            formatter: this.clinvarFormatter,
                             halign: 'center'
                         },
                         {

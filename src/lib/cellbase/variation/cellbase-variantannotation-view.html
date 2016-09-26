@@ -23,7 +23,9 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div hidden$="{{checkData(data)}}"><h3>Please click on a variant to view annotations</h3></div>
-        <div hidden$="{{!checkData(data)}}">
+        <div hidden$="{{!checkData(data)}}" style="padding-top: 20px;padding-left: 20px">
+
+            <!-- This renders a vertical menu, this is controlled by the mode property -->
             <template is="dom-if" if="{{checkVertical(mode)}}">
                 <div class="col-xs-2">
                     <ul id="stackedPills" class="nav nav-pills nav-stacked" role="tablist">
@@ -36,6 +38,7 @@
                 </div>
             </template>
 
+            <!-- This renders a horizontal menu, this is controlled by the mode property -->
             <template is="dom-if" if="{{checkHorizontal(mode)}}">
                 <ul id="myTabs" class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#{{prefix}}VariantAnnotationSummary" role="tab" data-toggle="tab">Summary</a></li>
