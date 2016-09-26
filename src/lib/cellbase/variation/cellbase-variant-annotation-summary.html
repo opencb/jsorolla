@@ -71,9 +71,13 @@
 
                     <div style="margin-left: 20%;width: 23%;display:block;float:left;text-align:left;">
                         <div style="width: 30%;display:block;float:left;text-align:left;">Sift</div>
-                        <div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.sift.score}} ({{proteinSubScore.sift.transcript}})</div> <br>
+                        <div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.sift.score}}
+                            <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">({{proteinSubScore.sift.transcript}})</template>
+                        </div> <br>
                         <div style="width: 30%;display:block;float:left;text-align:left;">Polyphen</div>
-                        <div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.polyphen.score}} ({{proteinSubScore.polyphen.transcript}})</div> <br>
+                        <div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.polyphen.score}}
+                            <template is="dom-if" if="{{isTranscriptAvailable(proteinSubScore.sift.transcript)}}">({{proteinSubScore.sift.transcript}})</template>
+                        </div> <br>
                     </div>
 
                     <div style="width: 23%;display:block;float:left;text-align:left;">
@@ -120,6 +124,9 @@
             checkSameStudy: function(popFreq, minFreq) {
                 return !!(popFreq.study == minFreq.study && minFreq.population != "ALL");
             },
+            isTranscriptAvailable: function(item) {
+                return item != "";
+            },
             variantAnnotationChanged: function(neo, old) {
                 let _this = this;
 
@@ -141,7 +148,7 @@
                             }
                         }
                     } else {
-                        vta.push('-');
+                        vta.push({source: "-"});
                     }
                     _this.vta = vta;
 
@@ -170,8 +177,8 @@
                         }
                     }
                     if (Object.keys(proteinSubScore).length == 0 && proteinSubScore.constructor === Object) {
-                        proteinSubScore.sift = {score: "-", transcript: "-"};
-                        proteinSubScore.polyphen = {score: "-", transcript: "-"};
+                        proteinSubScore.sift = {score: "NA", transcript: ""};
+                        proteinSubScore.polyphen = {score: "NA", transcript: ""};
                     }
                     _this.proteinSubScore = proteinSubScore;
 
