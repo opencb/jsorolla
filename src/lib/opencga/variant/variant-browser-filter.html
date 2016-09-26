@@ -492,7 +492,7 @@
                     let node = selected[i];
                     soTerms.push($(node).attr('id'));
                 }
-                this.set('soTerms', soTerms);
+                this.set('ct', soTerms);
             },
             fireClear: function () {
                 let _this = this;
@@ -547,6 +547,7 @@
                 for (let i = 0; i < selected.length; i++) {
                     selected[i].checked = false;
                 }
+                this.soTerms = [];
 
                 // Gene Ontology and Human Phenotype Ontology
                 this.$$("#" + this.prefix + "GeneOntologyTextarea").value = "";
@@ -630,6 +631,9 @@
                     conserArr.push(gerp);
                 }
                 this.conservation = conserArr.join(',');
+
+                // Consequence Type
+                this.soTerms = this.ct;
 
                 //Gene Ontology and Human Phenotype Ontology
                 this.geneOntology = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
