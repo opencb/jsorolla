@@ -204,7 +204,7 @@
                     observer: 'renderFromServer'
                 },
                 populationFrequencies: {
-                    type: Array
+                    type: Object
                 },
                 sift: {
                     type: String,
@@ -485,10 +485,10 @@
                 // We first get the default columns, and then we dynamically add the population frequencies and sample columns
                 this.cols = this._createDefaultColumns();
 
-                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
                     let popIdx = 2;
-                    for (let i = 0; i < this.populationFrequencies.length; i++) {
-                        let study = this.populationFrequencies[i];
+                    for (let i = 0; i < this.populationFrequencies.items.length; i++) {
+                        let study = this.populationFrequencies.items[i];
                         this.cols[0].splice(8 + i, 0, {
                             title: study.title,
                             field: study.id,
@@ -497,7 +497,7 @@
                             halign: 'center'
                         });
                         if (i > 0) {
-                            popIdx += this.populationFrequencies[i - 1].populations.length;
+                            popIdx += this.populationFrequencies.items[i - 1].populations.length;
                         }
                         for(let j = 0; j < study.populations.length; j++) {
                             this.cols[1].splice(j + popIdx, 0, {

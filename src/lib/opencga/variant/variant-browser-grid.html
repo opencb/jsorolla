@@ -59,76 +59,24 @@
                     type: Object
                 },
                 populationFrequencies: {
-                    type: Array,
-                    value: [],
+                    type: Object,
+                    value: {},
                     observer: '_refreshTableColumns'
                 },
-                region: {
-                    type: String,
-                    value: "",
+                query: {
+                    type: Object,
                     observer: 'renderFromServer'
-                },
-                geneIds: {
-                    type: String,
-                    value:"",
-                    observer: 'renderFromServer'
-                },
-                variantIds: {
-                    type: String,
-                    value:"",
-                    observer: 'renderFromServer'
-                },
-                type: {
-                    type: String,
-                    value:"",
-                    observer: 'renderFromServer'
-                },
-                sampleGenotypes: {
-                    type: String,
-                    value: "",
-                    observer: 'renderFromServer'
-                },
-                populationFreq: {
-                    type: String,
-                    value: "",
-                    observer: 'renderFromServer'
-                },
-                sift: {
-                    type: String,
-                    value: "",
-                    observer: 'renderFromServer'
-                },
-                polyphen: {
-                    type: String,
-                    value: "",
-                    observer: 'renderFromServer'
-                },
-                conservation: {
-                    type: String,
-                    value: "",
-                    observer: 'renderFromServer'
-                },
-                soTerms: {
-                    type: Array,
-                    value: [],
-                    observer: 'renderFromServer'
-                },
-                geneOntology: {
-                    type: String,
-                    value: "",
-                    observer: 'renderFromServer'
-                },
-                hpo: {
-                    type: String,
-                    value: "",
-                    observer: 'renderFromServer'
-                },
-                prefix: {
-                    type: String
                 },
                 variant: {
                     type: String,
                     notify: true
+                },
+                prefix: {
+                    type: String
+                },
+                showPopFreqInColor: {
+                    type: Boolean,
+                    value: true
                 }
             },
             ready: function () {
@@ -138,28 +86,10 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
-
-//                this.consequenceTypeToImpact = new Map();
-//                this.consequenceTypeToImpact.set("2KB_upstream_variant", "#ddaaff");
-//                this.consequenceTypeToImpact.set("regulatory_region_variant", "#dea2fc");
-
-
             },
             renderFromServer: function () {
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
-
-//                    if (typeof this.study.id !== "undefined") {
-//                        this._studyId = this.study.id;
-//                    } else {
-//                        this._studyId = this.study.alias;
-//                    }
-//
-//                    if (typeof this._studyId !== "undefined" && this._studyId != "") {
-//                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this._studyId + '/variants';
-//                    } else {
-//                        return;
-//                    }
 
                     if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
                         this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
@@ -172,44 +102,9 @@
                         timeout: 10000
                     };
 
-                    queryParams.exclude = "studies";
+                    Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
 
-                    if (typeof this.region !== "undefined" && this.region != "") {
-                        queryParams.region = this.region;
-                    }
-                    if (typeof this.geneIds !== "undefined" && this.geneIds != "") {
-                        queryParams.gene = this.geneIds;
-                    }
-                    if (typeof this.variantIds !== "undefined" && this.variantIds != "") {
-                        queryParams.ids = this.variantIds;
-                    }
-                    if (typeof this.type !== "undefined" && this.type != "") {
-                        queryParams.type = this.type;
-                    }
-                    if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
-                        queryParams.genotype = this.sampleGenotypes;
-                    }
-                    if (typeof this.populationFreq !== "undefined" && this.populationFreq != "") {
-                        queryParams["annot-population-maf"] = this.populationFreq;
-                    }
-                    if (typeof this.sift !== "undefined" && this.sift != "") {
-                        queryParams.sift = this.sift;
-                    }
-                    if (typeof this.polyphen !== "undefined" && this.polyphen != "") {
-                        queryParams.polyphen = this.polyphen;
-                    }
-                    if (typeof this.conservation !== "undefined" && this.conservation != "") {
-                        queryParams.conservation = this.conservation;
-                    }
-                    if (typeof this.soTerms !== "undefined" && this.soTerms.length > 0) {
-                        queryParams["annot-ct"] = this.soTerms.join(',');
-                    }
-                    if (typeof this.geneOntology != "undefined" && this.geneOntology != "") {
-                        queryParams["annot-go"] = this.geneOntology;
-                    }
-                    if (typeof this.hpo != "undefined" && this.hpo != "") {
-                        queryParams["annot-hpo"] = this.hpo;
-                    }
+                    queryParams.exclude = "studies";
 
                     let _numTotal = -1;
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -426,8 +321,8 @@
             _refreshTableColumns: function() {
                 this.cols = this._createDefaultColumns();
 
-                if (true) {
-                    if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                if (this.showPopFreqInColor) {
+                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
                         let popIdx = 5;
 
                         // Just one column called 'Population Frequencies'
@@ -435,21 +330,21 @@
                             title: 'Population Frequencies',
                             field: '',
                             rowspan: 1,
-                            colspan: this.populationFrequencies.length,
+                            colspan: this.populationFrequencies.items.length,
                             halign: 'center'
                         });
 
-                        for(let j = 0; j < this.populationFrequencies.length; j++) {
+                        for(let j = 0; j < this.populationFrequencies.items.length; j++) {
                             let populations = [];
                             let populationMap = {};
-                            for (pop in this.populationFrequencies[j].populations) {
-                                populations.push(this.populationFrequencies[j].populations[pop].id);
-                                populationMap[this.populationFrequencies[j].populations[pop].id] = true;
+                            for (pop in this.populationFrequencies.items[j].populations) {
+                                populations.push(this.populationFrequencies.items[j].populations[pop].id);
+                                populationMap[this.populationFrequencies.items[j].populations[pop].id] = true;
                             }
 
                             this.cols[1].splice(j + popIdx, 0, {
-                                title: this.populationFrequencies[j].title,
-                                field: {study: this.populationFrequencies[j].id, populations: populations, populationMap: populationMap},
+                                title: this.populationFrequencies.items[j].title,
+                                field: {study: this.populationFrequencies.items[j].id, populations: populations, populationMap: populationMap},
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: this.populationFrequenciesFormatter2,
@@ -458,10 +353,10 @@
                         }
                     }
                 } else {
-                    if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
+                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
                         let popIdx = 5;
-                        for (let i = 0; i < this.populationFrequencies.length; i++) {
-                            let study = this.populationFrequencies[i];
+                        for (let i = 0; i < this.populationFrequencies.items.length; i++) {
+                            let study = this.populationFrequencies.items[i];
                             this.cols[0].splice(7 + i, 0, {
                                 title: study.title,
                                 field: study.id,
@@ -470,7 +365,7 @@
                                 halign: 'center'
                             });
                             if (i > 0) {
-                                popIdx += this.populationFrequencies[i - 1].populations.length;
+                                popIdx += this.populationFrequencies.items[i - 1].populations.length;
                             }
                             for(let j = 0; j < study.populations.length; j++) {
                                 this.cols[1].splice(j + popIdx, 0, {

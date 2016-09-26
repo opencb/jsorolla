@@ -35,10 +35,8 @@
 
             <!-- Variant Browser Grid -->
             <div style="padding: 10px;">
-                <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" region="{{region}}" variant="{{variant}}"
-                                      gene-ids="{{geneIds}}" variant-ids="{{variantIds}}" type="{{type}}" sample-genotypes="{{sampleGenotypes}}" population-freq="{{populationFreq}}"
-                                      sift="{{sift}}" polyphen="{{polyphen}}" so-terms="{{soTerms}}" gene-ontology="{{geneOntology}}" hpo="{{hpo}}" population-frequencies="{{populationFrequencies}}"
-                                      conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-grid>
+                <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                                      population-frequencies="{{populationFrequencies}}" query="{{query}}" variant="{{variant}}" on-selected="selectedGene"></variant-browser-grid>
             </div>
 
             <h3>Variant: {{variant}}</h3>
@@ -89,64 +87,18 @@
                 opencgaClient: {
                     type: Object
                 },
-                variant: {
-                    type: String,
-                    value: "no variant selected"
-                },
-                populationFrequencies: {
-                    type: Array,
-                    value: []
-                },
-                region: {
-                    type: String,
-                    value: ""
-                },
-                geneIds: {
-                    type: String,
-                    value:""
-                },
-                variantIds: {
-                    type: String,
-                    value:""
-                },
-                type: {
-                    type: String,
-                    value:""
-                },
-                sampleGenotypes: {
-                    type: String,
-                    value: ""
-                },
                 cellbaseClient: {
                     type: Object
                 },
-                populationFreq: {
-                    type: String,
-                    value: ""
+                populationFrequencies: {
+                    type: Object
                 },
-                sift: {
-                    type: String,
-                    value: ""
+                query: {
+                    type: Object
                 },
-                polyphen: {
+                variant: {
                     type: String,
-                    value: ""
-                },
-                conservation: {
-                    type: String,
-                    value: ""
-                },
-                soTerms: {
-                    type: Array,
-                    value: []
-                },
-                geneOntology: {
-                    type: String,
-                    value: ""
-                },
-                hpo: {
-                    type: String,
-                    value: ""
+                    value: "No variant selected"
                 },
                 prefix: {
                     type: String

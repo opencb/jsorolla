@@ -133,7 +133,7 @@
                                 </tbody>
                             </table>
                         </template>
-                        <template is="dom-if" if="{{checkEmpty(variantAnnotation)}}">
+                        <template is="dom-if" if="{{!check(variantAnnotation)}}">
                             No ClinVar and Cosmic data available
                         </template>
                     </div>
@@ -182,9 +182,6 @@
             },
             check: function (data) {
                 return data.variantTraitAssociation != null;
-            },
-            checkEmpty: function (data) {
-                return data.variantTraitAssociation == null;
             },
             checkVertical: function (mode) {
                 return this.mode == "vertical";

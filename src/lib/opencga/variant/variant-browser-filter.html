@@ -171,7 +171,7 @@
                         <div class="panel-body">
 
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
-                            <template is="dom-repeat" items="{{populationFrequencies}}" as="study">
+                            <template is="dom-repeat" items="{{populationFrequencies.items}}" as="study">
                                 <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}" style="cursor: pointer;"></i>&nbsp;{{study.title}}</label>
 
                                 <!-- If there is not submenu we just display a button -->
@@ -367,72 +367,17 @@
                 opencgaClient: {
                     type: Object
                 },
-                region: {
-                    type: String,
-                    value:"",
-                    notify: true
-                },
-                geneIds: {
-                    type: String,
-                    value:"",
-                    notify: true
-                },
-                variantIds: {
-                    type: String,
-                    value:"",
-                    notify: true
-                },
-                type: {
-                    type: String,
-                    notify: true
-                },
-                sampleGenotypes: {
-                    type: String,
-                    value: "",
-                    notify: true
-                },
                 cellbaseClient: {
                     type: Object
                 },
-                populationFreq: {
-                    type: String,
-                    value: "",
-                    notify: true
-                },
-                sift: {
-                    type: String,
-                    value: "",
-                    notify: true
-                },
-                polyphen: {
-                    type: String,
-                    value: "",
-                    notify: true
-                },
-                conservation: {
-                    type: String,
-                    value: "",
-                    notify: true
-                },
-                soTerms: {
-                    type: Array,
-                    value: [],
-                    notify: true
-                },
                 populationFrequencies: {
-                    type: Array
+                    type: Object
                 },
                 consequenceTypes: {
                     type: Object
                 },
-                geneOntology: {
-                    type: String,
-                    value: "",
-                    notify: true
-                },
-                hpo: {
-                    type: String,
-                    value: "",
+                query: {
+                    type: Object,
                     notify: true
                 },
                 prefix: {
@@ -495,14 +440,12 @@
                 this.set('ct', soTerms);
             },
             fireClear: function () {
+                this.query = {};
                 let _this = this;
 
                 // Position and  Gene or Variant Ids
                 this.$$("#" + this.prefix + "LocationTextarea").value = "";
                 this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
-                this.region = "";
-                this.variantIds = "";
-                this.geneIds = "";
 
                 // Type
                 let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
@@ -510,28 +453,24 @@
                     let type = types[i];
                     type.checked = false;
                 }
-                this.type = "";
 
                 // Population Freqs
-                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
-                    for (let i = 0; i < _this.populationFrequencies.length; i++) {
-                        let study = _this.populationFrequencies[i].id;
-                        for (let j = 0; j < _this.populationFrequencies[i].populations.length; j++) {
-                            let population = _this.populationFrequencies[i].populations[j].id;
+                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.items.length; i++) {
+                        let study = _this.populationFrequencies.items[i].id;
+                        for (let j = 0; j < _this.populationFrequencies.items[i].populations.length; j++) {
+                            let population = _this.populationFrequencies.items[i].populations[j].id;
                             this.$$("#" + this.prefix + study + population).value = "";
                             this.$$("#" + this.prefix + study + population + "Operator").value = "<";
                         }
                     }
                 }
-                this.populationFreq = [];
 
                 // Protein Substitution scores
                 this.$$("#" + this.prefix + "SiftInput").value = "";
                 this.$$("#" + this.prefix + "SiftOperator").value = "<";
                 this.$$("#" + this.prefix + "PolyphenInput").value = "";
                 this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
-                this.sift = "";
-                this.polyphen = "";
 
                 // Conservation
                 this.$$("#" + this.prefix + "PhylopInput").value = "";
@@ -540,60 +479,56 @@
                 this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
                 this.$$("#" + this.prefix + "GerpInput").value = "";
                 this.$$("#" + this.prefix + "GerpOperator").value = "<";
-                this.conservation = [];
 
                 // Consequence Type
                 let selected = this.$$("#consequenceTypeFilter").querySelectorAll("li input:checked");
                 for (let i = 0; i < selected.length; i++) {
                     selected[i].checked = false;
                 }
-                this.soTerms = [];
 
                 // Gene Ontology and Human Phenotype Ontology
                 this.$$("#" + this.prefix + "GeneOntologyTextarea").value = "";
                 this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = "";
-                this.geneOntology = "";
-                this.hpo = "";
             },
             fireFilter: function () {
 
             },
             fireSearch: function () {
+                let query = {};
                 let _this = this;
 
                 // Region
-                this.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
+                    query.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                }
 
                 // Gene or Variant Id
-                _this.variantIds = ""; // Clearing the previous value every time search is fired
-                _this.geneIds = "";
                 if (this.$$("#" + this.prefix + "GeneSnpTextarea").value != "") {
                     if (this.$$("#" + this.prefix + "GeneSnpTextarea").value.startsWith("rs")) {
-                        _this.variantIds = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                        query.ids = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
                     } else {
-                        _this.geneIds = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                        query.gene = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
                     }
                 }
 
                 // Type
-                this.type = "";
                 let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
                 let typesAux = [];
                 if (types != "") {
                     for (var i = 0; i < types.length; i++) {
                         typesAux.push(types[i].value);
                     }
-                    _this.type = typesAux.join(',');
+                    query.type = typesAux.join(',');
                 }
 
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 let popFreq = [];
-                if (typeof this.populationFrequencies !== "undefined" && this.populationFrequencies.length > 0) {
-                    for (let i = 0; i < _this.populationFrequencies.length; i++) {
-                        let study = _this.populationFrequencies[i].id;
-                        for (let j = 0; j < _this.populationFrequencies[i].populations.length; j++) {
-                            let population = _this.populationFrequencies[i].populations[j].id;
+                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.items.length; i++) {
+                        let study = _this.populationFrequencies.items[i].id;
+                        for (let j = 0; j < _this.populationFrequencies.items[i].populations.length; j++) {
+                            let population = _this.populationFrequencies.items[i].populations[j].id;
                             if (this.$$("#" + this.prefix + study + population).value != "") {
                                 let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
                                 let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
@@ -602,19 +537,17 @@
                         }
                     }
                 }
-                this.populationFreq = popFreq.join(';');
+                if (popFreq.length > 0) {
+                    query["annot-population-maf"] = popFreq.join(';');
+                }
 
                 // Protein Substitution scores
-                let sift = "";
-                let polyphen = "";
                 if (this.$$("#" + this.prefix + "SiftInput").value != "") {
-                    sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                    query.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                 }
-                this.sift = sift;
                 if (this.$$("#" + this.prefix + "PolyphenInput").value != "") {
-                    polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                    query.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                 }
-                this.polyphen = polyphen;
 
                 // Conservation
                 let conserArr = [];
@@ -630,14 +563,24 @@
                     let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
                     conserArr.push(gerp);
                 }
-                this.conservation = conserArr.join(',');
+                if (conserArr.length > 0) {
+                    query.conservation = conserArr.join(',');
+                }
 
                 // Consequence Type
-                this.soTerms = this.ct;
+                if (typeof _this.ct !== "undefined" && _this.ct.length > 0) {
+                    query["annot-ct"]= this.ct.join(',');
+                }
 
                 //Gene Ontology and Human Phenotype Ontology
-                this.geneOntology = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
-                this.hpo = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+                if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
+                    query["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+                }
+                if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
+                    query["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+                }
+
+                _this.query = query;
             }
         });
     </script>
