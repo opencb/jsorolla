@@ -21,6 +21,12 @@
 <dom-module id="variant-browser-view">
     <template>
         <style is="custom-style" include="jso-styles"></style>
+        <style>
+            .variant-tab-title {
+               font-size: 115%;
+               font-weight: bold;
+            }
+        </style>
 
         <div>
             <template is="dom-if" if="{{study.name != ''}}">
@@ -35,24 +41,23 @@
                                       conservation="{{conservation}}" cellbase-client="{{cellbaseClient}}" on-selected="selectedGene"></variant-browser-grid>
             </div>
 
-            <h4>Variant: {{variant}}</h4>
-            <div>
+            <h3>Variant: {{variant}}</h3>
+            <div style="padding-top: 20px">
                 <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>
-                    <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>
-                    <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab">Genotypes & Files</a></li>
+                    <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                    <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotypes & Files</a></li>
                 </ul>
 
-                <div class="tab-content">
+                <div class="tab-content" style="height: 680px">
                     <!--Genome Context Tab-->
                     <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
                         <br>
-                        <!--<genome-context></genome-context>-->
+                        <genome-context></genome-context>
                     </div>
 
                     <!--Annotation Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}Annotation">
-                        <br>
                         <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
                     </div>
 
@@ -85,7 +90,8 @@
                     type: Object
                 },
                 variant: {
-                    type: String
+                    type: String,
+                    value: "no variant selected"
                 },
                 populationFrequencies: {
                     type: Array,

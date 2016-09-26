@@ -22,11 +22,11 @@
             attached: function () {
                 var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
                 this.genomeViewer = new GenomeViewer({
-                    cellBaseHost: "http://bioinfo.hpc.cam.ac.uk/cellbase",
-                    cellBaseVersion: 'v3',
+                    cellBaseHost: "http://bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-beta",
+                    cellBaseVersion: 'v4',
                     target: this.$$('#' + this.prefix + 'GenomeViewer'),
 //                    width: this.$$(''#' + this.prefix + 'GenomeViewer'').getBoundingClientRect().width,
-                    width: 1200,
+                    width: 1000,
                     region: region,
                     availableSpecies: DEFAULT_SPECIES.vertebrates,
                     species: DEFAULT_SPECIES.vertebrates[0],
@@ -134,7 +134,7 @@
                         subCategory: "region",
                         resource: "snp",
                         params: {
-                            exclude: 'transcriptVariations,xrefs,samples'
+                            exclude: 'annotation,transcriptVariations,xrefs,samples'
                         },
                         species: this.genomeViewer.species,
                         cacheConfig: {
