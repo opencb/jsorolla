@@ -47,7 +47,10 @@
                 <label class="align-left">Variant Trait Association</label>
                 <div class="align-right">
                     <template is="dom-repeat" items="{{vta}}">
-                        <label>{{item.source}}</label> - {{item.traits}} <br>
+                        <label>{{item.source}}</label><br>
+                        <template is="dom-repeat" items="{{item.traits}}" as="trait">
+                            {{trait}} <br>
+                        </template>
                     </template>
                 </div> <br>
             </div>
@@ -61,12 +64,19 @@
                 <label class="align-left">Scores</label>
                 <div>
                     <div>
-                        <!--<label style="width: 23%;display:block;float:left;text-align:left;">Protein Substitution Score</label>-->
+                        <label style="width: 23%;display:block;float:left;text-align:left;">Protein Substitution Score</label>
                         <label style="width: 23%;display:block;float:left;text-align:left;">Conservation</label>
                         <label style="width: 23%;display:block;float:left;text-align:left;">Cadd</label> <br>
                     </div>
 
                     <div style="margin-left: 20%;width: 23%;display:block;float:left;text-align:left;">
+                        <div style="width: 30%;display:block;float:left;text-align:left;">Sift</div>
+                        <div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.sift.score}} ({{proteinSubScore.sift.transcript}})</div> <br>
+                        <div style="width: 30%;display:block;float:left;text-align:left;">Polyphen</div>
+                        <div style="width: 50%;display:block;float:left;text-align:left;">{{proteinSubScore.polyphen.score}} ({{proteinSubScore.polyphen.transcript}})</div> <br>
+                    </div>
+
+                    <div style="width: 23%;display:block;float:left;text-align:left;">
                         <template is="dom-repeat" items="{{conservation}}">
                             <div style="width: 30%;display:block;float:left;text-align:left;">{{item.source}}</div>
                             <div style="width: 50%;display:block;float:left;text-align:left;">{{item.score}}</div> <br>
@@ -127,7 +137,7 @@
                                 }
                             }
                             if (traits.length > 0) {
-                                vta.push({source: i.charAt(0).toUpperCase() + i.slice(1).toLowerCase(), traits: traits.join(',')});
+                                vta.push({source: i.charAt(0).toUpperCase() + i.slice(1).toLowerCase(), traits: traits});
                             }
                         }
                     } else {
@@ -138,6 +148,32 @@
                     if (_this.data.geneTraitAssociation != null) {
                         _this.numberGTA = _this.data.geneTraitAssociation.length;
                     }
+
+                    let proteinSubScore = {};
+                    if (typeof _this.data.consequenceTypes !== "undefined") {
+                        let min = 10;
+                        let max = 0;
+                        for (let i = 0; i < _this.data.consequenceTypes.length; i++) {
+                            if (typeof _this.data.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+                                let transcript = _this.data.consequenceTypes[i].ensemblTranscriptId;
+                                let scores = _this.data.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
+                                for (let j = 0; j < scores.length; j++) {
+                                    if (scores[j].source == "sift" && scores[j].score <= min) {
+                                        min = scores[j].score;
+                                        proteinSubScore.sift = {score: scores[j].score, transcript: transcript};
+                                    } else if (scores[j].source == "polyphen" && scores[j].score >= max) {
+                                        max = scores[j].score;
+                                        proteinSubScore.polyphen = {score: scores[j].score, transcript: transcript};
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (Object.keys(proteinSubScore).length == 0 && proteinSubScore.constructor === Object) {
+                        proteinSubScore.sift = {score: "-", transcript: "-"};
+                        proteinSubScore.polyphen = {score: "-", transcript: "-"};
+                    }
+                    _this.proteinSubScore = proteinSubScore;
 
                     let conservation = [];
                     for (let i in _this.data.conservation) {
