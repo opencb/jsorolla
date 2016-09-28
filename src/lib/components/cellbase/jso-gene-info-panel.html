@@ -155,7 +155,15 @@
                     dbname: 'pdb'
                 },
                 success: function (response) {
-                    me.set('proteins', response.response[0].result);
+                    var items = [];
+                    var resitems = response.response[0].result;
+                    for (var i=0;i< resitems.length; i++){
+                        var item = resitems[i];
+                        if(item.dbName == 'pdb'){
+                            items.push(item);
+                        }
+                    }
+                    me.set('proteins', items);
                 },
                 error: function () {
                     console.log('Server error');
