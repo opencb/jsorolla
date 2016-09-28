@@ -40,6 +40,10 @@
             }
         }
 
+        function showGene(e) {
+            console.log("showGene", e);
+        }
+
         Polymer({
             is: 'variant-browser-grid',
             properties: {
@@ -62,6 +66,9 @@
                     type: Object,
                     value: {},
                     observer: '_refreshTableColumns'
+                },
+                proteinSubstitutionScores: {
+                    type: Object
                 },
                 query: {
                     type: Object,
@@ -131,13 +138,13 @@
                             $('.success').removeClass('success');
                             $($element).addClass('success');
                         },
-                        onClickCell: function (field, value, row, $element) {
-                            if (field == "genes") {
-                                // TODO bug when more than one gene is shown
-                                let geneHtml = $element[0].innerHTML;
-                                _this.fire('selected', {gene: geneHtml.replace(/<[^>]*>/g, "")});
-                            }
-                        }
+//                        onClickCell: function (field, value, row, $element) {
+//                            if (field == "genes") {
+//                                // TODO bug when more than one gene is shown
+//                                let geneHtml = $element[0].innerHTML;
+//                                _this.fire('selected', {gene: geneHtml.replace(/<[^>]*>/g, "")});
+//                            }
+//                        }
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
@@ -149,10 +156,10 @@
                     columns: this.cols
                 });
             },
-//            showGene: function (e) {
-//                debugger
-//                console.log("showGene", e)
-//            },
+            showGene: function(e) {
+                debugger
+                console.log('showGene', e);
+            },
             variantFormatter: function (value, row, index) {
                 let ref = (row.reference != "") ? row.reference : "-";
                 let alt = (row.alternate != "") ? row.alternate : "-";
@@ -169,7 +176,10 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
                                     && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                geneLinks.push("<a style='cursor: pointer;white-space: nowrap'>" + row.annotation.consequenceTypes[i].geneName + "</a>");
+                                console.log("this.field.context", this.field.context);
+//                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="showGene(&quot;' + row.annotation.consequenceTypes[i].geneName + '&quot;)">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="' + this.field.context + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+//                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="alert(&quot; clicked &quot;)">' + row.annotation.consequenceTypes[i].geneName + '</a>');
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }
@@ -215,7 +225,7 @@
             proteinScoreFormatter: function (value, row, index) {
                 var min = 10;
                 var max = 0;
-
+                let description = {};
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
@@ -226,11 +236,13 @@
                                             case "sift":
                                                 if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
                                                     min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                                    description.sift = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
                                                 }
                                                 break;
                                             case "polyphen":
                                                 if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score > max) {
                                                     max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
+                                                    description.polyphen = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
                                                 }
                                                 break;
                                         }
@@ -241,9 +253,12 @@
                     }
                 }
                 if (this.field == 'sift' && min != 10) {
-                    return min;
+//                    if (min < 0.5) {
+//                        return '<span style="color: red" title="' + description.sift + '">' + min + '</span>';
+//                    }
+                    return '<span title="' + description.sift + '">' + min + '</span>';
                 } else if (this.field == 'polyphen' && max != 0) {
-                    return max;
+                    return '<span title="' + description.polyphen + '">' + max + '</span>'
                 }
                 return '-';
             },
@@ -384,6 +399,7 @@
                 this.renderFromServer();
             },
             _createDefaultColumns: function() {
+                let _this = this;
                 var initCols = [
                     [
                         {
@@ -405,7 +421,7 @@
                         },
                         {
                             title: 'Genes',
-                            field: 'genes',
+                            field: {context: this.showGene},
                             colspan: 1,
                             rowspan: 2,
                             formatter: this.geneFormatter,

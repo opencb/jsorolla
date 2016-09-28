@@ -29,8 +29,8 @@
                 </div>
                 <div class="col-md-10" hidden$="{{checkProject(project)}}">
                     <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                          cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" query="{{query}}"
-                                          on-propagate="propagateGeneEvent"></variant-browser-view>
+                                          cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                          query="{{query}}" on-propagate="propagateGeneEvent"></variant-browser-view>
                 </div>
 
                 <template is="dom-if" if="{{checkProject(project)}}">
@@ -72,6 +72,9 @@
                     type: Object
                 },
                 consequenceTypes: {
+                    type: Object
+                },
+                proteinSubstitutionScores: {
                     type: Object
                 }
             },
