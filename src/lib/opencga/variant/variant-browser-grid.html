@@ -40,6 +40,21 @@
             }
         }
 
+        let pssColor = new Map();
+        if (typeof proteinSubstitutionScores !== "undefined") {
+            for (let i in proteinSubstitutionScores) {
+                let obj = proteinSubstitutionScores[i];
+                Object.keys(obj).forEach(key => {
+                    pssColor.set(key, obj[key]);
+                });
+            }
+        }
+
+        let populationFrequenciesColor = {};
+        if (typeof populationFrequencies !== "undefined") {
+            populationFrequenciesColor = populationFrequencies.color;
+        }
+
         function showGene(e) {
             console.log("showGene", e);
         }
@@ -253,12 +268,16 @@
                     }
                 }
                 if (this.field == 'sift' && min != 10) {
-//                    if (min < 0.5) {
-//                        return '<span style="color: red" title="' + description.sift + '">' + min + '</span>';
-//                    }
-                    return '<span title="' + description.sift + '">' + min + '</span>';
+                    return '<span style="color: ' + pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
                 } else if (this.field == 'polyphen' && max != 0) {
-                    return '<span title="' + description.polyphen + '">' + max + '</span>'
+                    let str = description.polyphen;
+                    if (str.indexOf(' ') >= 0) {
+                        str = str
+                                .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
+                                .replace(/\s/g, '')
+                                .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
+                    }
+                    return '<span style="color: ' + pssColor.get(str) + '" title="' + min + '">' + description.polyphen + '</span>';
                 }
                 return '-';
             },
@@ -279,9 +298,13 @@
                         let studyPopulation = popFreq.study + ":" + popFreq.population;
                         if (studyPopulation == this.field) {
                             if (Number(popFreq.altAlleleFreq).toFixed(4) < 0.001) {
-                                return '<span style="color: red">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                                return '<span style="color: ' + populationFrequenciesColor.veryRare + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                            } else if (Number(popFreq.altAlleleFreq).toFixed(4) < 0.005) {
+                                return '<span style="color: ' + populationFrequenciesColor.rare + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                            } else if (Number(popFreq.altAlleleFreq).toFixed(4) < 0.05) {
+                                return '<span style="color: ' + populationFrequenciesColor.average + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
                             } else {
-                                return Number(popFreq.altAlleleFreq).toFixed(4);
+                                return '<span style="color: ' + populationFrequenciesColor.common + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
                             }
                         }
                     }
@@ -307,13 +330,13 @@
                         if (typeof data.get(popFreq) !== "undefined") {
                             let freq = data.get(this.field.populations[p]);
                             if (freq < 0.001) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: red;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             } else if (freq < 0.005) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: orange;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             } else if (freq < 0.05) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: yellow;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             } else {
-                                htmlPopFreqTable += "<td style='width: 15px; background: blue;' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             }
                         } else  {
                             htmlPopFreqTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
@@ -399,7 +422,6 @@
                 this.renderFromServer();
             },
             _createDefaultColumns: function() {
-                let _this = this;
                 var initCols = [
                     [
                         {
