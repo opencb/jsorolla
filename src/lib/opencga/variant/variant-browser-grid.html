@@ -29,13 +29,13 @@
 
         let consequenceTypeToImpact = new Map();
         if (typeof consequenceTypes !== "undefined") {
-            for (let i = 0; i < consequenceTypes.items.length; i++) {
-                if (typeof consequenceTypes.items[i].items !== "undefined") {
-                    for (let j = 0; j < consequenceTypes.items[i].items.length; j++) {
-                        consequenceTypeToImpact.set(consequenceTypes.items[i].items[j].name, consequenceTypes.color[consequenceTypes.items[i].items[j].impact]);
+            for (let i = 0; i < consequenceTypes.categories.length; i++) {
+                if (typeof consequenceTypes.categories[i].terms !== "undefined") {
+                    for (let j = 0; j < consequenceTypes.categories[i].terms.length; j++) {
+                        consequenceTypeToImpact.set(consequenceTypes.categories[i].terms[j].name, consequenceTypes.color[consequenceTypes.categories[i].terms[j].impact]);
                     }
-                } else if (typeof consequenceTypes.items[i].id !== "undefined" && typeof consequenceTypes.items[i].name !== "undefined") {
-                    consequenceTypeToImpact.set(consequenceTypes.items[i].name, consequenceTypes.color[consequenceTypes.items[i].impact]);
+                } else if (typeof consequenceTypes.categories[i].id !== "undefined" && typeof consequenceTypes.categories[i].name !== "undefined") {
+                    consequenceTypeToImpact.set(consequenceTypes.categories[i].name, consequenceTypes.color[consequenceTypes.categories[i].impact]);
                 }
             }
         }
@@ -337,7 +337,7 @@
                 this.cols = this._createDefaultColumns();
 
                 if (this.showPopFreqInColor) {
-                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
+                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                         let popIdx = 5;
 
                         // Just one column called 'Population Frequencies'
@@ -345,21 +345,21 @@
                             title: 'Population Frequencies',
                             field: '',
                             rowspan: 1,
-                            colspan: this.populationFrequencies.items.length,
+                            colspan: this.populationFrequencies.studies.length,
                             halign: 'center'
                         });
 
-                        for(let j = 0; j < this.populationFrequencies.items.length; j++) {
+                        for(let j = 0; j < this.populationFrequencies.studies.length; j++) {
                             let populations = [];
                             let populationMap = {};
-                            for (pop in this.populationFrequencies.items[j].populations) {
-                                populations.push(this.populationFrequencies.items[j].populations[pop].id);
-                                populationMap[this.populationFrequencies.items[j].populations[pop].id] = true;
+                            for (pop in this.populationFrequencies.studies[j].populations) {
+                                populations.push(this.populationFrequencies.studies[j].populations[pop].id);
+                                populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
                             }
 
                             this.cols[1].splice(j + popIdx, 0, {
-                                title: this.populationFrequencies.items[j].title,
-                                field: {study: this.populationFrequencies.items[j].id, populations: populations, populationMap: populationMap},
+                                title: this.populationFrequencies.studies[j].title,
+                                field: {study: this.populationFrequencies.studies[j].id, populations: populations, populationMap: populationMap},
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: this.populationFrequenciesFormatter2,
@@ -368,10 +368,10 @@
                         }
                     }
                 } else {
-                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
+                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                         let popIdx = 5;
-                        for (let i = 0; i < this.populationFrequencies.items.length; i++) {
-                            let study = this.populationFrequencies.items[i];
+                        for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
+                            let study = this.populationFrequencies.studies[i];
                             this.cols[0].splice(7 + i, 0, {
                                 title: study.title,
                                 field: study.id,
@@ -380,7 +380,7 @@
                                 halign: 'center'
                             });
                             if (i > 0) {
-                                popIdx += this.populationFrequencies.items[i - 1].populations.length;
+                                popIdx += this.populationFrequencies.studies[i - 1].populations.length;
                             }
                             for(let j = 0; j < study.populations.length; j++) {
                                 this.cols[1].splice(j + popIdx, 0, {

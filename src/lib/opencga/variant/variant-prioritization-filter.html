@@ -238,7 +238,7 @@
                                 <div class="panel-body">
 
                                     <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
-                                    <template is="dom-repeat" items="{{populationFrequencies.items}}" as="study">
+                                    <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
                                         <i class="fa fa-angle-double-right minus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}"></i>
                                         <label class="popus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}">{{study.title}}</label>
 

@@ -171,7 +171,7 @@
                         <div class="panel-body">
 
                             <!-- This code create the population frequencies menu filter form populationFrequencies from config.js -->
-                            <template is="dom-repeat" items="{{populationFrequencies.items}}" as="study">
+                            <template is="dom-repeat" items="{{populationFrequencies.studies}}" as="study">
                                 <label style="font-weight: bold;"><i class="fa fa-plus" on-click="handleCollapseAction" data-id="{{prefix}}{{study.id}}" style="cursor: pointer;"></i>&nbsp;{{study.title}}</label>
 
                                 <!-- If there is not submenu we just display a button -->
@@ -296,16 +296,16 @@
                         <div class="panel-body ct-scroll">
                             <div class="ct-tree-view item">
                                     <ul id="consequenceTypeFilter">
-                                        <template is="dom-repeat" items="{{consequenceTypes.items}}" as="consequenceType">
-                                            <li id="{{consequenceType.title}}">
-                                                <template is="dom-if" if="{{checkTitle(consequenceType)}}">
-                                                    <input type="checkbox" on-change="editCT"> {{consequenceType.title}}
+                                        <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
+                                            <li id="{{category.title}}">
+                                                <template is="dom-if" if="{{checkTitle(category)}}">
+                                                    <input type="checkbox" on-change="editCT"> {{category.title}}
                                                 </template>
-                                                <template is="dom-if" if="{{!checkTitle(consequenceType)}}">
-                                                    <input type="checkbox" on-change="editCT"> {{consequenceType.name}}
+                                                <template is="dom-if" if="{{!checkTitle(category)}}">
+                                                    <input type="checkbox" on-change="editCT"> {{category.name}}
                                                 </template>
                                                 <ul>
-                                                    <template is="dom-repeat" items="{{consequenceType.items}}">
+                                                    <template is="dom-repeat" items="{{category.terms}}">
                                                         <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">
                                                             {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
                                                     </template>
@@ -455,11 +455,11 @@
                 }
 
                 // Population Freqs
-                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
-                    for (let i = 0; i < _this.populationFrequencies.items.length; i++) {
-                        let study = _this.populationFrequencies.items[i].id;
-                        for (let j = 0; j < _this.populationFrequencies.items[i].populations.length; j++) {
-                            let population = _this.populationFrequencies.items[i].populations[j].id;
+                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.studies.length; i++) {
+                        let study = _this.populationFrequencies.studies[i].id;
+                        for (let j = 0; j < _this.populationFrequencies.studies[i].populations.length; j++) {
+                            let population = _this.populationFrequencies.studies[i].populations[j].id;
                             this.$$("#" + this.prefix + study + population).value = "";
                             this.$$("#" + this.prefix + study + population + "Operator").value = "<";
                         }
@@ -524,11 +524,11 @@
                 // Population Frequencies
                 // Population minor allele frequency: {study}:{population}[<|>|<=|>=]{number}
                 let popFreq = [];
-                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.items !== "undefined" && this.populationFrequencies.items.length > 0) {
-                    for (let i = 0; i < _this.populationFrequencies.items.length; i++) {
-                        let study = _this.populationFrequencies.items[i].id;
-                        for (let j = 0; j < _this.populationFrequencies.items[i].populations.length; j++) {
-                            let population = _this.populationFrequencies.items[i].populations[j].id;
+                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                    for (let i = 0; i < _this.populationFrequencies.studies.length; i++) {
+                        let study = _this.populationFrequencies.studies[i].id;
+                        for (let j = 0; j < _this.populationFrequencies.studies[i].populations.length; j++) {
+                            let population = _this.populationFrequencies.studies[i].populations[j].id;
                             if (this.$$("#" + this.prefix + study + population).value != "") {
                                 let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
                                 let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
