@@ -277,7 +277,7 @@
                                 .replace(/\s/g, '')
                                 .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
                     }
-                    return '<span style="color: ' + pssColor.get(str) + '" title="' + min + '">' + description.polyphen + '</span>';
+                    return '<span style="color: ' + pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                 }
                 return '-';
             },
