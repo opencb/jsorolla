@@ -134,7 +134,15 @@
 
                     Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
 
-                    queryParams.exclude = "studies";
+                    if (typeof this.samples !== "undefined" && this.samples.length > 0) {
+                        let sampleNames = [];
+                        for (sampleIdx in this.samples) {
+                            sampleNames.push(this.samples[sampleIdx].name)
+                        }
+                        queryParams.returnedSamples = sampleNames.join();
+                    } else {
+                        queryParams.exclude = "studies";
+                    }
 
                     let _numTotal = -1;
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
@@ -356,11 +364,22 @@
                 }
                 return '-';
             },
-            clinvarFormatter:  function (value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-//                    console.log("clinvar")
-//                    console.log(value)
-//                    console.log(row)
+            clinvarFormatter: function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.variantTraitAssociation !== "undefined") {
+                    if (row.annotation.variantTraitAssociation != null) {
+                        let traits = [];
+                        let clinicalData = row.annotation.variantTraitAssociation[this.field];
+                        for (let j = 0; j < clinicalData.length; j++) {
+                            if (this.field == "clinvar" || this.field == "gwas" && traits.indexOf(clinicalData[j].traits[0]) == -1) {
+                                traits.push(clinicalData[j].traits[0]);
+                            } else if (this.field == "cosmic" && traits.indexOf(clinicalData[j].primaryHistology) == -1) {
+                                traits.push(clinicalData[j].primaryHistology);
+                            }
+                        }
+                        if (traits.length > 0) {
+                            return traits.join("\n");
+                        }
+                    }
                 }
                 return '-';
             },
@@ -622,7 +641,7 @@
                         },
                         {
                             title: 'Clinvar',
-                            field: 'annotation.variantTraitAssociation.clinvar.accession',
+                            field: 'clinvar',
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.clinvarFormatter,
@@ -630,7 +649,7 @@
                         },
                         {
                             title: 'Cosmic',
-                            field: 'annotation.variantTraitAssociation.cosmic.mutationId',
+                            field: 'cosmic',
                             colspan: 1,
                             rowspan: 1,
                             halign: 'center'
