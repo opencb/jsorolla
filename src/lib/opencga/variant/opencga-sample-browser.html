@@ -228,16 +228,16 @@
                     // Bootstrap Tree View
                     let studyFiles = [];
                     // Testing
-                    let opencgaClientConfig1 = new OpenCGAClientConfig('squalet.hpc.cam.ac.uk:8080/opencga',
-                            'v1', 'opencga_sId', 'opencga_userId');
-                    let opencgaClient1 = new OpenCGAClient(opencgaClientConfig1);
-                    opencgaClient1.files().treeView('7', {sid: 'xV5Z3mSEdRPmM3XQS1jG', include: 'path,name'}).then(function (response) {
-                        console.log('opencgaClient1 response', response)
-                        studyFiles = response.response[0].result;
-                        $('#' + _this.prefix +'FileTree').treeview({
-                            data: _this.getTree(studyFiles) // default : two levels
-                        });
-                    });
+//                    let opencgaClientConfig1 = new OpenCGAClientConfig('squalet.hpc.cam.ac.uk:8080/opencga',
+//                            'v1', 'opencga_sId', 'opencga_userId');
+//                    let opencgaClient1 = new OpenCGAClient(opencgaClientConfig1);
+//                    opencgaClient1.files().treeView('7', {sid: 'xV5Z3mSEdRPmM3XQS1jG', include: 'path,name'}).then(function (response) {
+//                        console.log('opencgaClient1 response', response)
+//                        studyFiles = response.response[0].result;
+//                        $('#' + _this.prefix +'FileTree').treeview({
+//                            data: _this.getTree(studyFiles) // default : two levels
+//                        });
+//                    });
 //                    this.opencgaClient.studies().files(this.study).then(function (response) {
 //                        studyFiles = response.response[0].result;
 //                        console.log('studyFiles', studyFiles)

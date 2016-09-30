@@ -16,6 +16,7 @@
 
 <link rel="import" href="variant-browser-filter.html">
 <link rel="import" href="variant-browser-view.html">
+<link rel="import" href="variant-prioritization-view.html">
 
 <dom-module id="variant-browser">
     <template>
@@ -24,13 +25,24 @@
         <div class="panel">
             <div class="browser-filter-view">
                 <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                    <variant-browser-filter study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                    <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                             population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}"></variant-browser-filter>
                 </div>
                 <div class="col-md-10" hidden$="{{checkProject(project)}}">
-                    <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                          cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                          query="{{query}}" on-propagate="propagateGeneEvent"></variant-browser-view>
+                    <!--Browser view-->
+                    <div hidden$="{{checkMode(mode)}}">
+                        <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                              cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                              query="{{query}}" on-propagate="propagateGeneEvent"></variant-browser-view>
+                    </div>
+                    <!--Prioritization view-->
+                    <div hidden$="{{!checkMode(mode)}}">
+                        <variant-prioritization-view mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}" prefix="{{prefix}}"
+                                                     opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                                     protein-substitution-scores="{{proteinSubstitutionScores}}" query="{{query}}"
+                                                     on-propagate="propagateGeneEvent"></variant-prioritization-view>
+                    </div>
+
                 </div>
 
                 <template is="dom-if" if="{{checkProject(project)}}">
@@ -43,6 +55,9 @@
         Polymer({
             is: 'variant-browser',
             properties: {
+                mode: {
+                    type: String
+                },
                 host: {
                     type: String
                 },
@@ -55,6 +70,10 @@
                 title: {
                     type: String,
                     value: ""
+                },
+                samples: {
+                    type: Array,
+                    notify: true
                 },
                 opencgaClient: {
                     type: Object
@@ -80,6 +99,9 @@
             },
             checkProject: function (project) {
                 return project == "";
+            },
+            checkMode: function (mode) {
+                return mode != "browser"
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});

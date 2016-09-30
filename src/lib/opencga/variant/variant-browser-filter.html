@@ -14,6 +14,8 @@
   ~ limitations under the License.
   -->
 
+<link rel="import" href="opencga-sample-browser.html">
+
 <dom-module id="variant-browser-filter">
     <template>
         <style is="custom-style" include="jso-styles">
@@ -109,6 +111,94 @@
             <br>
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
+
+                <!--Exclusive for Prioritization-->
+                <template is="dom-if" if="{{isPrioritization}}">
+                    <!-- Family: Sample and Segregation -->
+                    <template is="dom-if" if="{{isFamilyMode}}">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}SampleFilterHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SampleFilter"
+                                       aria-expanded="true" aria-controls="{{prefix}}SampleFilter">
+                                        Samples and Segregation
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}SampleFilter" class="panel-collapse collapse in" role="tabpanel"
+                                 aria-labelledby="{{prefix}}SampleFilterHeading">
+                                <div class="panel-body">
+                                    <span>Select samples: &nbsp;
+                                            <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
+                                                Browse...</button>
+                                        </span>
+                                    <br>
+                                    <br>
+                                    <div class="dropdown">
+                                        <button class="btn btn-default dropdown-toggle" type="button" id="segregationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{segregation}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectSegregation">
+                                            <li><a>Autosomal Dominant</a></li>
+                                            <li><a>Autosomal Recessive</a></li>
+                                            <li><a>Compound Heterozygotous</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <h5>Family segregation:</h5>
+                                    <table class="table table-hover" id="segregationTable">
+                                        <thead>
+                                        <tr>
+                                            <th>Sample</th>
+                                            <th>0/0</th>
+                                            <th>0/1</th>
+                                            <th>1/1</th>
+                                            <th>./.</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <template is="dom-repeat" items="{{samples}}">
+                                            <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
+                                                <td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>
+                                                <td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>
+                                                <td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>
+                                                <td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>
+                                                <td><input type="checkbox" value="./." data-id="{{item.name}}"></td>
+                                            </tr>
+                                        </template>
+                                        </tbody>
+                                    </table>
+                                    <!--</div>-->
+                                    <!--</div>-->
+                                </div>
+                            </div>
+
+                        </div>
+                    </template>
+
+                    <!-- Cancer filter-->
+                    <template is="dom-if" if="{{isCancerMode}}">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="{{prefix}}somaticFilterHeading">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}SomaticFilter"
+                                       aria-expanded="false" aria-controls="{{prefix}}somaticFilter">
+                                        Somatic Filter
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="{{prefix}}SomaticFilter" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="{{prefix}}somaticFilterHeading">
+                                <div class="panel-body">
+                                    <template is="dom-repeat" items="{{somaticValues}}">
+                                        <input type="radio" name="study" value="{{item}}"> {{item}}
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
 
                 <!--Position filter-->
                 <div class="panel panel-default">
@@ -295,24 +385,24 @@
                     <div id="{{prefix}}ConsequenceType" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}consequenceTypeHeading">
                         <div class="panel-body ct-scroll">
                             <div class="ct-tree-view item">
-                                    <ul id="consequenceTypeFilter">
-                                        <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
-                                            <li id="{{category.title}}">
-                                                <template is="dom-if" if="{{checkTitle(category)}}">
-                                                    <input type="checkbox" on-change="editCT"> {{category.title}}
+                                <ul id="consequenceTypeFilter">
+                                    <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
+                                        <li id="{{category.title}}">
+                                            <template is="dom-if" if="{{checkTitle(category)}}">
+                                                <input type="checkbox" on-change="editCT"> {{category.title}}
+                                            </template>
+                                            <template is="dom-if" if="{{!checkTitle(category)}}">
+                                                <input type="checkbox" on-change="editCT"> {{category.name}}
+                                            </template>
+                                            <ul>
+                                                <template is="dom-repeat" items="{{category.terms}}">
+                                                    <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">
+                                                        {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
                                                 </template>
-                                                <template is="dom-if" if="{{!checkTitle(category)}}">
-                                                    <input type="checkbox" on-change="editCT"> {{category.name}}
-                                                </template>
-                                                <ul>
-                                                    <template is="dom-repeat" items="{{category.terms}}">
-                                                        <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">
-                                                            {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
-                                                    </template>
-                                                </ul>
-                                            </li>
-                                        </template>
-                                    </ul>
+                                            </ul>
+                                        </li>
+                                    </template>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -352,6 +442,25 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal dialog for Sample Browser in prioritization-->
+        <div class="modal fade" id="{{prefix}}SampleBrowser" tabindex="-1" role="dialog"
+             aria-labelledby="sampleBrowserLabel">
+            <div class="modal-dialog modal-lg" role="document" style="width: 1024px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="{{prefix}}SampleBrowserLabel">Sample Browser</h4>
+                    </div>
+                    <div class="modal-body">
+                        <opencga-sample-browser opencga-client="{{opencgaClient}}" study="{{study.id}}" samples="{{samples}}" prefix="{{prefix}}"></opencga-sample-browser>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
 
     <script>
@@ -376,9 +485,24 @@
                 consequenceTypes: {
                     type: Object
                 },
+                mode: {
+                    type: String,
+                    observer: '_updateMode'
+                },
                 query: {
                     type: Object,
                     notify: true
+                },
+                samples: {
+                    type: Array,
+                    value: [],
+                    notify: true,
+                    observer: "sampleChanged"
+                },
+                segregation: {
+                    type: String,
+                    value: "Select Segregation",
+                    observer: "segregate"
                 },
                 prefix: {
                     type: String
@@ -389,29 +513,6 @@
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
-                }
-            },
-            sampleGenotypeSelected: function(e) {
-                if (typeof e !== "undefined") {
-                    if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
-                        this.sampleGenotypesObj[e.target.dataId] = {};
-                    }
-                    this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
-
-                    let arr = [];
-                    for (let sampleName in this.sampleGenotypesObj) {
-                        let gts = [];
-                        for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
-                            if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
-                                gts.push(sampleGT);
-                                gts.push(sampleGT.replace('/', '|'));
-                            }
-                        }
-                        if (gts.length > 0) {
-                            arr.push(sampleName + ':' + gts.join(','));
-                        }
-                    }
-                    this.sampleGenotypes = arr.join(';');
                 }
             },
             handleCollapseAction: function (e) {
@@ -581,6 +682,143 @@
                 }
 
                 _this.query = query;
+            },
+
+            // Exclusive for prioritization
+            refreshSegregationTable: function () {
+                this.samples = [];
+            },
+            selectSegregation: function (e) {
+                e.preventDefault();
+                this.segregation = e.target.innerHTML;
+            },
+            sampleGenotypeSelected: function (e) {
+                // TODO coordinate manual selection and event driven selection
+//                if (this.sampleGenotypes != "") {
+//                    let genotypes = this.sampleGenotypes.split(';');
+//                    this.sampleGenotypesObj = genotypes.reduce(function(result, item) {
+//                        debugger
+//                        let items = item.split(':');
+//                        result[items[0]] = {};
+//                        result[items[0]][items[1]] = true;
+//                        return result;
+//                    }, {});
+//                }
+                if (typeof e !== "undefined") {
+                    if (typeof this.sampleGenotypesObj[e.target.dataId] === "undefined") {
+                        this.sampleGenotypesObj[e.target.dataId] = {};
+                    }
+                    this.sampleGenotypesObj[e.target.dataId][e.target.defaultValue] = e.target.checked;
+
+                    let arr = [];
+                    for (let sampleName in this.sampleGenotypesObj) {
+                        let gts = [];
+                        for (let sampleGT in this.sampleGenotypesObj[sampleName]) {
+                            if (this.sampleGenotypesObj[sampleName][sampleGT] == true) {
+                                gts.push(sampleGT.replace('/', '|'));
+                            }
+                        }
+                        if (gts.length > 0) {
+                            arr.push(sampleName + ':' + gts.join(','));
+                        }
+                    }
+                    this.sampleGenotypes = arr.join(';');
+                }
+            },
+            sampleChanged: function () {
+                this.segregation = "Select Segregation";
+            },
+            segregate: function () {
+                let cell;
+                let samples = this.samples;
+
+                if (typeof samples !== "undefined" && samples != "" && samples.length >= 3) {
+                    if (this.segregation == "Autosomal Dominant") {
+                        for (let i = 0; i < samples.length; i++) {
+                            let index = i + 1;
+                            if (samples[i].status == "unaffected") {
+                                cell = $("#segregationTable tr:eq(" + index + ") td:eq(1)")[0].children[0];
+                                $(cell).prop("checked", true);
+                            } else if (samples[i].status == "affected") {
+                                for (let j = 0; j < samples.length; j++) {
+                                    if (i == j) {
+                                        continue;
+                                    }
+                                    if (samples[j].status == "unaffected" && samples[j].memberCode == "D" || samples[j].memberCode == "S") {
+                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                        $(cell).prop("checked", true);
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "F") {
+                                        if (i == 0 && j == 1) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        } else if (i == 0 && j != 1) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "M") {
+                                        if (i == 1 && j == 0) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        } else if (i == 1 && j != 0) {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    } else if (samples[j].status == "affected" && samples[i].memberCode == "D" || samples[i].memberCode == "S") {
+                                        cell = $("#segregationTable tr:eq(" + index + ") td:eq(2)")[0].children[0];
+                                        $(cell).prop("checked", true);
+                                        if (samples[j + 1].status == "affected" && samples[j + 1].memberCode == "M") {
+                                            cell = $("#segregationTable tr:eq(" + index + ") td:eq(3)")[0].children[0];
+                                            $(cell).prop("checked", true);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        this.sampleGenotypeManual();
+                    }
+                }
+            },
+            sampleGenotypeManual: function () {
+                let arr = [];
+                if (this.samples != "" && this.samples.length > 1) {
+                    for (let i = 0; i < this.samples.length; i++) {
+                        let sample = this.samples[i].name;
+                        let gts = [];
+                        let children = $("#" + sample).children();
+                        for (let j = 0; j < children.length; j++) {
+                            let child = $("#" + sample).children()[j];
+                            let input = $(child).children()[0];
+                            let cb = $(input)[0];
+                            if ($(cb).is(':checked')) {
+                                gts.push($(cb).val().replace('/', '|'));
+                            }
+                        }
+                        if (gts.length > 0) {
+                            arr.push(sample + ':' + gts.join(','));
+                        }
+                    }
+                }
+                this.sampleGenotypes = arr.join(';');
+            },
+            _updateMode: function () {
+                this.isPrioritization = true;
+                switch (this.mode) {
+                    case "family":
+                        this.isFamilyMode = true;
+                        break;
+                    case "cancer":
+                        this.isCancerMode = true;
+                        break;
+                    case "caseControl":
+                        this.isCaseControlMode = true;
+                        break;
+                    default:
+                        break;
+                }
             }
         });
     </script>

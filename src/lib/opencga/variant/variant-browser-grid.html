@@ -69,6 +69,9 @@
                     type: Object,
                     observer: 'renderFromServer'
                 },
+                mode: {
+                    type: String
+                },
                 data: {
                     type: Array,
                     value: [],
@@ -76,6 +79,11 @@
                 },
                 opencgaClient: {
                     type: Object
+                },
+                samples: {
+                    type: Array,
+                    value: [],
+                    observer: '_refreshTableColumns'
                 },
                 populationFrequencies: {
                     type: Object,
@@ -191,7 +199,7 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
                                     && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                console.log("this.field.context", this.field.context);
+//                                console.log("this.field.context", this.field.context);
 //                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="showGene(&quot;' + row.annotation.consequenceTypes[i].geneName + '&quot;)">' + row.annotation.consequenceTypes[i].geneName + '</a>');
                                 geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="' + this.field.context + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
 //                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="alert(&quot; clicked &quot;)">' + row.annotation.consequenceTypes[i].geneName + '</a>');
@@ -356,6 +364,15 @@
                 }
                 return '-';
             },
+            sampleFormatter: function (value, row, index) {
+                if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
+                    // NOTE: There are always 4 columns before the samples
+                    if (typeof row.studies[0].samplesData[this.fieldIndex - 4] !== "undefined") {
+                        return row.studies[0].samplesData[this.fieldIndex - 4][0];
+                    }
+                }
+                return '-';
+            },
             _refreshTableColumns: function() {
                 this.cols = this._createDefaultColumns();
 
@@ -416,6 +433,81 @@
                                 });
                             }
                         }
+                    }
+                }
+
+                if (typeof this.cols !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
+                    switch(this.mode) {
+                        case "family":
+                            // if type is 'family' we expected few samples to be provided in property 'samples'
+                            this.cols[0].splice(4, 0, {
+                                title: 'Samples',
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: this.samples.length,
+                                halign: 'center'
+                            });
+                            for(let i = 0; i < this.samples.length; i++) {
+                                this.cols[1].splice(i, 0, {
+                                    title: this.samples[i].name,
+                                    field: 'samples',
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    formatter: this.sampleFormatter,
+                                    halign: 'center'
+                                });
+                            }
+                            break;
+                        case "cancer":
+                            this.cols[0].splice(4, 0, {
+                                title: this.samples[0].name,
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: 2,
+                                halign: 'center'
+                            });
+                            this.cols[1].splice(0, 0, {
+                                        title: 'Somatic',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    },
+                                    {
+                                        title: 'Germline',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    }
+                            );
+                            break;
+                        case "caseControl":
+                            this.cols[0].splice(4, 0, {
+                                title: 'Samples',
+                                field: 'samples',
+                                rowspan: 1,
+                                colspan: 2,
+                                halign: 'center'
+                            });
+                            this.cols[1].splice(0, 0, {
+                                        title: 'Control',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    },
+                                    {
+                                        title: 'Case',
+                                        field: 'samples',
+                                        rowspan: 1,
+                                        colspan: 1,
+                                        halign: 'center'
+                                    }
+                            );
+                            break;
+                        default:
+                            break;
                     }
                 }
 
