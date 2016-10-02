@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2015 OpenCB
+  ~ Copyright 2015-2016 OpenCB
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
   -->
 
 <link rel="import" href="variant-browser-filter.html">
-<link rel="import" href="variant-browser-view.html">
+<link rel="import" href="variant-prioritization-view.html">
 
-<dom-module id="variant-browser">
+<dom-module id="variant-prioritization">
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
         <div class="panel">
 
-            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
+            <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-sitemap" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
                 <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
@@ -32,10 +32,10 @@
             </div>
 
             <div class="col-md-10" hidden$="{{checkProject(project)}}">
-                <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                      cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      query="{{query}}" on-propagate="propagateGeneEvent">
-                </variant-browser-view>
+                <variant-prioritization-view mode="{{mode}}" title="{{title}}" project="{{project}}" study="{{study}}" samples="{{samples}}" prefix="{{prefix}}"
+                                             opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                             protein-substitution-scores="{{proteinSubstitutionScores}}" query="{{query}}" on-propagate="propagateGeneEvent">
+                </variant-prioritization-view>
             </div>
 
             <template is="dom-if" if="{{checkProject(project)}}">
@@ -45,7 +45,7 @@
     </template>
     <script>
         Polymer({
-            is: 'variant-browser',
+            is: 'variant-prioritization',
             properties: {
                 mode: {
                     type: String
@@ -73,6 +73,12 @@
                 cellbaseClient: {
                     type: Object
                 },
+                query: {
+                    type: Object
+                },
+                prefix: {
+                    type: String
+                },
                 populationFrequencies: {
                     type: Object
                 },
@@ -81,12 +87,6 @@
                 },
                 proteinSubstitutionScores: {
                     type: Object
-                },
-                query: {
-                    type: Object
-                },
-                prefix: {
-                    type: String
                 }
             },
             checkProject: function (project) {

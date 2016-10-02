@@ -100,13 +100,13 @@
         </style>
 
         <div>
-            <br>
+            <h4>Filters <span class="badge">4</span></h4>
             <div>
-                <button type="button" class="btn btn-default" on-click="fireFilter">
+                <button type="button" class="btn btn-default btn-sm" on-click="fireFilter">
                     <i class="fa fa-filter" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="btn btn-default" on-click="fireClear">Clear</button>
-                <button type="button" class="btn btn-default" on-click="fireSearch">Search</button>
+                <button type="button" class="btn btn-default btn-sm" on-click="fireClear">Clear</button>
+                <button type="button" class="btn btn-default btn-sm" on-click="fireSearch">Search</button>
             </div>
             <br>
 
@@ -130,8 +130,9 @@
                                 <div class="panel-body">
                                     <span>Select samples: &nbsp;
                                             <button data-toggle="modal" role="button" data-placement="bottom" data-target$="#{{prefix}}SampleBrowser" on-click="refreshSegregationTable">
-                                                Browse...</button>
-                                        </span>
+                                                Browse...
+                                            </button>
+                                    </span>
                                     <br>
                                     <br>
                                     <div class="dropdown">
@@ -200,7 +201,7 @@
                     </template>
                 </template>
 
-                <!--Position filter-->
+                <!-- Region filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
                         <h4 class="panel-title">

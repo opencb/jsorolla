@@ -31,139 +31,110 @@
                 background-color: #EEEEEE;
                 text-decoration: none;
             }
+
+            .variant-tab-title {
+                font-size: 115%;
+                font-weight: bold;
+            }
         </style>
 
         <div>
+            <h4>Results</h4>
+            <!--<template is="dom-if" if="{{study.name != ''}}">-->
+            <!--<h2>{{title}}</h2>-->
+            <!--</template>-->
 
-            <div>
-                <template is="dom-if" if="{{study.name != ''}}">
-                    <h2>{{title}}</h2>
-                </template>
-
-                <template is="dom-if" if="{{!resultsViewActive}}">
-                    <div class="btn-group" role="group" aria-label="...">
-                        <button id="{{prefix}}Results" type="button" class="btn btn-primary" on-click="_triggerChange">Back to Results</button>
-                    </div>
-                </template>
-
-                <div style="float: right" aria-label="...">
-                    <span>
-                        <!--<i class="fa fa-area-chart"></i>-->
-                        <i class="fa fa-credit-card"></i>
-                        <a id="{{prefix}}GenomeContext" class="variant-menu-link" on-click="_triggerChange">GENOME CONTEXT</a>
-                    </span>
-                    <span>&nbsp;</span>
-                    <span>
-                        <i class="fa fa-search-plus"></i>
-                        <a id="{{prefix}}Annotation" class="variant-menu-link" on-click="_triggerChange">ADVANCED ANNOTATION</a>
-                    </span>
-                    <span>&nbsp;</span>
-                    <span>
-                        <i class="fa fa-file-text-o"></i>
-                        <a id="{{prefix}}Files" class="variant-menu-link" on-click="_triggerChange">FILE INFO</a>
-                    </span>
-                    <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                    <span>
-                        <i class="fa fa-user-md"></i>
-                        <a id="{{prefix}}Family" class="variant-menu-link" on-click="_triggerChange">FAMILY DATA</a>
-                    </span>
-                    <span>&nbsp;</span>
-                    <span>
-                        <i class="fa fa-save"></i>
-                        <a id="{{prefix}}Save" class="variant-menu-link" on-click="_triggerChange">SAVE</a>
-                    </span>
-                    <!--<button id="{{prefix}}GenomeContext" type="button" class="btn btn-default" on-click="_triggerChange">Genome Context</button>-->
-                    <!--<button id="{{prefix}}Annotation" type="button" class="btn btn-default" on-click="_triggerChange">Advance Annotation</button>-->
-                    <!--<button id="{{prefix}}Files" type="button" class="btn btn-default" on-click="_triggerChange">File Info</button>-->
-                    <!--<button id="{{prefix}}SampleComparator" type="button" class="btn btn-default" on-click="_triggerChange">Clinical Data</button>-->
-                    <!--<button id="{{prefix}}Save" type="button" class="btn btn-default" on-click="_triggerChange">Save</button>-->
-                </div>
+            <div style="float: left" aria-label="...">
+                <!--<span>-->
+                <!--&lt;!&ndash;<i class="fa fa-area-chart"></i>&ndash;&gt;-->
+                <!--<i class="fa fa-credit-card"></i>-->
+                <!--<a id="{{prefix}}GenomeContext" class="variant-menu-link" on-click="_triggerChange">GENOME CONTEXT</a>-->
+                <!--</span>-->
+                <!--<span>&nbsp;</span>-->
+                <!--<span>-->
+                <!--<i class="fa fa-search-plus"></i>-->
+                <!--<a id="{{prefix}}Annotation" class="variant-menu-link" on-click="_triggerChange">ADVANCED ANNOTATION</a>-->
+                <!--</span>-->
+                <!--<span>&nbsp;</span>-->
+                <span>
+                    <i class="fa fa-file-text-o"></i>
+                    <a id="{{prefix}}Files" class="variant-menu-link" on-click="_triggerChange">FILE INFO</a>
+                </span>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                <span>
+                    <i class="fa fa-user-md"></i>
+                    <a id="{{prefix}}Family" class="variant-menu-link" on-click="_triggerChange">FAMILY DATA</a>
+                </span>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                <span>
+                    <i class="fa fa-save"></i>
+                    <a id="{{prefix}}Save" class="variant-menu-link" on-click="_triggerChange">SAVE</a>
+                </span>
+            </div>
 
 
 
-                <!-- CONTENT -->
+            <template is="dom-if" if="{{!resultsViewActive}}">
                 <br>
-                <div class="">
-                    <div class$="{{prefix}}Content" id="{{prefix}}ResultsDiv">
-                        <h3>Variant result</h3>
+                <div class="btn-group" role="group" aria-label="...">
+                    <button id="{{prefix}}Results" type="button" class="btn btn-primary" on-click="_triggerChange">Back to Results</button>
+                </div>
+            </template>
 
-                        <!-- Variant Browser Grid -->
-                        <div style="padding: 10px;">
-                            <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
-                                                  cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                                  samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                                  query="{{query}}" variant="{{variant}}" on-selected="selectedGene"></variant-browser-grid>
+            <!--Files Tab-->
+            <div class$="{{prefix}}Content" id="{{prefix}}FilesDiv" style="display: none">
+                <br>
+                Files
+            </div>
+
+            <!--Sample comparator-->
+            <div class$="{{prefix}}Content" id="{{prefix}}SampleComparatorDiv" style="display: none">
+                <br>
+                Sample Comparator
+            </div>
+
+
+
+            <!-- Variant Browser Grid -->
+            <template is="dom-if" if="{{resultsViewActive}}">
+                <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
+                                      cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
+                                      samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      query="{{query}}" variant="{{variant}}" on-selected="selectedGene">
+                </variant-browser-grid>
+            </template>
+
+            <!-- Bottom tabs withspecific variant information -->
+            <template is="dom-if" if="{{resultsViewActive}}">
+                <h3>Variant: {{variant}}</h3>
+                <div style="padding-top: 20px">
+                    <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
+                        <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotypes & Files</a></li>
+                    </ul>
+
+                    <div class="tab-content" style="height: 680px">
+                        <!--Genome Context Tab-->
+                        <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
+                            <br>
+                            <!--<genome-context></genome-context>-->
+                        </div>
+
+                        <!--Annotation Tab-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Annotation">
+                            <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
+                        </div>
+
+                        <!--Genotypes & Files Tab-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                            Genotypes and files
                         </div>
                     </div>
-
-                    <div class$="{{prefix}}Content" id="{{prefix}}GenomeContextDiv" style="display: none">
-                        <br><h3>Genome context for {{variant}}</h3><br>
-                        <!--<genome-context></genome-context>-->
-                        No yet
-                    </div>
-
-                    <!--Annotation Tab-->
-                    <div class$="{{prefix}}Content" id="{{prefix}}AnnotationDiv"  style="display: none">
-                        <br><h3>Variant annotation for {{variant}}</h3><br>
-                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="horizontal"></cellbase-variantannotation-view>
-                    </div>
-
-                    <!--Files Tab-->
-                    <div class$="{{prefix}}Content" id="{{prefix}}FilesDiv" style="display: none">
-                        Files
-                    </div>
-
-                    <!--Sample comparator-->
-                    <div class$="{{prefix}}Content" id="{{prefix}}SampleComparatorDiv" style="display: none">
-                        Sample Comparator
-                    </div>
                 </div>
-
-
-
-                <!--<ul id="{{prefix}}ViewTabs" class="nav nav-pills" style="float: right" role="tablist">-->
-                <!--<li role="presentation" class="active highlight" on-click="_triggerChange"><a href="#{{prefix}}BrowserTable" role="tab" data-toggle="tab">-->
-                <!--<b>Results</b></a>-->
-                <!--</li>-->
-                <!--<li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab">Genome Context</a></li>-->
-                <!--<li role="presentation" on-click="_triggerChangeVariantTab"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab">Annotation</a></li>-->
-                <!--<li role="presentation"><a href="#{{prefix}}Files" role="tab" data-toggle="tab">Files</a></li>-->
-                <!--<li role="presentation"><a href="#{{prefix}}SampleComparator" role="tab" data-toggle="tab">Sample Comparator</a></li>-->
-                <!--</ul>-->
-
-                <!--<div class="tab-content">-->
-                <!--&lt;!&ndash;Results Table&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane fade in active" id="{{prefix}}BrowserTable" style="padding: 10px;">-->
-                <!--<br>-->
-                <!--<table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"-->
-                <!--data-show-pagination-switch="true" data-show-export="true">-->
-                <!--<thead style="background-color: #eee"></thead>-->
-                <!--</table>-->
-                <!--</div>-->
-                <!--&lt;!&ndash;Genome Context Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}GenomeView">-->
-                <!--<br>-->
-                <!--<genome-context></genome-context>-->
-                <!--</div>-->
-
-                <!--&lt;!&ndash;Annotation Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}Annotation">-->
-                <!--<br>-->
-                <!--<cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>-->
-                <!--</div>-->
-
-                <!--&lt;!&ndash;Files Tab&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}Files">-->
-                <!--Files-->
-                <!--</div>-->
-
-                <!--&lt;!&ndash;Sample comparator&ndash;&gt;-->
-                <!--<div role="tabpanel" class="tab-pane fade" id="{{prefix}}SampleComparator">-->
-                <!--Sample Comparator-->
-                <!--</div>-->
-                <!--</div>-->
-            </div>
+            </template>
         </div>
+
     </template>
     <script>
         Polymer({
