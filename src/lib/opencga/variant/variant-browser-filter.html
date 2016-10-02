@@ -100,7 +100,7 @@
         </style>
 
         <div>
-            <h4>Filters <span class="badge">4</span></h4>
+            <h4>Filters <span class="badge">2</span></h4>
             <div>
                 <button type="button" class="btn btn-default btn-sm" on-click="fireFilter">
                     <i class="fa fa-filter" aria-hidden="true"></i>
@@ -598,6 +598,9 @@
             fireSearch: function () {
                 let query = {};
                 let _this = this;
+
+                // Adding sample genotypes filter
+                query.genotype = this.sampleGenotypes;
 
                 // Region
                 if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
