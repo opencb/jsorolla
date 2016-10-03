@@ -100,7 +100,7 @@
         </style>
 
         <div>
-            <h4>Filters <span class="badge">2</span></h4>
+            <h4>Filters <span class="badge">{{_filtersCount}}</span></h4>
             <div>
                 <button type="button" class="btn btn-default btn-sm" on-click="fireFilter">
                     <i class="fa fa-filter" aria-hidden="true"></i>
@@ -214,13 +214,14 @@
                     <div id="{{prefix}}Position" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}PositionHeading">
                         <div class="panel-body">
                             Chromosomal location:
-                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"></textarea>
+                            <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"
+                                      name="location" on-keyup="updateFilter"></textarea>
                             <!--Import from BED:-->
                             <!--<button type="button" class="btn btn-xs" on-click="">Import</button>-->
                             <!--<br>-->
                             <br> Gene name or SNP id:
-                            <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3"
-                                      placeholder="BRCA2, PPL or rs666, rs9988179"></textarea>
+                            <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"
+                                      name="ids" on-keyup="updateFilter"></textarea>
                         </div>
                     </div>
                 </div>
@@ -237,11 +238,11 @@
                     <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
                         <div class="panel-body">
                             <div>
-                                <input type="checkbox" value="SNV,SNP"> SNV<br>
-                                <input type="checkbox" value="MNV"> MNV<br>
-                                <input type="checkbox" value="CNV"> CNV<br>
-                                <input type="checkbox" value="SV"> SV<br>
-                                <input type="checkbox" value="INDEL"> INDEL
+                                <input type="checkbox" value="SNV,SNP" on-change="updateFilter"> SNV<br>
+                                <input type="checkbox" value="MNV" on-change="updateFilter"> MNV<br>
+                                <input type="checkbox" value="CNV" on-change="updateFilter"> CNV<br>
+                                <input type="checkbox" value="SV" on-change="updateFilter"> SV<br>
+                                <input type="checkbox" value="INDEL" on-change="updateFilter"> INDEL
                             </div>
                         </div>
                     </div>
@@ -281,7 +282,7 @@
                                                     </select>
                                                 </span>
                                                 <span>
-                                                    <input type="text" value="" class="custom-sized-input" id="{{prefix}}{{study.id}}{{popFreq.id}}">
+                                                    <input type="text" value="" class="custom-sized-input" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateFilter">
                                                 </span>
                                             </div>
                                         </template>
@@ -313,7 +314,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="sift" on-keyup="updateFilter"></td>
                             </div>
                             <div class="block">
                                 <label>Polyphen</label>
@@ -323,7 +324,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="polyphen" on-keyup="updateFilter"></td>
                             </div>
                         </div>
                     </div>
@@ -348,7 +349,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateFilter"></td>
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
@@ -358,7 +359,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateFilter"></td>
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
@@ -368,7 +369,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateFilter"></td>
                             </div>
                         </div>
                     </div>
@@ -420,7 +421,8 @@
                     </div>
                     <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
-                            <textarea id="{{prefix}}GeneOntologyTextarea" class="form-control clearable" rows="3" placeholder="GO:0000001, GO:0001177"></textarea>
+                            <textarea id="{{prefix}}GeneOntologyTextarea" class="form-control clearable" rows="3"
+                                      name="geneOntology" placeholder="GO:0000001, GO:0001177" on-keyup="updateFilter"></textarea>
                         </div>
                     </div>
                 </div>
@@ -437,7 +439,8 @@
                     </div>
                     <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
                         <div class="panel-body">
-                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3" placeholder="HP:0000001, HP:3000079"></textarea>
+                            <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3"
+                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateFilter"></textarea>
                         </div>
                     </div>
                 </div>
@@ -515,6 +518,9 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+
+                this._filters = {};
+                this._filtersCount = 0;
             },
             handleCollapseAction: function (e) {
                 let id = e.target.dataId;
@@ -540,9 +546,40 @@
                     soTerms.push($(node).attr('id'));
                 }
                 this.set('ct', soTerms);
+
+                // updating the filters and filters count
+                if (soTerms.length > 0) {
+                    this._filters.consequenceType = soTerms.join(',');
+                } else {
+                    delete this._filters.consequenceType;
+                }
+                this._filtersCount = Object.keys(this._filters).length;
+            },
+            updateFilter: function (e) {
+                if (e.target.id != "" && this.$$("#" + e.target.id).value != "") {
+                    this._filters[e.target.name] = this.$$("#" + e.target.id).value;
+                } else {
+                    delete this._filters[e.target.name];
+                }
+
+                // Type
+                let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+                if (types.length > 0) {
+                    let typesAux = [];
+                    for (var i = 0; i < types.length; i++) {
+                        typesAux.push(types[i].value);
+                    }
+                    this._filters.type = typesAux.join(',');
+                } else {
+                    delete this._filters.type;
+                }
+
+                this._filtersCount = Object.keys(this._filters).length;
             },
             fireClear: function () {
                 this.query = {};
+                this._filters = {};
+                this._filtersCount = Object.keys(this._filters).length;
                 let _this = this;
 
                 // Position and  Gene or Variant Ids
@@ -619,7 +656,7 @@
                 // Type
                 let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
                 let typesAux = [];
-                if (types != "") {
+                if (types.length > 0) {
                     for (var i = 0; i < types.length; i++) {
                         typesAux.push(types[i].value);
                     }
