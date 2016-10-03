@@ -26,7 +26,7 @@
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter mode="{{mode}}" study="{{study}}" project="{{project}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                <variant-browser-filter study="{{study}}" project="{{project}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                         population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}">
                 </variant-browser-filter>
             </div>
@@ -47,9 +47,6 @@
         Polymer({
             is: 'variant-browser',
             properties: {
-                mode: {
-                    type: String
-                },
                 host: {
                     type: String
                 },
@@ -63,9 +60,8 @@
                     type: String,
                     value: ""
                 },
-                samples: {
-                    type: Array,
-                    notify: true
+                config: {
+                    type: Object
                 },
                 opencgaClient: {
                     type: Object
@@ -91,9 +87,6 @@
             },
             checkProject: function (project) {
                 return project == "";
-            },
-            checkMode: function (mode) {
-                return mode != "browser"
             },
             propagateGeneEvent: function (e) {
                 this.fire('gene', {gene: e.detail.gene});
