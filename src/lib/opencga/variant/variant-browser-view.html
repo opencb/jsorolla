@@ -44,26 +44,27 @@
             <h3>Variant: {{variant}}</h3>
             <div style="padding-top: 20px">
                 <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
-                    <li role="presentation"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                    <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                    <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
                     <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotypes & Files</a></li>
                 </ul>
 
                 <div class="tab-content" style="height: 680px">
+
+                    <!--Annotation Tab-->
+                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
+                    </div>
+
                     <!--Genome Context Tab-->
-                    <div role="tabpanel" class="tab-pane active" id="{{prefix}}GenomeView">
+                    <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
                         <br>
                         <genome-context></genome-context>
                     </div>
 
-                    <!--Annotation Tab-->
-                    <div role="tabpanel" class="tab-pane" id="{{prefix}}Annotation">
-                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
-                    </div>
-
                     <!--Genotypes & Files Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
-                        Genotypes and files
+                        Not implemented yet!
                     </div>
                 </div>
             </div>

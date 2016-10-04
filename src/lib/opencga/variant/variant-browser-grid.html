@@ -175,13 +175,12 @@
                             $('.success').removeClass('success');
                             $($element).addClass('success');
                         },
-//                        onClickCell: function (field, value, row, $element) {
-//                            if (field.name == "genes") {
-//                                // TODO bug when more than one gene is shown
-//                                let geneHtml = $element[0].innerHTML;
-//                                _this.fire('selected', {gene: geneHtml.replace(/<[^>]*>/g, "")});
-//                            }
-//                        }
+                        onLoadSuccess: function (data) {
+                            let firstRow = data.rows[0];
+                            _this.variant = firstRow.chromosome + ":" + firstRow.start + ":" + firstRow.reference + ":" + firstRow.alternate;
+                            let $row = $('#' + _this.prefix + 'VariantBrowserGrid>tbody>tr:first')[0];
+                            $($row).addClass('success');
+                        }
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }

@@ -25,23 +25,24 @@
                 <label class="align-left">Consequence Type</label>
                 <div class="align-right">{{data.displayConsequenceType}}</div> <br>
             </div>
-            <div class="block">
-                <label class="align-left">Population Frequency</label>
-                <div class="align-right">
-                    <div id="{{prefix}}Container"></div>
-                    <!--<template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">-->
-                        <!--<template is="dom-if" if="{{checkforAll(popFreq)}}">-->
-                            <!--{{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;-->
-                            <!--<template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">-->
-                                <!--<template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">-->
-                                    <!--<b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})-->
-                                <!--</template>-->
-                            <!--</template>-->
-                            <!--<br>-->
-                        <!--</template>-->
-                    <!--</template>-->
-                </div> <br>
-            </div>
+            <!--<div class="block">-->
+                <!--<label class="align-left">Population Frequency</label>-->
+                <!--<div class="align-right">-->
+                    <!--&lt;!&ndash;<div id="{{prefix}}Container"></div>&ndash;&gt;-->
+                    <!--<div id="{{prefix}}Container" style="min-width: 400px; max-width: 600px; height: 400px; margin: 0 auto"></div>-->
+                    <!--&lt;!&ndash;<template is="dom-repeat" items="{{data.populationFrequencies}}" as="popFreq">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<template is="dom-if" if="{{checkforAll(popFreq)}}">&ndash;&gt;-->
+                            <!--&lt;!&ndash;{{popFreq.study}}: <b><i>{{popFreq.population}}</i></b> - {{popFreq.altAlleleFreq}} &nbsp;&ndash;&gt;-->
+                            <!--&lt;!&ndash;<template is="dom-repeat" items="{{minimumFreq}}" as="minFreq">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<template is="dom-if" if="{{checkSameStudy(popFreq, minFreq)}}">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<b><i>Minimum:</i></b> {{minFreq.freq}} ({{minFreq.population}})&ndash;&gt;-->
+                                <!--&lt;!&ndash;</template>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</template>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</template>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</template>&ndash;&gt;-->
+                <!--</div> <br>-->
+            <!--</div>-->
 
             <div class="block">
                 <label class="align-left">Variant Trait Association</label>
@@ -199,63 +200,63 @@
 
                     let popArray = [];
                     let mafArray = [];
+                    let studyArray = [];
                     if (typeof _this.data.populationFrequencies !== "undefined") {
                         for (let i = 0; i < _this.data.populationFrequencies.length; i++) {
-                            if (_this.data.populationFrequencies[i].population == "ALL") {
-                                popArray.push(_this.data.populationFrequencies[i].study + "-" + _this.data.populationFrequencies[i].population);
-                                mafArray.push(Math.min(Number(_this.data.populationFrequencies[i].refAlleleFreq).toFixed(3), Number(_this.data.populationFrequencies[i].altAlleleFreq).toFixed(3)));
+//                            popArray.push(_this.data.populationFrequencies[i].study + "-" + _this.data.populationFrequencies[i].population);
+                            if (studyArray.indexOf(_this.data.populationFrequencies[i].study) == -1) {
+                                studyArray.push(_this.data.populationFrequencies[i].study)
                             }
+                            popArray.push(_this.data.populationFrequencies[i].population);
+                            mafArray.push(Math.min(Number(_this.data.populationFrequencies[i].refAlleleFreq).toFixed(3), Number(_this.data.populationFrequencies[i].altAlleleFreq).toFixed(3)));
                         }
 
                         $('#' + _this.prefix + 'Container').highcharts({
+
                             chart: {
+//                                polar: true,
                                 type: 'bar'
                             },
+
                             title: {
-                                text: 'Population Frequencies'
+                                text: 'Population frequency',
+                                x: -80
                             },
+
+                            pane: {
+                                size: '80%'
+                            },
+
                             xAxis: {
                                 categories: popArray,
-                                title: {
-                                    text: null
-                                }
+                                tickmarkPlacement: 'on',
+                                lineWidth: 0
                             },
+
                             yAxis: {
-                                min: 0,
-                                title: {
-                                    text: 'Minor Allele Frequency (MAF)',
-                                    align: 'high'
-                                },
-                                labels: {
-                                    overflow: 'justify'
-                                },
-                                max: 0.5
+                                gridLineInterpolation: 'polygon',
+                                lineWidth: 0,
+                                min: 0
                             },
-                            plotOptions: {
-                                bar: {
-                                    dataLabels: {
-                                        enabled: true
-                                    }
-                                }
+
+                            tooltip: {
+                                shared: true,
+                                pointFormat: '<span style="color:{series.color}">{series.name}: <b>${point.y:,.0f}</b><br/>'
                             },
+
                             legend: {
-                                layout: 'vertical',
                                 align: 'right',
                                 verticalAlign: 'top',
-                                x: -40,
-                                y: 80,
-                                floating: true,
-                                borderWidth: 1,
-                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                                shadow: true
+                                y: 70,
+                                layout: 'vertical'
                             },
-                            credits: {
-                                enabled: false
-                            },
+
                             series: [{
-                                name: 'Minor Allele Frequency (MAF)',
-                                data: mafArray
-                            }]
+                                name: studyArray[0],
+                                data: mafArray,
+                                pointPlacement: 'on'
+                            }
+                            ]
                         });
                     }
 
