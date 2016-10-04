@@ -62,7 +62,7 @@
             </div>
             <div>
                 <h3>Variants</h3>
-                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" gene-ids="{{gene}}" population-frequencies="{{populationFrequencies}}"></variant-browser-grid>
+                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" query="{{query}}" population-frequencies="{{populationFrequencies}}"></variant-browser-grid>
             </div>
 
         </div>
@@ -98,8 +98,10 @@
                 }
             },
             geneChanged: function (neo, old) {
+                let query = {};
                 let _this= this;
                 if (typeof this.gene !== "undefined" && this.gene != "") {
+                    query.gene = this.gene;
                     var success = function (response) {
                         _this.geneObj = response.response[0].result[0];
                     };
@@ -107,6 +109,7 @@
                         alert("Invalid gene");
                     };
                     this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {success: success, error: error, async: true});
+                    this.query = query;
                 }
             }
         });
