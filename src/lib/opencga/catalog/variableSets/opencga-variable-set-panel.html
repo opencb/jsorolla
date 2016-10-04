@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 <link rel="import" href="opencga-annotation-count.html">
+<link rel="import" href="opencga-variable-comparator.html">
 
 <dom-module id="opencga-variable-set-panel">
     <template>
@@ -24,13 +25,12 @@
                 <div class="col-md-3">
                     <div class="panel panel-default">
                         <div class="panel-heading">Variable sets <span class="badge">{{variableSets.length}}</span></div>
-                        <div class="panel-body">
+                        <div class="panel-body" style="overflow-x: auto; padding: 5px;">
                             <template is="dom-repeat" items="{{variableSets}}" as="variableSet">
                                 <a class="fa fa-caret-down" role="button" data-toggle="collapse" aria-hidden="true"
                                    href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
                                 <span style="font-weight: bold"> {{variableSet.name}}</span>
-                                <button type="button" class="btn btn-link" style="position: absolute; right: 10px;" data-variable="{{variableSet}}"
-                                        on-click="showVariableSet">
+                                <button type="button" class="btn btn-link" style="right: 10px;" data-variable="{{variableSet}}">
                                     (show)
                                 </button>
                                 <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
@@ -52,40 +52,27 @@
                         <div class="panel-heading">
                             {{variableSet.name}} <span class="badge">{{variableSet.variables.length}}</span>
                         </div>
-                        <div class="panel-body" style="height: 250px; overflow-y: auto;">
+                        <div class="panel-body">
+                            <div class="alert alert-warning" id="{{prefix}}AlertMaximum" hidden="true">
+                                <button type="button" class="close" data-dismiss="alert">x</button>
+                                <strong>Warning! </strong>
+                                You can only select up to two variables. In order to change the selection, please first uncheck one.
+                            </div>
+                            <div class="alert alert-warning" id="{{prefix}}AlertVariableType" hidden="true">
+                                <button type="button" class="close" data-dismiss="alert">x</button>
+                                <strong>Warning! </strong>
+                                Only categorical and numerical variables can be selected.
+                            </div>
                             <table id="{{prefix}}VariableTable" data-search="true" data-show-columns="true" data-pagination="true"
-                                   data-page-list="[5]" data-show-export="true" data-show-toggle="true" style="cursor: pointer;">
+                                   data-page-size=5 data-page-list="[5]" data-show-export="true" data-show-toggle="true"
+                                   data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
                             </table>
                         </div>
                     </div>
+
+                    <opencga-variable-comparator opencga-client="{{opencgaClient}}" variable-set="{{variableSet}}" study-id="{{studyId}}"
+                                                 selected-variables="{{selectedVariables}}"></opencga-variable-comparator>
                 </div>
-            </div>
-            <div class="row" style="margin-top: 10px;">
-
-                <div class="col-md-2">
-                    <ul class="nav nav-pills nav-stacked" role="tablist">
-                        <li role="presentation" class="active"><a href="#{{prefix}}sampleVariables" role="tab" data-toggle="tab">Samples</a></li>
-                        <li role="presentation"><a href="#{{prefix}}cohortVariables" role="tab" data-toggle="tab">Cohorts</a></li>
-                        <li role="presentation"><a href="#{{prefix}}individualVariables" role="tab" data-toggle="tab">Individuals</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-md-10">
-                    <div class="tab-content">
-                        <div id="{{prefix}}sampleVariables" role="tabpanel" class="tab-pane active">
-                            <opencga-annotation-count variable="{{obtainVariable(variableSetSummary.samples, variable.name)}}"></opencga-annotation-count>
-                        </div>
-
-                        <div id="{{prefix}}cohortVariables" role="tabpanel" class="tab-pane">
-                            <opencga-annotation-count variable="{{obtainVariable(variableSetSummary.cohorts, variable.name)}}"></opencga-annotation-count>
-                        </div>
-
-                        <div id="{{prefix}}individualVariables" role="tabpanel" class="tab-pane">
-                            <opencga-annotation-count variable="{{obtainVariable(variableSetSummary.individuals, variable.name)}}"></opencga-annotation-count>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
 
@@ -120,9 +107,17 @@
                     this.prefix = Utils.randomString(6);
                 }
 
+                this.selectedVariables = [];
+
                 // Columns that will be represented
                 this._columns = [
                     [
+                        {
+                            field: 'state',
+                            checkbox: true,
+                            align: 'center',
+                            valign: 'middle'
+                        },
                         {
                             title: 'Name',
                             field: 'name',
@@ -187,9 +182,53 @@
                 $('#' + this.prefix + 'VariableTable').bootstrapTable({
                     data: this.variableSet.variables,
                     columns: this._columns,
-                    onClickRow: function(row) {
-                        _this.variable = row;
-                    }
+                    onClickRow: function(row, element) {
+//                        _this.variable = row;
+                        let index = element[0].getAttribute("data-index");
+                        if (row.state) {
+                            $("#" + this.prefix + "VariableTable").bootstrapTable('uncheck', index);
+                        } else {
+                            $("#" + this.prefix + "VariableTable").bootstrapTable('check', index);
+                        }
+                    }.bind(_this),
+                    onCheck: function(row, element) {
+                        let removeLastVariable = false;
+                        if (row.type !== "CATEGORICAL" && row.type !== "NUMERIC") {
+                            removeLastVariable = true;
+                            // Only numeric or categorical variables can be selected.
+                            $("#" + this.prefix + "AlertVariableType").alert();
+                            $("#" + this.prefix + "AlertVariableType").fadeTo(2000, 500).slideUp(500, function(){
+                                $("#" + this.prefix + "AlertVariableType").slideUp(500);
+                            });
+                        }
+
+                        if ($("#" + this.prefix + "VariableTable").bootstrapTable('getSelections').length > 2) {
+                            removeLastVariable = true;
+                            $("#" + this.prefix + "AlertMaximum").alert();
+                            $("#" + this.prefix + "AlertMaximum").fadeTo(2000, 500).slideUp(500, function(){
+                                $("#" + this.prefix + "AlertMaximum").slideUp(500);
+                            });
+                        }
+
+                        if (removeLastVariable) {
+                            // Uncheck last item
+                            let index = element[0].getAttribute("data-index");
+                            $("#" + this.prefix + "VariableTable").bootstrapTable('uncheck', index);
+                        }
+
+                        let selectedTmp = [];
+                        $("#" + this.prefix + "VariableTable").bootstrapTable('getSelections').forEach(function(variable) {
+                            selectedTmp.push(variable.name);
+                        });
+                        this.selectedVariables = selectedTmp;
+                    }.bind(_this),
+                    onUncheck: function(row, element) {
+                        let selectedTmp = [];
+                        $("#" + this.prefix + "VariableTable").bootstrapTable('getSelections').forEach(function(variable) {
+                            selectedTmp.push(variable.name);
+                        });
+                        this.selectedVariables = selectedTmp;
+                    }.bind(_this)
                 });
             },
             obtainVariableSummary: function() {

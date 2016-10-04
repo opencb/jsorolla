@@ -62,7 +62,6 @@
                 this._hidden = true;
             },
             variableChanged: function() {
-                debugger
                 if (this.variable !== undefined && Object.getOwnPropertyNames(this.variable).length > 0) {
                     this.renderPieChart();
                     this._hidden = false;
