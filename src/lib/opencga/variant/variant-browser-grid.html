@@ -55,10 +55,6 @@
             populationFrequenciesColor = populationFrequencies.color;
         }
 
-        function showGene(e) {
-            console.log("showGene", e);
-        }
-
         Polymer({
             is: 'variant-browser-grid',
             properties: {
@@ -171,7 +167,7 @@
                             $($element).addClass('success');
                         },
 //                        onClickCell: function (field, value, row, $element) {
-//                            if (field == "genes") {
+//                            if (field.name == "genes") {
 //                                // TODO bug when more than one gene is shown
 //                                let geneHtml = $element[0].innerHTML;
 //                                _this.fire('selected', {gene: geneHtml.replace(/<[^>]*>/g, "")});
@@ -188,9 +184,8 @@
                     columns: this.cols
                 });
             },
-            showGene: function(e) {
-                debugger
-                console.log('showGene', e);
+            showGene: function(geneName) {
+                this.fire('selected', {gene: geneName});
             },
             variantFormatter: function (value, row, index) {
                 let ref = (row.reference != "") ? row.reference : "-";
@@ -208,10 +203,8 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
                                     && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-//                                console.log("this.field.context", this.field.context);
-//                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="showGene(&quot;' + row.annotation.consequenceTypes[i].geneName + '&quot;)">' + row.annotation.consequenceTypes[i].geneName + '</a>');
-                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="' + this.field.context + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
-//                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" onclick="alert(&quot; clicked &quot;)">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project +'/' +
+                                        this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }
@@ -555,7 +548,7 @@
                         },
                         {
                             title: 'Genes',
-                            field: {context: this.showGene},
+                            field: {name: "genes", context: this},
                             colspan: 1,
                             rowspan: 2,
                             formatter: this.geneFormatter,
