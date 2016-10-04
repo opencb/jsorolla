@@ -149,13 +149,23 @@
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
+//                            queryParams.skipCount = false;
+//                            console.log(">>>>>>>>>>>>>>>>>>>>")
+//                            console.log(_this.query)
+                            if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
+                                queryParams.skipCount = false;
+                            }
+
                             return queryParams;
                         },
                         responseHandler: function (res) {
                             console.log(res)
                             if (_numTotal == -1) {
-//                                _numTotal = res.response[0].numTotalResults;
-                                _numTotal = 1150;
+                                if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
+                                    _numTotal = res.response[0].numTotalResults;
+                                } else {
+                                    _numTotal = 1150;
+                                }
                             }
                             return {total: _numTotal, rows: res.response[0].result}
                         },
