@@ -23,6 +23,8 @@ class OpenCGAClient {
         this._studies;
         this._files;
         this._samples;
+        this._individuals;
+        this._cohorts;
         this._panels;
         this._variables;
     }
@@ -69,6 +71,20 @@ class OpenCGAClient {
             this._samples = new Samples(this._config)
         }
         return this._samples;
+    }
+
+    individuals() {
+        if (typeof this._individuals === "undefined") {
+            this._individuals = new Individuals(this._config)
+        }
+        return this._individuals;
+    }
+
+    cohorts() {
+        if (typeof this._cohorts === "undefined") {
+            this._cohorts = new Cohorts(this._config)
+        }
+        return this._cohorts;
     }
 
     panels() {
