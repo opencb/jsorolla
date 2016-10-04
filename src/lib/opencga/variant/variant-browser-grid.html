@@ -149,20 +149,17 @@
                         queryParams: function (params) {
                             queryParams.limit = params.limit;
                             queryParams.skip = params.offset;
-//                            queryParams.skipCount = false;
-//                            console.log(">>>>>>>>>>>>>>>>>>>>")
-//                            console.log(_this.query)
+//                            queryParams.skipCount = true;
                             if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
                                 queryParams.skipCount = false;
                             }
-
                             return queryParams;
                         },
                         responseHandler: function (res) {
-                            console.log(res)
                             if (_numTotal == -1) {
                                 if (typeof _this.query !== 'undefined' && typeof _this.query.gene !== 'undefined' && _this.query.gene != "") {
                                     _numTotal = res.response[0].numTotalResults;
+//                                    _numTotal = 1150;
                                 } else {
                                     _numTotal = 1150;
                                 }
@@ -175,12 +172,12 @@
                             $('.success').removeClass('success');
                             $($element).addClass('success');
                         },
-                        onLoadSuccess: function (data) {
-                            let firstRow = data.rows[0];
-                            _this.variant = firstRow.chromosome + ":" + firstRow.start + ":" + firstRow.reference + ":" + firstRow.alternate;
-                            let $row = $('#' + _this.prefix + 'VariantBrowserGrid>tbody>tr:first')[0];
-                            $($row).addClass('success');
-                        }
+//                        onLoadSuccess: function (data) {
+//                            let firstRow = data.rows[0];
+//                            _this.variant = firstRow.chromosome + ":" + firstRow.start + ":" + firstRow.reference + ":" + firstRow.alternate;
+//                            let $row = $('#' + _this.prefix + 'VariantBrowserGrid>tbody>tr:first')[0];
+//                            $($row).addClass('success');
+//                        }
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
@@ -201,7 +198,11 @@
                 return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
             },
             snpFormatter: function (value, row, index) {
-                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+                if (row.id.startsWith("rs")) {
+                    return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
+                } else {
+                    return '-';
+                }
             },
             geneFormatter: function (value, row, index) {
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
@@ -300,7 +301,7 @@
                 return '-';
             },
             conservationFormatter:  function (value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.conservation !== "undefined") {
                     for (let i = 0; i < row.annotation.conservation.length; i++) {
                         if (row.annotation.conservation[i].source == this.field) {
                             return Number(row.annotation.conservation[i].score).toFixed(3);
