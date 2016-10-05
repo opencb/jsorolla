@@ -13,19 +13,25 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
+<!-- Bower dependencies:
+    "highcharts": "^5.0.0",
+    "jstat": "^1.5.3"
+-->
+
 <dom-module id="opencga-variable-comparator">
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
         <div style="padding: 10px;" hidden$="{{!showComponent}}">
 
-            <select id="{{prefix}}SelectedEntry">
+            <select id="{{prefix}}SelectedEntry" on-change="selectedVariablesChanged">
                 <option value="samples">Samples</option>
                 <option value="individuals">Individuals</option>
                 <option value="cohorts">Cohorts</option>
             </select>
 
-            <div id="{{prefix}}chart" style="width: 100%"></div>
+            <div id="{{prefix}}chart"></div>
         </div>
 
     </template>
@@ -57,13 +63,13 @@
                 }
             },
 
-            selectedVariablesChanged: function(variables) {
-                if (variables.length === 2) {
-
+            selectedVariablesChanged: function() {
+                if (this.selectedVariables.length === 2) {
+                    let _this = this;
                     let myArray = [];
                     // Look for the variables in the variable set to validate everything
                     this.variableSet.variables.forEach(function(variable) {
-                        if (variables.indexOf(variable.name) > -1) {
+                        if (_this.selectedVariables.indexOf(variable.name) > -1) {
                             // Validate the type as well
                             if (variable.type === "CATEGORICAL" || variable.type === "NUMERIC") {
                                 myArray.push(variable)
@@ -86,6 +92,12 @@
                 let selection = selectComponent.options[selectComponent.selectedIndex].value;
 
                 let success = function(data) {
+                    if (data.response[0].numResults === 0) {
+                        return;
+                    }
+
+                    this.showComponent = true;
+
                     if (myArray[0].type === "CATEGORICAL" && myArray[1].type === "CATEGORICAL") {
                         this._drawCategoricalCategorical(myArray[0], myArray[1], data.response[0]);
                     } else if (myArray[0].type === "NUMERIC" && myArray[1].type === "NUMERIC") {
@@ -98,7 +110,6 @@
                             this._drawCategoricalContinuous(myArray[1], myArray[0], data.response[0]);
                         }
                     }
-                    this.showComponent = true;
                 }.bind(this);
 
                 let params = {
@@ -150,9 +161,21 @@
                 });
 
                 let myData = [];
-                categorical.allowedValues.forEach(function(value) {
-                    myData.push(myHash[value].sort(compareNumbers));
-                });
+                let outLiers = [];
+                for (let i = 0; i < categorical.allowedValues.length; i++) {
+                    let value = categorical.allowedValues[i];
+                    let quartiles = jStat(myHash[value]).quartiles();
+                    let min_whisker = quartiles[0] - 1.5 * (quartiles[2] - quartiles[0]);
+                    let max_whisker = quartiles[2] + 1.5 * (quartiles[2] - quartiles[0]);
+                    myData.push([min_whisker, quartiles[0], quartiles[1], quartiles[2], max_whisker]);
+
+                    // Outlier extraction
+                    myHash[value].forEach(function(myValue) {
+                        if (myValue < min_whisker || myValue > max_whisker) {
+                            outLiers.push([i, myValue]);
+                        }
+                    });
+                }
 
                 $('#' + this.prefix + 'chart').highcharts({
 
@@ -161,7 +184,7 @@
                     },
 
                     title: {
-                        text: 'Highcharts Box Plot Example'
+                        text: categorical.name + " vs " + continuous.name
                     },
 
                     legend: {
@@ -171,54 +194,48 @@
                     xAxis: {
                         categories: categorical.allowedValues,
                         title: {
-                            text: 'Experiment No.'
+                            text: categorical.name
                         }
                     },
 
                     yAxis: {
                         title: {
-                            text: 'Observations'
-                        },
-                        plotLines: [{
-                            value: 932,
-                            color: 'red',
-                            width: 1,
-                            label: {
-                                text: 'Theoretical mean: 932',
-                                align: 'center',
-                                style: {
-                                    color: 'gray'
-                                }
-                            }
-                        }]
+                            text: continuous.name
+                        }
+//                        , plotLines: [{
+//                            value: 932,
+//                            color: 'red',
+//                            width: 1,
+//                            label: {
+//                                text: 'Theoretical mean: 932',
+//                                align: 'center',
+//                                style: {
+//                                    color: 'gray'
+//                                }
+//                            }
+//                        }]
                     },
 
                     series: [{
-                        name: 'Observations',
+                        name: continuous.name,
                         data: myData,
                         tooltip: {
-                            headerFormat: '<em>Experiment No {point.key}</em><br/>'
+                            headerFormat: '<em>' + categorical.name + ' {point.key}</em><br/>'
+                        }
+                    }, {
+                        name: 'Outlier',
+                        color: Highcharts.getOptions().colors[0],
+                        type: 'scatter',
+                        data: outLiers,
+                        marker: {
+                            fillColor: 'white',
+                            lineWidth: 1,
+                            lineColor: Highcharts.getOptions().colors[0]
+                        },
+                        tooltip: {
+                            pointFormat: continuous.name + ': {point.y}'
                         }
                     }
-//                    , {
-//                        name: 'Outlier',
-//                        color: Highcharts.getOptions().colors[0],
-//                        type: 'scatter',
-//                        data: [ // x, y positions where 0 is the first category
-//                            [0, 644],
-//                            [4, 718],
-//                            [4, 951],
-//                            [4, 969]
-//                        ],
-//                        marker: {
-//                            fillColor: 'white',
-//                            lineWidth: 1,
-//                            lineColor: Highcharts.getOptions().colors[0]
-//                        },
-//                        tooltip: {
-//                            pointFormat: 'Observation: {point.y}'
-//                        }
-//                    }
                     ]
 
                 });
