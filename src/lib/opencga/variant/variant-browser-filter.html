@@ -230,10 +230,10 @@
                                         <template is="dom-repeat" items="{{samples}}">
                                             <tr id="{{item.name}}" on-click="sampleGenotypeSelected">
                                                 <td class$="{{item.status}}">{{item.name}}&nbsp;({{item.memberCode}})</td>
-                                                <td><input type="checkbox" value="0/0" data-id="{{item.name}}"></td>
-                                                <td><input type="checkbox" value="0/1" data-id="{{item.name}}"></td>
-                                                <td><input type="checkbox" value="1/1" data-id="{{item.name}}"></td>
-                                                <td><input type="checkbox" value="./." data-id="{{item.name}}"></td>
+                                                <td><input type="checkbox" value="0/0" data-id="{{item.name}}" class="genotypes"></td>
+                                                <td><input type="checkbox" value="0/1" data-id="{{item.name}}" class="genotypes"></td>
+                                                <td><input type="checkbox" value="1/1" data-id="{{item.name}}" class="genotypes"></td>
+                                                <td><input type="checkbox" value="./." data-id="{{item.name}}" class="genotypes"></td>
                                             </tr>
                                         </template>
                                         </tbody>
@@ -705,7 +705,9 @@
                 let _this = this;
 
                 // Adding sample genotypes filter
-                query.genotype = this.sampleGenotypes;
+                if (this.sampleGenotypes != "") {
+                    query.genotype = this.sampleGenotypes;
+                }
 
                 // Region
                 if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
@@ -831,6 +833,12 @@
                         }
                     }
                     this.sampleGenotypes = arr.join(';');
+                    if (arr.length > 0) {
+                        this._filters.genoType = arr.join(';');
+                    } else {
+                        delete this._filters.genoType;
+                    }
+                    this._filtersCount = Object.keys(this._filters).length;
                 }
             },
             sampleChanged: function () {
