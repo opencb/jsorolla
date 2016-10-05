@@ -459,14 +459,14 @@
                                     <template is="dom-repeat" items="{{consequenceTypes.categories}}" as="category">
                                         <li id="{{category.title}}">
                                             <template is="dom-if" if="{{checkTitle(category)}}">
-                                                <input type="checkbox" on-change="editCT"> {{category.title}}
+                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"> {{category.title}}
                                             </template>
                                             <template is="dom-if" if="{{!checkTitle(category)}}">
-                                                <input type="checkbox" on-change="editCT"> {{category.name}}
+                                                <input type="checkbox" on-change="updateConsequenceTypeFilter"> {{category.name}}
                                             </template>
                                             <ul>
                                                 <template is="dom-repeat" items="{{category.terms}}">
-                                                    <li><input type="checkbox" id="{{item.id}}" on-change="editCT" class="soTermCheckBox"> <span title="{{item.description}}">
+                                                    <li><input type="checkbox" id="{{item.id}}" on-change="updateConsequenceTypeFilter" class="soTermCheckBox"> <span title="{{item.description}}">
                                                         {{item.name}} (<a href="http://www.sequenceontology.org/browser/current_svn/term/{{item.id}}" target="_blank">{{item.id}}</a>)</span></li>
                                                 </template>
                                             </ul>
@@ -606,7 +606,7 @@
             checkTitle: function(consequenceType) {
                 return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
             },
-            editCT: function(e) {
+            updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];
                 if (e.target.parentNode.id != "") {
                     $("#" + e.target.parentNode.id).children('ul').children('li').children('input').prop("checked", e.target.checked);
@@ -627,13 +627,15 @@
                 this._filtersCount = Object.keys(this._filters).length;
             },
             updateFilter: function (e) {
+                // This is triggered by on-change event of all text boxes in the filter. ID of the textbox (e.target.id)
+                //  is used to get the value and filters object use the name given to the textbox (e.target.name)
                 if (e.target.id != "" && this.$$("#" + e.target.id).value != "") {
                     this._filters[e.target.name] = this.$$("#" + e.target.id).value;
                 } else {
                     delete this._filters[e.target.name];
                 }
 
-                // Type
+                // Types are all checkboxes. The above condition will fail as e.target.id = "" for checkbox (No ID given to checkbox)
                 let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
                 if (types.length > 0) {
                     let typesAux = [];
