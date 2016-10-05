@@ -716,7 +716,7 @@
 
                 // Gene or Variant Id
                 if (this.$$("#" + this.prefix + "GeneSnpTextarea").value != "") {
-                    if (this.$$("#" + this.prefix + "GeneSnpTextarea").value.startsWith("rs")) {
+                    if (this.$$("#" + this.prefix + "GeneSnpTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "GeneSnpTextarea").value.split(':').length > 2) {
                         query.ids = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
                     } else {
                         query.gene = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
