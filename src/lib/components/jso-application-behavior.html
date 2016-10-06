@@ -36,6 +36,40 @@
                 type: Object
             }
         },
+        ready: function(){
+          var me=this;
+          //cookies
+          if (Cookies('app-accept-cookies') == null) {
+              var div = document.createElement('div');
+              div.style.position = 'fixed';
+              div.style.backgroundColor = '#8ba7a7';
+              div.style.color = '#fff';
+              div.style.padding = '10px';
+              div.style.left = '0';
+              div.style.right = '0';
+              div.style.top = '5px';
+              div.style.zIndex = '10000';
+              div.style.fontSize = '13px';
+              div.style.width = '600px';
+              div.style.margin = '0 auto';
+              div.style.cursor = 'pointer';
+              div.style.boxShadow = '0px 0px 6px 3px rgba(0, 0, 0, 0.30)';
+              var msg = [
+                  'This website uses cookies.',
+                  'By continuing to browse this site,',
+                  ' you are agreeing to the use of our site cookies.',
+                  '<div style="font-size:12px;text-align:right;text-decoration:underline;">OK</div>'
+              ];
+              div.innerHTML = msg.join(' ');
+              div.addEventListener('click', function() {
+                  Polymer.dom(me.root).removeChild(div);
+                  Cookies.set('app-accept-cookies', 'true', {
+                      expires: 3600 * 24 * 7
+                  }); // Expires in 1 week
+              });
+              Polymer.dom(this.root).appendChild(div);
+          }
+        },
         _selectedOptionChanged: function(neo, old) {
             var menuItems = Polymer.dom(this.root).querySelectorAll('[menu-option]');
             for (var i = 0; i < menuItems.length; i++) {

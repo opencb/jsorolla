@@ -67,13 +67,13 @@
             title: "Study",
             width: 150
         }, {
-            name: "pop",
+            name: "population",
             title: "Population",
             width: 150
-        }, {
-            name: "superPop",
-            title: "SuperPopulation",
-            width: 150
+        // }, {
+        //     name: "superPop",
+        //     title: "SuperPopulation",
+        //     width: 150
         }, {
             name: "refAllele",
             title: "Ref. Allele",
@@ -158,7 +158,7 @@
                     var elem = me.$.table.data[i];
                     var maf = parseFloat(Math.min(elem.refAlleleFreq, elem.altAlleleFreq).toFixed(3));
                     data.push(maf);
-                    cat.push(elem.study + "/" + elem.pop);
+                    cat.push(elem.study + "/" + elem.population);
 
                 }
                 console.log(data);

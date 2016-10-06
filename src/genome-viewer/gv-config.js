@@ -273,11 +273,24 @@ FEATURE_TYPES = {
     },
     snp: {
         label: function (f) {
-            return ('name' in f) ? f.name : f.id;
+            var change = f.reference + ' > ' + f.alternate;
+            var name = '';
+            if('name' in f){
+              name += f.name;
+            }else if('id' in f){
+              name += f.id;
+            }
+            return name + ' ' + change;
         },
         tooltipTitle: function (f) {
-            var name = (f.name != null) ? f.name : f.id;
-            return 'SNP' + ' - <span class="ok">' + name + '</span>';
+          var change = f.reference + ' > ' + f.alternate;
+          var name = '';
+          if('name' in f){
+            name += f.name;
+          }else if('id' in f){
+            name += f.id;
+          }
+            return 'SNP' + ' - <span class="ok">' +  name + ' ' + change + '</span>';
         },
         tooltipText: function (f) {
             return 'alleles:&nbsp;<span class="ssel">' + f.alleleString + '</span><br>' +
