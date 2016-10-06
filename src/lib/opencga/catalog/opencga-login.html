@@ -58,7 +58,7 @@
                 let pass = this.$.opencgaPassword.value;
 
                 var _this = this;
-                this.opencgaClient.users().login(user, {password: pass})
+                this.opencgaClient.users().login(user, pass)
                         .then(function(response) {
                             _this.$.opencgaUser.value = "";
                             _this.$.opencgaPassword.value = "";

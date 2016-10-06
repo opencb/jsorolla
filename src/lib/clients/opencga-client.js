@@ -147,10 +147,10 @@ class OpenCGAParentClass {
 
         if (rpc.toLowerCase() === "rest") {
             let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action, params);
-            if (method === "GET") {
-                url = this._addQueryParams(url, params);
-            } else {
-                options["data"] = params;
+            // if (method === "GET") {
+            url = this._addQueryParams(url, params);
+            if (method === "POST") {
+                options["data"] = params["body"];
             }
             console.log(url)
             // if the URL query fails we try with next host
@@ -196,7 +196,10 @@ class OpenCGAParentClass {
         var keyArray = _.keys(params);
         var keyValueArray = [];
         for (let i in keyArray) {
-            keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
+            // Whatever it is inside body will be sent hidden via POST
+            if (keyArray[i] !== "body") {
+                keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
+            }
         }
         return keyValueArray.join('&');
     }
@@ -213,11 +216,16 @@ class Users extends OpenCGAParentClass {
         return this.get("users", undefined, "create", params, options);
     }
 
-    login(userId, params, options) {
+    login(userId, password, options) {
         if (options == undefined) {
             options = {};
         }
-        options["method"] = "GET";
+        let params = {
+            body: {
+                password: password
+            }
+        };
+        options["method"] = "POST";
         return this.get("users", userId, "login", params, options).then(function(response) {
             if (response.error === "") {
                 Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
@@ -273,6 +281,80 @@ class Users extends OpenCGAParentClass {
 
     remove(userId, params, options) {
         return this.get("users", userId, "remove", params, options);
+    }
+
+    // Filters
+    getAllFilters(params, options) {
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", undefined, "list", params, options);
+    }
+
+    getFilter(filter, params, options) {
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", filter, "info", params, options);
+    }
+
+    createFilter(params, options) {
+        if (options === undefined) {
+            options = {};
+        }
+        if (params === undefined) {
+            params = {};
+        }
+        if (!params.hasOwnProperty("body")) {
+            let aux = {
+                body: params
+            }
+            params = aux;
+        }
+        options["method"] = "POST";
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", undefined, "create", params, options);
+    }
+
+    updateFilter(filter, params, options) {
+        if (options === undefined) {
+            options = {};
+        }
+        if (params === undefined) {
+            params = {};
+        }
+        if (!params.hasOwnProperty("body")) {
+            let aux = {
+                body: params
+            }
+            params = aux;
+        }
+        options["method"] = "POST";
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", filter, "update", params, options);
+    }
+
+    deleteFilter(filter) {
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName) , "configs/filters", filter, "delete", undefined, undefined);
+    }
+
+    // Configs
+    getConfig(name, params, options) {
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs", name, "info", params, options);
+    }
+
+    updateConfig(name, params, options) {
+        if (options === undefined) {
+            options = {};
+        }
+        if (params === undefined) {
+            params = {};
+        }
+        if (!params.hasOwnProperty("body")) {
+            let aux = {
+                body: params
+            }
+            params = aux;
+        }
+        params["name"] = name;
+        options["method"] = "POST";
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs", undefined, "create", params, options);
+    }
+
+    deleteConfig(name) {
+        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs", name, "delete", undefined, undefined);
     }
 
 }
