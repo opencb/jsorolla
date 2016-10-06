@@ -279,7 +279,7 @@
 
             this.fileName = this.selected.name;
             this.fileType = this.selected.type;
-            if (this.fileType == "FOLDER") {
+            if (this.fileType == "FOLDER" || this.fileType == "DIRECTORY") {
                 this.isFile = true;
             } else {
                 this.isFile = false;
@@ -294,7 +294,7 @@
         },
         handleFileDblClick: function(e) {
             var file = e.currentTarget.file;
-            if (file.type == 'FOLDER') {
+            if (file.type == 'FOLDER' || file.type == "DIRECTORY") {
                 this.fire('openfolder', file);
             } else if (file.type == "FILE") {
                 this.fire('previewfile', file);
@@ -332,7 +332,7 @@
             if (selected == null) {
                 return true;
             } else {
-                if (selected.type == 'FOLDER') {
+                if (selected.type == 'FOLDER' || selected.type == "DIRECTORY") {
                     return true;
                 }
                 if (selected.index != null && selected.index.status !== 'NONE') {
