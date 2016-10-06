@@ -416,7 +416,7 @@
                 me.files = files;
                 me.loading = false;
                 if (me.enableAutoIndex) {
-                    if (f.name !== me.files[0].name && me.files[0].index == null && me.files[0].type == "FILE") {
+                    if (f && f.name !== me.files[0].name && me.files[0].index == null && me.files[0].type == "FILE") {
                         me.$.opencgaFolderList._autoIndexfile(me.files[0]);
                     }
                 }
