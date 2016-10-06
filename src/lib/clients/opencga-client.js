@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OpenCB
+ * Copyright 2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,10 +114,10 @@ class OpenCGAParentClass {
     }
 
     get(category, ids, action, params, options) {
-        return this.getExtended(category, ids, null, null, action, params, options);
+        return this.extendedGet(category, ids, null, null, action, params, options);
     }
 
-    getExtended(category1, ids1, category2, ids2, action, params, options) {
+    extendedGet(category1, ids1, category2, ids2, action, params, options) {
         // we store the options from the parameter or from the default values in config
         let host = this._config.host;
         let version = this._config.version;
@@ -134,15 +134,15 @@ class OpenCGAParentClass {
 
         // Check that sessionId is being given
         if (!params.hasOwnProperty("sid")) {
-            let sid = Cookies.get(this._config.cookieSessionId);
-            if (sid != undefined) {
+            let sid = this._getSessionId();
+            if (sid !== undefined) {
                 params["sid"] = sid;
             }
         }
 
         // If category == users and userId is not given, we try to set it
         if (category1 === "users" && (ids1 === undefined || ids1 === null || ids1 === "")) {
-            ids1 = Cookies.get(this._config.cookieUserName);
+            ids1 = this._getUserId();
         }
 
         if (rpc.toLowerCase() === "rest") {
@@ -152,7 +152,7 @@ class OpenCGAParentClass {
             if (method === "POST") {
                 options["data"] = params["body"];
             }
-            console.log(url)
+            console.log(url);
             // if the URL query fails we try with next host
             let response = RestClient.callPromise(url, options);
             return response;
@@ -204,6 +204,24 @@ class OpenCGAParentClass {
         return keyValueArray.join('&');
     }
 
+    _getUserId() {
+        if (this._config.hasOwnProperty("cookieUserId")) { // The app is using cookies
+            return Cookies.get(this._config.cookieUserId);
+        } else if (this._config.hasOwnProperty("userId")) {
+            return this._config.userId;
+        }
+        return undefined;
+    }
+
+    _getSessionId() {
+        if (this._config.hasOwnProperty("cookieSessionId")) { // The app is using cookies
+            return Cookies.get(this._config.cookieSessionId);
+        } else if (this._config.hasOwnProperty("sessionId")) {
+            return this._config.sessionId;
+        }
+        return undefined;
+    }
+
 }
 
 class Users extends OpenCGAParentClass {
@@ -216,80 +234,85 @@ class Users extends OpenCGAParentClass {
         return this.get("users", undefined, "create", params, options);
     }
 
-    login(userId, password, options) {
-        if (options == undefined) {
-            options = {};
-        }
+    login(userId, password) {
         let params = {
             body: {
                 password: password
             }
         };
-        options["method"] = "POST";
+        let options = {
+            method: "POST"
+        };
         return this.get("users", userId, "login", params, options).then(function(response) {
             if (response.error === "") {
-                Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
-                Cookies.set(this._config.cookieUserName, response.response[0].result[0].userId);
-                console.log("Cookies properly set");
+                if (this._config.hasOwnProperty("cookieUserId")) {
+                    // Cookies being used
+                    Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
+                    Cookies.set(this._config.cookieUserId, response.response[0].result[0].userId);
+                    console.log("Cookies properly set");
+                } else {
+                    // No cookies used
+                    this._config.sessionId = response.response[0].result[0].sessionId;
+                    this._config.userId = response.response[0].result[0].userId;
+                }
                 return response;
             }
         }.bind(this))
     }
 
-    logout(userId, params, options) {
-        return this.get("users", userId, "logout", params, options).then(function(response) {
+    logout() {
+        return this.get("users", this._getUserId(), "logout").then(function(response) {
             if (response.error === "") {
-                Cookies.expire(this._config.cookieSessionId);
-                Cookies.expire(this._config.cookieUserName);
-                console.log("Cookies properly removed");
+                if (this._config.hasOwnProperty("cookieUserId")) {
+                    // Cookies being used
+                    Cookies.expire(this._config.cookieSessionId);
+                    Cookies.expire(this._config.cookieUserId);
+                    console.log("Cookies properly removed");
+                } else {
+                    // No cookies being used
+                    this._config.userId = "";
+                    this._config.sessionId = "";
+                }
                 return response;
             }
         }.bind(this));
 
     }
 
-    changeEmail(userId, params, options) {
-        return this.get("users", userId, "change-email", params, options);
+    changeEmail(newMail) {
+        let params = {
+            nemail: newMail
+        };
+        return this.get("users", this._getUserId(), "change-email", params);
     }
 
-    update(userId, params, options) {
-        return this.get("users", userId, "update", params, options);
+    update(params, options) {
+        return this.get("users", this._getUserId(), "update", params, options);
     }
 
-    resetPassword(userId, params, options) {
-        return this.get("users", userId, "reset-password", params, options);
+    resetPassword() {
+        return this.get("users", this._getUserId(), "reset-password");
     }
 
-    info(userId, params, options) {
-        return this.get("users", userId, "info", params, options);
+    info(params, options) {
+        return this.get("users", this._getUserId(), "info", params, options);
     }
 
-    projects(userId, params, options) {
+    getProjects(userId, params, options) {
         return this.get("users", userId, "projects", params, options);
-        //return this.get("users", Cookies.get(this._config.cookieUserName), "projects",
-        //    {sid: Cookies.get(this._config.cookieSessionId)},
-        //    options);
-    }
-
-    update(userId, params, options) {
-        return this.get("users", userId, "update", params, options);
     }
 
     delete(userId, params, options) {
         return this.get("users", userId, "delete", params, options);
     }
 
-    remove(userId, params, options) {
-        return this.get("users", userId, "remove", params, options);
-    }
-
     // Filters
-    getAllFilters(params, options) {
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", undefined, "list", params, options);
+    getFilters(params, options) {
+        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "list", params, options);
     }
 
     getFilter(filter, params, options) {
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", filter, "info", params, options);
+        return this.extendedGet("users", this._getUserId(), "configs/filters", filter, "info", params, options);
     }
 
     createFilter(params, options) {
@@ -306,7 +329,7 @@ class Users extends OpenCGAParentClass {
             params = aux;
         }
         options["method"] = "POST";
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", undefined, "create", params, options);
+        return this.extendedGet("users", this._getUserId(), "configs/filters", undefined, "create", params, options);
     }
 
     updateFilter(filter, params, options) {
@@ -323,16 +346,16 @@ class Users extends OpenCGAParentClass {
             params = aux;
         }
         options["method"] = "POST";
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs/filters", filter, "update", params, options);
+        return this.extendedGet("users", this._getUserId(), "configs/filters", filter, "update", params, options);
     }
 
     deleteFilter(filter) {
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName) , "configs/filters", filter, "delete", undefined, undefined);
+        return this.extendedGet("users", this._getUserId(), "configs/filters", filter, "delete", undefined, undefined);
     }
 
     // Configs
     getConfig(name, params, options) {
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs", name, "info", params, options);
+        return this.extendedGet("users", this._getUserId(), "configs", name, "info", params, options);
     }
 
     updateConfig(name, params, options) {
@@ -345,16 +368,16 @@ class Users extends OpenCGAParentClass {
         if (!params.hasOwnProperty("body")) {
             let aux = {
                 body: params
-            }
+            };
             params = aux;
         }
         params["name"] = name;
         options["method"] = "POST";
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs", undefined, "create", params, options);
+        return this.extendedGet("users", this._getUserId(), "configs", undefined, "create", params, options);
     }
 
     deleteConfig(name) {
-        return this.getExtended("users", Cookies.get(this._config.cookieUserName), "configs", name, "delete", undefined, undefined);
+        return this.extendedGet("users", this._getUserId(), "configs", name, "delete", undefined, undefined);
     }
 
 }
@@ -373,22 +396,16 @@ class Projects extends OpenCGAParentClass {
         return this.get("projects", ids, "info", params, options);
     }
 
-    studies(id, params, options) {
+    getStudies(id, params, options) {
         return this.get("projects", id, "studies", params, options);
-        //return this.get("projects", id, "studies",
-        //    {sid: Cookies.get(this._config.cookieSessionId)}, options);
     }
 
     update(ids, params, options) {
         return this.get("projects", ids, "update", params, options);
     }
 
-    delete(ids, params, options) {
-        return this.get("projects", ids, "delete", params, options);
-    }
-
     remove(ids, params, options) {
-        return this.get("projects", ids, "remove", params, options);
+        return this.get("projects", ids, "delete", params, options);
     }
 
 }
@@ -403,7 +420,7 @@ class Studies extends OpenCGAParentClass {
         return this.get("studies", undefined, "create", params, options);
     }
 
-    delete(id, params, options) {
+    remove(id, params, options) {
         return this.get("studies", id, "delete", params, options);
     }
 
@@ -419,40 +436,52 @@ class Studies extends OpenCGAParentClass {
         return this.get("studies", undefined, "search", params, options);
     }
 
-    files(id, params, options) {
+    getFiles(id, params, options) {
         return this.get("studies", id, "files", params, options);
     }
 
-    jobs(id, params, options) {
+    getJobs(id, params, options) {
         return this.get("studies", id, "jobs", params, options);
     }
 
-    samples(id, params, options) {
+    getSamples(id, params, options) {
         return this.get("studies", id, "samples", params, options);
     }
 
-    group(id, params, options) {
-        return this.get("studies", id, "groups", params, options);
+    getGroups(id) {
+        return this.get("studies", id, "groups");
+    }
+
+    getGroup(id, groupId) {
+        return this.extendedGet("studies", id, "groups", groupId, "info");
+    }
+
+    createGroup(id, groupId, userIds) {
+        let params = {
+            groupId: groupId,
+            users: userIds
+        };
+        return this.extendedGet("studies", id, "groups", undefined, "create", params);
+    }
+
+    deleteGroup(id, groupId) {
+        return this.extendedGet("studies", id, "groups", groupId, "delete");
+    }
+
+    updateGroup(id, groupId, params) {
+        return this.extendedGet("studies", id, "groups", groupId, "update", params);
     }
 
     update(id, params, options) {
         return this.get("studies", id, "update", params, options);
     }
 
-    variants(id, params, options) {
+    getVariants(id, params, options) {
         return this.get("studies", id, "variants", params, options);
     }
 
-    alignments(id, params, options) {
+    getAlignments(id, params, options) {
         return this.get("studies", id, "alignments", params, options);
-    }
-
-    status(id, params, options) {
-        return this.get("studies", id, "status", params, options);
-    }
-
-    remove(ids, params, options) {
-        return this.get("studies", ids, "remove", params, options);
     }
 
 }
@@ -469,10 +498,6 @@ class Files extends OpenCGAParentClass {
 
     link(params, options) {
         return this.get("files", undefined, "link", params, options);
-    }
-
-    uri(id, params, options) {
-        return this.get("files", id, "uri", params, options);
     }
 
     info(id, params, options) {
@@ -499,64 +524,36 @@ class Files extends OpenCGAParentClass {
         return this.get("files", id, "content", params, options);
     }
 
-    contentGrep(id, params, options) {
-        return this.get("files", id, "content-grep", params, options);
-    }
-
-    contentExample(params, options) {
-        return this.get("files", undefined, "content-example", params, options);
-    }
-
-    downloadExample(params, options) {
-        return this.get("files", undefined, "download-example", params, options);
-    }
-
-    setHeader(id, params, options) {
-        return this.get("files", id, "set-header", params, options);
-    }
-
-    filesByFolder(id, params, options) {
-        return this.get("files", id, "files", params, options);
-    }
-
-    treeView(id, params, options) {
-        return this.get("files", id, "tree-view", params, options);
+    grep(id, params, options) {
+        return this.get("files", id, "grep", params, options);
     }
 
     createFolder(params, options) {
         return this.get("files", undefined, "create-folder", params, options);
     }
 
-    list(id, params, options) {
-        return this.get("files", id, "list", params, options);
+    list(folderId, params, options) {
+        return this.get("files", folderId, "list", params, options);
     }
 
     index(id, params, options) {
         return this.get("files", id, "index", params, options);
     }
 
-    alignments(id, params, options) {
+    getAlignments(id, params, options) {
         return this.get("files", id, "alignments", params, options);
     }
 
-    fetch(id, params, options) {
-        return this.get("files", id, "fetch", params, options);
-    }
-
-    variants(id, params, options) {
+    getVariants(id, params, options) {
         return this.get("files", id, "variants", params, options);
     }
 
-    delete(id, params, options) {
+    remove(id, params, options) {
         return this.get("files", id, "delete", params, options);
     }
 
     update(id, params, options) {
         return this.get("files", id, "update", params, options);
-    }
-
-    share(id, params, options) {
-        return this.get("files", id, "share", params, options);
     }
 
     relink(id, params, options) {
@@ -566,11 +563,6 @@ class Files extends OpenCGAParentClass {
     upload(params, options) {
         return this.get("files", undefined, "upload", params, options);
     }
-
-    remove(ids, params, options) {
-        return this.get("files", ids, "remove", params, options);
-    }
-
 }
 
 class Jobs extends OpenCGAParentClass {
@@ -591,12 +583,8 @@ class Jobs extends OpenCGAParentClass {
         return this.get("jobs", id, "info", params, options);
     }
 
-    delete(id, params, options) {
+    remove(id, params, options) {
         return this.get("jobs", id, "delete", params, options);
-    }
-
-    remove(ids, params, options) {
-        return this.get("jobs", ids, "remove", params, options);
     }
 
 }
@@ -619,20 +607,12 @@ class Individuals extends OpenCGAParentClass {
         return this.get("individuals", id, "info", params, options);
     }
 
-    annotate(id, params, options) {
-        return this.get("individuals", id, "annotate", params, options);
-    }
-
     update(id, params, options) {
         return this.get("individuals", id, "update", params, options);
     }
 
-    delete(id, params, options) {
+    remove(id, params, options) {
         return this.get("individuals", id, "delete", params, options);
-    }
-
-    remove(ids, params, options) {
-        return this.get("individuals", ids, "remove", params, options);
     }
 
 }
@@ -659,24 +639,12 @@ class Samples extends OpenCGAParentClass {
         return this.get("samples", id, "info", params, options);
     }
 
-    annotate(id, params, options) {
-        return this.get("samples", id, "annotate", params, options);
-    }
-
     update(id, params, options) {
         return this.get("samples", id, "update", params, options);
     }
 
-    share(id, params, options) {
-        return this.get("samples", id, "share", params, options);
-    }
-
-    delete(id, params, options) {
+    remove(id, params, options) {
         return this.get("samples", id, "delete", params, options);
-    }
-
-    remove(ids, params, options) {
-        return this.get("samples", ids, "remove", params, options);
     }
 
 }
@@ -707,12 +675,8 @@ class Variables extends OpenCGAParentClass {
         return this.get("variableSet", id, "update", params, options);
     }
 
-    delete(id, params, options) {
+    remove(id, params, options) {
         return this.get("variableSet", id, "delete", params, options);
-    }
-
-    remove(ids, params, options) {
-        return this.get("variableSet", ids, "remove", params, options);
     }
 
 }
@@ -735,16 +699,16 @@ class Cohorts extends OpenCGAParentClass {
         return this.get("cohorts", id, "info", params, options);
     }
 
+    getSamples(id, params) {
+        return this.get("cohorts", id, "samples", params);
+    }
+
     update(id, params, options) {
         return this.get("cohorts", id, "update", params, options);
     }
 
-    delete(id, params, options) {
+    remove(id, params, options) {
         return this.get("cohorts", id, "delete", params, options);
-    }
-
-    remove(ids, params, options) {
-        return this.get("cohorts", ids, "remove", params, options);
     }
 
 }
