@@ -5,7 +5,6 @@
             .center {
                 margin: auto;
                 text-align: justify;
-                width: 60%;
             }
         </style>
 
@@ -14,27 +13,38 @@
             <br>
             <table class="table table-bordered center">
                 <thead>
-                    <tr class="table-header" style="background-color: #eee">
+                    <!--<tr class="table-header" style="background-color: #eee">-->
+                    <tr class="table-header bg-primary">
                         <th>Project</th>
                         <th>Studies</th>
+                        <th>Date</th>
+                        <th>Files</th>
+                        <th>Samples</th>
+                        <th>Jobs</th>
+                        <th>Individuals</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <template is="dom-repeat" items="{{projects}}">
-                        <tr>
-                            <td>
-                                <a href="#" on-click="fireSelectProject" data-project="{{item}}">{{item.name}}</a>
-                            </td>
-                            <td>
-                                <ul class="list-unstyled">
-                                    <template is="dom-repeat" items="{{item.studies}}" as="study">
-                                        <li>
-                                            <a href="#" on-click="fireSelectStudy" data-project="{{item}}" data-study="{{study}}">{{study.name}}</a>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </td>
-                        </tr>
+                    <template is="dom-repeat" items="{{_projects}}" as="studies">
+                        <template is="dom-repeat" items="{{studies}}">
+                            <tr>
+                                <template is="dom-if" if="{{_exists(item.rowspan)}}">
+                                    <td rowspan$="{{item.rowspan}}">
+                                        <a href="#" on-click="fireSelectProject" data-project="{{item._project}}">{{item._project.name}}</a>
+                                    </td>
+                                </template>
+
+                                <td>
+                                    <a href="#" on-click="fireSelectStudy" data-project="{{item._project}}" data-study="{{item}}">{{item.name}}</a>
+                                </td>
+                                <td>{{item.creationDate}}</td>
+                                <td>{{item.files}}</td>
+                                <td>{{item.samples}}</td>
+                                <td>{{item.jobs}}</td>
+                                <td>{{item.individuals}}</td>
+
+                            </tr>
+                        </template>
                     </template>
                 </tbody>
             </table>
@@ -44,6 +54,10 @@
         Polymer({
             is: 'opencga-projects',
             properties: {
+                opencgaClient: {
+                    type: Object,
+                    value: {}
+                },
                 projects: {
                     type: Array,
                     value: []
@@ -54,6 +68,58 @@
                     value: false
                 }
             },
+            observers: [
+                'clientProjectChanged(opencgaClient, projects)'
+            ],
+            ready: function() {
+                this._projects = [];
+            },
+            clientProjectChanged: function(opencgaClient, projects) {
+                if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient
+                        && typeof this.projects !== "undefined" && this.projects.length > 0) {
+                    let _this = this;
+
+                    // Obtain the summary of the studies
+                    let projectPromises = [];
+
+                    this.projects.forEach(function(project) {
+                        let studyPromises = [];
+                        project.studies.forEach(function(study) {
+                            studyPromises.push(_this.opencgaClient.studies().summary(study.id));
+                        });
+                        projectPromises.push(Promise.all(studyPromises).then(function(responses) {
+                            let studies = [];
+                            responses.forEach(function (response) {
+                                let study = response.response[0].result[0];
+                                study.creationDate = _this._formatDate(study.creationDate);
+                                studies.push(study);
+                            });
+                            return studies;
+                        }));
+                    });
+
+                    Promise.all(projectPromises).then(function(responses) {
+                        for (let i = 0; i < responses.length; i++) {
+                            // We only put the rowspan information in the first one so we are sure that we only put the project info once in the table
+                            if (responses[i].length > 0) {
+                                responses[i][0].rowspan = responses[i].length;
+                            }
+
+                            for (let j = 0; j < responses[i].length; j++) {
+                                responses[i][0]._project = this.projects[i];
+                            }
+
+                        }
+                        this._projects = responses;
+                    }.bind(_this))
+                }
+            },
+            _formatDate: function(dateStr) {
+                return moment(dateStr).format('D MMM Y');
+            },
+            _exists: function(data) {
+                return data !== undefined;
+            },
             fireSelectProject: function (e) {
                 e.preventDefault();
                 this.fire('project', {project: e.target.dataProject});
@@ -61,7 +127,9 @@
             fireSelectStudy: function (e) {
                 e.preventDefault();
 //                this.fire('study', {studyName: e.target.innerHTML, studyId: e.target.dataId, project: e.target.dataProject});
-                this.fire('study', {study: e.target.dataStudy, project: e.target.dataProject});
+                let study = e.target.dataStudy;
+                delete study._project;
+                this.fire('study', {study: study, project: e.target.dataProject});
             }
         });
     </script>
