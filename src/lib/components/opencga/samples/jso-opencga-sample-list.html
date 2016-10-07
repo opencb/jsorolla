@@ -516,6 +516,7 @@
             return mode === 'folder';
         },
         handleSampleClick: function(e) {
+            e.stopPropagation();
             var selected = e.currentTarget;
             var sel = this.querySelectorAll("jso-opencga-sample-list-item[selected]");
             if (this.enableVariantBrowser || this.enableMultiselect) {

@@ -80,7 +80,7 @@
                     <span style="">{{sample.cohort}}</span>
                 </div>
             </template>
-            <jso-panel id="addSuspPanel" modal closable hidden>
+            <jso-panel id="addSuspPanel" modal closable hidden on-click="handleaddSuspPanelClick">
                 <div class="header">
                   Add suspected diagnosis
                 </div>
@@ -189,6 +189,7 @@
             }
         },
         showListICD:function(e){
+          e.stopPropagation();
           if (this.sample.status=="INDEXING") {
             alert("VCF is indexing, try later");
           }else{
@@ -196,6 +197,7 @@
           }
         },
         handleAddSuspicious: function(e) {
+          e.stopPropagation();
             var me = this;
             var infor = {};
             if (this.sample.description != "") {
@@ -228,6 +230,9 @@
                     }
                 });
             }
+        },
+        handleaddSuspPanelClick:function(e){
+          e.stopPropagation();
         }
     });
 </script>
