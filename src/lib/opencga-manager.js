@@ -484,7 +484,7 @@ var OpencgaManager = {
         formData.append("last_chunk", true);
         formData.append("total_size", inputFile.size);
         formData.append("fileFormat", fileFormat);
-        formData.append("bioFormat", bioFormat);
+        formData.append("bioformat", bioFormat);
         formData.append("description", description);
 
         var xhr = new XMLHttpRequest();
