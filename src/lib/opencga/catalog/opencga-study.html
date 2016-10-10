@@ -6,72 +6,147 @@
                 margin: 10px;
                 text-align: justify;
             }
+
+            dt {
+                float: left;
+                clear: left;
+                text-align: right;
+                width: 15%;
+                color: #645a5a;
+            }
+
+            dd {
+                float: left;
+                margin-left: 1em;
+                color: #999
+            }
         </style>
 
         <div class="center">
-            <!--<h2>{{study.name}}</h2>-->
 
-            <div style="height: 250px;">
-                <div class="col-md-4" style="padding: 10px;">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Information</div>
-                        <div class="panel-body" style="max-height: 250px; overflow-y:scroll;">
-                            <!--<p><span style="color:#000080;"><strong>Name: </strong></span>{{study.name}}</p>-->
-                            <p><span style="color:#000080;"><strong>Alias: </strong></span>{{study.alias}}</p>
-                            <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
-                                <p><span style="color:#000080;"><strong>Type: </strong></span>{{study.type}}</p>
-                            </template>
-                            <p><span style="color:#000080;"><strong>Date: </strong></span>{{_formatDate(study.creationDate)}}</p>
-                            <p><span style="color:#000080;"><strong>DiskUsage: </strong></span>{{_getDiskUsage(study.diskUsage)}}</p>
-                            <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
-                                <p><span style="color:#000080;"><strong>Description: </strong></span>{{study.description}}</p>
-                            </template>
-                        </div>
-                    </div>
-                </div>
+            <!-- 1ST ROW: STUDY SUMMARY -->
+            <div>
+                <h1>Summary</h1>
+                <dl>
+                    <dt>Name</dt>
+                    <dd>{{study.name}}</dd>
+                    <dt>Alias (id)</dt>
+                    <dd>{{study.alias}} ({{study.id}})</dd>
+                    <template is="dom-if" if="{{_isNotEmpty(study.type)}}">
+                        <dt>Type</dt>
+                        <dd>{{study.type}}</dd>
+                    </template>
+                    <dt>Date</dt>
+                    <dd>{{_formatDate(study.creationDate)}}</dd>
+                    <dt>Disk usage</dt>
+                    <dd>{{_getDiskUsage(study.diskUsage)}}</dd>
+                    <template is="dom-if" if="{{_isNotEmpty(study.description)}}">
+                        <dt>Description</dt>
+                        <dd>{{study.description}}</dd>
+                    </template>
+                </dl>
+            </div>
 
-                <div class="col-md-4" style="padding: 10px;">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Users shared with <span class="badge">{{getLength(_users)}}</span></div>
-                        <div id="userlist" class="panel-body list-group"  style="max-height: 250px; overflow-y:scroll;">
+            <!-- 2ND ROW -->
+            <div style="clear: both; padding: 15px 0px;">
+
+                <!-- PERMISSIONS -->
+                <div class="col-md-6" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Members and permissions</h3>
+                    <table class="table table-bordered center" style="overflow: auto">
+                        <thead>
+                        <tr class="table-header bg-primary">
+                            <th>User</th>
+                            <th>Groups</th>
+                            <th>Effective permissions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
                             <template is="dom-repeat" items="{{_users}}" as="user">
-                                <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
-                                      on-click="_userSelectedChanged" class="list-group-item" user="{{user}}">
-                                    {{user.id}}
-                                    <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
-                                        <span style="color: #2e6da4"> ({{user.group}})</span>
-                                    </template>
-                                </span>
+                                <tr>
+                                    <td>
+                                        <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                           on-click="_userSelectedChanged" user="{{user}}">{{user.id}}</span>
+                                    </td>
+                                    <!-- Groups -->
+                                    <td>
+                                        <template is="dom-if" if="{{_isNotEmpty(user.group)}}">
+                                            <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                               on-click="_userSelectedChanged" user="{{user}}">{{user.group}}</span>
+                                        </template>
+                                        <!--No groups-->
+                                        <template is="dom-if" if="{{!_isNotEmpty(user.group)}}">
+                                            -
+                                        </template>
+                                    </td>
+                                    <td>
+                                        <span style="cursor: pointer;" data-toggle="modal" data-target="#{{prefix}}ModalPermissions"
+                                        on-click="_userSelectedChanged" user="{{user}}">Click here</span>
+                                    </td>
+                                </tr>
                             </template>
-
-                        </div>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="col-md-4" style="padding: 10px;">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Variable sets <span class="badge">{{getLength(study.variableSets)}}</span></div>
-                        <div class="panel-body">
-                            <template is="dom-repeat" items="{{study.variableSets}}" as="variableSet">
-                                <a class="fa fa-caret-down" role="button" data-toggle="collapse" aria-hidden="true"
-                                   href="#{{prefix}}{{variableSet.id}}" aria-expanded="false" aria-controls="{{prefix}}{{variableSet.id}}"></a>
-                                <span style="font-weight: bold"> {{variableSet.name}}</span>
-                                <button type="button" class="btn btn-link" style="position: absolute; right: 10px;" data-variable="{{variableSet}}"
-                                        on-click="showVariableSet">
-                                    (show)
-                                </button>
-                                <div class="collapse" id="{{prefix}}{{variableSet.id}}" style="padding: 10px; font-size: initial;">
-                                    {{variableSet.description}}
-                                </div>
-                            </template>
-                        </div>
-                    </div>
+                <!-- VARIABLE SETS -->
+                <div class="col-md-6" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Variable sets</h3>
+                    <table class="table table-bordered center" style="overflow: auto">
+                        <thead>
+                        <tr class="table-header bg-primary">
+                            <th>Name (id)</th>
+                            <th>Description</th>
+                            <th>#Mandatory</th>
+                            <th>#Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template is="dom-repeat" items="{{variableSets}}" as="variableset">
+                            <tr>
+                                <td><span style="font-weight: bold;">{{variableset.name}}</span> ({{variableset.id}})</td>
+                                <td>{{variableset.description}}</td>
+                                <td>{{variableset.mandatory}}</td>
+                                <td>{{variableset.total}}</td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div style="height: 250px; padding: 10px;">
-                <div id="{{prefix}}files-piechart" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
-                <div id="{{prefix}}files-barplot" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
-                <div id="{{prefix}}samples-barplot" class="col-md-4" style="margin: 10px auto; padding: 0px 10px;"></div>
+
+            <!-- 3RD ROW -->
+            <div style="clear: both; padding: 15px 0px;">
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">File summary</h3>
+                    <div id="{{prefix}}files-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}files-format" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}files-other" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Sample summary</h3>
+                    <div id="{{prefix}}samples-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}samples-other2" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}samples-other" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="padding: 10px;">
+                    <h3 style="margin-left: 10px;">Job summary</h3>
+                    <div id="{{prefix}}jobs-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}jobs-other2" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                    <div class="col-md-6" style="padding: 10px;">
+                        <div id="{{prefix}}jobs-other" style="margin: 10px auto; padding: 0px 10px;"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Permission modal window -->
@@ -137,21 +212,28 @@
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
+                this.variableSets = [];
+                this.months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             },
 
             _getStudyInfo: function() {
                 if (this.opencgaClient instanceof OpenCGAClient && this.study !== "undefined" && this.study.hasOwnProperty("id")) {
-                    this.opencgaClient.studies().summary(this.study.id).then(this._parseStudySummary.bind(this));
-                    this._updateGraphics();
+                    this._updateVariableSetSummary();
+                    this._updateFileInfo();
+                    this._updateSampleInfo();
+                    this._updateJobInfo();
                     this._updateSharedUsers();
+//                    this.opencgaClient.studies().summary(this.study.id).then(this._parseStudySummary.bind(this));
+//                    this._updateGraphics();
+
                 }
             },
 
-            _parseStudySummary: function(response) {
-                if (response.response[0].numResults === 1) {
-                    this._study = response.response[0].result[0];
-                }
-            },
+//            _parseStudySummary: function(response) {
+//                if (response.response[0].numResults === 1) {
+//                    this._study = response.response[0].result[0];
+//                }
+//            },
 
             _formatDate: function(dateStr) {
                 return moment(dateStr).format('D MMM Y');
@@ -167,6 +249,220 @@
             showVariableSet: function(e) {
                 this.fire('show-variable-set', {
                     variableSet: e.target.dataVariable
+                });
+            },
+
+            _updateVariableSetSummary: function() {
+                let variableSets = this.study.variableSets;
+                let variabletSetsArray = [];
+                variableSets.forEach(function(variableSet) {
+                    let mandatory = 0;
+                    variableSet.variables.forEach(function(variable) {
+                        if (variable.required) {
+                            mandatory += 1;
+                        }
+                    });
+                    let description = variableSet.description;
+                    if (description === undefined || description.length === 0) {
+                        description = "-";
+                    }
+                    variabletSetsArray.push({
+                        id: variableSet.id,
+                        name: variableSet.name,
+                        description: description,
+                        mandatory: mandatory,
+                        total: variableSet.variables.length
+                    });
+                });
+                this.variableSets = variabletSetsArray;
+            },
+
+            _updateFileInfo: function() {
+                // Files created by month
+                let params = {
+                    studyId: this.study.id,
+                    fields: "format,month",
+                    format: "BAM,VCF",
+                    count: true
+                };
+
+                this.opencgaClient.files().groupBy(params).then(function(param) {
+                    if (param.response[0].numResults > 0) {
+                        // Create plot
+                    } else {
+                        $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found with format BAM or VCF.";
+                    }
+                }.bind(this));
+            },
+
+            _updateSampleInfo: function() {
+                // Samples created by month
+                let params = {
+                    studyId: this.study.id,
+                    fields: "month",
+                    count: true
+                };
+
+                this.opencgaClient.samples().groupBy(params).then(function(param) {
+                    if (param.response[0].numResults > 0) {
+                        let params = {
+                            title: "Samples created by month",
+                            xAxisText: "Month",
+                            yAxisText: "Number of samples created"
+                        };
+
+                        // We create this object to sort it by date first
+                        let myObject = [];
+                        let _this = this;
+                        param.response[0].result.forEach(function(result) {
+                            myObject.push([result._id.year + result._id.month, {
+                                date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
+                                count: result.count
+                            }]);
+                        });
+
+                        // Sort it by the name
+                        myObject.sort(function(a, b) {
+                            return a[0] < b[0];
+                        });
+
+                        // Calculate acums
+                        let acum = 0;
+                        let categories = [];
+                        let series = [{
+                            name: "New samples",
+                            data: []
+                        }, {
+                            name: "Accumulated samples",
+                            data: []
+                        }];
+                        for (let i = 0; i < myObject.length; i++) {
+                            categories.push(myObject[i][1].date);
+                            series[0].data.push(myObject[i][1].count);
+
+                            acum = myObject[i][1].count + acum;
+                            series[1].data.push(acum);
+                        }
+
+                        if (categories.length === 0) {
+                            $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
+                            return;
+                        }
+
+                        params.categories = categories;
+                        params.series = series;
+
+                        this._updateBarplot("#" + this.prefix + "samples-barplot", params);
+                    } else {
+                        $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
+                    }
+                }.bind(this));
+            },
+
+            _updateJobInfo: function() {
+                // Samples created by month
+                let params = {
+                    studyId: this.study.id,
+                    fields: "month",
+                    count: true
+                };
+
+                this.opencgaClient.jobs().groupBy(params).then(function(param) {
+                    if (param.response[0].numResults > 0) {
+                        let params = {
+                            title: "Jobs created by month",
+                            xAxisText: "Month",
+                            yAxisText: "Number of jobs created",
+                            categories: [],
+                            series: []
+                        };
+
+                        // We create this object to sort it by date first
+                        let myObject = [];
+                        let _this = this;
+                        param.response[0].result.forEach(function(result) {
+                            myObject.push([result._id.year + result._id.month, {
+                                date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
+                                count: result.count
+                            }]);
+                        });
+
+                        // Sort it by the name
+                        myObject.sort(function(a, b) {
+                            return a[0] < b[0];
+                        });
+
+                        // Calculate acums
+                        let acum = 0;
+                        let categories = [];
+                        let series = [{
+                            name: "New jobs",
+                            data: []
+                        }, {
+                            name: "Accumulated jobs",
+                            data: []
+                        }];
+                        for (let i = 0; i < myObject.length; i++) {
+                            categories.push(myObject[i][1].date);
+                            series[0].data.push(myObject[i][1].count);
+
+                            acum = myObject[i][1].count + acum;
+                            series[1].data.push(acum);
+                        }
+
+                        if (categories.length === 0) {
+                            $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
+                            return;
+                        }
+
+                        params.categories = categories;
+                        params.series = series;
+
+                        this._updateBarplot("#" + this.prefix + "jobs-barplot", params);
+                    } else {
+                        $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
+                    }
+                }.bind(this));
+            },
+
+            _updateBarplot: function(_id, params) {
+                // params = { title, xAxisText, yAxisText, categories, series}
+
+                $(_id).highcharts({
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: params.title
+                    },
+                    xAxis: {
+                        categories: params.categories,
+                        title: {
+                            text: params.xAxisText
+                        },
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: params.yAxisText
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y}</b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: params.series
                 });
             },
 

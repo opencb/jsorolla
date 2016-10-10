@@ -25,6 +25,7 @@ class OpenCGAClient {
         this._samples;
         this._individuals;
         this._cohorts;
+        this._jobs;
         this._panels;
         this._variables;
     }
@@ -64,6 +65,13 @@ class OpenCGAClient {
             this._files = new Files(this._config)
         }
         return this._files;
+    }
+
+    jobs() {
+        if (typeof this._jobs === "undefined") {
+            this._jobs = new Jobs(this._config)
+        }
+        return this._jobs;
     }
 
     samples() {
@@ -579,6 +587,10 @@ class Jobs extends OpenCGAParentClass {
         return this.get("jobs", id, "visit", params, options);
     }
 
+    groupBy(params, options) {
+        return this.get("jobs", undefined, "groupBy", params, options);
+    }
+
     info(id, params, options) {
         return this.get("jobs", id, "info", params, options);
     }
@@ -629,6 +641,10 @@ class Samples extends OpenCGAParentClass {
 
     search(params, options) {
         return this.get("samples", undefined, "search", params, options);
+    }
+
+    groupBy(params, options) {
+        return this.get("samples", undefined, "groupBy", params, options);
     }
 
     load(params, options) {
