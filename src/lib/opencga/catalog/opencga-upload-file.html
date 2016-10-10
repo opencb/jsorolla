@@ -15,7 +15,7 @@
                     <div class="form-group row">
                         <label for="inputFile" class="col-sm-2 col-form-label">File</label>
                         <div class="col-sm-10">
-                            <input type="file" class="file">
+                            <input type="file" class="file" id="FileToUpload">
                             <div class="input-group">
                                 <input type="text" class="form-control" id="inputFile">
                                 <span class="input-group-btn">
@@ -30,36 +30,39 @@
                         <div class="col-sm-10">
                             <div class="form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" type="radio" name="bioformat" id="vcf" value="VCF">VCF
+                                    <input class="form-check-input" type="radio" name="bioformat" id="vcf" value="VCF"> VCF
                                 </label>
                             </div>
                             <div class="form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" type="radio" name="bioformat" id="bam" value="BAM">BAM
+                                    <input class="form-check-input" type="radio" name="bioformat" id="bam" value="BAM"> BAM
                                 </label>
                             </div>
                             <div class="form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" type="radio" name="bioformat" id="others" value="Others">Others
+                                    <input class="form-check-input" type="radio" name="bioformat" id="others" value="Others"> Others
                                 </label>
                             </div>
                         </div>
                     </fieldset>
 
                     <div class="form-group row">
-                        <label for="studyDropdown" class="col-sm-2 col-form-label">Study</label>
+                        <label class="col-sm-2 col-form-label">Study</label>
                         <div class="col-sm-10">
-                            <div class="dropdown">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="studyDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    Studies
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="studyDropdown" on-click="selectSegregation">
+
+                            <template is="dom-if" if="{{checkStudy(study)}}">
+                                <select class="form-control" name="study" id="study" disabled>
+                                    <option>{{study.alias}}</option>
+                                </select>
+                            </template>
+
+                            <template is="dom-if" if="{{checkStudies(study, studies)}}">
+                                <select class="form-control" name="study" id="studyOptions">
                                     <template is="dom-repeat" items="{{studies}}">
-                                        <li><a>{{item}}</a></li>
+                                        <option>{{item.alias}}</option>
                                     </template>
-                                </ul>
-                            </div>
+                                </select>
+                            </template>
                         </div>
                     </div>
 
@@ -73,7 +76,7 @@
 
                     <div class="form-group row">
                         <div class="offset-sm-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary">Upload</button>
+                            <button type="submit" class="btn btn-primary" on-click="uploadFile">Upload</button>
                         </div>
                     </div>
                 </form>
@@ -83,6 +86,17 @@
     <script>
         Polymer({
             is: 'opencga-upload-file',
+            properties: {
+                opencgaClient: {
+                    type: Object
+                },
+                study: {
+                    type: Object
+                },
+                studies: {
+                    type: Array
+                }
+            },
             ready: function () {
                 $(document).on('click', '.browse', function(){
                     var file = $(this).parent().parent().parent().find('.file');
@@ -90,7 +104,45 @@
                 });
                 $(document).on('change', '.file', function(){
                     $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+
+                    let allowedFiles = [".vcf", ".bam"];
+                    let fileUpload = $("#inputFile");
+                    let regex = new RegExp("([a-zA-Z0-9\s_\\.\-:])+(" + allowedFiles.join('|') + ")$");
+                    if (!regex.test(fileUpload.val().toLowerCase())) {
+                        $("#others").prop("checked", true);
+                    } else {
+                        let filePatterns = fileUpload.val().toLowerCase().match(regex);
+                        if (filePatterns.length > 1) {
+                            switch(filePatterns[filePatterns.length-1]) {
+                                case ".vcf":
+                                    $("#vcf").prop("checked", true);
+                                    break;
+                                case ".bam":
+                                    $("#bam").prop("checked", true);
+                                    break;
+                            }
+                        }
+                    }
                 });
+            },
+            checkStudy: function(study) {
+                return study != null;
+            },
+            checkStudies: function(study, studies) {
+                return study == null && studies.length > 0;
+            },
+            uploadFile: function (e) {
+                e.preventDefault();
+                let files = $("#FileToUpload").prop('files');
+//                if (this.opencgaClient instanceof OpenCGAClient) {
+//                    let params = {
+//                        sid: this.opencgaClient._config.sessionId,
+//                        file: $("#FileToUpload").prop('files'),
+//                    };
+//                    this.opencgaClient.files().upload(params).then(function (response) {
+//                        console.log(response)
+//                    })
+//                }
             }
         });
     </script>
