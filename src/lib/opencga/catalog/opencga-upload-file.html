@@ -10,77 +10,75 @@
         </style>
 
         <div>
-            <div>
-                <form>
-                    <div class="form-group row">
-                        <label for="inputFile" class="col-sm-2 col-form-label">File</label>
-                        <div class="col-sm-10">
-                            <input type="file" class="file" id="FileToUpload">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="inputFile">
-                                <span class="input-group-btn">
+            <form style="height: 300px">
+                <div class="form-group row">
+                    <label for="inputFile" class="col-sm-2 col-form-label">File</label>
+                    <div class="col-sm-10">
+                        <input type="file" class="file" id="FileToUpload">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputFile">
+                            <span class="input-group-btn">
                                     <button class="browse btn btn-primary" type="button">...</button>
                                 </span>
-                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <fieldset class="form-group row">
-                        <label class="col-form-legend col-sm-2">Type</label>
-                        <div class="col-sm-10">
-                            <div class="form-check">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" type="radio" name="bioformat" id="vcf" value="VCF"> VCF
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" type="radio" name="bioformat" id="bam" value="BAM"> BAM
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" type="radio" name="bioformat" id="others" value="Others"> Others
-                                </label>
-                            </div>
+                <fieldset class="form-group row">
+                    <label class="col-form-legend col-sm-2">Type</label>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="bioformat" id="vcf" value="VCF"> VCF
+                            </label>
                         </div>
-                    </fieldset>
-
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">Study</label>
-                        <div class="col-sm-10">
-
-                            <template is="dom-if" if="{{checkStudy(study)}}">
-                                <select class="form-control" name="study" id="study" disabled>
-                                    <option>{{study.alias}}</option>
-                                </select>
-                            </template>
-
-                            <template is="dom-if" if="{{checkStudies(study, studies)}}">
-                                <select class="form-control" name="study" id="studyOptions">
-                                    <template is="dom-repeat" items="{{studies}}">
-                                        <option>{{item.alias}}</option>
-                                    </template>
-                                </select>
-                            </template>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="bioformat" id="bam" value="BAM"> BAM
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="bioformat" id="others"
+                                       value="Others"> Others
+                            </label>
                         </div>
                     </div>
+                </fieldset>
 
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Study</label>
+                    <div class="col-sm-10">
 
-                    <div class="form-group row">
-                        <label for="pathInput" class="col-sm-2 col-form-label">Path</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="pathInput">
-                        </div>
+                        <template is="dom-if" if="{{checkStudy(study)}}">
+                            <select class="form-control" name="study" id="study" disabled>
+                                <option>{{study.alias}}</option>
+                            </select>
+                        </template>
+
+                        <template is="dom-if" if="{{checkStudies(studies)}}">
+                            <select class="form-control" name="study" id="studyOptions">
+                                <template is="dom-repeat" items="{{studies}}">
+                                    <option>{{item.alias}}</option>
+                                </template>
+                            </select>
+                        </template>
                     </div>
+                </div>
 
-                    <div class="form-group row">
-                        <div class="offset-sm-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary" on-click="uploadFile">Upload</button>
-                        </div>
+                <div class="form-group row">
+                    <label for="pathInput" class="col-sm-2 col-form-label">Path</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="pathInput">
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="form-group row" style="float: right;">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary" on-click="uploadFile">Upload</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </template>
     <script>
@@ -98,6 +96,7 @@
                 }
             },
             ready: function () {
+                let _this = this;
                 $(document).on('click', '.browse', function(){
                     var file = $(this).parent().parent().parent().find('.file');
                     file.trigger('click');
@@ -116,9 +115,11 @@
                             switch(filePatterns[filePatterns.length-1]) {
                                 case ".vcf":
                                     $("#vcf").prop("checked", true);
+                                    _this.fileType = "vcf";
                                     break;
                                 case ".bam":
                                     $("#bam").prop("checked", true);
+                                    _this.fileType = "bam";
                                     break;
                             }
                         }
@@ -128,21 +129,34 @@
             checkStudy: function(study) {
                 return study != null;
             },
-            checkStudies: function(study, studies) {
-                return study == null && studies.length > 0;
+            checkStudies: function(studies) {
+                return typeof this.study === "undefined" && studies.length > 0;
             },
             uploadFile: function (e) {
                 e.preventDefault();
-                let files = $("#FileToUpload").prop('files');
-//                if (this.opencgaClient instanceof OpenCGAClient) {
-//                    let params = {
-//                        sid: this.opencgaClient._config.sessionId,
-//                        file: $("#FileToUpload").prop('files'),
-//                    };
-//                    this.opencgaClient.files().upload(params).then(function (response) {
-//                        console.log(response)
-//                    })
-//                }
+
+                if (typeof this.study === "undefined" && typeof this.studies !== "undefined" && this.studies != null && this.studies.length > 0) {
+                    let selectedStudy = $("#studyOptions")[0].value;
+                    for (let i in this.studies) {
+                        if (selectedStudy == this.studies[i].alias) {
+                            this.study = this.studies[i];
+                            break;
+                        }
+                    }
+                }
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    let params = {
+                        sid: this.opencgaClient._config.sessionId,
+                        studyId: this.study.id,
+                        file: $("#FileToUpload").prop('files')[0],
+                        fileFormat: this.fileType,
+//                        bioFormat: this.fileType,
+                        relativeFilePath: this.$.pathInput.value
+                    };
+                    this.opencgaClient.files().upload(params).then(function (response) {
+                        console.log(response)
+                    });
+                }
             }
         });
     </script>
