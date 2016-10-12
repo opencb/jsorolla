@@ -26,7 +26,7 @@
 
             <!-- 1ST ROW: STUDY SUMMARY -->
             <div>
-                <h1>Summary</h1>
+                <h2>Summary</h2>
                 <dl>
                     <dt>Name</dt>
                     <dd>{{study.name}}</dd>
@@ -121,7 +121,7 @@
                     <h3 style="margin-left: 10px;">File summary</h3>
                     <div id="{{prefix}}files-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
                     <div class="col-md-6" style="padding: 10px;">
-                        <div id="{{prefix}}files-format" style="margin: 10px auto; padding: 0px 10px;"></div>
+                        <div id="{{prefix}}files-format-piechart" style="margin: 10px auto; padding: 0px 10px;"></div>
                     </div>
                     <div class="col-md-6" style="padding: 10px;">
                         <div id="{{prefix}}files-other" style="margin: 10px auto; padding: 0px 10px;"></div>
@@ -131,7 +131,7 @@
                     <h3 style="margin-left: 10px;">Sample summary</h3>
                     <div id="{{prefix}}samples-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
                     <div class="col-md-6" style="padding: 10px;">
-                        <div id="{{prefix}}samples-other2" style="margin: 10px auto; padding: 0px 10px;"></div>
+                        <div id="{{prefix}}samples-annotations-piechart" style="margin: 10px auto; padding: 0px 10px;"></div>
                     </div>
                     <div class="col-md-6" style="padding: 10px;">
                         <div id="{{prefix}}samples-other" style="margin: 10px auto; padding: 0px 10px;"></div>
@@ -192,11 +192,13 @@
                 prefix: {
                     type: Object
                 },
-                _pieChartGroupByParams: {
+                config: {
                     type: Object,
                     value: {
-                        fields: 'format',
-                        format: 'VCF,BAM'
+                        showMonthlyPlots: true,
+                        files: {
+                            formats: ["BAM", "VCF", "PED"]
+                        }
                     }
                 },
                 _selectedUser: {
@@ -245,12 +247,6 @@
                 }
                 return 0;
             },
-//
-            showVariableSet: function(e) {
-                this.fire('show-variable-set', {
-                    variableSet: e.target.dataVariable
-                });
-            },
 
             _updateVariableSetSummary: function() {
                 let variableSets = this.study.variableSets;
@@ -278,151 +274,320 @@
             },
 
             _updateFileInfo: function() {
-                // Files created by month
+
+                if (this.config.showMonthlyPlots) {
+                    // Files created by month
+                    let params = {
+                        studyId: this.study.id,
+                        fields: "format,month",
+                        format: this.config.files.formats.join(","),
+                        count: true
+                    };
+
+                    this.opencgaClient.files().groupBy(params).then(function (param) {
+                        if (param.response[0].numResults > 0) {
+                            let params = {
+                                title: "Files created by month",
+                                xAxisText: "Month",
+                                yAxisText: "Number of files created"
+                            };
+
+                            // We create this object to sort it by date first
+                            let myObject = [];
+                            let myHash = {};
+                            let _this = this;
+                            param.response[0].result.forEach(function (result) {
+                                let date = _this.months[parseInt(result._id.month) - 1] + " " + result._id.year;
+                                if (!(date in myHash)) {
+                                    myObject.push([result._id.year + result._id.month, date]);
+                                    myHash[date] = {};
+                                    _this.config.files.formats.forEach(function(format) {
+                                        myHash[date][format] = 0;
+                                    });
+                                }
+                                myHash[date][result._id.format] = result.count;
+                            });
+
+                            // Sort it by the name
+                            myObject.sort(function (a, b) {
+                                return a[0] > b[0];
+                            });
+
+                            // Calculate acums
+                            let acum = 0;
+                            let categories = [];
+                            let series = [];
+                            this.config.files.formats.forEach(function(format) {
+                                series.push({
+                                    name: format,
+                                    data: []
+                                });
+                            });
+                            series.push({
+                                name: "Accumulated",
+                                data: []
+                            });
+//                            let series = [{
+//                                name: "BAM",
+//                                data: []
+//                            }, {
+//                                name: "VCF",
+//                                data: []
+//                            }, {
+//                                name: "Accumulated",
+//                                data: []
+//                            }];
+
+                            for (let i = 0; i < myObject.length; i++) {
+                                let date = myObject[i][1];
+                                categories.push(date);
+
+                                for (let j = 0; j < this.config.files.formats.length; j++) {
+                                    series[j].data.push(myHash[date][this.config.files.formats[j]]);
+                                    acum += myHash[date][this.config.files.formats[j]];
+                                }
+                                series[series.length - 1].data.push(acum);
+                            }
+
+                            if (categories.length === 0) {
+                                $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found.";
+                                return;
+                            }
+
+                            params.categories = categories;
+                            params.series = series;
+
+                            this._updateBarplot("#" + this.prefix + "files-barplot", params);
+
+                        } else {
+                            $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found with format BAM or VCF.";
+                        }
+                    }.bind(this));
+                }
+
                 let params = {
                     studyId: this.study.id,
-                    fields: "format,month",
-                    format: "BAM,VCF",
+                    fields: "format",
+//                    format: this.config.files.formats.join(","),
                     count: true
                 };
 
-                this.opencgaClient.files().groupBy(params).then(function(param) {
-                    if (param.response[0].numResults > 0) {
-                        // Create plot
-                    } else {
-                        $("#" + this.prefix + "files-barplot")[0].innerHTML = "No files found with format BAM or VCF.";
-                    }
+                this.opencgaClient.files().groupBy(params).then(function (param) {
+                    let results = param.response[0].result;
+                    let total = 0;
+                    let myHash = {
+                        OTHER: 0
+                    };
+                    this.config.files.formats.forEach(function(format) {
+                        myHash[format] = 0;
+                    });
+
+                    let _this = this;
+                    results.forEach(function(result) {
+                        total += result.count;
+                        // If the format is one of the formats asked
+                        if (_this.config.files.formats.indexOf(result._id.format) > -1) {
+                            myHash[result._id.format] = result.count;
+                        } else {
+                            myHash["OTHER"] += result.count;
+                        }
+                    });
+
+                    // Pass the information to the data format used by highcharts
+                    let data = [];
+                    this.config.files.formats.forEach(function(format) {
+                        data.push({
+                            name: format,
+                            y: myHash[format]/total
+                        });
+                    });
+                    // Add others
+                    data.push({
+                        name: "OTHER",
+                        y: myHash["OTHER"]/total
+                    });
+
+                    let params = {
+                        title: "% file formats",
+                        data: data
+                    };
+                    this._updatePieChart("#" + this.prefix + "files-format-piechart", params);
+
                 }.bind(this));
             },
 
             _updateSampleInfo: function() {
-                // Samples created by month
-                let params = {
-                    studyId: this.study.id,
-                    fields: "month",
-                    count: true
-                };
 
-                this.opencgaClient.samples().groupBy(params).then(function(param) {
-                    if (param.response[0].numResults > 0) {
-                        let params = {
-                            title: "Samples created by month",
-                            xAxisText: "Month",
-                            yAxisText: "Number of samples created"
-                        };
+                if (this.config.showMonthlyPlots) {
+                    // Samples created by month
+                    let params = {
+                        studyId: this.study.id,
+                        fields: "month",
+                        count: true
+                    };
 
-                        // We create this object to sort it by date first
-                        let myObject = [];
-                        let _this = this;
-                        param.response[0].result.forEach(function(result) {
-                            myObject.push([result._id.year + result._id.month, {
-                                date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
-                                count: result.count
-                            }]);
-                        });
+                    this.opencgaClient.samples().groupBy(params).then(function (param) {
+                        if (param.response[0].numResults > 0) {
+                            let params = {
+                                title: "Samples created by month",
+                                xAxisText: "Month",
+                                yAxisText: "Number of samples created"
+                            };
 
-                        // Sort it by the name
-                        myObject.sort(function(a, b) {
-                            return a[0] < b[0];
-                        });
+                            // We create this object to sort it by date first
+                            let myObject = [];
+                            let _this = this;
+                            param.response[0].result.forEach(function (result) {
+                                myObject.push([result._id.year + result._id.month, {
+                                    date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
+                                    count: result.count
+                                }]);
+                            });
 
-                        // Calculate acums
-                        let acum = 0;
-                        let categories = [];
-                        let series = [{
-                            name: "New samples",
-                            data: []
-                        }, {
-                            name: "Accumulated samples",
-                            data: []
-                        }];
-                        for (let i = 0; i < myObject.length; i++) {
-                            categories.push(myObject[i][1].date);
-                            series[0].data.push(myObject[i][1].count);
+                            // Sort it by the name
+                            myObject.sort(function (a, b) {
+                                return a[0] > b[0];
+                            });
 
-                            acum = myObject[i][1].count + acum;
-                            series[1].data.push(acum);
-                        }
+                            // Calculate acums
+                            let acum = 0;
+                            let categories = [];
+                            let series = [{
+                                name: "New samples",
+                                data: []
+                            }, {
+                                name: "Accumulated samples",
+                                data: []
+                            }];
+                            for (let i = 0; i < myObject.length; i++) {
+                                categories.push(myObject[i][1].date);
+                                series[0].data.push(myObject[i][1].count);
 
-                        if (categories.length === 0) {
+                                acum = myObject[i][1].count + acum;
+                                series[1].data.push(acum);
+                            }
+
+                            if (categories.length === 0) {
+                                $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
+                                return;
+                            }
+
+                            params.categories = categories;
+                            params.series = series;
+
+                            this._updateBarplot("#" + this.prefix + "samples-barplot", params);
+                        } else {
                             $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
-                            return;
+                        }
+                    }.bind(this));
+                }
+
+                // Obtain the % of samples annotated
+                params = {
+                    studyId: this.study.id,
+                    include: "annotationSets.variableSetId"
+                };
+                this.opencgaClient.samples().search(params).then(function(result) {
+                    if (result.response[0].numResults > 0) {
+                        // By default, we initialize an array of 1 element to 0, meaning that we have 0 samples with 0 annotations.
+                        // 1st position: 0 annotations, 2nd position: 1 annotation, 3rd position: 2 annotations...
+                        // The number of positions will be added dynamically as we read the annotations from the results when needed
+                        let total = [0];
+                        result.response[0].result.forEach(function(sample) {
+                            let howMany = sample.annotationSets.length;
+                            while(howMany > (total.length - 1)) {
+                                total.push(0);
+                            }
+                            total[howMany] += 1;
+                        });
+
+                        let data = [];
+                        for (let i = 0; i < total.length; i++) {
+                            let text = " annotations";
+                            if (i === 1) {
+                                text = " annotation";
+                            }
+                            data.push({
+                                name: i + text,
+                                y: total[i]/result.response[0].numResults
+                            });
                         }
 
-                        params.categories = categories;
-                        params.series = series;
-
-                        this._updateBarplot("#" + this.prefix + "samples-barplot", params);
-                    } else {
-                        $("#" + this.prefix + "samples-barplot")[0].innerHTML = "No samples found.";
+                        let params = {
+                            title: "% samples annotated",
+                            data: data
+                        };
+                        this._updatePieChart("#" + this.prefix + "samples-annotations-piechart", params);
                     }
                 }.bind(this));
             },
 
             _updateJobInfo: function() {
-                // Samples created by month
-                let params = {
-                    studyId: this.study.id,
-                    fields: "month",
-                    count: true
-                };
+                if (this.config.showMonthlyPlots) {
+                    // Samples created by month
+                    let params = {
+                        studyId: this.study.id,
+                        fields: "month",
+                        count: true
+                    };
 
-                this.opencgaClient.jobs().groupBy(params).then(function(param) {
-                    if (param.response[0].numResults > 0) {
-                        let params = {
-                            title: "Jobs created by month",
-                            xAxisText: "Month",
-                            yAxisText: "Number of jobs created",
-                            categories: [],
-                            series: []
-                        };
+                    this.opencgaClient.jobs().groupBy(params).then(function (param) {
+                        if (param.response[0].numResults > 0) {
+                            let params = {
+                                title: "Jobs created by month",
+                                xAxisText: "Month",
+                                yAxisText: "Number of jobs created",
+                                categories: [],
+                                series: []
+                            };
 
-                        // We create this object to sort it by date first
-                        let myObject = [];
-                        let _this = this;
-                        param.response[0].result.forEach(function(result) {
-                            myObject.push([result._id.year + result._id.month, {
-                                date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
-                                count: result.count
-                            }]);
-                        });
+                            // We create this object to sort it by date first
+                            let myObject = [];
+                            let _this = this;
+                            param.response[0].result.forEach(function (result) {
+                                myObject.push([result._id.year + result._id.month, {
+                                    date: _this.months[parseInt(result._id.month) - 1] + " " + result._id.year,
+                                    count: result.count
+                                }]);
+                            });
 
-                        // Sort it by the name
-                        myObject.sort(function(a, b) {
-                            return a[0] < b[0];
-                        });
+                            // Sort it by the name
+                            myObject.sort(function (a, b) {
+                                return a[0] < b[0];
+                            });
 
-                        // Calculate acums
-                        let acum = 0;
-                        let categories = [];
-                        let series = [{
-                            name: "New jobs",
-                            data: []
-                        }, {
-                            name: "Accumulated jobs",
-                            data: []
-                        }];
-                        for (let i = 0; i < myObject.length; i++) {
-                            categories.push(myObject[i][1].date);
-                            series[0].data.push(myObject[i][1].count);
+                            // Calculate acums
+                            let acum = 0;
+                            let categories = [];
+                            let series = [{
+                                name: "New jobs",
+                                data: []
+                            }, {
+                                name: "Accumulated jobs",
+                                data: []
+                            }];
+                            for (let i = 0; i < myObject.length; i++) {
+                                categories.push(myObject[i][1].date);
+                                series[0].data.push(myObject[i][1].count);
 
-                            acum = myObject[i][1].count + acum;
-                            series[1].data.push(acum);
-                        }
+                                acum = myObject[i][1].count + acum;
+                                series[1].data.push(acum);
+                            }
 
-                        if (categories.length === 0) {
+                            if (categories.length === 0) {
+                                $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
+                                return;
+                            }
+
+                            params.categories = categories;
+                            params.series = series;
+
+                            this._updateBarplot("#" + this.prefix + "jobs-barplot", params);
+                        } else {
                             $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
-                            return;
                         }
-
-                        params.categories = categories;
-                        params.series = series;
-
-                        this._updateBarplot("#" + this.prefix + "jobs-barplot", params);
-                    } else {
-                        $("#" + this.prefix + "jobs-barplot")[0].innerHTML = "No jobs found.";
-                    }
-                }.bind(this));
+                    }.bind(this));
+                }
             },
 
             _updateBarplot: function(_id, params) {
@@ -466,63 +631,40 @@
                 });
             },
 
-            _updatePieChart: function(response) {
-                if (response.hasOwnProperty("response") && response.response[0].numResults > 0) {
-                    let result = response.response[0].result;
-                    let vcfs = 0;
-                    let bams = 0;
-                    for(let i = 0; i < result.length; i++) {
-                        if (result[i]._id === "VCF") {
-                            vcfs = result[i].features.length;
-                        } else if (result[i]._id === "BAM") {
-                            bams = result[i].features.length;
-                        }
-                    }
-                    let vcfPctg = vcfs / (vcfs + bams);
-                    let bamPctg = bams / (vcfs + bams);
-
-                    let variable = '#' + this.prefix + 'files-piechart';
-                    $(function () {
-                        $(variable).highcharts({
-                            chart: {
-                                plotBackgroundColor: null,
-                                plotBorderWidth: null,
-                                plotShadow: false,
-                                type: 'pie'
-                            },
-                            title: {
-                                text: 'Format files'
-                            },
-                            tooltip: {
-                                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-                            },
-                            plotOptions: {
-                                pie: {
-                                    allowPointSelect: true,
-                                    cursor: 'pointer',
-                                    dataLabels: {
-                                        enabled: true,
-                                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                                        style: {
-                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                                        }
-                                    }
+            _updatePieChart: function(_id, params) {
+                // params = { title, data}
+                $(_id).highcharts({
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: params.title
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                                 }
-                            },
-                            series: [{
-                                name: 'Type',
-                                colorByPoint: true,
-                                data: [{
-                                    name: 'VCF',
-                                    y: vcfPctg
-                                }, {
-                                    name: 'BAM',
-                                    y: bamPctg
-                                }]
-                            }]
-                        });
-                    });
-                }
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Type',
+                        colorByPoint: true,
+                        data: params.data
+                    }]
+                });
             },
 
             _updateSharedUsers: function() {
@@ -585,108 +727,6 @@
                 $(e.target.dataTarget).modal('show')
             },
 
-            _updateGraphics: function() {
-
-                if (this.study.hasOwnProperty("id")) {
-                    this._pieChartGroupByParams["studyId"] = this.study.id;
-                    this.opencgaClient.files().groupBy(this._pieChartGroupByParams).then(this._updatePieChart.bind(this));
-                }
-
-                variable = '#' + this.prefix + 'files-barplot';
-                $(function () {
-                    $(variable).highcharts({
-                        chart: {
-                            type: 'column'
-                        },
-                        title: {
-                            text: 'File creation'
-                        },
-                        yAxis: {
-                            allowDecimals: false,
-                            title: {
-                                text: 'Units'
-                            }
-                        },
-                        xAxis: {
-                            categories: [
-                                'Jan',
-                                'Feb',
-                                'Mar',
-                                'Apr',
-                                'May',
-                                'Jun',
-                                'Jul',
-                                'Aug',
-                                'Sep',
-                                'Oct',
-                                'Nov',
-                                'Dec'
-                            ]
-                        },
-                        tooltip: {
-                            formatter: function () {
-                                return '<b>' + this.series.name + '</b><br/>' +
-                                        this.series.data;
-                            }
-                        },
-                        series: [{
-                            name: 'BAM',
-                            data: [1, 2, 4, 6, 8, 12, 16, 20, 25, 30, 35, 40]
-                        }, {
-                            name: 'VCF',
-                            data: [1, 2, 4, 6, 8, 12, 16, 20, 25, 30, 35, 40]
-                        }]
-                    });
-                });
-
-                variable = '#' + this.prefix + 'samples-barplot';
-                $(function () {
-                    $(variable).highcharts({
-                        chart: {
-                            type: 'column'
-                        },
-                        title: {
-                            text: 'Sample creation per month'
-                        },
-                        yAxis: {
-                            allowDecimals: false,
-                            title: {
-                                text: 'Units'
-                            }
-                        },
-                        xAxis: {
-                            categories: [
-                                'Jan',
-                                'Feb',
-                                'Mar',
-                                'Apr',
-                                'May',
-                                'Jun',
-                                'Jul',
-                                'Aug',
-                                'Sep',
-                                'Oct',
-                                'Nov',
-                                'Dec'
-                            ]
-                        },
-                        tooltip: {
-                            formatter: function () {
-                                return '<b>' + this.series.name + '</b><br/>' +
-                                        this.series.data;
-                            }
-                        },
-                        series: [{
-                            name: 'Total samples',
-                            data: [1, 2, 4, 6, 8, 12, 16, 20, 25, 30, 35, 40]
-                        }, {
-                            name: 'Accumulated samples',
-                            data: [1, 3, 7, 13, 21, 33, 49, 69, 94, 124, 159, 199]
-                        }]
-                    });
-                });
-            },
-
             _isNotEmpty: function(field) {
                 if (field !== undefined && field.length > 0) {
                     return true;
@@ -701,13 +741,6 @@
                 var sizes = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
                 var i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
-            },
-
-            getLength: function(items) {
-                if (items === undefined) {
-                    return 0;
-                }
-                return items.length;
             }
 
         });
