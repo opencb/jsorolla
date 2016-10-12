@@ -121,7 +121,7 @@
                     <h3 style="margin-left: 10px;">File summary</h3>
                     <div id="{{prefix}}files-barplot" style="margin: 10px auto; padding: 0px 10px;"></div>
                     <div class="col-md-6" style="padding: 10px;">
-                        <div id="{{prefix}}files-format" style="margin: 10px auto; padding: 0px 10px;"></div>
+                        <div id="{{prefix}}files-format-piechart" style="margin: 10px auto; padding: 0px 10px;"></div>
                     </div>
                     <div class="col-md-6" style="padding: 10px;">
                         <div id="{{prefix}}files-other" style="margin: 10px auto; padding: 0px 10px;"></div>
@@ -192,9 +192,14 @@
                 prefix: {
                     type: Object
                 },
-                showBarPlots: {
-                    type: Boolean,
-                    value: true
+                config: {
+                    type: Object,
+                    value: {
+                        showMonthlyPlots: true,
+                        files: {
+                            formats: ["BAM", "VCF", "PED"]
+                        }
+                    }
                 },
                 _selectedUser: {
                     type: Object
@@ -270,12 +275,12 @@
 
             _updateFileInfo: function() {
 
-                if (this.showBarPlots) {
+                if (this.config.showMonthlyPlots) {
                     // Files created by month
                     let params = {
                         studyId: this.study.id,
                         fields: "format,month",
-                        format: "BAM,VCF",
+                        format: this.config.files.formats.join(","),
                         count: true
                     };
 
@@ -295,10 +300,10 @@
                                 let date = _this.months[parseInt(result._id.month) - 1] + " " + result._id.year;
                                 if (!(date in myHash)) {
                                     myObject.push([result._id.year + result._id.month, date]);
-                                    myHash[date] = {
-                                        VCF: 0,
-                                        BAM: 0
-                                    }
+                                    myHash[date] = {};
+                                    _this.config.files.formats.forEach(function(format) {
+                                        myHash[date][format] = 0;
+                                    });
                                 }
                                 myHash[date][result._id.format] = result.count;
                             });
@@ -311,26 +316,37 @@
                             // Calculate acums
                             let acum = 0;
                             let categories = [];
-                            let series = [{
-                                name: "BAM",
-                                data: []
-                            }, {
-                                name: "VCF",
-                                data: []
-                            }, {
+                            let series = [];
+                            this.config.files.formats.forEach(function(format) {
+                                series.push({
+                                    name: format,
+                                    data: []
+                                });
+                            });
+                            series.push({
                                 name: "Accumulated",
                                 data: []
-                            }];
+                            });
+//                            let series = [{
+//                                name: "BAM",
+//                                data: []
+//                            }, {
+//                                name: "VCF",
+//                                data: []
+//                            }, {
+//                                name: "Accumulated",
+//                                data: []
+//                            }];
 
                             for (let i = 0; i < myObject.length; i++) {
                                 let date = myObject[i][1];
                                 categories.push(date);
 
-                                series[0].data.push(myHash[date].BAM);
-                                series[1].data.push(myHash[date].VCF);
-
-                                acum = myHash[date].BAM + myHash[date].VCF + acum;
-                                series[2].data.push(acum);
+                                for (let j = 0; j < this.config.files.formats.length; j++) {
+                                    series[j].data.push(myHash[date][this.config.files.formats[j]]);
+                                    acum += myHash[date][this.config.files.formats[j]];
+                                }
+                                series[series.length - 1].data.push(acum);
                             }
 
                             if (categories.length === 0) {
@@ -348,11 +364,61 @@
                         }
                     }.bind(this));
                 }
+
+                let params = {
+                    studyId: this.study.id,
+                    fields: "format",
+//                    format: this.config.files.formats.join(","),
+                    count: true
+                };
+
+                this.opencgaClient.files().groupBy(params).then(function (param) {
+                    let results = param.response[0].result;
+                    let total = 0;
+                    let myHash = {
+                        OTHER: 0
+                    };
+                    this.config.files.formats.forEach(function(format) {
+                        myHash[format] = 0;
+                    });
+
+                    let _this = this;
+                    results.forEach(function(result) {
+                        total += result.count;
+                        // If the format is one of the formats asked
+                        if (_this.config.files.formats.indexOf(result._id.format) > -1) {
+                            myHash[result._id.format] = result.count;
+                        } else {
+                            myHash["OTHER"] += result.count;
+                        }
+                    });
+
+                    // Pass the information to the data format used by highcharts
+                    let data = [];
+                    this.config.files.formats.forEach(function(format) {
+                        data.push({
+                            name: format,
+                            y: myHash[format]/total
+                        });
+                    });
+                    // Add others
+                    data.push({
+                        name: "OTHER",
+                        y: myHash["OTHER"]/total
+                    });
+
+                    let params = {
+                        title: "% file formats",
+                        data: data
+                    };
+                    this._updatePieChart("#" + this.prefix + "files-format-piechart", params);
+
+                }.bind(this));
             },
 
             _updateSampleInfo: function() {
 
-                if (this.showBarPlots) {
+                if (this.config.showMonthlyPlots) {
                     // Samples created by month
                     let params = {
                         studyId: this.study.id,
@@ -457,7 +523,7 @@
             },
 
             _updateJobInfo: function() {
-                if (this.showBarPlots) {
+                if (this.config.showMonthlyPlots) {
                     // Samples created by month
                     let params = {
                         studyId: this.study.id,
