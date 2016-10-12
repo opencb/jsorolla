@@ -262,6 +262,33 @@
                     </template>
                 </template>
 
+                <!-- Studies filter -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                               href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
+                                Studies
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
+                        <div class="panel-body">
+                            <select class="form-control" id="includeOtherStudy" style="width: 50%;">
+                                <option selected>None</option>
+                                <option>In</option>
+                                <option>Not In</option>
+                                <option>Atleast</option>
+                            </select>
+                            <div>
+                                <template is="dom-repeat" items="{{studies}}" filter="isDifferentStudy">
+                                    <input type="checkbox" value="{{item.alias}}"> {{item.alias}}<br>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Region filter -->
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="{{prefix}}PositionHeading">
@@ -588,6 +615,9 @@
                 study: {
                     type: Object
                 },
+                studies: {
+                    type: Array
+                },
                 opencgaClient: {
                     type: Object
                 },
@@ -648,6 +678,9 @@
             },
             checkTitle: function(consequenceType) {
                 return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
+            },
+            isDifferentStudy: function (item) {
+                return item.alias != this.study.alias;
             },
             updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];

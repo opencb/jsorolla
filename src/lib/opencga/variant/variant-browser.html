@@ -26,7 +26,7 @@
             <h3 style="margin: 10px 5px 15px 25px"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;{{title}}</h3>
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
-                <variant-browser-filter study="{{study}}" project="{{project}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
+                <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                         population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}">
                 </variant-browser-filter>
             </div>
@@ -55,6 +55,9 @@
                 },
                 study: {
                     type: Object
+                },
+                studies: {
+                    type: Array
                 },
                 title: {
                     type: String,

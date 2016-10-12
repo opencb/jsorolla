@@ -80,6 +80,56 @@
                 </div>
             </form>
         </div>
+
+        <!--<div>-->
+            <!--<form style="height: 300px">-->
+                <!--<div class="form-group row">-->
+                    <!--<label class="col-sm-2 col-form-label">Study</label>-->
+                    <!--<div class="col-sm-10">-->
+
+                        <!--<template is="dom-if" if="{{checkStudy(study)}}">-->
+                            <!--<select class="form-control" name="study" id="studyName" disabled>-->
+                                <!--<option>{{study.alias}}</option>-->
+                            <!--</select>-->
+                        <!--</template>-->
+
+                        <!--<template is="dom-if" if="{{checkStudies(studies)}}">-->
+                            <!--<select class="form-control" name="study" id="studies">-->
+                                <!--<template is="dom-repeat" items="{{studies}}">-->
+                                    <!--<option>{{item.alias}}</option>-->
+                                <!--</template>-->
+                            <!--</select>-->
+                        <!--</template>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="form-group row">-->
+                    <!--<label for="variableSetName" class="col-sm-2 col-form-label">Variable Set Name</label>-->
+                    <!--<div class="col-sm-10">-->
+                        <!--<input type="text" class="form-control" id="variableSetName">-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="form-group row">-->
+                    <!--<label for="inputFile" class="col-sm-2 col-form-label">File</label>-->
+                    <!--<div class="col-sm-10">-->
+                        <!--<input type="file" class="file" id="pedFileToUpload">-->
+                        <!--<div class="input-group">-->
+                            <!--<input type="text" class="form-control" id="pedInputFile">-->
+                            <!--<span class="input-group-btn">-->
+                                    <!--<button class="browse btn btn-primary" type="button">...</button>-->
+                                <!--</span>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="form-group row" style="float: right;">-->
+                    <!--<div class="offset-sm-2 col-sm-10">-->
+                        <!--<button type="submit" class="btn btn-primary" on-click="uploadFile">Upload</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</form>-->
+        <!--</div>-->
     </template>
     <script>
         Polymer({
