@@ -19,12 +19,6 @@
 <dom-module id="variant-browser-filter">
     <template>
         <style is="custom-style" include="jso-styles">
-            select {
-                height: 20px;
-                width: 45px;
-                align-self: center;
-            }
-
             .popFreqName {
                 font-size: 12px;
                 color: #797979;
@@ -72,25 +66,24 @@
                 display:inline
             }
 
-            div.block{
+            div.block {
                 overflow:hidden;
             }
-            div.block label{
+
+            div.block label {
                 width:80px;
                 display:block;
                 float:left;
                 text-align:left;
                 font-weight: normal;
             }
-            div.block select{
-                width:40px;
-                display:block;
-                float:left;
-                text-align:left;
-            }
-            div.block input{
+
+            select + select {
                 margin-left: 20px;
-                float: left;
+            }
+
+            select + input {
+                margin-left: 20px;
             }
 
         </style>
@@ -374,25 +367,40 @@
                     </div>
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
-                            <div class="block">
-                                <label>SIFT</label>
-                                <select name="siftOperator" id="{{prefix}}SiftOperator">
+                            <div>
+                                <label>SIFT</label><br>
+                                <select class="options" name="Sift" id="{{prefix}}SiftValues" style="width: 90px" on-change="checkScore">
+                                    <option value="none" selected>None</option>
+                                    <option value="tolerated">Tolerated</option>
+                                    <option value="deleterious">Deleterious</option>
+                                    <option value="score">Score...</option>
+                                </select>
+                                <select name="siftOperator" id="{{prefix}}SiftOperator" disabled>
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="sift" on-keyup="updateFilter"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateFilter" disabled>
                             </div>
-                            <div class="block">
-                                <label>Polyphen</label>
-                                <select name="siftOperator" id="{{prefix}}PolyphenOperator">
+                            <div>
+                                <label>Polyphen</label><br>
+                                <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" style="width: 90px" on-change="checkScore">
+                                    <option value="none" selected>None</option>
+                                    <option value="benign">Benign</option>
+                                    <option value="unknown">Unknown</option>
+                                    <option value="possiblyDamaging">Possibly damaging</option>
+                                    <option value="probablyDamaging">Probably damaging</option>
+                                    <option value="possiblyAndProbably">Possibly & Probably damaging</option>
+                                    <option value="score">Score...</option>
+                                </select>
+                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" disabled>
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="polyphen" on-keyup="updateFilter"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateFilter" disabled>
                             </div>
                         </div>
                     </div>
@@ -411,33 +419,33 @@
                         <div class="panel-body">
                             <div class="block">
                                 <label>PhyloP</label>
-                                <select name="siftOperator" id="{{prefix}}PhylopOperator">
+                                <select name="phylopOperator" id="{{prefix}}PhylopOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateFilter"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateFilter">
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
-                                <select name="siftOperator" id="{{prefix}}PhastconsOperator">
+                                <select name="phastconsOperator" id="{{prefix}}PhastconsOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateFilter"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateFilter">
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
-                                <select name="siftOperator" id="{{prefix}}GerpOperator">
+                                <select name="gerpOperator" id="{{prefix}}GerpOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateFilter"></td>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateFilter">
                             </div>
                         </div>
                     </div>
@@ -509,6 +517,41 @@
                         <div class="panel-body">
                             <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3"
                                       name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateFilter"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Cadd Scores filter-->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="{{prefix}}CaddFilterHeading">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}CaddFilter" aria-expanded="false" aria-controls="{{prefix}}ConservationFilter">
+                                Cadd
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}CaddFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}CaddFilterHeading">
+                        <div class="panel-body">
+                            <div class="block">
+                                <label>Raw</label>
+                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateFilter">
+                            </div>
+                            <div class="block">
+                                <label>Scaled</label>
+                                <select name="caddRScaledOperator" id="{{prefix}}CaddRScaledOperator">
+                                    <option value="<" selected><</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value=">=">>=</option>
+                                </select>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRScaledInput" name="caddScaled" on-keyup="updateFilter">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -649,6 +692,26 @@
 
                 this._filtersCount = Object.keys(this._filters).length;
             },
+            checkScore: function (e) {
+                if (e.target.value == "score") {
+                    $("#" + this.prefix + e.target.name +"Input").prop("disabled", false);
+                    $("#" + this.prefix + e.target.name +"Operator").prop("disabled", false);
+                } else {
+                    $("#" + this.prefix + e.target.name + "Input").val("");
+                    $("#" + this.prefix + e.target.name + "Operator").val("<");
+                    $("#" + this.prefix + e.target.name + "Input").prop("disabled", true);
+                    $("#" + this.prefix + e.target.name + "Operator").prop("disabled", true);
+
+                    // Update the filters
+                    if (e.target.value != "none") {
+                        this._filters[e.target.name] = e.target.value;
+                    } else {
+                        delete this._filters[e.target.name];
+                    }
+                }
+
+                this._filtersCount = Object.keys(this._filters).length;
+            },
             fireClear: function () {
                 this.query = {};
                 this._filters = {};
@@ -683,6 +746,12 @@
                 this.$$("#" + this.prefix + "SiftOperator").value = "<";
                 this.$$("#" + this.prefix + "PolyphenInput").value = "";
                 this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+                this.$$("#" + this.prefix + "SiftValues").value = "none";
+                this.$$("#" + this.prefix + "PolyphenValues").value = "none";
+                this.$$("#" + this.prefix + "SiftInput").disabled = true;
+                this.$$("#" + this.prefix + "SiftOperator").disabled = true;
+                this.$$("#" + this.prefix + "PolyphenInput").disabled = true;
+                this.$$("#" + this.prefix + "PolyphenOperator").disabled = true;
 
                 // Conservation
                 this.$$("#" + this.prefix + "PhylopInput").value = "";
@@ -756,11 +825,17 @@
                 }
 
                 // Protein Substitution scores
-                if (this.$$("#" + this.prefix + "SiftInput").value != "") {
-                    query.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                if (this.$$("#" + this.prefix + "SiftValues").value != "none") {
+                    if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "") {
+                        query.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                    }
+                    query.sift = this.$$("#" + this.prefix + "SiftValues").value;
                 }
-                if (this.$$("#" + this.prefix + "PolyphenInput").value != "") {
-                    query.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                if (this.$$("#" + this.prefix + "PolyphenValues").value != "none") {
+                    if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") {
+                        query.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                    }
+                    query.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
                 }
 
                 // Conservation
