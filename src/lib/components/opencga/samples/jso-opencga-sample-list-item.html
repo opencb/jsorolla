@@ -41,18 +41,20 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .addButton{
-          text-align: center;
-          color: #445D76;
-          margin: 2px;
-          width: 50px;
-          height: 18px;
-          line-height: 17px;
+
+        .addButton {
+            text-align: center;
+            color: #445D76;
+            margin: 2px;
+            width: 50px;
+            height: 18px;
+            line-height: 17px;
         }
-        #addSuspPanel .container{
-          padding: 5px;
-          height: 55px;
-          width: 300px;
+
+        #addSuspPanel .container {
+            padding: 5px;
+            height: 55px;
+            width: 300px;
         }
     </style>
     <template>
@@ -82,11 +84,11 @@
             </template>
             <jso-panel id="addSuspPanel" modal closable hidden on-click="handleaddSuspPanelClick">
                 <div class="header">
-                  Add suspected diagnosis
+                    Add suspected diagnosis
                 </div>
                 <div class="container">
-                  <input type="text" id="{{sample.name}}" style="width:98%">
-                  <div style="margin:0 auto; margin-top:5px;" class="jso-btn jso-btn-shdw addButton" on-click="handleAddSuspicious" title="Add suspected diagnosis for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
+                    <input type="text" id="{{sample.name}}" style="width:98%">
+                    <div style="margin:0 auto; margin-top:5px;" class="jso-btn jso-btn-shdw addButton" on-click="handleAddSuspicious" title="Add suspected diagnosis for this Sample" hidden$="{{isSuspAdded}}"><i class="fa fa-plus-square-o"></i>&nbsp; Add</div>
                 </div>
             </jso-panel>
 
@@ -188,51 +190,53 @@
                 });
             }
         },
-        showListICD:function(e){
-          e.stopPropagation();
-          if (this.sample.status=="INDEXING") {
-            alert("VCF is indexing, try later");
-          }else{
-            this.$.addSuspPanel.hidden=false;
-          }
+        showListICD: function(e) {
+            e.stopPropagation();
+            if (this.sample.status == "INDEXING") {
+                alert("VCF is indexing, try later");
+            } else {
+                this.$.addSuspPanel.hidden = false;
+            }
         },
         handleAddSuspicious: function(e) {
-          e.stopPropagation();
-            var me = this;
-            var infor = {};
-            if (this.sample.description != "") {
-                infor = JSON.parse(this.sample.description);
-            }
+            e.stopPropagation();
             elem = this.$.addSuspPanel.querySelectorAll('input');
             var susp = elem[0].value;
-            this.set('suspicious', susp);
-            if (susp != infor["suspDiag"]) {
-                infor["suspDiag"] = susp;
-                var description = JSON.stringify(infor);
-                OpencgaManager.samples.update({
-                    id: me.sample.id,
-                    query: {
-                        sid: Cookies('bioinfo_sid'),
-                        description: description,
-                        source: me.sample.source,
-                        individualId: me.sample.individualId
-                    },
-                    request: {
-                        async: false,
-                        success: function(response) {
-                            me.$.addSuspPanel.hidden=true;
-                            me.set("isSuspAdded", true);
-                            alert("Suspected Diagnosis has been added succesfully.")
+            if (confirm("Suspected diagnosis: '" + susp + "' , save?")) {
+                var me = this;
+                var infor = {};
+                if (this.sample.description != "") {
+                    infor = JSON.parse(this.sample.description);
+                }
+                this.set('suspicious', susp);
+                if (susp != infor["suspDiag"]) {
+                    infor["suspDiag"] = susp;
+                    var description = JSON.stringify(infor);
+                    OpencgaManager.samples.update({
+                        id: me.sample.id,
+                        query: {
+                            sid: Cookies('bioinfo_sid'),
+                            description: description,
+                            source: me.sample.source,
+                            individualId: me.sample.individualId
                         },
-                        error: function() {
+                        request: {
+                            async: false,
+                            success: function(response) {
+                                me.$.addSuspPanel.hidden = true;
+                                me.set("isSuspAdded", true);
+                                alert("Suspected Diagnosis has been added succesfully.")
+                            },
+                            error: function() {
 
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         },
-        handleaddSuspPanelClick:function(e){
-          e.stopPropagation();
+        handleaddSuspPanelClick: function(e) {
+            e.stopPropagation();
         }
     });
 </script>
