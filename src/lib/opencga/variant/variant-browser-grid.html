@@ -25,36 +25,8 @@
             </table>
         </div>
     </template>
+
     <script>
-
-        let consequenceTypeToImpact = new Map();
-        if (typeof consequenceTypes !== "undefined") {
-            for (let i = 0; i < consequenceTypes.categories.length; i++) {
-                if (typeof consequenceTypes.categories[i].terms !== "undefined") {
-                    for (let j = 0; j < consequenceTypes.categories[i].terms.length; j++) {
-                        consequenceTypeToImpact.set(consequenceTypes.categories[i].terms[j].name, consequenceTypes.color[consequenceTypes.categories[i].terms[j].impact]);
-                    }
-                } else if (typeof consequenceTypes.categories[i].id !== "undefined" && typeof consequenceTypes.categories[i].name !== "undefined") {
-                    consequenceTypeToImpact.set(consequenceTypes.categories[i].name, consequenceTypes.color[consequenceTypes.categories[i].impact]);
-                }
-            }
-        }
-
-        let pssColor = new Map();
-        if (typeof proteinSubstitutionScores !== "undefined") {
-            for (let i in proteinSubstitutionScores) {
-                let obj = proteinSubstitutionScores[i];
-                Object.keys(obj).forEach(key => {
-                    pssColor.set(key, obj[key]);
-                });
-            }
-        }
-
-        let populationFrequenciesColor = {};
-        if (typeof populationFrequencies !== "undefined") {
-            populationFrequenciesColor = populationFrequencies.color;
-        }
-
         Polymer({
             is: 'variant-browser-grid',
             properties: {
@@ -81,13 +53,18 @@
                     value: [],
                     observer: '_refreshTableColumns'
                 },
+                consequenceTypes: {
+                    type: Object,
+                    observer: 'assignColors'
+                },
                 populationFrequencies: {
                     type: Object,
                     value: {},
                     observer: '_refreshTableColumns'
                 },
                 proteinSubstitutionScores: {
-                    type: Object
+                    type: Object,
+                    observer: 'assignColors'
                 },
                 query: {
                     type: Object,
@@ -111,6 +88,34 @@
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
+                }
+            },
+            assignColors: function () {
+                if (typeof this.consequenceTypes !== "undefined" && typeof this.consequenceTypeToImpact === "undefined") {
+                    let consequenceTypeToImpact = {};
+                    for (let i = 0; i < this.consequenceTypes.categories.length; i++) {
+                        if (typeof this.consequenceTypes.categories[i].terms !== "undefined") {
+                            for (let j = 0; j < this.consequenceTypes.categories[i].terms.length; j++) {
+                                consequenceTypeToImpact[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.color[consequenceTypes.categories[i].terms[j].impact];
+                            }
+                        } else if (typeof this.consequenceTypes.categories[i].id !== "undefined" && typeof this.consequenceTypes.categories[i].name !== "undefined") {
+                            consequenceTypeToImpact[this.consequenceTypes.categories[i].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].impact];
+                        }
+                    }
+                    this.consequenceTypeToImpact = consequenceTypeToImpact;
+                }
+
+                if (typeof this.proteinSubstitutionScores !== "undefined" && typeof this.pssColor === "undefined") {
+                    let pssColor = new Map();
+                    if (typeof proteinSubstitutionScores !== "undefined") {
+                        for (let i in proteinSubstitutionScores) {
+                            let obj = proteinSubstitutionScores[i];
+                            Object.keys(obj).forEach(key => {
+                                pssColor.set(key, obj[key]);
+                            });
+                        }
+                    }
+                    this.pssColor = pssColor;
                 }
             },
             renderFromServer: function () {
@@ -242,8 +247,8 @@
                                 }
 
                                 if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visited.has(consequenceTypeName)) {
-                                    if (typeof consequenceTypeToImpact !== "undefined" && consequenceTypeToImpact.has(consequenceTypeName)) {
-                                        consequenceTypesArr.push('<span style="color: ' + consequenceTypeToImpact.get(consequenceTypeName) + '">' + consequenceTypeName + '</span>');
+                                    if (typeof this.field.context.consequenceTypeToImpact !== "undefined" && typeof this.field.context.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
+                                        consequenceTypesArr.push('<span style="color: ' + this.field.context.consequenceTypeToImpact[consequenceTypeName] + '">' + consequenceTypeName + '</span>');
                                     } else {
                                         consequenceTypesArr.push('<span>' + consequenceTypeName + '</span>');
                                     }
@@ -265,8 +270,8 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
                                 for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field) {
-                                        switch (this.field) {
+                                    if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field.source) {
+                                        switch (this.field.source) {
                                             case "sift":
                                                 if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
                                                     min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
@@ -286,9 +291,9 @@
                         }
                     }
                 }
-                if (this.field == 'sift' && min != 10) {
-                    return '<span style="color: ' + pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
-                } else if (this.field == 'polyphen' && max != 0) {
+                if (this.field.source == 'sift' && min != 10) {
+                    return '<span style="color: ' + this.field.context.pssColor.get(description.sift) + '" title="' + min + '">' + description.sift + '</span>';
+                } else if (this.field.source == 'polyphen' && max != 0) {
                     let str = description.polyphen;
                     if (str.indexOf(' ') >= 0) {
                         str = str
@@ -296,7 +301,7 @@
                                 .replace(/\s/g, '')
                                 .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
                     }
-                    return '<span style="color: ' + pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
+                    return '<span style="color: ' + this.field.context.pssColor.get(str) + '" title="' + max + '">' + description.polyphen + '</span>';
                 }
                 return '-';
             },
@@ -315,15 +320,15 @@
                     for (popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
                         let studyPopulation = popFreq.study + ":" + popFreq.population;
-                        if (studyPopulation == this.field) {
+                        if (studyPopulation == this.field.population) {
                             if (Number(popFreq.altAlleleFreq).toFixed(4) < 0.001) {
-                                return '<span style="color: ' + populationFrequenciesColor.veryRare + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                                return '<span style="color: ' + this.field.colors.veryRare + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
                             } else if (Number(popFreq.altAlleleFreq).toFixed(4) < 0.005) {
-                                return '<span style="color: ' + populationFrequenciesColor.rare + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                                return '<span style="color: ' + this.field.colors.rare + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
                             } else if (Number(popFreq.altAlleleFreq).toFixed(4) < 0.05) {
-                                return '<span style="color: ' + populationFrequenciesColor.average + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                                return '<span style="color: ' + this.field.colors.average + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
                             } else {
-                                return '<span style="color: ' + populationFrequenciesColor.common + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
+                                return '<span style="color: ' + this.field.colors.common + '">' + Number(popFreq.altAlleleFreq).toFixed(4) + '</span>';
                             }
                         }
                     }
@@ -349,13 +354,13 @@
                         if (typeof data.get(popFreq) !== "undefined") {
                             let freq = data.get(this.field.populations[p]);
                             if (freq < 0.001) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.veryRare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             } else if (freq < 0.005) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.rare + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             } else if (freq < 0.05) {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.average + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             } else {
-                                htmlPopFreqTable += "<td style='width: 15px; background: " + populationFrequenciesColor.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
+                                htmlPopFreqTable += "<td style='width: 15px; background: " + this.field.colors.common + "' title='" + popFreq + ": " + freq + "'>&nbsp;</td>";
                             }
                         } else  {
                             htmlPopFreqTable += "<td style='width: 15px; background: black;' title='" + popFreq + ": NA'>&nbsp;</td>";
@@ -398,8 +403,8 @@
             _refreshTableColumns: function() {
                 this.cols = this._createDefaultColumns();
 
-                if (this.showPopFreqInColor) {
-                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                    if (this.showPopFreqInColor) {
                         let popIdx = 5;
 
                         // Just one column called 'Population Frequencies'
@@ -411,7 +416,7 @@
                             halign: 'center'
                         });
 
-                        for(let j = 0; j < this.populationFrequencies.studies.length; j++) {
+                        for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
                             let populations = [];
                             let populationMap = {};
                             for (pop in this.populationFrequencies.studies[j].populations) {
@@ -421,16 +426,19 @@
 
                             this.cols[1].splice(j + popIdx, 0, {
                                 title: this.populationFrequencies.studies[j].title,
-                                field: {study: this.populationFrequencies.studies[j].id, populations: populations, populationMap: populationMap},
+                                field: {
+                                    study: this.populationFrequencies.studies[j].id,
+                                    populations: populations,
+                                    populationMap: populationMap,
+                                    colors: this.populationFrequencies.color
+                                },
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: this.populationFrequenciesFormatter2,
                                 halign: 'center'
                             });
                         }
-                    }
-                } else {
-                    if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
+                    } else {
                         let popIdx = 5;
                         for (let i = 0; i < this.populationFrequencies.studies.length; i++) {
                             let study = this.populationFrequencies.studies[i];
@@ -444,10 +452,13 @@
                             if (i > 0) {
                                 popIdx += this.populationFrequencies.studies[i - 1].populations.length;
                             }
-                            for(let j = 0; j < study.populations.length; j++) {
+                            for (let j = 0; j < study.populations.length; j++) {
                                 this.cols[1].splice(j + popIdx, 0, {
                                     title: study.populations[j].id,
-                                    field: study.id + ":" + study.populations[j].id,
+                                    field: {
+                                        population: study.id + ":" + study.populations[j].id,
+                                        colors: this.populationFrequencies.color
+                                    },
                                     rowspan: 1,
                                     colspan: 1,
                                     formatter: this.populationFrequenciesFormatter,
@@ -572,7 +583,7 @@
                         },
                         {
                             title: 'Consequence Type',
-//                            field: 'displayConsequenceType',
+                            field: {context: this},
                             sortable: true,
                             colspan: 1,
                             rowspan: 2,
@@ -604,7 +615,7 @@
                     [
                         {
                             title: 'SIFT',
-                            field: 'sift',
+                            field: {source: 'sift', context: this},
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.proteinScoreFormatter,
@@ -612,7 +623,7 @@
                         },
                         {
                             title: 'Polyphen',
-                            field: 'polyphen',
+                            field: {source: 'polyphen', context: this},
                             colspan: 1,
                             rowspan: 1,
                             formatter: this.proteinScoreFormatter,
