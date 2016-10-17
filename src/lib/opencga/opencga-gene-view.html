@@ -62,7 +62,9 @@
             </div>
             <div>
                 <h3>Variants</h3>
-                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" query="{{query}}" population-frequencies="{{populationFrequencies}}"></variant-browser-grid>
+                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" query="{{query}}"
+                                      population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      consequence-types="{{consequenceTypes}}"></variant-browser-grid>
             </div>
 
         </div>
@@ -90,6 +92,12 @@
                 },
                 populationFrequencies: {
                     type: Array
+                },
+                proteinSubstitutionScores: {
+                    type: Object
+                },
+                consequenceTypes: {
+                    type: Object
                 }
             },
             ready: function () {

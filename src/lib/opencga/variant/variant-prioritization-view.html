@@ -99,12 +99,12 @@
             <template is="dom-if" if="{{resultsViewActive}}">
                 <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
-                                      samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
+                                      samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
                                       query="{{query}}" variant="{{variant}}" on-selected="selectedGene">
                 </variant-browser-grid>
             </template>
 
-            <!-- Bottom tabs withspecific variant information -->
+            <!-- Bottom tabs with specific variant information -->
             <template is="dom-if" if="{{resultsViewActive}}">
                 <h3>Variant: {{variant}}</h3>
                 <div style="padding-top: 20px">
@@ -169,6 +169,9 @@
                     type: Object
                 },
                 proteinSubstitutionScores: {
+                    type: Object
+                },
+                consequenceTypes: {
                     type: Object
                 },
                 query: {
