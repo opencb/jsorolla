@@ -879,7 +879,9 @@
 
             // Region
             var regionQuery = this.$.filterPosition.checkRegion();
-            if (regionQuery != null) {
+            if (regionQuery == -1) {
+                return;
+            } else if (regionQuery != null) {
                 query["region"] = regionQuery;
             }
 
