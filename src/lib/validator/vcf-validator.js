@@ -193,6 +193,10 @@ VCFValidator.prototype._getDataFromRegExp = function (data, regExpId) {
 }
 
 VCFValidator.prototype.parseData = function (line) {
+    if (line == "") {
+        this.addLog("warning", "Empty line found.");
+        return;
+    }
     if (this.isHeaderLine(line)) {
         this.addLog("error", "Must not start with a header prefix (#)");
         return;
