@@ -87,7 +87,7 @@
                 this._refreshTableColumns();
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "table" + Utils.randomString(6);
                 }
             },
             assignColors: function () {

@@ -202,7 +202,7 @@
 
                 // To allow more than 'prioritization instance in the same web application we add a prefix to all elements ID
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "view" + Utils.randomString(6);
                 }
 
                 this.resultsViewActive = true;

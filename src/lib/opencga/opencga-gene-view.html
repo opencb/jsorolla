@@ -102,7 +102,7 @@
             },
             ready: function () {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "gene" + Utils.randomString(6);
                 }
             },
             geneChanged: function (neo, old) {
