@@ -166,7 +166,8 @@
 
 <script type="text/javascript">
     var genomeViewer;
-    var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
+    var CELLBASE_HOST = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
+    var CELLBASE_VERSION = 'v4';
     /*
      *  For development purpose only
      */
@@ -188,6 +189,7 @@
     function getSpecies(callback) {
         CellBaseManager.get({
             host: CELLBASE_HOST,
+            version: CELLBASE_VERSION,
             category: "meta",
             subCategory: "species",
             success: function(r) {
@@ -216,7 +218,7 @@
 
         genomeViewer = new GenomeViewer({
             cellBaseHost: CELLBASE_HOST,
-            cellBaseVersion: 'v3',
+            cellBaseVersion: CELLBASE_VERSION,
             target: 'application',
             width: document.querySelector('#application').getBoundingClientRect().width,
             region: region,
