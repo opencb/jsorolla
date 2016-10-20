@@ -204,6 +204,17 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
+        #variantButton {
+            border-radius: 5px;
+            width: 150px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+        }
+
+        #variantButton:hover {
+            background-color: var(--light-button-color) !important;
+        }
     }
     </style>
     <template>
@@ -248,7 +259,7 @@
             <label class="" style="margin-left:10px;">Study Type: </label>
             <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
             <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
-            <div id="variantButton" class="jso-btn jso-btn-shdw but" on-click="handleViewVariantBrowswer" hidden$="{{!enableVariantBrowser}}"> Variant Browser
+            <div id="variantButton" class="jso-btn jso-btn-shdw" on-click="handleViewVariantBrowswer" hidden$="{{!enableVariantBrowser}}" title="Explore selected samples"> Variant Browser
             </div>
             <div class="" hidden$="{{disableCaseControl}}">
                 <div class="msgError">{{msgCohortsError}}</div>
