@@ -144,7 +144,8 @@
                             <form class="form-inline">
                                 <div class="form-group">
                                     <label for="filtersList">Select a filter &nbsp;</label>
-                                    <select class="form-control" name="filters" id="filtersList">
+                                    <select class="form-control" name="filters" id="filtersList" on-change="filterChanged">
+                                        <option>None Selected</option>
                                         <template is="dom-repeat" items="{{config.filters}}">
                                             <option>{{item.name}}</option>
                                         </template>
@@ -660,7 +661,7 @@
                 this.sampleGenotypesObj = {};
 
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "browser" + Utils.randomString(6);
                 }
 
                 this._filters = {};
@@ -681,6 +682,39 @@
             },
             isDifferentStudy: function (item) {
                 return item.alias != this.study.alias;
+            },
+            filterChanged: function (e) {
+                if (typeof this.config !== "undefined" && typeof this.config.filters !== "undefined") {
+                    let query = {};
+                    for (let i = 0; i < this.config.filters.length; i++) {
+                        if (this.config.filters[i].name == e.target.value) {
+                            let filterObj = this.config.filters[i];
+                            let keys = Object.keys(filterObj.query);
+                            for (let j = 0; j < keys.length; j++) {
+                                this._filters[keys[j]] = filterObj.query[keys[j]];
+                                switch (keys[j]) {
+                                    // TODO add all possible filters
+                                    case "gene":
+                                        this.$$("#" + this.prefix + "GeneSnpTextarea").value = filterObj.query[keys[j]];
+                                        query.gene = filterObj.query[keys[j]];
+                                        break;
+                                    case "phylop":
+                                        let operator = filterObj.query[keys[j]].split(/[0-9].+/)[0];
+                                        let value = filterObj.query[keys[j]].split(/[<=>]+/)[1];
+                                        $("#" + this.prefix + "PhylopInput").val(value);
+                                        $("#" + this.prefix + "PhylopOperator").val(operator);
+                                        query.conservation = "phylop" + operator + value;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    this.query = query;
+                    this._filtersCount = Object.keys(this._filters).length;
+                }
+
             },
             updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];
