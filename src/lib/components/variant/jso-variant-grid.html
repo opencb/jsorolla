@@ -539,14 +539,14 @@
                             variant['1000GENOMES_phase_3'] = {};
                             for (var j = 0; j < annotation.populationFrequencies.length; j++) {
                                 var freq = annotation.populationFrequencies[j];
-                                if (freq.study == "ESP_6500") {
+                                if (freq.study == "ESP6500") {
                                     if (freq.population == "EA") {
                                         variant['ESP_6500'].EA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     } else if (freq.population == "AA") {
                                         variant['ESP_6500'].AA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
 
-                                } else if (freq.study == "1000GENOMES_phase_3") {
+                                } else if (freq.study == "1kG_phase3") {
                                     if (freq.population == "ALL") {
                                         variant['1000GENOMES_phase_3'].ALL = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     } else if (freq.population == "SAS") {
