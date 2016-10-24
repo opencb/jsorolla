@@ -1077,8 +1077,13 @@
                 if (phylop != null) {
                     conservation.push(phylop);
                 }
+                var gerp = this.$.filterConservation.checkGerp(2);
+                if (gerp != null) {
+                    conservation.push("gerp"+gerp);
+                }
                 query["conservation"] = conservation.join(",");
             }
+
 
             // Population Frequencies
 
@@ -1355,6 +1360,11 @@
                     filterName.push(fC[i]);
                 }
             }
+            //Gerp MODE 1, 2 SEGUN WS TODO 
+            // var fCg = this.$.filterConservation.loadGerp(hf);
+            // if (fCg != "") {
+            //     filterName.push(fCg);
+            // }
 
             // Consequence Types
             var fCT = this.$.filterCT.load(hf, 1);
