@@ -40,7 +40,7 @@
             <!-- Variant Browser Grid -->
             <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                   population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                  consequence-types="{{consequenceTypes}}" query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene">
+                                  consequence-types="{{consequenceTypes}}" query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene" style="font-size: 12px">
             </variant-browser-grid>
 
             <!-- Bottom tabs withspecific variant information -->
@@ -56,7 +56,7 @@
 
                     <!--Annotation Tab-->
                     <div role="tabpanel" class="tab-pane active" id="{{prefix}}Annotation">
-                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical"></cellbase-variantannotation-view>
+                        <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical" style="font-size: 12px"></cellbase-variantannotation-view>
                     </div>
 
                     <!--Genome Context Tab-->
