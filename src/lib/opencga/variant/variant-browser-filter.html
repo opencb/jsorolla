@@ -111,7 +111,7 @@
 
             <br>
             <div style="width: 60%;margin: 0 auto">
-                <button type="button" class="btn btn-primary" style="width: 100%" on-click="fireSearch">
+                <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
                     <i class="fa fa-search" aria-hidden="true" style="padding: 0px 5px 0px 5px"></i>
                     Search ({{_filtersCount}})
                 </button>
@@ -119,58 +119,58 @@
             <br>
 
             <!--<div class="panel-group" id="{{prefix}}FilterAccordion" role="tablist" aria-multiselectable="true">-->
-                <!--<div class="panel panel-default">-->
-                    <!--<div class="panel-heading" role="tab" id="{{prefix}}ActiveFilter">-->
-                        <!--<h4 class="panel-title">-->
-                            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}FilterAccordion"-->
-                               <!--href="#{{prefix}}Filters" aria-expanded="true" aria-controls="{{prefix}}Filters">-->
-                                <!--Active filters <span class="badge">{{_filtersCount}}</span>-->
-                            <!--</a>-->
-                        <!--</h4>-->
-                    <!--</div>-->
-                    <!--<div id="{{prefix}}Filters" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}ActiveFilter">-->
-                        <!--<div class="panel-body">-->
-                            <!--&lt;!&ndash;<h5 class="col-xs-5">Select a filter</h5>&ndash;&gt;-->
-                            <!--&lt;!&ndash;Select a filter&ndash;&gt;-->
-                            <!--&lt;!&ndash;<div class="col-xs-7">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<select class="form-control" name="filters" id="filtersList">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<template is="dom-repeat" items="{{config.filters}}">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<option>{{item.name}}</option>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</template>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</select>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading" role="tab" id="{{prefix}}ActiveFilter">-->
+            <!--<h4 class="panel-title">-->
+            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}FilterAccordion"-->
+            <!--href="#{{prefix}}Filters" aria-expanded="true" aria-controls="{{prefix}}Filters">-->
+            <!--Active filters <span class="badge">{{_filtersCount}}</span>-->
+            <!--</a>-->
+            <!--</h4>-->
+            <!--</div>-->
+            <!--<div id="{{prefix}}Filters" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}ActiveFilter">-->
+            <!--<div class="panel-body">-->
+            <!--&lt;!&ndash;<h5 class="col-xs-5">Select a filter</h5>&ndash;&gt;-->
+            <!--&lt;!&ndash;Select a filter&ndash;&gt;-->
+            <!--&lt;!&ndash;<div class="col-xs-7">&ndash;&gt;-->
+            <!--&lt;!&ndash;<select class="form-control" name="filters" id="filtersList">&ndash;&gt;-->
+            <!--&lt;!&ndash;<template is="dom-repeat" items="{{config.filters}}">&ndash;&gt;-->
+            <!--&lt;!&ndash;<option>{{item.name}}</option>&ndash;&gt;-->
+            <!--&lt;!&ndash;</template>&ndash;&gt;-->
+            <!--&lt;!&ndash;</select>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
 
-                            <!--&lt;!&ndash;<div class="input-group">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<span id="basic-addon1">Select a filter</span>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<select class="form-control" name="filters" id="filtersList">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<template is="dom-repeat" items="{{config.filters}}">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<option>{{item.name}}</option>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</template>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</select>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--&lt;!&ndash;<div class="input-group">&ndash;&gt;-->
+            <!--&lt;!&ndash;<span id="basic-addon1">Select a filter</span>&ndash;&gt;-->
+            <!--&lt;!&ndash;<select class="form-control" name="filters" id="filtersList">&ndash;&gt;-->
+            <!--&lt;!&ndash;<template is="dom-repeat" items="{{config.filters}}">&ndash;&gt;-->
+            <!--&lt;!&ndash;<option>{{item.name}}</option>&ndash;&gt;-->
+            <!--&lt;!&ndash;</template>&ndash;&gt;-->
+            <!--&lt;!&ndash;</select>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
 
-                            <!--<form class="form-inline">-->
-                                <!--<div class="form-group">-->
-                                    <!--<label for="filtersList">Select a filter &nbsp;</label>-->
-                                    <!--<select class="form-control" name="filters" id="filtersList" on-change="filterChanged">-->
-                                        <!--<option>None Selected</option>-->
-                                        <!--<template is="dom-repeat" items="{{config.filters}}">-->
-                                            <!--<option>{{item.name}}</option>-->
-                                        <!--</template>-->
-                                    <!--</select>-->
-                                <!--</div>-->
-                            <!--</form>-->
+            <!--<form class="form-inline">-->
+            <!--<div class="form-group">-->
+            <!--<label for="filtersList">Select a filter &nbsp;</label>-->
+            <!--<select class="form-control" name="filters" id="filtersList" on-change="filterChanged">-->
+            <!--<option>None Selected</option>-->
+            <!--<template is="dom-repeat" items="{{config.filters}}">-->
+            <!--<option>{{item.name}}</option>-->
+            <!--</template>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</form>-->
 
-                            <!--<br>-->
-                            <!--<div style="text-align: right">-->
-                                <!--<button type="button" class="btn btn-default btn-sm" on-click="fireClear">Clear</button>-->
-                                <!--&lt;!&ndash;<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSave">Save</button>&ndash;&gt;-->
-                                <!--<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSearch">Search</button>-->
-                            <!--</div>-->
+            <!--<br>-->
+            <!--<div style="text-align: right">-->
+            <!--<button type="button" class="btn btn-default btn-sm" on-click="fireClear">Clear</button>-->
+            <!--&lt;!&ndash;<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSave">Save</button>&ndash;&gt;-->
+            <!--<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSearch">Search</button>-->
+            <!--</div>-->
 
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
             <!--</div>-->
             <!--<br>-->
 
@@ -648,6 +648,15 @@
                     notify: true,
                     observer: 'onQueryUpdate'
                 },
+//                _filters: {
+//                    type: Object,
+//                    notify: true,
+//                    observer: 'onQueryUpdate'
+//                },
+                search: {
+                    type: Object,
+                    notify: true
+                },
                 samples: {
                     type: Array,
                     value: [],
@@ -670,6 +679,7 @@
                     this.prefix = "browser" + Utils.randomString(6);
                 }
 
+                this.query = {};
                 this._filters = {};
                 this._filtersCount = 0;
             },
@@ -740,7 +750,12 @@
                 } else {
                     delete this._filters.consequenceType;
                 }
+
+                console.log("updateFilter1")
+                this.fireSearch();
+                this.query = this._filters;
                 this._filtersCount = Object.keys(this._filters).length;
+//                this._filters = Object.assign({}, this._filters);
             },
             updateFilter: function (e) {
                 // This is triggered by on-change event of all text boxes in the filter. ID of the textbox (e.target.id)
@@ -764,6 +779,12 @@
                 }
 
                 this._filtersCount = Object.keys(this._filters).length;
+
+//                this.query = this._filters;
+                console.log("updateFilter2")
+                this.fireSearch();
+                this.query = Object.assign({}, this._filters);
+                console.log(this._filters)
             },
             checkScore: function (e) {
                 if (e.target.value == "score") {
@@ -783,10 +804,11 @@
                     }
                 }
 
+                this.query = this._filters;
                 this._filtersCount = Object.keys(this._filters).length;
             },
             fireClear: function () {
-                this.query = {};
+//                this.query = {};
                 this._filters = {};
                 this._filtersCount = Object.keys(this._filters).length;
                 let _this = this;
@@ -849,7 +871,7 @@
                 let _this = this;
 
                 // Adding sample genotypes filter
-                if (this.sampleGenotypes != "") {
+                if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
                     query.genotype = this.sampleGenotypes;
                 }
 
@@ -941,9 +963,15 @@
                 if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
                     query["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
                 }
+//                _this.query = query;
+                console.log("updateFilter3")
                 _this.query = query;
+                console.log(this._filters)
             },
-
+            onSearch: function () {
+//                this.fireSearch();
+                this.search = this.query;
+            },
             // Exclusive for prioritization
             refreshSegregationTable: function () {
                 this.samples = [];
@@ -1071,8 +1099,18 @@
                 this.sampleGenotypes = arr.join(';');
             },
             onQueryUpdate: function () {
+
+                if (Object.keys(this.query).length == 0 ) {
+                    console.log("this.query is empty, calling to clear()");
+//                    this.search = this.query;
+                    this.fireClear();
+                    this.search = this.query;
+                }
                 this._filters = this.query;
                 this._filtersCount = Object.keys(this._filters).length;
+
+
+//                this.search = this.query;
             },
             _updateMode: function () {
                 this.isPrioritization = true;

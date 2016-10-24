@@ -27,14 +27,14 @@
 
             <div class="col-md-2" hidden$="{{checkProject(project)}}">
                 <variant-browser-filter study="{{study}}" project="{{project}}" studies="{{studies}}" config="{{config}}" samples="{{samples}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
-                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}">
+                                        population-frequencies="{{populationFrequencies}}" consequence-types="{{consequenceTypes}}" query="{{query}}" search="{{search}}">
                 </variant-browser-filter>
             </div>
 
             <div class="col-md-10" hidden$="{{checkProject(project)}}">
                 <variant-browser-view title="{{title}}" project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}" query="{{query}}" on-propagate="propagateGeneEvent" config="{{config}}">
+                                      consequence-types="{{consequenceTypes}}" query="{{query}}" search="[[search]]" on-propagate="propagateGeneEvent" config="{{config}}">
                 </variant-browser-view>
             </div>
 
@@ -82,6 +82,9 @@
                     type: Object
                 },
                 query: {
+                    type: Object
+                },
+                search: {
                     type: Object
                 },
                 prefix: {

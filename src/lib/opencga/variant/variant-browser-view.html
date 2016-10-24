@@ -40,7 +40,7 @@
             <!-- Variant Browser Grid -->
             <variant-browser-grid study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" cellbase-client="{{cellbaseClient}}"
                                   population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                  consequence-types="{{consequenceTypes}}" query="{{query}}" variant="{{variant}}" on-selected="selectedGene">
+                                  consequence-types="{{consequenceTypes}}" query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene">
             </variant-browser-grid>
 
             <!-- Bottom tabs withspecific variant information -->
@@ -105,6 +105,13 @@
                 query: {
                     type: Object,
                     notify: true
+                },
+//                _filters: {
+//                    type: Object,
+//                    notify: true
+//                },
+                search: {
+                    type: Object
                 },
                 variant: {
                     type: String,
