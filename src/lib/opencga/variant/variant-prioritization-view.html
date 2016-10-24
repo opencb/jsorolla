@@ -41,7 +41,7 @@
 
         <div>
             <br>
-            <variant-active-filters query="{{query}}" config="{{config}}"></variant-active-filters>
+            <variant-active-filters query="{{query}}" config="{{config.filters}}"></variant-active-filters>
             <!--<h3 style="margin-bottom: 2px">Results</h3>-->
             <!--<template is="dom-if" if="{{study.name != ''}}">-->
             <!--<h2>{{title}}</h2>-->
@@ -104,7 +104,7 @@
                 <variant-browser-grid mode="{{mode}}" study="{{study}}" project="{{project}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       cellbase-client="{{cellbaseClient}}" population-frequencies="{{populationFrequencies}}"
                                       samples="{{samples}}" protein-substitution-scores="{{proteinSubstitutionScores}}" consequence-types="{{consequenceTypes}}"
-                                      query="{{query}}" variant="{{variant}}" on-selected="selectedGene">
+                                      query="[[query]]" search="[[search]]" variant="{{variant}}" on-selected="selectedGene">
                 </variant-browser-grid>
             </template>
 
@@ -179,6 +179,10 @@
                     type: Object
                 },
                 query: {
+                    type: Object,
+                    notify: true
+                },
+                search: {
                     type: Object
                 },
                 prefix: {
