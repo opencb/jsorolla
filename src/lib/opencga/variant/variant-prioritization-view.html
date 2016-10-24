@@ -15,6 +15,7 @@
   -->
 
 <link rel="import" href="variant-browser-grid.html">
+<link rel="import" href="variant-active-filters.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
 <link rel="import" href="../../cellbase/genome-context.html">
 
@@ -39,10 +40,13 @@
         </style>
 
         <div>
-            <h3 style="margin-bottom: 2px">Results</h3>
+            <br>
+            <variant-active-filters query="{{query}}" config="{{config}}"></variant-active-filters>
+            <!--<h3 style="margin-bottom: 2px">Results</h3>-->
             <!--<template is="dom-if" if="{{study.name != ''}}">-->
             <!--<h2>{{title}}</h2>-->
             <!--</template>-->
+            <br>
 
             <div style="float: left" aria-label="...">
                 <!--<span>-->
