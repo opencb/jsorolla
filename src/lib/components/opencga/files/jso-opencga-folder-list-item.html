@@ -119,7 +119,7 @@
                 "READY": 'fa fa-check',
                 "NONE": 'fa fa-check'
             };
-            if (file.index) {
+            if (file.index && file.type=="FILE") {
                 return iconMap[file.index.status.name];
             }
             return '';

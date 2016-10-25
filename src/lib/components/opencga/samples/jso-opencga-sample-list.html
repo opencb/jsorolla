@@ -731,7 +731,7 @@
                                         for (var k = 0; k < me.filteredSamples.length; k++) {
                                             var status = (result.index) ? result.index.status.name : "NOT INDEXED";
                                             if (me.filteredSamples[k].source == result.name) {
-                                                me.set("filteredSamples." + k + ".status", status.name);
+                                                me.set("filteredSamples." + k + ".status", status);
                                             }
                                         }
                                         me.set('indexMsg', "");

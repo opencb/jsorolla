@@ -335,7 +335,7 @@
                 if (selected.type == 'FOLDER' || selected.type == "DIRECTORY") {
                     return true;
                 }
-                if (selected.index != null && selected.index.status !== 'NONE') {
+                if (selected.index != null && selected.index.status.name !== 'NONE') {
                     return true
                 } else {
                     if (selected.bioformat !== "VARIANT" && selected.bioformat !== "ALIGNMENT") {
@@ -440,7 +440,7 @@
         computeIndex: function(selected) {
             if (this.fileName != "") {
                 if (selected != null && selected.index != null && (selected.bioformat == "VARIANT" || selected.bioformat == "ALIGNMENT")) {
-                    return selected.index.status;
+                    return selected.index.status.name;
                 } else {
                     return "--";
                 }
