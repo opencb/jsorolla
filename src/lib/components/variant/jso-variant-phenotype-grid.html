@@ -76,7 +76,7 @@
             name: "histologySubtype",
             title: "Histology subtype"
         }, {
-            name: "mutationID",
+            name: "mutationId",
             title: "Mutation ID"
         }, {
             name: "mutationSomaticStatus",
@@ -113,14 +113,14 @@
             width: 300
         }],
         _clinvarColumns: [{
-            name: "acc",
+            name: "accession",
             title: "Accession"
         }, {
             name: "clinicalSignificance",
             title: "Clinical significance",
             width: 100
         }, {
-            name: "geneName",
+            name: "geneNames",
             title: "Gene name"
         }, {
             name: "reviewStatus",
@@ -155,7 +155,7 @@
                                 var dataGwas = [];
                                 var dataClinvar = [];
 
-                                var clinicalData = response.response[0].result[0].clinical;
+                                var clinicalData = response.response[0].result[0].variantTraitAssociation;
 
                                 if (!clinicalData) {
                                     me.$.cosmicTable.data = [];

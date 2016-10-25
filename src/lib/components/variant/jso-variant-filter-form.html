@@ -185,6 +185,20 @@
         }*/
         .butstyle{
           border-radius: 4px;
+          width: 100px;
+          background-color: var(--dark-button-color) !important;
+          color: var(--text-primary-color) !important;
+        }
+        .butstyle:hover {
+            background-color: var(--light-button-color) !important;
+        }
+        #filterHistoryTooltip{
+          border-radius: 4px;
+          background-color: var(--dark-button-color) !important;
+          color: var(--text-primary-color) !important;
+        }
+        #filterHistoryTooltip:hover{
+          background: var(--accent-color) !important;
         }
 
         jso-select {
@@ -214,7 +228,7 @@
             <!--Filters-->
             <!--</div>-->
             <div id="bar" class="horizontal layout">
-                <jso-tooltip id="filterHistoryTooltip" class="jso-btn jso-btn-shdw butstyle" title="Filters History" icon="filter">
+                <jso-tooltip id="filterHistoryTooltip" class="jso-btn jso-btn-shdw" title="Filters History" icon="filter">
                     <div class="jso-btn jso-btn-shdw clear-but" title="Clear Filters History" on-click="clearFiltersHistory">
                         Clear
                     </div>
@@ -484,10 +498,10 @@
                         <span class="exclude">Exclude Selected</span>
                         <input id="goExclude" value="exclude" type="checkbox">
                     </div>
-                    <textarea class="jso" id="go" name="go" value="{{goSearch::change}}" rows="3" placeholder="GO:0000001,GO:0001177" required>
+                    <textarea class="jso" id="go" name="go" value="{{goSearch::change}}" rows="3" placeholder="GO:0000001,GO:0001177" disabled>
                     </textarea>
                     <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
-                        Or search GO: &nbsp;
+                        Search GO: &nbsp;
                         <div class="jso-btn jso-btn-shdw searchBut" on-click="showGO" title="Search GO"><i class="fa fa-search" aria-hidden="true"></i>
                         </div>
                     </div>
@@ -503,10 +517,10 @@
                         <span class="exclude">Exclude Selected</span>
                         <input id="hpoExclude" value="exclude" type="checkbox">
                     </div>
-                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoSearch::change}}" rows="3" placeholder="HP:0000001,HP:3000079" required>
+                    <textarea class="jso" id="hpo" name="hpo" value="{{hpoSearch::change}}" rows="3" placeholder="HP:0000001,HP:3000079" disabled>
                     </textarea>
                     <div class="horizontal layout" style="color: #666;margin-top:2px;line-height:28px;">
-                        Or search HPO: &nbsp;
+                        Search HPO: &nbsp;
                         <div class="jso-btn jso-btn-shdw searchBut" on-click="showHPO" title="Search HPO"><i class="fa fa-search" aria-hidden="true"></i>
                         </div>
                     </div>
@@ -879,7 +893,9 @@
 
             // Region
             var regionQuery = this.$.filterPosition.checkRegion();
-            if (regionQuery != null) {
+            if (regionQuery == -1) {
+                return;
+            } else if (regionQuery != null) {
                 query["region"] = regionQuery;
             }
 
@@ -1061,7 +1077,10 @@
                 if (phylop != null) {
                     conservation.push(phylop);
                 }
-                query["conservation"] = conservation.join(",");
+            }
+            var gerp = this.$.filterConservation.checkGerp();
+            if (gerp != null) {
+                q["gerp"] = gerp;
             }
 
             // Population Frequencies
@@ -1338,6 +1357,11 @@
                 for (var i = 0; i < fC.length; i++) {
                     filterName.push(fC[i]);
                 }
+            }
+            //Gerp MODE 1, 2 SEGUN WS TODO
+            var fCg = this.$.filterConservation.loadGerp(hf);
+            if (fCg != "") {
+                filterName.push(fCg);
             }
 
             // Consequence Types

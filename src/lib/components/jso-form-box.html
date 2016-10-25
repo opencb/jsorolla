@@ -10,21 +10,20 @@
         #form {
             border: 1px solid rgba(125, 125, 125, 0.4);
             margin: 0 5px 10px 0;
-            background-color: #FFFFFF;
+            background-color: var(--text-primary-color);
         }
 
         #header {
             padding: 5px 10px;
             font-size: 15px;
-            /*color: #fff;*/
-            /*background-color: #225e71;*/
-            background-color: #e2e9e9;
-            color: #666;
-            cursor: pointer;
+            background-color: var(--light-secondary-color);
+            color: var(--secondary-text-color);
+            cursor: pointer
         }
-        #header:hover{
-          font-weight: bold;
-            color:#8ba7a7;
+
+        #header:hover {
+            font-weight: bold;
+            color: var(--dark-button-color);
         }
 
         #container {
@@ -38,23 +37,22 @@
         }
 
         .collapsible > i {
-            /*color: #fff;*/
-            color: #666;
-            font-size: 12px;
-        }
+          color: var(--secondary-text-color);
+          font-size: 12px;
+      }
 
-        .collapsible >i:hover {
-            font-weight: bold;
-            color:#8ba7a7;
-        }
+      .collapsible >i:hover {
+          font-weight: bold;
+          color: var(--dark-button-color);
+      }
     </style>
     <template>
         <div id="form">
             <div id="header" class="horizontal layout" on-click="handleCollapseAction">
-                <div class="horizontal layout flex center" >
+                <div class="horizontal layout flex center">
                     <content select=".header"></content>
                 </div>
-                <div hidden$="{{!collapsible}}" class="collapsible" >
+                <div hidden$="{{!collapsible}}" class="collapsible">
                     <i class$="{{computeIcon(collapsible,collapsed)}}" title="{{computeTitle(collapsible,collapsed)}}"></i>
                 </div>
             </div>
@@ -81,8 +79,7 @@
                     value: false,
                 },
             },
-            ready: function() {
-            },
+            ready: function() {},
 
             handleCollapseAction: function(e) {
                 if (this.collapsible) {

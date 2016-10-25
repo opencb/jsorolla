@@ -130,11 +130,11 @@
             title: 'Polyphen',
             width: 50,
             defaultValue: '.'
-                // }, {
-                //     name: 'cadd',
-                //     title: 'CADD',
-                //     width: 50,
-                //     defaultValue: '.'
+        }, {
+            name: 'cadd',
+            title: 'CADD',
+            width: 50,
+            defaultValue: '.'
         }, {
             name: 'phylop',
             title: 'phyloP',
@@ -144,6 +144,11 @@
             name: 'phastCons',
             title: 'PhastCons',
             width: 57,
+            defaultValue: '.'
+        }, {
+            name: 'gerp',
+            title: 'GERP',
+            width: 50,
             defaultValue: '.'
         }, {
             name: '1000GENOMES_phase_3',
@@ -396,7 +401,7 @@
                 dataLine += getValue(row["ESP_6500"], "EA") + this.separator;
                 dataLine += getValue(row["ESP_6500"], "AA") + this.separator;
 
-                dataLine += getValue(row,"exac") + this.separator;
+                dataLine += getValue(row, "exac") + this.separator;
 
                 if (row.phenotype) {
                     dataLine += getValue(row["phenotype"], "clinvar") + this.separator;
@@ -519,17 +524,31 @@
                         if (annotation.conservation != null) {
                             var phylopAux = null;
                             var phastConsAux = null;
+                            var gerpConsAux = null;
                             for (var j = 0; j < annotation.conservation.length; j++) {
                                 var cons = annotation.conservation[j];
                                 if (cons.source.toLowerCase() == "phastcons") {
                                     phastConsAux = cons.score.toFixed(3);
                                 } else if (cons.source.toLowerCase() == "phylop") {
                                     phylopAux = cons.score.toFixed(3);
+                                } else if (cons.source.toLowerCase() == "gerp") {
+                                    gerpAux = cons.score.toFixed(3);
                                 }
                             }
                             variant.phylop = phylopAux;
                             variant.phastCons = phastConsAux;
+                            variant.gerp=gerpAux;
 
+                        }
+                        if(annotation.functionalScore != null){
+                          var caddAux = null;
+                          for (var j = 0; j < annotation.functionalScore.length; j++) {
+                              var fs = annotation.functionalScore[j];
+                              if (fs.source.toLowerCase() == "cadd_raw") {
+                                  caddAux = fs.score.toFixed(3);
+                              }
+                          }
+                          variant.cadd = caddAux;
                         }
 
                         // Population Frequencies
@@ -539,14 +558,14 @@
                             variant['1000GENOMES_phase_3'] = {};
                             for (var j = 0; j < annotation.populationFrequencies.length; j++) {
                                 var freq = annotation.populationFrequencies[j];
-                                if (freq.study == "ESP_6500") {
+                                if (freq.study == "ESP6500") {
                                     if (freq.population == "EA") {
                                         variant['ESP_6500'].EA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     } else if (freq.population == "AA") {
                                         variant['ESP_6500'].AA = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     }
 
-                                } else if (freq.study == "1000GENOMES_phase_3") {
+                                } else if (freq.study == "1kG_phase3") {
                                     if (freq.population == "ALL") {
                                         variant['1000GENOMES_phase_3'].ALL = (Math.min(freq.refAlleleFreq, freq.altAlleleFreq)).toFixed(3);
                                     } else if (freq.population == "SAS") {

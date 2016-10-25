@@ -367,7 +367,6 @@
                     switch (e.type) {
                         case "error":
                             me.errorCount++;
-                            // console.log(me.errorCount);
                             if (me.errorCount == 100) {
                                 me.stop();
                                 alert('File has more than 100 errors, the validation is stopped');
