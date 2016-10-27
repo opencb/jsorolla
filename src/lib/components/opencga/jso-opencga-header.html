@@ -163,7 +163,7 @@
             <jso-opencga-signup id="jsoSignup" on-login="handleLogin" menu-option="signup">
             </jso-opencga-signup>
 
-            <jso-opencga-profile id="jsoProfile" menu-option="profile">
+            <jso-opencga-profile id="jsoProfile" menu-option="profile" on-profilecancel="handleCancel">
             </jso-opencga-profile>
 
             <jso-opencga-remember menu-option="remember">
@@ -512,6 +512,9 @@
             } else {
                 return userData.name;
             }
+        },
+        handleCancel: function(e){
+          this.selectedOption = 'home';
         }
     });
 </script>
