@@ -919,17 +919,21 @@
             //SomaticVsGerminal
             var els = this.$.somatic.querySelectorAll("input");
             var querySom = [];
+            var queryaux = [];
             for (var i = 0; i < els.length; i++) {
                 var el = els[i];
                 if (el.checked == true) {
                     if (el.value == "germinal") {
+                        queryaux.push(el.name + ":germinal");
                         querySom.push(el.name + ":" + "0/0,0|0");
                     } else if (el.value == "somatic") {
+                        queryaux.push(el.name + ":somatic");
                         querySom.push(el.name + ":" + "0/1,0|1,1/0,1|0,1/1,1|1");
                     }
                 }
             }
             if (querySom.length > 0) {
+                query['somatic'] = queryaux.join(";");
                 query.genotype = querySom.join(";");
             }
 
@@ -978,7 +982,7 @@
             } else if (query["gene"] == null && Object.keys(genes).length > 0) {
                 query["gene"] = Object.keys(genes).join(",");
                 alert("Selected GOs have these associated genes: " + Object.keys(genes).join(","));
-            } else if (Object.keys(genes).length == 0 && this.goValue.length>0) {
+            } else if (Object.keys(genes).length == 0 && this.goValue.length > 0) {
                 alert("Selected GOs have not associated genes");
             }
 
@@ -1027,7 +1031,7 @@
             } else if (query["gene"] == null && Object.keys(genes).length > 0) {
                 query["gene"] = Object.keys(genes).join(",");
                 alert("Selected HPOs have these associated genes: " + Object.keys(genes).join(","));
-            } else if (Object.keys(genes).length == 0 && this.hpoValue.length>0) {
+            } else if (Object.keys(genes).length == 0 && this.hpoValue.length > 0) {
                 alert("Selected HPOs have not associated genes");
             }
 
@@ -1259,8 +1263,13 @@
                     }
                 });
 
-                this.url = url;
-                console.log(url);
+                console.log(url.length);
+                if (url.length < 8000) {
+                    this.url = url;
+                    console.log(url);
+                } else {
+                    alert('Url too long');
+                }
             }
         },
         loadForm: function(hf) {
@@ -1290,6 +1299,19 @@
                     }
                 }
                 filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "").replace(/"/gi, "") + " ");
+            }
+            if (hf.somatic != "" && hf.somatic != null) {
+                var els = this.$.somatic.querySelectorAll("input");
+                var som = hf.somatic.split(";");
+                for (var i = 0; i < som.length; i++) {
+                    var n = som[i].split(":")
+                    for (var j = 0; j < els.length; j++) {
+                        if (els[j].name == n[0] && els[j].value == n[1]) {
+                            els[j].checked = true;
+                        }
+                    }
+                }
+                filterName.push("Somatic: " + hf.somatic);
             }
 
             // Region
