@@ -309,13 +309,13 @@
                         <div class="panel-body">
                             Chromosomal location:
                             <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"
-                                      name="location" on-keyup="updateFilter"></textarea>
+                                      name="location" on-keyup="fireSearch"></textarea>
                             <!--Import from BED:-->
                             <!--<button type="button" class="btn btn-xs" on-click="">Import</button>-->
                             <!--<br>-->
                             <br> Gene name or SNP id:
                             <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"
-                                      name="ids" on-keyup="updateFilter"></textarea>
+                                      name="ids" on-keyup="fireSearch"></textarea>
                         </div>
                     </div>
                 </div>
@@ -332,11 +332,11 @@
                     <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
                         <div class="panel-body">
                             <div>
-                                <input type="checkbox" value="SNV,SNP" on-change="updateFilter"> SNV<br>
-                                <input type="checkbox" value="MNV" on-change="updateFilter"> MNV<br>
-                                <input type="checkbox" value="CNV" on-change="updateFilter"> CNV<br>
-                                <input type="checkbox" value="SV" on-change="updateFilter"> SV<br>
-                                <input type="checkbox" value="INDEL" on-change="updateFilter"> INDEL
+                                <input type="checkbox" value="SNV,SNP" on-change="fireSearch"> SNV<br>
+                                <input type="checkbox" value="MNV" on-change="fireSearch"> MNV<br>
+                                <input type="checkbox" value="CNV" on-change="fireSearch"> CNV<br>
+                                <input type="checkbox" value="SV" on-change="fireSearch"> SV<br>
+                                <input type="checkbox" value="INDEL" on-change="fireSearch"> INDEL
                             </div>
                         </div>
                     </div>
@@ -376,7 +376,7 @@
                                                     </select>
                                                 </span>
                                                 <span>
-                                                    <input type="text" value="" class="custom-sized-input" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateFilter">
+                                                    <input type="text" value="" class="custom-sized-input" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="fireSearch">
                                                 </span>
                                             </div>
                                         </template>
@@ -414,7 +414,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateFilter" disabled>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="fireSearch" disabled>
                             </div>
                             <div>
                                 <label>Polyphen</label><br>
@@ -433,7 +433,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateFilter" disabled>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="fireSearch" disabled>
                             </div>
                         </div>
                     </div>
@@ -458,7 +458,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateFilter">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="fireSearch">
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
@@ -468,7 +468,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateFilter">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="fireSearch">
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
@@ -478,7 +478,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateFilter">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="fireSearch">
                             </div>
                         </div>
                     </div>
@@ -531,7 +531,7 @@
                     <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
                             <textarea id="{{prefix}}GeneOntologyTextarea" class="form-control clearable" rows="3"
-                                      name="geneOntology" placeholder="GO:0000001, GO:0001177" on-keyup="updateFilter"></textarea>
+                                      name="geneOntology" placeholder="GO:0000001, GO:0001177" on-keyup="fireSearch"></textarea>
                         </div>
                     </div>
                 </div>
@@ -549,7 +549,7 @@
                     <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
                         <div class="panel-body">
                             <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3"
-                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateFilter"></textarea>
+                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="fireSearch"></textarea>
                         </div>
                     </div>
                 </div>
@@ -573,7 +573,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateFilter">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="fireSearch">
                             </div>
                             <div class="block">
                                 <label>Scaled</label>
@@ -583,7 +583,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRScaledInput" name="caddScaled" on-keyup="updateFilter">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRScaledInput" name="caddScaled" on-keyup="fireSearch">
                             </div>
                         </div>
                     </div>
@@ -699,39 +699,6 @@
             isDifferentStudy: function (item) {
                 return item.alias != this.study.alias;
             },
-//            filterChanged: function (e) {
-//                if (typeof this.config !== "undefined" && typeof this.config.filters !== "undefined") {
-//                    let query = {};
-//                    for (let i = 0; i < this.config.filters.length; i++) {
-//                        if (this.config.filters[i].name == e.target.value) {
-//                            let filterObj = this.config.filters[i];
-//                            let keys = Object.keys(filterObj.query);
-//                            for (let j = 0; j < keys.length; j++) {
-//                                this._filters[keys[j]] = filterObj.query[keys[j]];
-//                                switch (keys[j]) {
-//                                    // TODO add all possible filters
-//                                    case "gene":
-//                                        this.$$("#" + this.prefix + "GeneSnpTextarea").value = filterObj.query[keys[j]];
-//                                        query.gene = filterObj.query[keys[j]];
-//                                        break;
-//                                    case "phylop":
-//                                        let operator = filterObj.query[keys[j]].split(/[0-9].+/)[0];
-//                                        let value = filterObj.query[keys[j]].split(/[<=>]+/)[1];
-//                                        $("#" + this.prefix + "PhylopInput").val(value);
-//                                        $("#" + this.prefix + "PhylopOperator").val(operator);
-//                                        query.conservation = "phylop" + operator + value;
-//                                        break;
-//                                    default:
-//                                        break;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    this.query = query;
-//                    this._filtersCount = Object.keys(this._filters).length;
-//                }
-//
-//            },
             updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];
                 if (e.target.parentNode.id != "") {
@@ -743,48 +710,7 @@
                     soTerms.push($(node).attr('id'));
                 }
                 this.set('ct', soTerms);
-
-                // updating the filters and filters count
-                if (soTerms.length > 0) {
-                    this._filters.consequenceType = soTerms.join(',');
-                } else {
-                    delete this._filters.consequenceType;
-                }
-
-                console.log("updateFilter1")
                 this.fireSearch();
-                this.query = this._filters;
-                this._filtersCount = Object.keys(this._filters).length;
-//                this._filters = Object.assign({}, this._filters);
-            },
-            updateFilter: function (e) {
-                // This is triggered by on-change event of all text boxes in the filter. ID of the textbox (e.target.id)
-                //  is used to get the value and filters object use the name given to the textbox (e.target.name)
-                if (e.target.id != "" && this.$$("#" + e.target.id).value != "") {
-                    this._filters[e.target.name] = this.$$("#" + e.target.id).value;
-                } else {
-                    delete this._filters[e.target.name];
-                }
-
-                // Types are all checkboxes. The above condition will fail as e.target.id = "" for checkbox (No ID given to checkbox)
-                let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
-                if (types.length > 0) {
-                    let typesAux = [];
-                    for (var i = 0; i < types.length; i++) {
-                        typesAux.push(types[i].value);
-                    }
-                    this._filters.type = typesAux.join(',');
-                } else {
-                    delete this._filters.type;
-                }
-
-                this._filtersCount = Object.keys(this._filters).length;
-
-//                this.query = this._filters;
-                console.log("updateFilter2")
-                this.fireSearch();
-                this.query = Object.assign({}, this._filters);
-                console.log(this._filters)
             },
             checkScore: function (e) {
                 if (e.target.value == "score") {
@@ -795,97 +721,185 @@
                     $("#" + this.prefix + e.target.name + "Operator").val("<");
                     $("#" + this.prefix + e.target.name + "Input").prop("disabled", true);
                     $("#" + this.prefix + e.target.name + "Operator").prop("disabled", true);
-
-                    // Update the filters
-                    if (e.target.value != "none") {
-                        this._filters[e.target.name] = e.target.value;
-                    } else {
-                        delete this._filters[e.target.name];
-                    }
                 }
-
-                this.query = this._filters;
-                this._filtersCount = Object.keys(this._filters).length;
+                this.fireSearch();
             },
             fireClear: function () {
-//                this.query = {};
                 this._filters = {};
-                this._filtersCount = Object.keys(this._filters).length;
+                this.setFilters({});
+            },
+            setFilters: function (query) {
                 let _this = this;
 
                 // Position and  Gene or Variant Ids
-                this.$$("#" + this.prefix + "LocationTextarea").value = "";
-                this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
+                this.$$("#" + this.prefix + "LocationTextarea").value = typeof query.region !== "undefined"? query.region : "";
+
+                if (typeof query.gene !== "undefined") {
+                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = query.gene;
+                } else if (typeof query.ids !== "undefined") {
+                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = query.ids;
+                } else {
+                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
+                }
 
                 // Type
-                let types = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
-                for (let i = 0; i < types.length; i++) {
-                    let type = types[i];
-                    type.checked = false;
+                if (typeof query.type !== "undefined") {
+                    let types = query.type.split(",");
+                    let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input");
+                    for (let i = 0; i < types.length; i++) {
+                        for (let j = 0; j < checkBoxes.length; j++) {
+                            if (checkBoxes[j].value == types[i]) {
+                                checkBoxes[j].checked = true;
+                            }
+                        }
+                    }
+                } else {
+                    let checkBoxes = this.$$("#" + this.prefix + "Type").querySelectorAll("input:checked");
+                    for (let i = 0; i < checkBoxes.length; i++) {
+                        checkBoxes[i].checked = false;
+                    }
                 }
 
                 // Population Freqs
+                let pfArray = [];
+                if (typeof query["annot-population-maf"] !== "undefined") {
+                    pfArray = query["annot-population-maf"].split(new RegExp("[,;]"));
+                }
                 if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
                     for (let i = 0; i < _this.populationFrequencies.studies.length; i++) {
                         let study = _this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < _this.populationFrequencies.studies[i].populations.length; j++) {
                             let population = _this.populationFrequencies.studies[i].populations[j].id;
-                            this.$$("#" + this.prefix + study + population).value = "";
-                            this.$$("#" + this.prefix + study + population + "Operator").value = "<";
+                            if (pfArray.length > 0) {
+                                for (let k = 0; k < pfArray.length; k++) {
+                                    let pf = pfArray[k];
+                                    this.$$("#" + this.prefix + study + population).value =
+                                            pf.startsWith(study + ":" + population)? pf.split(/[<=>]+/)[1] : "";
+                                    this.$$("#" + this.prefix + study + population + "Operator").value =
+                                            pf.startsWith(study + ":" + population)? pf.split(/[A-Za-z0-9._:]+/)[1] : "<";
+                                }
+                            } else {
+                                this.$$("#" + this.prefix + study + population).value = "";
+                                this.$$("#" + this.prefix + study + population + "Operator").value = "<";
+                            }
                         }
                     }
                 }
 
                 // Protein Substitution scores
-                this.$$("#" + this.prefix + "SiftInput").value = "";
-                this.$$("#" + this.prefix + "SiftOperator").value = "<";
-                this.$$("#" + this.prefix + "PolyphenInput").value = "";
-                this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
-                this.$$("#" + this.prefix + "SiftValues").value = "none";
-                this.$$("#" + this.prefix + "PolyphenValues").value = "none";
-                this.$$("#" + this.prefix + "SiftInput").disabled = true;
-                this.$$("#" + this.prefix + "SiftOperator").disabled = true;
-                this.$$("#" + this.prefix + "PolyphenInput").disabled = true;
-                this.$$("#" + this.prefix + "PolyphenOperator").disabled = true;
+                // Sift
+                if (typeof query.sift !== "undefined") {
+                    if (query.sift.startsWith("<") || query.sift.startsWith(">")) {
+                        this.$$("#" + this.prefix + "SiftInput").value = query.sift.split(/[<=>]+/)[1];
+                        this.$$("#" + this.prefix + "SiftValues").value = "score";
+                        this.$$("#" + this.prefix + "SiftOperator").value = query.sift.split(/[0-9.]+/)[0];
+                    } else {
+                        this.$$("#" + this.prefix + "SiftValues").value = query.sift;
+                        this.$$("#" + this.prefix + "SiftInput").value = "";
+                        this.$$("#" + this.prefix + "SiftOperator").value = "<"
+                    }
+                    this.$$("#" + this.prefix + "SiftInput").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
+                    this.$$("#" + this.prefix + "SiftOperator").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
+                } else {
+                    this.$$("#" + this.prefix + "SiftOperator").value = "<";
+                    this.$$("#" + this.prefix + "SiftValues").value = "none";
+                    this.$$("#" + this.prefix + "SiftInput").value = "";
+                    this.$$("#" + this.prefix + "SiftInput").disabled = true;
+                    this.$$("#" + this.prefix + "SiftOperator").disabled = true;
+                }
+
+                // Polyphen
+                if (typeof query.polyphen !== "undefined") {
+                    if (query.polyphen.startsWith("<") || query.polyphen.startsWith(">")) {
+                        this.$$("#" + this.prefix + "PolyphenInput").value = query.polyphen.split(/[<=>]+/)[1];
+                        this.$$("#" + this.prefix + "PolyphenValues").value = "score";
+                        this.$$("#" + this.prefix + "PolyphenOperator").value = query.polyphen.split(/[0-9.]+/)[0];
+                    } else {
+                        this.$$("#" + this.prefix + "PolyphenValues").value = query.polyphen;
+                        this.$$("#" + this.prefix + "PolyphenInput").value = "";
+                        this.$$("#" + this.prefix + "PolyphenOperator").value = "<"
+                    }
+                    this.$$("#" + this.prefix + "PolyphenInput").disabled = !(query.polyphen.startsWith("<") || query.polyphen.startsWith(">"));
+                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(query.polyphen.startsWith("<") || query.polyphen.startsWith(">"));
+                } else {
+                    this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
+                    this.$$("#" + this.prefix + "PolyphenValues").value = "none";
+                    this.$$("#" + this.prefix + "PolyphenInput").value = "";
+                    this.$$("#" + this.prefix + "PolyphenInput").disabled = true;
+                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = true;
+                }
 
                 // Conservation
-                this.$$("#" + this.prefix + "PhylopInput").value = "";
-                this.$$("#" + this.prefix + "PhylopOperator").value = "<";
-                this.$$("#" + this.prefix + "PhastconsInput").value = "";
-                this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
-                this.$$("#" + this.prefix + "GerpInput").value = "";
-                this.$$("#" + this.prefix + "GerpOperator").value = "<";
+                if (typeof query.conservation !== "undefined") {
+                    let fields = query.conservation.split(new RegExp("[,;]"));
+                    for (let i = 0; i < fields.length; i++) {
+                        let source = fields[i].split(/[<=>]+/)[0];
+                        switch(source) {
+                            case "phylop":
+                                this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
+                                this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[A-Za-z0-9]+/)[1];
+                                break;
+                            case "phastcons":
+                                this.$$("#" + this.prefix + "PhastconsInput").value = fields[i].split(/[<=>]+/)[1];
+                                this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[A-Za-z0-9]+/)[1];
+                                break;
+                            case "gerp":
+                                this.$$("#" + this.prefix + "GerpInput").value = fields[i].split(/[<=>]+/)[1];
+                                this.$$("#" + this.prefix + "GerpOperator").value = fields[i].split(/[A-Za-z0-9]+/)[1];
+                                break;
+                        }
+                    }
+                } else {
+                    this.$$("#" + this.prefix + "PhylopInput").value = "";
+                    this.$$("#" + this.prefix + "PhylopOperator").value = "<";
+                    this.$$("#" + this.prefix + "PhastconsInput").value = "";
+                    this.$$("#" + this.prefix + "PhastconsOperator").value = "<";
+                    this.$$("#" + this.prefix + "GerpInput").value = "";
+                    this.$$("#" + this.prefix + "GerpOperator").value = "<";
+                }
 
                 // Consequence Type
-                let selected = this.$$("#consequenceTypeFilter").querySelectorAll("li input:checked");
-                for (let i = 0; i < selected.length; i++) {
-                    selected[i].checked = false;
+                if (typeof query["annot-ct"] !== "undefined") {
+                    let types = query["annot-ct"].split(",");
+                    let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input");
+                    for (let i = 0; i < types.length; i++) {
+                        for (let j = 0; j < checkBoxes.length; j++) {
+                            if (checkBoxes[j].id == types[i]) {
+                                checkBoxes[j].checked = true;
+                            }
+                        }
+                    }
+                } else {
+                    let checkBoxes = this.$$("#consequenceTypeFilter").querySelectorAll("li input:checked");
+                    for (let i = 0; i < checkBoxes.length; i++) {
+                        checkBoxes[i].checked = false;
+                    }
                 }
 
                 // Gene Ontology and Human Phenotype Ontology
-                this.$$("#" + this.prefix + "GeneOntologyTextarea").value = "";
-                this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = "";
+                this.$$("#" + this.prefix + "GeneOntologyTextarea").value = typeof query["annot-go"] !== "undefined"? query["annot-go"] : "";
+                this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = typeof query["annot-hpo"] !== "undefined"? query["annot-hpo"] : "";
             },
             fireSearch: function () {
-                let query = {};
+                let _filters = {};
                 let _this = this;
 
                 // Adding sample genotypes filter
                 if (typeof this.sampleGenotypes !== "undefined" && this.sampleGenotypes != "") {
-                    query.genotype = this.sampleGenotypes;
+                    _filters.genotype = this.sampleGenotypes;
                 }
 
                 // Region
                 if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
-                    query.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                    _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
                 }
 
                 // Gene or Variant Id
                 if (this.$$("#" + this.prefix + "GeneSnpTextarea").value != "") {
                     if (this.$$("#" + this.prefix + "GeneSnpTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "GeneSnpTextarea").value.split(':').length > 2) {
-                        query.ids = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                        _filters.ids = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
                     } else {
-                        query.gene = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
+                        _filters.gene = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
                     }
                 }
 
@@ -896,7 +910,7 @@
                     for (var i = 0; i < types.length; i++) {
                         typesAux.push(types[i].value);
                     }
-                    query.type = typesAux.join(',');
+                    _filters.type = typesAux.join(',');
                 }
 
                 // Population Frequencies
@@ -916,21 +930,23 @@
                     }
                 }
                 if (popFreq.length > 0) {
-                    query["annot-population-maf"] = popFreq.join(';');
+                    _filters["annot-population-maf"] = popFreq.join(';');
                 }
 
                 // Protein Substitution scores
                 if (this.$$("#" + this.prefix + "SiftValues").value != "none") {
                     if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "") {
-                        query.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                        _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                    } else {
+                        _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
                     }
-                    query.sift = this.$$("#" + this.prefix + "SiftValues").value;
                 }
                 if (this.$$("#" + this.prefix + "PolyphenValues").value != "none") {
                     if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") {
-                        query.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                        _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                    } else {
+                        _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
                     }
-                    query.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
                 }
 
                 // Conservation
@@ -948,28 +964,26 @@
                     conserArr.push(gerp);
                 }
                 if (conserArr.length > 0) {
-                    query.conservation = conserArr.join(',');
+                    _filters.conservation = conserArr.join(',');
                 }
 
                 // Consequence Type
                 if (typeof _this.ct !== "undefined" && _this.ct.length > 0) {
-                    query["annot-ct"]= this.ct.join(',');
+                    _filters["annot-ct"]= this.ct.join(',');
                 }
 
-                //Gene Ontology and Human Phenotype Ontology
+                // Gene Ontology and Human Phenotype Ontology
                 if (this.$$("#" + this.prefix + "GeneOntologyTextarea").value != "") {
-                    query["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
+                    _filters["annot-go"] = this.$$("#" + this.prefix + "GeneOntologyTextarea").value;
                 }
                 if (this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value != "") {
-                    query["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
+                    _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
                 }
-//                _this.query = query;
-                console.log("updateFilter3")
-                _this.query = query;
-                console.log(this._filters)
+
+                this._filters = _filters;
+                this.query = _filters;
             },
             onSearch: function () {
-//                this.fireSearch();
                 this.search = this.query;
             },
             // Exclusive for prioritization
@@ -1099,18 +1113,9 @@
                 this.sampleGenotypes = arr.join(';');
             },
             onQueryUpdate: function () {
-
-                if (Object.keys(this.query).length == 0 ) {
-                    console.log("this.query is empty, calling to clear()");
-//                    this.search = this.query;
-                    this.fireClear();
-                    this.search = this.query;
-                }
+                this.setFilters(this.query);
                 this._filters = this.query;
-                this._filtersCount = Object.keys(this._filters).length;
-
-
-//                this.search = this.query;
+                this.search = this.query;
             },
             _updateMode: function () {
                 this.isPrioritization = true;

@@ -146,6 +146,15 @@
                             case "annot-ct":
                                 _queryList.push({name: key, text: "consequence types = " + value});
                                 break;
+                            case "sift":
+                            case "polyphen":
+                                if (value.charAt(0) == "<" || value.charAt(0) == ">") {
+                                    _queryList.push({name: key, text: key + value});
+
+                                } else {
+                                    _queryList.push({name: key, text: key + " = " + value});
+                                }
+                                break;
                             default:
                                 _queryList.push({name: key, text: key + " = " + value});
                                 break;
