@@ -834,10 +834,12 @@
             // GO
             this.$.go.value = "";
             this.goValue = "";
+            this.goSearch="";
             this.$.goExclude.checked = false;
             // HPO
             this.$.hpo.value = "";
             this.hpoValue = "";
+            this.hpoSearch="";
             this.$.hpoExclude.checked = false;
 
             this.$.filterPosition.clear();
@@ -977,6 +979,9 @@
                     }
                 }
             }
+            if(this.goSearch!=""){
+              query["go"]=this.goSearch;
+            }
             if (query["gene"] != null && Object.keys(genes).length > 0) {
                 query["gene"] += "," + Object.keys(genes).join(",");
             } else if (query["gene"] == null && Object.keys(genes).length > 0) {
@@ -1025,6 +1030,9 @@
                         genes[gene] = true;
                     }
                 }
+            }
+            if(this.hpoSearch!=""){
+              query["hpo"]=this.hpoSearch
             }
             if (query["gene"] != null && Object.keys(genes).length > 0) {
                 query["gene"] += "," + Object.keys(genes).join(",");
@@ -1314,16 +1322,26 @@
                 filterName.push("Somatic: " + hf.somatic);
             }
 
+            if(hf.go!="" && hf.go!=null){
+              this.set('goSearch',hf.go);
+              filterName.push("GO: " + hf.go);
+            }
+            if(hf.hpo!="" && hf.hpo!=null){
+              this.set('hpoSearch',hf.hpo);
+              filterName.push("HPO: " + hf.hpo);
+            }
+
             // Region
             // Genes
             // SNPId
-
             var fP = this.$.filterPosition.load(hf);
             if (fP.length > 0) {
                 for (var i = 0; i < fP.length; i++) {
                     filterName.push(fP[i]);
                 }
             }
+
+
 
             // Types
             if (hf.type != "" && hf.type != null) {
