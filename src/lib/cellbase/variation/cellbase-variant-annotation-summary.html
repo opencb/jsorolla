@@ -165,13 +165,15 @@
                             if (typeof _this.data.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
                                 let transcript = _this.data.consequenceTypes[i].ensemblTranscriptId;
                                 let scores = _this.data.consequenceTypes[i].proteinVariantAnnotation.substitutionScores;
-                                for (let j = 0; j < scores.length; j++) {
-                                    if (scores[j].source == "sift" && scores[j].score <= min) {
-                                        min = scores[j].score;
-                                        proteinSubScore.sift = {score: scores[j].score, transcript: transcript};
-                                    } else if (scores[j].source == "polyphen" && scores[j].score >= max) {
-                                        max = scores[j].score;
-                                        proteinSubScore.polyphen = {score: scores[j].score, transcript: transcript};
+                                if (typeof scores !== "undefined") {
+                                    for (let j = 0; j < scores.length; j++) {
+                                        if (scores[j].source == "sift" && scores[j].score <= min) {
+                                            min = scores[j].score;
+                                            proteinSubScore.sift = {score: scores[j].score, transcript: transcript};
+                                        } else if (scores[j].source == "polyphen" && scores[j].score >= max) {
+                                            max = scores[j].score;
+                                            proteinSubScore.polyphen = {score: scores[j].score, transcript: transcript};
+                                        }
                                     }
                                 }
                             }

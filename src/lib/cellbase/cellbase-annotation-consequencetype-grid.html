@@ -117,7 +117,8 @@
                 return soTerm.name + '(' + soTerm.accession + ')';
             },
             proteinAlleleFormatter: function (value, row, index) {
-                if (typeof row.proteinVariantAnnotation !== 'undefined') {
+                if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.reference !== 'undefined'
+                && typeof row.proteinVariantAnnotation.alternate !== 'undefined') {
                     return row.proteinVariantAnnotation.reference + "/" + row.proteinVariantAnnotation.alternate;
                 } else {
                     return '-';
