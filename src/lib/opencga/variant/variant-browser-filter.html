@@ -577,13 +577,13 @@
                             </div>
                             <div class="block">
                                 <label>Scaled</label>
-                                <select name="caddRScaledOperator" id="{{prefix}}CaddRScaledOperator">
+                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRScaledInput" name="caddScaled" on-keyup="fireSearch">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="fireSearch">
                             </div>
                         </div>
                     </div>
@@ -879,6 +879,30 @@
                 // Gene Ontology and Human Phenotype Ontology
                 this.$$("#" + this.prefix + "GeneOntologyTextarea").value = typeof query["annot-go"] !== "undefined"? query["annot-go"] : "";
                 this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value = typeof query["annot-hpo"] !== "undefined"? query["annot-hpo"] : "";
+
+                // Cadd scores
+                if (typeof query["annot-functional-score"] !== "undefined") {
+                    let fields = query["annot-functional-score"].split(new RegExp("[,;]"));
+                    for (let i = 0; i < fields.length; i++) {
+                        let source = fields[i].split(/[<=>]+/)[0];
+                        switch(source) {
+                            case "cadd_raw":
+                                this.$$("#" + this.prefix + "CaddRawInput").value = fields[i].split(/[<=>]+/)[1];
+                                this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[A-Za-z0-9_]+/)[1];
+                                break;
+                            case "cadd_scaled":
+                                this.$$("#" + this.prefix + "CaddScaledInput").value = fields[i].split(/[<=>]+/)[1];
+                                this.$$("#" + this.prefix + "CaddScaledOperator").value = fields[i].split(/[A-Za-z0-9_]+/)[1];
+                                break;
+                        }
+                    }
+                } else {
+                    this.$$("#" + this.prefix + "CaddRawInput").value = "";
+                    this.$$("#" + this.prefix + "CaddRawOperator").value = "<";
+                    this.$$("#" + this.prefix + "CaddScaledInput").value = "";
+                    this.$$("#" + this.prefix + "CaddScaledOperator").value = "<";
+                }
+
             },
             fireSearch: function () {
                 let _filters = {};
@@ -932,17 +956,16 @@
                 if (popFreq.length > 0) {
                     _filters["annot-population-maf"] = popFreq.join(';');
                 }
-
                 // Protein Substitution scores
                 if (this.$$("#" + this.prefix + "SiftValues").value != "none") {
-                    if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "") {
+                    if (this.$$("#" + this.prefix + "SiftValues").value == "score") {
                         _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                     } else {
                         _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
                     }
                 }
                 if (this.$$("#" + this.prefix + "PolyphenValues").value != "none") {
-                    if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") {
+                    if (this.$$("#" + this.prefix + "PolyphenValues").value == "score") {
                         _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                     } else {
                         _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
@@ -980,10 +1003,29 @@
                     _filters["annot-hpo"] = this.$$("#" + this.prefix + "HumanPhenotypeOntologyTextarea").value;
                 }
 
+                // Cadd scores
+                let cadd = [];
+                if (this.$$("#" + this.prefix + "CaddRawInput").value != "") {
+                    let raw = "cadd_raw" + this.$$("#" + this.prefix + "CaddRawOperator").value + this.$$("#" + this.prefix + "CaddRawInput").value;
+                    cadd.push(raw);
+                }
+                if (this.$$("#" + this.prefix + "CaddScaledInput").value != "") {
+                    let scaled = "cadd_scaled" + this.$$("#" + this.prefix + "CaddScaledOperator").value + this.$$("#" + this.prefix + "CaddScaledInput").value;
+                    cadd.push(scaled);
+                }
+                if (cadd.length > 0) {
+                    _filters["annot-functional-score"] = cadd.join(',');
+                }
+
                 this._filters = _filters;
                 this.query = _filters;
             },
             onSearch: function () {
+                this.search = this.query;
+            },
+            onQueryUpdate: function () {
+                this.setFilters(this.query);
+                this._filters = this.query;
                 this.search = this.query;
             },
             // Exclusive for prioritization
@@ -1111,11 +1153,6 @@
                     }
                 }
                 this.sampleGenotypes = arr.join(';');
-            },
-            onQueryUpdate: function () {
-                this.setFilters(this.query);
-                this._filters = this.query;
-                this.search = this.query;
             },
             _updateMode: function () {
                 this.isPrioritization = true;
