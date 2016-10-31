@@ -175,6 +175,12 @@
                     value: function() {
                         return {};
                     }
+                },
+                mapSelectedHpo: {
+                    type: Object,
+                    value: function() {
+                        return {};
+                    }
                 }
             },
             ready: function() {
@@ -223,11 +229,15 @@
             handleAddHPO: function(e) {
                 for (var i = 0; i < this.$.allHPO.selected.length; i++) {
                     var hpo = this.$.allHPO.selected[i];
-                    this.push('selectedHPO', hpo);
+                    if (this.mapSelectedHpo[hpo.id] == null) {
+                        this.mapSelectedHpo[hpo.id] = hpo;
+                        this.push('selectedHPO', hpo);
+                    }
                 }
             },
             handleClearSelected: function(e) {
                 this.selectedHPO = [];
+                this.mapSelectedHpo = {};
             },
             handleAddSelected: function(e) {
               var hpos=[];
@@ -235,13 +245,17 @@
               var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item[selected]');
               if (els.length > 0) {
                   for (var i = 0; i < els.length; i++) {
-                      hpos.push(els[i].file);
+                    if (this.mapSelectedHpo[els[i].id] == null) {
+                        this.mapSelectedHpo[els[i].id] = els;
+                        hpos.push(els[i].file);
+                    }
                   }
                   this.set('hpoValue', hpos);
               } else {
                   this.set('hpoValue', this.selectedHPO);
               }
                 this.fire('added');
+                this.handleClearSelected();
             },
             createTree: function(e) {
                 // var auxHP = [];
