@@ -342,22 +342,22 @@
 
                 }
 
-                for (var i = 6; i < 12; i++) {
+                for (var i = 6; i < 14; i++) {
                     headerLine += columns[i].title + this.separator;
                 }
 
-                for (var i = 0; i < columns[12].columns.length; i++) {
-                    var sampleColumn = columns[12].columns[i];
-                    headerLine += columns[12].title + " " + sampleColumn.title + this.separator;
+                for (var i = 0; i < columns[14].columns.length; i++) {
+                    var sampleColumn = columns[14].columns[i];
+                    headerLine += columns[14].title + " " + sampleColumn.title + this.separator;
                 }
-                for (var i = 0; i < columns[13].columns.length; i++) {
-                    var sampleColumn = columns[13].columns[i];
-                    headerLine += columns[13].title + " " + sampleColumn.title + this.separator;
-                }
-                headerLine += columns[14].title + this.separator;
                 for (var i = 0; i < columns[15].columns.length; i++) {
                     var sampleColumn = columns[15].columns[i];
                     headerLine += columns[15].title + " " + sampleColumn.title + this.separator;
+                }
+                headerLine += columns[16].title + this.separator;
+                for (var i = 0; i < columns[17].columns.length; i++) {
+                    var sampleColumn = columns[17].columns[i];
+                    headerLine += columns[17].title + " " + sampleColumn.title + this.separator;
                 }
                 return headerLine;
             };
@@ -388,8 +388,10 @@
                 dataLine += getValue(row, "dp") + this.separator;
                 dataLine += getValue(row, "sift") + this.separator;
                 dataLine += getValue(row, "polyphen") + this.separator;
+                dataLine += getValue(row, "cadd") + this.separator;
                 dataLine += getValue(row, "phylop") + this.separator;
                 dataLine += getValue(row, "phastCons") + this.separator;
+                dataLine += getValue(row, "gerp") + this.separator;
 
                 dataLine += getValue(row["1000GENOMES_phase_3"], "ALL") + this.separator;
                 dataLine += getValue(row["1000GENOMES_phase_3"], "AMR") + this.separator;
