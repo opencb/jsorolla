@@ -250,15 +250,18 @@
                 var els = this.$.treeGO.querySelectorAll('jso-ontology-tree-item[selected]');
                 if (els.length > 0) {
                     for (var i = 0; i < els.length; i++) {
-                        if (this.mapSelectedGo[els[i].id] == null) {
-                            this.mapSelectedGo[els[i].id] = els;
+                        if (this.mapSelectedGo[els[i].file.id] == null) {
+                            this.mapSelectedGo[els[i].file.id] = els[i].file;
                             gos.push(els[i].file);
                         }
                     }
-                    this.set('goValue', gos);
-                } else {
-                    this.set('goValue', this.selectedGO);
                 }
+                if (this.selectedGO.length > 0) {
+                    for (var i = 0; i < this.selectedGO.length; i++) {
+                        gos.push(this.selectedGO[i]);
+                    }
+                }
+                this.set('goValue', gos);
                 this.fire('added');
                 this.handleClearSelected();
             },

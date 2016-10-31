@@ -25,20 +25,20 @@
 
         #allHPO,
         #selectedHPO {
-          width: 95%;
-          min-height: 345px;
-          height: calc(100vh - 450px);
-          border: 1px solid #d3d3d3;
+            width: 95%;
+            min-height: 345px;
+            height: calc(100vh - 450px);
+            border: 1px solid #d3d3d3;
         }
 
         .allHPO {
-          width: 50%;
-          margin-right: 10px;
+            width: 50%;
+            margin-right: 10px;
         }
 
         .selectedHPO {
-          width: 50%;
-          margin-left: 10px;
+            width: 50%;
+            margin-left: 10px;
         }
 
         .titlePreview {
@@ -84,13 +84,13 @@
         }
 
         .treeHPO {
-          overflow-y: auto;
-          min-height: 350px;
-          height: calc(100vh - 450px);
-          width: 80%;
-          margin: 10px;
-          padding: 5px;
-          /*border: 1px solid #d3d3d3;*/
+            overflow-y: auto;
+            min-height: 350px;
+            height: calc(100vh - 450px);
+            width: 80%;
+            margin: 10px;
+            padding: 5px;
+            /*border: 1px solid #d3d3d3;*/
         }
     </style>
     <template>
@@ -240,20 +240,23 @@
                 this.mapSelectedHpo = {};
             },
             handleAddSelected: function(e) {
-              var hpos=[];
-              this.hpoValue=[];
-              var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item[selected]');
-              if (els.length > 0) {
-                  for (var i = 0; i < els.length; i++) {
-                    if (this.mapSelectedHpo[els[i].id] == null) {
-                        this.mapSelectedHpo[els[i].id] = els;
-                        hpos.push(els[i].file);
+                var hpos = [];
+                this.hpoValue = [];
+                var els = this.$.treeHPO.querySelectorAll('jso-ontology-tree-item[selected]');
+                if (els.length > 0) {
+                    for (var i = 0; i < els.length; i++) {
+                        if (this.mapSelectedHpo[els[i].file.id] == null) {
+                            this.mapSelectedHpo[els[i].file.id] = els[i].file;
+                            hpos.push(els[i].file);
+                        }
                     }
-                  }
-                  this.set('hpoValue', hpos);
-              } else {
-                  this.set('hpoValue', this.selectedHPO);
-              }
+                }
+                if (this.selectedHPO.length > 0) {
+                    for (var i = 0; i < this.selectedHPO.length; i++) {
+                        hpos.push(this.selectedHPO[i]);
+                    }
+                }
+                this.set('hpoValue', hpos);
                 this.fire('added');
                 this.handleClearSelected();
             },
