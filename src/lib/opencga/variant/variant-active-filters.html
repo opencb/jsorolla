@@ -54,8 +54,12 @@
                             </select>
                         </span>
 
-                        <button type="button" class="btn btn-primary">
-                            <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
+                        <!--<button type="button" class="btn btn-primary" on-click="save">-->
+                        <!--<i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>-->
+                        <!--Save...-->
+                        <!--</button>-->
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#saveModal">
                             Save...
                         </button>
                     </form>
@@ -63,13 +67,50 @@
             </div>
         </div>
 
+        <!-- Modal -->
+        <div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Filter</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="filterName" class="col-xs-2 col-form-label">Name</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="filterName">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="filterDescription" class="col-xs-2 col-form-label">Description</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="filterDescription">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="bioformat" class="col-xs-2 col-form-label">Bioformat</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="bioformat">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" on-click="save">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </template>
     <script>
         Polymer({
             is: 'variant-active-filters',
             properties: {
                 opencgaClient: {
-                    type: Object
+                    type: Object,
+                    observer: 'checkFilters'
                 },
                 query: {
                     type: Object,
@@ -88,6 +129,51 @@
             },
             clear: function () {
                 this.query = {};
+            },
+            save: function () {
+                let params = {};
+                params.name = this.$.filterName.value;
+                params.description = this.$.filterDescription.value;
+                params.bioformat = this.$.bioformat.value;
+                params.query = this.query;
+                params.options = {};
+                let _this = this;
+                this.opencgaClient.users().getFilter(this.$.filterName.value, {}, {})
+                        .then(function (response) {
+                           if (response.response[0].result.length > 0) {
+                               delete params.name;
+                               _this.opencgaClient.users().updateFilter(_this.$.filterName.value, params, {})
+                                       .then(function(response) {
+                                           for (let i in _this.filters) {
+                                               if (_this.filters[i].name == _this.$.filterName.value) {
+                                                   _this.filters[i] = response.response[0].result[0];
+                                               }
+                                           }
+                                           _this.$.filterName.value = "";
+                                           _this.$.filterDescription.value = "";
+                                       });
+                           } else {
+                               _this.opencgaClient.users().createFilter(params, {})
+                                       .then(function(response) {
+                                           _this.push("filters", params);
+                                           _this.$.filterName.value = "";
+                                           _this.$.filterDescription.value = "";
+                                       });
+                           }
+                        });
+
+            },
+            checkFilters: function () {
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient) {
+                    this.opencgaClient.users().getFilters({}, {})
+                            .then(function(response) {
+                                let result = response.response[0].result;
+                                if (result.length > 0) {
+                                    _this.filters = result;
+                                }
+                            });
+                }
             },
             onFilterChange: function (e) {
                 if (e.target.selectedIndex == 0) {
