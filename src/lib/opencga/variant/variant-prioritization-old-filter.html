@@ -75,7 +75,7 @@
                             <i class="fa fa-filter" aria-hidden="true"></i>
                         </button>
                         <button type="button" class="btn btn-default" on-click="fireClear">Clear</button>
-                        <button type="button" class="btn btn-default" on-click="fireSearch">Search</button>
+                        <button type="button" class="btn btn-default" on-click="updateQueryFilters">Search</button>
                     </div>
                     <br>
 
@@ -736,7 +736,7 @@
             fireFilter: function () {
 
             },
-            fireSearch: function () {
+            updateQueryFilters: function () {
                 var query = {};
 
                 // Type

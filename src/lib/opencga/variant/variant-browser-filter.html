@@ -105,7 +105,7 @@
             <!--<div style="text-align: center">-->
             <!--<button type="button" class="btn btn-default btn-sm" on-click="fireClear">Clear</button>-->
             <!--&lt;!&ndash;<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSave">Save</button>&ndash;&gt;-->
-            <!--<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSearch">Search</button>-->
+            <!--<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="updateQueryFilters">Search</button>-->
             <!--</div>-->
             <!--<br>-->
 
@@ -117,65 +117,6 @@
                 </button>
             </div>
             <br>
-
-            <!--<div class="panel-group" id="{{prefix}}FilterAccordion" role="tablist" aria-multiselectable="true">-->
-            <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading" role="tab" id="{{prefix}}ActiveFilter">-->
-            <!--<h4 class="panel-title">-->
-            <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}FilterAccordion"-->
-            <!--href="#{{prefix}}Filters" aria-expanded="true" aria-controls="{{prefix}}Filters">-->
-            <!--Active filters <span class="badge">{{_filtersCount}}</span>-->
-            <!--</a>-->
-            <!--</h4>-->
-            <!--</div>-->
-            <!--<div id="{{prefix}}Filters" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}ActiveFilter">-->
-            <!--<div class="panel-body">-->
-            <!--&lt;!&ndash;<h5 class="col-xs-5">Select a filter</h5>&ndash;&gt;-->
-            <!--&lt;!&ndash;Select a filter&ndash;&gt;-->
-            <!--&lt;!&ndash;<div class="col-xs-7">&ndash;&gt;-->
-            <!--&lt;!&ndash;<select class="form-control" name="filters" id="filtersList">&ndash;&gt;-->
-            <!--&lt;!&ndash;<template is="dom-repeat" items="{{config.filters}}">&ndash;&gt;-->
-            <!--&lt;!&ndash;<option>{{item.name}}</option>&ndash;&gt;-->
-            <!--&lt;!&ndash;</template>&ndash;&gt;-->
-            <!--&lt;!&ndash;</select>&ndash;&gt;-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-            <!--&lt;!&ndash;<div class="input-group">&ndash;&gt;-->
-            <!--&lt;!&ndash;<span id="basic-addon1">Select a filter</span>&ndash;&gt;-->
-            <!--&lt;!&ndash;<select class="form-control" name="filters" id="filtersList">&ndash;&gt;-->
-            <!--&lt;!&ndash;<template is="dom-repeat" items="{{config.filters}}">&ndash;&gt;-->
-            <!--&lt;!&ndash;<option>{{item.name}}</option>&ndash;&gt;-->
-            <!--&lt;!&ndash;</template>&ndash;&gt;-->
-            <!--&lt;!&ndash;</select>&ndash;&gt;-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-            <!--<form class="form-inline">-->
-            <!--<div class="form-group">-->
-            <!--<label for="filtersList">Select a filter &nbsp;</label>-->
-            <!--<select class="form-control" name="filters" id="filtersList" on-change="filterChanged">-->
-            <!--<option>None Selected</option>-->
-            <!--<template is="dom-repeat" items="{{config.filters}}">-->
-            <!--<option>{{item.name}}</option>-->
-            <!--</template>-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</form>-->
-
-            <!--<br>-->
-            <!--<div style="text-align: right">-->
-            <!--<button type="button" class="btn btn-default btn-sm" on-click="fireClear">Clear</button>-->
-            <!--&lt;!&ndash;<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSave">Save</button>&ndash;&gt;-->
-            <!--<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSearch">Search</button>-->
-            <!--</div>-->
-
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--</div>-->
-            <!--<br>-->
-
-
-
 
             <div class="panel-group" id="{{prefix}}Accordion" role="tablist" aria-multiselectable="true">
 
@@ -237,8 +178,6 @@
                                         </template>
                                         </tbody>
                                     </table>
-                                    <!--</div>-->
-                                    <!--</div>-->
                                 </div>
                             </div>
 
@@ -309,13 +248,13 @@
                         <div class="panel-body">
                             Chromosomal location:
                             <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"
-                                      name="location" on-keyup="fireSearch"></textarea>
+                                      name="location" on-keyup="updateQueryFilters"></textarea>
                             <!--Import from BED:-->
                             <!--<button type="button" class="btn btn-xs" on-click="">Import</button>-->
                             <!--<br>-->
                             <br> Gene name or SNP id:
                             <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"
-                                      name="ids" on-keyup="fireSearch"></textarea>
+                                      name="ids" on-keyup="updateQueryFilters"></textarea>
                         </div>
                     </div>
                 </div>
@@ -332,11 +271,11 @@
                     <div id="{{prefix}}Type" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}TypeHeading">
                         <div class="panel-body">
                             <div>
-                                <input type="checkbox" value="SNV,SNP" on-change="fireSearch"> SNV<br>
-                                <input type="checkbox" value="MNV" on-change="fireSearch"> MNV<br>
-                                <input type="checkbox" value="CNV" on-change="fireSearch"> CNV<br>
-                                <input type="checkbox" value="SV" on-change="fireSearch"> SV<br>
-                                <input type="checkbox" value="INDEL" on-change="fireSearch"> INDEL
+                                <input type="checkbox" value="SNV,SNP" on-change="updateQueryFilters"> SNV<br>
+                                <input type="checkbox" value="MNV" on-change="updateQueryFilters"> MNV<br>
+                                <input type="checkbox" value="CNV" on-change="updateQueryFilters"> CNV<br>
+                                <input type="checkbox" value="SV" on-change="updateQueryFilters"> SV<br>
+                                <input type="checkbox" value="INDEL" on-change="updateQueryFilters"> INDEL
                             </div>
                         </div>
                     </div>
@@ -376,7 +315,7 @@
                                                     </select>
                                                 </span>
                                                 <span>
-                                                    <input type="text" value="" class="custom-sized-input" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="fireSearch">
+                                                    <input type="text" value="" class="custom-sized-input" name="{{study.id}}_{{popFreq.id}}" id="{{prefix}}{{study.id}}{{popFreq.id}}" on-keyup="updateQueryFilters">
                                                 </span>
                                             </div>
                                         </template>
@@ -414,7 +353,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="fireSearch" disabled>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters" disabled>
                             </div>
                             <div>
                                 <label>Polyphen</label><br>
@@ -433,7 +372,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="fireSearch" disabled>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters" disabled>
                             </div>
                         </div>
                     </div>
@@ -458,7 +397,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="fireSearch">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
@@ -468,7 +407,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="fireSearch">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
@@ -478,7 +417,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="fireSearch">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
                             </div>
                         </div>
                     </div>
@@ -531,7 +470,7 @@
                     <div id="{{prefix}}GeneOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}GeneOntologyHeading">
                         <div class="panel-body">
                             <textarea id="{{prefix}}GeneOntologyTextarea" class="form-control clearable" rows="3"
-                                      name="geneOntology" placeholder="GO:0000001, GO:0001177" on-keyup="fireSearch"></textarea>
+                                      name="geneOntology" placeholder="GO:0000001, GO:0001177" on-keyup="updateQueryFilters"></textarea>
                         </div>
                     </div>
                 </div>
@@ -549,7 +488,7 @@
                     <div id="{{prefix}}HumanPhenotypeOntology" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}HumanPhenotypeOntologyHeading">
                         <div class="panel-body">
                             <textarea id="{{prefix}}HumanPhenotypeOntologyTextarea" class="form-control clearable" rows="3"
-                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="fireSearch"></textarea>
+                                      name="hpo" placeholder="HP:0000001, HP:3000079" on-keyup="updateQueryFilters"></textarea>
                         </div>
                     </div>
                 </div>
@@ -573,7 +512,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="fireSearch">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
                             </div>
                             <div class="block">
                                 <label>Scaled</label>
@@ -583,7 +522,7 @@
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="fireSearch">
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
                             </div>
                         </div>
                     </div>
@@ -648,11 +587,6 @@
                     notify: true,
                     observer: 'onQueryUpdate'
                 },
-//                _filters: {
-//                    type: Object,
-//                    notify: true,
-//                    observer: 'onQueryUpdate'
-//                },
                 search: {
                     type: Object,
                     notify: true
@@ -681,7 +615,7 @@
 
                 this.query = {};
                 this._filters = {};
-                this._filtersCount = 0;
+//                this._filtersCount = 0;
             },
             handleCollapseAction: function (e) {
                 let id = e.target.dataId;
@@ -710,7 +644,7 @@
                     soTerms.push($(node).attr('id'));
                 }
                 this.set('ct', soTerms);
-                this.fireSearch();
+                this.updateQueryFilters();
             },
             checkScore: function (e) {
                 if (e.target.value == "score") {
@@ -722,13 +656,13 @@
                     $("#" + this.prefix + e.target.name + "Input").prop("disabled", true);
                     $("#" + this.prefix + e.target.name + "Operator").prop("disabled", true);
                 }
-                this.fireSearch();
+                this.updateQueryFilters();
             },
             fireClear: function () {
                 this._filters = {};
-                this.setFilters({});
+                this.setQueryFilters({});
             },
-            setFilters: function (query) {
+            setQueryFilters: function (query) {
                 let _this = this;
 
                 // Position and  Gene or Variant Ids
@@ -904,7 +838,7 @@
                 }
 
             },
-            fireSearch: function () {
+            updateQueryFilters: function () {
                 let _filters = {};
                 let _this = this;
 
@@ -1024,7 +958,7 @@
                 this.search = this.query;
             },
             onQueryUpdate: function () {
-                this.setFilters(this.query);
+                this.setQueryFilters(this.query);
                 this._filters = this.query;
             },
             // Exclusive for prioritization
