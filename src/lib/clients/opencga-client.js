@@ -310,7 +310,7 @@ class Users extends OpenCGAParentClass {
         return this.get("users", userId, "projects", params, options);
     }
 
-    delete(userId, params, options) {
+    remove(userId, params, options) {
         return this.get("users", userId, "delete", params, options);
     }
 
