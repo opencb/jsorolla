@@ -32,61 +32,61 @@
                         popArray.push(this.data[i].study + "-" + this.data[i].population);
                         mafArray.push(Math.min(Number(this.data[i].refAlleleFreq).toFixed(3), Number(this.data[i].altAlleleFreq).toFixed(3)));
                     }
+                }
 
-                    $('#' + this.prefix + 'Container').highcharts({
-                        chart: {
-                            type: 'bar'
-                        },
+                $('#' + this.prefix + 'Container').highcharts({
+                    chart: {
+                        type: 'bar'
+                    },
+                    title: {
+                        text: 'Population Frequencies'
+                    },
+                    xAxis: {
+                        categories: popArray,
                         title: {
-                            text: 'Population Frequencies'
+                            text: null
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Minor Allele Frequency (MAF)',
+                            align: 'high'
                         },
-                        xAxis: {
-                            categories: popArray,
-                            title: {
-                                text: null
-                            }
+                        labels: {
+                            overflow: 'justify'
                         },
-                        yAxis: {
-                            min: 0,
-                            title: {
-                                text: 'Minor Allele Frequency (MAF)',
-                                align: 'high'
-                            },
-                            labels: {
-                                overflow: 'justify'
-                            },
-                            max: 0.5
-                        },
+                        max: 0.5
+                    },
 //                        tooltip: {
 //                            valueSuffix: ' millions'
 //                        },
-                        plotOptions: {
-                            bar: {
-                                dataLabels: {
-                                    enabled: true
-                                }
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
                             }
-                        },
-                        legend: {
-                            layout: 'vertical',
-                            align: 'right',
-                            verticalAlign: 'top',
-                            x: -40,
-                            y: 80,
-                            floating: true,
-                            borderWidth: 1,
-                            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                            shadow: true
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        series: [{
-                            name: 'Minor Allele Frequency (MAF)',
-                            data: mafArray
-                        }]
-                    });
-                }
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -40,
+                        y: 80,
+                        floating: true,
+                        borderWidth: 1,
+                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                        shadow: true
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Minor Allele Frequency (MAF)',
+                        data: mafArray
+                    }]
+                });
 
                 // Population grid definition
                 $('#' + this.prefix + 'populationFreqTable').bootstrapTable('destroy');

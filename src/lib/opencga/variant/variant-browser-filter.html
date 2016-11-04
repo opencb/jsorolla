@@ -307,7 +307,7 @@
                                             <div class="horizontal layout">
                                                 <span>MAF</span>
                                                 <span>
-                                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}{{popFreq.id}}Operator">
+                                                    <select name="{{popFreq.id}}Operator" id="{{prefix}}{{study.id}}{{popFreq.id}}Operator" on-change="updateQueryFilters">
                                                         <option value="<" selected><</option>
                                                         <option value="<="><=</option>
                                                         <option value=">">></option>
@@ -347,7 +347,7 @@
                                     <option value="deleterious">Deleterious</option>
                                     <option value="score">Score...</option>
                                 </select>
-                                <select name="siftOperator" id="{{prefix}}SiftOperator" disabled>
+                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" disabled>
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -366,7 +366,7 @@
                                     <option value="possibly damaging,probably damaging">Possibly & Probably damaging</option>
                                     <option value="score">Score...</option>
                                 </select>
-                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" disabled>
+                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" disabled>
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -391,7 +391,7 @@
                         <div class="panel-body">
                             <div class="block">
                                 <label>PhyloP</label>
-                                <select name="phylopOperator" id="{{prefix}}PhylopOperator">
+                                <select name="phylopOperator" id="{{prefix}}PhylopOperator" on-change="updateQueryFilters">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -401,7 +401,7 @@
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
-                                <select name="phastconsOperator" id="{{prefix}}PhastconsOperator">
+                                <select name="phastconsOperator" id="{{prefix}}PhastconsOperator" on-change="updateQueryFilters">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -411,7 +411,7 @@
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
-                                <select name="gerpOperator" id="{{prefix}}GerpOperator">
+                                <select name="gerpOperator" id="{{prefix}}GerpOperator" on-change="updateQueryFilters">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -506,7 +506,7 @@
                         <div class="panel-body">
                             <div class="block">
                                 <label>Raw</label>
-                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator">
+                                <select name="caddRawOperator" id="{{prefix}}CaddRawOperator" on-change="updateQueryFilters">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
@@ -516,7 +516,7 @@
                             </div>
                             <div class="block">
                                 <label>Scaled</label>
-                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator">
+                                <select name="caddRScaledOperator" id="{{prefix}}CaddScaledOperator" on-change="updateQueryFilters">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
