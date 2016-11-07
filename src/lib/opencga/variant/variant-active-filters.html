@@ -111,7 +111,9 @@
             properties: {
                 opencgaClient: {
                     type: Object,
-                    observer: 'checkFilters'
+                    value: function() {
+                        return {'_config':{}};
+                    }
                 },
                 query: {
                     type: Object,
@@ -125,11 +127,26 @@
                     type: String
                 }
             },
+            observers: [
+                'checkFilters(opencgaClient._config.*)'
+            ],
             ready: function () {
                 this.queryListEmpty = true;
             },
             clear: function () {
                 this.query = {};
+            },
+            checkFilters: function (config) {
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient && typeof config.value.sessionId !== "undefined") {
+                    this.opencgaClient.users().getFilters({}, {})
+                            .then(function(response) {
+                                let result = response.response[0].result;
+                                if (result.length > 0) {
+                                    _this.filters = result;
+                                }
+                            });
+                }
             },
             save: function () {
                 let params = {};
@@ -163,18 +180,6 @@
                            }
                         });
 
-            },
-            checkFilters: function () {
-                let _this = this;
-                if (this.opencgaClient instanceof OpenCGAClient) {
-                    this.opencgaClient.users().getFilters({}, {})
-                            .then(function(response) {
-                                let result = response.response[0].result;
-                                if (result.length > 0) {
-                                    _this.filters = result;
-                                }
-                            });
-                }
             },
             onFilterChange: function (e) {
                 if (e.target.selectedIndex == 0) {
