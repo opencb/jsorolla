@@ -95,12 +95,40 @@
             name: 'snpId',
             title: 'SNP Id',
             width: 80,
-            defaultValue: '.'
+            defaultValue: '.',
+            formula: function(row) {
+                var links = [];
+                if (row.ids.length > 0) {
+                    for (var i = 0; i < row.ids.length; i++) {
+                        var url = "http://www.ensembl.org/Homo_sapiens/Variation/Explore?r=" + row.chromosome + ":" + row.start + "-" + row.end + ";v=" + row.ids[i] + ";vdb=variation";
+                        links.push('<a href="' + url + '" target="_blank">' + row.ids[i] + '</a>');
+                    }
+
+                    return links.join(",");
+                }else{
+                  return '.';
+                }
+            },
+            sort: function(a, b) {
+                var rsnum_a = parseInt(a.id.replace('rs', ''));
+                var rsnum_b = parseInt(b.id.replace('rs', ''));
+                return rsnum_a - rsnum_b;
+            }
         }, {
             name: 'genes',
             title: 'Genes',
             width: 150,
-            defaultValue: '.'
+            defaultValue: '.',
+            formula: function(row) {
+                var genes = row.genes.split(",");
+                var links = [];
+                for (var i = 0; i < genes.length; i++) {
+                    var url = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + genes[i] + ";r=" + row.chromosome + ":" + row.start + "-" + row.end;
+                    links.push('<a href="' + url + '" target="_blank">' + genes[i] + '</a>');
+                }
+
+                return links.join(",");
+            }
         }, {
             name: 'type',
             title: 'Type',
@@ -124,12 +152,37 @@
             name: 'sift',
             title: 'SIFT',
             width: 50,
-            defaultValue: '.'
+            defaultValue: '.',
+            styleFormula: function(row) {
+                var style = {
+                    backgroundColor: '#8ccd8c',
+                    color: '#fff'
+                };
+                if (row.sift == null) {
+                    style.backgroundColor = '#76afd5';
+                } else if (row.sift <= 0.05) {
+                    style.backgroundColor = '#f47070';
+                }
+                return style;
+            },
         }, {
             name: 'polyphen',
             title: 'Polyphen',
             width: 50,
-            defaultValue: '.'
+            defaultValue: '.',
+            styleFormula: function(row) {
+
+                var style = {
+                    backgroundColor: '#8ccd8c',
+                    color: '#fff'
+                };
+                if (row.polyphen == null) {
+                    style.backgroundColor = '#76afd5';
+                } else if (row.polyphen >= 0.95) {
+                    style.backgroundColor = '#f47070';
+                }
+                return style;
+            }
         }, {
             name: 'cadd',
             title: 'CADD',
@@ -255,7 +308,11 @@
             name: 'exac',
             title: 'EXAC',
             width: 50,
-            defaultValue: '.'
+            defaultValue: '.',
+            formula: function(row) {
+                var url = "http://exac.broadinstitute.org/variant/" + row.chromosome + "-" + row.start + "-" + row.reference + "-" + row.alternate;
+                return '<a href="' + url + '" target="_blank">' + row.exac + '</a>'
+            }
         }, {
             name: 'phenotype',
             title: 'Phenotype',
@@ -539,18 +596,18 @@
                             }
                             variant.phylop = phylopAux;
                             variant.phastCons = phastConsAux;
-                            variant.gerp=gerpAux;
+                            variant.gerp = gerpAux;
 
                         }
-                        if(annotation.functionalScore != null){
-                          var caddAux = null;
-                          for (var j = 0; j < annotation.functionalScore.length; j++) {
-                              var fs = annotation.functionalScore[j];
-                              if (fs.source.toLowerCase() == "cadd_raw") {
-                                  caddAux = fs.score.toFixed(3);
-                              }
-                          }
-                          variant.cadd = caddAux;
+                        if (annotation.functionalScore != null) {
+                            var caddAux = null;
+                            for (var j = 0; j < annotation.functionalScore.length; j++) {
+                                var fs = annotation.functionalScore[j];
+                                if (fs.source.toLowerCase() == "cadd_raw") {
+                                    caddAux = fs.score.toFixed(3);
+                                }
+                            }
+                            variant.cadd = caddAux;
                         }
 
                         // Population Frequencies
