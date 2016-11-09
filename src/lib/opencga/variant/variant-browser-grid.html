@@ -95,7 +95,7 @@
                 }
             },
             assignColors: function () {
-                if (typeof this.consequenceTypes !== "undefined" && typeof this.consequenceTypeToImpact === "undefined") {
+                if (typeof this.consequenceTypes !== "undefined") {
                     let consequenceTypeToImpact = {};
                     for (let i = 0; i < this.consequenceTypes.categories.length; i++) {
                         if (typeof this.consequenceTypes.categories[i].terms !== "undefined") {
@@ -109,7 +109,7 @@
                     this.consequenceTypeToImpact = consequenceTypeToImpact;
                 }
 
-                if (typeof this.proteinSubstitutionScores !== "undefined" && typeof this.pssColor === "undefined") {
+                if (typeof this.proteinSubstitutionScores !== "undefined") {
                     let pssColor = new Map();
                     if (typeof proteinSubstitutionScores !== "undefined") {
                         for (let i in proteinSubstitutionScores) {
