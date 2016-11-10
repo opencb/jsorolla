@@ -731,7 +731,7 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.functional != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
                         if (minAux < 10) {
@@ -884,6 +884,7 @@
 
             // Sift
             // Polyphen
+            // cadd
             this.$.filterScores.clear();
 
             // // Phylop
@@ -1085,10 +1086,17 @@
             } else if (polyphen != null) {
                 query["polyphen"] = polyphen;
             }
+            var cadd = this.$.filterScores.checkCADD();
+            if (cadd == -1) {
+                return;
+            } else if (cadd != null) {
+                query["functional"] = "cadd_raw"+cadd;
+            }
 
             var phastcons = this.$.filterConservation.checkPhastcons(1);
             var phylop = this.$.filterConservation.checkPhylop(1);
-            if (phastcons != null || phylop != null) {
+            var gerp = this.$.filterConservation.checkGerp();
+            if (phastcons != null || phylop != null || gerp!=null) {
                 var conservation = [];
                 if (phastcons != null) {
                     conservation.push(phastcons);
@@ -1096,10 +1104,11 @@
                 if (phylop != null) {
                     conservation.push(phylop);
                 }
-            }
-            var gerp = this.$.filterConservation.checkGerp();
-            if (gerp != null) {
-                query["gerp"] = gerp;
+
+                if (gerp != null) {
+                  conservation.push("gerp"+gerp);
+                }
+                query["conservation"]=conservation.join(",");
             }
 
             // Population Frequencies
@@ -1391,6 +1400,7 @@
 
             // Sift
             // Polyphen
+            // cadd
             var fS = this.$.filterScores.load(hf);
             if (fS.length > 0) {
                 for (var i = 0; i < fS.length; i++) {
