@@ -100,16 +100,16 @@
                 var links = [];
                 if (row.ids.length > 0) {
                     for (var i = 0; i < row.ids.length; i++) {
-                      if(row.ids[i]=='.'){
-                        return '.';
-                      }
+                        if (row.ids[i] == '.') {
+                            return '.';
+                        }
                         var url = "http://www.ensembl.org/Homo_sapiens/Variation/Explore?r=" + row.chromosome + ":" + row.start + "-" + row.end + ";v=" + row.ids[i] + ";vdb=variation";
                         links.push('<a href="' + url + '" target="_blank">' + row.ids[i] + '</a>');
                     }
 
                     return links.join(",");
-                }else{
-                  return '.';
+                } else {
+                    return '.';
                 }
             },
             sort: function(a, b) {
@@ -123,21 +123,21 @@
             width: 150,
             defaultValue: '.',
             formula: function(row) {
-              if(row.genes !=null){
-                var genes = row.genes.split(",");
-                var links = [];
-                for (var i = 0; i < genes.length; i++) {
-                  if(genes[i]=='.'){
-                    return '.';
-                  }
-                    var url = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + genes[i] + ";r=" + row.chromosome + ":" + row.start + "-" + row.end;
-                    links.push('<a href="' + url + '" target="_blank">' + genes[i] + '</a>');
-                }
+                if (row.genes != null) {
+                    var genes = row.genes.split(",");
+                    var links = [];
+                    for (var i = 0; i < genes.length; i++) {
+                        if (genes[i] == '.') {
+                            return '.';
+                        }
+                        var url = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + genes[i] + ";r=" + row.chromosome + ":" + row.start + "-" + row.end;
+                        links.push('<a href="' + url + '" target="_blank">' + genes[i] + '</a>');
+                    }
 
-                return links.join(",");
-              }else{
-                return '.';
-              }
+                    return links.join(",");
+                } else {
+                    return '.';
+                }
             }
         }, {
             name: 'type',
@@ -320,12 +320,12 @@
             width: 50,
             defaultValue: '.',
             formula: function(row) {
-              if(row.exac!=null && row.exac!='.'){
-                var url = "http://exac.broadinstitute.org/variant/" + row.chromosome + "-" + row.start + "-" + row.reference + "-" + row.alternate;
-                return '<a href="' + url + '" target="_blank">' + row.exac + '</a>'
-              }else{
-                return '.';
-              }
+                if (row.exac != null && row.exac != '.') {
+                    var url = "http://exac.broadinstitute.org/variant/" + row.chromosome + "-" + row.start + "-" + row.reference + "-" + row.alternate;
+                    return '<a href="' + url + '" target="_blank">' + row.exac + '</a>'
+                } else {
+                    return '.';
+                }
             }
         }, {
             name: 'phenotype',
@@ -613,16 +613,18 @@
                             variant.gerp = gerpAux;
 
                         }
-                        if (annotation.functionalScore != null) {
-                            var caddAux = null;
-                            for (var j = 0; j < annotation.functionalScore.length; j++) {
-                                var fs = annotation.functionalScore[j];
-                                if (fs.source.toLowerCase() == "cadd_raw") {
-                                    caddAux = fs.score.toFixed(3);
-                                }
-                            }
-                            variant.cadd = caddAux;
-                        }
+                        //CADD - CALL CELLBASE
+                        variant.cadd=this._getAdditionalInfo(variant);
+                        // if (annotation.functionalScore != null) {
+                        // var caddAux = null;
+                        // for (var j = 0; j < annotation.functionalScore.length; j++) {
+                        //     var fs = annotation.functionalScore[j];
+                        //     if (fs.source.toLowerCase() == "cadd_raw") {
+                        //         caddAux = fs.score.toFixed(3);
+                        //     }
+                        // }
+                        // variant.cadd = caddAux;
+                        // }
 
                         // Population Frequencies
                         if (annotation.populationFrequencies != null) {
@@ -743,6 +745,33 @@
                 total = 0;
             }
             return total;
+        },
+        _getAdditionalInfo: function(variant) {
+            var me = this;
+            var variant = variant.chromosome + ":" + variant.start + ":" + variant.reference + ":" + variant.alternate;
+            var caddAux = null;
+            CellBaseManager.get({
+                species: 'hsapiens',
+                category: 'genomic',
+                subCategory: 'variant',
+                resource: 'annotation',
+                query: variant,
+                async: false,
+                success: function(response) {
+                    if (response.response[0].result[0]) {
+                        var row = response.response[0].result[0];
+                        if (row.functionalScore) {
+                            for (var i = 0; i < row.functionalScore.length; i++) {
+                                var fs = row.functionalScore[i];
+                                if (fs.source.toLowerCase() == "cadd_raw") {
+                                    caddAux = fs.score.toFixed(3);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            return caddAux;
         }
     });
 </script>
