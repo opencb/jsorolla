@@ -48,6 +48,9 @@ class CellBaseClient {
     }
 
     getMeta(param, options) {
+        if (options === undefined) {
+            options = {};
+        }
         let hosts = options.hosts || this._config.hosts;
         let version = options.version || this._config.version;
         let count = 0;
@@ -84,17 +87,20 @@ class CellBaseClient {
 
 
     get(category, subcategory, ids, resource, params, options) {
+        if (options === undefined) {
+            options = {};
+        }
         // we store the options from the parameter or from the default values in config
         let hosts = options.hosts || this._config.hosts;
         if (typeof hosts == "string") {
             hosts = hosts.split(",");
         }
         let rpc = options.rpc || this._config.rpc;
-        let cache = options.cache; //|| this._config.cache;
+        let cache = options.cache; // || this._config.cache;
 
 
         let response;
-        if (cache == true) {
+        if (cache == true && ids !== undefined) {
             let version = options.version || this._config.version;
             let species = options.species || this._config.species;
             let os = species + "_" + category + "_" + subcategory + "_" + version;
@@ -151,7 +157,8 @@ class CellBaseClient {
                         for (let i = 0; i < results.length; i++) {
                             responses.push({result: results[i]});
                         }
-                        response.response = responses;
+                        // response.response = responses;
+                        response = Promise.resolve(responses);
                         // If the call is OK then we execute the success function from the user
                         if (typeof options != "undefined" && typeof options.success === "function") {
                             options.success(response);
@@ -167,7 +174,7 @@ class CellBaseClient {
                 console.timeEnd("Cache time:");
             });
         } else {
-            let response;
+            // let response;
             if (rpc.toLowerCase() === "rest") {
                 response = this._callRestWebService(hosts, category, subcategory, ids, resource, params, options);
             } else {
