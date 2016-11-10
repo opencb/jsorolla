@@ -613,18 +613,18 @@
                             variant.gerp = gerpAux;
 
                         }
-                        //CADD - CALL CELLBASE
-                        variant.cadd=this._getAdditionalInfo(variant);
-                        // if (annotation.functionalScore != null) {
-                        // var caddAux = null;
-                        // for (var j = 0; j < annotation.functionalScore.length; j++) {
-                        //     var fs = annotation.functionalScore[j];
-                        //     if (fs.source.toLowerCase() == "cadd_raw") {
-                        //         caddAux = fs.score.toFixed(3);
-                        //     }
-                        // }
-                        // variant.cadd = caddAux;
-                        // }
+
+                        //CADD
+                        if (annotation.functionalScore != null) {
+                        var caddAux = null;
+                        for (var j = 0; j < annotation.functionalScore.length; j++) {
+                            var fs = annotation.functionalScore[j];
+                            if (fs.source.toLowerCase() == "cadd_raw") {
+                                caddAux = fs.score.toFixed(3);
+                            }
+                        }
+                        variant.cadd = caddAux;
+                        }
 
                         // Population Frequencies
                         if (annotation.populationFrequencies != null) {
@@ -746,32 +746,24 @@
             }
             return total;
         },
-        _getAdditionalInfo: function(variant) {
-            var me = this;
-            var variant = variant.chromosome + ":" + variant.start + ":" + variant.reference + ":" + variant.alternate;
-            var caddAux = null;
-            CellBaseManager.get({
-                species: 'hsapiens',
-                category: 'genomic',
-                subCategory: 'variant',
-                resource: 'annotation',
-                query: variant,
-                async: false,
-                success: function(response) {
-                    if (response.response[0].result[0]) {
-                        var row = response.response[0].result[0];
-                        if (row.functionalScore) {
-                            for (var i = 0; i < row.functionalScore.length; i++) {
-                                var fs = row.functionalScore[i];
-                                if (fs.source.toLowerCase() == "cadd_raw") {
-                                    caddAux = fs.score.toFixed(3);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            return caddAux;
-        }
+        // _getAdditionalInfo: function(variant) {
+        //     var me = this;
+        //     var variant = variant.chromosome + ":" + variant.start + ":" + variant.reference + ":" + variant.alternate;
+        //     var caddAux = null;
+        //     CellBaseManager.get({
+        //         species: 'hsapiens',
+        //         category: 'genomic',
+        //         subCategory: 'variant',
+        //         resource: 'annotation',
+        //         query: variant,
+        //         async: false,
+        //         success: function(response) {
+        //             if (response.response[0].result[0]) {
+        //                 var row = response.response[0].result[0];                 
+        //             }
+        //         }
+        //     });
+        //     return caddAux;
+        // }
     });
 </script>
