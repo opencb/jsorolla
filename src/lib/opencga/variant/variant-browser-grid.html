@@ -239,16 +239,22 @@
                         var visited = new Set();
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-                                let transcriptId = '-';
-                                if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
-                                    transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
-                                }
+//                                let transcriptId = '-';
+//                                if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
+//                                    transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
+//                                }
 
                                 let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
+                                // let impact = ...
+                                // results[impact] = [];
+                                // results[impact].push(consequenceTypeName)
 
                                 // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
                                 if (consequenceTypeName == "2KB_downstream_gene_variant") {
                                     consequenceTypeName = "2KB_downstream_variant";
+                                }
+                                if (consequenceTypeName == "2KB_upstream_gene_variant") {
+                                    consequenceTypeName = "2KB_upstream_variant";
                                 }
 
                                 if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visited.has(consequenceTypeName)) {
@@ -261,6 +267,9 @@
                                 }
                             }
                         }
+
+                        // print the high and moderate first
+
                         return consequenceTypesArr.join('<br>');
                     }
                 }
