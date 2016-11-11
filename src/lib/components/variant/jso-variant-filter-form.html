@@ -731,7 +731,7 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.functional != null || query.conservation != null || query["annot-ct"] != null) {
+                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.functional != null || query.hpo != null || query.go != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
                         if (minAux < 10) {
@@ -834,12 +834,12 @@
             // GO
             this.$.go.value = "";
             this.goValue = "";
-            this.goSearch="";
+            this.goSearch = "";
             this.$.goExclude.checked = false;
             // HPO
             this.$.hpo.value = "";
             this.hpoValue = "";
-            this.hpoSearch="";
+            this.hpoSearch = "";
             this.$.hpoExclude.checked = false;
 
             this.$.filterPosition.clear();
@@ -980,8 +980,12 @@
                     }
                 }
             }
-            if(this.goSearch!=""){
-              query["go"]=this.goSearch;
+            if (this.goSearch != "") {
+              if(this.goValue==""){
+                query["go"] = this.hpoSearch;
+              }else{
+                query["go"] = Object.keys(gosMap).join(",");
+              }
             }
             if (query["gene"] != null && Object.keys(genes).length > 0) {
                 query["gene"] += "," + Object.keys(genes).join(",");
@@ -1008,40 +1012,12 @@
                     }
                 }
             }
-
-            var hposAux = [];
-            if (this.$.hpoExclude.checked == true) {
-                var hposArray = [];
-                for (var i = 0; i < HPO_ONTOLOGY.length; i++) {
-                    hposArray.push(HPO_ONTOLOGY[i].id);
-                }
-                for (var i = 0; i < hposArray.length; i++) {
-                    if (hposMap[hposArray[i]] == null) {
-                        hposAux.push(hposArray[i]);
-                    }
-                }
-            } else {
-                hposAux = Object.keys(hposMap);
-            }
-            var genes = {};
-            for (var i = 0; i < hposAux.length; i++) {
-                if (HPO_GENE[hposAux[i]] != null) {
-                    for (var j = 0; j < HPO_GENE[hposAux[i]].length; j++) {
-                        var gene = HPO_GENE[hposAux[i]][j];
-                        genes[gene] = true;
-                    }
-                }
-            }
-            if(this.hpoSearch!=""){
-              query["hpo"]=this.hpoSearch
-            }
-            if (query["gene"] != null && Object.keys(genes).length > 0) {
-                query["gene"] += "," + Object.keys(genes).join(",");
-            } else if (query["gene"] == null && Object.keys(genes).length > 0) {
-                query["gene"] = Object.keys(genes).join(",");
-                alert("Selected HPOs have these associated genes: " + Object.keys(genes).join(","));
-            } else if (Object.keys(genes).length == 0 && this.hpoValue.length > 0) {
-                alert("Selected HPOs have not associated genes");
+            if (this.hpoSearch != "") {
+              if(this.hpoValue==""){
+                query["hpo"] = this.hpoSearch;
+              }else{
+                query["hpo"] = Object.keys(hposMap).join(",");
+              }
             }
 
             // Genotypes
@@ -1090,13 +1066,13 @@
             if (cadd == -1) {
                 return;
             } else if (cadd != null) {
-                query["functional"] = "cadd_raw"+cadd;
+                query["functional"] = "cadd_raw" + cadd;
             }
 
             var phastcons = this.$.filterConservation.checkPhastcons(1);
             var phylop = this.$.filterConservation.checkPhylop(1);
             var gerp = this.$.filterConservation.checkGerp();
-            if (phastcons != null || phylop != null || gerp!=null) {
+            if (phastcons != null || phylop != null || gerp != null) {
                 var conservation = [];
                 if (phastcons != null) {
                     conservation.push(phastcons);
@@ -1106,9 +1082,9 @@
                 }
 
                 if (gerp != null) {
-                  conservation.push("gerp"+gerp);
+                    conservation.push("gerp" + gerp);
                 }
-                query["conservation"]=conservation.join(",");
+                query["conservation"] = conservation.join(",");
             }
 
             // Population Frequencies
@@ -1331,13 +1307,13 @@
                 filterName.push("Somatic: " + hf.somatic);
             }
 
-            if(hf.go!="" && hf.go!=null){
-              this.set('goSearch',hf.go);
-              filterName.push("GO: " + hf.go);
+            if (hf.go != "" && hf.go != null) {
+                this.set('goSearch', hf.go);
+                filterName.push("GO: " + hf.go);
             }
-            if(hf.hpo!="" && hf.hpo!=null){
-              this.set('hpoSearch',hf.hpo);
-              filterName.push("HPO: " + hf.hpo);
+            if (hf.hpo != "" && hf.hpo != null) {
+                this.set('hpoSearch', hf.hpo);
+                filterName.push("HPO: " + hf.hpo);
             }
 
             // Region
@@ -1349,8 +1325,6 @@
                     filterName.push(fP[i]);
                 }
             }
-
-
 
             // Types
             if (hf.type != "" && hf.type != null) {
