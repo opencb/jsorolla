@@ -96,28 +96,30 @@
             },
             assignColors: function () {
                 if (typeof this.consequenceTypes !== "undefined") {
+                    let consequenceTypeToColor = {};
                     let consequenceTypeToImpact = {};
                     for (let i = 0; i < this.consequenceTypes.categories.length; i++) {
                         if (typeof this.consequenceTypes.categories[i].terms !== "undefined") {
                             for (let j = 0; j < this.consequenceTypes.categories[i].terms.length; j++) {
-                                consequenceTypeToImpact[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.color[consequenceTypes.categories[i].terms[j].impact];
+                                consequenceTypeToColor[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].terms[j].impact];
+                                consequenceTypeToImpact[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.categories[i].terms[j].impact;
                             }
                         } else if (typeof this.consequenceTypes.categories[i].id !== "undefined" && typeof this.consequenceTypes.categories[i].name !== "undefined") {
-                            consequenceTypeToImpact[this.consequenceTypes.categories[i].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].impact];
+                            consequenceTypeToColor[this.consequenceTypes.categories[i].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].impact];
+                            consequenceTypeToImpact[this.consequenceTypes.categories[i].name] = this.consequenceTypes.categories[i].impact;
                         }
                     }
+                    this.consequenceTypeToColor = consequenceTypeToColor;
                     this.consequenceTypeToImpact = consequenceTypeToImpact;
                 }
 
                 if (typeof this.proteinSubstitutionScores !== "undefined") {
                     let pssColor = new Map();
-                    if (typeof proteinSubstitutionScores !== "undefined") {
-                        for (let i in proteinSubstitutionScores) {
-                            let obj = proteinSubstitutionScores[i];
-                            Object.keys(obj).forEach(key => {
-                                pssColor.set(key, obj[key]);
-                            });
-                        }
+                    for (let i in this.proteinSubstitutionScores) {
+                        let obj = this.proteinSubstitutionScores[i];
+                        Object.keys(obj).forEach(key => {
+                            pssColor.set(key, obj[key]);
+                        });
                     }
                     this.pssColor = pssColor;
                 }
@@ -237,17 +239,11 @@
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined" && row.annotation.consequenceTypes.length > 0) {
                         var consequenceTypesArr = [];
                         var visited = new Set();
+                        var impact = {};
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-//                                let transcriptId = '-';
-//                                if (row.annotation.consequenceTypes[i].ensemblTranscriptId != "") {
-//                                    transcriptId = row.annotation.consequenceTypes[i].ensemblTranscriptId;
-//                                }
 
                                 let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
-                                // let impact = ...
-                                // results[impact] = [];
-                                // results[impact].push(consequenceTypeName)
 
                                 // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
                                 if (consequenceTypeName == "2KB_downstream_gene_variant") {
@@ -259,16 +255,41 @@
 
                                 if (typeof consequenceTypeName !== "undefined" && consequenceTypeName != "" && !visited.has(consequenceTypeName)) {
                                     if (typeof this.field.context.consequenceTypeToImpact !== "undefined" && typeof this.field.context.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
-                                        consequenceTypesArr.push('<span style="color: ' + this.field.context.consequenceTypeToImpact[consequenceTypeName] + '">' + consequenceTypeName + '</span>');
-                                    } else {
-                                        consequenceTypesArr.push('<span>' + consequenceTypeName + '</span>');
+                                        let imp = this.field.context.consequenceTypeToImpact[consequenceTypeName];
+                                        if (typeof impact[imp] === "undefined") {
+                                            impact[imp] = [];
+                                        }
+                                        if (typeof this.field.context.consequenceTypeToColor !== "undefined" && typeof this.field.context.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
+                                            impact[imp].push('<span style="color: ' + this.field.context.consequenceTypeToColor[consequenceTypeName] + '">' + consequenceTypeName + '</span>');
+                                        } else {
+                                            impact[imp].push('<span>' + consequenceTypeName + '</span>');
+                                        }
+
                                     }
+//                                    if (typeof this.field.context.consequenceTypeToColor !== "undefined" && typeof this.field.context.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
+//                                        consequenceTypesArr.push('<span style="color: ' + this.field.context.consequenceTypeToColor[consequenceTypeName] + '">' + consequenceTypeName + '</span>');
+//                                    } else {
+//                                        consequenceTypesArr.push('<span>' + consequenceTypeName + '</span>');
+//                                    }
                                     visited.add(consequenceTypeName);
                                 }
                             }
                         }
 
-                        // print the high and moderate first
+                        if (Object.keys(impact).length > 0) {
+                            if (typeof impact["high"] !== "undefined" || typeof impact["moderate"] !== "undefined") {
+                                if (typeof impact["high"] !== "undefined") {
+                                    Array.prototype.push.apply(consequenceTypesArr, impact["high"]);
+                                }
+                                if (typeof impact["moderate"] !== "undefined") {
+                                    Array.prototype.push.apply(consequenceTypesArr, impact["moderate"]);
+                                }
+                            } else if (typeof impact["low"] !== "undefined") {
+                                Array.prototype.push.apply(consequenceTypesArr, impact["low"]);
+                            } else if (typeof impact["modifier"] !== "undefined") {
+                                Array.prototype.push.apply(consequenceTypesArr, impact["modifier"]);
+                            }
+                        }
 
                         return consequenceTypesArr.join('<br>');
                     }

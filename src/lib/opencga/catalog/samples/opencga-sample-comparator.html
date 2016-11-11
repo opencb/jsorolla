@@ -4,24 +4,20 @@
 
         <div>
             <br>
-                <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="variableSetDropDown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{selectedVariableSet}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="segregationDropdown" on-click="selectVariableSet">
-                        <template is="dom-repeat" items="{{variableSets}}">
-                            <li><a>{{item.name}}</a></li>
-                        </template>
-                    </ul>
-                </div>
+            <div class="form-group">
+                <label for="variableSetSelect">Variable Set</label>
+                <select class="form-control" id="variableSetSelect" style="width: 25%" on-change="selectVariableSet">
+                    <template is="dom-repeat" items="{{variableSets}}">
+                        <option>{{item.name}}</option>
+                    </template>
+                </select>
+            </div>
 
-                <div id="{{prefix}}Content">
-                    <table id="{{prefix}}SampleComparator" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]">
-
-                        <thead style="background-color: #eee"></thead>
-                    </table>
-                </div>
+            <div id="{{prefix}}Content">
+                <table id="{{prefix}}SampleComparator" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]">
+                    <thead style="background-color: #eee"></thead>
+                </table>
+            </div>
         </div>
     </template>
 
@@ -44,7 +40,7 @@
                 },
                 variableSets: {
                     type: Array,
-                    observer: 'dataChanged'
+                    observer: 'variableSetChanged'
                 },
                 sampleIds: {
                     type: Array,
@@ -72,21 +68,23 @@
             ],
 
             ready: function() {
-                this.selectedVariableSet = "VariableSets";
-
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = Utils.randomString(6);
                 }
             },
             selectVariableSet: function (e) {
-                e.preventDefault();
-                this.selectedVariableSet = e.target.innerHTML;
+                let selectedVariableSet = $("#" + e.target.id).val();
                 let _this = this;
                 for (let i in _this.variableSets) {
                     let variableSet = _this.variableSets[i];
-                    if (variableSet.name == _this.selectedVariableSet) {
+                    if (variableSet.name == selectedVariableSet) {
                         _this.variableSet = variableSet;
                     }
+                }
+            },
+            variableSetChanged: function () {
+                if (typeof this.variableSets !== "undefined" && this.variableSets.length > 0) {
+                    this.variableSet = this.variableSets[0]; // Setting first variable set by default
                 }
             },
             getSamples: function (opencgaClient, resource) {

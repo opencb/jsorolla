@@ -32,13 +32,18 @@
         <div style="padding: 10px;height: 530px" class="row">
 
             <ul id="sampleViewTabs" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#sampleViewAnnotation" role="tab" data-toggle="tab">Sample Annotations</a></li>
+                <li role="presentation" class="active"><a href="#sampleViewClinicalData" role="tab" data-toggle="tab">Clinical Data</a></li>
+                <li role="presentation"><a href="#sampleViewIndividual" role="tab" data-toggle="tab">Individuals</a></li>
                 <li role="presentation"><a href="#sampleViewAcl" role="tab" data-toggle="tab">ACL</a></li>
             </ul>
 
             <div class="tab-content">
-                <div id="sampleViewAnnotation" role="tabpanel" class="tab-pane active">
+                <div id="sampleViewClinicalData" role="tabpanel" class="tab-pane active">
                     <opencga-sample-comparator opencga-client="{{opencgaClient}}" samples="{{samples}}" variable-sets="{{variableSets}}"></opencga-sample-comparator>
+                </div>
+
+                <div id="sampleViewIndividual" role="tabpanel" class="tab-pane">
+
                 </div>
 
                 <div id="sampleViewAcl" role="tabpanel" class="tab-pane">
