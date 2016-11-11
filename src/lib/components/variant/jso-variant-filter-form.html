@@ -1408,19 +1408,13 @@
                 }
             }
 
-            // Phylop y Phastcons
+            // Phylop, Phastcons y Gerp
             var fC = this.$.filterConservation.load(hf, 1);
             if (fC.length > 0) {
                 for (var i = 0; i < fC.length; i++) {
                     filterName.push(fC[i]);
                 }
             }
-            //Gerp MODE 1, 2 SEGUN WS TODO
-            var fCg = this.$.filterConservation.loadGerp(hf);
-            if (fCg != "") {
-                filterName.push(fCg);
-            }
-
             // Consequence Types
             var fCT = this.$.filterCT.load(hf, 1);
             if (fCT.length > 0) {
