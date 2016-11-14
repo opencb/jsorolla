@@ -303,7 +303,8 @@
                 if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
                     if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined") {
+                            if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined"
+                                    && typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
                                 for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
                                     if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source == this.field.source) {
                                         switch (this.field.source) {
@@ -351,8 +352,8 @@
                 return '-';
             },
             populationFrequenciesFormatter: function(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-                    for (popFreqIdx in row.annotation.populationFrequencies) {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
+                    for (let popFreqIdx in row.annotation.populationFrequencies) {
                         let popFreq = row.annotation.populationFrequencies[popFreqIdx];
                         let studyPopulation = popFreq.study + ":" + popFreq.population;
                         if (studyPopulation == this.field.population) {
@@ -371,7 +372,7 @@
                 return '-';
             },
             populationFrequenciesFormatter2: function(value, row, index) {
-                if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+                if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
 
                     let data = new Map();
                     for (popFreqIdx in row.annotation.populationFrequencies) {

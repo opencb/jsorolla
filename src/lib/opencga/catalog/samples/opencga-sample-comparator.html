@@ -83,8 +83,13 @@
                 }
             },
             variableSetChanged: function () {
-                if (typeof this.variableSets !== "undefined" && this.variableSets.length > 0) {
-                    this.variableSet = this.variableSets[0]; // Setting first variable set by default
+                if (typeof this.variableSets !== "undefined") {
+                    if (this.variableSets.length > 0) {
+                        this.variableSet = this.variableSets[0]; // Setting first variable set by default
+                    } else {
+                        this.variableSets = [{name : "none"}];
+                    }
+
                 }
             },
             getSamples: function (opencgaClient, resource) {
@@ -131,7 +136,7 @@
             dataChanged: function () {
                 this.refreshVariableSetTable(); // Refreshing the table columns whenever the samples change
                 let _this = this;
-                if (typeof _this.variableSet !== "undefined") {
+                if (typeof _this.variableSet !== "undefined" && typeof _this.variableSet.variables !== "undefined") {
                         let sortedVariableSet = _this.variableSet.variables;
                         sortedVariableSet.sort(function sortByRank(a, b) {
                             if (a.rank > b.rank) {
