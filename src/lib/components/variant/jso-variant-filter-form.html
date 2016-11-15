@@ -982,7 +982,7 @@
             }
             if (this.goSearch != "") {
               if(this.goValue==""){
-                query["go"] = this.hpoSearch;
+                query["go"] = this.goSearch;
               }else{
                 query["go"] = Object.keys(gosMap).join(",");
               }
