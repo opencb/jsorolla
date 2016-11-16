@@ -22,8 +22,30 @@
             .container > .row > .table tr.active td {
                 background-color: #1f9cda;
             }
-        </style>
 
+            .filter-button:hover {
+                text-decoration: line-through;
+            }
+        </style>
+        <br>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <button type="button" class="btn btn-primary" on-click="clear"><i class="fa fa-refresh" aria-hidden="true" style="padding-right: 5px"></i>
+                    Clear
+                </button>
+
+                <span style="padding: 0px 25px 0px 25px">
+                    <template is="dom-if" if="{{filtersEmpty}}">
+                        <label>No filters selected</label>
+                    </template>
+
+                    <template is="dom-repeat" items="{{filtersList}}">
+                        <button type="button" class="btn btn-warning btn-sm filter-button" on-click="onFilterDelete" data-filter-category="{{item.category}}"
+                                data-filter-name="{{item.name}}" data-filter-value="{{item.text}}">{{item.name}} = {{item.text}}</button>
+                    </template>
+                </span>
+            </div>
+        </div>
         <table id="samplestable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                data-checkbox-header="false" data-maintain-selected="true" style="cursor: pointer;">
             <thead style="background-color: #eee"></thead>
@@ -32,7 +54,7 @@
         <div style="padding: 10px;height: 530px" class="row">
 
             <ul id="sampleViewTabs" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#sampleViewClinicalData" role="tab" data-toggle="tab">Clinical Data</a></li>
+                <li role="presentation" class="active"><a href="#sampleViewClinicalData" role="tab" data-toggle="tab">ClinicalData</a></li>
                 <li role="presentation"><a href="#sampleViewIndividual" role="tab" data-toggle="tab">Individuals</a></li>
                 <li role="presentation"><a href="#sampleViewAcl" role="tab" data-toggle="tab">ACL</a></li>
             </ul>
@@ -59,8 +81,7 @@
 
             properties: {
                 opencgaClient: {
-                    type: Object,
-                    observer: 'renderFromServer'
+                    type: Object
                 },
                 data: {
                     type: Array,
@@ -74,7 +95,8 @@
                 filters: {
                     type: Object,
                     value: {},
-                    observer: 'renderFromServer'
+                    observer: 'renderFromServer',
+                    notify: true
                 },
                 samples: {
                     type: Array,
@@ -82,7 +104,8 @@
                 }
             },
 
-            ready: function() {
+            ready: function () {
+                this.filtersEmpty = true;
                 // Columns that will be represented
                 this._columns = [
                     [
@@ -96,7 +119,7 @@
                             sortable: true
                         },
                         {
-                            title: 'Source',
+                            title: 'File',
                             field: 'source',
                             sortable: true
                         },
@@ -107,18 +130,45 @@
                     ]
                 ];
             },
-
-            renderFromServer: function() {
+            clear: function () {
+                this.filters = {};
+                this.fire("update", {filter : this.filters});
+                this.filtersList = [];
+                this.filtersEmpty = true;
+            },
+            renderFromServer: function () {
                 this.samples = [];
+                let _filterList = [];
+                var keys = Object.keys(this.filters);
+                for (var keyIdx in keys) {
+                    let key = keys[keyIdx];
+                    let value = this.filters[key];
+                    switch (key) {
+                        case "name":
+                        case "source":
+                            _filterList.push({category: key, name: key, text: value.split("~")[1]});
+                            break;
+                        case "annotation":
+                            for (let i = 0; i < value.length; i++) {
+                                let obj = value[i];
+                                _filterList.push({category: key, name: obj.name, text: obj.value});
+                            }
+                            break;
+                    }
+                }
+                this.filtersList = _filterList;
+                this.filtersEmpty = (this.filtersList.length == 0);
+
+
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && this.studyId > 0) {
-                    this._url = 'http://' + this.opencgaClient.getConfig().host +  '/webservices/rest/v1/samples/search';
+                    this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/samples/search';
 
                     $('#samplestable').bootstrapTable('destroy');
                     $('#samplestable').bootstrapTable({
                         url: this._url,
                         sidePagination: 'server',
-                        queryParams: function(params) {
+                        queryParams: function (params) {
                             let auxParams = {
                                 studyId: _this.studyId,
                                 sid: Cookies.get(_this.opencgaClient.getConfig().cookieSessionId),
@@ -132,7 +182,7 @@
                             }
                             return $.extend({}, _this.filters, auxParams);
                         },
-                        responseHandler: function(response) {
+                        responseHandler: function (response) {
                             if (!_this.hasOwnProperty("numTotalResults")) {
                                 _this.numTotalResults = 0;
                             }
@@ -148,7 +198,7 @@
                         },
                         columns: this._columns,
 
-                        onClickRow: function(row, element) {
+                        onClickRow: function (row, element) {
                             let index = element[0].getAttribute("data-index");
                             if (row.state) {
                                 $('#samplestable').bootstrapTable('uncheck', index);
@@ -178,12 +228,12 @@
 
                     this.opencgaClient.studies().info(this.studyId, {include: "variableSets"}).then(function (response) {
                         _this.variableSets = response.response[0].result[0].variableSets;
-                    }).catch(function() {
+                    }).catch(function () {
                         console.log("Could not obtain the variable sets of the study " + _this.studyId);
                     });
                 }
             },
-            renderLocally: function() {
+            renderLocally: function () {
                 let _this = this;
                 if (this.data != null && this.data.length > 0) {
                     $('#samplestable').bootstrapTable('destroy');
@@ -209,7 +259,32 @@
                         }
                     });
                 }
-            }
+            },
+            onFilterDelete: function (e) {
+                let _filterList = this.filters;
+                let category = e.target.dataFilterCategory;
+                let name = e.target.dataFilterName;
+                switch (category) {
+                    case "annotation":
+                        let annotations = _filterList[category];
+                        for (let i = 0; i < annotations.length; i++) {
+                            if (annotations[i].name == name) {
+                                annotations.splice(i, 1);
+                            }
+                        }
+                        if (annotations.length > 0) {
+                            _filterList[category] = annotations.slice();
+                        } else {
+                            delete _filterList[category];
+                        }
+                        break;
+                    default:
+                        delete _filterList[category];
+                        break;
+                }
+                this.filters = Object.assign({}, _filterList);
+                this.fire("update", {filter : this.filters});
+            },
         });
     </script>
 </dom-module>

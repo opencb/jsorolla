@@ -20,15 +20,15 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div class="panel">
-            <div class="col-md-2">
-                <br>
-                <opencga-samples-filter samples="{{samples}}" opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"></opencga-samples-filter>
-            </div>
+        <div class="col-md-2">
+            <br>
+            <opencga-samples-filter samples="{{samples}}" opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
+            update="{{update}}"></opencga-samples-filter>
+        </div>
 
-            <div class="col-md-10">
-                <opencga-samples-view samples="{{samples}}" opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"></opencga-samples-view>
-            </div>
+        <div class="col-md-10">
+            <opencga-samples-view samples="{{samples}}" opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
+            on-update="fireUpdateFilter"></opencga-samples-view>
         </div>
 
     </template>
@@ -49,6 +49,9 @@
                 filters: {
                     type: Object
                 }
+            },
+            fireUpdateFilter: function (e) {
+                this.update = e.detail.filter;
             }
 
         });

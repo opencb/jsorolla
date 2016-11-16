@@ -20,14 +20,14 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <label>Variable sets</label>
-        <template is="dom-repeat" items="{{variableSets}}" as="variableSet">
-            <div class="radio" style="padding-left: 5px;">
-                <label><input data-variable-set={{variableSet}} on-click='selectedVariableSet' type="radio" name="optradio">
-                    {{variableSet.name}}
-                </label>
-            </div>
-        </template>
+        <div class="form-group">
+            <label for="variableSetSelect">Variable Set</label>
+            <select class="form-control" id="variableSetSelect" style="width: 100%" on-change="selectedVariableSet">
+                <template is="dom-repeat" items="{{variableSets}}">
+                    <option>{{item.name}}</option>
+                </template>
+            </select>
+        </div>
 
         <!--Variable list-->
         <div class="form-group" hidden$="{{_areVariablesEmpty}}">
@@ -85,35 +85,43 @@
                     notify: true
                 }
             },
-
             observers: [
                 'renderVariableTemplate(filteredVariables.variables.splices)'
             ],
-
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
                     this.prefix = "filter" + Utils.randomString(6);
                 }
             },
-
             updateVariableSets: function() {
                 this.variables = [];
                 let _this = this;
-                this.opencgaClient.studies().info(this.studyId, {include: "variableSets"}).then(function (response) {
-                    _this.variableSets = response.response[0].result[0].variableSets;
-                }).catch(function() {
-                    console.log("Could not obtain the variable sets of the study " + _this.studyId);
-                });
+                this.opencgaClient.studies().info(this.studyId, {include: "variableSets"})
+                        .then(function (response) {
+                            _this.variableSets = response.response[0].result[0].variableSets;
+                            if (_this.variableSets.length > 0) {
+                                _this.variables = _this.variableSets[0].variables; // setting first one by default
+                                _this.filteredVariables = {
+                                    variableSet: _this.variableSets[0].id,
+                                    variables: []
+                                };
+                            }
+                        })
+                        .catch(function () {
+                            console.log("Could not obtain the variable sets of the study " + _this.studyId);
+                        });
             },
-
             selectedVariableSet: function(e) {
-                this.variables = e.target.dataVariableSet.variables;
-                this.filteredVariables = {
-                    variableSet: e.target.dataVariableSet.id,
-                    variables: []
-                };
+                for (let i =0; i < this.variableSets.length; i++) {
+                    if (e.target.value == this.variableSets[i].name) {
+                        this.variables = this.variableSets[i].variables;
+                        this.filteredVariables = {
+                            variableSet: this.variableSets[i].id,
+                            variables: []
+                        };
+                    }
+                }
             },
-
             variablesChanged: function() {
                 if (this.variables.length == 0) {
                     this._areVariablesEmpty = true;
@@ -121,7 +129,6 @@
                     this._areVariablesEmpty = false;
                 }
             },
-
             filterVariable: function(variable) {
                 for (let i = 0; i < this.filteredVariables.variables.length; i++) {
                     if (variable.name === this.filteredVariables.variables[i].name) {
@@ -133,31 +140,26 @@
                 }
                 return true;
             },
-
             _sortVariables: function(a, b) {
                 if (a.rank < b.rank) {
                     return -1;
                 }
                 return 1;
             },
-
             renderVariableTemplate: function() {
                 let myTemplate = this.$$("[id='" + this.prefix + "VariableTemplate']");
                 if (myTemplate !== null) {
                     myTemplate.render();
                 }
             },
-
             variableSelected: function(e) {
                 this.selectedVariable = e.target.dataVariable;
                 $(e.target.dataTarget).modal('show');
             },
-
             addFilter: function(e) {
                 this.selectedVariable = {};
                 this.push('filteredVariables.variables', e.detail);
             }
-
         });
     </script>
 </dom-module>

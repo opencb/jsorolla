@@ -27,83 +27,69 @@
         </style>
 
         <div>
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#filter1" role="tab" data-toggle="tab">Filter</a></li>
-            </ul>
 
-            <!--Filter tab content-->
-            <div class="tab-content">
-                <div role="tabpanel" class="panel panel-default tab-pane active" id="filter1" style="padding: 5px;">
+            <!--<button type="button" class="btn btn-default" style="margin-bottom: 15px;" on-click="clear">Clear all-->
+            <!--</button>-->
 
-                    <button type="button" class="btn btn-default" style="margin-bottom: 15px;" on-click="clear">Clear all</button>
-
-                    <div class="panel-group" id="{{prefix}}Accordion">
-                        <!--Sample name-->
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <i hidden$="{{!sampleNameSearch.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>
-                                    <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleNameCollapse">
-                                        Name
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}SampleNameCollapse" class="panel-collapse collapse">
-                                <div class="form-group has-feedback panel-body">
-                                    <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="Search by sample name"
-                                           on-keyup="calculateFilters" value="{{sampleNameSearch::input}}">
-                                    <i class="fa fa-search form-control-feedback" aria-hidden="true" style="padding: 15px; margin-right: 20px;"></i>
-                                </div>
-                            </div>
+            <div class="panel-group" id="{{prefix}}Accordion">
+                <!--Sample name-->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <!--<i hidden$="{{!sampleNameSearch.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>-->
+                            <!--<i hidden$="{{!sampleSourceSearch.length}}" class="fa fa-check" aria-hidden="true"-->
+                               <!--style="color: green;"></i>-->
+                            <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleNameCollapse">
+                                Name
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}SampleNameCollapse" class="panel-collapse">
+                        <div class="form-group has-feedback panel-body">
+                            <!--Sample Name-->
+                            Name:
+                            <input type="text" id="{{prefix}}SampleName" class="form-control" placeholder="Search by sample name"
+                                   on-keyup="calculateFilters" value="{{sampleNameSearch::input}}">
+                            <i class="fa fa-search form-control-feedback" aria-hidden="true" style="padding: 15px; margin-right: 20px; margin-top: 18px"></i>
+                            <br>
+                            <!--Sample source-->
+                            File:
+                            <input type="text" id="{{prefix}}SampleSource" class="form-control" placeholder="Search by sample source"
+                                   on-keyup="calculateFilters" value="{{sampleSourceSearch::input}}">
+                            <i class="fa fa-search form-control-feedback" aria-hidden="true" style="padding: 15px; margin-right: 20px; margin-top: 92px;"></i>
                         </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <i hidden$="{{!sampleSourceSearch.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>
-                                    <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleSourceCollapse">
-                                        Sources
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}SampleSourceCollapse" class="panel-collapse collapse">
-                                <div class="form-group has-feedback panel-body">
-                                    <input type="text" id="{{prefix}}SampleSource" class="form-control" placeholder="Search by sample source"
-                                           on-keyup="calculateFilters"  value="{{sampleSourceSearch::input}}">
-                                    <i class="fa fa-search form-control-feedback" aria-hidden="true" style="padding: 15px; margin-right: 20px;"></i>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                </div>
 
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <i hidden$="{{!filteredVariables.variables.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>
-                                    <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleVariablesCollapse">
-                                        Variables
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="{{prefix}}SampleVariablesCollapse" class="panel-collapse collapse">
-                                <div class="panel-body">
-                                    <opencga-annotation-filter-widget opencga-client="{{opencgaClient}}" study-id="{{studyId}}"
-                                    filtered-variables="{{filteredVariables}}">
-                                    </opencga-annotation-filter-widget>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <i hidden$="{{!filteredVariables.variables.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>
+                            <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleVariablesCollapse">
+                                Variables
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{prefix}}SampleVariablesCollapse" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <opencga-annotation-filter-widget opencga-client="{{opencgaClient}}" study-id="{{studyId}}"
+                                                              filtered-variables="{{filteredVariables}}">
+                            </opencga-annotation-filter-widget>
 
-                                    <div hidden$="{{!filteredVariables.variables.length}}" class="panel panel-success">
-                                        <div class="panel-heading">Active filters <span class="badge">{{filteredVariables.variables.length}}</span></div>
-                                        <ul class="list-group" style="max-height: 150px; overflow-y: auto;">
-                                            <template is="dom-repeat" items="{{filteredVariables.variables}}" as="filter">
-                                                <li class="list-group-item">
-                                                    <a on-click="removeVariableFilter" class="btn btn-default" data-variable="{{filter}}">
-                                                        <i class="fa fa-times add-right-margin" aria-hidden="true"></i>
-                                                        {{filter.name}}: {{filter.value}}
-                                                    </a>
-                                                </li>
-                                            </template>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                            <!--<div hidden$="{{!filteredVariables.variables.length}}" class="panel panel-success">-->
+                                <!--<div class="panel-heading">Active filters <span class="badge">{{filteredVariables.variables.length}}</span>-->
+                                <!--</div>-->
+                                <!--<ul class="list-group" style="max-height: 150px; overflow-y: auto;">-->
+                                    <!--<template is="dom-repeat" items="{{filteredVariables.variables}}" as="filter">-->
+                                        <!--<li class="list-group-item">-->
+                                            <!--<a on-click="removeVariableFilter" class="btn btn-default" data-variable="{{filter}}">-->
+                                                <!--<i class="fa fa-times add-right-margin" aria-hidden="true"></i>-->
+                                                <!--{{filter.name}}: {{filter.value}}-->
+                                            <!--</a>-->
+                                        <!--</li>-->
+                                    <!--</template>-->
+                                <!--</ul>-->
+                            <!--</div>-->
                         </div>
                     </div>
                 </div>
@@ -128,55 +114,41 @@
                     type: Object,
                     notify: true
                 },
-                _autocompleteData: {
-                    type:Array,
-                    value: []
+                update: {
+                    type: Object,
+                    value: {},
+                    observer: "updateFilter"
                 }
             },
             observers: [
-                'calculateFilters(filteredVariables.variables.splices)'
+                'calculateFilters(filteredVariables.variables.*)'
             ],
             ready: function() {
                 if (typeof this.prefix === "undefined" || this.prefix == "") {
-                    this.prefix = Utils.randomString(6);
+                    this.prefix = "sample" + Utils.randomString(6);
                 }
-                this.clear();
             },
-            clear: function () {
-                this.sampleNameSearch = "";
-                this.sampleSourceSearch = "";
-                this.filteredVariables = { variables: [] };
-            },
-            executeQuery: function (e) {
-                this.filters = {
-                    "name": this.$.sampleFilterTextArea.value
-                };
-            },
-            addSampleName: function(e) {
-                let allIds = this.$.sampleFilterTextArea.value.split(",");
-                var temp = this.$.sampleNameText.value;
-                if (allIds.indexOf(temp) == -1){
-                    allIds.push(temp);
-                }
-                this.$.sampleNameText.value = '';
-                this.$.sampleFilterTextArea.value = allIds;
-            },
-            callAutocomplete: function(e) {
-                if (this.$.sampleNameText.value.length > 2) {
-                    let _this = this;
-                    let success = function (response) {
-                        _this._autocompleteData = response.response[0].result;
-                    };
-                    this.opencgaClient.samples().search({
-                        studyId: this.studyId,
-                        name: "^" + this.$.sampleNameText.value,
-                        include: "projects.studies.samples.name",
-                        limit: 15
-                    }).then(function(response) {
-                        this._autocompleteData = response.response[0].result;
-                    }.bind(this));
+            updateFilter: function () {
+                this.filters = this.update;
+                if (typeof this.update.name === "undefined") {
+                    $("#" + this.prefix + "SampleName").val("");
                 }
 
+                if (typeof this.update.source === "undefined") {
+                    $("#" + this.prefix + "SampleSource").val("");
+                }
+
+                if (typeof this.update.annotation !== "undefined") {
+                    for (let i = 0; i < this.update.annotation.length; i++) {
+                        for (let j = 0; j < this.filteredVariables.variables.length; j++) {
+                            if (this.update.annotation[i].name != this.filteredVariables.variables[j].name) {
+                                this.splice("filteredVariables.variables", j, 1);
+                            }
+                        }
+                    }
+                } else {
+                    this.set("filteredVariables.variables", []);
+                }
             },
             removeVariableFilter: function(e) {
                 for (let i = 0; i < this.filteredVariables.variables.length; i++) {
@@ -197,11 +169,10 @@
                     filters["variableSetId"] = this.filteredVariables.variableSet;
                     let annotations = [];
                     this.filteredVariables.variables.forEach(function(variable) {
-                        annotations.push(variable.name + "=" + variable.value);
-                    })
-                    filters["annotation"] = annotations.join(";");
+                        annotations.push(variable);
+                    });
+                    filters["annotation"] = annotations;
                 }
-
                 this.filters = filters;
             }
         });
