@@ -6,21 +6,34 @@
             box-sizing: border-box;
         }
 
-        #sampleList {
+        #sampleList,
+        #sampleSelectedList {
             box-sizing: border-box;
-            height: 150px;
-            background-color: var(--light-secondary-color);
-            border-top: 1px solid var(--divider-color);
-            padding: 5px;
+            height: 100px;
             overflow-y: auto;
         }
 
+        .sam {
+            width: 50%;
+            padding: 5px;
+        }
+
+        .right {
+            border-left: 1px solid var(--divider-color);
+        }
+
         .study-info {
-            height: 100%;
+            height: 20%;
             box-sizing: border-box;
             background-color: var(--light-secondary-color);
             border-top: 1px solid var(--divider-color);
             padding: 5px;
+        }
+
+        .sample-info {
+            height: 100%;
+            box-sizing: border-box;
+            border-top: 1px solid var(--divider-color);
         }
 
         #variantButton {
@@ -28,45 +41,71 @@
             width: 150px;
             background-color: var(--dark-button-color) !important;
             color: var(--text-primary-color) !important;
+            margin: 5px;
         }
 
         #variantButton:hover {
             background-color: var(--light-button-color) !important;
         }
+
+        .msgError {
+            color: #bf4747;
+            font-style: italic;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
     </style>
     <template>
-        <div class="study-info">
-            <label class="" style="margin-left:10px;">Study Type: </label>
-            <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
-            <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
-            <div id="sampleList" class="vertical layout">
-                <div class="">
-                    <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
+        <div class="sample-info">
+            <div class="" style="height:80%">
+                <div class="horizontal layout">
+                    <div class="sam">
+                        <div class="">
+                            <input id="searchInput" class="jso" type="text" style="width:100%;" placeholder="Search by name..." value="{{search::input}}">
+                        </div>
+                        <div id="sampleList" class="">
+                            <template is="dom-repeat" items="{{filteredSamples}}">
+                                <label class="jso-control">
+                                    <input class="jso" type="checkbox" sample="{{item}}">
+                                    <span>{{item.name}}</span>
+                                </label>
+                            </template>
+                        </div>
+                        <div class="horizontal layout center end-justified">
+                            <div id="add-button" class="jso-btn jso-btn-shdw" on-click="handleAddSample" title="Add selected samples"> Add
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sam right">
+                        <label class="">Selected Samples: </label>
+                        <div id="sampleSelectedList">
+                            <template is="dom-repeat" items="{{sampleSelected}}">
+                                <div class="jso-control">
+                                    <i class="fa fa-times" sample="{{item.id}}" on-click="handleRemoveSample"></i>
+                                    <span>{{item.name}}</span>
+                                    </divS>
+                            </template>
+                            </div>
+                            <div class="horizontal layout center end-justified">
+                                <div id="variantButton" class="jso-btn jso-btn-shdw" on-click="handleViewVariantBrowswer" title="Explore selected samples"> Variant Browser
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <template is="dom-repeat" items="{{filteredSamples}}">
-                    <label class="jso-control">
-                        <input class="jso" type="checkbox" sample="{{item}}">
-                        <span>{{item.name}}</span>
-                    </label>
-                </template>
+                <div class="horizontal layout study-info">
+                    <label class="" style="margin-left:10px;">Study Type: </label>
+                    <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
+                    <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
+                </div>
             </div>
-            <div id="variantButton" class="jso-btn jso-btn-shdw" on-click="handleViewVariantBrowswer" hidden$="{{!enableVariantBrowser}}" title="Explore selected samples"> Variant Browser
-            </div>
-        </div>
     </template>
 </dom-module>
 <script>
     Polymer({
         is: "jso-opencga-sample-info",
         properties: {
-
-            selected: {
-                type: Object,
-                notify: true,
-                value: function() {
-                    return null;
-                }
-            },
             selectedFile: {
                 type: Object,
                 value: function() {
@@ -83,8 +122,14 @@
                 notify: true,
             },
             sampleSelected: {
-                type: Object,
+                type: Array,
                 notify: true,
+                value: function() {
+                    return [];
+                }
+            },
+            sampleMap: {
+                type: Object,
                 value: function() {
                     return {};
                 }
@@ -101,6 +146,14 @@
                 type: String,
                 value: "",
                 observer: 'searchNameChanged'
+            },
+            study: {
+                type: Object,
+                observer: 'studyChanged'
+            },
+            indexMsg: {
+                type: String,
+                value: ""
             },
         },
 
@@ -134,9 +187,56 @@
 
         samplesChanged: function(neo, old) {
             var me = this;
-            console.log(this.search);
             var searchFilterSamples = this._filterBySearch(this.samples);
             this.set('filteredSamples', searchFilterSamples);
+
+            if (this.study != null && this.filteredSamples != "") {
+                var studyId = this.study.id;
+                var sampleIds = [];
+                for (var i = 0; i < this.filteredSamples.length; i++) {
+                    sampleIds.push(this.filteredSamples[i].id);
+                }
+                OpencgaManager.files.search({
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
+                        studyId: studyId,
+                        status: "READY",
+                        sampleIds: sampleIds.join(",")
+                    },
+                    request: {
+                        async: true,
+                        success: function(response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                for (var j = 0; j < response.response[0].result.length; j++) {
+                                    var result = response.response[0].result[j];
+                                    if (result.index != null && result.index.status == "INDEXING") {
+                                        for (var k = 0; k < me.filteredSamples.length; k++) {
+                                            if (me.filteredSamples[k].source == result.name) {
+                                                me.set("filteredSamples." + k + ".status", "INDEXING");
+                                            }
+                                        }
+                                        var msg = result.name + " is indexing";
+                                        me.set('indexMsg', msg);
+                                    } else {
+                                        for (var k = 0; k < me.filteredSamples.length; k++) {
+                                            var status = (result.index) ? result.index.status : "NOT INDEXED";
+                                            if (me.filteredSamples[k].source == result.name) {
+                                                me.set("filteredSamples." + k + ".status", status);
+                                            }
+                                        }
+                                        me.set('indexMsg', "");
+                                    }
+                                }
+                            } else {
+                                console.log('Server error, try again later.');
+                            }
+                        },
+                        error: function() {
+                            console.log('Server error, try again later.');
+                        }
+                    }
+                });
+            }
         },
         _filterBySearch: function(samples) {
             if (this.search == "") {
@@ -152,19 +252,41 @@
             return filteredSamples;
         },
         handleViewVariantBrowswer: function(e) {
-            var samples = [];
-            var sel = this.$.sampleList.querySelectorAll("input:checked");
-            for (var i = 0; i < sel.length; i++) {
-                samples.push(sel[i].sample);
-            }
-            this.set("sampleSelected", samples);
-            // this.fire('sampleselected', this.sampleSelected);
-
+          this.set("sampleSelected", this.sampleSelected);
             this.fire('viewvariantbrowser');
         },
         searchNameChanged: function(neo, old) {
             this.samplesChanged();
         },
+        studyChanged: function(neo, old) {
+            this.set("sampleSelected", []);
+            this.set("filteredSamples", []);
+        },
+        handleRemoveSample: function(e) {
+            var id = e.currentTarget.sample;
+            this.sampleMap[id] = null;
+            for (var i = 0; i < this.sampleSelected.length; i++) {
+              if(this.sampleSelected[i].id==id){
+                this.splice('sampleSelected',i,1);
+                break;
+              }
+            }
+
+        },
+        handleAddSample: function(e) {
+            var sel = this.$.sampleList.querySelectorAll("input:checked");
+            for (var i = 0; i < sel.length; i++) {
+                var sample = sel[i].sample;
+                if (sample.status == "READY") {
+                    if (this.sampleMap[sample.id] == null) {
+                        this.sampleMap[sample.id] = true;
+                        this.push("sampleSelected", sel[i].sample);
+                    }
+                } else {
+                    alert("All selected samples must be READY! Select samples from VCF in READY status.");
+                }
+            }
+        }
 
     });
 </script>

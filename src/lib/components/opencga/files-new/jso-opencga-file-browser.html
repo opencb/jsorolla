@@ -158,7 +158,7 @@
             <div id="maincontent">
                 <jso-opencga-folder-list id="opencgaFolderList" on-fileselect="handleFileSelect" on-openfolder="handleOpenFolder" on-upload-file="handleUploadFile" on-back="handleBackFolder" on-need-refresh="refreshFolderFiles" on-previewfile="handlePreviewFile" study="{{selectedStudy.study}}" folder="{{folder}}" files="{{files}}" mode="{{mode}}" disable-icon-view="{{disableIconView}}">
                 </jso-opencga-folder-list>
-                <jso-opencga-sample-info on-sampleselected="handleSampleSelect" sample-Selected="{{sampleSelected}}" selected-file={{selectedFile}}></jso-opencga-sample-info>
+                <jso-opencga-sample-info on-sampleselected="handleSampleSelect" sample-selected="{{sampleSelected}}" selected-file={{selectedFile}} study="{{selectedStudy.study}}"></jso-opencga-sample-info>
             </div>
         </div>
 
@@ -297,18 +297,11 @@
                 value: false,
                 reflectToAttribute: true
             },
-            // selectedSample: {
-            //     type: Object,
-            //     notify: true,
-            //     value: function() {
-            //         return {};
-            //     }
-            // },
             sampleSelected: {
-                type: Object,
+                type: Array,
                 notify: true,
                 value: function() {
-                    return {};
+                    return [];
                 }
             },
         },
@@ -647,9 +640,6 @@
                 }
             }
 
-        },
-        // handleSampleSelect: function(e) {
-        //     this.selectedSample = e.detail;
-        // },
+        }
     });
 </script>
