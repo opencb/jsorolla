@@ -27,6 +27,30 @@ class IndexedDBCache {
         this.db = null;
     }
 
+    createObjectStores(os) {
+
+        if (os === undefined || !os instanceof Array) {
+            return;
+        }
+
+        let indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+        let request = indexedDB.open(this.database, 11);
+
+        request.onupgradeneeded = function(event) {
+            var db = event.target.result;
+
+            db.onerror = function(event) {
+                console.log("Error loading database.");
+            };
+
+            // Create an objectStore for this database
+            for (let i in os) {
+                db.createObjectStore(os[i], { autoIncrement : true });
+            }
+
+        };
+    }
+
     open(os, callback) {
         var database = this.database;
         this.status = "opening";
@@ -199,6 +223,17 @@ class IndexedDBCache {
             let transaction = _this._createTransaction(db, os, "readwrite");
             let objectStore = transaction.objectStore(os);
             objectStore.add(value, key);
+        });
+    }
+
+    addAll(os, keyArray, valueArray) {
+        var _this = this;
+        this.open(os, function (db) {
+            let transaction = _this._createTransaction(db, os, "readwrite");
+            let objectStore = transaction.objectStore(os);
+            for (let i = 0; i < keyArray.length; i++) {
+                objectStore.put(valueArray[i], keyArray[i]);
+            }
         });
     }
 

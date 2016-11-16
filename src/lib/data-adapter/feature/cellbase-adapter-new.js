@@ -62,7 +62,6 @@ class CellBaseAdapter {
         }
         region.start = (region.start < 1) ? 1 : region.start;
         region.end = (region.end > 300000000) ? 300000000 : region.end;
-        var queryRegion = `${region.chromosome}:${region.start}-${region.end}`;
 
         /** 2 category check **/
         // var categories = [this.category + this.subCategory + this.resource + Utils.queryString(params)];
@@ -84,20 +83,53 @@ class CellBaseAdapter {
             console.log("cellbase client must be provided!!!");
         }
 
+        // Create the chunks to be retrieved
+        let start = this._getStartChunkPosition(region.start);
+        let end = this._getStartChunkPosition(region.end);
 
-        this.client.get(this.category, this.subCategory, queryRegion, this.resource, this.params)
-            .then(function(response) {
-                var responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
+        let regions = [];
+        let myRegion = start;
+        args.webServiceCallCount = 0;
 
-                args.done({
-                    items: responseChunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+        do {
+            regions.push(`${region.chromosome}:${myRegion}-${myRegion + this.options.chunkSize - 1}`);
+            myRegion += this.options.chunkSize;
+        } while(myRegion < end);
+
+        let groupedRegions = this._groupQueries(regions);
+
+        let chunks = [];
+        for (let i = 0; i < groupedRegions.length; i++) {
+            args.webServiceCallCount++;
+            this.client.get(this.category, this.subCategory, groupedRegions[i], this.resource, this.params)
+                .then(function(response) {
+                    if (response.response[0].result.length === 11) {
+                        debugger;
+                    }
+                    var responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
+                    args.webServiceCallCount--;
+
+                    chunks = chunks.concat(responseChunks);
+                    if (args.webServiceCallCount === 0) {
+                        chunks.sort(function(a, b) {
+                            return a.chunkKey.localeCompare(b.chunkKey)
+                        });
+                        args.done({
+                            items: chunks, dataType: dataType, chunkSize: chunkSize, sender: _this
+                        });
+                    }
+
+                })
+                .catch(function() {
+                    console.log('Server error');
+                    args.done();
                 });
+        }
 
-            })
-            .catch(function() {
-                console.log('Server error');
-                args.done();
-            });
+    }
+
+    _getStartChunkPosition (position) {
+        return Math.floor(position / this.options.chunkSize) * this.options.chunkSize;
     }
 
     _cellbaseSuccess (data, dataType, chunkSize) {

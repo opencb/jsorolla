@@ -26,7 +26,14 @@ class CellBaseClient {
         } else {
             this._config = config;
         }
-        this.indexedDBCache = new IndexedDBCache("cellbase_cache");
+        if (this._config.cache.active) {
+            this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
+            this._initCache();
+        }
+    }
+
+    _initCache() {
+        this.indexedDBCache.createObjectStores(this._config.cache.subcategories)
     }
 
     setHosts(hosts) {
@@ -96,82 +103,126 @@ class CellBaseClient {
             hosts = hosts.split(",");
         }
         let rpc = options.rpc || this._config.rpc;
-        let cache = options.cache; // || this._config.cache;
+        let cache = options.cache || this._config.cache;
 
 
         let response;
-        if (cache == true && ids !== undefined) {
-            let version = options.version || this._config.version;
-            let species = options.species || this._config.species;
-            let os = species + "_" + category + "_" + subcategory + "_" + version;
+        if (cache.active) {
+            let os = category + "_" + subcategory;
 
-            let idArray = ids.split(",");
             let nonCachedIds = [];
 
             let cacheKeys = [];
-            let queryParams = this._createSortedQueryParam(params);
-            for (let i = 0; i < idArray.length; i++) {
-                cacheKeys.push(idArray[i] + "_" + resource + "_" + queryParams);
+            let suffixKey = this._createSuffixKey(params);
+
+            let idArray = [];
+            if (ids !== undefined) {
+                idArray = ids.split(",");
+                for (let i = 0; i < idArray.length; i++) {
+                    cacheKeys.push(idArray[i] + "_" + resource + suffixKey);
+                }
+            } else {
+                cacheKeys.push(resource + suffixKey);
             }
 
             console.time("Cache time:");
             var _this = this;
-            this.indexedDBCache.getAll(os, cacheKeys, function (results) {
-                for (let i = 0; i < results.length; i++) {
-                    if (results[i] == undefined) {
-                        nonCachedIds.push(idArray[i]);
-                    }
-                }
-
-                console.log(results)
-                if (rpc.toLowerCase() === "rest") {
-                    options.cacheFn = function(dataResponse) {
-                        // we add the new fetched data to the cache
-                        let queryParams = _this._createSortedQueryParam(params);
-                        for (let i = 0; i < dataResponse.response.length; i++) {
-                            _this.indexedDBCache.add(os, idArray[i] + "_" + resource + "_" + queryParams, dataResponse.response[i].result);
-                        }
-
-                        console.log(dataResponse);
-                        response = {response: []};
-                        let responses = [];
-                        for (let i = 0, j = 0; i < results.length; i++) {
-                            if (results[i] == undefined) {
-                                results[i] = dataResponse.response[j++].result;
+            response = new Promise(function(resolve, reject) {
+                _this.indexedDBCache.getAll(os, cacheKeys, function (results) {
+                    let uncachedQueries = false;
+                    for (let i = 0; i < results.length; i++) {
+                        if (results[i] === undefined) {
+                            uncachedQueries = true;
+                            if (idArray.length > 0) {
+                                nonCachedIds.push(idArray[i]);
                             }
-                            responses.push({result: results[i]});
                         }
-                        response.response = responses;
+                    }
 
-                        console.log(response)
-                        // If the call is OK then we execute the success function from the user
-                        if (typeof options != "undefined" && typeof options.success === "function") {
-                            options.success(response);
+                    if (rpc.toLowerCase() === "rest") {
+                        options.cacheFn = function(dataResponse) {
+                            // we add the new fetched data to the cache
+                            let suffixKey = _this._createSuffixKey(params);
+                            // We make a copy of dataResponse
+                            let query = {};
+                            for (let i in dataResponse) {
+                                query[i] = dataResponse[i];
+                            };
+                            // And remove the key response
+                            delete query['response'];
+
+                            if (idArray.length > 0) {
+                                for (let i = 0; i < dataResponse.response.length; i++) {
+                                    let result = {
+                                        query: query,
+                                        data: dataResponse.response[i]
+                                    };
+                                    // result['data'] = dataResponse.response[i];
+                                    // // Update the data time to 0
+                                    result.data.dbTime = 0;
+                                    _this.indexedDBCache.add(os, idArray[i] + "_" + resource + suffixKey, result);
+                                }
+                            } else {
+                                for (let i = 0; i < dataResponse.response.length; i++) {
+                                    let result = {
+                                        query: query,
+                                        data: dataResponse.response[i]
+                                    };
+                                    // Update the data time to 0
+                                    result.data.dbTime = 0;
+                                    _this.indexedDBCache.add(os, resource + suffixKey, result);
+                                }
+                            }
+
+                            // debugger
+                            // console.log(dataResponse);
+                            // response = {response: []};
+                            // let responses = [];
+                            // for (let i = 0, j = 0; i < results.length; i++) {
+                            //     if (results[i] == undefined) {
+                            //         results[i] = dataResponse.response[j++].result;
+                            //     }
+                            //     responses.push({result: results[i]});
+                            // }
+                            // response.response = responses;
+                            //
+                            // console.log(response)
+                            // // If the call is OK then we execute the success function from the user
+                            // if (typeof options != "undefined" && typeof options.success === "function") {
+                            //     options.success(response);
+                            // }
+                        };
+                        if (uncachedQueries) {
+                            // response = _this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options);
+                            resolve(_this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options));
+                        } else {
+                            let queryResponse = results[0].query;
+                            queryResponse['response'] = [];
+
+                            // if (results.length > 1) {
+                            //     debugger;
+                            // }
+
+                            for (let i = 0; i < results.length; i++) {
+                                queryResponse.response.push(results[i].data);
+                            }
+                            // response.response = responses;
+                            // response = Promise.resolve(queryResponse);
+                            resolve(queryResponse);
+                            // If the call is OK then we execute the success function from the user
+                            if (typeof options != "undefined" && typeof options.success === "function") {
+                                options.success(response);
+                            }
                         }
-                    };
-                    if (nonCachedIds.length > 0) {
-                        response = _this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options);
                     } else {
-                        let response = {response: []};
-                        let responses = [];
-                        for (let i = 0; i < results.length; i++) {
-                            responses.push({result: results[i]});
-                        }
-                        // response.response = responses;
-                        response = Promise.resolve(responses);
-                        // If the call is OK then we execute the success function from the user
-                        if (typeof options != "undefined" && typeof options.success === "function") {
-                            options.success(response);
+                        if (rpc.toLowerCase() === "grpc") {
+                            response = _this._callGrpcService(hosts, category, subcategory, nonCachedIds, resource, params, options);
+                        } else {
+                            console.error("No valid RPC method: " + rpc + ". Accepted values are 'rest' and 'grpc'");
                         }
                     }
-                } else {
-                    if (rpc.toLowerCase() === "grpc") {
-                        response = _this._callGrpcService(hosts, category, subcategory, nonCachedIds, resource, params, options);
-                    } else {
-                        console.error("No valid RPC method: " + rpc + ". Accepted values are 'rest' and 'grpc'");
-                    }
-                }
-                console.timeEnd("Cache time:");
+                    console.timeEnd("Cache time:");
+                });
             });
         } else {
             // let response;
@@ -220,28 +271,32 @@ class CellBaseClient {
         var url = "http://" + host + "/webservices/rest/" + version + "/" + species + "/";
 
         // Some web services do not need IDs
-        if (typeof ids != "undefined" && ids != null) {
+        if (typeof ids != "undefined" && ids != null && ids.length > 0) {
             url += category + "/" + subcategory + "/" + ids + "/" + resource;
         } else {
             url += category + "/" + subcategory + "/" + resource;
         }
 
         // We add the query params formatted in URL
-        var queryParamsUrl = this._createSortedQueryParam(params)
+        var queryParamsUrl = this._createSuffixKey(params)
         if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
             url += "?" + queryParamsUrl;
         }
         return url;
     }
 
-    _createSortedQueryParam(params) {
+    _createSuffixKey(params) {
         // Do not remove the sort! we need to sort the array to ensure that the key of the cache will be correct
         var keyArray = _.keys(params).sort();
         var keyValueArray = [];
         for (let i in keyArray) {
             keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
         }
-        return keyValueArray.join('&');
+        let suffixKey = keyValueArray.join('&');
+        if (suffixKey !== "") {
+            suffixKey = "_" + suffixKey;
+        }
+        return suffixKey;
     }
 
     _callGrpcService(params) {

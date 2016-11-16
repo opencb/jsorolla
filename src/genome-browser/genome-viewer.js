@@ -73,23 +73,12 @@ function GenomeViewer(args) {
     this.chromosomes = [];
     this.chromosomeList;
 
-    // // This function is to wrap synchronous promise calls
-    // // http://www.tivix.com/blog/making-promises-in-a-synchronous-manner/
-    // this.makeMeLookSync = fn => {
-    //     let iterator = fn();
-    //     let loop = result => {
-    //         !result.done && result.value.then(res => { return loop(iterator.next(res))} );
-    //     };
-    //
-    //     return loop(iterator.next());
-    // };
-
     //set instantiation args, must be last
     _.extend(this, args);
 
     // this.chromosomes = this.getChromosomes();
     this.getChromosomes();
-    this.species.chromosomes = this.chromosomes;
+    // this.species.chromosomes = this.chromosomes;
 
     this.defaultRegion = new Region(this.region);
 
@@ -291,22 +280,20 @@ GenomeViewer.prototype = {
 
         if (typeof this.chromosomeList !== 'undefined') {
             this.chromosomes = saveChromosomes(this.chromosomeList);
+            this.species.chromosomes = this.chromosomes;
         } else {
             let _this = this;
-            // chromosomes = this.makeMeLookSync(function* () {
-            //     let data = yield _this.client.get("genomic", "chromosome", undefined, "search");
-            //     return data.response[0].result[0].chromosomes;
-            // });
 
             // let blocked = true;
             _this.client.get("genomic", "chromosome", undefined, "search")
                 .then(function (response) {
                     let chromosomesOld = _this.chromosomes;
-                    _this.chromosomes = response.response[0].result[0].chromosomes;
-                    if (chromosomesOld.length === 0) {
+                    _this.chromosomes = saveChromosomes(response.response[0].result[0].chromosomes);
+                    if (chromosomesOld !== undefined && chromosomesOld.length === 0) {
                         // If it's the first time we get the chromosomes...
                         _this._checkAndSetMinimumRegion(_this.region, _this.getSVGCanvasWidth());
                         _this.zoom = _this._calculateZoomByRegion(_this.region);
+                        _this._updateSpecies(_this.species);
                         console.log("Recalculating sizes...");
                     }
                 });
@@ -690,7 +677,10 @@ GenomeViewer.prototype = {
         var regionLength = region.length();
 
 //      zoom = Math.log(REGIONLENGTH/mrl) / Math.log(zlm);
-        var zoom = Math.log(regionLength / minRegionLength) / Math.log(zoomLevelMultiplier);
+        var zoom = 0;
+        if (zoomLevelMultiplier !== 1) {
+            zoom = Math.log(regionLength / minRegionLength) / Math.log(zoomLevelMultiplier);
+        }
         return 100 - Math.round(zoom);
     },
     /*****************/
@@ -838,7 +828,7 @@ GenomeViewer.prototype = {
     },
     _updateSpecies: function (species) {
         this.species = species;
-        this.chromosomes = this.getChromosomes();
+        // this.chromosomes = this.getChromosomes();
         this.species.chromosomes = this.chromosomes;
 
         if (this.overviewTrackListPanel) {

@@ -192,6 +192,20 @@
     var region = new Region({chromosome: "13", start: 32889611, end: 32889611});
     //        var region = new Region({chromosome: "X", start: 139865187, end: 139865193});
 
+
+//    let x = new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene",
+//            {
+//                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
+//            }, {
+//                chunkSize: 100000
+//            });
+//    x.getData({
+//        region: {
+//            chromosome: "13",
+//            start: 32889611,
+//            end: 32889611
+//        }
+//    });
     getSpecies(function(s) {
         AVAILABLE_SPECIES = s;
         run();
@@ -233,8 +247,6 @@
             sidePanel: false,
             autoRender: true,
             resizable: true,
-//        quickSearchResultFn:quickSearchResultFn,
-//        quickSearchDisplayKey:,
             karyotypePanelConfig: {
                 collapsed: false,
                 collapsible: true
@@ -245,20 +257,6 @@
             },
             navigationBarConfig: {
                 componentsConfig: {
-//                restoreDefaultRegionButton:false,
-//                regionHistoryButton:false,
-//                speciesButton:false,
-//                chromosomesButton:false,
-//                karyotypeButton:false,
-//                chromosomeButton:false,
-//                regionButton:false,
-//                zoomControl:false,
-//                windowSizeControl:false,
-//                positionControl:false,
-//                moveControl:false,
-//                autoheightButton:false,
-//                compactButton:false,
-//                searchControl:false
                 }
             },
             handlers: {
@@ -266,15 +264,7 @@
                     console.log(e)
                 }
             }
-//        chromosomeList:[]
-//            trackListTitle: ''
-//            drawNavigationBar = true;
-//            drawKaryotypePanel: false,
-//            drawChromosomePanel: false,
-//            drawOverviewTrackListPanel: false
-
         });
-
 
         tracks = [];
 
@@ -338,25 +328,25 @@
         });
 
         genomeViewer.addOverviewTrack(gene);
-//
-//        this.snp = new FeatureTrack({
-//            title: 'Variation',
-//            featureType: 'SNP',
-//            minHistogramRegionSize: 12000,
-//            maxLabelRegionSize: 3000,
-//            height: 120,
-//
-//            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-//
-//            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "snp",
-//                    {
-//                        exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
-//                    }, {
-//                        chunkSize: 10000
-//                    })
-//        });
-//
-//        tracks.push(this.snp);
+
+        this.snp = new FeatureTrack({
+            title: 'Variation',
+            featureType: 'SNP',
+            minHistogramRegionSize: 12000,
+            maxLabelRegionSize: 3000,
+            height: 120,
+
+            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
+
+            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "snp",
+                    {
+                        exclude: 'annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples'
+                    }, {
+                        chunkSize: 10000
+                    })
+        });
+
+        tracks.push(this.snp);
 
 /*************************/
 //        var customTrack = new FeatureTrack({

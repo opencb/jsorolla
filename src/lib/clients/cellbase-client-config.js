@@ -20,7 +20,6 @@
 
 class CellBaseClientConfig {
 
-
     constructor(hosts = ["bioinfo.hpc.cam.ac.uk/cellbase", "www.ebi.ac.uk/cellbase"], version = "v3", species = "hsapiens") {
         this.setHosts(hosts);
         this.version = version;
@@ -28,8 +27,12 @@ class CellBaseClientConfig {
 
         // default values
         this.rpc = "rest";
-        this.cache = true;
-        this.cacheDatabase = "cellbase_cache";
+
+        this.cache = {
+            active: true,
+            database: this.species + "_" + this.version + "_cellbase_cache",
+            subcategories: ["genomic_chromosome", "genomic_region"]
+        }
 
     }
 
