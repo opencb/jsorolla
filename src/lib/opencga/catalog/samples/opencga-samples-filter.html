@@ -64,7 +64,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <i hidden$="{{!filteredVariables.variables.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>
+                            <!--<i hidden$="{{!filteredVariables.variables.length}}" class="fa fa-check" aria-hidden="true" style="color: green;"></i>-->
                             <a href data-toggle="collapse" data-parent$="#{{prefix}}Accordion" href$="#{{prefix}}SampleVariablesCollapse">
                                 Variables
                             </a>
@@ -132,10 +132,12 @@
                 this.filters = this.update;
                 if (typeof this.update.name === "undefined") {
                     $("#" + this.prefix + "SampleName").val("");
+                    this.sampleNameSearch = "";
                 }
 
                 if (typeof this.update.source === "undefined") {
                     $("#" + this.prefix + "SampleSource").val("");
+                    this.sampleSourceSearch = "";
                 }
 
                 if (typeof this.update.annotation !== "undefined") {
@@ -150,13 +152,13 @@
                     this.set("filteredVariables.variables", []);
                 }
             },
-            removeVariableFilter: function(e) {
-                for (let i = 0; i < this.filteredVariables.variables.length; i++) {
-                    if (e.target.dataVariable === this.filteredVariables.variables[i]) {
-                        this.splice("filteredVariables.variables", i, 1);
-                    }
-                }
-            },
+//            removeVariableFilter: function(e) {
+//                for (let i = 0; i < this.filteredVariables.variables.length; i++) {
+//                    if (e.target.dataVariable === this.filteredVariables.variables[i]) {
+//                        this.splice("filteredVariables.variables", i, 1);
+//                    }
+//                }
+//            },
             calculateFilters: function() {
                 let filters = {};
                 if (this.sampleNameSearch !== undefined && this.sampleNameSearch.length > 0) {
