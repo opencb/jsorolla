@@ -219,7 +219,6 @@
                 }
                 for (var i = 0; i < neo.sampleIds.length; i++) {
                     var s = this._getSamplesInfo(neo.sampleIds[i]);
-                    //TODO hacer todo esto en callback, cuando haya vuelto de la llamada.
                     if (s != null) {
                         if (neo.index != null && neo.index.status == "INDEXING") {
                             s.status = "INDEXING";
