@@ -137,6 +137,7 @@
             },
             renderFromServer: function () {
                 this.samples = [];
+                this.individuals = {};
                 let _filterList = [];
                 var keys = Object.keys(this.filters);
                 for (var keyIdx in keys) {
@@ -209,14 +210,37 @@
                         onCheck: function (row, elem) {
                             _this.push("samples", row);
                             _this.set('samples', _this.samples.slice());
+
+                            // Map each sample to its associated individual
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                    && row.individual.id != "-1") {
+                                if (typeof _this.individuals[row.individual.id] === "undefined") {
+                                    _this.individuals[row.individual.id] = [row];
+                                } else {
+                                    _this.individuals[row.individual.id].push(row);
+                                }
+                            }
                         },
 
                         onUncheck: function (row, elem) {
                             let sampleToDeleteIdx;
-                            for (sampleIdx in _this.samples) {
+                            for (let sampleIdx in _this.samples) {
                                 if (row.name == _this.samples[sampleIdx].name) {
                                     sampleToDeleteIdx = sampleIdx;
                                     break;
+                                }
+                            }
+                            if (typeof row.individual !== "undefined" && typeof row.individual.id !== "undefined"
+                                    && row.individual.id != "-1") {
+                                if (row.individual.id in  _this.individuals) {
+                                    let samples = _this.individuals[row.individual.id];
+                                    for (let i in samples) {
+                                        if (row.name == samples[i].name) {
+                                            samples.splice(i, 1);
+                                            break;
+                                        }
+                                    }
+                                    _this.individuals[row.individual.id] = samples;
                                 }
                             }
 
