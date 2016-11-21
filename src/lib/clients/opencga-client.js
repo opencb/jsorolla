@@ -263,7 +263,7 @@ class Users extends OpenCGAParentClass {
         // Encrypt password
         let encryptedPass = CryptoJS.SHA256(password).toString();
 
-        if (this._config.hasOwnProperty("cookieUserId")) {
+        if (this._config.useCookies) {
             let cookieSession = Cookies.get(this._config.cookieSessionId);
             let cookieUser = Cookies.get(this._config.cookieUserId);
             let cookiePass = Cookies.get(this._config.cookiePassword);
@@ -277,7 +277,7 @@ class Users extends OpenCGAParentClass {
         }
         return this.get("users", userId, "login", params, options).then(function(response) {
             if (response.error === "") {
-                if (this._config.hasOwnProperty("cookieUserId")) {
+                if (this._config.useCookies) {
                     // Cookies being used
                     Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
                     Cookies.set(this._config.cookieUserId, response.response[0].result[0].userId);
