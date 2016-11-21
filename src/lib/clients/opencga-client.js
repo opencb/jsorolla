@@ -536,6 +536,14 @@ class Files extends OpenCGAParentClass {
         return this.get("files", id, "grep", params, options);
     }
 
+    getAllBioFormats(params, options) {
+        return this.get("files", undefined, "bioformats", params, options);
+    }
+
+    getAllFormats(params, options) {
+        return this.get("files", undefined, "formats", params, options);
+    }
+
     createFolder(params, options) {
         return this.get("files", undefined, "create-folder", params, options);
     }

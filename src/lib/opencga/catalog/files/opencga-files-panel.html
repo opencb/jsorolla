@@ -20,8 +20,9 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div class="panel" style="padding: 10px;">
+        <!--<div class="panel" style="padding: 10px;">-->
             <div class="col-md-2">
+                <br>
                 <opencga-files-filter opencga-client="{{opencgaClient}}" study-id="{{studyId}}" files="{{files}}" filters="{{filters}}">
                 </opencga-files-filter>
             </div>
@@ -30,7 +31,7 @@
                 <opencga-files-view opencga-client="{{opencgaClient}}" study-id="{{studyId}}" files="{{files}}" filters="{{filters}}">
                 </opencga-files-view>
             </div>
-        </div>
+        <!--</div>-->
 
     </template>
     <script>

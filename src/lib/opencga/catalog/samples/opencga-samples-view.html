@@ -51,6 +51,7 @@
             <thead style="background-color: #eee"></thead>
         </table>
 
+        <h4><b>Samples:</b> {{sampleString}}</h4>
         <div style="padding: 10px;height: 530px" class="row">
 
             <ul id="sampleViewTabs" class="nav nav-tabs" role="tablist">
@@ -99,7 +100,8 @@
                 },
                 samples: {
                     type: Array,
-                    notify: true
+                    notify: true,
+                    observer: 'sampleChanged'
                 }
             },
 
@@ -308,6 +310,16 @@
                 this.filters = Object.assign({}, _filterList);
                 this.fire("update", {filter : this.filters});
             },
+            sampleChanged: function () {
+                let sampleString = "";
+                for (let i = 0, count = 0; i < this.samples.length; i++) {
+                    sampleString += this.samples[i].name;
+                    if (++count != this.samples.length) {
+                        sampleString += ", ";
+                    }
+                }
+                this.sampleString = sampleString;
+            }
         });
     </script>
 </dom-module>
