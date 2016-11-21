@@ -16,19 +16,24 @@
 
 class OpenCGAClientConfig {
 
-    constructor(host = "172.24.193.208:8080/opencga", version = "v1", useCookies = true, cookieSessionId = "catalog_sid",
-                cookieUserId = "catalog_user") {
+    constructor(host = "172.24.193.208:8080/opencga", version = "v1", useCookies = true, cookiePrefix = "catalog") {
         this.host = host;
         this.version = version;
         if (useCookies) {
-            this.cookieSessionId = cookieSessionId;
-            this.cookieUserId = cookieUserId;
+            this.setPrefix(cookiePrefix);
         } else {
             this.userId = "";
             this.sessionId = "";
         }
         // default values
         this.rpc = "rest";
+    }
+
+    setPrefix(prefix) {
+        this.cookieSessionId = prefix + "_sid";
+        this.cookieUserId = prefix + "_userId";
+        this.cookiePassword = prefix + "_password";
+        this.cookieLoginResponse = prefix + "_loginResponse";
     }
 
 }
