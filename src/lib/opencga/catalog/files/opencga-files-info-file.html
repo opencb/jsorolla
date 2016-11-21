@@ -15,11 +15,23 @@
   -->
 <dom-module id="opencga-files-info-file">
     <template>
-        <style is="custom-style" include="jso-styles"></style>
+        <style is="custom-style" include="jso-styles">
+            .left {
+                width: 30%;
+            }
+        </style>
 
-        <div style="padding: 10px;">
-            <h4><b>Name: </b>{{file.name}}</h4>
-            <h4><b>Description: </b>{{file.description}}</h4>
+        <div style="padding: 10px; white-space:nowrap;">
+            <label class="left">Name</label> {{file.name}} <br>
+            <label class="left">Description</label> {{description}} <br>
+            <label class="left">Type</label> {{file.type}} <br>
+            <label class="left">Format</label> {{file.format}} <br>
+            <label class="left">Bioformat</label> {{file.bioformat}} <br>
+            <label class="left">URI</label> {{file.uri}} <br>
+            <label class="left">Path</label> {{file.path}} <br>
+            <label class="left">Creation Date</label> {{creationDate}} <br>
+            <label class="left">Modification Date</label> {{modificationDate}} <br>
+            <label class="left">Status</label> {{file.status.name}} <br>
         </div>
     </template>
     <script>
@@ -38,6 +50,9 @@
 
             fileChanged: function() {
                 console.log(this.file)
+                this.description = this.file.description != "" ? this.file.description : "-";
+                this.creationDate = moment(this.file.creationDate).format('D MMM Y');
+                this.modificationDate = moment(this.file.modificationDate).format('D MMM Y');
             }
         });
     </script>
