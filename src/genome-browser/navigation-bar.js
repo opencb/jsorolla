@@ -622,7 +622,6 @@ NavigationBar.prototype = {
     },
 
     setSpecies: function(species) {
-        debugger
         this.species = species;
         this.els.speciesText.textContent = this.species.scientificName;
         this._setChromosomeMenu();
