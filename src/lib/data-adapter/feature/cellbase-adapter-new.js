@@ -103,9 +103,6 @@ class CellBaseAdapter {
             args.webServiceCallCount++;
             this.client.get(this.category, this.subCategory, groupedRegions[i], this.resource, this.params)
                 .then(function(response) {
-                    if (response.response[0].result.length === 11) {
-                        debugger;
-                    }
                     var responseChunks = _this._cellbaseSuccess(response, dataType, chunkSize);
                     args.webServiceCallCount--;
 

@@ -2,6 +2,9 @@
 // var CELLBASE_HOST = 'http://bioinfodev.hpc.cam.ac.uk/cellbase';
 var CELLBASE_HOST = 'bioinfodev.hpc.cam.ac.uk/cellbase-4.5.0-beta';
 var CELLBASE_VERSION = 'v4';
+var OPENCGA_HOST = 'bioinfodev.hpc.cam.ac.uk/opencga-1.0.0-rc3';
+var OPENCGA_USER = '';
+var OPENCGA_PASSWORD = '';
 
 
 CODON_CONFIG = {
@@ -511,58 +514,110 @@ FEATURE_TYPES = {
         }
     },
     alignment: {
-        explainFlags: function (flags) {
-            var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags : <span class="ssel">' + flags + '</span></div>';
-            for (var i = 0; i < SAM_FLAGS.length; i++) {
-                if (SAM_FLAGS[i][1] & flags) {
-                    summary += SAM_FLAGS[i][0] + "<br>";
-                }
+        explainFlags: function (f) {
+            var summary = '<div style="background:#FFEF93;font-weight:bold;margin:0 15px 0 0;">flags </div>';
+            if (f.numberReads > 1) {
+                summary += "read paired<br>";
             }
+            if (!f.improperPlacement) {
+                summary += "read mapped in proper pair<br>";
+            }
+            if (typeof f.nextMatePosition === "undefined" ) {
+                summary += "mate unmapped<br>";
+            }
+            if (f.readNumber === 0) {
+                summary += "first in pair<br>";
+            }
+            if (f.readNumber === (f.numberReads - 1)) {
+                summary += "second in pair<br>";
+            }
+            if (f.secondaryAlignment) {
+                summary += "not primary alignment<br>";
+            }
+            if (f.failedVendorQualityChecks) {
+                summary += "read fails platform/vendor quality checks<br>";
+            }
+            if (f.duplicateFragment) {
+                summary += "read is PCR or optical duplicate<br>";
+            }
+            // if (f.numberReads > 0) {
+            //     summary += "read paired<br>";
+            // }
+            // if (!f.improperPlacement) {
+            //     summary += "read mapped in proper pair<br>";
+            // }
+            // // TODO: Check this if. Not sure if it is this way
+            // if (typeof f.alignment === "undefined") {
+            //     summary += "read unmapped<br>";
+            // }
+            // if (typeof f.nextMatePosition !== "undefined" ) {
+            //     summary += "read unmapped<br>";
+            // }
+            // if (!f.improperPlacement) {
+            //     summary += "read mapped in proper pair<br>";
+            // }
+            // if (!f.improperPlacement) {
+            //     summary += "read mapped in proper pair<br>";
+            // }
+            //
+            // for (var i = 0; i < SAM_FLAGS.length; i++) {
+            //     if (SAM_FLAGS[i][1] & flags) {
+            //         summary += SAM_FLAGS[i][0] + "<br>";
+            //     }
+            // }
             return summary;
         },
         label: function (f) {
-            return "Alignment  " + f.chromosome + ":" + f.start + "-" + f.end;
+            return "Alignment  " + f.fragmentName + ":" + f.alignment.position.position + "-"
+                + (f.alignment.position.position + f.alignedSequence.length - 1);
         },
         tooltipTitle: function (f) {
-            return 'Alignment' + ' - <span class="ok">' + f.name + '</span>';
+            return 'Alignment' + ' - <span class="ok">' + f.id + '</span>';
         },
         tooltipText: function (f) {
             f.strand = FEATURE_TYPES.alignment.strand(f);
-            var cigar = '';
-            for (var i = 0; i < f.differences.length; i++) {
-                var d = f.differences[i];
-                cigar += d.length + d.op
-            }
+            // var cigar = '';
+            // debugger
+            // for (var i = 0; i < f.differences.length; i++) {
+            //     var d = f.differences[i];
+            //     cigar += d.length + d.op
+            // }
 
-            var one = 'cigar:&nbsp;<span class="ssel">' + cigar + '</span><br>' +
-                'insert size:&nbsp;<span class="ssel">' + f.inferredInsertSize + '</span><br>' +
+            var one =
+                'cigar:&nbsp;<span class="ssel">' + f.cigar + '</span><br>' +
+                'insert size:&nbsp;<span class="ssel">' + f.fragmentLength + '</span><br>' +
                 FEATURE_TYPES.getTipCommons(f) + '<br>' +
-                this.explainFlags(f.flags);
+                // this.explainFlags(f.flags);
+                this.explainFlags(f);
 
             var three = '<div style="background:#FFEF93;font-weight:bold;">attributes</div>';
-            delete f.attributes["BQ"];//for now because is too long
-            for (var key in f.attributes) {
-                three += key + ":" + f.attributes[key] + "<br>";
+            let keys = Object.keys(f.info);
+            for (let i in keys) {
+                three += keys[i] + " : " + f.info[keys[i]][0] + " : " + f.info[keys[i]][1] + "<br>";
             }
+            // delete f.attributes["BQ"];//for now because is too long
+            // for (var key in f.attributes) {
+            //     three += key + ":" + f.attributes[key] + "<br>";
+            // }
             var style = "background:#FFEF93;font-weight:bold;";
             return '<div style="float:left">' + one + '</div>' +
                 '<div style="float:right">' + three + '</div>';
         },
         color: function (f, chr) {
-            if (f.mateReferenceName != chr) {
+            if (f.nextMatePosition.referenceName != chr) {
                 return "lightgreen";
             }
-            return (parseInt(f.flags) & (0x10)) == 0 ? "DarkGray" : "LightGray";
+            return f.alignment.position.strand === "POS_STRAND" ? "DarkGray" : "LightGray";
             /**/
         },
         strokeColor: function (f) {
             if (this.mateUnmappedFlag(f)) {
                 return "tomato"
             }
-            return (parseInt(f.flags) & (0x10)) == 0 ? "LightGray" : "DarkGray";
+            return f.alignment.position.strand === "POS_STRAND" ? "LightGray" : "DarkGray";
         },
         strand: function (f) {
-            return (parseInt(f.flags) & (0x10)) == 0 ? "Forward" : "Reverse";
+            return f.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
         },
         readPairedFlag: function (f) {
             return (parseInt(f.flags) & (0x1)) == 0 ? false : true;
@@ -571,7 +626,7 @@ FEATURE_TYPES = {
             return (parseInt(f.flags) & (0x40)) == 0 ? false : true;
         },
         mateUnmappedFlag: function (f) {
-            return (parseInt(f.flags) & (0x8)) == 0 ? false : true;
+            return f.nextMatePosition === undefined;
         },
         infoWidgetId: "id",
         height: 13,

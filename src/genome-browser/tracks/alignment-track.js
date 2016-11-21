@@ -126,8 +126,8 @@ AlignmentTrack.prototype.getDataHandler = function (event) {
         features = event.items;
     } else {
         this.renderer = this.defaultRenderer;
-        features = this._removeDisplayedChunks(event);
-        //features = this.getFeaturesToRenderByChunk(event);
+        features = event;
+        // features = this._removeDisplayedChunks(event);
     }
     this.renderer.render(features, {
         cacheItems: event.items,

@@ -192,13 +192,122 @@ AlignmentRenderer.prototype.render = function (response, args) {
     var drawSingleRead = function (feature) {
         //var start = feature.start;
         //var end = feature.end;
-        var start = feature.unclippedStart;
-        var end = feature.unclippedEnd;
-        if (feature.end == 0) {
-            end = start + feature.length - 1;
+        var differences = [];
+        var start = feature.alignment.position.position;
+        let length = 0;
+        let cigar = "";
+        let position = 0;
+        let insertions = [];
+
+        let myLength;
+        for (let i in feature.alignment.cigar) {
+            cigar += feature.alignment.cigar[i].operationLength;
+            switch (feature.alignment.cigar[i].operation) {
+                case "CLIP_SOFT":
+                    cigar += "S";
+                    break;
+                case "ALIGNMENT_MATCH":
+                    cigar += "M";
+                    length += feature.alignment.cigar[i].operationLength;
+                    position += parseInt(feature.alignment.cigar[i].operationLength);
+                    break;
+                case "INSERT":
+                    cigar += "I";
+                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
+
+                    // We put this here because it will be read to calculate the position of the mismatches
+                    insertions.push({
+                        pos: position,
+                        length: myLength
+                    });
+
+                    differences.push({
+                        pos: position,
+                        seq: feature.alignedSequence.slice(position, myLength),
+                        op: "I",
+                        length: myLength
+                    });
+                    break;
+                case "DELETE":
+                    cigar += "D";
+                    myLength = parseInt(feature.alignment.cigar[i].operationLength);
+                    differences.push({
+                        pos: position,
+                        seq: feature.alignedSequence.slice(position, myLength),
+                        op: "D",
+                        length: myLength
+                    });
+                    position += myLength;
+                    length += feature.alignment.cigar[i].operationLength;
+                    break;
+                default:
+                    debugger;
+            }
         }
-        var length = (end - start) + 1;
-        var differences = feature.differences;
+        feature.cigar = cigar;
+
+        var end = start + length - 1;
+
+
+        feature.start = start;
+        feature.end = end;
+
+        if (feature.info.hasOwnProperty("MD")) {
+            let md = feature.info.MD[1];
+            let matches = md.match(/([0-9]+)|([^0-9]+)/g);
+            let position = 0;
+
+            if (feature.alignment.cigar[0].operation === "CLIP_SOFT") {
+                position = parseInt(feature.alignment.cigar[0].operationLength);
+            }
+
+            // This variable will contain the offset between the insertion and the position where the mismatch is
+            // Imagine we have this sequence ACTGCT, and we have an insertion in position 3 and a mismatch in position 5
+            // The mismatch will be in position 5 of the sequence, but located in position 4 when showed relative to the
+            // reference genome.
+            let offset = position;
+            for (let i = 0; i < matches.length; i++) {
+                if (i % 2 === 0) {
+                    // Number
+                    position += parseInt(matches[i]);
+                } else {
+                    if (insertions.length > 0) {
+                        for (let j = 0; j < insertions.length; j++) {
+                            if (insertions[j].pos < position) {
+                                position += insertions[j].length;
+                                offset += insertions[j].length;
+                                insertions[j].pos = Infinity;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Not deletion
+                    if (matches[i][0] !== "^") {
+                        // Reference nucleotide
+                        if (matches[i] === feature.alignedSequence[position]) {
+                            debugger;
+                        }
+
+                        differences.push({
+                            pos: position - offset,
+                            seq: feature.alignedSequence[position],
+                            op: "M",
+                            length: 1
+                        });
+
+                        position += 1;
+                    } else {
+                        // -1 because we should not count the ^
+                        offset -= matches[i].length - 1;
+                    }
+
+                }
+            }
+
+
+        }
 
         //get feature render configuration
         var color = _.isFunction(_this.color) ? _this.color(feature, args.region.chromosome) : _this.color;
@@ -249,7 +358,7 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 var points = {
                     "Reverse": x + "," + (rowY + (height / 2)) + " " + (x + 5) + "," + rowY + " " + (x + width) + "," + rowY + " " + (x + width) + "," + (rowY + height) + " " + (x + 5) + "," + (rowY + height),
                     "Forward": (x - 1) + "," + rowY + " " + (x + width - 5) + "," + rowY + " " + (x + width) + "," + (rowY + (height / 2)) + " " + (x + width - 5) + "," + (rowY + height) + " " + (x - 1) + "," + (rowY + height)
-                }
+                };
                 var poly = SVG.addChild(featureGroup, "polygon", {
                     "points": points[strand],
                     "stroke": color,
@@ -263,7 +372,11 @@ AlignmentRenderer.prototype.render = function (response, args) {
                     position: {target: "mouse", adjust: {x: 25, y: 15}},
                     style: {width: 300, classes: _this.toolTipfontClass + ' ui-tooltip ui-tooltip-shadow'},
                     show: 'mouseenter',
-                    hide: 'mousedown mouseup mouseleave'
+                    hide: {
+                        event: 'mousedown mouseup mouseleave',
+                        delay: 300,
+                        fixed: true
+                    }
                 });
 
                 featureGroup.addEventListener('click', function (event) {
@@ -290,15 +403,19 @@ AlignmentRenderer.prototype.render = function (response, args) {
                 //readEls.push(rect);
 
                 //PROCESS differences
-                if (differences != null && args.regionSize < 400) {
-                    var region = new Region({chromosome: args.region.chromosome, start: start, end: end});
-                    sequenceDataAdapter.getData({
-                        region: region,
-                        done: function (event) {
-                            var referenceString = AlignmentRenderer._getReferenceString(event.items, region);
-                            featureGroup.appendChild(AlignmentRenderer.drawBamDifferences(referenceString, differences, args.pixelBase, x, rowY + height));
-                        }
-                    });
+                // if (differences != null && args.regionSize < 400) {
+                if (args.regionSize < 400) {
+                    featureGroup.appendChild(AlignmentRenderer.drawBamDifferences(differences,
+                        args.pixelBase, x, rowY + height));
+                    // var region = new Region({chromosome: args.region.chromosome, start: start, end: end});
+                    // sequenceDataAdapter.getData({
+                    //     region: region,
+                    //     done: function (event) {
+                    //         debugger;
+                    //         var referenceString = AlignmentRenderer._getReferenceString(event.items, region);
+                    //         featureGroup.appendChild(AlignmentRenderer.drawBamDifferences(referenceString, differences, args.pixelBase, x, rowY + height));
+                    //     }
+                    // });
                 }
 
                 break;
@@ -458,8 +575,10 @@ AlignmentRenderer.prototype.render = function (response, args) {
     };
 
     var drawChunk = function (chunk) {
-        drawCoverage(chunk.value);
-        var alignments = chunk.value.alignments;
+        // TODO: Recover this call
+        // drawCoverage(chunk.value);
+        // var alignments = chunk.value.alignments;
+        var alignments = chunk.value;
         for (var i = 0, li = alignments.length; i < li; i++) {
             var alignment = alignments[i];
             if (viewAsPairs) {
@@ -627,7 +746,7 @@ AlignmentRenderer.genBamVariants = function (differences, size, mainX, y) {
     return d;
 };
 
-AlignmentRenderer.drawBamDifferences = function (refString, differences, size, mainX, y) {
+AlignmentRenderer.drawBamDifferences = function (differences, size, mainX, y) {
     var text = SVG.create("text", {
         "x": mainX,
         "y": y - 2,
@@ -717,14 +836,14 @@ AlignmentRenderer.drawBamDifferences = function (refString, differences, size, m
                     var char = difference.seq[j];
                     var refPos = difference.pos + j;
                     // console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
-                    if (char != refString.charAt(refPos)) {
-                        var t = SVG.addChild(text, "tspan", {
-                            "x": x,
-                            "fill": SEQUENCE_COLORS[char],
-                            "textLength": size
-                        });
-                        t.textContent = char;
-                    }
+
+                    var t = SVG.addChild(text, "tspan", {
+                        "x": x,
+                        "fill": SEQUENCE_COLORS[char],
+                        "textLength": size
+                    });
+                    t.textContent = char;
+
                     x += size;
                 }
                 break;
@@ -734,6 +853,114 @@ AlignmentRenderer.drawBamDifferences = function (refString, differences, size, m
 
     return text;
 };
+
+// AlignmentRenderer.drawBamDifferences = function (refString, differences, size, mainX, y) {
+//     var text = SVG.create("text", {
+//         "x": mainX,
+//         "y": y - 2,
+//         "class": 'ocb-font-ubuntumono ocb-font-size-15'
+//     });
+//     for (var i = 0; i < differences.length; i++) {
+//         var difference = differences[i];
+//
+//         switch (difference.op) {
+//             // M 0 alignment match (can be a sequence match or mismatch)
+//             // I 1 insertion to the reference
+//             // D 2 deletion from the reference
+//             // N 3 skipped region from the reference
+//             // S 4 soft clipping (clipped sequences present in SEQ)
+//             // H 5 hard clipping (clipped sequences NOT present in SEQ)
+//             //P 6 padding (silent deletion from padded reference)
+//             //= 7 sequence match
+//             // X 8 sequence mismatch
+//
+//             case "I" :
+//                 var x = mainX + (size * difference.pos) - size / 2;
+//                 var t = SVG.addChild(text, "tspan", {
+//                     "x": x,
+//                     "font-weight": 'bold',
+//                     "textLength": size
+//                 });
+//                 t.textContent = '·';
+//                 $(t).qtip({
+//                     content: {text: difference.seq, title: 'Insertion'},
+//                     position: {target: "mouse", adjust: {x: 25, y: 15}},
+//                     style: {classes: this.toolTipfontClass + ' qtip-dark qtip-shadow'}
+//                 });
+//                 break;
+//             case "D" :
+//                 var x = mainX + (size * difference.pos);
+//                 for (var j = 0; j < difference.length; j++) {
+//                     var t = SVG.addChild(text, "tspan", {
+//                         "x": x,
+//                         "font-weight": 'bold',
+//                         "textLength": size
+//                     });
+//                     t.textContent = '—';
+//                     x += size;
+//                 }
+//                 break;
+//             case "N" :
+//                 var x = mainX + (size * difference.pos);
+//                 for (var j = 0; j < difference.length; j++) {
+//                     var t = SVG.addChild(text, "tspan", {
+//                         "x": x,
+//                         "fill": "#888",
+//                         "textLength": size
+//                     });
+//                     t.textContent = '—';
+//                     x += size;
+//                 }
+//                 break;
+//             case "S" :
+//                 var x = mainX + (size * difference.pos);
+//                 for (var j = 0; j < difference.length; j++) {
+//                     var char = difference.seq[j];
+//                     var t = SVG.addChild(text, "tspan", {
+//                         "x": x,
+//                         "fill": "#aaa",
+//                         "textLength": size
+//                     });
+//                     t.textContent = char;
+//                     x += size;
+//                 }
+//                 break;
+//             case "H" :
+//                 var x = mainX + (size * difference.pos);
+//                 for (var j = 0; j < difference.length; j++) {
+//                     var t = SVG.addChild(text, "tspan", {
+//                         "x": x,
+//                         "fill": "#aaa",
+//                         "textLength": size
+//                     });
+//                     t.textContent = 'H';
+//                     x += size;
+//                 }
+//                 break;
+//             case "X" :
+//             case "M" :
+//                 var x = mainX + (size * difference.pos);
+//                 for (var j = 0; j < difference.length; j++) {
+//                     var char = difference.seq[j];
+//                     var refPos = difference.pos + j;
+//                     // console.log("ref:"+ refString.charAt(refPos)+" - "+"seq:"+char);
+//                     if (char != refString.charAt(refPos)) {
+//                         var t = SVG.addChild(text, "tspan", {
+//                             "x": x,
+//                             "fill": SEQUENCE_COLORS[char],
+//                             "textLength": size
+//                         });
+//                         t.textContent = char;
+//                     }
+//                     x += size;
+//                 }
+//                 break;
+//         }
+//
+//     }
+//
+//     return text;
+// };
 
 AlignmentRenderer._getReferenceString = function (chunks, region) {
     var sequenceItems = [];

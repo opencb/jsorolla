@@ -28,6 +28,7 @@ class OpenCGAClient {
         this._jobs;
         this._panels;
         this._variables;
+        this._alignments;
     }
 
     getConfig() {
@@ -107,6 +108,14 @@ class OpenCGAClient {
             this._variables = new Variables(this._config)
         }
         return this._variables;
+    }
+
+    // Analysis
+    alignments() {
+        if (typeof this._alignments === "undefined") {
+            this._alignments = new Alignment(this._config)
+        }
+        return this._alignments;
     }
 }
 
@@ -251,12 +260,29 @@ class Users extends OpenCGAParentClass {
         let options = {
             method: "POST"
         };
+        // Encrypt password
+        let encryptedPass = CryptoJS.SHA256(password).toString();
+
+        if (this._config.useCookies) {
+            let cookieSession = Cookies.get(this._config.cookieSessionId);
+            let cookieUser = Cookies.get(this._config.cookieUserId);
+            let cookiePass = Cookies.get(this._config.cookiePassword);
+            let loginResponse = Cookies.get(this._config.cookieLoginResponse);
+
+            if (cookieUser !== undefined && cookieUser === userId && cookiePass !== undefined && cookiePass === encryptedPass
+                && cookieSession !== undefined && loginResponse !== undefined) {
+                console.log("Credentials taken from cookies");
+                return Promise.resolve(JSON.parse(loginResponse));
+            }
+        }
         return this.get("users", userId, "login", params, options).then(function(response) {
             if (response.error === "") {
-                if (this._config.hasOwnProperty("cookieUserId")) {
+                if (this._config.useCookies) {
                     // Cookies being used
                     Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
                     Cookies.set(this._config.cookieUserId, response.response[0].result[0].userId);
+                    Cookies.set(this._config.cookiePassword, encryptedPass);
+                    Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
                     console.log("Cookies properly set");
                 } else {
                     // No cookies used
@@ -751,4 +777,22 @@ class Panels extends OpenCGAParentClass {
         return this.get("panels", id, "info", params, options);
     }
 
+}
+
+class Alignment extends OpenCGAParentClass {
+    constructor(config) {
+        super(config);
+    }
+
+    query(id, params, options) {
+        return this.get("analysis/alignment", id, "query", params, options);
+    }
+
+    stats(id, params, options) {
+        return this.get("analysis/alignment", id, "stats", params, options);
+    }
+
+    coverage(id, params, options) {
+        return this.get("analysis/alignment", id, "coverage", params, options);
+    }
 }
