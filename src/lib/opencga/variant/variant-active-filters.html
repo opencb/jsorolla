@@ -123,6 +123,10 @@
                 filters: {
                     type: Array
                 },
+                search: {
+                    type: Object,
+                    notify: true
+                },
                 prefix: {
                     type: String
                 }
@@ -135,6 +139,8 @@
             },
             clear: function () {
                 this.query = {};
+                this.search = this.query;
+                this.$.filtersList.value = "None";
             },
             checkFilters: function (config) {
                 let _this = this;
@@ -186,6 +192,7 @@
                     this.clear();
                 } else {
                     this.query = this.filters[e.target.selectedIndex - 1].query;
+                    this.search = this.query;
                 }
             },
             onQueryFilterDelete: function (e) {
