@@ -25,7 +25,7 @@
         <div style="padding: 10px;">
 
             <div style="height: 530px">
-                <table id="filetable" data-search="true" data-show-columns="true" data-pagination="true"
+                <table id="fileTable" data-search="true" data-show-columns="true" data-pagination="true"
                        data-page-list="[10, 25, 50]" data-show-export="true" data-striped="true" style="cursor: pointer;">
                 </table>
             </div>
@@ -50,7 +50,7 @@
                         </div>
 
                         <div id="jobsViewInfo" role="tabpanel" class="tab-pane">
-                            <opencga-files-info-jobs></opencga-files-info-jobs>
+                            <opencga-files-info-jobs file="{{_file}}"></opencga-files-info-jobs>
                         </div>
 
                         <div id="statsViewInfo" role="tabpanel" class="tab-pane">
@@ -81,6 +81,7 @@
                 },
                 filters: {
                     type: Object,
+                    value: {},
                     observer: 'renderFromServer'
                 },
                 _file: {
@@ -120,8 +121,8 @@
                     this._url = 'http://' + this.opencgaClient.getConfig().host +  '/webservices/rest/v1/files/search';
                     let _this = this;
 
-                    $('#filetable').bootstrapTable('destroy');
-                    $('#filetable').bootstrapTable({
+                    $('#fileTable').bootstrapTable('destroy');
+                    $('#fileTable').bootstrapTable({
                         url: this._url,
                         sidePagination: 'server',
                         queryParams: function(params) {
@@ -165,8 +166,8 @@
             renderLocally: function() {
                 let _this = this;
                 if (this.data != null && this.data.length > 0) {
-                    $('#filetable').bootstrapTable('destroy');
-                    $('#filetable').bootstrapTable({
+                    $('#fileTable').bootstrapTable('destroy');
+                    $('#fileTable').bootstrapTable({
                         data: this.data,
                         columns: this._columns,
                         onClickRow: function(row) {

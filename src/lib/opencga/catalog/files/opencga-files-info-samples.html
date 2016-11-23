@@ -17,6 +17,11 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
+        <div>
+            <template is="dom-repeat" items="{{_samples}}">
+                Sample name: {{item.name}}
+            </template>
+        </div>
     </template>
     <script>
         Polymer({
@@ -24,7 +29,8 @@
 
             properties: {
                 opencgaClient: {
-                    type: Object
+                    type: Object,
+                    observer: '_querySamples'
                 },
                 sampleIds: {
                     type: Array,
@@ -34,19 +40,18 @@
                     type: Array
                 }
             },
-
             _querySamples: function() {
-//                this._samples = [];
-//                debugger
-//                Promise.all(this.sampleIds.map(this.opencgaClient.samples().info.bind(this)))
-//                        .then(function(responses) {
-//                            this._samples = responses;
-//                            console.log(this._samples);
-//                        }.bind(this));
-            },
-
-            _getSampleInfo: function(sampleId) {
-                return this.opencgaClient.samples().info(sampleId);
+                this._samples = [];
+                let _this = this;
+                if (this.opencgaClient instanceof OpenCGAClient && this.sampleIds.length > 0) {
+                    Promise.all(_this.sampleIds.map(id => { return _this.opencgaClient.samples().info(id) }))
+                        .then(function(responses) {
+                            for (let i = 0; i < responses.length; i++) {
+                                _this.push("_samples", responses[i].response[0].result[0]);
+                            }
+                            console.log(_this._samples);
+                        });
+                }
             }
 
         });
