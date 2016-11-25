@@ -238,7 +238,7 @@
 //            },
 
             _formatDate: function(dateStr) {
-                return moment(dateStr).format('D MMM Y');
+                return moment(parseInt(dateStr)).format('D MMM YY');
             },
 
             getTotalPermissions: function(permissions) {

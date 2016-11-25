@@ -30,8 +30,8 @@
                 </table>
             </div>
 
-            <h4><b>File:</b> {{_file.name}}</h4>
             <template is="dom-if" if="{{existsSelectedFile(_file)}}">
+                <h4><b>File:</b> {{_file.name}}</h4>
                 <div style="height: 530px; position: absolute; margin-top: 45px;">
                     <ul id="myTabs" class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#fileViewInfo" role="tab" data-toggle="tab">File Info</a></li>
