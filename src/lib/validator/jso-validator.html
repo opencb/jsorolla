@@ -184,11 +184,8 @@
             min-height: 150px;
         }
 
-        #linePreview {
-            width: 300px;
-            background-color: var(--light-primary-color);
-            height: 50px;
-
+        #linePreviewPanel {
+            max-width: 1000px;
         }
     </style>
     <template>
@@ -440,7 +437,7 @@
                         var aux = lines[0].split("\t");
                         aux[me.column] = '<span style="color:red">' + aux[me.column] + '</span>';
                         me.linePreview = lines[0];
-                        me.$.linePreviewPanel.hidden=false;
+                        me.$.linePreviewPanel.hidden = false;
                     }
 
                     if (eof) {
