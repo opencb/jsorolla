@@ -8,6 +8,7 @@
 
 <script src="validator.js"></script>
 <script src="vcf-validator.js"></script>
+<script src="bed-validator.js"></script>
 <script src="expression-validator.js"></script>
 <script src="experimental-design-validator.js"></script>
 
@@ -184,7 +185,10 @@
         }
 
         #linePreview {
-            max-width: 1000px;
+            width: 300px;
+            background-color: var(--light-primary-color);
+            height: 50px;
+
         }
     </style>
     <template>
@@ -237,7 +241,7 @@
             </div>
         </div>
 
-        <jso-panel modal movable closable hidden id="linePreview" on-close="handleCloseLinePreview">
+        <jso-panel modal movable closable hidden id="linePreviewPanel" on-close="handleCloseLinePreview">
             <div class="header">
                 <i class="fa fa-view"></i> &nbsp; View line
             </div>
@@ -435,9 +439,8 @@
                     if (lines.length > 0) {
                         var aux = lines[0].split("\t");
                         aux[me.column] = '<span style="color:red">' + aux[me.column] + '</span>';
-                        me.$.linePreview.innerHTML = aux.join("\t");
-                        // me.linePreview = lines[0];
-                        me.$.linePreviewPanel.show();
+                        me.linePreview = lines[0];
+                        me.$.linePreviewPanel.hidden=false;
                     }
 
                     if (eof) {
@@ -448,7 +451,7 @@
             },
             handleCloseLinePreview: function(e) {
                 e.stopPropagation();
-                this.$.linePreview.innerHTML = "";
+                this.$.linePreviewPanel.innerHTML = "";
             }
         })
     </script>
