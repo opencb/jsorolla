@@ -192,35 +192,6 @@
             _variantChanged: function () {
                 let _this = this;
                 if (typeof this.cellbaseClient !== "undefined") {
-//                    var success = function (response) {
-//                        _this.variantAnnotation = response.response[0].result[0];
-//
-//                        // Gene Trait Association definition
-//                        $('#' + _this.prefix + 'GTATable').bootstrapTable('destroy');
-//                        $('#' + _this.prefix + 'GTATable').bootstrapTable({
-//                            data: _this.variantAnnotation.geneTraitAssociation,
-//                            columns: [
-//                                [
-//                                    {
-//                                        title: 'id',
-//                                        field: 'id'
-//                                    },
-//                                    {
-//                                        title: 'name',
-//                                        field: 'name'
-//                                    },
-//                                    {
-//                                        title: 'hpo',
-//                                        field: 'hpo'
-//                                    },
-//                                    {
-//                                        title: 'source',
-//                                        field: 'source'
-//                                    }
-//                                ]
-//                            ]
-//                        });
-//                    };
                     this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {})
                         .then(function (response) {
                             _this.variantAnnotation = response.response[0].result[0];

@@ -31,9 +31,8 @@ class CellBaseClientConfig {
         this.cache = {
             active: true,
             database: this.species + "_" + this.version + "_cellbase_cache",
-            subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant"]
+            subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene"]
         }
-        debugger
     }
 
     setHosts(hosts) {

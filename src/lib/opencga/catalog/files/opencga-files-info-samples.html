@@ -44,6 +44,7 @@
                 this._samples = [];
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && this.sampleIds.length > 0) {
+                    // TODO: To be replaced
                     Promise.all(_this.sampleIds.map(id => { return _this.opencgaClient.samples().info(id) }))
                         .then(function(responses) {
                             for (let i = 0; i < responses.length; i++) {

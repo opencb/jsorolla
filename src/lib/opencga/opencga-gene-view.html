@@ -110,13 +110,10 @@
                 let _this= this;
                 if (typeof this.gene !== "undefined" && this.gene != "") {
                     query.gene = this.gene;
-                    var success = function (response) {
-                        _this.geneObj = response.response[0].result[0];
-                    };
-                    var error = function (response) {
-                        alert("Invalid gene");
-                    };
-                    this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {success: success, error: error, async: true});
+                    this.cellbaseClient.getGeneClient(this.gene, 'info', {exclude: "annotation"}, {})
+                        .then(function (response) {
+                            _this.geneObj = response.response[0].result[0];
+                        });
                     this.query = query;
                 }
             }
