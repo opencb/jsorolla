@@ -93,6 +93,9 @@ var OpencgaManager = {
         logout: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'logout');
         },
+        info: function(args){
+          return OpencgaManager._doRequest(args, 'users', 'info');
+        },
         read: function (args) {
             return OpencgaManager._doRequest(args, 'users', 'info');
         },
