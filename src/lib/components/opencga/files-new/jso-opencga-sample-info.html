@@ -188,7 +188,7 @@
 
         #familySamplesList {
             overflow-y: auto;
-            height: 90%
+            height: 80%
         }
 
         #familyInfo >div {
@@ -281,9 +281,18 @@
                     </div>
                 </div>
                 <div hidden$="{{!computeOptions(option, 'family')}}" id="family">
-                    <div id="familyInfo" class="family-info horizontal layout">
+                    <div class="horizontal layout" style="border-bottom:1px solid grey">
+                        <label class="columnFam">Name</label>
+                        <label class="columnFam" style="margin-left:10px">Samples</label>
+                    </div>
+                    <div id="familyInfo" class="family-info">
                         <template is="dom-repeat" items="{{familyListUserSaved}}">
-                            <div value$="{{item.name}}" data-list$="{{item.family}}" on-click="handleSelectedAttribute">{{item.name}}</div>
+                            <div class="horizontal layout center flex" value$="{{item.name}}" data-list$="{{item.family}}" on-click="handleSelectedAttribute">
+                                <div class="columnFam nameSam" title="{{item.name}}">{{item.name}}
+                                </div>
+                                <div class="columnFam nameSam flex horizontal layout" title="{{_getSamplesFamName(item.samplesInfo)}}">{{_getSamplesFamName(item.samplesInfo)}}
+                                </div>
+                            </div>
                         </template>
                     </div>
                     <div class="study-info horizontal layout center">
@@ -313,7 +322,7 @@
                     <div id="familySamplesList">
                         <template is="dom-repeat" items="{{sampleSelected}}">
                             <div class="horizontal layout center jso-control sample" style="margin-top:2px;">
-                                <div class="columnFam nameSam" value="{{item.name}}">{{item.name}}</div>
+                                <div class="columnFam nameSam" value="{{item}}" title="{{item.name}}">{{item.name}}</div>
                                 <div class="columnFam" style="width:50px;">
                                     <label class="horizontal layout center jso-control">
                                         <input type="checkbox" class="jso proband" name="name" value="">
@@ -439,8 +448,8 @@
                     return {};
                 }
             },
-            lastFamilySelected:{
-              type: Object
+            lastFamilySelected: {
+                type: Object
             }
         },
         handleOptions: function(e) {
@@ -522,15 +531,17 @@
             return filteredSamples;
         },
         handleViewVariantBrowswer: function(e) {
+            var me = this;
             if (e.currentTarget.dataset.value == "family") {
-                if(this.lastFamilySelected!=null){
-                  //TODO select samples and do segregation 
+                if (this.lastFamilySelected != null) {
+                    this.fire('viewvariantbrowserfam', {
+                        samples: me.lastFamilySelected.samplesInfo
+                    });
                 }
-
             } else {
                 this.set("sampleSelected", this.sampleSelected);
+                this.fire('viewvariantbrowser');
             }
-            this.fire('viewvariantbrowser');
         },
         searchNameChanged: function(neo, old) {
             this.samplesChanged();
@@ -640,6 +651,8 @@
                             }
                             me.studyInfo.attributes["biertool"]["family"].push(familyObject);
                             me.push('familyListUserSaved', familyObject);
+                            new StvDialog().alert("Family saved successfull.");
+                            me.$.connectFamilyPanel.hidden = true;
                             me.updatestudyInfo();
                         } else {
                             console.log(response.response[0].errorMsg);
@@ -657,11 +670,14 @@
             for (var i = 0; i < samples.length; i++) {
                 var sampleDiv = samples[i];
                 array.push({
-                    name: sampleDiv.querySelector(".nameSam").value,
+                    name: sampleDiv.querySelector(".nameSam").value.name,
                     proband: sampleDiv.querySelector(".proband").checked,
                     gender: sampleDiv.querySelector(".gender").value,
                     father: sampleDiv.querySelector(".father").value,
-                    mother: sampleDiv.querySelector(".mother").value
+                    mother: sampleDiv.querySelector(".mother").value,
+                    id: sampleDiv.querySelector(".nameSam").value.id,
+                    source: sampleDiv.querySelector(".nameSam").value.source,
+                    status: sampleDiv.querySelector(".nameSam").value.status
                 });
             }
             return array;
@@ -696,6 +712,8 @@
             xhr.send(JSON.stringify(data));
         },
         handleRefreshFamilyList: function() {
+            this.familyListNameMap = {};
+            this.familyListUserSaved = []
             var me = this;
             OpencgaManager.studies.info({
                 id: me.study.id,
@@ -728,7 +746,14 @@
                 els[i].removeAttribute("selected", "");
             }
             e.currentTarget.setAttribute("selected", "");
-            this.lastFamilySelected=e.model.item;
+            this.lastFamilySelected = e.model.item;
+        },
+        _getSamplesFamName: function(samples) {
+            var array = [];
+            for (var i = 0; i < samples.length; i++) {
+                array.push(samples[i].name);
+            }
+            return array.join(",");
         }
 
     });
