@@ -89,26 +89,6 @@
         </style>
 
         <div>
-            <!--<h4>Filters <span class="badge">{{_filtersCount}}</span></h4>-->
-            <!--<div style="height: 40px;">-->
-            <!--<h5 class="col-xs-5">Select a filter</h5>-->
-            <!--<div class="col-xs-7">-->
-            <!--<select class="form-control" name="filters" id="filtersList">-->
-            <!--<template is="dom-repeat" items="{{config.filters}}">-->
-            <!--<option>{{item.name}}</option>-->
-            <!--</template>-->
-            <!--&lt;!&ndash;<option>none</option>&ndash;&gt;-->
-            <!--</select>-->
-            <!--</div>-->
-            <!--</div>-->
-
-            <!--<div style="text-align: center">-->
-            <!--<button type="button" class="btn btn-default btn-sm" on-click="fireClear">Clear</button>-->
-            <!--&lt;!&ndash;<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="fireSave">Save</button>&ndash;&gt;-->
-            <!--<button type="button" class="btn btn-default btn-sm" style="margin-left: 10px" on-click="updateQueryFilters">Search</button>-->
-            <!--</div>-->
-            <!--<br>-->
-
             <br>
             <div style="width: 60%;margin: 0 auto">
                 <button type="button" class="btn btn-primary" style="width: 100%" on-click="onSearch">
@@ -208,31 +188,33 @@
                 </template>
 
                 <!-- Studies filter -->
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
-                               href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
-                                Studies
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
-                        <div class="panel-body">
-                            <select class="form-control" id="includeOtherStudy" style="width: 50%;">
-                                <option selected>None</option>
-                                <option>In</option>
-                                <option>Not In</option>
-                                <option>At least</option>
-                            </select>
-                            <div>
-                                <template is="dom-repeat" items="{{studies}}" filter="isDifferentStudy">
-                                    <input type="checkbox" value="{{item.alias}}"> {{item.alias}}<br>
-                                </template>
+                <template is="dom-if" if="{{moreStudiesPresent(studies)}}">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="{{prefix}}StudiesHeading">
+                            <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
+                                   href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
+                                    Studies
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
+                            <div class="panel-body">
+                                <select class="form-control" id="includeOtherStudy" style="width: 50%;">
+                                    <option selected>None</option>
+                                    <option>In</option>
+                                    <option>Not In</option>
+                                    <option>At least</option>
+                                </select>
+                                <div>
+                                    <template is="dom-repeat" items="{{studies}}" filter="isDifferentStudy">
+                                        <input type="checkbox" value="{{item.alias}}"> {{item.alias}}<br>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </template>
 
                 <!-- Region filter -->
                 <div class="panel panel-default">
@@ -629,6 +611,9 @@
             },
             checkTitle: function(consequenceType) {
                 return typeof consequenceType.title !== "undefined" && consequenceType.title != null;
+            },
+            moreStudiesPresent: function (studies) {
+                return studies.length > 1;
             },
             isDifferentStudy: function (item) {
                 return item.alias != this.study.alias;

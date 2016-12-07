@@ -76,6 +76,30 @@ class CellBaseClient {
         return RestClient.callPromise(url, options);
     }
 
+    getFiles(folderId, resource, params, options) {
+        if (options === undefined) {
+            options = {};
+        }
+        let hosts = options.hosts || this._config.hosts;
+        let version = options.version || this._config.version;
+        let species = options.species || this._config.species;
+
+        let url = "http://" + hosts[count] + "/webservices/rest/" + version + "/" + species + "/" + "files";
+
+        if (typeof folderId != "undefined" && folderId != null && folderId != "") {
+            url += "/" + folderId + "/" + resource;
+        } else {
+            url += "/" + resource;
+        }
+
+        // We add the query params formatted in URL
+        let queryParamsUrl = this._createSuffixKey(params);
+        if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
+            url += "?" + queryParamsUrl;
+        }
+        return RestClient.callPromise(url, options);
+    }
+
     getGeneClient(id, resource, params, options) {
         return this.get('feature', 'gene', id, resource, params, options);
     }
