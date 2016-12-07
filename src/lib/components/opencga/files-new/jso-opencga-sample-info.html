@@ -213,7 +213,7 @@
                 <div class="tab" on-click="handleOptions" data-value="samples" data-checked$="{{computeOptions(option, 'samples')}}">
                     Samples
                 </div>
-                <div class="tab" on-click="handleOptions" data-value="family" data-checked$="{{computeOptions(option, 'family')}}">
+                <div class="tab" on-click="handleOptions" data-value="family" data-checked$="{{computeOptions(option, 'family')}}" hidden="{{!isFamilyStudy(study)}}">
                     Families
                 </div>
                 <div class="tab flex" style="cursor:default"></div>
@@ -273,7 +273,7 @@
                         <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
                         <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
                         <div class="horizontal layout center end-justified">
-                            <div id="familyButton" class="jso-btn jso-btn-shdw" on-click="handleViewConnectFamily" title="Connect selected samples in a Family"> Connect Family
+                            <div id="familyButton" class="jso-btn jso-btn-shdw" on-click="handleViewConnectFamily" title="Connect selected samples in a Family"  hidden="{{!isFamilyStudy(study)}}"> Connect Family
                             </div>
                             <div id="variantButton" class="jso-btn jso-btn-shdw variantButton" on-click="handleViewVariantBrowswer" title="Explore selected samples"> Variant Browser
                             </div>
@@ -458,7 +458,13 @@
         computeOptions: function(option, value) {
             return option === value;
         },
-
+        isFamilyStudy: function(study) {
+            if (study.type !=null && study.type.toUpperCase() == "FAMILY") {
+                return true;
+            } else {
+                return false;
+            }
+        },
         selectedFileChanged: function(neo, old) {
             var me = this;
             if (neo) {
