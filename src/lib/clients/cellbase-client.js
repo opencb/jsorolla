@@ -93,7 +93,7 @@ class CellBaseClient {
         }
 
         // We add the query params formatted in URL
-        let queryParamsUrl = this._createSuffixKey(params);
+        let queryParamsUrl = this._createSuffixKey(params, false);
         if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
             url += "?" + queryParamsUrl;
         }
@@ -137,10 +137,10 @@ class CellBaseClient {
             let nonCachedIds = [];
 
             let cacheKeys = [];
-            let suffixKey = this._createSuffixKey(params);
+            let suffixKey = this._createSuffixKey(params, true);
 
             let idArray = [];
-            if (ids !== undefined) {
+            if (ids !== undefined && ids != null) {
                 idArray = ids.split(",");
                 for (let i = 0; i < idArray.length; i++) {
                     cacheKeys.push(idArray[i] + "_" + resource + suffixKey);
@@ -166,7 +166,7 @@ class CellBaseClient {
                     if (rpc.toLowerCase() === "rest") {
                         options.cacheFn = function(dataResponse) {
                             // we add the new fetched data to the cache
-                            let suffixKey = _this._createSuffixKey(params);
+                            let suffixKey = _this._createSuffixKey(params, true);
                             // We make a copy of dataResponse
                             let query = {};
                             for (let i in dataResponse) {
@@ -302,14 +302,14 @@ class CellBaseClient {
         }
 
         // We add the query params formatted in URL
-        var queryParamsUrl = this._createSuffixKey(params)
+        var queryParamsUrl = this._createSuffixKey(params, false);
         if (typeof queryParamsUrl != "undefined" && queryParamsUrl != null && queryParamsUrl != "") {
             url += "?" + queryParamsUrl;
         }
         return url;
     }
 
-    _createSuffixKey(params) {
+    _createSuffixKey(params, suffix) {
         // Do not remove the sort! we need to sort the array to ensure that the key of the cache will be correct
         var keyArray = _.keys(params).sort();
         var keyValueArray = [];
@@ -317,7 +317,8 @@ class CellBaseClient {
             keyValueArray.push(keyArray[i] + "=" + encodeURIComponent(params[keyArray[i]]));
         }
         let suffixKey = keyValueArray.join('&');
-        if (suffixKey !== "") {
+        // suffixKey is preceded by '_' if suffix is true. Else it is treated as queryParam that needs to be sorted
+        if (suffix && suffixKey !== "") {
             suffixKey = "_" + suffixKey;
         }
         return suffixKey;
