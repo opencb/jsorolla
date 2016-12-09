@@ -176,7 +176,7 @@
         }
 
         .preview {
-            width: 35%;
+            width: 30%;
             height: 90%;
             margin-left: 15px;
         }
@@ -273,7 +273,7 @@
                         <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
                         <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
                         <div class="horizontal layout center end-justified">
-                            <div id="familyButton" class="jso-btn jso-btn-shdw" on-click="handleViewConnectFamily" title="Connect selected samples in a Family"  hidden="{{!isFamilyStudy(study)}}"> Connect Family
+                            <div id="familyButton" class="jso-btn jso-btn-shdw" on-click="handleViewConnectFamily" title="Connect selected samples in a Family" hidden="{{!isFamilyStudy(study)}}"> Connect Family
                             </div>
                             <div id="variantButton" class="jso-btn jso-btn-shdw variantButton" on-click="handleViewVariantBrowswer" title="Explore selected samples"> Variant Browser
                             </div>
@@ -318,10 +318,11 @@
                         <label class="columnFam">Gender</label>
                         <label class="columnFam">Father</label>
                         <label class="columnFam">Mother</label>
+                        <label class="columnFam" style="width:50px">Add</label>
                     </div>
                     <div id="familySamplesList">
                         <template is="dom-repeat" items="{{sampleSelected}}">
-                            <div class="horizontal layout center jso-control sample" style="margin-top:2px;">
+                            <div data-id$="{{item.id}}" class="horizontal layout center jso-control sample" style="margin-top:2px;">
                                 <div class="columnFam nameSam" value="{{item}}" title="{{item.name}}">{{item.name}}</div>
                                 <div class="columnFam" style="width:50px;">
                                     <label class="horizontal layout center jso-control">
@@ -357,12 +358,23 @@
                                         </template>
                                     </jso-select>
                                 </div>
+                                <div class="columnFam" style="width:50px;">
+                                    <label class="horizontal layout center jso-control">
+                                        <input type="checkbox" class="jso proband" name="add" value="" on-click="addToFamilyPreview">
+                                        <span></span>
+                                    </label>
+                                </div>
                             </div>
                         </template>
                     </div>
                 </div>
                 <div class="preview">
                     <div class="" style="border: 1px solid grey; height:95%">
+                        <svg id="familyPreview" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <!-- <rect x="10" y="10" height="20" width="20" style="stroke:grey; fill: grey" />
+                            <circle cx="40" cy="40" r="12" style="stroke:grey; fill: grey" />
+                            <line x1="0" y1="10" x2="100" y2="10" style="stroke:grey;" /> -->
+                        </svg>
                     </div>
                     <div class="horizontal layout center end-justified" style="margin-top:5px;">
                         <div id="familySaveButton" class="jso-btn jso-btn-shdw" on-click="handleSaveFamily" title="Save Family"> Save Family
@@ -459,7 +471,7 @@
             return option === value;
         },
         isFamilyStudy: function(study) {
-            if (study.type !=null && study.type.toUpperCase() == "FAMILY") {
+            if (study.type != null && study.type.toUpperCase() == "FAMILY") {
                 return true;
             } else {
                 return false;
@@ -760,6 +772,39 @@
                 array.push(samples[i].name);
             }
             return array.join(",");
+        },
+        addToFamilyPreview: function(e) {
+            var sampleDiv = stv.utils.closest(e.currentTarget, "[data-id]");
+            var x=10;
+            var y=10;
+            if (e.currentTarget.checked == true) {
+                var name = sampleDiv.querySelector(".nameSam").value.name;
+                var proband = sampleDiv.querySelector(".proband").checked;
+                var gender = sampleDiv.querySelector(".gender").value;
+                var father = sampleDiv.querySelector(".father").value;
+                var mother = sampleDiv.querySelector(".mother").value;
+
+                var attributes = {};
+                var elementName = "rect";
+                attributes["style"] = "stroke:#666;fill:#666";
+                if (gender == "Female") {
+                    elementName = "circle";
+                    attributes["r"] = "12";
+                    atributes["cx"]=x;
+                    atributes["cy"]=y;
+                }else{
+                  attributes["height"] = "20";
+                  attributes["width"] = "20";
+                  atributes["x"]=x;
+                  atributes["y"]=y;
+                }
+                if (proband == true) {
+                    attributes["style"] = "stroke:#ff0000;fill:#ff0000";
+                }
+                SVG.addChild(this.$.familyPreview, elementName, attributes);
+            } else {
+
+            }
         }
 
     });
