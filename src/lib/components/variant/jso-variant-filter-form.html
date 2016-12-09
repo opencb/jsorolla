@@ -183,22 +183,26 @@
         jso-form-box .container {
             font-size: 12px;
         }*/
-        .butstyle{
-          border-radius: 4px;
-          width: 100px;
-          background-color: var(--dark-button-color) !important;
-          color: var(--text-primary-color) !important;
+
+        .butstyle {
+            border-radius: 4px;
+            width: 100px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
         }
+
         .butstyle:hover {
             background-color: var(--light-button-color) !important;
         }
-        #filterHistoryTooltip{
-          border-radius: 4px;
-          background-color: var(--dark-button-color) !important;
-          color: var(--text-primary-color) !important;
+
+        #filterHistoryTooltip {
+            border-radius: 4px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
         }
-        #filterHistoryTooltip:hover{
-          background: var(--accent-color) !important;
+
+        #filterHistoryTooltip:hover {
+            background: var(--accent-color) !important;
         }
 
         jso-select {
@@ -212,7 +216,7 @@
             --paper-slider-knob-color: #445D76;
             --paper-slider-active-color: #445D76;
             --paper-slider-pin-color: #445D76;
-            --paper-input-container-focus-color:#445D76;
+            --paper-input-container-focus-color: #445D76;
             width: 125%;
         }
 
@@ -220,7 +224,6 @@
             width: calc(20vh - 40px);
             font-size: 13px;
         }
-
     </style>
     <template>
         <form id="filter_form">
@@ -382,7 +385,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                              <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AMR" editable on-value-change="sliderChange"></paper-slider>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AMR" editable on-value-change="sliderChange"></paper-slider>
                         </div>
                         <label class="jso">South Asian MAF [SAS]</label>
                         <div class="horizontal layout">
@@ -394,7 +397,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                              <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_SAS" editable on-value-change="sliderChange"></paper-slider>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_SAS" editable on-value-change="sliderChange"></paper-slider>
                         </div>
                         <label class="jso">East Asian MAF [EAS]</label>
                         <div class="horizontal layout">
@@ -406,7 +409,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                              <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EAS" editable on-value-change="sliderChange"></paper-slider>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EAS" editable on-value-change="sliderChange"></paper-slider>
                         </div>
                         <label class="jso">African MAF [AFR]</label>
                         <div class="horizontal layout">
@@ -418,7 +421,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                              <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AFR" editable on-value-change="sliderChange"></paper-slider>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_AFR" editable on-value-change="sliderChange"></paper-slider>
                         </div>
                         <label class="jso">European MAF [EUR]</label>
                         <div class="horizontal layout">
@@ -430,7 +433,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                              <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EUR" editable on-value-change="sliderChange"></paper-slider>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="1000GENOMES_phase_3_EUR" editable on-value-change="sliderChange"></paper-slider>
                         </div>
                     </div>
                     <br>
@@ -447,7 +450,7 @@
                                                 <jso-option value=">">></jso-option>
                                                 <jso-option value=">=">>=</jso-option>
                             </jso-select>
-                              <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="ESP_6500_EA" editable on-value-change="sliderChange"></paper-slider>
+                            <paper-slider pin min="0" max="1" step="0.000001" value="0" class="sliderBar" id="ESP_6500_EA" editable on-value-change="sliderChange"></paper-slider>
                         </div>
                         <label class="jso">African american MAF</label>
                         <div class="horizontal layout">
@@ -728,7 +731,7 @@
                 }
 
                 if (_load == -1) { // This filter is new (has not been selected from the history)
-                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.conservation != null || query["annot-ct"] != null) {
+                    if (query.genotype != null || query.region != null || query.gene != null || query.ids != null || query.type != "" || query['annot-population-maf'] != null || query.sift != null || query.polyphen != null || query.functional != null || query.hpo != null || query.go != null || query.conservation != null || query["annot-ct"] != null) {
                         var dateAux = new Date();
                         var minAux = dateAux.getMinutes();
                         if (minAux < 10) {
@@ -831,10 +834,12 @@
             // GO
             this.$.go.value = "";
             this.goValue = "";
+            this.goSearch = "";
             this.$.goExclude.checked = false;
             // HPO
             this.$.hpo.value = "";
             this.hpoValue = "";
+            this.hpoSearch = "";
             this.$.hpoExclude.checked = false;
 
             this.$.filterPosition.clear();
@@ -879,6 +884,7 @@
 
             // Sift
             // Polyphen
+            // cadd
             this.$.filterScores.clear();
 
             // // Phylop
@@ -916,17 +922,21 @@
             //SomaticVsGerminal
             var els = this.$.somatic.querySelectorAll("input");
             var querySom = [];
+            var queryaux = [];
             for (var i = 0; i < els.length; i++) {
                 var el = els[i];
                 if (el.checked == true) {
                     if (el.value == "germinal") {
+                        queryaux.push(el.name + ":germinal");
                         querySom.push(el.name + ":" + "0/0,0|0");
                     } else if (el.value == "somatic") {
+                        queryaux.push(el.name + ":somatic");
                         querySom.push(el.name + ":" + "0/1,0|1,1/0,1|0,1/1,1|1");
                     }
                 }
             }
             if (querySom.length > 0) {
+                query['somatic'] = queryaux.join(";");
                 query.genotype = querySom.join(";");
             }
 
@@ -970,11 +980,20 @@
                     }
                 }
             }
+            if (this.goSearch != "") {
+              if(this.goValue==""){
+                query["go"] = this.goSearch;
+              }else{
+                query["go"] = Object.keys(gosMap).join(",");
+              }
+            }
             if (query["gene"] != null && Object.keys(genes).length > 0) {
                 query["gene"] += "," + Object.keys(genes).join(",");
             } else if (query["gene"] == null && Object.keys(genes).length > 0) {
                 query["gene"] = Object.keys(genes).join(",");
-                alert("Selected GOs have these associated Genes: " + Object.keys(genes).join(","));
+                alert("Selected GOs have these associated genes: " + Object.keys(genes).join(","));
+            } else if (Object.keys(genes).length == 0 && this.goValue.length > 0) {
+                alert("Selected GOs have not associated genes");
             }
 
             // HPO
@@ -993,35 +1012,12 @@
                     }
                 }
             }
-
-            var hposAux = [];
-            if (this.$.hpoExclude.checked == true) {
-                var hposArray = [];
-                for (var i = 0; i < HPO_ONTOLOGY.length; i++) {
-                    hposArray.push(HPO_ONTOLOGY[i].id);
-                }
-                for (var i = 0; i < hposArray.length; i++) {
-                    if (hposMap[hposArray[i]] == null) {
-                        hposAux.push(hposArray[i]);
-                    }
-                }
-            } else {
-                hposAux = Object.keys(hposMap);
-            }
-            var genes = {};
-            for (var i = 0; i < hposAux.length; i++) {
-                if (HPO_GENE[hposAux[i]] != null) {
-                    for (var j = 0; j < HPO_GENE[hposAux[i]].length; j++) {
-                        var gene = HPO_GENE[hposAux[i]][j];
-                        genes[gene] = true;
-                    }
-                }
-            }
-            if (query["gene"] != null && Object.keys(genes).length > 0) {
-                query["gene"] += "," + Object.keys(genes).join(",");
-            } else if (query["gene"] == null && Object.keys(genes).length > 0) {
-                query["gene"] = Object.keys(genes).join(",");
-                alert("Selected HPOs have these associated Genes: " + Object.keys(genes).join(","));
+            if (this.hpoSearch != "") {
+              if(this.hpoValue==""){
+                query["hpo"] = this.hpoSearch;
+              }else{
+                query["hpo"] = Object.keys(hposMap).join(",");
+              }
             }
 
             // Genotypes
@@ -1066,10 +1062,17 @@
             } else if (polyphen != null) {
                 query["polyphen"] = polyphen;
             }
+            var cadd = this.$.filterScores.checkCADD();
+            if (cadd == -1) {
+                return;
+            } else if (cadd != null) {
+                query["functional"] = "cadd_raw" + cadd;
+            }
 
             var phastcons = this.$.filterConservation.checkPhastcons(1);
             var phylop = this.$.filterConservation.checkPhylop(1);
-            if (phastcons != null || phylop != null) {
+            var gerp = this.$.filterConservation.checkGerp();
+            if (phastcons != null || phylop != null || gerp != null) {
                 var conservation = [];
                 if (phastcons != null) {
                     conservation.push(phastcons);
@@ -1077,10 +1080,11 @@
                 if (phylop != null) {
                     conservation.push(phylop);
                 }
-            }
-            var gerp = this.$.filterConservation.checkGerp();
-            if (gerp != null) {
-                q["gerp"] = gerp;
+
+                if (gerp != null) {
+                    conservation.push("gerp" + gerp);
+                }
+                query["conservation"] = conservation.join(",");
             }
 
             // Population Frequencies
@@ -1159,10 +1163,10 @@
         },
 
         _getPopulationQuery: function(study, population, type) {
-                var value = parseFloat(this.$[study + "_" + population].value);
-                var value_op = this.$[study + "_" + population + "_op"].value;
-                value = study + ":" + population + value_op + value;
-                return value;
+            var value = parseFloat(this.$[study + "_" + population].value);
+            var value_op = this.$[study + "_" + population + "_op"].value;
+            value = study + ":" + population + value_op + value;
+            return value;
         },
         _setPopulationValue: function(population, value) {
             var aux = value.split("");
@@ -1241,7 +1245,7 @@
         filesIdChanged: function(neo, old) {
             if (neo.length > 0) {
                 this.query.files = neo.join(',');
-                this.query.returnedStudies=this.study.id;
+                this.query.returnedStudies = this.study.id;
                 //TODO fsalavert: fix
                 //            query.sessionId = Cookies("bioinfo_sid");
                 var url = OpencgaManager.studies.variants({
@@ -1252,8 +1256,13 @@
                     }
                 });
 
-                this.url = url;
-                console.log(url);
+                console.log(url.length);
+                if (url.length < 8000) {
+                    this.url = url;
+                    console.log(url);
+                } else {
+                    alert('Url too long');
+                }
             }
         },
         loadForm: function(hf) {
@@ -1284,11 +1293,32 @@
                 }
                 filterName.push("Genotype: " + JSON.stringify(gtName).replace("{", "").replace("}", "").replace(/"/gi, "") + " ");
             }
+            if (hf.somatic != "" && hf.somatic != null) {
+                var els = this.$.somatic.querySelectorAll("input");
+                var som = hf.somatic.split(";");
+                for (var i = 0; i < som.length; i++) {
+                    var n = som[i].split(":")
+                    for (var j = 0; j < els.length; j++) {
+                        if (els[j].name == n[0] && els[j].value == n[1]) {
+                            els[j].checked = true;
+                        }
+                    }
+                }
+                filterName.push("Somatic: " + hf.somatic);
+            }
+
+            if (hf.go != "" && hf.go != null) {
+                this.set('goSearch', hf.go);
+                filterName.push("GO: " + hf.go);
+            }
+            if (hf.hpo != "" && hf.hpo != null) {
+                this.set('hpoSearch', hf.hpo);
+                filterName.push("HPO: " + hf.hpo);
+            }
 
             // Region
             // Genes
             // SNPId
-
             var fP = this.$.filterPosition.load(hf);
             if (fP.length > 0) {
                 for (var i = 0; i < fP.length; i++) {
@@ -1344,6 +1374,7 @@
 
             // Sift
             // Polyphen
+            // cadd
             var fS = this.$.filterScores.load(hf);
             if (fS.length > 0) {
                 for (var i = 0; i < fS.length; i++) {
@@ -1351,19 +1382,13 @@
                 }
             }
 
-            // Phylop y Phastcons
+            // Phylop, Phastcons y Gerp
             var fC = this.$.filterConservation.load(hf, 1);
             if (fC.length > 0) {
                 for (var i = 0; i < fC.length; i++) {
                     filterName.push(fC[i]);
                 }
             }
-            //Gerp MODE 1, 2 SEGUN WS TODO
-            var fCg = this.$.filterConservation.loadGerp(hf);
-            if (fCg != "") {
-                filterName.push(fCg);
-            }
-
             // Consequence Types
             var fCT = this.$.filterCT.load(hf, 1);
             if (fCT.length > 0) {
@@ -1466,9 +1491,9 @@
             this.$.hpoPanel.hidden = !this.$.hpoPanel.hidden;
             // this.$.hpoPanel.handleClearSelected();
         },
-        sliderChange: function(e){
-          var id=e.currentTarget.id +"Value";
-          this.set(id, e.currentTarget.value);
+        sliderChange: function(e) {
+            var id = e.currentTarget.id + "Value";
+            this.set(id, e.currentTarget.value);
         }
     });
 </script>

@@ -239,7 +239,17 @@
         },
         handleUploadFile: function(e) {
             if (this.study != null) {
-                this.fire('upload-file');
+                var fileIndex = false;
+                for (var i = 0; i < this.files.length; i++) {
+                    if (this.files[i].index != null && this.files[i].index.status == "INDEXING") {
+                        fileIndex = true;
+                        alert("Wait until any file is Indexing");
+                        break;
+                    }
+                }
+                if (fileIndex == false) {
+                    this.fire('upload-file');
+                }
             } else {
                 alert("You must select a study before uploading a file.")
             }

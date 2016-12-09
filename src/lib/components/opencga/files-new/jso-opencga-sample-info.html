@@ -1,0 +1,811 @@
+<dom-module id="jso-opencga-sample-info">
+    <style is="custom-style" include="iron-flex iron-flex-reverse iron-flex-alignment iron-flex-factors iron-positioning">
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+            height: 100%;
+            border-top: 1px solid var(--divider-color);
+        }
+
+        #sampleList,
+        #sampleSelectedList {
+            box-sizing: border-box;
+            overflow-y: auto;
+            height: calc(100% - 59px);
+            /*height: 145px;*/
+            border: 1px solid #ddd;
+        }
+
+        #sampleSelectedList {
+            height: calc(100% - 35px);
+        }
+
+        #sampleList {
+            border-top: 0;
+        }
+
+        .sam {
+            width: 50%;
+            padding: 5px;
+        }
+
+        .study-info {
+            height: 30px;
+            box-sizing: border-box;
+            background-color: var(--light-secondary-color);
+            border-top: 1px solid var(--divider-color);
+            padding: 5px;
+        }
+
+        .sample-info,
+        .family-info {
+            height: calc(100% - 30px);
+            box-sizing: border-box;
+        }
+
+        .variantButton,
+        #familySaveButton,
+        #familyButton {
+            border-radius: 5px;
+            width: 150px;
+            background-color: var(--dark-button-color) !important;
+            color: var(--text-primary-color) !important;
+            margin: 5px;
+        }
+
+        #addButton {
+            width: 25px;
+            font-size: 15px;
+            color: #435f7a;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        #clearButton {
+            width: 50px;
+            color: #435f7a;
+            font-weight: bold;
+        }
+
+        .variantButton:hover,
+        #familySaveButton:hover,
+        #familyButton:hover {
+            background-color: var(--light-button-color) !important;
+        }
+
+        .msgError {
+            color: #bf4747;
+            font-style: italic;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .fileName {
+            font-weight: bold;
+            color: #445D76;
+            margin-left: 5px;
+            width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .check {
+            border: 1px solid var(--divider-color);
+            border-right: 0;
+            padding-left: 6px;
+        }
+
+        .tabwrap {
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid var(--divider-color);
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+            height: 100%;
+        }
+
+        .tab {
+            height: 20px;
+            line-height: 20px;
+            font-size: 14px;
+            width: 150px;
+            padding: 5px 10px;
+            color: #666;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .tab[data-checked] {
+            background-color: #fff;
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
+            color: #222;
+            border: 1px solid #ddd;
+            border-bottom: 1px solid transparent;
+            box-shadow: 1px -1px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab:hover {
+            color: #8ba7a7;
+            font-weight: bold;
+        }
+
+        #submenu {
+            background-color: #e2e9e9;
+            padding-left: 10px;
+            padding-top: 10px;
+        }
+
+        #information {
+            position: relative;
+            height: calc(100% - 40px);
+        }
+
+        #information > div {
+            position: relative;
+            height: 100%;
+        }
+
+        #connectFamilyPanel {
+            height: 500px;
+            width: 850px;
+        }
+
+        #connectFamilyPanel .container {
+            padding: 5px;
+        }
+
+        jso-select {
+            width: 100px;
+        }
+
+        .columnFam {
+            width: 100px;
+            padding: 3px;
+            margin-left: 5px;
+        }
+
+        .nameSam {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .preview {
+            width: 30%;
+            height: 90%;
+            margin-left: 15px;
+        }
+
+        .tableSample {
+            width: 60%;
+            height: 100%;
+        }
+
+        #familySamplesList {
+            overflow-y: auto;
+            height: 80%
+        }
+
+        #familyInfo >div {
+            border: 1px solid transparent;
+            height: 20px;
+            width: 100%;
+        }
+
+        #familyInfo >div[selected] {
+            border: 1px solid #8ba7a7;
+            background: #8ba7a7;
+        }
+
+        #familyInfo >div:hover {
+            border: 1px solid #ccc;
+            background: #ccc;
+        }
+    </style>
+    <template>
+        <div class="tabwrap">
+            <div id="submenu" class="horizontal layout">
+                <div class="tab" on-click="handleOptions" data-value="samples" data-checked$="{{computeOptions(option, 'samples')}}">
+                    Samples
+                </div>
+                <div class="tab" on-click="handleOptions" data-value="family" data-checked$="{{computeOptions(option, 'family')}}" hidden="{{!isFamilyStudy(study)}}">
+                    Families
+                </div>
+                <div class="tab flex" style="cursor:default"></div>
+            </div>
+            <div id="information">
+                <div hidden$="{{!computeOptions(option, 'samples')}}" id="samples">
+                    <div class="sample-info horizontal layout">
+                        <div class="sam">
+                            <div class="horizontal layout center" style="height:25px">
+                                <label>Samples from: </label>
+                                <div class="flex fileName">{{fileName}}</div>
+                            </div>
+                            <div class="horizontal layout center" style="height:100%">
+                                <div class="flex" style="width:100%;height:100%">
+                                    <div class="horizontal layout center">
+                                        <label class="jso-control horizontal layout check">
+                                            <input id="checkButton" class="jso" type="checkbox" on-change="handleToggle">
+                                            <span></span>
+                                        </label>
+                                        <input style="height:24px" id="searchInput" class="jso" type="text" placeholder="Search by name..." value="{{search::input}}">
+                                    </div>
+                                    <div id="sampleList" class="">
+                                        <template is="dom-repeat" items="{{filteredSamples}}">
+                                            <label class="horizontal layout center jso-control">
+                                                <input class="jso" type="checkbox" sample="{{item}}">
+                                                <span>{{item.name}}</span>(
+                                                <span>{{item.source}}</span>)
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div id="addButton" class="jso-btn jso-btn-shdw" on-click="handleAddSample" title="Add selected samples"><i class="fa fa-arrow-right" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sam right">
+                            <div class="horizontal layout center" style="height:25px">
+                                <label>Selected Samples: </label>
+                                <div class="flex">
+                                </div>
+                                <div id="clearButton" class="jso-btn jso-btn-shdw" on-click="handleClearSamples" title="Clear all selected samples">Clear
+                                </div>
+                            </div>
+                            <div id="sampleSelectedList">
+                                <template is="dom-repeat" items="{{sampleSelected}}">
+                                    <div class="horizontal layout center jso-control" style="margin-top:2px;">
+                                        <i style="margin-left:5px;" class="fa fa-times" sample="{{item.id}}" on-click="handleRemoveSample" title="Remove sample in selected sample list"></i>&nbsp;
+                                        <span style="margin-left:5px;">{{item.name}}</span>&nbsp;(
+                                        <span style="margin-left:5px;">{{item.source}}</span>)
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="study-info horizontal layout center">
+                        <label class="" style="margin-left:5px;">Study Type: </label>
+                        <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
+                        <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
+                        <div class="horizontal layout center end-justified">
+                            <div id="familyButton" class="jso-btn jso-btn-shdw" on-click="handleViewConnectFamily" title="Connect selected samples in a Family" hidden="{{!isFamilyStudy(study)}}"> Connect Family
+                            </div>
+                            <div id="variantButton" class="jso-btn jso-btn-shdw variantButton" on-click="handleViewVariantBrowswer" title="Explore selected samples"> Variant Browser
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div hidden$="{{!computeOptions(option, 'family')}}" id="family">
+                    <div class="horizontal layout" style="border-bottom:1px solid grey">
+                        <label class="columnFam">Name</label>
+                        <label class="columnFam" style="margin-left:10px">Samples</label>
+                    </div>
+                    <div id="familyInfo" class="family-info">
+                        <template is="dom-repeat" items="{{familyListUserSaved}}">
+                            <div class="horizontal layout center flex" value$="{{item.name}}" data-list$="{{item.family}}" on-click="handleSelectedAttribute">
+                                <div class="columnFam nameSam" title="{{item.name}}">{{item.name}}
+                                </div>
+                                <div class="columnFam nameSam flex horizontal layout" title="{{_getSamplesFamName(item.samplesInfo)}}">{{_getSamplesFamName(item.samplesInfo)}}
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="study-info horizontal layout center">
+                        <label class="" style="margin-left:5px;">Study Type: </label>
+                        <div class="flex" style="font-weight:bold;color: #445D76;margin-left:5px;">{{study.type}}</div>
+                        <div class="msgError" title="{{indexMsg}}">{{indexMsg}}</div>
+                        <div class="horizontal layout center end-justified">
+                            <div data-value="family" class="jso-btn jso-btn-shdw variantButton" on-click="handleViewVariantBrowswer" title="Explore selected family"> Variant Browser
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <jso-panel id="connectFamilyPanel" modal closable hidden>
+            <div class="header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Connect Family
+            </div>
+            <div class="container horizontal layout center flex">
+                <div class="tableSample">
+                    <div class="horizontal layout" style="border-bottom:1px solid grey">
+                        <label class="columnFam">Sample</label>
+                        <label class="columnFam" style="width:70px">Proband</label>
+                        <label class="columnFam">Gender</label>
+                        <label class="columnFam">Father</label>
+                        <label class="columnFam">Mother</label>
+                        <label class="columnFam" style="width:50px">Add</label>
+                    </div>
+                    <div id="familySamplesList">
+                        <template is="dom-repeat" items="{{sampleSelected}}">
+                            <div data-id$="{{item.id}}" class="horizontal layout center jso-control sample" style="margin-top:2px;">
+                                <div class="columnFam nameSam" value="{{item}}" title="{{item.name}}">{{item.name}}</div>
+                                <div class="columnFam" style="width:50px;">
+                                    <label class="horizontal layout center jso-control">
+                                        <input type="checkbox" class="jso proband" name="name" value="">
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <div class="columnFam">
+                                    <jso-select class="gender">
+                                        <jso-option value="Male">Male
+                                        </jso-option>
+                                        <jso-option value="Female">Female
+                                        </jso-option>
+                                    </jso-select>
+                                </div>
+                                <div class="columnFam">
+                                    <jso-select class="father">
+                                        <jso-option value="-">-
+                                        </jso-option>
+                                        <template is="dom-repeat" items="{{sampleSelected}}" as="sample">
+                                            <jso-option value="{{sample.name}}">{{sample.name}}
+                                            </jso-option>
+                                        </template>
+                                    </jso-select>
+                                </div>
+                                <div class="columnFam">
+                                    <jso-select class="mother">
+                                        <jso-option value="-">-
+                                        </jso-option>
+                                        <template is="dom-repeat" items="{{sampleSelected}}" as="sample">
+                                            <jso-option value="{{sample.name}}">{{sample.name}}
+                                            </jso-option>
+                                        </template>
+                                    </jso-select>
+                                </div>
+                                <div class="columnFam" style="width:50px;">
+                                    <label class="horizontal layout center jso-control">
+                                        <input type="checkbox" class="jso proband" name="add" value="" on-click="addToFamilyPreview">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="preview">
+                    <div class="" style="border: 1px solid grey; height:95%">
+                        <svg id="familyPreview" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <!-- <rect x="10" y="10" height="20" width="20" style="stroke:grey; fill: grey" />
+                            <circle cx="40" cy="40" r="12" style="stroke:grey; fill: grey" />
+                            <line x1="0" y1="10" x2="100" y2="10" style="stroke:grey;" /> -->
+                        </svg>
+                    </div>
+                    <div class="horizontal layout center end-justified" style="margin-top:5px;">
+                        <div id="familySaveButton" class="jso-btn jso-btn-shdw" on-click="handleSaveFamily" title="Save Family"> Save Family
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </jso-panel>
+    </template>
+</dom-module>
+<script>
+    Polymer({
+        is: "jso-opencga-sample-info",
+        properties: {
+            selectedFile: {
+                type: Object,
+                value: function() {
+                    return {};
+                },
+                observer: "selectedFileChanged"
+            },
+
+            filteredSamples: {
+                type: Array,
+                value: function() {
+                    return [];
+                },
+                notify: true,
+            },
+            sampleSelected: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                }
+            },
+            sampleMap: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
+            },
+            samples: {
+                type: Array,
+                notify: true,
+                value: function() {
+                    return [];
+                },
+                observer: 'samplesChanged'
+            },
+            search: {
+                type: String,
+                value: "",
+                observer: 'searchNameChanged'
+            },
+            study: {
+                type: Object,
+                observer: 'studyChanged'
+            },
+            indexMsg: {
+                type: String,
+                value: ""
+            },
+            option: {
+                type: String,
+                value: 'samples'
+            },
+            familyListNameMap: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
+            },
+            familyListUserSaved: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            },
+            studyInfo: {
+                type: Object,
+                value: function() {
+                    return {};
+                }
+            },
+            lastFamilySelected: {
+                type: Object
+            }
+        },
+        handleOptions: function(e) {
+            this.option = e.target.dataset.value;
+        },
+        computeOptions: function(option, value) {
+            return option === value;
+        },
+        isFamilyStudy: function(study) {
+            if (study.type != null && study.type.toUpperCase() == "FAMILY") {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        selectedFileChanged: function(neo, old) {
+            var me = this;
+            if (neo) {
+                this.set('fileName', neo.name);
+                this.handleDeselectAll();
+                var sams = [];
+                var els = this.$.sampleList.querySelectorAll("input:checked");
+                for (var i = 0; i < els.length; i++) {
+                    els[i].checked = false;
+                }
+                for (var i = 0; i < neo.sampleIds.length; i++) {
+                    var s = this._getSamplesInfo(neo.sampleIds[i]);
+                    if (s != null) {
+                        if (neo.index != null && neo.index.status == "INDEXING") {
+                            s.status = "INDEXING";
+                            var msg = neo.name + " is indexing";
+                            me.set('indexMsg', msg);
+                        } else {
+                            s.status = (neo.index) ? neo.index.status : "NOT INDEXED";
+                            me.set('indexMsg', "");
+                        }
+                    }
+                    sams.push(s);
+                }
+                this.set("samples", sams);
+            }
+
+        },
+        _getSamplesInfo: function(samplesIds) {
+            var me = this;
+            var sample = null;
+            OpencgaManager.samples.info({
+                id: samplesIds,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                },
+                request: {
+                    async: false,
+                    success: function(response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            sample = response.response[0].result[0];
+                        } else {
+                            console.log('Server error, try again later.');
+                        }
+                    },
+                    error: function() {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+            return sample;
+        },
+
+        samplesChanged: function(neo, old) {
+            var me = this;
+            var searchFilterSamples = this._filterBySearch(this.samples);
+            this.set('filteredSamples', searchFilterSamples);
+        },
+        _filterBySearch: function(samples) {
+            if (this.search == "") {
+                return samples;
+            }
+            var filteredSamples = [];
+            for (var i = 0; i < samples.length; i++) {
+                var sample = samples[i];
+                if (sample.name.toLowerCase().search(this.search.toLowerCase()) >= 0) {
+                    filteredSamples.push(sample);
+                }
+            }
+            return filteredSamples;
+        },
+        handleViewVariantBrowswer: function(e) {
+            var me = this;
+            if (e.currentTarget.dataset.value == "family") {
+                if (this.lastFamilySelected != null) {
+                    this.fire('viewvariantbrowserfam', {
+                        samples: me.lastFamilySelected.samplesInfo
+                    });
+                }
+            } else {
+                this.set("sampleSelected", this.sampleSelected);
+                this.fire('viewvariantbrowser');
+            }
+        },
+        searchNameChanged: function(neo, old) {
+            this.samplesChanged();
+        },
+        studyChanged: function(neo, old) {
+            this.set('fileName', "");
+            this.set("sampleMap", {});
+            this.set("sampleSelected", []);
+            this.set("filteredSamples", []);
+            this.handleDeselectAll();
+            this.handleRefreshFamilyList();
+        },
+        handleRemoveSample: function(e) {
+            var id = e.currentTarget.sample;
+            this.sampleMap[id] = null;
+            for (var i = 0; i < this.sampleSelected.length; i++) {
+                if (this.sampleSelected[i].id == id) {
+                    this.splice('sampleSelected', i, 1);
+                    break;
+                }
+            }
+
+        },
+        handleAddSample: function(e) {
+            var sel = this.$.sampleList.querySelectorAll("input:checked");
+            for (var i = 0; i < sel.length; i++) {
+                var sample = sel[i].sample;
+                if (sample.status == "READY") {
+                    if (this.sampleMap[sample.id] == null) {
+                        this.sampleMap[sample.id] = true;
+                        this.push("sampleSelected", sel[i].sample);
+                    }
+                } else {
+                    alert("All selected samples must be READY! Select samples from VCF in READY status.");
+                }
+            }
+        },
+        handleToggle: function(e) {
+            if (e.currentTarget.checked) {
+                this.handleSelectAll();
+            } else {
+                this.handleDeselectAll();
+            }
+        },
+        handleSelectAll: function() {
+            var select = this.$.sampleList.querySelectorAll("input");
+            for (var i = 0; i < select.length; i++) {
+                select[i].checked = true;
+            }
+        },
+        handleDeselectAll: function() {
+            this.$.checkButton.checked = false;
+            var select = this.$.sampleList.querySelectorAll("input");
+            for (var i = 0; i < select.length; i++) {
+                select[i].checked = false;
+            }
+        },
+        handleClearSamples: function(e) {
+            this.set("sampleSelected", []);
+            this.set("sampleMap", {});
+        },
+        handleViewConnectFamily: function(e) {
+            if (this.sampleSelected.length > 0) {
+                this.$.connectFamilyPanel.hidden = false;
+            } else {
+                alert("Select at least one sample.")
+            }
+        },
+        handleSaveFamily: function() {
+            var me = this;
+            new StvDialog().prompt("Family Name: ", function(confirm, name) {
+                if (confirm) {
+                    if (me.familyListNameMap[name] == null) {
+                        me._saveFamilyList(name);
+                    } else {
+                        new StvDialog().alert("A family with the same name already exists", function() {
+                            me.handleSaveFamily();
+                        });
+                    }
+                }
+            });
+        },
+        _saveFamilyList: function(name) {
+            var me = this;
+
+            var family = this._createFamilyJson();
+            this.familyListNameMap[name] = true;
+
+            var familyObject = {
+                name: name,
+                samplesInfo: family
+            };
+            OpencgaManager.studies.info({
+                id: me.study.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                },
+                request: {
+                    success: function(response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            me.studyInfo = response.response[0].result[0];
+                            if (me.studyInfo.attributes["biertool"] == null) {
+                                me.studyInfo.attributes["biertool"] = {};
+                            }
+                            if (me.studyInfo.attributes["biertool"]["family"] == null) {
+                                me.studyInfo.attributes["biertool"]["family"] = [];
+                            }
+                            me.studyInfo.attributes["biertool"]["family"].push(familyObject);
+                            me.push('familyListUserSaved', familyObject);
+                            new StvDialog().alert("Family saved successfull.");
+                            me.$.connectFamilyPanel.hidden = true;
+                            me.updatestudyInfo();
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function() {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+        },
+        _createFamilyJson: function() {
+            var array = [];
+            var samples = this.$.familySamplesList.querySelectorAll("div.sample");
+            for (var i = 0; i < samples.length; i++) {
+                var sampleDiv = samples[i];
+                array.push({
+                    name: sampleDiv.querySelector(".nameSam").value.name,
+                    proband: sampleDiv.querySelector(".proband").checked,
+                    gender: sampleDiv.querySelector(".gender").value,
+                    father: sampleDiv.querySelector(".father").value,
+                    mother: sampleDiv.querySelector(".mother").value,
+                    id: sampleDiv.querySelector(".nameSam").value.id,
+                    source: sampleDiv.querySelector(".nameSam").value.source,
+                    status: sampleDiv.querySelector(".nameSam").value.status
+                });
+            }
+            return array;
+        },
+        updatestudyInfo: function() {
+            var me = this;
+            var url = OpencgaManager.studies.update({
+                id: me.study.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                },
+                request: {
+                    method: "POST",
+                    url: true
+                }
+            });
+            console.log(url);
+            console.log(this.studyInfo.attributes)
+            var data = {
+                'attributes': {
+                    "biertool": this.studyInfo.attributes.biertool
+                }
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onload = function(e) {
+                console.log(JSON.parse(this.response));
+            };
+            xhr.send(JSON.stringify(data));
+        },
+        handleRefreshFamilyList: function() {
+            this.familyListNameMap = {};
+            this.familyListUserSaved = []
+            var me = this;
+            OpencgaManager.studies.info({
+                id: me.study.id,
+                query: {
+                    sid: Cookies('bioinfo_sid'),
+                },
+                request: {
+                    success: function(response) {
+                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                            if (response.response[0].result[0].attributes.biertool != null && response.response[0].result[0].attributes.biertool.family != null) {
+                                var familyList = response.response[0].result[0].attributes.biertool.family;
+                                me.set('familyListUserSaved', familyList);
+                                for (var i = 0; i < familyList.length; i++) {
+                                    me.familyListNameMap[familyList[i].name] = true;
+                                }
+                            }
+                        } else {
+                            console.log(response.response[0].errorMsg);
+                        }
+                    },
+                    error: function() {
+                        console.log('Server error, try again later.');
+                    }
+                }
+            });
+        },
+        handleSelectedAttribute: function(e) {
+            var els = this.$.familyInfo.querySelectorAll("div");
+            for (var i = 0; i < els.length; i++) {
+                els[i].removeAttribute("selected", "");
+            }
+            e.currentTarget.setAttribute("selected", "");
+            this.lastFamilySelected = e.model.item;
+        },
+        _getSamplesFamName: function(samples) {
+            var array = [];
+            for (var i = 0; i < samples.length; i++) {
+                array.push(samples[i].name);
+            }
+            return array.join(",");
+        },
+        addToFamilyPreview: function(e) {
+            var sampleDiv = stv.utils.closest(e.currentTarget, "[data-id]");
+            var x=10;
+            var y=10;
+            if (e.currentTarget.checked == true) {
+                var name = sampleDiv.querySelector(".nameSam").value.name;
+                var proband = sampleDiv.querySelector(".proband").checked;
+                var gender = sampleDiv.querySelector(".gender").value;
+                var father = sampleDiv.querySelector(".father").value;
+                var mother = sampleDiv.querySelector(".mother").value;
+
+                var attributes = {};
+                var elementName = "rect";
+                attributes["style"] = "stroke:#666;fill:#666";
+                if (gender == "Female") {
+                    elementName = "circle";
+                    attributes["r"] = "12";
+                    atributes["cx"]=x;
+                    atributes["cy"]=y;
+                }else{
+                  attributes["height"] = "20";
+                  attributes["width"] = "20";
+                  atributes["x"]=x;
+                  atributes["y"]=y;
+                }
+                if (proband == true) {
+                    attributes["style"] = "stroke:#ff0000;fill:#ff0000";
+                }
+                SVG.addChild(this.$.familyPreview, elementName, attributes);
+            } else {
+
+            }
+        }
+
+    });
+</script>
