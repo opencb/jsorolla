@@ -360,7 +360,7 @@
                                 </div>
                                 <div class="columnFam" style="width:50px;">
                                     <label class="horizontal layout center jso-control">
-                                        <input type="checkbox" class="jso proband" name="add" value="" on-click="addToFamilyPreview">
+                                        <input type="checkbox" class="jso addFam" name="add" value="" on-click="addToFamilyPreview">
                                         <span></span>
                                     </label>
                                 </div>
@@ -774,36 +774,43 @@
             return array.join(",");
         },
         addToFamilyPreview: function(e) {
-            var sampleDiv = stv.utils.closest(e.currentTarget, "[data-id]");
+            // var sampleDiv = stv.utils.closest(e.currentTarget, "[data-id]");
+
+            var samples = this.$.familySamplesList.querySelectorAll("div.sample");
             var x=10;
             var y=10;
-            if (e.currentTarget.checked == true) {
-                var name = sampleDiv.querySelector(".nameSam").value.name;
-                var proband = sampleDiv.querySelector(".proband").checked;
-                var gender = sampleDiv.querySelector(".gender").value;
-                var father = sampleDiv.querySelector(".father").value;
-                var mother = sampleDiv.querySelector(".mother").value;
+            for (var i = 0; i < samples.length; i++) {
+                var sampleDiv = samples[i];
+                if (sampleDiv.querySelector(".addFam").checked == true) {
+                    var name = sampleDiv.querySelector(".nameSam").value.name;
+                    var proband = sampleDiv.querySelector(".proband").checked;
+                    var gender = sampleDiv.querySelector(".gender").value;
+                    var father = sampleDiv.querySelector(".father").value;
+                    var mother = sampleDiv.querySelector(".mother").value;
 
-                var attributes = {};
-                var elementName = "rect";
-                attributes["style"] = "stroke:#666;fill:#666";
-                if (gender == "Female") {
-                    elementName = "circle";
-                    attributes["r"] = "12";
-                    atributes["cx"]=x;
-                    atributes["cy"]=y;
-                }else{
-                  attributes["height"] = "20";
-                  attributes["width"] = "20";
-                  atributes["x"]=x;
-                  atributes["y"]=y;
-                }
-                if (proband == true) {
-                    attributes["style"] = "stroke:#ff0000;fill:#ff0000";
-                }
-                SVG.addChild(this.$.familyPreview, elementName, attributes);
-            } else {
+                    var attributes = {};
+                    var elementName = "rect";
+                    attributes["style"] = "stroke:#666;fill:#666";
+                    if (gender == "Female") {
+                        elementName = "circle";
+                        attributes["r"] = "12";
+                        attributes["cx"] = x;
+                        attributes["cy"] = y;
+                    } else {
+                        attributes["height"] = "20";
+                        attributes["width"] = "20";
+                        attributes["x"] = x;
+                        attributes["y"] = y;
+                    }
+                    if (proband == true) {
+                        attributes["style"] = "stroke:#ff0000;fill:#ff0000";
+                    }
+                    SVG.addChild(this.$.familyPreview, elementName, attributes);
+                } else {
 
+                }
+                x+=20;
+                y+=20;
             }
         }
 
