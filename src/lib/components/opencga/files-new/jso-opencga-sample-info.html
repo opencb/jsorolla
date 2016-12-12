@@ -151,7 +151,7 @@
 
         #connectFamilyPanel {
             height: 500px;
-            width: 850px;
+            width: 1000px;
         }
 
         #connectFamilyPanel .container {
@@ -176,13 +176,13 @@
         }
 
         .preview {
-            width: 30%;
+            width: 40%;
             height: 90%;
             margin-left: 15px;
         }
 
         .tableSample {
-            width: 60%;
+            /*width: 60%;*/
             height: 100%;
         }
 
@@ -205,6 +205,45 @@
         #familyInfo >div:hover {
             border: 1px solid #ccc;
             background: #ccc;
+        }
+
+        svg {
+            font: 10px sans-serif;
+        }
+
+        .linage {
+            fill: none;
+            stroke: #000;
+        }
+
+        .marriage {
+            fill: none;
+            stroke: black;
+        }
+
+        .man {
+            border: 1px solid black;
+            background-color: white;
+        }
+
+        .woman {
+            border: 1px solid black;
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .emphasis {
+            font-style: italic;
+        }
+
+        p {
+            padding: 0;
+            margin: 0;
+        }
+
+        .proband {
+            background-color: black;
+            color: white;
         }
     </style>
     <template>
@@ -360,7 +399,7 @@
                                 </div>
                                 <div class="columnFam" style="width:50px;">
                                     <label class="horizontal layout center jso-control">
-                                        <input type="checkbox" class="jso proband" name="add" value="" on-click="addToFamilyPreview">
+                                        <input type="checkbox" class="jso addFam" name="add" value="" on-click="addToFamilyPreview">
                                         <span></span>
                                     </label>
                                 </div>
@@ -370,13 +409,11 @@
                 </div>
                 <div class="preview">
                     <div class="" style="border: 1px solid grey; height:95%">
-                        <svg id="familyPreview" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <!-- <rect x="10" y="10" height="20" width="20" style="stroke:grey; fill: grey" />
-                            <circle cx="40" cy="40" r="12" style="stroke:grey; fill: grey" />
-                            <line x1="0" y1="10" x2="100" y2="10" style="stroke:grey;" /> -->
-                        </svg>
+                        <div id="familyPreview"></div>
                     </div>
                     <div class="horizontal layout center end-justified" style="margin-top:5px;">
+                        <!-- <div id="familySaveButton" class="jso-btn jso-btn-shdw" on-click="_createFamilyMap" title="Save Family"> View Family
+                        </div> -->
                         <div id="familySaveButton" class="jso-btn jso-btn-shdw" on-click="handleSaveFamily" title="Save Family"> Save Family
                         </div>
                     </div>
@@ -462,7 +499,14 @@
             },
             lastFamilySelected: {
                 type: Object
+            },
+            familyMap: {
+                type: Array,
+                observer: 'familyMapChanged'
             }
+        },
+        ready: function() {
+            this.scopeSubtree(this.$.familyPreview, true);
         },
         handleOptions: function(e) {
             this.option = e.target.dataset.value;
@@ -646,59 +690,165 @@
             var me = this;
 
             var family = this._createFamilyJson();
-            this.familyListNameMap[name] = true;
 
-            var familyObject = {
-                name: name,
-                samplesInfo: family
-            };
-            OpencgaManager.studies.info({
-                id: me.study.id,
-                query: {
-                    sid: Cookies('bioinfo_sid'),
-                },
-                request: {
-                    success: function(response) {
-                        if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
-                            me.studyInfo = response.response[0].result[0];
-                            if (me.studyInfo.attributes["biertool"] == null) {
-                                me.studyInfo.attributes["biertool"] = {};
-                            }
-                            if (me.studyInfo.attributes["biertool"]["family"] == null) {
-                                me.studyInfo.attributes["biertool"]["family"] = [];
-                            }
-                            me.studyInfo.attributes["biertool"]["family"].push(familyObject);
-                            me.push('familyListUserSaved', familyObject);
-                            new StvDialog().alert("Family saved successfull.");
-                            me.$.connectFamilyPanel.hidden = true;
-                            me.updatestudyInfo();
-                        } else {
-                            console.log(response.response[0].errorMsg);
-                        }
+            if (family != null) {
+                this.familyListNameMap[name] = true;
+
+                var familyObject = {
+                    name: name,
+                    samplesInfo: family
+                };
+                OpencgaManager.studies.info({
+                    id: me.study.id,
+                    query: {
+                        sid: Cookies('bioinfo_sid'),
                     },
-                    error: function() {
-                        console.log('Server error, try again later.');
+                    request: {
+                        success: function(response) {
+                            if (response.response[0].errorMsg === '' || response.response[0].errorMsg == null) {
+                                me.studyInfo = response.response[0].result[0];
+                                if (me.studyInfo.attributes["biertool"] == null) {
+                                    me.studyInfo.attributes["biertool"] = {};
+                                }
+                                if (me.studyInfo.attributes["biertool"]["family"] == null) {
+                                    me.studyInfo.attributes["biertool"]["family"] = [];
+                                }
+                                me.studyInfo.attributes["biertool"]["family"].push(familyObject);
+                                me.push('familyListUserSaved', familyObject);
+                                new StvDialog().alert("Family saved successfull.");
+                                me.$.connectFamilyPanel.hidden = true;
+                                me.updatestudyInfo();
+                            } else {
+                                console.log(response.response[0].errorMsg);
+                            }
+                        },
+                        error: function() {
+                            console.log('Server error, try again later.');
+                        }
                     }
-                }
-            });
+                });
+            }
         },
         _createFamilyJson: function() {
             var array = [];
             var samples = this.$.familySamplesList.querySelectorAll("div.sample");
             for (var i = 0; i < samples.length; i++) {
                 var sampleDiv = samples[i];
-                array.push({
-                    name: sampleDiv.querySelector(".nameSam").value.name,
-                    proband: sampleDiv.querySelector(".proband").checked,
-                    gender: sampleDiv.querySelector(".gender").value,
-                    father: sampleDiv.querySelector(".father").value,
-                    mother: sampleDiv.querySelector(".mother").value,
-                    id: sampleDiv.querySelector(".nameSam").value.id,
-                    source: sampleDiv.querySelector(".nameSam").value.source,
-                    status: sampleDiv.querySelector(".nameSam").value.status
-                });
+                if (sampleDiv.querySelector(".addFam").checked == true) {
+                    array.push({
+                        name: sampleDiv.querySelector(".nameSam").value.name,
+                        proband: sampleDiv.querySelector(".proband").checked,
+                        gender: sampleDiv.querySelector(".gender").value,
+                        father: sampleDiv.querySelector(".father").value,
+                        mother: sampleDiv.querySelector(".mother").value,
+                        id: sampleDiv.querySelector(".nameSam").value.id,
+                        source: sampleDiv.querySelector(".nameSam").value.source,
+                        status: sampleDiv.querySelector(".nameSam").value.status
+                    });
+                }
             }
             return array;
+            // if (samples.length != array.length) {
+            //     new StvDialog().confirm("Warning: There are samples without add, continue?", function(response) {
+            //         if (response) {
+            //             return array;
+            //         } else {
+            //             return null;
+            //         }
+            //     });
+            // }
+
+        },
+        _createFamilyMap: function() {
+            var family = this._createFamilyJson();
+            var familyMap = {};
+            var familyArray = [];
+            var spouse = {};
+            var children = [];
+            for (var i = 0; i < family.length; i++) {
+                var member = family[i];
+                if (member.mother == "-" && member.father == "-") {
+                    if (member.gender == "Male") {
+                        var cl = "man";
+                        if (member.proband == true) {
+                            cl = "man proband";
+                        }
+                        familyMap = {
+                            name: member.name,
+                            class: cl,
+                            marriages: []
+                        };
+                    } else {
+                        var cl = "woman";
+                        if (member.proband == true) {
+                            cl = "woman proband";
+                        }
+                        spouse = {
+                            name: member.name,
+                            class: cl
+                        }
+                    }
+                } else if (member.mother != "-" || member.father != "-") {
+                    var cl = "";
+                    if (member.proband == true) {
+                        cl = "proband";
+                    }
+                    var gender = "man";
+                    if (member.gender == "Female") {
+                        gender = "woman";
+                    }
+                    var child = {
+                        name: member.name,
+                        class: gender + " " + cl,
+                    }
+                    children.push(child);
+                }
+            }
+            if (familyMap.marriages != null) {
+                familyMap.marriages.push({
+                    'spouse': spouse,
+                    'children': children
+                });
+                familyArray.push(familyMap);
+            } else if (spouse.name != null) {
+                familyMap = spouse;
+                familyMap["marriages"] = [];
+                familyMap["marriages"].push({
+                    'spouse': {},
+                    'children': children
+                });
+                familyArray.push(familyMap);
+            } else if (children.length > 0) {
+                familyArray = children;
+            }
+            this.set('familyMap',familyArray);
+        },
+        familyMapChanged: function(neo, old) {
+            if (neo) {
+                if (this.$.familyPreview.firstElementChild != null) {
+                    this.$.familyPreview.removeChild(this.$.familyPreview.firstElementChild);
+                }
+
+                dTree.init(neo, {
+                    target: this.$.familyPreview,
+                    debug: false,
+                    width: 350,
+                    height: 350,
+                    margin: {
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    },
+                    nodeWidth: 100,
+                    styles: {
+                        node: 'node',
+                        linage: 'linage',
+                        marriage: 'marriage',
+                        text: 'nodeText'
+                    }
+                });
+            }
         },
         updatestudyInfo: function() {
             var me = this;
@@ -773,38 +923,48 @@
             }
             return array.join(",");
         },
+        // addToFamilyPreview: function(e) {
+        //     // var sampleDiv = stv.utils.closest(e.currentTarget, "[data-id]");
+        //
+        //     var samples = this.$.familySamplesList.querySelectorAll("div.sample");
+        //     var x = 10;
+        //     var y = 10;
+        //     for (var i = 0; i < samples.length; i++) {
+        //         var sampleDiv = samples[i];
+        //         if (sampleDiv.querySelector(".addFam").checked == true) {
+        //             var name = sampleDiv.querySelector(".nameSam").value.name;
+        //             var proband = sampleDiv.querySelector(".proband").checked;
+        //             var gender = sampleDiv.querySelector(".gender").value;
+        //             var father = sampleDiv.querySelector(".father").value;
+        //             var mother = sampleDiv.querySelector(".mother").value;
+        //
+        //             var attributes = {};
+        //             var elementName = "rect";
+        //             attributes["style"] = "stroke:#666;fill:#666";
+        //             if (gender == "Female") {
+        //                 elementName = "circle";
+        //                 attributes["r"] = "12";
+        //                 attributes["cx"] = x;
+        //                 attributes["cy"] = y;
+        //             } else {
+        //                 attributes["height"] = "20";
+        //                 attributes["width"] = "20";
+        //                 attributes["x"] = x;
+        //                 attributes["y"] = y;
+        //             }
+        //             if (proband == true) {
+        //                 attributes["style"] = "stroke:#ff0000;fill:#ff0000";
+        //             }
+        //             SVG.addChild(this.$.familyPreview, elementName, attributes);
+        //         } else {
+        //
+        //         }
+        //         x += 20;
+        //         y += 20;
+        //     }
+        // }
         addToFamilyPreview: function(e) {
-            var sampleDiv = stv.utils.closest(e.currentTarget, "[data-id]");
-            var x=10;
-            var y=10;
-            if (e.currentTarget.checked == true) {
-                var name = sampleDiv.querySelector(".nameSam").value.name;
-                var proband = sampleDiv.querySelector(".proband").checked;
-                var gender = sampleDiv.querySelector(".gender").value;
-                var father = sampleDiv.querySelector(".father").value;
-                var mother = sampleDiv.querySelector(".mother").value;
-
-                var attributes = {};
-                var elementName = "rect";
-                attributes["style"] = "stroke:#666;fill:#666";
-                if (gender == "Female") {
-                    elementName = "circle";
-                    attributes["r"] = "12";
-                    atributes["cx"]=x;
-                    atributes["cy"]=y;
-                }else{
-                  attributes["height"] = "20";
-                  attributes["width"] = "20";
-                  atributes["x"]=x;
-                  atributes["y"]=y;
-                }
-                if (proband == true) {
-                    attributes["style"] = "stroke:#ff0000;fill:#ff0000";
-                }
-                SVG.addChild(this.$.familyPreview, elementName, attributes);
-            } else {
-
-            }
+            this._createFamilyMap();
         }
 
     });
