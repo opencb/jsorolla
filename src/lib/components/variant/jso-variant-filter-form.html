@@ -251,7 +251,7 @@
                     </div>
                 </jso-tooltip>
                 <div class="jso-btn jso-btn-shdw flex butstyle" on-click="clearForm">Clear</div>
-                <div class="jso-btn jso-btn-shdw flex butstyle" on-click="submitForm">Search</div>
+                <div class="jso-btn jso-btn-shdw flex butstyle" on-click="handleSubmitClick">Search</div>
             </div>
             <jso-form-box collapsible id="segregationForm">
                 <div class="header">
@@ -894,7 +894,13 @@
             /* Consequence Types */
             this.$.filterCT.clear();
         },
-        submitForm: function() {
+        handleSubmitClick: function() {
+            var me = this;
+            this.$.filterPosition.checkGene(function(geneQuery) {
+                me.submitForm(geneQuery);
+            });
+        },
+        submitForm: function(geneQuery) {
             var query = {};
 
             // Region
@@ -1404,7 +1410,7 @@
             this.clearForm();
             this.loadForm(e.currentTarget.dataFilter);
             this.$.filterHistoryTooltip.handleClose(e);
-            this.submitForm();
+            this.handleSubmitClick();
 
         },
         clearFiltersHistory: function(e) {
