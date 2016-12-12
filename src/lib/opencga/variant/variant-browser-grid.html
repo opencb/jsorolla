@@ -48,6 +48,10 @@
                 opencgaClient: {
                     type: Object
                 },
+                cellbaseClient: {
+                    type: Object,
+                    observer: 'renderFromServer'
+                },
                 samples: {
                     type: Array,
                     value: [],
@@ -127,7 +131,7 @@
             },
             renderFromServer: function () {
                 let _this = this;
-                if (this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
+                if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
 
                     if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
                         this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
@@ -192,6 +196,36 @@
 //                        }
                     });
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
+                } else if (this.cellbaseClient instanceof CellBaseClient) {
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
+                    let _numTotal = -1;
+
+                    let url = 'http://' + this.cellbaseClient._config.hosts[0] + '/webservices/rest/v4/hsapiens/feature/variation/search';
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
+                        url: url,
+                        method: 'get',
+                        sidePagination: 'server',
+                        queryParams: function (params) {
+                            return {
+                                limit: params.limit,
+                                skip: params.offset
+                            };
+                        },
+                        responseHandler: function (res) {
+                            if (_numTotal == -1) {
+                                _numTotal = res.response[0].numTotalResults;
+                                _this.count = _numTotal;
+                            }
+                            return {total: _numTotal, rows: res.response[0].result}
+                        },
+                        columns: _this.cols,
+                        onClickRow: function (row, $element) {
+                            _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                            $('.success').removeClass('success');
+                            $($element).addClass('success');
+                        }
+                    });
+                    $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('showLoading');
                 }
             },
             renderFromLocal: function () {
@@ -224,8 +258,12 @@
                         for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                             if (typeof row.annotation.consequenceTypes[i].geneName !== "undefined" && row.annotation.consequenceTypes[i].geneName != ""
                                     && typeof visited[row.annotation.consequenceTypes[i].geneName] === "undefined") {
-                                geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project +'/' +
+                                if (typeof this.field.context.project !== "undefined" && typeof this.field.context.study !== "undefined") {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap" href="#gene/' + this.field.context.project +'/' +
                                         this.field.context.study.alias + '/' + row.annotation.consequenceTypes[i].geneName + '">' + row.annotation.consequenceTypes[i].geneName + '</a>');
+                                } else {
+                                    geneLinks.push('<a style="cursor: pointer;white-space: nowrap">' + row.annotation.consequenceTypes[i].geneName + '</a>')
+                                }
                                 visited[row.annotation.consequenceTypes[i].geneName] = true;
                             }
                         }
