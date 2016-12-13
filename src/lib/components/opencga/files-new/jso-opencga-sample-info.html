@@ -15,6 +15,7 @@
             height: calc(100% - 59px);
             /*height: 145px;*/
             border: 1px solid #ddd;
+            /*width: 232px;*/
         }
 
         #sampleSelectedList {
@@ -26,7 +27,7 @@
         }
 
         .sam {
-            width: 50%;
+            width: 48%;
             padding: 5px;
         }
 
@@ -266,7 +267,7 @@
                                 <div class="flex fileName">{{fileName}}</div>
                             </div>
                             <div class="horizontal layout center" style="height:100%">
-                                <div class="flex" style="width:100%;height:100%">
+                                <div class="" style="width:calc(100% - 25px);height:100%">
                                     <div class="horizontal layout center">
                                         <label class="jso-control horizontal layout check">
                                             <input id="checkButton" class="jso" type="checkbox" on-change="handleToggle">
@@ -279,7 +280,7 @@
                                             <label class="horizontal layout center jso-control">
                                                 <input class="jso" type="checkbox" sample="{{item}}">
                                                 <span>{{item.name}}</span>(
-                                                <span>{{item.source}}</span>)
+                                                <span style="margin-left:5px;" class="nameSam" title="{{item.source}}">{{item.source}}</span>)
                                             </label>
                                         </template>
                                     </div>
@@ -301,7 +302,7 @@
                                     <div class="horizontal layout center jso-control" style="margin-top:2px;">
                                         <i style="margin-left:5px;" class="fa fa-times" sample="{{item.id}}" on-click="handleRemoveSample" title="Remove sample in selected sample list"></i>&nbsp;
                                         <span style="margin-left:5px;">{{item.name}}</span>&nbsp;(
-                                        <span style="margin-left:5px;">{{item.source}}</span>)
+                                        <span style="margin-left:5px;" class="nameSam" title="{{item.source}}">{{item.source}}</span>)
                                     </div>
                                 </template>
                             </div>
@@ -688,8 +689,7 @@
         },
         _saveFamilyList: function(name) {
             var me = this;
-
-            var family = this._createFamilyJson();
+            var family = this._createFamilySimpleJson();
 
             if (family != null) {
                 this.familyListNameMap[name] = true;
@@ -729,13 +729,13 @@
                 });
             }
         },
-        _createFamilyJson: function() {
-            var array = [];
+        _createFamilySimpleJson: function() {
+            var array = []
             var samples = this.$.familySamplesList.querySelectorAll("div.sample");
             for (var i = 0; i < samples.length; i++) {
                 var sampleDiv = samples[i];
                 if (sampleDiv.querySelector(".addFam").checked == true) {
-                    array.push({
+                    var elem = {
                         name: sampleDiv.querySelector(".nameSam").value.name,
                         proband: sampleDiv.querySelector(".proband").checked,
                         gender: sampleDiv.querySelector(".gender").value,
@@ -744,96 +744,111 @@
                         id: sampleDiv.querySelector(".nameSam").value.id,
                         source: sampleDiv.querySelector(".nameSam").value.source,
                         status: sampleDiv.querySelector(".nameSam").value.status
-                    });
+                    };
+                    array.push(elem);
                 }
             }
             return array;
-            // if (samples.length != array.length) {
-            //     new StvDialog().confirm("Warning: There are samples without add, continue?", function(response) {
-            //         if (response) {
-            //             return array;
-            //         } else {
-            //             return null;
-            //         }
-            //     });
-            // }
+        },
+        _createFamilyJson: function() {
+            var hash = {};
+            var samples = this.$.familySamplesList.querySelectorAll("div.sample");
+            for (var i = 0; i < samples.length; i++) {
+                var sampleDiv = samples[i];
+                if (sampleDiv.querySelector(".addFam").checked == true) {
+                    var elem = {
+                        name: sampleDiv.querySelector(".nameSam").value.name,
+                        proband: sampleDiv.querySelector(".proband").checked,
+                        gender: sampleDiv.querySelector(".gender").value,
+                        father: sampleDiv.querySelector(".father").value,
+                        mother: sampleDiv.querySelector(".mother").value,
+                        id: sampleDiv.querySelector(".nameSam").value.id,
+                        source: sampleDiv.querySelector(".nameSam").value.source,
+                        status: sampleDiv.querySelector(".nameSam").value.status,
+                        marriages: []
+                    };
+                    var cl = "man"
+                    if (elem.gender == "Female") {
+                        cl = "woman";
+                    }
+                    if (elem.proband == true) {
+                        cl = cl + " " + "proband";
+                    }
+                    elem["class"] = cl;
+                    hash[elem.name] = elem;
+                }
+            }
+
+            // Manage marriages
+            for (var key in hash) {
+                var elem = hash[key];
+                var f = elem.father;
+                var m = elem.mother;
+
+                if (f in hash) {
+                    if (m in hash) {
+                        hash[f] = this._addMarriage(hash[f], elem, hash[m]);
+                    }
+                }
+                if (m in hash) {
+                    if (f in hash) {
+                        hash[m] = this._addMarriage(hash[m], elem, hash[f]);
+                    }
+                }
+            }
+            return hash;
+        },
+        _addMarriage: function(father, child, mother) {
+            if (father.marriages.length == 0) {
+                father.marriages.push({
+                    'spouse': mother,
+                    'children': []
+                });
+            }
+            for (var i = 0; i < father.marriages.length; i++) {
+                if (father.marriages[i].spouse.name == mother.name) {
+                    father.marriages[i].children.push(child);
+                }
+            }
+
+            return father;
 
         },
         _createFamilyMap: function() {
             var family = this._createFamilyJson();
-            var familyMap = {};
             var familyArray = [];
-            var spouse = {};
-            var children = [];
-            for (var i = 0; i < family.length; i++) {
-                var member = family[i];
-                if (member.mother == "-" && member.father == "-") {
-                    if (member.gender == "Male") {
-                        var cl = "man";
-                        if (member.proband == true) {
-                            cl = "man proband";
-                        }
-                        familyMap = {
-                            name: member.name,
-                            class: cl,
-                            marriages: []
-                        };
-                    } else {
-                        var cl = "woman";
-                        if (member.proband == true) {
-                            cl = "woman proband";
-                        }
-                        spouse = {
-                            name: member.name,
-                            class: cl
+            for (var key in family) {
+                var elem = family[key];
+                if ((elem.father == "-" || elem.mother == "-")) {
+                    var flag = false;
+                    for (var i = 0; i < familyArray.length; i++) {
+                        var m = familyArray[i].marriages;
+                        for (var j = 0; j < m.length; j++) {
+                            if (m[j].spouse.name == elem.name) {
+                                flag = true;
+                            }
                         }
                     }
-                } else if (member.mother != "-" || member.father != "-") {
-                    var cl = "";
-                    if (member.proband == true) {
-                        cl = "proband";
+                    if (flag == false) {
+                        familyArray.push(elem);
                     }
-                    var gender = "man";
-                    if (member.gender == "Female") {
-                        gender = "woman";
-                    }
-                    var child = {
-                        name: member.name,
-                        class: gender + " " + cl,
-                    }
-                    children.push(child);
                 }
             }
-            if (familyMap.marriages != null) {
-                familyMap.marriages.push({
-                    'spouse': spouse,
-                    'children': children
-                });
-                familyArray.push(familyMap);
-            } else if (spouse.name != null) {
-                familyMap = spouse;
-                familyMap["marriages"] = [];
-                familyMap["marriages"].push({
-                    'spouse': {},
-                    'children': children
-                });
-                familyArray.push(familyMap);
-            } else if (children.length > 0) {
-                familyArray = children;
-            }
-            this.set('familyMap',familyArray);
+            this.set('familyMap', familyArray);
         },
         familyMapChanged: function(neo, old) {
             if (neo) {
                 if (this.$.familyPreview.firstElementChild != null) {
                     this.$.familyPreview.removeChild(this.$.familyPreview.firstElementChild);
                 }
+                var arrayAux = [];
+                arrayAux.push(neo[0]);
 
                 dTree.init(neo, {
                     target: this.$.familyPreview,
                     debug: false,
-                    width: 350,
-                    height: 350,
+                    width: 385,
+                    height: 395,
                     margin: {
                         top: 0,
                         right: 0,
