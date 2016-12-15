@@ -327,15 +327,14 @@
                                     <option value="none" selected>None</option>
                                     <option value="tolerated">Tolerated</option>
                                     <option value="deleterious">Deleterious</option>
-                                    <option value="score">Score...</option>
                                 </select>
-                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters" disabled>
+                                <select name="siftOperator" id="{{prefix}}SiftOperator" on-change="updateQueryFilters">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters" disabled>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
                             </div>
                             <div>
                                 <label>Polyphen</label><br>
@@ -346,15 +345,14 @@
                                     <option value="possibly damaging">Possibly damaging</option>
                                     <option value="probably damaging">Probably damaging</option>
                                     <option value="possibly damaging,probably damaging">Possibly & Probably damaging</option>
-                                    <option value="score">Score...</option>
                                 </select>
-                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters" disabled>
+                                <select name="polyphenOperator" id="{{prefix}}PolyphenOperator" on-change="updateQueryFilters">
                                     <option value="<" selected><</option>
                                     <option value="<="><=</option>
                                     <option value=">">></option>
                                     <option value=">=">>=</option>
                                 </select>
-                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters" disabled>
+                                <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
                             </div>
                         </div>
                     </div>
@@ -632,7 +630,7 @@
                 this.updateQueryFilters();
             },
             checkScore: function (e) {
-                if (e.target.value == "score") {
+                if (e.target.value == "none") {
                     $("#" + this.prefix + e.target.name +"Input").prop("disabled", false);
                     $("#" + this.prefix + e.target.name +"Operator").prop("disabled", false);
                 } else {
@@ -710,7 +708,7 @@
                 if (typeof query.sift !== "undefined") {
                     if (query.sift.startsWith("<") || query.sift.startsWith(">")) {
                         this.$$("#" + this.prefix + "SiftInput").value = query.sift.split(/[<=>]+/)[1];
-                        this.$$("#" + this.prefix + "SiftValues").value = "score";
+                        this.$$("#" + this.prefix + "SiftValues").value = "none";
                         this.$$("#" + this.prefix + "SiftOperator").value = query.sift.split(/[0-9.]+/)[0];
                     } else {
                         this.$$("#" + this.prefix + "SiftValues").value = query.sift;
@@ -723,15 +721,15 @@
                     this.$$("#" + this.prefix + "SiftOperator").value = "<";
                     this.$$("#" + this.prefix + "SiftValues").value = "none";
                     this.$$("#" + this.prefix + "SiftInput").value = "";
-                    this.$$("#" + this.prefix + "SiftInput").disabled = true;
-                    this.$$("#" + this.prefix + "SiftOperator").disabled = true;
+                    this.$$("#" + this.prefix + "SiftInput").disabled = false;
+                    this.$$("#" + this.prefix + "SiftOperator").disabled = false;
                 }
 
                 // Polyphen
                 if (typeof query.polyphen !== "undefined") {
                     if (query.polyphen.startsWith("<") || query.polyphen.startsWith(">")) {
                         this.$$("#" + this.prefix + "PolyphenInput").value = query.polyphen.split(/[<=>]+/)[1];
-                        this.$$("#" + this.prefix + "PolyphenValues").value = "score";
+                        this.$$("#" + this.prefix + "PolyphenValues").value = "none";
                         this.$$("#" + this.prefix + "PolyphenOperator").value = query.polyphen.split(/[0-9.]+/)[0];
                     } else {
                         this.$$("#" + this.prefix + "PolyphenValues").value = query.polyphen;
@@ -744,8 +742,8 @@
                     this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
                     this.$$("#" + this.prefix + "PolyphenValues").value = "none";
                     this.$$("#" + this.prefix + "PolyphenInput").value = "";
-                    this.$$("#" + this.prefix + "PolyphenInput").disabled = true;
-                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = true;
+                    this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
+                    this.$$("#" + this.prefix + "PolyphenOperator").disabled = false;
                 }
 
                 // Conservation
@@ -875,20 +873,17 @@
                 if (popFreq.length > 0) {
                     _filters["annot-population-maf"] = popFreq.join(';');
                 }
+
                 // Protein Substitution scores
-                if (this.$$("#" + this.prefix + "SiftValues").value != "none") {
-                    if (this.$$("#" + this.prefix + "SiftValues").value == "score") {
-                        _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
-                    } else {
-                        _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
-                    }
+                if (this.$$("#" + this.prefix + "SiftValues").value == "none" && this.$$("#" + this.prefix + "SiftInput").value != "") {
+                    _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
+                } else if (this.$$("#" + this.prefix + "SiftValues").value != "none") {
+                    _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
                 }
-                if (this.$$("#" + this.prefix + "PolyphenValues").value != "none") {
-                    if (this.$$("#" + this.prefix + "PolyphenValues").value == "score") {
-                        _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
-                    } else {
-                        _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
-                    }
+                if (this.$$("#" + this.prefix + "PolyphenValues").value == "none" && this.$$("#" + this.prefix + "PolyphenInput").value != "") {
+                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
+                } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "none") {
+                    _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
                 }
 
                 // Conservation
