@@ -126,7 +126,6 @@
             },
             fireSelectStudy: function (e) {
                 e.preventDefault();
-//                this.fire('study', {studyName: e.target.innerHTML, studyId: e.target.dataId, project: e.target.dataProject});
                 let study = e.target.dataStudy;
                 delete study._project;
                 this.fire('study', {study: study, project: e.target.dataProject});
