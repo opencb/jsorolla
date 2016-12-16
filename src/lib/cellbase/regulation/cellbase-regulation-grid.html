@@ -3,7 +3,10 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
 
-        <div style="padding: 10px; ">
+        <div hidden$="{{!checkUrl(url)}}">
+            <h3>Please provide a region</h3>
+        </div>
+        <div style="padding: 10px;" hidden$="{{checkUrl(url)}}">
             <table id="{{prefix}}RegulationTable" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                    data-show-pagination-switch="true" data-show-export="true">
                 <thead style="background-color: #eee"></thead>
@@ -77,6 +80,9 @@
                         }
                     ]
                 ]
+            },
+            checkUrl: function (url) {
+                return this.url == "";
             },
             renderFromServer: function () {
                 let _this = this;

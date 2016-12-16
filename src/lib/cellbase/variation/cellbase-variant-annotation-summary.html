@@ -22,8 +22,40 @@
 
         <div>
             <div class="block">
-                <label class="align-left">Consequence Type</label>
+                <label class="align-left">ID</label>
+                <div class="align-right">{{data.id}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">Alleles</label>
+                <div class="align-right">{{data.reference}}/{{data.alternate}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">Location</label>
+                <div class="align-right">{{data.chromosome}}:{{data.start}}-{{data.end}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">Type</label>
+                <div class="align-right">{{data.type}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">Most Severe Consequence Type</label>
                 <div class="align-right">{{data.displayConsequenceType}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">HGVS</label>
+                <div class="align-right">
+                    <template is="dom-repeat" items="{{data.hgvs}}">
+                        {{item}}<br>
+                    </template>
+                </div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">Ancestral Allele</label>
+                <div class="align-right">{{data.ancestralAllele}}</div> <br>
+            </div>
+            <div class="block">
+                <label class="align-left">MAF</label>
+                <div class="align-right">{{data.minorAlleleFreq}} ({{data.minorAllele}})</div> <br>
             </div>
             <!--<div class="block">-->
                 <!--<label class="align-left">Population Frequency</label>-->

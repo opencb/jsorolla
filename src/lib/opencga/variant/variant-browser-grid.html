@@ -232,7 +232,12 @@
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                     data: this.data,
-                    columns: this.cols
+                    columns: this.cols,
+                    onClickRow: function (row, $element) {
+                        _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+                        $('.success').removeClass('success');
+                        $($element).addClass('success');
+                    }
                 });
             },
             showGene: function(geneName) {
