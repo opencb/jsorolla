@@ -177,7 +177,12 @@ class OpenCGAParentClass {
     }
 
     _createRestUrl(host, version, category1, ids1, category2, ids2, action) {
-        let url = "http://" + host + "/webservices/rest/" + version + "/" + category1 + "/";
+        let url;
+        if (host.startsWith("https://")) {
+            url = host + "/webservices/rest/" + version + "/" + category1 + "/";
+        } else {
+            url = "http://" + host + "/webservices/rest/" + version + "/" + category1 + "/";
+        }
 
         // Some web services do not need IDs
         if (typeof ids1 != "undefined" && ids1 != null) {

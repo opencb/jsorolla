@@ -133,8 +133,16 @@
                 let _this = this;
                 if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
 
-                    if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
-                        this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
+                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+                        this._url = this.opencgaClient.getConfig().host;
+                    } else {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host;
+                    }
+
+                    if (typeof _this.query !== "undefined" && typeof _this.query.studies !== "undefined" && _this.query.studies != "") {
+                        this._url = this._url + '/webservices/rest/v1/analysis/variant/query';
+                    } else if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+                        this._url = this._url + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
                     } else {
                         return;
                     }
@@ -149,7 +157,7 @@
                     if (typeof this.samples !== "undefined" && this.samples.length > 0) {
                         let sampleNames = [];
                         for (sampleIdx in this.samples) {
-                            sampleNames.push(this.samples[sampleIdx].name)
+                            sampleNames.push(this.samples[sampleIdx].name);
                         }
                         queryParams.returnedSamples = sampleNames.join();
                     } else {

@@ -164,7 +164,14 @@
 
                 let _this = this;
                 if (this.opencgaClient instanceof OpenCGAClient && this.studyId > 0) {
-                    this._url = 'http://' + this.opencgaClient.getConfig().host + '/webservices/rest/v1/samples/search';
+
+                    if (this.opencgaClient.getConfig().host.startsWith("https://")) {
+                        this._url = this.opencgaClient.getConfig().host;
+                    } else {
+                        this._url = 'http://' + this.opencgaClient.getConfig().host;
+                    }
+
+                    this._url = this._url + '/webservices/rest/v1/samples/search';
 
                     $('#samplestable').bootstrapTable('destroy');
                     $('#samplestable').bootstrapTable({
