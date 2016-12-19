@@ -42,29 +42,31 @@
                     </template>
                 </span>
 
-                <span style="float: right">
-                    <form class="form-inline">
-                        <span class="form-group">
-                            <label for="filtersList">Load filter &nbsp; </label>
-                            <select class="form-control" name="filters" id="filtersList" on-change="onFilterChange">
-                                <option>None</option>
-                                <template is="dom-repeat" items="{{filters}}">
-                                    <option>{{item.name}}</option>
-                                </template>
-                            </select>
-                        </span>
+                <template is="dom-if" if="{{checkSid(opencgaClient)}}">
+                    <span style="float: right">
+                        <form class="form-inline">
+                            <span class="form-group">
+                                <label for="filtersList">Load filter &nbsp; </label>
+                                <select class="form-control" name="filters" id="filtersList" on-change="onFilterChange">
+                                    <option>None</option>
+                                    <template is="dom-repeat" items="{{filters}}">
+                                        <option>{{item.name}}</option>
+                                    </template>
+                                </select>
+                            </span>
 
                         <!--<button type="button" class="btn btn-primary" on-click="save">-->
                         <!--<i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>-->
                         <!--Save...-->
                         <!--</button>-->
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveModal">
-                            <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
-                            Save...
-                        </button>
-                    </form>
-                </span>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveModal">
+                                <i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i>
+                                Save...
+                            </button>
+                        </form>
+                    </span>
+                </template>
             </div>
         </div>
 
@@ -141,6 +143,9 @@
                 this.query = {};
                 this.search = this.query;
                 this.$.filtersList.value = "None";
+            },
+            checkSid: function (opencgaClient) {
+                return typeof opencgaClient._config.sessionId !== "undefined" && opencgaClient._config.sessionId != "";
             },
             checkFilters: function (config) {
                 let _this = this;
