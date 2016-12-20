@@ -200,15 +200,15 @@
                         </div>
                         <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                             <div class="panel-body">
-                                <select class="form-control" id="includeOtherStudy" style="width: 50%;">
-                                    <option selected>None</option>
-                                    <option>In</option>
-                                    <option>Not In</option>
-                                    <option>At least</option>
+                                <select class="form-control" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
+                                    <option value="none" selected>None</option>
+                                    <option value="in">In</option>
+                                    <option value="not in">Not In</option>
+                                    <option value="atleast">At least</option>
                                 </select>
-                                <div>
+                                <div id="differentStudies">
                                     <template is="dom-repeat" items="{{studies}}" filter="isDifferentStudy">
-                                        <input type="checkbox" value="{{item.alias}}"> {{item.alias}}<br>
+                                        <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters"> {{item.alias}}<br>
                                     </template>
                                 </div>
                             </div>
@@ -478,7 +478,7 @@
                     <div class="panel-heading" role="tab" id="{{prefix}}CaddFilterHeading">
                         <h4 class="panel-title">
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion" href="#{{prefix}}CaddFilter" aria-expanded="false" aria-controls="{{prefix}}CaddFilter">
-                                Cadd
+                                CADD
                             </a>
                         </h4>
                     </div>
@@ -647,6 +647,17 @@
             },
             setQueryFilters: function (query) {
                 let _this = this;
+
+                // Studies
+                if (typeof query.studies === "undefined") {
+                    if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
+                        this.$$("#includeOtherStudy").value = "none";
+                        let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
+                        for (let i = 0; i < checkBoxes.length; i++) {
+                            checkBoxes[i].checked = false;
+                        }
+                    }
+                }
 
                 // Position and  Gene or Variant Ids
                 this.$$("#" + this.prefix + "LocationTextarea").value = typeof query.region !== "undefined"? query.region : "";
@@ -830,10 +841,39 @@
                     _filters.genotype = this.sampleGenotypes;
                 }
 
-                // Region
-                if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
-                    _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                // Studies
+                if (this.$$("#includeOtherStudy").value != "none") {
+                    let studies = this.$$("#differentStudies").querySelectorAll("input:checked");
+                    let ids = [];
+                    if (studies.length > 0) {
+                        // Add the study id that we are browsing currently
+                        ids.push(this.study.id);
+                        for (let i = 0; i < studies.length; i++) {
+                            ids.push(studies[i].dataId);
+                        }
+                    }
+
+                    switch (this.$$("#includeOtherStudy").value) {
+                        case "in":
+                            _filters.studies = ids.join(';');
+                            break;
+                        case "atleast":
+                            _filters.studies = ids.join(',');
+                            break;
+                        case "not in":
+                            let notInStudies = [];
+                            for (let j = 0; j < ids.length; j++) {
+                                notInStudies.push("!" + ids[j]);
+                            }
+                            _filters.studies = notInStudies.join(";");
+                            break;
+                    }
                 }
+
+                // Region
+                    if (this.$$("#" + this.prefix + "LocationTextarea").value != "") {
+                        _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
+                    }
 
                 // Gene or Variant Id
                 if (this.$$("#" + this.prefix + "GeneSnpTextarea").value != "") {
