@@ -42,7 +42,7 @@
                     </template>
                 </span>
 
-                <template is="dom-if" if="{{checkSid(opencgaClient)}}">
+                <template is="dom-if" if="{{checkSid(opencgaClient._config)}}">
                     <span style="float: right">
                         <form class="form-inline">
                             <span class="form-group">
@@ -144,8 +144,8 @@
                 this.search = this.query;
                 this.$.filtersList.value = "None";
             },
-            checkSid: function (opencgaClient) {
-                return typeof opencgaClient._config.sessionId !== "undefined" && opencgaClient._config.sessionId != "";
+            checkSid: function (config) {
+                return typeof config.sessionId !== "undefined" && config.sessionId != "";
             },
             checkFilters: function (config) {
                 let _this = this;

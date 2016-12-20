@@ -649,11 +649,13 @@
                 let _this = this;
 
                 // Studies
-                if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
-                    this.$$("#includeOtherStudy").value = "none";
-                    let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
-                    for (let i = 0; i < checkBoxes.length; i++) {
-                        checkBoxes[i].checked = false;
+                if (typeof query.studies === "undefined") {
+                    if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
+                        this.$$("#includeOtherStudy").value = "none";
+                        let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
+                        for (let i = 0; i < checkBoxes.length; i++) {
+                            checkBoxes[i].checked = false;
+                        }
                     }
                 }
 
