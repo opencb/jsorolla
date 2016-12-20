@@ -229,6 +229,7 @@
                 }
             },
             renderFromLocal: function () {
+                let _this = this;
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                 $('#' + this.prefix + 'VariantBrowserGrid').bootstrapTable({
                     data: this.data,
@@ -249,7 +250,7 @@
                 return "<span style='white-space: nowrap'>" + row.chromosome + ':' + row.start + " " + ref + '/' + alt + "</span>";
             },
             snpFormatter: function (value, row, index) {
-                if (row.id.startsWith("rs")) {
+                if (typeof row.id !== "undefined" && row.id.startsWith("rs")) {
                     return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + row.id + "'>" + row.id + "</a>";
                 } else {
                     return '-';

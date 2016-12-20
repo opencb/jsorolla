@@ -292,7 +292,12 @@ class CellBaseClient {
 
 
     _createRestUrl(host, version, species, category, subcategory, ids, resource, params) {
-        var url = "http://" + host + "/webservices/rest/" + version + "/" + species + "/";
+        let url;
+        if (host.startsWith("https://")) {
+            url = host + "/webservices/rest/" + version + "/" + species + "/";
+        } else {
+            url = "http://" + host + "/webservices/rest/" + version + "/" + species + "/";
+        }
 
         // Some web services do not need IDs
         if (typeof ids != "undefined" && ids != null && ids.length > 0) {
