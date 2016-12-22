@@ -41,7 +41,7 @@
             </table>
             </template>
 
-            <template is="dom-if" if="{{checkEmpty(data)}}">
+            <template is="dom-if" if="{{!check(data)}}">
                 No Drugs
                 <br/>
             </template>
@@ -61,14 +61,7 @@
                 }
             },
             check: function (data) {
-                if (data.length > 0) {
-                    return true;
-                }
-            },
-            checkEmpty: function (data) {
-                if (data.length == 0) {
-                    return true;
-                }
+                return typeof data !== "undefined";
             }
         });
     </script>
