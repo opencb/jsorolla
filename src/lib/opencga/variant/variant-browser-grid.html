@@ -208,16 +208,28 @@
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable('destroy');
                     let _numTotal = -1;
 
-                    let url = 'http://' + this.cellbaseClient._config.hosts[0] + '/webservices/rest/v4/hsapiens/feature/variation/search';
+                    let url = "";
+                    if (this.cellbaseClient._config.hosts[0].startsWith("https://")) {
+                        url = this.cellbaseClient._config.hosts[0];
+                    } else {
+                        url = 'http://' + this.cellbaseClient._config.hosts[0];
+                    }
+
+                    let queryParams = {
+                        timeout: 10000
+                    };
+
+                    Object.assign(queryParams, _this.query); // Important : Adding the query object contents to queryParams
+
+                    url = url + '/webservices/rest/v4/' + this.cellbaseClient._config.species + '/feature/variation/search';
                     $('#' + _this.prefix + 'VariantBrowserGrid').bootstrapTable({
                         url: url,
                         method: 'get',
                         sidePagination: 'server',
                         queryParams: function (params) {
-                            return {
-                                limit: params.limit,
-                                skip: params.offset
-                            };
+                            queryParams.limit = params.limit;
+                            queryParams.skip = params.offset;
+                            return queryParams;
                         },
                         responseHandler: function (res) {
                             if (_numTotal == -1) {

@@ -842,7 +842,7 @@
                 }
 
                 // Studies
-                if (this.$$("#includeOtherStudy").value != "none") {
+                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null && this.$$("#includeOtherStudy").value != "none") {
                     let studies = this.$$("#differentStudies").querySelectorAll("input:checked");
                     let ids = [];
                     if (studies.length > 0) {
