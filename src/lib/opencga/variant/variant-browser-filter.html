@@ -195,7 +195,7 @@
                                    href="#{{prefix}}Studies" aria-expanded="true" aria-controls="{{prefix}}Studies">
                                     Studies
                                     <div style="float: right" class="tooltip-div">
-                                        <a data-toggle="tooltip" title="Description goes here!"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                        <a data-toggle="tooltip" title="Use this filter to find variants which are: 1) also present in all of the selected studies below, 2) not present in any of the studies selected below or 3) present in at least one of the studies selected below"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                     </div>
                                 </a>
                             </h4>
@@ -225,6 +225,9 @@
                             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#{{prefix}}Accordion"
                                href="#{{prefix}}Position" aria-expanded="true" aria-controls="{{prefix}}Position">
                                 Position
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Introduce a region interval and/or gene/variant ids. The filter will allow variants which fall within provided genomic intervals OR match the ids provided"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </a>
                         </h4>
                     </div>
@@ -337,6 +340,9 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}SiftInput" name="Sift" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific SIFT score threshold. SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </div>
                             <div>
                                 <label>Polyphen</label><br>
@@ -355,6 +361,9 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}PolyphenInput" name="Polyphen" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Select None in the drop-down list on the left to enable the input of a specific Polyphen score threshold. Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -380,6 +389,9 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhylopInput" name="phylop" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </div>
                             <div class="block">
                                 <label>PhastCons</label>
@@ -390,6 +402,9 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}PhastconsInput" name="phastCons" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="PhastCons estimates the probability that each nucleotide belongs to a conserved element. The phastCons scores represent probabilities of negative selection and range between 0 and 1."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </div>
                             <div class="block">
                                 <label>Gerp</label>
@@ -400,6 +415,9 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}GerpInput" name="gerp" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Positive scores represent a substitution deficit (i.e., fewer substitutions than the average neutral site) and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -495,6 +513,9 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddRawInput" name="caddRaw" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="Raw values have relative meaning, with higher values indicating that a variant is more likely to be simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended."><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </div>
                             <div class="block">
                                 <label>Scaled</label>
@@ -505,6 +526,9 @@
                                     <option value=">=">>=</option>
                                 </select>
                                 <input type="text" value="" class="custom-sized-input" id="{{prefix}}CaddScaledInput" name="caddScaled" on-keyup="updateQueryFilters">
+                                <div style="float: right" class="tooltip-div">
+                                    <a data-toggle="tooltip" title="A scaled C-score of greater of equal 10 indicates that the substitution is predicted to be within the 10% most deleterious substitutions that you can do to the human genome, a score of greater or equal 20 indicates the 1% most deleterious and so on. If you would like to apply a cutoff on deleteriousness, it is suggested by the CADD authors to put a cutoff somewhere between 10 and 20. Maybe at 15, as this also happens to be the median value for all possible canonical splice site changes and non-synonymous variants"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
