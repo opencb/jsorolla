@@ -79,11 +79,11 @@
             }
 
             select + select {
-                margin-left: 20px;
+                margin-left: 10px;
             }
 
             select + input {
-                margin-left: 20px;
+                margin-left: 10px;
             }
         </style>
 
@@ -327,9 +327,9 @@
                     <div id="{{prefix}}ProteinSubstitutionScore" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{prefix}}ProteinSubstitutionScoreHeading">
                         <div class="panel-body">
                             <div>
-                                <label>SIFT</label><br>
+                                <label style="font-weight: normal;">SIFT</label><br>
                                 <select class="options" name="Sift" id="{{prefix}}SiftValues" style="width: 90px" on-change="checkScore">
-                                    <option value="none" selected>None</option>
+                                    <option value="score" selected>Score...</option>
                                     <option value="tolerated">Tolerated</option>
                                     <option value="deleterious">Deleterious</option>
                                 </select>
@@ -345,9 +345,9 @@
                                 </div>
                             </div>
                             <div>
-                                <label>Polyphen</label><br>
+                                <label style="font-weight: normal;">Polyphen</label><br>
                                 <select class="options" name="Polyphen" id="{{prefix}}PolyphenValues" style="width: 90px" on-change="checkScore">
-                                    <option value="none" selected>None</option>
+                                    <option value="score" selected>Score...</option>
                                     <option value="benign">Benign</option>
                                     <option value="unknown">Unknown</option>
                                     <option value="possibly damaging">Possibly damaging</option>
@@ -656,7 +656,7 @@
                 this.updateQueryFilters();
             },
             checkScore: function (e) {
-                if (e.target.value == "none") {
+                if (e.target.value == "score") {
                     $("#" + this.prefix + e.target.name +"Input").prop("disabled", false);
                     $("#" + this.prefix + e.target.name +"Operator").prop("disabled", false);
                 } else {
@@ -745,18 +745,18 @@
                 if (typeof query.sift !== "undefined") {
                     if (query.sift.startsWith("<") || query.sift.startsWith(">")) {
                         this.$$("#" + this.prefix + "SiftInput").value = query.sift.split(/[<=>]+/)[1];
-                        this.$$("#" + this.prefix + "SiftValues").value = "none";
+                        this.$$("#" + this.prefix + "SiftValues").value = "score";
                         this.$$("#" + this.prefix + "SiftOperator").value = query.sift.split(/[0-9.]+/)[0];
                     } else {
                         this.$$("#" + this.prefix + "SiftValues").value = query.sift;
                         this.$$("#" + this.prefix + "SiftInput").value = "";
-                        this.$$("#" + this.prefix + "SiftOperator").value = "<"
+                        this.$$("#" + this.prefix + "SiftOperator").value = "<";
                     }
                     this.$$("#" + this.prefix + "SiftInput").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
                     this.$$("#" + this.prefix + "SiftOperator").disabled = !(query.sift.startsWith("<") || query.sift.startsWith(">"));
                 } else {
                     this.$$("#" + this.prefix + "SiftOperator").value = "<";
-                    this.$$("#" + this.prefix + "SiftValues").value = "none";
+                    this.$$("#" + this.prefix + "SiftValues").value = "score";
                     this.$$("#" + this.prefix + "SiftInput").value = "";
                     this.$$("#" + this.prefix + "SiftInput").disabled = false;
                     this.$$("#" + this.prefix + "SiftOperator").disabled = false;
@@ -766,7 +766,7 @@
                 if (typeof query.polyphen !== "undefined") {
                     if (query.polyphen.startsWith("<") || query.polyphen.startsWith(">")) {
                         this.$$("#" + this.prefix + "PolyphenInput").value = query.polyphen.split(/[<=>]+/)[1];
-                        this.$$("#" + this.prefix + "PolyphenValues").value = "none";
+                        this.$$("#" + this.prefix + "PolyphenValues").value = "score";
                         this.$$("#" + this.prefix + "PolyphenOperator").value = query.polyphen.split(/[0-9.]+/)[0];
                     } else {
                         this.$$("#" + this.prefix + "PolyphenValues").value = query.polyphen;
@@ -777,7 +777,7 @@
                     this.$$("#" + this.prefix + "PolyphenOperator").disabled = !(query.polyphen.startsWith("<") || query.polyphen.startsWith(">"));
                 } else {
                     this.$$("#" + this.prefix + "PolyphenOperator").value = "<";
-                    this.$$("#" + this.prefix + "PolyphenValues").value = "none";
+                    this.$$("#" + this.prefix + "PolyphenValues").value = "score";
                     this.$$("#" + this.prefix + "PolyphenInput").value = "";
                     this.$$("#" + this.prefix + "PolyphenInput").disabled = false;
                     this.$$("#" + this.prefix + "PolyphenOperator").disabled = false;
@@ -941,14 +941,14 @@
                 }
 
                 // Protein Substitution scores
-                if (this.$$("#" + this.prefix + "SiftValues").value == "none" && this.$$("#" + this.prefix + "SiftInput").value != "") {
+                if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "") {
                     _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
-                } else if (this.$$("#" + this.prefix + "SiftValues").value != "none") {
+                } else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
                     _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
                 }
-                if (this.$$("#" + this.prefix + "PolyphenValues").value == "none" && this.$$("#" + this.prefix + "PolyphenInput").value != "") {
+                if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") {
                     _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
-                } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "none") {
+                } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
                     _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
                 }
 

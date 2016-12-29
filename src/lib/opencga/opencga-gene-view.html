@@ -4,6 +4,9 @@
     <template>
         <style is="custom-style" include="jso-styles"></style>
         <div>
+            <div style="float: right">
+                <button type="button" class="btn btn-primary" on-click="showBrowser">Back to Variant Browser</button>
+            </div>
             <div>
                 <h3>Gene: {{geneObj.name}}</h3>
                 {{geneObj.name}} - {{geneObj.description}}<br>
@@ -62,9 +65,20 @@
             </div>
             <div>
                 <h3>Variants</h3>
-                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}" query="{{query}}"
+                <variant-browser-grid project="{{project}}" study="{{study}}" prefix="{{prefix}}" opencga-client="{{opencgaClient}}"
                                       population-frequencies="{{populationFrequencies}}" protein-substitution-scores="{{proteinSubstitutionScores}}"
-                                      consequence-types="{{consequenceTypes}}"></variant-browser-grid>
+                                      consequence-types="{{consequenceTypes}}" search="{{query}}" query="{{query}}" variant="{{variant}}"></variant-browser-grid>
+
+                <div hidden$="{{checkVariant(variant)}}">
+                    <br>
+                    <h3>Please select a variant to view variant's detailed annotation</h3>
+                </div>
+
+                <!-- Bottom tabs with specific variant information -->
+                <div style="padding-top: 20px" hidden$="{{!checkVariant(variant)}}">
+                    <h3>Advanced Annotation for Variant: {{variant}}</h3>
+                    <cellbase-variantannotation-view data="{{variant}}" prefix="{{prefix}}" cellbase-client="{{cellbaseClient}}" mode="vertical" style="font-size: 12px"></cellbase-variantannotation-view>
+                </div>
             </div>
 
         </div>
@@ -98,6 +112,10 @@
                 },
                 consequenceTypes: {
                     type: Object
+                },
+                variant: {
+                    type: String,
+                    value: ""
                 }
             },
             ready: function () {
@@ -116,6 +134,15 @@
                         });
                     this.query = query;
                 }
+            },
+            checkVariant: function(variant) {
+                return variant.split(':').length > 2;
+            },
+            showBrowser: function () {
+                $('#browser').show();
+                let hash = window.location.hash.split('/');
+                let newHash = '#browser/' + hash[1] + '/' + hash[2];
+                window.location.hash = newHash;
             }
         });
     </script>

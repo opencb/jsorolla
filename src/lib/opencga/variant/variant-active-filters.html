@@ -142,7 +142,9 @@
             clear: function () {
                 this.query = {};
                 this.search = this.query;
-                this.$.filtersList.value = "None";
+                if (typeof this.$.filtersList !== "undefined") {
+                    this.$.filtersList.value = "None";
+                }
             },
             checkSid: function (config) {
                 return typeof config.sessionId !== "undefined" && config.sessionId != "";
