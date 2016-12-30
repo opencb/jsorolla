@@ -82,7 +82,7 @@ class RestClient {
                         }
 
                         // If the call is OK then we execute the success function from the user
-                        console.log(options)
+                        // console.log(options)
                         if (typeof options != "undefined" && typeof options.success === "function" && typeof options.cacheFn == "undefined") {
                             options.success(dataResponse);
                         }
