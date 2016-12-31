@@ -750,6 +750,10 @@ class Cohorts extends OpenCGAParentClass {
         return this.get("cohorts", id, "stats", params, options);
     }
 
+    search(params, options) {
+        return this.get("cohorts", undefined, "search", params, options);
+    }
+
     info(id, params, options) {
         return this.get("cohorts", id, "info", params, options);
     }
