@@ -904,7 +904,7 @@
                         let study = _this.populationFrequencies.studies[i].id;
                         for (let j = 0; j < _this.populationFrequencies.studies[i].populations.length; j++) {
                             let population = _this.populationFrequencies.studies[i].populations[j].id;
-                            if (this.$$("#" + this.prefix + study + population).value != "") {
+                            if (this.$$("#" + this.prefix + study + population).value != "" || this.$$("#" + this.prefix + study + population + "Operator").value != "<") {
                                 let operator = this.$$("#" + this.prefix + study + population + "Operator").value;
                                 let pf = study + ":" + population + operator + this.$$("#" + this.prefix + study + population).value;
                                 popFreq.push(pf);
@@ -917,12 +917,12 @@
                 }
 
                 // Protein Substitution scores
-                if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "") {
+                if (this.$$("#" + this.prefix + "SiftValues").value == "score" && this.$$("#" + this.prefix + "SiftInput").value != "" || this.$$("#" + this.prefix + "SiftOperator").value != "<") {
                     _filters.sift = this.$$("#" + this.prefix + "SiftOperator").value + this.$$("#" + this.prefix + "SiftInput").value;
                 } else if (this.$$("#" + this.prefix + "SiftValues").value != "score") {
                     _filters.sift = this.$$("#" + this.prefix + "SiftValues").value;
                 }
-                if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "") {
+                if (this.$$("#" + this.prefix + "PolyphenValues").value == "score" && this.$$("#" + this.prefix + "PolyphenInput").value != "" || this.$$("#" + this.prefix + "PolyphenOperator").value != "<") {
                     _filters.polyphen = this.$$("#" + this.prefix + "PolyphenOperator").value + this.$$("#" + this.prefix + "PolyphenInput").value;
                 } else if (this.$$("#" + this.prefix + "PolyphenValues").value != "score") {
                     _filters.polyphen = this.$$("#" + this.prefix + "PolyphenValues").value;
@@ -930,15 +930,15 @@
 
                 // Conservation
                 let conserArr = [];
-                if (this.$$("#" + this.prefix + "PhylopInput").value != "") {
+                if (this.$$("#" + this.prefix + "PhylopInput").value != "" || this.$$("#" + this.prefix + "PhylopOperator").value != "<") {
                     let phylop = "phylop" + this.$$("#" + this.prefix + "PhylopOperator").value + this.$$("#" + this.prefix + "PhylopInput").value;
                     conserArr.push(phylop);
                 }
-                if (this.$$("#" + this.prefix + "PhastconsInput").value != "") {
+                if (this.$$("#" + this.prefix + "PhastconsInput").value != "" || this.$$("#" + this.prefix + "PhastconsOperator").value != "<") {
                     let phastCons = "phastCons" + this.$$("#" + this.prefix + "PhastconsOperator").value + this.$$("#" + this.prefix + "PhastconsInput").value;
                     conserArr.push(phastCons);
                 }
-                if (this.$$("#" + this.prefix + "GerpInput").value != "") {
+                if (this.$$("#" + this.prefix + "GerpInput").value != "" || this.$$("#" + this.prefix + "GerpOperator").value != "<") {
                     let gerp = "gerp" + this.$$("#" + this.prefix + "GerpOperator").value + this.$$("#" + this.prefix + "GerpInput").value;
                     conserArr.push(gerp);
                 }
