@@ -130,6 +130,7 @@
                 this.renderFromServer();
             },
             renderFromServer: function () {
+                this.variant = ""; // Empty the variant every time the grid is loaded
                 let _this = this;
                 if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
 

@@ -61,7 +61,7 @@
                 this.fire('study', {study: e.target.dataStudy});
             },
             projectChanged: function() {
-                if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined") {
+                if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined" && Object.keys(this.project).length > 0) {
                     let _this = this;
                     // Obtain the summary of the studies
                     let studyPromises = [];
