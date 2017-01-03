@@ -58,7 +58,8 @@
                     </div>
                     <!--Consequence types Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationConsequenceTypes">
-                        <cellbase-annotation-consequencetype-grid data="{{variantAnnotation.consequenceTypes}}" prefix="{{prefix}}annotationView"></cellbase-annotation-consequencetype-grid>
+                        <cellbase-annotation-consequencetype-grid data="{{variantAnnotation.consequenceTypes}}" prefix="{{prefix}}annotationView"
+                                                                  consequence-types="{{consequenceTypes}}"></cellbase-annotation-consequencetype-grid>
                     </div>
                     <!--Population frequency Tab-->
                     <div role="tabpanel" class="tab-pane" id="{{prefix}}VariantAnnotationPopulationFrequencies">
@@ -170,6 +171,9 @@
                 variantAnnotation: {
                     type: Object
                 },
+                consequenceTypes: {
+                    type: Object
+                },
                 prefix: {
                     type: String
                 },
@@ -208,7 +212,7 @@
             },
             _variantChanged: function () {
                 let _this = this;
-                if (typeof this.cellbaseClient !== "undefined") {
+                if (typeof this.cellbaseClient !== "undefined" && this.data != "") {
                     this.cellbaseClient.get('genomic', 'variant', this.data, 'annotation', {}, {})
                         .then(function (response) {
                             _this.variantAnnotation = response.response[0].result[0];
