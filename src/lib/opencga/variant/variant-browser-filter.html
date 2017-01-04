@@ -209,7 +209,7 @@
                                     <option value="atleast">At least</option>
                                 </select>
                                 <div id="differentStudies">
-                                    <template is="dom-repeat" items="{{studies}}" filter="isDifferentStudy">
+                                    <template is="dom-repeat" items="{{differentStudies}}">
                                         <input type="checkbox" value="{{item.alias}}" data-id="{{item.id}}" on-change="updateQueryFilters"> {{item.alias}}<br>
                                     </template>
                                 </div>
@@ -540,10 +540,12 @@
                     type: String
                 },
                 study: {
-                    type: Object
+                    type: Object,
+                    observer: 'updateDifferentStudies'
                 },
                 studies: {
-                    type: Array
+                    type: Array,
+                    observer: 'updateDifferentStudies'
                 },
                 opencgaClient: {
                     type: Object
@@ -615,8 +617,16 @@
             moreStudiesPresent: function (studies) {
                 return studies.length > 1;
             },
-            isDifferentStudy: function (item) {
-                return item.alias != this.study.alias;
+            updateDifferentStudies: function () {
+                let differentStudies = [];
+                if (typeof this.study !== "undefined" && typeof this.studies !== "undefined") {
+                    for (let i = 0; i < this.studies.length; i++) {
+                        if (this.study.alias != this.studies[i].alias) {
+                            differentStudies.push(this.studies[i]);
+                        }
+                    }
+                    this.differentStudies = differentStudies;
+                }
             },
             updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];

@@ -19,7 +19,7 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div>
-            <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+            <table id="{{prefix}}VariantBrowserGrid" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                    data-show-pagination-switch="true" data-show-export="true">
                 <thead style="background-color: #eee"></thead>
             </table>
@@ -483,7 +483,7 @@
                             }
                         }
                         if (traits.length > 0) {
-                            return traits.join("\n");
+                            return traits.join('<br>');
                         }
                     }
                 }
@@ -764,6 +764,7 @@
                             field: 'cosmic',
                             colspan: 1,
                             rowspan: 1,
+                            formatter: this.clinvarFormatter,
                             halign: 'center'
                         }
 //                        {
