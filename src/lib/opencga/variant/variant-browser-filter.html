@@ -859,9 +859,10 @@
                     let ids = [];
                     if (studies.length > 0) {
                         // Add the study id that we are browsing currently
-                        ids.push(this.study.id);
+                        ids.push(this.study.alias);
                         for (let i = 0; i < studies.length; i++) {
-                            ids.push(studies[i].dataId);
+//                            ids.push(studies[i].dataId);
+                            ids.push(studies[i].value);
                         }
                     }
 
