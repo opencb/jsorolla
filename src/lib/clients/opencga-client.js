@@ -168,6 +168,9 @@ class OpenCGAParentClass {
             url = this._addQueryParams(url, params);
             if (method === "POST") {
                 options["data"] = params["body"];
+                if (action === "upload") {
+                    options["post-method"] = "form";
+                }
             }
             console.log(url);
             // if the URL query fails we try with next host
@@ -608,6 +611,27 @@ class Files extends OpenCGAParentClass {
     }
 
     upload(params, options) {
+        if (params === undefined) {
+            return;
+        }
+
+        if (!params.hasOwnProperty("body")) {
+            let aux = {
+                body: params
+            };
+            params = aux;
+        }
+
+        if (params.body.hasOwnProperty("sid")) {
+            params["sid"] = params.body.sid;
+            delete params.body.sid;
+        }
+
+        if (options === undefined) {
+            options = {};
+        }
+        options["method"] = "POST";
+
         return this.get("files", undefined, "upload", params, options);
     }
 }
