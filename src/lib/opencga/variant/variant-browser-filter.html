@@ -233,12 +233,13 @@
                             Chromosomal location:
                             <textarea id="{{prefix}}LocationTextarea" class="form-control clearable" rows="3" placeholder="3:444-55555, 1:1-1000000"
                                       name="location" on-keyup="updateQueryFilters"></textarea>
-                            <!--Import from BED:-->
-                            <!--<button type="button" class="btn btn-xs" on-click="">Import</button>-->
-                            <!--<br>-->
-                            <br> Gene name or SNP id:
-                            <textarea id="{{prefix}}GeneSnpTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL or rs666, rs9988179"
+                            <br> Gene name:
+                            <textarea id="{{prefix}}GeneTextarea" class="form-control clearable" rows="3" placeholder="BRCA2, PPL"
                                       name="ids" on-keyup="updateQueryFilters"></textarea>
+                            <br> SNP ID:
+                            <textarea id="{{prefix}}SnpTextarea" class="form-control clearable" rows="3" placeholder="rs666, rs9988179"
+                                      name="ids" on-keyup="updateQueryFilters"></textarea>
+                            <input type="checkbox" value=""> With / Without RS ids<br>
                         </div>
                     </div>
                 </div>
@@ -671,16 +672,10 @@
                     }
                 }
 
-                // Position and  Gene or Variant Ids
+                // Position, Gene and Variant Ids
                 this.$$("#" + this.prefix + "LocationTextarea").value = typeof query.region !== "undefined"? query.region : "";
-
-                if (typeof query.gene !== "undefined") {
-                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = query.gene;
-                } else if (typeof query.ids !== "undefined") {
-                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = query.ids;
-                } else {
-                    this.$$("#" + this.prefix + "GeneSnpTextarea").value = "";
-                }
+                this.$$("#" + this.prefix + "GeneTextarea").value = typeof query.gene !== "undefined"? query.gene : "";
+                this.$$("#" + this.prefix + "SnpTextarea").value = typeof query.ids !== "undefined"? query.ids : "";
 
                 // Type
                 if (typeof query.type !== "undefined") {
@@ -859,6 +854,7 @@
                     let ids = [];
                     if (studies.length > 0) {
                         // Add the study id that we are browsing currently
+//                        ids.push(this.study.id);
                         ids.push(this.study.alias);
                         for (let i = 0; i < studies.length; i++) {
 //                            ids.push(studies[i].dataId);
@@ -888,13 +884,14 @@
                         _filters.region = this.$$("#" + this.prefix + "LocationTextarea").value;
                     }
 
-                // Gene or Variant Id
-                if (this.$$("#" + this.prefix + "GeneSnpTextarea").value != "") {
-                    if (this.$$("#" + this.prefix + "GeneSnpTextarea").value.startsWith("rs") || this.$$("#" + this.prefix + "GeneSnpTextarea").value.split(':').length > 2) {
-                        _filters.ids = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
-                    } else {
-                        _filters.gene = this.$$("#" + this.prefix + "GeneSnpTextarea").value;
-                    }
+                // Gene
+                if (this.$$("#" + this.prefix + "GeneTextarea").value != "") {
+                    _filters.gene = this.$$("#" + this.prefix + "GeneTextarea").value;
+                }
+
+                // Variant Id
+                if (this.$$("#" + this.prefix + "SnpTextarea").value != "") {
+                    _filters.ids = this.$$("#" + this.prefix + "SnpTextarea").value;
                 }
 
                 // Type
