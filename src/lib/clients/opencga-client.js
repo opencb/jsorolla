@@ -288,14 +288,14 @@ class Users extends OpenCGAParentClass {
                 if (this._config.useCookies) {
                     // Cookies being used
                     Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
-                    Cookies.set(this._config.cookieUserId, response.response[0].result[0].userId);
+                    Cookies.set(this._config.cookieUserId, userId);
                     Cookies.set(this._config.cookiePassword, encryptedPass);
                     Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
                     console.log("Cookies properly set");
                 } else {
                     // No cookies used
                     this._config.sessionId = response.response[0].result[0].sessionId;
-                    this._config.userId = response.response[0].result[0].userId;
+                    this._config.userId = userId;
                 }
                 return response;
             }
