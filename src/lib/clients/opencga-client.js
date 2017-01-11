@@ -303,7 +303,7 @@ class Users extends OpenCGAParentClass {
                 } else {
                     // No cookies used
                     this._config.sessionId = response.response[0].result[0].sessionId;
-                    this._config.userId = response.response[0].result[0].userId;
+                    this._config.userId = userId;
                 }
                 return response;
             }
