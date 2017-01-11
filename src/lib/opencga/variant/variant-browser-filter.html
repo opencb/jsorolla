@@ -203,8 +203,7 @@
                         <div id="{{prefix}}Studies" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="{{prefix}}StudiesHeading">
                             <div class="panel-body">
                                 <select class="form-control" id="includeOtherStudy" style="width: 50%;" on-change="updateQueryFilters">
-                                    <option value="none" selected>None</option>
-                                    <option value="in">In</option>
+                                    <option value="in" selected>In</option>
                                     <option value="not in">Not In</option>
                                     <option value="atleast">At least</option>
                                 </select>
@@ -538,7 +537,7 @@
             is: 'variant-browser-filter',
             properties: {
                 project: {
-                    type: String
+                    type: String,
                 },
                 study: {
                     type: Object,
@@ -591,6 +590,9 @@
                     type: String
                 }
             },
+            observers: [
+                'updateStudies(project, study)'
+            ],
             ready: function() {
                 this.sampleGenotypesObj = {};
 
@@ -629,6 +631,11 @@
                     this.differentStudies = differentStudies;
                 }
             },
+            updateStudies(project, study) {
+                if (typeof this.project !== "undefined" && typeof this.study !== "undefined" && this.project != "" && Object.keys(this.study).length > 0) {
+                    this.query = { studies: this.project + ":" + this.study.alias };
+                }
+            },
             updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];
                 if (e.target.parentNode.id != "") {
@@ -663,8 +670,12 @@
 
                 // Studies
                 if (typeof query.studies === "undefined") {
+                    // In case of clear, query.studies is undefined. Always the current study is set
+                    if (typeof this.project !== "undefined" && typeof this.study !== "undefined") {
+                        query.studies = this.project + ":" + this.study.alias;
+                    }
                     if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
-                        this.$$("#includeOtherStudy").value = "none";
+                        this.$$("#includeOtherStudy").value = "in";
                         let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
                         for (let i = 0; i < checkBoxes.length; i++) {
                             checkBoxes[i].checked = false;
@@ -849,34 +860,35 @@
                 }
 
                 // Studies
-                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null && this.$$("#includeOtherStudy").value != "none") {
-                    let studies = this.$$("#differentStudies").querySelectorAll("input:checked");
-                    let ids = [];
-                    if (studies.length > 0) {
-                        // Add the study id that we are browsing currently
-//                        ids.push(this.study.id);
-                        ids.push(this.project + ':' + this.study.alias);
-                        for (let i = 0; i < studies.length; i++) {
-//                            ids.push(studies[i].dataId);
-                            ids.push(this.project + ':' + studies[i].value);
+                let studies = [];
+                // Always add the study that we are browsing currently
+                studies.push(this.project + ':' + this.study.alias);
+
+                if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
+                    let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
+                    if (selectedStudies.length > 0) {
+                        for (let i = 0; i < selectedStudies.length; i++) {
+                            studies.push(this.project + ':' + selectedStudies[i].value);
                         }
                     }
 
                     switch (this.$$("#includeOtherStudy").value) {
                         case "in":
-                            _filters.studies = ids.join(';');
+                            _filters.studies = studies.join(';');
                             break;
                         case "atleast":
-                            _filters.studies = ids.join(',');
+                            _filters.studies = studies.join(',');
                             break;
                         case "not in":
                             let notInStudies = [];
-                            for (let j = 0; j < ids.length; j++) {
-                                notInStudies.push("!" + ids[j]);
+                            for (let j = 0; j < studies.length; j++) {
+                                notInStudies.push("!" + studies[j]);
                             }
                             _filters.studies = notInStudies.join(";");
                             break;
                     }
+                } else {
+                    _filters.studies = studies.join(';');
                 }
 
                 // Region

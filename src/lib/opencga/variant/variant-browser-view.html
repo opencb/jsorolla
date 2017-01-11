@@ -55,8 +55,8 @@
                     <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
                         <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
-                        <!--<li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Sample Genotypes & Files</a></li>-->
-                        <!--<li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>-->
+                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Sample Genotypes & Files</a></li>
+                        <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
                     </ul>
 
                     <div class="tab-content" style="height: 680px">
@@ -73,15 +73,35 @@
                             <!--<genome-context></genome-context>-->
                         </div>
 
-                        <!--&lt;!&ndash;Genotypes & Files Tab&ndash;&gt;-->
-                        <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">-->
-                            <!--Not implemented yet!-->
-                        <!--</div>-->
+                        <!--Genotypes & Files Tab-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
+                            <template is="dom-repeat" items="{{variantStudies}}" as="study">
+                                <div class="col-md-10">
+                                    <h4 style="font-weight: bold"><i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="{{getStudy(study.studyId)}}"
+                                                                     style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
+                                    </h4>
 
-                        <!--&lt;!&ndash;Beacon network&ndash;&gt;-->
-                        <!--<div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">-->
-                            <!--Not implemented yet!-->
-                        <!--</div>-->
+                                    <div id="{{getStudy(study.studyId)}}">
+                                        <template is="dom-repeat" items="{{study.stats}}" as="stat">
+                                            <template is="dom-if" if="{{checkForGenotypes(stat)}}">
+                                                <div class="col-xs-3" id="{{stat.study}}{{stat.name}}" style="min-width: 200px; height: 200px; max-width: 400px; margin: 0 auto;"></div>
+                                            </template>
+                                            <template is="dom-if" if="{{!checkForGenotypes(stat)}}">
+                                                <div>No genotypes available for {{stat.name}}</div>
+                                            </template>
+                                        </template>
+                                    </div>
+                                    <br>
+                                </div>
+                            </template>
+
+                        </div>
+
+                        <!--Beacon network-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
+                            <br>
+                            <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search beacon network</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -132,7 +152,8 @@
                 },
                 variant: {
                     type: String,
-                    value: "No variant selected"
+                    value: "No variant selected",
+                    observer: 'variantChanged'
                 },
                 prefix: {
                     type: String
@@ -151,6 +172,130 @@
             },
             selectedGene: function (e) {
                 this.fire('propagate', {gene: e.detail.gene});
+            },
+            variantChanged: function (e) {
+                if (this.variant.split(':').length > 2) {
+                    let params = {
+                        ids: this.variant,
+                        studies: this.project + ":" + this.study.alias,
+                        exclude: "annotation"
+                    };
+                    let _this = this;
+                    this.opencgaClient.variants().query(params)
+                        .then(function (response) {
+                            let variantStudies = response.response[0].result[0].studies;
+                            for (let i = 0; i < variantStudies.length; i++) {
+                                let study = variantStudies[i].studyId.split(':')[1];
+                                let statsObject = variantStudies[i].stats;
+                                let statsArray = [];
+                                Object.keys(statsObject).map(key => statsArray.push({
+                                    name: key,
+                                    value: statsObject[key],
+                                    study: study
+                                }));
+                                variantStudies[i].stats = statsArray;
+                                for (let j = 0; j < statsArray.length; j++) {
+                                    let genotypeCount = statsArray[j].value.genotypesCount;
+                                    let data = [];
+                                    if (Object.keys(genotypeCount).length > 0) {
+                                        for (let k in genotypeCount) {
+                                            data.push({
+                                                name: k,
+                                                y: genotypeCount[k]
+                                            });
+                                        }
+                                        let params = {title: statsArray[j].name, data: data};
+                                        _this._updatePieChart("#" + study + statsArray[j].name, params);
+                                    }
+                                }
+                            }
+                            _this.variantStudies = variantStudies;
+                        });
+                }
+            },
+            getStudy: function (study) {
+                let name = study.split(':')[1];
+                return name;
+            },
+            checkForGenotypes: function (stat) {
+                let genotypesCount = stat.value.genotypesCount;
+                return Object.keys(genotypesCount).length > 0;
+            },
+            handleCollapseAction: function (e) {
+                let id = e.target.dataId;
+                let elem = $('#' + id)[0];
+                elem.hidden = !elem.hidden;
+                if (elem.hidden) {
+                    e.target.className = "fa fa-plus-circle";
+                } else {
+                    e.target.className = "fa fa-minus-circle";
+                }
+            },
+            _updatePieChart: function(_id, params) {
+                // params = { title, data}
+                $(_id).highcharts({
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: params.title
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Genotype Count',
+                        colorByPoint: true,
+                        data: params.data
+                    }]
+                });
+            },
+            triggerBeacon: function (e) {
+                if (this.variant.split(':').length > 2) {
+                    let variant = this.variant.split(':');
+                    this.chromosome = variant[0];
+                    this.position = variant[1];
+                    this.reference = variant[2];
+                    this.alternate = variant[3];
+
+// url to search : https://beacon-network.org/api/responses?allele=C&beacon=%5Bcosmic%5D&chrom=1&pos=99999&ref=GRCh37&referenceAllele=A
+//                    let xhr = new XMLHttpRequest();
+//                    let url = "https://beacon-network.org/api/responses";
+//                    xhr.open('GET', '/server', true);
+//
+//// If specified, responseType must be empty string or "document"
+//                    xhr.responseType = 'document';
+//
+//// overrideMimeType() can be used to force the response to be parsed as XML
+//                    xhr.overrideMimeType('text/xml');
+//
+//                    xhr.onload = function () {
+//                        if (xhr.readyState === xhr.DONE) {
+//                            if (xhr.status === 200) {
+//                                console.log(xhr.response);
+//                                console.log(xhr.responseXML);
+//                            }
+//                        }
+//                    };
+//
+//                    xhr.send(null);
+                }
             }
         });
     </script>

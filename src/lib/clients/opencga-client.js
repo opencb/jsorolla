@@ -29,6 +29,7 @@ class OpenCGAClient {
         this._panels;
         this._variables;
         this._alignments;
+        this._variants;
     }
 
     getConfig() {
@@ -116,6 +117,13 @@ class OpenCGAClient {
             this._alignments = new Alignment(this._config)
         }
         return this._alignments;
+    }
+
+    variants() {
+        if (typeof this._variants === "undefined") {
+            this._variants = new Variant(this._config);
+        }
+        return this._variants;
     }
 }
 
@@ -288,7 +296,7 @@ class Users extends OpenCGAParentClass {
                 if (this._config.useCookies) {
                     // Cookies being used
                     Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
-                    Cookies.set(this._config.cookieUserId, response.response[0].result[0].userId);
+                    Cookies.set(this._config.cookieUserId, userId);
                     Cookies.set(this._config.cookiePassword, encryptedPass);
                     Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
                     console.log("Cookies properly set");
@@ -827,5 +835,15 @@ class Alignment extends OpenCGAParentClass {
 
     coverage(id, params, options) {
         return this.get("analysis/alignment", id, "coverage", params, options);
+    }
+}
+
+class Variant extends OpenCGAParentClass {
+    constructor(config) {
+        super(config);
+    }
+
+    query(params, options) {
+        return this.get("analysis/variant", undefined, "query", params, options);
     }
 }
