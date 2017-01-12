@@ -17,6 +17,7 @@
 <link rel="import" href="variant-browser-grid.html">
 <link rel="import" href="variant-active-filters.html">
 <link rel="import" href="../../cellbase/variation/cellbase-variantannotation-view.html">
+<link rel="import" href="beacon-network.html">
 <!--<link rel="import" href="../../cellbase/genome-context.html">-->
 
 <dom-module id="variant-browser-view">
@@ -83,12 +84,13 @@
 
                                     <div id="{{getStudy(study.studyId)}}">
                                         <template is="dom-repeat" items="{{study.stats}}" as="stat">
-                                            <template is="dom-if" if="{{checkForGenotypes(stat)}}">
+                                            <div hidden$="{{!checkForGenotypes(stat)}}">
                                                 <div class="col-xs-3" id="{{stat.study}}{{stat.name}}" style="min-width: 200px; height: 200px; max-width: 400px; margin: 0 auto;"></div>
-                                            </template>
-                                            <template is="dom-if" if="{{!checkForGenotypes(stat)}}">
+                                            </div>
+
+                                            <div hidden$="{{checkForGenotypes(stat)}}">
                                                 <div>No genotypes available for {{stat.name}}</div>
-                                            </template>
+                                            </div>
                                         </template>
                                     </div>
                                     <br>
@@ -101,6 +103,8 @@
                         <div role="tabpanel" class="tab-pane" id="{{prefix}}Beacon">
                             <br>
                             <button class="btn btn-primary" type="button" on-click="triggerBeacon">Search beacon network</button>
+                            <br><br>
+                            <beacon-network hosts="{{beaconHosts}}" search="{{searchBeacon}}"></beacon-network>
                         </div>
                     </div>
                 </div>
@@ -138,6 +142,9 @@
                 },
                 consequenceTypes: {
                     type: Object
+                },
+                beaconHosts: {
+                    type: Array
                 },
                 query: {
                     type: Object,
@@ -267,35 +274,7 @@
                 });
             },
             triggerBeacon: function (e) {
-                if (this.variant.split(':').length > 2) {
-                    let variant = this.variant.split(':');
-                    this.chromosome = variant[0];
-                    this.position = variant[1];
-                    this.reference = variant[2];
-                    this.alternate = variant[3];
-
-// url to search : https://beacon-network.org/api/responses?allele=C&beacon=%5Bcosmic%5D&chrom=1&pos=99999&ref=GRCh37&referenceAllele=A
-//                    let xhr = new XMLHttpRequest();
-//                    let url = "https://beacon-network.org/api/responses";
-//                    xhr.open('GET', '/server', true);
-//
-//// If specified, responseType must be empty string or "document"
-//                    xhr.responseType = 'document';
-//
-//// overrideMimeType() can be used to force the response to be parsed as XML
-//                    xhr.overrideMimeType('text/xml');
-//
-//                    xhr.onload = function () {
-//                        if (xhr.readyState === xhr.DONE) {
-//                            if (xhr.status === 200) {
-//                                console.log(xhr.response);
-//                                console.log(xhr.responseXML);
-//                            }
-//                        }
-//                    };
-//
-//                    xhr.send(null);
-                }
+                this.searchBeacon = Utils.randomString(6);
             }
         });
     </script>
