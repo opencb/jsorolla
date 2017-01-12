@@ -61,12 +61,12 @@
                 this.fire('study', {study: e.target.dataStudy});
             },
             projectChanged: function() {
-                if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined") {
+                if (typeof this.opencgaClient !== "undefined" && typeof this.project !== "undefined" && Object.keys(this.project).length > 0) {
                     let _this = this;
                     // Obtain the summary of the studies
                     let studyPromises = [];
                     this.project.studies.forEach(function(study) {
-                        studyPromises.push(_this.opencgaClient.studies().summary(study.id));
+                        studyPromises.push(_this.opencgaClient.studies().summary(_this.project.alias + ":" + study.alias));
                     });
 
                     Promise.all(studyPromises).then(function(responses) {

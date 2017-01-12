@@ -21,7 +21,28 @@
                 },
                 prefix: {
                     type: String
+                },
+                consequenceTypes: {
+                    type: Object,
+                    observer: 'assignColors'
                 }
+            },
+            assignColors: function () {
+                if (typeof this.consequenceTypes !== "undefined") {
+                    let consequenceTypeToColor = {};
+                    let consequenceTypeToImpact = {};
+                    for (let i = 0; i < this.consequenceTypes.categories.length; i++) {
+                        if (typeof this.consequenceTypes.categories[i].terms !== "undefined") {
+                            for (let j = 0; j < this.consequenceTypes.categories[i].terms.length; j++) {
+                                consequenceTypeToColor[this.consequenceTypes.categories[i].terms[j].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].terms[j].impact];
+                            }
+                        } else if (typeof this.consequenceTypes.categories[i].id !== "undefined" && typeof this.consequenceTypes.categories[i].name !== "undefined") {
+                            consequenceTypeToColor[this.consequenceTypes.categories[i].name] = this.consequenceTypes.color[this.consequenceTypes.categories[i].impact];
+                        }
+                    }
+                    this.consequenceTypeToColor = consequenceTypeToColor;
+                }
+                this.render();
             },
             render: function () {
                 $('#' + this.prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
@@ -58,6 +79,7 @@
                             },
                             {
                                 title: 'Sequence Ontology Term',
+                                field: {context : this},
                                 formatter: this.seqOntologyFormatter,
                                 colspan: 1,
                                 rowspan: 2
@@ -114,7 +136,11 @@
             },
             seqOntologyFormatter: function (value, row, index) {
                 let soTerm = row.sequenceOntologyTerms[0];
-                return soTerm.name + '(' + soTerm.accession + ')';
+                if (typeof this.field.context.consequenceTypeToColor !== "undefined" && typeof this.field.context.consequenceTypeToColor[soTerm.name] !== "undefined") {
+                    return '<span style="color: ' + this.field.context.consequenceTypeToColor[soTerm.name] + '">' + soTerm.name + '</span>' + '(' + soTerm.accession + ')';
+                } else {
+                    return soTerm.name + '(' + soTerm.accession + ')';
+                }
             },
             proteinAlleleFormatter: function (value, row, index) {
                 if (typeof row.proteinVariantAnnotation !== 'undefined' && typeof row.proteinVariantAnnotation.reference !== 'undefined'
@@ -167,7 +193,7 @@
                     let sub = row.proteinVariantAnnotation.substitutionScores;
                     for (let i in sub) {
                         if (sub[i].source == "sift") {
-                            return sub[i].score;
+                            return '<span title="' + sub[i].description + '">' + sub[i].score + '</span>';
                         }
                     }
                 } else {
@@ -179,7 +205,7 @@
                     let sub = row.proteinVariantAnnotation.substitutionScores;
                     for (let i in sub) {
                         if (sub[i].source == "polyphen") {
-                            return sub[i].score;
+                            return '<span title="' + sub[i].description + '">' + sub[i].score + '</span>';
                         }
                     }
                 } else {

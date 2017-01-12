@@ -82,7 +82,7 @@ class RestClient {
                         }
 
                         // If the call is OK then we execute the success function from the user
-                        console.log(options)
+                        // console.log(options)
                         if (typeof options != "undefined" && typeof options.success === "function" && typeof options.cacheFn == "undefined") {
                             options.success(dataResponse);
                         }
@@ -117,11 +117,23 @@ class RestClient {
 
             // request.timeout = options.timeout || 0;
             if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {
-                // request.setRequestHeader("Access-Control-Allow-Origin", "*");
-                // // request.setRequestHeader("Access-Control-Allow-Credentials", "true");
-                // request.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-                request.setRequestHeader("Content-type", "application/json");
-                request.send(JSON.stringify(options.data));
+                if (options.hasOwnProperty("post-method") && options["post-method"] === "form") {
+                    let myForm = new FormData();
+                    let keys = Object.keys(options.data);
+
+                    for (let i in keys) {
+                        myForm.append(keys[i], options.data[keys[i]]);
+                    }
+
+                    request.send(myForm);
+                } else {
+                    // request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                    // // request.setRequestHeader("Access-Control-Allow-Credentials", "true");
+                    // request.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                    request.setRequestHeader("Content-type", "application/json");
+                    request.send(JSON.stringify(options.data));
+                }
+
             } else {
                 console.log("Calling GET");
                 request.send();

@@ -17,16 +17,14 @@
                 <span class="input-group-addon" id="username">
                     <i class="fa fa-user fa-lg"></i>
                 </span>
-                <input type="text" id="opencgaUser" class="form-control" placeholder="Username" aria-describedby="username"
-                       on-keyup="checkEnterKey">
+                <input type="text" id="opencgaUser" value="{{user}}" class="form-control" placeholder="Username" aria-describedby="username" on-keyup="checkEnterKey">
             </div>
 
             <div class="input-group fields">
                 <span class="input-group-addon" id="password">
                     <i class="fa fa-key"></i>
                 </span>
-                <input id="opencgaPassword" type="password" class="form-control" placeholder="Password" aria-describedby="password"
-                       on-keyup="checkEnterKey">
+                <input id="opencgaPassword" value="{{password}}" type="password" class="form-control" placeholder="Password" aria-describedby="password" on-keyup="checkEnterKey">
             </div>
 
 
@@ -50,6 +48,14 @@
                 loginText: {
                     type: String,
                     value: "Login"
+                },
+                user: {
+                    type: String,
+                    value: ""
+                },
+                password: {
+                    type: String,
+                    value: ""
                 }
             },
 

@@ -85,7 +85,7 @@
                     this.projects.forEach(function(project) {
                         let studyPromises = [];
                         project.studies.forEach(function(study) {
-                            studyPromises.push(_this.opencgaClient.studies().summary(study.id));
+                            studyPromises.push(_this.opencgaClient.studies().summary(project.alias + ":" + study.alias));
                         });
                         projectPromises.push(Promise.all(studyPromises).then(function(responses) {
                             let studies = [];

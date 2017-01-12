@@ -19,7 +19,7 @@
         <style is="custom-style" include="jso-styles"></style>
 
         <div>
-            <table id="{{prefix}}VariantBrowserGrid" data-search="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
+            <table id="{{prefix}}VariantBrowserGrid" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50]"
                    data-show-pagination-switch="true" data-show-export="true">
                 <thead style="background-color: #eee"></thead>
             </table>
@@ -130,6 +130,7 @@
                 this.renderFromServer();
             },
             renderFromServer: function () {
+                this.variant = ""; // Empty the variant every time the grid is loaded
                 let _this = this;
                 if (typeof OpenCGAClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.project !== "undefined" && typeof this.study !== "undefined") {
 
@@ -140,9 +141,9 @@
                     }
 
                     if (typeof _this.query !== "undefined" && typeof _this.query.studies !== "undefined" && _this.query.studies != "") {
-                        this._url = this._url + '/webservices/rest/v1/analysis/variant/query';
-                    } else if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
-                        this._url = this._url + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
+                        this._url += '/webservices/rest/v1/analysis/variant/query';
+//                    } else if (typeof this.project !== "undefined" && typeof this.study.alias !== "undefined") {
+//                        this._url = this._url + '/webservices/rest/v1/studies/' + this.project + ':' + this.study.alias + '/variants';
                     } else {
                         return;
                     }
@@ -330,11 +331,6 @@
                                         }
 
                                     }
-//                                    if (typeof this.field.context.consequenceTypeToColor !== "undefined" && typeof this.field.context.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
-//                                        consequenceTypesArr.push('<span style="color: ' + this.field.context.consequenceTypeToColor[consequenceTypeName] + '">' + consequenceTypeName + '</span>');
-//                                    } else {
-//                                        consequenceTypesArr.push('<span>' + consequenceTypeName + '</span>');
-//                                    }
                                     visited.add(consequenceTypeName);
                                 }
                             }
@@ -487,7 +483,7 @@
                             }
                         }
                         if (traits.length > 0) {
-                            return traits.join("\n");
+                            return traits.join('<br>');
                         }
                     }
                 }
@@ -768,6 +764,7 @@
                             field: 'cosmic',
                             colspan: 1,
                             rowspan: 1,
+                            formatter: this.clinvarFormatter,
                             halign: 'center'
                         }
 //                        {

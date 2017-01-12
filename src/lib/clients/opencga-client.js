@@ -29,6 +29,7 @@ class OpenCGAClient {
         this._panels;
         this._variables;
         this._alignments;
+        this._variants;
     }
 
     getConfig() {
@@ -117,6 +118,13 @@ class OpenCGAClient {
         }
         return this._alignments;
     }
+
+    variants() {
+        if (typeof this._variants === "undefined") {
+            this._variants = new Variant(this._config);
+        }
+        return this._variants;
+    }
 }
 
 // parent class
@@ -168,6 +176,9 @@ class OpenCGAParentClass {
             url = this._addQueryParams(url, params);
             if (method === "POST") {
                 options["data"] = params["body"];
+                if (action === "upload") {
+                    options["post-method"] = "form";
+                }
             }
             console.log(url);
             // if the URL query fails we try with next host
@@ -285,14 +296,14 @@ class Users extends OpenCGAParentClass {
                 if (this._config.useCookies) {
                     // Cookies being used
                     Cookies.set(this._config.cookieSessionId, response.response[0].result[0].sessionId);
-                    Cookies.set(this._config.cookieUserId, response.response[0].result[0].userId);
+                    Cookies.set(this._config.cookieUserId, userId);
                     Cookies.set(this._config.cookiePassword, encryptedPass);
                     Cookies.set(this._config.cookieLoginResponse, JSON.stringify(response));
                     console.log("Cookies properly set");
                 } else {
                     // No cookies used
                     this._config.sessionId = response.response[0].result[0].sessionId;
-                    this._config.userId = response.response[0].result[0].userId;
+                    this._config.userId = userId;
                 }
                 return response;
             }
@@ -608,6 +619,27 @@ class Files extends OpenCGAParentClass {
     }
 
     upload(params, options) {
+        if (params === undefined) {
+            return;
+        }
+
+        if (!params.hasOwnProperty("body")) {
+            let aux = {
+                body: params
+            };
+            params = aux;
+        }
+
+        if (params.body.hasOwnProperty("sid")) {
+            params["sid"] = params.body.sid;
+            delete params.body.sid;
+        }
+
+        if (options === undefined) {
+            options = {};
+        }
+        options["method"] = "POST";
+
         return this.get("files", undefined, "upload", params, options);
     }
 }
@@ -750,6 +782,10 @@ class Cohorts extends OpenCGAParentClass {
         return this.get("cohorts", id, "stats", params, options);
     }
 
+    search(params, options) {
+        return this.get("cohorts", undefined, "search", params, options);
+    }
+
     info(id, params, options) {
         return this.get("cohorts", id, "info", params, options);
     }
@@ -799,5 +835,15 @@ class Alignment extends OpenCGAParentClass {
 
     coverage(id, params, options) {
         return this.get("analysis/alignment", id, "coverage", params, options);
+    }
+}
+
+class Variant extends OpenCGAParentClass {
+    constructor(config) {
+        super(config);
+    }
+
+    query(params, options) {
+        return this.get("analysis/variant", undefined, "query", params, options);
     }
 }
