@@ -200,12 +200,16 @@
                     if (!filters.hasOwnProperty("annotation")) {
                         // Remove the filter variableSetId as it won't make more sense.
 //                        delete filters.variableSetId;
-                        this.filteredVariables.variables = [];
+                        this.set("filteredVariables.variables", []);
 
                     } else if (filters.annotation.length < this.filteredVariables.variables.length) {
-                        // Remove the values that have been removed
-                        // TODO
                         debugger
+                        let tmpVariables = [];
+                        filters.annotation.forEach(function(variable) {
+                            tmpVariables.push(variable);
+                        });
+
+                        this.set("filteredVariables.variables", tmpVariables);
                     }
 //                    } else if (!filters.hasOwnProperty("variableSetId")) {
 //                        // They have removed the variableSetId so all the annotations should be out
