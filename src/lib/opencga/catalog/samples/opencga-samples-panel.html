@@ -22,13 +22,13 @@
 
         <div class="col-md-2">
             <br>
-            <opencga-samples-filter samples="{{samples}}" opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
-            update="{{update}}"></opencga-samples-filter>
+            <opencga-samples-filter opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
+            search="{{search}}"></opencga-samples-filter>
         </div>
 
         <div class="col-md-10">
-            <opencga-samples-view samples="{{samples}}" opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
-            on-update="fireUpdateFilter"></opencga-samples-view>
+            <opencga-samples-view opencga-client="{{opencgaClient}}" study-id="{{studyId}}" filters="{{filters}}"
+            search="{{search}}"></opencga-samples-view>
         </div>
 
     </template>
@@ -42,18 +42,13 @@
                 studyId: {
                     type: Number
                 },
-                samples: {
-                    type: Array,
-                    notify: true
-                },
                 filters: {
                     type: Object
+                },
+                search: {
+                    type: Object
                 }
-            },
-            fireUpdateFilter: function (e) {
-                this.update = e.detail.filter;
             }
-
         });
     </script>
 </dom-module>
