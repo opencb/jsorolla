@@ -85,7 +85,7 @@
                                     <div id="{{getStudy(study.studyId)}}">
                                         <template is="dom-repeat" items="{{study.stats}}" as="stat">
                                             <div hidden$="{{!checkForGenotypes(stat)}}">
-                                                <div class="col-xs-3" id="{{stat.study}}{{stat.name}}" style="min-width: 200px; height: 200px; max-width: 400px; margin: 0 auto;"></div>
+                                                <div class="col-xs-1" id="{{stat.study}}{{stat.name}}" style="min-width: 200px; height: 200px; max-width: 400px; margin: 0 auto;"></div>
                                             </div>
 
                                             <div hidden$="{{checkForGenotypes(stat)}}">
@@ -195,11 +195,21 @@
                                 let study = variantStudies[i].studyId.split(':')[1];
                                 let statsObject = variantStudies[i].stats;
                                 let statsArray = [];
-                                Object.keys(statsObject).map(key => statsArray.push({
-                                    name: key,
-                                    value: statsObject[key],
-                                    study: study
-                                }));
+                                Object.keys(statsObject).map(key => {
+                                    if (key === "ALL") {
+                                        statsArray.unshift({
+                                            name: key,
+                                            value: statsObject[key],
+                                            study: study
+                                        })
+                                    } else {
+                                        statsArray.push({
+                                            name: key,
+                                            value: statsObject[key],
+                                            study: study
+                                        })
+                                    }
+                                });
                                 variantStudies[i].stats = statsArray;
                                 for (let j = 0; j < statsArray.length; j++) {
                                     let genotypeCount = statsArray[j].value.genotypesCount;
@@ -241,6 +251,7 @@
             _updatePieChart: function(_id, params) {
                 // params = { title, data}
                 $(_id).highcharts({
+                    credits: {enabled: false},
                     chart: {
                         plotBackgroundColor: null,
                         plotBorderWidth: null,

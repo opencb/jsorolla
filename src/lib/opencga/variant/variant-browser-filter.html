@@ -238,7 +238,7 @@
                             <br> SNP ID:
                             <textarea id="{{prefix}}SnpTextarea" class="form-control clearable" rows="3" placeholder="rs666, rs9988179"
                                       name="ids" on-keyup="updateQueryFilters"></textarea>
-                            <input type="checkbox" value=""> With / Without RS ids<br>
+                            <input type="checkbox" value=""> With / Without dbSNP rs IDs<br>
                         </div>
                     </div>
                 </div>
@@ -590,9 +590,6 @@
                     type: String
                 }
             },
-            observers: [
-                'updateStudies(project, study)'
-            ],
             ready: function() {
                 this.sampleGenotypesObj = {};
 
@@ -631,11 +628,6 @@
                     this.differentStudies = differentStudies;
                 }
             },
-            updateStudies(project, study) {
-                if (typeof this.project !== "undefined" && typeof this.study !== "undefined" && this.project != "" && Object.keys(this.study).length > 0) {
-                    this.query = { studies: this.project + ":" + this.study.alias };
-                }
-            },
             updateConsequenceTypeFilter: function(e) {
                 let soTerms = [];
                 if (e.target.parentNode.id != "") {
@@ -670,10 +662,6 @@
 
                 // Studies
                 if (typeof query.studies === "undefined") {
-                    // In case of clear, query.studies is undefined. Always the current study is set
-                    if (typeof this.project !== "undefined" && typeof this.study !== "undefined") {
-                        query.studies = this.project + ":" + this.study.alias;
-                    }
                     if (this.$$("#includeOtherStudy") != null && this.$$("#differentStudies") != null) {
                         this.$$("#includeOtherStudy").value = "in";
                         let checkBoxes = this.$$("#differentStudies").querySelectorAll("input:checked");
@@ -719,10 +707,14 @@
                             if (pfArray.length > 0) {
                                 for (let k = 0; k < pfArray.length; k++) {
                                     let pf = pfArray[k];
-                                    this.$$("#" + this.prefix + study + population).value =
-                                            pf.startsWith(study + ":" + population)? pf.split(/[<=>]+/)[1] : "";
-                                    this.$$("#" + this.prefix + study + population + "Operator").value =
-                                            pf.startsWith(study + ":" + population)? pf.split(/[A-Za-z0-9._:]+/)[1] : "<";
+                                    if (pf.startsWith(study + ":" + population)) {
+                                        this.$$("#" + this.prefix + study + population).value = pf.split(/[<=>]+/)[1];
+                                        this.$$("#" + this.prefix + study + population + "Operator").value = pf.split(/[-A-Za-z0-9._:]+/)[1];
+                                        break;
+                                    } else {
+                                        this.$$("#" + this.prefix + study + population).value = "";
+                                        this.$$("#" + this.prefix + study + population + "Operator").value = "<";
+                                    }
                                 }
                             } else {
                                 this.$$("#" + this.prefix + study + population).value = "";
@@ -738,7 +730,7 @@
                     if (query.sift.startsWith("<") || query.sift.startsWith(">")) {
                         this.$$("#" + this.prefix + "SiftInput").value = query.sift.split(/[<=>]+/)[1];
                         this.$$("#" + this.prefix + "SiftValues").value = "score";
-                        this.$$("#" + this.prefix + "SiftOperator").value = query.sift.split(/[0-9.]+/)[0];
+                        this.$$("#" + this.prefix + "SiftOperator").value = query.sift.split(/[-0-9.]+/)[0];
                     } else {
                         this.$$("#" + this.prefix + "SiftValues").value = query.sift;
                         this.$$("#" + this.prefix + "SiftInput").value = "";
@@ -759,7 +751,7 @@
                     if (query.polyphen.startsWith("<") || query.polyphen.startsWith(">")) {
                         this.$$("#" + this.prefix + "PolyphenInput").value = query.polyphen.split(/[<=>]+/)[1];
                         this.$$("#" + this.prefix + "PolyphenValues").value = "score";
-                        this.$$("#" + this.prefix + "PolyphenOperator").value = query.polyphen.split(/[0-9.]+/)[0];
+                        this.$$("#" + this.prefix + "PolyphenOperator").value = query.polyphen.split(/[-0-9.]+/)[0];
                     } else {
                         this.$$("#" + this.prefix + "PolyphenValues").value = query.polyphen;
                         this.$$("#" + this.prefix + "PolyphenInput").value = "";
@@ -783,15 +775,15 @@
                         switch(source) {
                             case "phylop":
                                 this.$$("#" + this.prefix + "PhylopInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[A-Za-z0-9]+/)[1];
+                                this.$$("#" + this.prefix + "PhylopOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
                             case "phastcons":
                                 this.$$("#" + this.prefix + "PhastconsInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[A-Za-z0-9]+/)[1];
+                                this.$$("#" + this.prefix + "PhastconsOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
                             case "gerp":
                                 this.$$("#" + this.prefix + "GerpInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "GerpOperator").value = fields[i].split(/[A-Za-z0-9]+/)[1];
+                                this.$$("#" + this.prefix + "GerpOperator").value = fields[i].split(/[-A-Za-z0-9]+/)[1];
                                 break;
                         }
                     }
@@ -834,11 +826,11 @@
                         switch(source) {
                             case "cadd_raw":
                                 this.$$("#" + this.prefix + "CaddRawInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[A-Za-z0-9_]+/)[1];
+                                this.$$("#" + this.prefix + "CaddRawOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
                                 break;
                             case "cadd_scaled":
                                 this.$$("#" + this.prefix + "CaddScaledInput").value = fields[i].split(/[<=>]+/)[1];
-                                this.$$("#" + this.prefix + "CaddScaledOperator").value = fields[i].split(/[A-Za-z0-9_]+/)[1];
+                                this.$$("#" + this.prefix + "CaddScaledOperator").value = fields[i].split(/[-A-Za-z0-9_]+/)[1];
                                 break;
                         }
                     }
@@ -861,12 +853,11 @@
 
                 // Studies
                 let studies = [];
-                // Always add the study that we are browsing currently
-                studies.push(this.project + ':' + this.study.alias);
-
                 if (typeof this.$$("#includeOtherStudy") !== "undefined" && this.$$("#includeOtherStudy") != null) {
                     let selectedStudies = this.$$("#differentStudies").querySelectorAll("input:checked");
                     if (selectedStudies.length > 0) {
+                        // Always add the study that we are browsing currently
+                        studies.push(this.project + ':' + this.study.alias);
                         for (let i = 0; i < selectedStudies.length; i++) {
                             studies.push(this.project + ':' + selectedStudies[i].value);
                         }
@@ -887,8 +878,6 @@
                             _filters.studies = notInStudies.join(";");
                             break;
                     }
-                } else {
-                    _filters.studies = studies.join(';');
                 }
 
                 // Region
@@ -981,11 +970,11 @@
 
                 // Cadd scores
                 let cadd = [];
-                if (this.$$("#" + this.prefix + "CaddRawInput").value != "") {
+                if (this.$$("#" + this.prefix + "CaddRawInput").value != "" || this.$$("#" + this.prefix + "CaddRawOperator").value != "<") {
                     let raw = "cadd_raw" + this.$$("#" + this.prefix + "CaddRawOperator").value + this.$$("#" + this.prefix + "CaddRawInput").value;
                     cadd.push(raw);
                 }
-                if (this.$$("#" + this.prefix + "CaddScaledInput").value != "") {
+                if (this.$$("#" + this.prefix + "CaddScaledInput").value != "" || this.$$("#" + this.prefix + "CaddScaledOperator").value != "<") {
                     let scaled = "cadd_scaled" + this.$$("#" + this.prefix + "CaddScaledOperator").value + this.$$("#" + this.prefix + "CaddScaledInput").value;
                     cadd.push(scaled);
                 }
