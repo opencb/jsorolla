@@ -227,7 +227,7 @@
                     let params = {
                         ids: this.variant,
                         studies: this.project + ":" + this.study.alias,
-                        exclude: "annotation"
+                        exclude: "annotation,studies.files,studies.samplesData"
                     };
                     let _this = this;
                     this.opencgaClient.variants().query(params)
