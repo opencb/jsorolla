@@ -55,8 +55,8 @@
                 <div style="padding-top: 20px">
                     <ul id="{{prefix}}ViewTabs" class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#{{prefix}}Annotation" role="tab" data-toggle="tab" class="variant-tab-title">Advanced Annotation</a></li>
+                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Genotype Stats</a></li>
                         <li role="presentation"><a href="#{{prefix}}GenomeView" role="tab" data-toggle="tab" class="variant-tab-title">Genome Context</a></li>
-                        <li role="presentation"><a href="#{{prefix}}Genotype" role="tab" data-toggle="tab" class="variant-tab-title">Sample Genotypes & Stats</a></li>
                         <li role="presentation"><a href="#{{prefix}}Beacon" role="tab" data-toggle="tab" class="variant-tab-title">Beacon Network</a></li>
                     </ul>
 
@@ -68,30 +68,24 @@
                                                              consequence-types="{{consequenceTypes}}" style="font-size: 12px"></cellbase-variantannotation-view>
                         </div>
 
-                        <!--Genome Context Tab-->
-                        <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
-                            <!--<br>-->
-                            <!--<genome-context></genome-context>-->
-                        </div>
-
                         <!--Genotypes & Files Tab-->
                         <div role="tabpanel" class="tab-pane" id="{{prefix}}Genotype">
                             <template is="dom-repeat" items="{{variantStudies}}" as="study" id="variantStudies">
                                 <div class="col-md-10" style="padding-top: 8px">
-                                    <h4 style="font-weight: bold"><i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="{{getStudy(study.studyId)}}"
-                                                                     style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
+                                    <h4 style="font-weight: bold;padding: 20px 0px 0px 0px">
+                                        <i class="fa fa-minus-circle" on-click="handleCollapseAction" data-id="{{getStudy(study.studyId)}}" style="cursor: pointer;"></i>&nbsp;{{getStudy(study.studyId)}}
                                     </h4>
 
                                     <div id="{{getStudy(study.studyId)}}">
-                                        <h5><b>Cohorts Statistics</b></h5>
+                                        <!--<h5><b>Cohorts Statistics</b></h5>-->
                                         <template is="dom-repeat" items="{{study.stats}}" as="stat">
                                             <div hidden$="{{!checkForGenotypes(stat)}}">
                                                 <div class="col-xs-1" id="{{stat.study}}{{stat.name}}" style="min-width: 200px; height: 200px; max-width: 400px; margin: 0 auto;"></div>
                                             </div>
 
-                                            <div hidden$="{{checkForGenotypes(stat)}}">
-                                                <div style="white-space: nowrap; display:inline">No genotypes available</div>
-                                            </div>
+                                            <!--<div hidden$="{{checkForGenotypes(stat)}}">-->
+                                                <!--<div style="white-space: nowrap; display:inline">No genotypes available</div>-->
+                                            <!--</div>-->
                                         </template>
                                         <!--<h5><b>Sample Genotypes</b></h5>-->
                                         <!--<div hidden$="{{!checkForSampleData(study.samplesData)}}">-->
@@ -121,7 +115,12 @@
                                     <br>
                                 </div>
                             </template>
+                        </div>
 
+                        <!--Genome Context Tab-->
+                        <div role="tabpanel" class="tab-pane" id="{{prefix}}GenomeView">
+                            <!--<br>-->
+                            <!--<genome-context></genome-context>-->
                         </div>
 
                         <!--Beacon network-->
@@ -310,7 +309,8 @@
                         plotBackgroundColor: null,
                         plotBorderWidth: null,
                         plotShadow: false,
-                        type: 'pie'
+                        type: 'pie',
+                        width: 220
                     },
                     title: {
                         text: params.title
@@ -322,9 +322,12 @@
                         pie: {
                             allowPointSelect: true,
                             cursor: 'pointer',
+                            minSize: 75,
                             dataLabels: {
+                                padding: 4,
+                                connectorPadding: 4,
                                 enabled: true,
-                                format: '<b>{point.name}</b>: {point.percentage:.2f} %',
+                                format: '{point.name}: {point.percentage:.2f}%',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                                 }
